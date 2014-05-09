@@ -397,7 +397,7 @@ public class EmReaderUi extends JPanel {
 		mdReaderUi.setParameter(params);
 	}
 	public void clearModelSet() { modelReaderUi.clearModelSet(); }
-	public void enableModelList( String idList ) { modelReaderUi.enableModelList( idList ); }
+	public void enableModelList( int[] idList ) { modelReaderUi.enableModelList( idList ); }
 	public String getAgentString() { return mdReaderUi.getAgentString(); }
 	public Integer getAgentID() {return mdReaderUi.getAgentID();}
 	public Integer getMatrixID() {return mdReaderUi.getMatrixID();}
@@ -407,7 +407,7 @@ public class EmReaderUi extends JPanel {
 	public int getLevel() { return modelReaderUi.getLevel(); }
 	public String getModelClass() { return modelReaderUi.getModelClass(); }
 	public String getMatrixString() { return mdReaderUi.getMatrixString(); }
-	public String getModelList() { return modelReaderUi.getModelList(); }
+	public int[] getModelList() { return modelReaderUi.getModelList(); }
 	
 	public void setMiscItems(String[] itemListMisc) {
 		mdReaderUi.setMiscItems(itemListMisc);
@@ -476,7 +476,7 @@ public class EmReaderUi extends JPanel {
     		int matrixID, int agentID, int literatureID,
     		final LinkedHashMap<String, Double[]> parameter,
     		boolean modelFilterEnabled,
-    		final String modelList,
+    		final int[] modelList,
     		final KnimeTuple tuple )
     throws PmmException {
 

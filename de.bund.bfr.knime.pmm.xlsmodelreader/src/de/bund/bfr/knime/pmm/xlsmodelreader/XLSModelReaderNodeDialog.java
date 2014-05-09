@@ -1146,6 +1146,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		northPanel.add(agentBox, createConstraints(1, 0));
 
+		if (agentBox.getSelectedItem() == null) agentBox.setSelectedItem(DO_NOT_USE); 
 		if (agentBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (agentBox.getSelectedItem().equals(OTHER_PARAMETER)) {
@@ -1219,6 +1220,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		northPanel.add(matrixBox, createConstraints(1, 0));
 
+		if (matrixBox.getSelectedItem() == null) matrixBox.setSelectedItem(DO_NOT_USE); 
 		if (matrixBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (matrixBox.getSelectedItem().equals(OTHER_PARAMETER)) {

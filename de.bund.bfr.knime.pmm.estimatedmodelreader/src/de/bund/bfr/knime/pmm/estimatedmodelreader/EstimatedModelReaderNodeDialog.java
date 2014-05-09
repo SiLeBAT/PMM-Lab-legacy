@@ -168,7 +168,22 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 				estmodelui.setLevel( settings.getInt( EstimatedModelReaderNodeModel.PARAM_LEVEL ) );
 				estmodelui.setModelClass( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELCLASS ) );
 				estmodelui.setModelFilterEnabled( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED ) );
-				estmodelui.enableModelList( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELLIST ) );
+				if (settings.containsKey(EstimatedModelReaderNodeModel.PARAM_MODELLISTINT)) {
+					estmodelui.enableModelList(settings.getIntArray(EstimatedModelReaderNodeModel.PARAM_MODELLISTINT));
+				}
+				else if (settings.containsKey("modelList")) {
+					String ids = settings.getString("modelList");
+					if (ids != null && ids.length() > 0) {
+						String[] token = ids.split(",");
+						int[] idis = new int[token.length];
+						int i=0;
+						for (String s : token)  {
+							idis[i] = Integer.parseInt(s);
+							i++;
+						}
+						estmodelui.enableModelList(idis);
+					}
+				}
 				estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );
 				estmodelui.setQualityThresh( settings.getDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH ) );
 				estmodelui.setMatrixString( settings.getString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING ) );

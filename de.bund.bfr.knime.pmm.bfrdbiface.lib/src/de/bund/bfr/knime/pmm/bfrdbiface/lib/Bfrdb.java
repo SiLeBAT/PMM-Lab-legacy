@@ -257,15 +257,17 @@ public class Bfrdb {
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;
 	public static final int PARAMTYPE_DEP = 3;
-	
+
 	private Connection conn;
 
 	public Bfrdb(final Connection conn) {
 		this.conn = conn;
 	}
+
 	public Connection getConnection() {
 		return conn;
 	}
+
 	public String getDBUUID() throws SQLException {
 		return DBKernel.getLocalDBUUID();
 	}
@@ -750,8 +752,7 @@ public class Bfrdb {
 
 	public void insertEm2(final Integer secID, final List<Integer> primIDs, Integer gmId) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO \"Sekundaermodelle_Primaermodelle\" (\"GeschaetztesPrimaermodell\", \"GeschaetztesSekundaermodell\", \"GlobalModel\")VALUES(?,?,?)");
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"Sekundaermodelle_Primaermodelle\" (\"GeschaetztesPrimaermodell\", \"GeschaetztesSekundaermodell\", \"GlobalModel\")VALUES(?,?,?)");
 			for (Integer id : primIDs) {
 				if (id != null && id >= 0) {
 					ps.setInt(1, id);
@@ -895,8 +896,7 @@ public class Bfrdb {
 
 	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO \"GueltigkeitsBereiche\" (\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GueltigkeitsBereiche\" (\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
 			ps.setInt(1, estModelId);
 			ps.setInt(2, paramId);
 			if (min == null) {
@@ -933,26 +933,26 @@ public class Bfrdb {
 
 		try {
 			//if (agentId == null || agentId < 0) {
-				agentId = queryAgentId(agentName == null ? agentDetail : agentName);
-				if (agentId == null) {
-                    String sql = "INSERT INTO \"Agenzien\" (\"Agensname\") VALUES (?)";
-                	PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                	psmt.setString(1, agentName == null ? agentDetail : agentName);
-        	  	    if (psmt.executeUpdate() > 0) {
-        	  	    	agentId = DBKernel.getLastInsertedID(psmt);
-        	  	    }
+			agentId = queryAgentId(agentName == null ? agentDetail : agentName);
+			if (agentId == null) {
+				String sql = "INSERT INTO \"Agenzien\" (\"Agensname\") VALUES (?)";
+				PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+				psmt.setString(1, agentName == null ? agentDetail : agentName);
+				if (psmt.executeUpdate() > 0) {
+					agentId = DBKernel.getLastInsertedID(psmt);
 				}
+			}
 			//}
 			//if (matrixId == null || matrixId < 0) {
-				matrixId = queryMatrixId(matrixName == null ? matrixDetail : matrixName);
-				if (matrixId == null) {
-                    String sql = "INSERT INTO \"Matrices\" (\"Matrixname\") VALUES (?)";
-                	PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                	psmt.setString(1, matrixName == null ? matrixDetail : matrixName);
-        	  	    if (psmt.executeUpdate() > 0) {
-        	  	    	matrixId = DBKernel.getLastInsertedID(psmt);
-        	  	    }
+			matrixId = queryMatrixId(matrixName == null ? matrixDetail : matrixName);
+			if (matrixId == null) {
+				String sql = "INSERT INTO \"Matrices\" (\"Matrixname\") VALUES (?)";
+				PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+				psmt.setString(1, matrixName == null ? matrixDetail : matrixName);
+				if (psmt.executeUpdate() > 0) {
+					matrixId = DBKernel.getLastInsertedID(psmt);
 				}
+			}
 			//}
 
 			if (doUpdate) {
@@ -1088,8 +1088,7 @@ public class Bfrdb {
 						if (paramID == null) {
 							try {
 								if (n != null && d != null && !n.isEmpty() && !d.isEmpty()) {
-									ps = conn
-											.prepareStatement("INSERT INTO \"SonstigeParameter\" (\"Parameter\", \"Beschreibung\") VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+									ps = conn.prepareStatement("INSERT INTO \"SonstigeParameter\" (\"Parameter\", \"Beschreibung\") VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
 									ps.setString(1, n);
 									ps.setString(2, d.toLowerCase());
 									if (ps.executeUpdate() > 0) {
@@ -1107,8 +1106,7 @@ public class Bfrdb {
 						if (paramID != null) {
 							//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
 							try {
-								ps = conn
-										.prepareStatement("INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\") VALUES (?,?,?,?,?)");
+								ps = conn.prepareStatement("INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\") VALUES (?,?,?,?,?)");
 								ps.setInt(1, condId);
 								ps.setInt(2, paramID);
 								if (mx.getOrigUnit() == null) mx.setOrigUnit(mx.getUnit());
@@ -1162,10 +1160,9 @@ public class Bfrdb {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
 					if (li.getId() <= 0 || DBKernel.getValue(conn, "Literatur", "ID", "" + li.getId(), "ID") == null) {
-						PreparedStatement psm = conn
-								.prepareStatement(
-										"INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\", \"Journal\", \"Volume\", \"Issue\", \"Seite\", \"FreigabeModus\", \"Webseite\", \"Literaturtyp\", \"Kommentar\") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-										Statement.RETURN_GENERATED_KEYS);
+						PreparedStatement psm = conn.prepareStatement(
+								"INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\", \"Journal\", \"Volume\", \"Issue\", \"Seite\", \"FreigabeModus\", \"Webseite\", \"Literaturtyp\", \"Kommentar\") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+								Statement.RETURN_GENERATED_KEYS);
 						if (li.getAuthor() == null) psm.setNull(1, Types.VARCHAR);
 						else psm.setString(1, li.getAuthor());
 						if (li.getYear() == null) psm.setNull(2, Types.INTEGER);
@@ -1254,7 +1251,7 @@ public class Bfrdb {
 		Integer condId = ts.getCondId();
 		Double ph = ts.getPh();
 		Double temp = ts.getTemperature();
-		temp = convert(Categories.getTempCategory(), "°C", temp, ts.getTemperatureUnit());
+		temp = convert(Categories.getTempCategory(), ts.getTemperatureUnit(), temp, "°C");
 		Double aw = ts.getWaterActivity();
 		String agentName = ts.getAgentName();
 		String matrixName = ts.getMatrixName();
@@ -1657,10 +1654,9 @@ public class Bfrdb {
 		try {
 			int paramId = queryParamId(modelId, paramName, paramType);
 			if (paramId <= 0) {
-				ps = conn
-						.prepareStatement(
-								"INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Einheit\",\"Beschreibung\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )",
-								Statement.RETURN_GENERATED_KEYS);
+				ps = conn.prepareStatement(
+						"INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Einheit\",\"Beschreibung\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )",
+						Statement.RETURN_GENERATED_KEYS);
 			} else {
 				ps = conn.prepareStatement(
 						"UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ?, \"Einheit\" = ?, \"Beschreibung\" = ? WHERE \"ID\"="
@@ -1750,8 +1746,7 @@ public class Bfrdb {
 	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit, ParametricModel pm, boolean isDepIndep,
 			String paramName) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO \"GeschaetzteParameter\" (\"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\", \"Einheit\", \"p\", \"t\") VALUES(?, ?, ?, ?, ?, ?, ?)");
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteParameter\" (\"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\", \"Einheit\", \"p\", \"t\") VALUES(?, ?, ?, ?, ?, ?, ?)");
 			ps.setInt(1, estModelId);
 			ps.setInt(2, paramId);
 			if (value == null || Double.isNaN(value)) {
@@ -1792,8 +1787,7 @@ public class Bfrdb {
 
 	private void insertEstParamCorrs(int modelId, int estModelId, final int paramId, HashMap<String, Double> hm) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO \"GeschaetzteParameterCovCor\" (\"param1\", \"param2\", \"GeschaetztesModell\", \"cor\", \"Wert\") VALUES(?, ?, ?, ?, ?)");
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteParameterCovCor\" (\"param1\", \"param2\", \"GeschaetztesModell\", \"cor\", \"Wert\") VALUES(?, ?, ?, ?, ?)");
 			Integer estParamId = DBKernel.getID("GeschaetzteParameter", new String[] { "GeschaetztesModell", "Parameter" }, new String[] { estModelId + "", paramId + "" });
 			ps.setInt(1, estParamId);
 			ps.setInt(3, estModelId);
@@ -1851,8 +1845,7 @@ public class Bfrdb {
 	private void updateEstModel(final int estModelId, String name, final int condId, final int modelId, final double rms, final double rsquared, final double aic,
 			final double bic, final int responseId, Integer qualityScore, Integer workflowID, String comment) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"Kommentar\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"Kommentar\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {
@@ -1917,10 +1910,9 @@ public class Bfrdb {
 			Integer qualityScore, Integer workflowID, String comment) {
 		int ret = -1;
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement(
-							"INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"Kommentar\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-							Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = conn.prepareStatement(
+					"INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"Kommentar\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+					Statement.RETURN_GENERATED_KEYS);
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {

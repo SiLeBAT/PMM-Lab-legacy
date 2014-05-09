@@ -111,7 +111,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_LEVEL = "level";
 	static final String PARAM_MODELCLASS = "modelClass";
 	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
-	static final String PARAM_MODELLIST = "modelList";
+	static final String PARAM_MODELLISTINT = "modelList";
 
 	static final String PARAM_PARAMETERS = "parameters";
 	static final String PARAM_PARAMETERNAME = "parameterName";
@@ -126,7 +126,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private int level;
 	private String modelClass;
 	private boolean modelFilterEnabled;
-	private String modelList;
+	private int[] modelList;
 	private int qualityMode;
 	private double qualityThresh;
 	private String matrixString;
@@ -158,7 +158,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         */
         level = 1;
         modelFilterEnabled = false;
-        modelList = "";
+        modelList = null;
         qualityThresh = .8;
         qualityMode = EmReaderUi.MODE_OFF;
         agentString = "";
@@ -173,12 +173,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	return getKnimeTuples(db, conn, schema, level, withoutMdData, null, emrnm);
     }
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, int level, boolean withoutMdData, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
-    	return getKnimeTuples(db, conn, schema, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "", where, emrnm);
+    	return getKnimeTuples(db, conn, schema, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, null, where, emrnm);
     }
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
-    		boolean modelFilterEnabled, String modelList, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
+    		boolean modelFilterEnabled, int[] modelList, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
     	
     	if (emrnm != null) {
          	try {
@@ -605,7 +605,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	c3.addInt( ModelReaderUi.PARAM_LEVEL, level );
         	c3.addString(ModelReaderUi.PARAM_MODELCLASS, modelClass);
         	c3.addBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED, modelFilterEnabled );
-        	c3.addString( ModelReaderUi.PARAM_MODELLIST, modelList );
+        	c3.addIntArray(ModelReaderUi.PARAM_MODELLISTINT, modelList);
         	
          	Config c4 = c.addConfig("MdReaderUi");    	
         	c4.addString( MdReaderUi.PARAM_MATRIXSTRING, matrixString );
@@ -704,7 +704,20 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	level = c3.getInt( ModelReaderUi.PARAM_LEVEL );
         	modelClass = c3.getString(ModelReaderUi.PARAM_MODELCLASS);
         	modelFilterEnabled = c3.getBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED );
-        	modelList = c3.getString( ModelReaderUi.PARAM_MODELLIST );
+        	if (c3.containsKey(ModelReaderUi.PARAM_MODELLISTINT)) modelList = c3.getIntArray(ModelReaderUi.PARAM_MODELLISTINT);
+    		else if (c3.containsKey("modelList")) {
+    			String ids = c3.getString("modelList");
+    			if (ids != null && ids.length() > 0) {
+    				String[] token = ids.split(",");
+    				int[] idis = new int[token.length];
+    				int i=0;
+    				for (String s : token)  {
+    					idis[i] = Integer.parseInt(s);
+    					i++;
+    				}
+    				modelList = idis;
+    			}
+    		}
         	
     		Config c4 = c.getConfig("MdReaderUi");
         	matrixString = c4.getString( MdReaderUi.PARAM_MATRIXSTRING );
@@ -747,7 +760,20 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	level = settings.getInt( PARAM_LEVEL );
     	modelClass = settings.getString(PARAM_MODELCLASS);
     	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
-    	modelList = settings.getString( PARAM_MODELLIST );
+    	if (settings.containsKey(PARAM_MODELLISTINT)) modelList = settings.getIntArray(ModelReaderUi.PARAM_MODELLISTINT);
+		else if (settings.containsKey("modelList")) {
+			String ids = settings.getString("modelList");
+			if (ids != null && ids.length() > 0) {
+				String[] token = ids.split(",");
+				int[] idis = new int[token.length];
+				int i=0;
+				for (String s : token)  {
+					idis[i] = Integer.parseInt(s);
+					i++;
+				}
+				modelList = idis;
+			}
+		}
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
     	matrixString = settings.getString( PARAM_MATRIXSTRING );

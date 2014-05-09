@@ -38,7 +38,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
@@ -66,7 +66,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public static final String PARAM_LEVEL = "level";
 	public static final String PARAM_MODELCLASS = "modelClass";
 	public static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
-	public static final String PARAM_MODELLIST = "modelList";
+	public static final String PARAM_MODELLISTINT = "modelListInt";
 
 	protected static final String LABEL_UNSPEC = "Unspecified only";
 	private static final String LABEL_PRIM = "Primary";
@@ -80,10 +80,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	private JPanel modelPanel;
 	private JPanel panel;
 
-	private HashMap<String, Integer> modelIdPrim;
-	private HashMap<String, Integer> modelIdSec;
-	private LinkedHashMap<JCheckBox, String> modelBoxSetPrim;
-	private LinkedHashMap<JCheckBox, String> modelBoxSetSec;
+	private LinkedHashMap<Integer, JCheckBox> modelBoxSetPrim;
+	private LinkedHashMap<Integer, JCheckBox> modelBoxSetSec;
 
 	public ModelReaderUi() {
 		this(false);
@@ -148,10 +146,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public void clearModelSet() {
-		modelIdPrim = new HashMap<String, Integer>();
-		modelIdSec = new HashMap<String, Integer>();
-		modelBoxSetPrim = new LinkedHashMap<JCheckBox, String>();
-		modelBoxSetSec = new LinkedHashMap<JCheckBox, String>();
+		modelBoxSetPrim = new LinkedHashMap<Integer, JCheckBox>();
+		modelBoxSetSec = new LinkedHashMap<Integer, JCheckBox>();
 	}
 
 	@Override
@@ -173,16 +169,16 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
 		if (name == null) throw new PmmException("Model name must not be null.");
 
-		modelIdPrim.put(name + " (" + modelType + ")", id);
-		modelBoxSetPrim.put(new JCheckBox(name + " (" + modelType + ")"), modelType);
+		//modelIdPrim.put(name + " (" + modelType + ")", id);
+		modelBoxSetPrim.put(id, new JCheckBox(name + " (" + modelType + ")"));
 		updateModelName();
 	}
 
 	public void addModelSec(final int id, final String name, final String modelType) throws PmmException {
 		if (name == null) throw new PmmException("Model name must not be null.");
 
-		modelIdSec.put(name + " (" + modelType + ")", id);
-		modelBoxSetSec.put(new JCheckBox(name + " (" + modelType + ")"), modelType);
+		//modelIdSec.put(name + " (" + modelType + ")", id);
+		modelBoxSetSec.put(id, new JCheckBox(name + " (" + modelType + ")"));
 		updateModelName();
 	}
 
@@ -206,12 +202,12 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public boolean modelNameEnabled(final String name) {
-		for (JCheckBox box : modelBoxSetPrim.keySet()) {
+		for (JCheckBox box : modelBoxSetPrim.values()) {
 			if (box.getText().equals(name)) return true;		
 			if (box.getText().startsWith(name) && box.getText().lastIndexOf(" (") == name.length())  return true;
 		}
 
-		for (JCheckBox box : modelBoxSetSec.keySet()) {
+		for (JCheckBox box : modelBoxSetSec.values()) {
 			if (box.getText().equals(name)) return true;			
 			if (box.getText().startsWith(name) && box.getText().lastIndexOf(" (") == name.length())  return true;
 		}
@@ -240,8 +236,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		modelPanel.setVisible(true);
 		panel.validate();
 	}
-	private void addBoxes2Panel(LinkedHashMap<JCheckBox, String> modelBox, JPanel modelPanel) {
-		for (JCheckBox box : modelBox.keySet()) {
+	private void addBoxes2Panel(LinkedHashMap<Integer, JCheckBox> modelBox, JPanel modelPanel) {
+		for (JCheckBox box : modelBox.values()) {
 			Object o = classBox.getSelectedItem();
 			int indexKlammer = 0;
 			int indexKeyword = 1;
@@ -258,11 +254,11 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	private void updateModelNameEnabled() {
 		if (modelNameSwitch.isSelected()) {
-			for (JCheckBox box : modelBoxSetPrim.keySet()) box.setEnabled(true);
-			for (JCheckBox box : modelBoxSetSec.keySet()) box.setEnabled(true);
+			for (JCheckBox box : modelBoxSetPrim.values()) box.setEnabled(true);
+			for (JCheckBox box : modelBoxSetSec.values()) box.setEnabled(true);
 		} else {
-			for (JCheckBox box : modelBoxSetPrim.keySet()) box.setEnabled(false);
-			for (JCheckBox box : modelBoxSetSec.keySet()) box.setEnabled(false);
+			for (JCheckBox box : modelBoxSetPrim.values()) box.setEnabled(false);
+			for (JCheckBox box : modelBoxSetSec.values()) box.setEnabled(false);
 		}
 	}
 
@@ -289,71 +285,71 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		return false;
 	}
 
-	public String getModelList() {
-		String ret = "";
+	public int[] getModelList() {
+		HashSet<Integer> ret = new HashSet<Integer>();
 
-		for (JCheckBox box : modelBoxSetPrim.keySet()) {
-			if (box.isSelected()) {
-				if (!ret.isEmpty()) ret += ",";
-				ret += modelIdPrim.get(box.getText());
+		for (Integer key : modelBoxSetPrim.keySet()) {
+			if (modelBoxSetPrim.containsKey(key)) {
+				JCheckBox box = modelBoxSetPrim.get(key);
+				if (box.isSelected()) {
+					ret.add(key);
+				}
 			}
 		}
 
-		for (JCheckBox box : modelBoxSetSec.keySet()) {
-			if (box.isSelected()) {
-				if (!ret.isEmpty()) ret += ",";
-				ret += modelIdSec.get(box.getText());
-			}			
+		for (Integer key : modelBoxSetSec.keySet()) {
+			if (modelBoxSetSec.containsKey(key)) {
+				JCheckBox box = modelBoxSetSec.get(key);
+				if (box.isSelected()) {
+					ret.add(key);
+				}			
+			}
+		}
+		int[] result = new int[ret.size()];
+		int i=0;
+		for (int id : ret) {
+			result[i] = id;
+			i++;
 		}
 		
-		return ret;
+		return result;
 	}
 
-	public void enableModelList(final String idlist) {
-		if (idlist == null || idlist.isEmpty()) return;
+	public void enableModelList(final int[] idlist) {
+		if (idlist == null || idlist.length == 0) return;
 		// disable everything
-		for (JCheckBox box : modelBoxSetPrim.keySet()) {
+		for (JCheckBox box : modelBoxSetPrim.values()) {
 			box.setSelected(false);
 		}
-		for (JCheckBox box : modelBoxSetSec.keySet()) {
+		for (JCheckBox box : modelBoxSetSec.values()) {
 			box.setSelected(false);
 		}
 
-		String[] token = idlist.split(",");
 		// enable model if appropriate
-		for (JCheckBox box : modelBoxSetPrim.keySet()) {
-			for (String id : token) {
-				if (Integer.valueOf(id) == modelIdPrim.get(box.getText())) {
-					box.setSelected(true);
-					break;
-				}
+		for (Integer id : idlist) {
+			if (modelBoxSetPrim.containsKey(id)) {
+				modelBoxSetPrim.get(id).setSelected(true);
 			}
-		}
-
-		for (JCheckBox box : modelBoxSetSec.keySet()) {
-			for (String id : token) {
-				if (Integer.valueOf(id) == modelIdSec.get(box.getText())) {
-					box.setSelected(true);
-					break;
-				}
+			if (modelBoxSetSec.containsKey(id)) {
+				modelBoxSetSec.get(id).setSelected(true);
 			}
 		}
 	}
-
+/*
 	@Override
 	public String toString() {
 		return getModelList();
 	}
-
+*/
 	public void setModelFilterEnabled(final boolean en) {
 
 		if (en != isModelFilterEnabled())
 			modelNameSwitch.doClick();
 	}
 
-	public static boolean passesFilter(final String modelList, final KnimeTuple tuple, final int level) throws PmmException {
+	public static boolean passesFilter(final int[] modelList, final KnimeTuple tuple, final int level) throws PmmException {
 
-		if (modelList.isEmpty())
+		if (modelList == null || modelList.length == 0)
 			return false;
 
 		Integer id = null;
@@ -373,9 +369,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		else
 			id = tuple.getInt(Model2Schema.ATT_MODELID);
 		 */
-		String[] token = modelList.split(",");
-		for (String candidate : token)
-			if (Integer.valueOf(candidate).intValue() == id)
+		for (int candidate : modelList)
+			if (candidate == id)
 				return true;
 
 		return false;
@@ -389,12 +384,25 @@ public class ModelReaderUi extends JPanel implements ActionListener {
     	c.addInt( ModelReaderUi.PARAM_LEVEL, getLevel() );
     	c.addString(ModelReaderUi.PARAM_MODELCLASS, getModelClass());
     	c.addBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED, isModelFilterEnabled() );
-    	c.addString( ModelReaderUi.PARAM_MODELLIST, getModelList() );
+    	c.addIntArray(ModelReaderUi.PARAM_MODELLISTINT, getModelList());
     }	
 	public void setSettings(Config c) throws InvalidSettingsException {		
 		setLevel(c.getInt(ModelReaderUi.PARAM_LEVEL, 1));
 		setModelClass(c.getString(ModelReaderUi.PARAM_MODELCLASS));
 		setModelFilterEnabled(c.getBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED ));
-		enableModelList(c.getString( ModelReaderUi.PARAM_MODELLIST ));
+		if (c.containsKey(PARAM_MODELLISTINT)) enableModelList(c.getIntArray(ModelReaderUi.PARAM_MODELLISTINT));
+		else if (c.containsKey("modelList")) {
+			String ids = c.getString("modelList");
+			if (ids != null && ids.length() > 0) {
+				String[] token = ids.split(",");
+				int[] idis = new int[token.length];
+				int i=0;
+				for (String s : token)  {
+					idis[i] = Integer.parseInt(s);
+					i++;
+				}
+				enableModelList(idis);
+			}
+		}
 	}
 }

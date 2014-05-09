@@ -82,81 +82,69 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 /**
  * This is the model implementation of EstimatedModelWriter.
  * 
- *
+ * 
  * @author Jorgen Brandt
  */
 public class EstimatedModelWriterNodeModel extends NodeModel {
-    /*
-	static final String PARAM_FILENAME = "filename";
-	static final String PARAM_LOGIN = "login";
-	static final String PARAM_PASSWD = "passwd";
-	static final String PARAM_OVERRIDE = "override";
+	/*
+	 * static final String PARAM_FILENAME = "filename"; static final String
+	 * PARAM_LOGIN = "login"; static final String PARAM_PASSWD = "passwd";
+	 * static final String PARAM_OVERRIDE = "override";
+	 * 
+	 * private String filename; private String login; private String passwd;
+	 * private boolean override;
+	 */
+	/**
+	 * Constructor for the node model.
+	 */
+	protected EstimatedModelWriterNodeModel() {
 
-	private String filename;
-	private String login;
-	private String passwd;
-	private boolean override;
-    */
-    /**
-     * Constructor for the node model.
-     */
-    protected EstimatedModelWriterNodeModel() {
-    
-        super( 1, 0 );
-        /*
-        filename = "";
-        login = "";
-        passwd = "";
-        override = false;
-        */
-    }
+		super(1, 0);
+		/*
+		 * filename = ""; login = ""; passwd = ""; override = false;
+		 */
+	}
 
-    /**
-     * {@inheritDoc}
-     */   
-    @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
-    	
-    	Bfrdb db = null;
-    	/*
-    	if( override ) {
-			db = new Bfrdb( filename, login, passwd );
-		} else {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
+
+		Bfrdb db = null;
+		/*
+		 * if( override ) { db = new Bfrdb( filename, login, passwd ); } else {
+		 * db = new Bfrdb(DBKernel.getLocalConn(true)); }
+		 */
+		try {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {
 		}
-		*/
-    	try {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
-		} catch (Exception e1) {}
-    	Connection conn = db.getConnection();
-    	conn.setReadOnly(false);
-/*
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		for (IResource resource : root.members()) {
-		    //resource.getWorkspace().save(true, null);
-			//System.err.println(resource.getName());
-			if (resource.getName().equals("Estimation")) {
-				File dest = new File("/temp/pmmlabfolder");
-				if (dest.exists()) dest.delete();
-				FileUtils.copyDirectory(new File(resource.getLocationURI()), dest, true);
-			}
-		}
-if (true) return null;
-*/
-	    int n = inData[0].getRowCount();
-    	
+		Connection conn = db.getConnection();
+		conn.setReadOnly(false);
+		/*
+		 * IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot(); for
+		 * (IResource resource : root.members()) {
+		 * //resource.getWorkspace().save(true, null);
+		 * //System.err.println(resource.getName()); if
+		 * (resource.getName().equals("Estimation")) { File dest = new
+		 * File("/temp/pmmlabfolder"); if (dest.exists()) dest.delete();
+		 * FileUtils.copyDirectory(new File(resource.getLocationURI()), dest,
+		 * true); } } if (true) return null;
+		 */
+		int n = inData[0].getRowCount();
+
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
 		Integer rowEstM2ID = null;
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
 		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
-    	String dbuuid = db.getDBUUID();
-		
+		String dbuuid = db.getDBUUID();
+
 		HashMap<Integer, List<Integer>> secModels = new HashMap<Integer, List<Integer>>();
 		HashMap<Integer, HashSet<Integer>> globalModels = new HashMap<Integer, HashSet<Integer>>();
 		ParametricModel ppm = null, spm;
-		
+
 		int j = 0;
 		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<Integer, ParametricModel>();
 		HashMap<Integer, ParametricModel> alreadyInsertedEModel = new HashMap<Integer, ParametricModel>();
@@ -166,36 +154,36 @@ if (true) return null;
 		String warnings = "";
 		Integer wfID = saveWF(exec);
 		while (reader.hasMoreElements()) {
-    		exec.setProgress( ( double )j++/n );
+			exec.setProgress((double) j++ / n);
 
 			KnimeTuple row = reader.nextElement();
-			
-    		// TimeSeries
-			PmmTimeSeries ts = new PmmTimeSeries(row);	
+
+			// TimeSeries
+			PmmTimeSeries ts = new PmmTimeSeries(row);
 			int rowTsID = ts.getCondId();
 			Integer newTsID = null;
 			if (alreadyInsertedTs.containsKey(rowTsID)) {
 				ts = alreadyInsertedTs.get(rowTsID);
 				newTsID = ts.getCondId();
-			}
-			else {
-				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENT,
-						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
-				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
-				
-				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
-				newTsID = db.insertTs(ts);				
-				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
-				
+			} else {
+				String[] attrs = new String[] { TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+						TimeSeriesSchema.ATT_LITMD };
+				String[] dbTablenames = new String[] { "Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur" };
+
+				boolean checkAnywayDueToNegativeId = (ts.getCondId() < 0);
+				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID), checkAnywayDueToNegativeId);
+				newTsID = db.insertTs(ts);
+				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID), checkAnywayDueToNegativeId);
+
 				//ts.setCondId(newTsID);
 				alreadyInsertedTs.put(rowTsID, ts);
-				
+
 				String text = ts.getWarning();
 				if (text != null && !text.trim().isEmpty()) {
-					if (warnings.indexOf(text) < 0)	warnings += text + "\n";
+					if (warnings.indexOf(text) < 0) warnings += text + "\n";
 				}
 			}
-			
+
 			if (newTsID != null) {
 				Integer newPrimEstID = null;
 				EstModelXml emx = null;
@@ -224,87 +212,87 @@ if (true) return null;
 					}
 
 					Integer rowMcID = cmx.getId();//row.getInt(Model1Schema.ATT_MODELID);
-		    		String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
-		    		String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
+					String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
+					String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
 					DepXml dx = (DepXml) depXml.getElementSet().get(0);
 
 					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 					PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-					
+
 					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
 					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
-					
-		    		Double rms = emx.getRms();//row.getDouble(Model1Schema.ATT_RMS);
-		    		Double r2 = emx.getR2();//row.getDouble(Model1Schema.ATT_RSQUARED);
-		    		Double aic = emx.getAic();//row.getDouble(Model1Schema.ATT_AIC);
-		    		Double bic = emx.getBic();//row.getDouble(Model1Schema.ATT_BIC);
 
-		    		// Modellkatalog primary
+					Double rms = emx.getRms();//row.getDouble(Model1Schema.ATT_RMS);
+					Double r2 = emx.getR2();//row.getDouble(Model1Schema.ATT_RSQUARED);
+					Double aic = emx.getAic();//row.getDouble(Model1Schema.ATT_AIC);
+					Double bic = emx.getBic();//row.getDouble(Model1Schema.ATT_BIC);
+
+					// Modellkatalog primary
 					if (alreadyInsertedModel.containsKey(rowMcID)) {
 						ppm = alreadyInsertedModel.get(rowMcID);
-					}
-					else {
-			    		ppm = new ParametricModel(modelName, formula, dx, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
-			    		ppm.setModelClass(cmx.getModelClass());
-			    		ppm.setParameter(paramXml);
-			    		ppm.setIndependent(indepXml);
-			    		ppm.setFormula(ppm.revertFormula());
-			    		ppm.setMLit(mLitXmlDoc);
-			    		
-						String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
-						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
-						
-						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					} else {
+						ppm = new ParametricModel(modelName, formula, dx, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
+						ppm.setModelClass(cmx.getModelClass());
+						ppm.setParameter(paramXml);
+						ppm.setIndependent(indepXml);
+						ppm.setFormula(ppm.revertFormula());
+						ppm.setMLit(mLitXmlDoc);
+
+						String[] attrs = new String[] { Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT };
+						String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
+
+						boolean checkAnywayDueToNegativeId = (rowMcID < 0);
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
 						db.insertM(ppm);
-						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID),
+								checkAnywayDueToNegativeId);
 
 						alreadyInsertedModel.put(rowMcID, ppm);
 						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
 					}
 					try {
 						ppm.setFittedModelName(emx.getName());
-			    		ppm.setRms(rms == null ? Double.NaN : rms);
-			    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
-			    		ppm.setAic(aic == null ? Double.NaN : aic);
-			    		ppm.setBic(bic == null ? Double.NaN : bic);
-			    		ppm.setQualityScore(emx.getQualityScore());
-			    		ppm.setComment(emx.getComment());
-					}
-					catch (Exception e) {
+						ppm.setRms(rms == null ? Double.NaN : rms);
+						ppm.setRsquared(r2 == null ? Double.NaN : r2);
+						ppm.setAic(aic == null ? Double.NaN : aic);
+						ppm.setBic(bic == null ? Double.NaN : bic);
+						ppm.setQualityScore(emx.getQualityScore());
+						ppm.setComment(emx.getComment());
+					} catch (Exception e) {
 						warnings += e.getMessage() + " -> ID: " + rowEstM1ID;
 						MyLogger.handleException(e);
 					}
-    		
+
 					ppm.setCondId(newTsID);
 					if (alreadyInsertedEModel.containsKey(rowEstM1ID)) {
 						newPrimEstID = alreadyInsertedEModel.get(rowEstM1ID).getEstModelId();
-					}
-					else {
-			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
-			    		ppm.setParameter(paramXml);
-			    		ppm.setIndependent(indepXml);
-			    		ppm.setDepXml(dx);
-			    		ppm.setEstLit(emLitXmlDoc);
+					} else {
+						ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
+						ppm.setParameter(paramXml);
+						ppm.setIndependent(indepXml);
+						ppm.setDepXml(dx);
+						ppm.setEstLit(emLitXmlDoc);
 
-			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODEL, Model1Schema.ATT_EMLIT};
-						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
+						String[] attrs = new String[] { Model1Schema.ATT_ESTMODEL, Model1Schema.ATT_EMLIT };
+						String[] dbTablenames = new String[] { "GeschaetzteModelle", "Literatur" };
 
-						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						boolean checkAnywayDueToNegativeId = (ppm.getEstModelId() < 0);
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
 						newPrimEstID = db.insertEm(ppm, wfID);
-						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID),
+								checkAnywayDueToNegativeId);
 
 						if (newPrimEstID != null) {
-				    		//ppm.setEstModelId(newPrimEstID);
-				    		alreadyInsertedEModel.put(rowEstM1ID, ppm.clone());
-			    		}
+							//ppm.setEstModelId(newPrimEstID);
+							alreadyInsertedEModel.put(rowEstM1ID, ppm.clone());
+						}
 						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
 					}
-				}
-				else {
+				} else {
 					String text = "Estimated primary model (ID: " + rowEstM1ID + //row.getInt(Model1Schema.ATT_ESTMODELID) +
-						") is not storable due to joining with unassociated kinetic data\n";
-					if (warnings.indexOf(text) < 0)	warnings += text;
+							") is not storable due to joining with unassociated kinetic data\n";
+					if (warnings.indexOf(text) < 0) warnings += text;
 				}
 				if (model2Conform && newPrimEstID != null) {
 					dw = row.getInt(Model2Schema.ATT_DATABASEWRITABLE);
@@ -333,103 +321,102 @@ if (true) return null;
 								}
 							}
 						}
-			    		Integer rowMcID = cmx.getId();//row.getInt(Model2Schema.ATT_MODELID);
-			    		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
-			    		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
+						Integer rowMcID = cmx.getId();//row.getInt(Model2Schema.ATT_MODELID);
+						String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
+						String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
 						PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
 						DepXml dx = (DepXml) depXml.getElementSet().get(0);
 
-							PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
-							PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+						PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
+						PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 
-							PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
-							PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
+						PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
+						PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
 
-				    		Double rms = emx.getRms();//row.getDouble(Model2Schema.ATT_RMS);
-				    		Double r2 = emx.getR2();//row.getDouble(Model2Schema.ATT_RSQUARED);
-				    		Double aic = emx.getAic();//row.getDouble(Model2Schema.ATT_AIC);
-				    		Double bic = emx.getBic();//row.getDouble(Model2Schema.ATT_BIC);
-				    						    		
-				    		// Modellkatalog secondary
-							if (alreadyInsertedModel.containsKey(rowMcID)) {
-								spm = alreadyInsertedModel.get(rowMcID);
-							}
-							else {
-					    		spm = new ParametricModel( modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );
-					    		spm.setModelClass(cmx.getModelClass());
-					    		spm.setParameter(paramXml);
-					    		spm.setIndependent(indepXml);
-					    		spm.setFormula(spm.revertFormula());
-					    		spm.setMLit(mLitXmlDoc);
-	
-								String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
-								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
-								
-								foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-					    		db.insertM(spm);
-					    		foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						Double rms = emx.getRms();//row.getDouble(Model2Schema.ATT_RMS);
+						Double r2 = emx.getR2();//row.getDouble(Model2Schema.ATT_RSQUARED);
+						Double aic = emx.getAic();//row.getDouble(Model2Schema.ATT_AIC);
+						Double bic = emx.getBic();//row.getDouble(Model2Schema.ATT_BIC);
 
-								alreadyInsertedModel.put(rowMcID, spm);
-								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
-							}
-						
-							if (alreadyInsertedEModel.containsKey(rowEstM2ID)) {
-								spm = alreadyInsertedEModel.get(rowEstM2ID);
-							}
-							else {
-								try {
-									spm.setFittedModelName(emx.getName());
-						    		spm.setRms(rms);
-						    		spm.setRsquared(r2);
-						    		spm.setAic(aic);
-						    		spm.setBic(bic);
-						    		spm.setQualityScore(emx.getQualityScore());
-						    		spm.setComment(emx.getComment());
-								}
-								catch (Exception e) {
-									warnings += e.getMessage() + " -> ID: " + rowEstM2ID;
-									MyLogger.handleException(e);
-								}
-					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-					    		spm.setParameter(paramXml);
-					    		spm.setIndependent(indepXml);
-					    		spm.setDepXml(dx);
-					    		spm.setEstLit(emLitXmlDoc);
+						// Modellkatalog secondary
+						if (alreadyInsertedModel.containsKey(rowMcID)) {
+							spm = alreadyInsertedModel.get(rowMcID);
+						} else {
+							spm = new ParametricModel(modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
+							spm.setModelClass(cmx.getModelClass());
+							spm.setParameter(paramXml);
+							spm.setIndependent(indepXml);
+							spm.setFormula(spm.revertFormula());
+							spm.setMLit(mLitXmlDoc);
 
-					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT};
-								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
+							String[] attrs = new String[] { Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT };
+							String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
 
-								foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-								db.insertEm(spm, wfID, ppm);
-								foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
-								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
-							}
+							boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
+							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
+									checkAnywayDueToNegativeId);
+							db.insertM(spm);
+							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
+									checkAnywayDueToNegativeId);
 
-							if (!secModels.containsKey(spm.getEstModelId())) secModels.put(spm.getEstModelId(), new ArrayList<Integer>());
-							secModels.get(spm.getEstModelId()).add(newPrimEstID);
-							Integer gmSchemaID = row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-							Integer newGlobalModelId;
-							if (alreadyInsertedGModel.containsKey(gmSchemaID)) {
-								newGlobalModelId = alreadyInsertedGModel.get(gmSchemaID);
+							alreadyInsertedModel.put(rowMcID, spm);
+							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
+						}
+
+						if (alreadyInsertedEModel.containsKey(rowEstM2ID)) {
+							spm = alreadyInsertedEModel.get(rowEstM2ID);
+						} else {
+							try {
+								spm.setFittedModelName(emx.getName());
+								spm.setRms(rms);
+								spm.setRsquared(r2);
+								spm.setAic(aic);
+								spm.setBic(bic);
+								spm.setQualityScore(emx.getQualityScore());
+								spm.setComment(emx.getComment());
+							} catch (Exception e) {
+								warnings += e.getMessage() + " -> ID: " + rowEstM2ID;
+								MyLogger.handleException(e);
 							}
-							else {
-								foreignDbIds = checkID(conn, true, dbuuid, row, gmSchemaID, null, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
-								newGlobalModelId = db.insertGm(row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
-								foreignDbIds = checkID(conn, false, dbuuid, row, gmSchemaID, newGlobalModelId, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
-								alreadyInsertedGModel.put(gmSchemaID, newGlobalModelId);
-							}
-							if (!globalModels.containsKey(newGlobalModelId)) globalModels.put(newGlobalModelId, new HashSet<Integer>());
-							globalModels.get(newGlobalModelId).add(spm.getEstModelId());
+							spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
+							spm.setParameter(paramXml);
+							spm.setIndependent(indepXml);
+							spm.setDepXml(dx);
+							spm.setEstLit(emLitXmlDoc);
+
+							String[] attrs = new String[] { Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT };
+							String[] dbTablenames = new String[] { "GeschaetzteModelle", "Literatur" };
+
+							boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
+							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
+									checkAnywayDueToNegativeId);
+							db.insertEm(spm, wfID, ppm);
+							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
+									checkAnywayDueToNegativeId);
+							alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
+							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
+						}
+
+						if (!secModels.containsKey(spm.getEstModelId())) secModels.put(spm.getEstModelId(), new ArrayList<Integer>());
+						secModels.get(spm.getEstModelId()).add(newPrimEstID);
+						Integer gmSchemaID = row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+						Integer newGlobalModelId;
+						if (alreadyInsertedGModel.containsKey(gmSchemaID)) {
+							newGlobalModelId = alreadyInsertedGModel.get(gmSchemaID);
+						} else {
+							foreignDbIds = checkID(conn, true, dbuuid, row, gmSchemaID, null, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
+							newGlobalModelId = db.insertGm(row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
+							foreignDbIds = checkID(conn, false, dbuuid, row, gmSchemaID, newGlobalModelId, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
+							alreadyInsertedGModel.put(gmSchemaID, newGlobalModelId);
+						}
+						if (!globalModels.containsKey(newGlobalModelId)) globalModels.put(newGlobalModelId, new HashSet<Integer>());
+						globalModels.get(newGlobalModelId).add(spm.getEstModelId());
 						//}
-		    		}
-					else {
-						String text = "Estimated secondary model (ID: " + rowEstM2ID +
-							") is not storable due to joining with unassociated primary model\n";
-						if (warnings.indexOf(text) < 0)	warnings += text;
+					} else {
+						String text = "Estimated secondary model (ID: " + rowEstM2ID + ") is not storable due to joining with unassociated primary model\n";
+						if (warnings.indexOf(text) < 0) warnings += text;
 					}
-				}
-				else {
+				} else {
 					//System.err.println("newPrimEstID: " + newPrimEstID);
 				}
 			}
@@ -442,60 +429,57 @@ if (true) return null;
 						db.insertEm2(estModelId, secModels.get(estModelId), gmId);
 					}
 				}
-			}
-			else {
-				String text = "Estimated secondary model (ID: " + rowEstM2ID +
-					") is not storable due to joining with unassociated primary model\n";
-			if (warnings.indexOf(text) < 0)	warnings += text;
+			} else {
+				String text = "Estimated secondary model (ID: " + rowEstM2ID + ") is not storable due to joining with unassociated primary model\n";
+				if (warnings.indexOf(text) < 0) warnings += text;
 			}
 		}
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
-		}			
-    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
-    	db.close();
-        return null;
-    }
+		}
+		conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
+		db.close();
+		return null;
+	}
 
-    // GlobalModels
-    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkID(Connection conn, boolean before, String dbuuid, KnimeTuple row, Integer oldID, Integer newID,
-    		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String rowuuid) throws PmmException {
+	// GlobalModels
+	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkID(Connection conn, boolean before, String dbuuid, KnimeTuple row, Integer oldID, Integer newID,
+			HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String rowuuid) throws PmmException {
 		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
-			
-				if (!d.containsKey("GlobalModels")) d.put("GlobalModels", new HashMap<Integer, Integer>());
-				if (before) DBKernel.getKnownIDs4PMM(conn, d.get("GlobalModels"), "GlobalModels", rowuuid);
-				
-				if (oldID != null) {
-					if (d.get("GlobalModels").containsKey(oldID)) {
-						if (before) row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(oldID));//schemaTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(id));
-						else if (d.get("GlobalModels").get(oldID).intValue() != row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID).intValue()) {
-							System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
-						}
+
+			if (!d.containsKey("GlobalModels")) d.put("GlobalModels", new HashMap<Integer, Integer>());
+			if (before) DBKernel.getKnownIDs4PMM(conn, d.get("GlobalModels"), "GlobalModels", rowuuid);
+
+			if (oldID != null) {
+				if (d.get("GlobalModels").containsKey(oldID)) {
+					if (before) row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(oldID));//schemaTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(id));
+					else if (d.get("GlobalModels").get(oldID).intValue() != row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID).intValue()) {
+						System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
 					}
-					else {
-						if (before) row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, MathUtilities.getRandomNegativeInt());//d.get("GlobalModels").put(oldID, MathUtilities.getRandomNegativeInt());
-						else d.get("GlobalModels").put(oldID, newID);
-					}
+				} else {
+					if (before) row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, MathUtilities.getRandomNegativeInt());//d.get("GlobalModels").put(oldID, MathUtilities.getRandomNegativeInt());
+					else d.get("GlobalModels").put(oldID, newID);
 				}
-				
-				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get("GlobalModels"), "GlobalModels", rowuuid);
+			}
+
+			if (!before) DBKernel.setKnownIDs4PMM(conn, d.get("GlobalModels"), "GlobalModels", rowuuid);
 
 			foreignDbIds.put(dbuuid, d);
-		}    	
+		}
 		return foreignDbIds;
-    }
-    
-    // Modelle
-    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
-    		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
-    		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
-		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
+	}
+
+	// Modelle
+	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
+			HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String[] schemaAttr, String[] dbTablename, String rowuuid, boolean checkAnywayDueToNegativeId)
+			throws PmmException {
+		if (checkAnywayDueToNegativeId || rowuuid == null || !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
-			
-			for (int i=0;i<schemaAttr.length;i++) {
+
+			for (int i = 0; i < schemaAttr.length; i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
 				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				HashMap<Integer, Integer> h = CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
@@ -503,19 +487,19 @@ if (true) return null;
 				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 			foreignDbIds.put(dbuuid, d);
-		}    	
+		}
 		return foreignDbIds;
-    }
-    
-    // TimeSeries
-    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
-    		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
-    		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
-		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
+	}
+
+	// TimeSeries
+	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
+			HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String[] schemaAttr, String[] dbTablename, String rowuuid, boolean checkAnywayDueToNegativeId)
+			throws PmmException {
+		if (checkAnywayDueToNegativeId || rowuuid == null || !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
-			
-			for (int i=0;i<schemaAttr.length;i++) {
+
+			for (int i = 0; i < schemaAttr.length; i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
 				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				HashMap<Integer, Integer> h = CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
@@ -523,180 +507,173 @@ if (true) return null;
 				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 			foreignDbIds.put(dbuuid, d);
-		}    	
+		}
 		return foreignDbIds;
-    }
-    
-    private Integer saveWF(final ExecutionContext exec) throws Exception {
-    	Integer result = null;
-        for (NodeContainer nc : WorkflowManager.ROOT.getNodeContainers()) {
-            if (nc instanceof WorkflowManager) {
-                WorkflowManager wfm = (WorkflowManager)nc;
-                for (EstimatedModelWriterNodeModel m : wfm.findNodes(EstimatedModelWriterNodeModel.class, true).values()) {
-                    if (m == this) {
-                        File wfdir = wfm.getWorkingDir().getFile();
-                        wfm.save(wfdir, exec, true);
-                        String wfname = wfdir.getName();
-                        String zipfile = System.getProperty("java.io.tmpdir") + "/" + wfname + "_" + System.currentTimeMillis() + ".zip";
-                        zipDirectory(wfdir, zipfile);
-                        
-                        String sql = "INSERT INTO " + DBKernel.delimitL("PMMLabWorkflows") + " (" + DBKernel.delimitL("Workflow") + ") VALUES ('" + wfname + "');";
-                    	PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            	  	    if (psmt.executeUpdate() > 0) {
-            	  	    	result = DBKernel.getLastInsertedID(psmt);
-                        	File zipFile = new File(zipfile);
-            	  	    	DBKernel.insertBLOB("PMMLabWorkflows", "Workflow", zipFile, result);
-            	  	    }
-            	  	    psmt.close();
-                    }
-                }
-            }
-        }
-        return result;
-    }
-    private void zipDirectory(File dir, String zipDirName) {
-        try {
-        	List<String> filesListInDir = populateFilesList(null, dir);
-            //now zip files one by one
-            //create ZipOutputStream to write to the zip file
-            FileOutputStream fos = new FileOutputStream(zipDirName);
-            ZipOutputStream zos = new ZipOutputStream(fos);
-            for(String filePath : filesListInDir){
-                //for ZipEntry we need to keep only relative file path, so we used substring on absolute path
-                ZipEntry ze = new ZipEntry(filePath.substring(dir.getParentFile().getAbsolutePath().length()+1, filePath.length()));
-                zos.putNextEntry(ze);
-                //read the file and write to ZipOutputStream
-                FileInputStream fis = new FileInputStream(filePath);
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = fis.read(buffer)) > 0) {
-                    zos.write(buffer, 0, len);
-                }
-                zos.closeEntry();
-                fis.close();
-            }
-            zos.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private List<String> populateFilesList(List<String> filesListInDir, File dir) throws IOException {
-    	if (filesListInDir == null) filesListInDir = new ArrayList<String>();
-        File[] files = dir.listFiles();
-        for(File file : files) {
-            if (file.isFile()) {
-            	if (!file.getName().equals(".knimeLock")) filesListInDir.add(file.getAbsolutePath());
-            }
-            else {
-            	filesListInDir = populateFilesList(filesListInDir, file);
-            }
-        }
-        return filesListInDir;
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void reset() {}
+	private Integer saveWF(final ExecutionContext exec) throws Exception {
+		Integer result = null;
+		for (NodeContainer nc : WorkflowManager.ROOT.getNodeContainers()) {
+			if (nc instanceof WorkflowManager) {
+				WorkflowManager wfm = (WorkflowManager) nc;
+				for (EstimatedModelWriterNodeModel m : wfm.findNodes(EstimatedModelWriterNodeModel.class, true).values()) {
+					if (m == this) {
+						File wfdir = wfm.getWorkingDir().getFile();
+						wfm.save(wfdir, exec, true);
+						String wfname = wfdir.getName();
+						String zipfile = System.getProperty("java.io.tmpdir") + "/" + wfname + "_" + System.currentTimeMillis() + ".zip";
+						zipDirectory(wfdir, zipfile);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-    	getInSchema(inSpecs[0]);
-    	return null;
-    }
-    private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
-    	KnimeSchema result = null;
-    	KnimeSchema inSchema = new TimeSeriesSchema();
-    	try {
-    		if (inSchema.conforms(inSpec)) {
-    			result = inSchema;
-   			}
-    		else {
-    			throw new InvalidSettingsException("Unexpected format - it is not possible to save fitted models without microbial data information");
-    		}
-    	}
-    	catch (PmmException e) {
-    	}
-    	boolean hasM1 = false;
-    	inSchema = new Model1Schema();
-    	try {
-    		if (inSchema.conforms(inSpec)) {
-    			result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
-    			hasM1 = true;
-    		}	
-    	}
-    	catch (PmmException e) {
-    	}
-    	inSchema = new Model2Schema();
-    	try {
-    		if (inSchema.conforms(inSpec)) {
-    			if (hasM1) {
+						String sql = "INSERT INTO " + DBKernel.delimitL("PMMLabWorkflows") + " (" + DBKernel.delimitL("Workflow") + ") VALUES ('" + wfname + "');";
+						PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+						if (psmt.executeUpdate() > 0) {
+							result = DBKernel.getLastInsertedID(psmt);
+							File zipFile = new File(zipfile);
+							DBKernel.insertBLOB("PMMLabWorkflows", "Workflow", zipFile, result);
+						}
+						psmt.close();
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	private void zipDirectory(File dir, String zipDirName) {
+		try {
+			List<String> filesListInDir = populateFilesList(null, dir);
+			//now zip files one by one
+			//create ZipOutputStream to write to the zip file
+			FileOutputStream fos = new FileOutputStream(zipDirName);
+			ZipOutputStream zos = new ZipOutputStream(fos);
+			for (String filePath : filesListInDir) {
+				//for ZipEntry we need to keep only relative file path, so we used substring on absolute path
+				ZipEntry ze = new ZipEntry(filePath.substring(dir.getParentFile().getAbsolutePath().length() + 1, filePath.length()));
+				zos.putNextEntry(ze);
+				//read the file and write to ZipOutputStream
+				FileInputStream fis = new FileInputStream(filePath);
+				byte[] buffer = new byte[1024];
+				int len;
+				while ((len = fis.read(buffer)) > 0) {
+					zos.write(buffer, 0, len);
+				}
+				zos.closeEntry();
+				fis.close();
+			}
+			zos.close();
+			fos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private List<String> populateFilesList(List<String> filesListInDir, File dir) throws IOException {
+		if (filesListInDir == null) filesListInDir = new ArrayList<String>();
+		File[] files = dir.listFiles();
+		for (File file : files) {
+			if (file.isFile()) {
+				if (!file.getName().equals(".knimeLock")) filesListInDir.add(file.getAbsolutePath());
+			} else {
+				filesListInDir = populateFilesList(filesListInDir, file);
+			}
+		}
+		return filesListInDir;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void reset() {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
+		getInSchema(inSpecs[0]);
+		return null;
+	}
+
+	private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
+		KnimeSchema result = null;
+		KnimeSchema inSchema = new TimeSeriesSchema();
+		try {
+			if (inSchema.conforms(inSpec)) {
+				result = inSchema;
+			} else {
+				throw new InvalidSettingsException("Unexpected format - it is not possible to save fitted models without microbial data information");
+			}
+		} catch (PmmException e) {
+		}
+		boolean hasM1 = false;
+		inSchema = new Model1Schema();
+		try {
+			if (inSchema.conforms(inSpec)) {
+				result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
+				hasM1 = true;
+			}
+		} catch (PmmException e) {
+		}
+		inSchema = new Model2Schema();
+		try {
+			if (inSchema.conforms(inSpec)) {
+				if (hasM1) {
 					result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
 				}
-    		}	
-    	}
-    	catch (PmmException e) {
-    	}
-    	if (!hasM1) {
-    		throw new InvalidSettingsException("Unexpected format - it is not possible to save secondary models without defined primary models");
-    	}
-    	return result;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo( final NodeSettingsWO settings ) {
-    	/*
-    	settings.addString( PARAM_FILENAME, filename );
-    	settings.addString( PARAM_LOGIN, login );
-    	settings.addString( PARAM_PASSWD, passwd );
-    	settings.addBoolean( PARAM_OVERRIDE, override );
-    	*/
-    }
+			}
+		} catch (PmmException e) {
+		}
+		if (!hasM1) {
+			throw new InvalidSettingsException("Unexpected format - it is not possible to save secondary models without defined primary models");
+		}
+		return result;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
-            throws InvalidSettingsException {
-    	/*
-    	filename = settings.getString( PARAM_FILENAME );
-    	login = settings.getString( PARAM_LOGIN );
-    	passwd = settings.getString( PARAM_PASSWD );
-    	override = settings.getBoolean( PARAM_OVERRIDE );
-    	*/
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		/*
+		 * settings.addString( PARAM_FILENAME, filename ); settings.addString(
+		 * PARAM_LOGIN, login ); settings.addString( PARAM_PASSWD, passwd );
+		 * settings.addBoolean( PARAM_OVERRIDE, override );
+		 */
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings( final NodeSettingsRO settings )
-            throws InvalidSettingsException {}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals( final File internDir,
-            final ExecutionMonitor exec ) throws IOException,
-            CanceledExecutionException {}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals( final File internDir,
-            final ExecutionMonitor exec ) throws IOException,
-            CanceledExecutionException {}
-    
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		/*
+		 * filename = settings.getString( PARAM_FILENAME ); login =
+		 * settings.getString( PARAM_LOGIN ); passwd = settings.getString(
+		 * PARAM_PASSWD ); override = settings.getBoolean( PARAM_OVERRIDE );
+		 */
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+	}
+
 }
-

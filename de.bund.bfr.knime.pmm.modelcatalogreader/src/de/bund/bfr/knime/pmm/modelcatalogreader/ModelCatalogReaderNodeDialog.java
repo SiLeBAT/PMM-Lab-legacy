@@ -110,12 +110,12 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 		settings.addInt(ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel());
 		settings.addString(ModelCatalogReaderNodeModel.PARAM_MODELCLASS, filterui.getModelClass());
 		settings.addBoolean(ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled());
-		settings.addString(ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.getModelList());
+		settings.addIntArray(ModelCatalogReaderNodeModel.PARAM_MODELLISTINT, filterui.getModelList());
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
-		
 		try {
+			//updateModelName();
 			/*
 			dbui.setFilename(settings.getString(ModelCatalogReaderNodeModel.PARAM_FILENAME));
 			dbui.setLogin(settings.getString(ModelCatalogReaderNodeModel.PARAM_LOGIN));
@@ -125,14 +125,27 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 			filterui.setLevel(settings.getInt(ModelCatalogReaderNodeModel.PARAM_LEVEL));
 			filterui.setModelClass(settings.getString(ModelCatalogReaderNodeModel.PARAM_MODELCLASS));
 			filterui.setModelFilterEnabled(settings.getBoolean(ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED));
-			filterui.enableModelList(settings.getString(ModelCatalogReaderNodeModel.PARAM_MODELLIST));
+			if (settings.containsKey(ModelCatalogReaderNodeModel.PARAM_MODELLISTINT)) filterui.enableModelList(settings.getIntArray(ModelCatalogReaderNodeModel.PARAM_MODELLISTINT));
+			else if (settings.containsKey("modelList")) {
+				String ids = settings.getString("modelList");
+				if (ids != null && ids.length() > 0) {
+					String[] token = ids.split(",");
+					int[] idis = new int[token.length];
+					int i=0;
+					for (String s : token)  {
+						idis[i] = Integer.parseInt(s);
+						i++;
+					}
+					filterui.enableModelList(idis);
+				}
+			}
 		}
 		catch( InvalidSettingsException e ) {
 			e.printStackTrace( System.err );
 		}
 		catch( PmmException e ) {
 			e.printStackTrace( System.err );
-		}
+		} 
 		
 	}
 

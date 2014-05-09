@@ -68,71 +68,62 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 /**
  * This is the model implementation of ModelCatalogWriter.
  * 
- *
+ * 
  * @author Jorgen Brandt
  */
 public class ModelCatalogWriterNodeModel extends NodeModel {
-    /*
-	static final String PARAM_FILENAME = "filename";
-	static final String PARAM_LOGIN = "login";
-	static final String PARAM_PASSWD = "passwd";
-	static final String PARAM_OVERRIDE = "override";
+	/*
+	 * static final String PARAM_FILENAME = "filename"; static final String
+	 * PARAM_LOGIN = "login"; static final String PARAM_PASSWD = "passwd";
+	 * static final String PARAM_OVERRIDE = "override";
+	 * 
+	 * private String filename; private String login; private String passwd;
+	 * private boolean override;
+	 */
 
-	private String filename;
-	private String login;
-	private String passwd;
-	private boolean override;
-*/
-	
-    /**
-     * Constructor for the node model.
-     */
-    protected ModelCatalogWriterNodeModel() {
-        super( 1, 0 );
-        /*
-        filename = "";
-        login = "";
-        passwd = "";
-        override = false;
-        */
-   }
+	/**
+	 * Constructor for the node model.
+	 */
+	protected ModelCatalogWriterNodeModel() {
+		super(1, 0);
+		/*
+		 * filename = ""; login = ""; passwd = ""; override = false;
+		 */
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
-    	
-    	Bfrdb db = null;
-    	try {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
+
+		Bfrdb db = null;
+		try {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
-		} catch (Exception e1) {}
-    	/*
-    	if( override ) {
-			db = new Bfrdb( filename, login, passwd );
-		} else {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {
 		}
-		*/
-    	Connection conn = db.getConnection();
-    	conn.setReadOnly(false);
-    	
-    	int n = inData[ 0 ].getRowCount();
-    	
+		/*
+		 * if( override ) { db = new Bfrdb( filename, login, passwd ); } else {
+		 * db = new Bfrdb(DBKernel.getLocalConn(true)); }
+		 */
+		Connection conn = db.getConnection();
+		conn.setReadOnly(false);
+
+		int n = inData[0].getRowCount();
+
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model1Conform = inSchema.conforms(new Model1Schema());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
 		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-    	String dbuuid = db.getDBUUID();
+		String dbuuid = db.getDBUUID();
 
 		int j = 0;
 		List<Integer> alreadySaved = new ArrayList<Integer>();
 		String warnings = "";
 		while (reader.hasMoreElements()) {
-    		exec.setProgress( ( double )j++/n );
-    		
+			exec.setProgress((double) j++ / n);
+
 			KnimeTuple row = reader.nextElement();
 			if (model1Conform) {
 				//Integer rowMcID = row.getInt(Model1Schema.ATT_MODELID);
@@ -148,8 +139,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				}
 				if (cmx.getId() != null && !alreadySaved.contains(cmx.getId())) {
 					alreadySaved.add(cmx.getId());
-		    		String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
-		    		String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
+					String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
+					String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
 					DepXml dx = (DepXml) depXml.getElementSet().get(0);
 					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -158,25 +149,26 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
 					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
 
-		    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, cmx.getId());
-		    		pm.setModelClass(cmx.getModelClass());
-		    		pm.setParameter(paramXml);
-		    		pm.setIndependent(indepXml);
-		    		pm.setFormula(pm.revertFormula());
-		    		pm.setMLit(mLitXmlDoc);
-		    		pm.setEstLit(emLitXmlDoc);
+					ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, cmx.getId());
+					pm.setModelClass(cmx.getModelClass());
+					pm.setParameter(paramXml);
+					pm.setIndependent(indepXml);
+					pm.setFormula(pm.revertFormula());
+					pm.setMLit(mLitXmlDoc);
+					pm.setEstLit(emLitXmlDoc);
 
-					String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
-					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
-					
-					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					String[] attrs = new String[] { Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT };
+					String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
+
+					boolean checkAnywayDueToNegativeId = (pm.getModelId() < 0);
+					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
 					db.insertM(pm);
-					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
 					if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 				}
 			}
 			if (model2Conform) {
-	    		//Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
+				//Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
 				CatalogModelXml cmx = null;
 				PmmXmlDoc catModel = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
 				if (catModel != null) {
@@ -189,54 +181,55 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				}
 				if (cmx.getId() != null && !alreadySaved.contains(cmx.getId())) {
 					alreadySaved.add(cmx.getId());
-		    		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
-		    		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
+					String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
+					String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
 					DepXml dx = (DepXml) depXml.getElementSet().get(0);
 
-						PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
-						PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+					PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
+					PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 
-						PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
-						PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
+					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
+					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
 
-			    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, cmx.getId());
-			    		pm.setModelClass(cmx.getModelClass());
-			    		pm.setParameter(paramXml);
-			    		pm.setIndependent(indepXml);
-			    		pm.setFormula(pm.revertFormula());
-			    		pm.setMLit(mLitXmlDoc);
-			    		pm.setEstLit(emLitXmlDoc);
-			    		
-						String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
-						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
-						
-						foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-			    		db.insertM(pm);
-			    		foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-						if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
-		    		//}
-	    		}
+					ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, cmx.getId());
+					pm.setModelClass(cmx.getModelClass());
+					pm.setParameter(paramXml);
+					pm.setIndependent(indepXml);
+					pm.setFormula(pm.revertFormula());
+					pm.setMLit(mLitXmlDoc);
+					pm.setEstLit(emLitXmlDoc);
+
+					String[] attrs = new String[] { Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT };
+					String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
+
+					boolean checkAnywayDueToNegativeId = (pm.getModelId() < 0);
+					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+					db.insertM(pm);
+					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+					if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
+					//}
+				}
 			}
 		}
-    	
+
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
-		}			
-    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
-    	db.close();
-        return null;
-    }
+		}
+		conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
+		db.close();
+		return null;
+	}
 
-    // Modelle
-    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
-    		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
-    		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
-		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
+	// Modelle
+	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
+			HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String[] schemaAttr, String[] dbTablename, String rowuuid, boolean checkAnywayDueToNegativeId)
+			throws PmmException {
+		if (checkAnywayDueToNegativeId || rowuuid == null || !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
-			
-			for (int i=0;i<schemaAttr.length;i++) {
+
+			for (int i = 0; i < schemaAttr.length; i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
 				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				HashMap<Integer, Integer> h = CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
@@ -244,35 +237,35 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 			foreignDbIds.put(dbuuid, d);
-		}    	
+		}
 		return foreignDbIds;
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void reset() {}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void reset() {
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-            throws InvalidSettingsException {
-    	getInSchema(inSpecs[0]);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
+		getInSchema(inSpecs[0]);
 		return null;
-    }
-    private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
-    	KnimeSchema result = null;
+	}
+
+	private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
+		KnimeSchema result = null;
 		String errorMsg = "Unexpected format - Model definitions are not present in the columns of the incoming table";
 		KnimeSchema inSchema = new Model1Schema();
 		try {
 			if (inSchema.conforms(inSpec)) {
 				result = inSchema;
 			}
-		}
-		catch (PmmException e) {
+		} catch (PmmException e) {
 		}
 		inSchema = new Model2Schema();
 		try {
@@ -282,66 +275,58 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				} else {
 					result = KnimeSchema.merge(result, inSchema);
 				}
-			}	
-		}
-		catch (PmmException e) {
+			}
+		} catch (PmmException e) {
 		}
 		if (result == null) {
 			throw new InvalidSettingsException(errorMsg);
 		}
 		return result;
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) {
-    	/*
-    	settings.addString( PARAM_FILENAME, filename );
-    	settings.addString( PARAM_LOGIN, login );
-    	settings.addString( PARAM_PASSWD, passwd );
-    	settings.addBoolean( PARAM_OVERRIDE, override );
-    	*/
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		/*
+		 * settings.addString( PARAM_FILENAME, filename ); settings.addString(
+		 * PARAM_LOGIN, login ); settings.addString( PARAM_PASSWD, passwd );
+		 * settings.addBoolean( PARAM_OVERRIDE, override );
+		 */
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-    	/*
-    	filename = settings.getString( PARAM_FILENAME );
-    	login = settings.getString( PARAM_LOGIN );
-    	passwd = settings.getString( PARAM_PASSWD );
-    	override = settings.getBoolean( PARAM_OVERRIDE );
-    	*/
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		/*
+		 * filename = settings.getString( PARAM_FILENAME ); login =
+		 * settings.getString( PARAM_LOGIN ); passwd = settings.getString(
+		 * PARAM_PASSWD ); override = settings.getBoolean( PARAM_OVERRIDE );
+		 */
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+	}
 
 }
-

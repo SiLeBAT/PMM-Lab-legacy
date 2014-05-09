@@ -136,9 +136,10 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 
-				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
+				boolean checkAnywayDueToNegativeId = (ts.getCondId() < 0);
+				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID), checkAnywayDueToNegativeId);				
 				db.insertTs(ts);				
-				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
+				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID), checkAnywayDueToNegativeId);
 				
 				alreadyInsertedTs.put(rowTsID, ts);
 				
@@ -159,8 +160,8 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     // TimeSeries
     private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
-    		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
-		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
+    		String[] schemaAttr, String[] dbTablename, String rowuuid, boolean checkAnywayDueToNegativeId) throws PmmException {
+		if (checkAnywayDueToNegativeId || rowuuid == null || !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
 			

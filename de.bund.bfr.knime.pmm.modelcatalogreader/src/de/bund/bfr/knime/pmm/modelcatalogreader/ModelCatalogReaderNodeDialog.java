@@ -170,12 +170,17 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	
     	result = db.selectModel(1);    	    	
     	while (result.next()) {
-    		//System.err.println(result.getString(Bfrdb.ATT_NAME) + "\t" + result.getInt("Klasse"));
-    		filterui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
+			int modelID = result.getInt(Bfrdb.ATT_MODELID);
+			Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", "" + modelID, "visible");
+			filterui.addModelPrim(modelID, result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")), visible == null
+					|| (visible instanceof Boolean && (Boolean) visible));
     	}
     	result = db.selectModel(2);    	
     	while (result.next()) {
-    		filterui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
+			int modelID = result.getInt(Bfrdb.ATT_MODELID);
+			Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", "" + modelID, "visible");
+			filterui.addModelSec(modelID, result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")), visible == null
+					|| (visible instanceof Boolean && (Boolean) visible));
     	}    	
 	}
 

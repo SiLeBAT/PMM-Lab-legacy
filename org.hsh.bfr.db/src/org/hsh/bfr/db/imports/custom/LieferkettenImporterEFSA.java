@@ -224,6 +224,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				HSSFRow row = transactionSheet.getRow(i);
 				if (row != null) {
 					String addressOther = getStrVal(row.getCell(7));
+					String product = getStrVal(row.getCell(8));
 					busRow = getRow(businessSheet, addressOther, 9);
 					if (busRow != null) {
 						String id = getStrVal(busRow.getCell(0)); //
@@ -235,7 +236,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String county = getStrVal(busRow.getCell(6));
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
-						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, null, null, null, null, null, null, null, null, null, null, null,
+						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, product, null, null, null, null, null, null, null, null, null, null,
 								null, null, null, null, null, null, idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, "LSTZAKNoris"
 										+ efsaID + "_Sup_" + (i + 1), null, null, null, null, null);
 					} else if (addressOther != null) {

@@ -80,6 +80,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	private JPanel modelPanel;
 	private JPanel panel;
 
+	private LinkedHashMap<Integer, String> modelTypeSetPrim;
+	private LinkedHashMap<Integer, String> modelTypeSetSec;
 	private LinkedHashMap<Integer, JCheckBox> modelBoxSetPrim;
 	private LinkedHashMap<Integer, JCheckBox> modelBoxSetSec;
 
@@ -148,6 +150,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public void clearModelSet() {
 		modelBoxSetPrim = new LinkedHashMap<Integer, JCheckBox>();
 		modelBoxSetSec = new LinkedHashMap<Integer, JCheckBox>();
+		modelTypeSetPrim = new LinkedHashMap<Integer, String>();
+		modelTypeSetSec = new LinkedHashMap<Integer, String>();
 	}
 
 	@Override
@@ -166,20 +170,26 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		}
 	}
 
-	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
-		if (name == null) throw new PmmException("Model name must not be null.");
+	public void addModelPrim(final int id, final String name, final String modelType, boolean visible) throws PmmException {
+		if (visible) {
+			if (name == null) throw new PmmException("Model name must not be null.");
 
-		//modelIdPrim.put(name + " (" + modelType + ")", id);
-		modelBoxSetPrim.put(id, new JCheckBox(name + " (" + modelType + ")"));
-		updateModelName();
+			//modelIdPrim.put(name + " (" + modelType + ")", id);
+			modelBoxSetPrim.put(id, new JCheckBox(name + " (" + modelType + ")"));
+			modelTypeSetPrim.put(id, modelType);
+			updateModelName();
+		}
 	}
 
-	public void addModelSec(final int id, final String name, final String modelType) throws PmmException {
-		if (name == null) throw new PmmException("Model name must not be null.");
+	public void addModelSec(final int id, final String name, final String modelType, boolean visible) throws PmmException {
+		if (visible) {
+			if (name == null) throw new PmmException("Model name must not be null.");
 
-		//modelIdSec.put(name + " (" + modelType + ")", id);
-		modelBoxSetSec.put(id, new JCheckBox(name + " (" + modelType + ")"));
-		updateModelName();
+			//modelIdSec.put(name + " (" + modelType + ")", id);
+			modelBoxSetSec.put(id, new JCheckBox(name + " (" + modelType + ")"));
+			modelTypeSetSec.put(id, modelType);
+			updateModelName();
+		}
 	}
 
 	public int getLevel() {
@@ -201,7 +211,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		return modelNameSwitch.isSelected();
 	}
 
-	public boolean modelNameEnabled(final String name) {
+	private boolean modelNameEnabled(final String name) {
 		for (JCheckBox box : modelBoxSetPrim.values()) {
 			if (box.getText().equals(name)) return true;		
 			if (box.getText().startsWith(name) && box.getText().lastIndexOf(" (") == name.length())  return true;
@@ -228,25 +238,19 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		modelPanel.removeAll();
 		modelPanel.setVisible(false);
 
-		if (isPrim()) addBoxes2Panel(modelBoxSetPrim, modelPanel);
-		else addBoxes2Panel(modelBoxSetSec, modelPanel);
+		if (isPrim()) addBoxes2Panel(modelBoxSetPrim, modelPanel, modelTypeSetPrim);
+		else addBoxes2Panel(modelBoxSetSec, modelPanel, modelTypeSetSec);
 
 		updateModelNameEnabled();
 
 		modelPanel.setVisible(true);
 		panel.validate();
 	}
-	private void addBoxes2Panel(LinkedHashMap<Integer, JCheckBox> modelBox, JPanel modelPanel) {
-		for (JCheckBox box : modelBox.values()) {
-			Object o = classBox.getSelectedItem();
-			int indexKlammer = 0;
-			int indexKeyword = 1;
-			if (box.getText() != null && !box.getText().isEmpty() && o != null) {
-				indexKlammer = box.getText().lastIndexOf(" (");
-				indexKeyword = box.getText().toLowerCase().lastIndexOf(o.toString().toLowerCase());				
-			}
-			if (o == null || o.toString().equals("All") ||
-					indexKeyword > indexKlammer) {
+	private void addBoxes2Panel(LinkedHashMap<Integer, JCheckBox> modelBox, JPanel modelPanel, LinkedHashMap<Integer, String> modelTypeSet) {
+		Object o = classBox.getSelectedItem();
+		for (Integer id : modelBox.keySet()) {
+			JCheckBox box = modelBox.get(id);
+			if (o == null || o.toString().equals("All") || modelTypeSet.get(id).indexOf(o.toString()) >= 0) {
 				modelPanel.add(box);			
 			}
 		}
@@ -264,7 +268,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	public boolean complies(KnimeTuple tuple) throws PmmException {
 
-		if( isModelFilterEnabled() ) {
+		if (isModelFilterEnabled()) {
 			PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, tuple.getSchema().conforms(new Model1Schema()) ? 1 : 2));
 			if (x != null) {
 				for (PmmXmlElementConvertable el : x.getElementSet()) {

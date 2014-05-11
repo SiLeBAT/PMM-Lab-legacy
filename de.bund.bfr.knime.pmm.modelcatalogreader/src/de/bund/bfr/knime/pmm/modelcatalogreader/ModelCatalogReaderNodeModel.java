@@ -146,12 +146,17 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 
 			int i = 0;
 			while (result.next()) {
-				boolean takeIt = !modelFilterEnabled || modelClass == null || modelClass.equals("All");
-				if (!takeIt) {
-					Object cls = DBKernel.getValue(conn, "Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID) + "", "Klasse");
-					String mcls = DBKernel.myDBi.getHashMap("ModelType").get(cls);
-					//takeIt = (modelClass.indexOf(mcls) >= 0);
-					takeIt = (mcls != null && mcls.indexOf(modelClass) >= 0);
+				int modelID = result.getInt(Bfrdb.ATT_MODELID);
+				boolean takeIt = false;
+				Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", ""+modelID, "visible");
+				if (visible == null || (visible instanceof Boolean && (Boolean) visible)) {
+					takeIt = modelClass == null || modelClass.equals("All");
+					if (!takeIt) {
+						Object cls = DBKernel.getValue(conn, "Modellkatalog", "ID", modelID + "", "Klasse");
+						String mcls = DBKernel.myDBi.getHashMap("ModelType").get(cls);
+						//takeIt = (modelClass.indexOf(mcls) >= 0);
+						takeIt = (mcls != null && mcls.indexOf(modelClass) >= 0);
+					}					
 				}
 				if (takeIt) {
 					String addWarningMsg = "";
@@ -222,12 +227,17 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 
 			int i = 0;
 			while (result.next()) {
-				boolean takeIt = modelFilterEnabled || modelClass.equals("All");
-				if (!takeIt) {
-					Object cls = DBKernel.getValue(conn, "Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID) + "", "Klasse");
-					String mcls = DBKernel.myDBi.getHashMap("ModelType").get(cls);
-					//takeIt = (modelClass.indexOf(mcls) >= 0);
-					takeIt = (mcls.indexOf(modelClass) >= 0);
+				int modelID = result.getInt(Bfrdb.ATT_MODELID);
+				boolean takeIt = false;
+				Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", ""+modelID, "visible");
+				if (visible == null || (visible instanceof Boolean && (Boolean) visible)) {
+					takeIt = modelClass == null || modelClass.equals("All");
+					if (!takeIt) {
+						Object cls = DBKernel.getValue(conn, "Modellkatalog", "ID", modelID + "", "Klasse");
+						String mcls = DBKernel.myDBi.getHashMap("ModelType").get(cls);
+						//takeIt = (modelClass.indexOf(mcls) >= 0);
+						takeIt = (mcls != null && mcls.indexOf(modelClass) >= 0);
+					}					
 				}
 				if (takeIt) {
 					String addWarningMsg = "";

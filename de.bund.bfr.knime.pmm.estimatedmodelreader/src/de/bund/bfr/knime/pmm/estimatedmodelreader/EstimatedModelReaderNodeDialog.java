@@ -237,11 +237,15 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	
     	ResultSet result = db.selectModel(1);    	    	
     	while (result.next()) {
-    		estmodelui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
+			int modelID = result.getInt(Bfrdb.ATT_MODELID);
+			//Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", "" + modelID, "visible");
+			estmodelui.addModelPrim(modelID, result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")), true);
     	}
     	result = db.selectModel(2);    	
     	while (result.next()) {
-    		estmodelui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
+			int modelID = result.getInt(Bfrdb.ATT_MODELID);
+			//Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", "" + modelID, "visible");
+			estmodelui.addModelSec(modelID, result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")), true);
     	}
 	}
 }

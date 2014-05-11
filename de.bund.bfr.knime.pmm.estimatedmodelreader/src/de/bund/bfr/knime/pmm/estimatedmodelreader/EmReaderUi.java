@@ -367,12 +367,12 @@ public class EmReaderUi extends JPanel {
 			getDataTable(db);
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
-		modelReaderUi.addModelPrim(id, name, modelType);
+	public void addModelPrim(final int id, final String name, final String modelType, boolean visible) throws PmmException {
+		modelReaderUi.addModelPrim(id, name, modelType, visible);
 	}
 	
-	public void addModelSec(final int id, final String name, final String modelType) throws PmmException {
-		modelReaderUi.addModelSec(id, name, modelType);
+	public void addModelSec(final int id, final String name, final String modelType, boolean visible) throws PmmException {
+		modelReaderUi.addModelSec(id, name, modelType, visible);
 	}
 	
 	public void setMatrixID(Integer id) throws InvalidSettingsException {

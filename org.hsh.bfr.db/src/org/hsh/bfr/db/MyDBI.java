@@ -118,10 +118,10 @@ public abstract class MyDBI {
 	}
 
 	private void createRoles() {
-		sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false, false);
-		sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false, false);
-		sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false, false);
-		sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false, false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false, false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false, false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false, false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false, false);
 	}
 
 	/*

@@ -77,8 +77,9 @@ public class ParameterOptimizer {
 
 	private boolean successful;
 	private List<Double> parameterValues;
-	private double rms;
-	private double rSquare;
+	private Double chiSquare;
+	private Double rms;
+	private Double rSquare;
 	private Double aic;
 	private Double bic;
 	private List<Double> parameterStandardErrors;
@@ -276,7 +277,7 @@ public class ParameterOptimizer {
 			try {
 				optimize(startValues);
 
-				if (!successful || optimizer.getRMS() < rms) {
+				if (!successful || optimizer.getChiSquare() < chiSquare) {
 					useCurrentResults(startValues);
 
 					if (rSquare != 0.0) {
@@ -304,11 +305,11 @@ public class ParameterOptimizer {
 		return parameterValues;
 	}
 
-	public double getRMS() {
+	public Double getRMS() {
 		return rms;
 	}
 
-	public double getRSquare() {
+	public Double getRSquare() {
 		return rSquare;
 	}
 
@@ -366,14 +367,15 @@ public class ParameterOptimizer {
 
 	private void useCurrentResults(List<Double> startValues) {
 		parameterValues = new ArrayList<Double>(parameters.size());
-		rms = MathUtilities.getRMSE(optimizer.getChiSquare(),
-				parameters.size(), targetValues.size());
+		chiSquare = optimizer.getChiSquare();
+		rms = MathUtilities.getRMSE(chiSquare, parameters.size(),
+				targetValues.size());
 		rSquare = MathUtilities.getRSquared(optimizer.getChiSquare(),
 				targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
 				targetValues.size(), optimizer.getChiSquare());
 		bic = MathUtilities.bayesCriterion(parameters.size(),
-				targetValues.size(), optimizer.getChiSquare());		
+				targetValues.size(), optimizer.getChiSquare());
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.add(optimizerValues.getPoint()[i]);

@@ -8,7 +8,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>This nodes enables the user to import models and microbial data into PMM-Lab. All entries are matched with the database</intro>
+        <intro>This node enables the user to import models and microbial data into PMM-Lab. All entries are matched with the database</intro>
         
         
         <option name="XLS File">Choose a Microsoft Excel file and select a spreadsheet</option>

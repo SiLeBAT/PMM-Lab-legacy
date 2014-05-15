@@ -43,7 +43,8 @@
     <fullDescription>
         <intro>
             Deletes test conditions and fitted primary and secondary models from the database.<br></br>
-            To be able to delete test conditions, for example, load these with the Data Reader node, attach the DB Data Deleter and tick "Delete test conditions?". If not all test conditions in the database need to be deleted, place a Data Selection node between the Data Reader and the DB data Deleter. All selected test conditions will be deleted.<br></br>
+            To be able to delete test conditions, for example, load these with the Data Reader node, attach the DB Data Deleter and tick "Delete test conditions?".<br></br>
+            If not all test conditions in the database need to be deleted, place a Data Selection node between the Data Reader and the DB data Deleter. All selected test conditions will be deleted.<br></br>
             To <u>delete</u> primary and secondary models as well as test conditions <u>all at once</u> load them with a Model Reader (Level: Combined Primary/Secondary). Attach the DB Data Deleter, tick all boxes and execute. <br></br>
             <u>It is not possible to delete a primary model, if a secondary model is dependent on it.</u> In this case the secondary model needs to be deleted first (or together with the primary model).
         </intro>

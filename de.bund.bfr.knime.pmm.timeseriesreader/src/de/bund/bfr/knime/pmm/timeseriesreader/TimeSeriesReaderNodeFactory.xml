@@ -45,7 +45,7 @@
         <br></br><br></br>Note: The Microbial Data Reader loads only test conditions containing test results and time values.</intro>
         
         
-        <option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
+        <option name="Use external database">By default the internal database is accessed. This internal database can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
         <option name="Organism">Check the box and enter the name of an organism.</option>
         <option name="Matrix">Check the box and enter the name of a matrix.</option>
     </fullDescription>

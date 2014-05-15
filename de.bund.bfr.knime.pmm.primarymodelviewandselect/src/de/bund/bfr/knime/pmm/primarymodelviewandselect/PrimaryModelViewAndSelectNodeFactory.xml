@@ -11,27 +11,25 @@
         <intro>View and select primary estimations and the associated microbial data.</intro>
         
         
-       <option name="Graph">Visualizes primary estimations and the associated microbial concentration over time.<br></br><br></br>
-        <b>Mouse zoom:</b> To view a part of the graph in detail left click and simultaneously drag the mouse right and down. Another way is to use the zoom options in the context menu.<br></br><br></br>
+		<option name="Graph">Visualizes values (e.g. microbial concentrations) over time (h).<br></br><br></br>
+        <b>Mouse zoom:</b><br></br>To view a part of the graph in detail left click and simultaneously drag the mouse right and down.<br></br><br></br>
         <b>Context Menu</b> (Right click in the graph):<br></br>
-        <u>Properties:</u> Change font (type, size, color) and labels as well as the appearance of the graph.<br></br>
-        <u>Copy:</u> Copies the graph to the clipboard enabling you to paste it in a graphical editor.<br></br>
-        <u>Save as...:</u> Saves the graph as PNG (a bitmap image). Compared to the PNG image in the outport (which has a resolution of 640x480 pixels) this PNG is saved with the same size as on the screen.<br></br>
-        <u>Save as...(SVG):</u> Saves the graph as SVG (a vector image). The file is saved with the same size as on the screen.<br></br>
-        <u>Print:</u> Print the graph directly from Knime PMM-Lab.<br></br>
-        <u>Zoom:</u> Zoom in and out or auto range the view for one or both axes.</option>
+        <u>Save as...:</u> Saves the graph as PNG (a bitmap image) or as SVG (a vector image). Compared to the PNG image in the outport (which has a resolution of 640x480 pixels) this PNG is saved with the same size as on the screen.<br></br></option>
         
         <option name="Display Options">
         <u>Draw Lines:</u> Connect data points with lines which helps to distinguish between different sets of data.<br></br> 
         <u>Show Legend:</u> Display the model ID and the data set ID together with symbol and color.<br></br>
         <u>Add Info in Legend:</u> Adds the formula to the legend. This option is only available when the legend is displayed.<br></br>
-        <u>Display Highlighted Row:</u> If checked, only the highlighted row in the table on the right is displayed. A comfortable way to select sets of data is to highlight a row and then navigate with the arrow keys (up/down). Using the keyboard, the space bar can be used to select/unselect a set of data.
-        <u>Show Confidence Interval:</u> Computes and displays confidence intervals.</option>
+        <u>Display Highlighted Row:</u> If checked, only the highlighted row in the table on the right is displayed. A comfortable way to select sets of data is to highlight a row and then navigate with the arrow keys (up/down). Using the keyboard, the space bar can be used to select/unselect a set of data.<br></br>
+        <u>Show Confidence Interval:</u> Computes and displays confidence intervals. This is computed live and for all displayed models at once. For faster display only select few primary models or choose "Display Highlighted Row" and view models one after another. For details about the calculation of the confidence interval please see Tijskens, Hertog, Nicolai (eds) (2001): "Food Process Modelling". Woodhead Publishing Limited and CRC Press LLC.</option>
         
         <option name="Range">Set the minimum and maximum values for the x and y axes.</option>
         
-        <option name="Variables on Display"><u>X and Y:</u> Displays the heading of the displayed data column. Changing units automatically reformats the axes.<br></br>
-        <u>Y Transform:</u> Transforms the data on the Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).</option>
+        <option name="Variables on Display">
+		<u>X and Y:</u> Time is on the x-axis and value (e.g. bacterial concentrations) on the y-axis.<br></br>
+		<u>X Unit:</u> Change the time unit to seconds (s), minutes (min), hours (h), days (d), weeks (wk), months (mo) or years (a).<br></br>
+		<u>Y Unit:</u> For some diagnostic tests it is necessary to know the amount of bacteria in 25g. For this case and others the value unit can be changed.<br></br>
+        <u>X and Y Transform:</u> Transforms the data on the X and Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).</option>        
         
         <option name="Filter">Filter the rows in the table to be displayed for model name, data ID and status.<br></br> 
         <u>'Model Name'</u> If several model formulas were used for fitting data, this option reduces the rows in the table to those containing the selected formula.<br></br> 
@@ -45,8 +43,8 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Primary models/microbial data">Primary models and microbial data (e.g. from the Model Fitting node or the Fitted Model Reader node)</inPort>
+        <inPort index="0" name="Primary models/microbial data">Primary models and microbial data (via Model Fitting, Model Reader, ComBase Reader or XLS Model Reader)</inPort>
         <outPort index="0" name="Selected models table">Table containing selected primary models and corresponding data</outPort>
-        <outPort index="1" name="Selected models graph">PNG showing selected primary models and corresponding data (640x480 pixels)</outPort>
+        <outPort index="1" name="Selected models graph">Graph with selected data as PNG (default) or as SVG (see section 'Display Options')</outPort>
     </ports>    
 </knimeNode>

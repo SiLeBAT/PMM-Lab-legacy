@@ -15,7 +15,7 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Microbial data">Microbial data from spreadsheets (via ComBase Reader or XLS Microbial Data Reader) or from a database (via Microbial Data Reader)</inPort>       
+        <inPort index="0" name="Microbial data">Microbial data from spreadsheets (via ComBase Reader or XLS Data Reader) or from a database (via Data Reader)</inPort>       
         <outPort index="0" name="Microbial data table">Edited microbial data</outPort>  
     </ports>    
 </knimeNode>

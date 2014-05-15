@@ -13,7 +13,8 @@
         
         <option name="Options">
         <b>References</b><br></br>
-        Click on the '+' symbol to choose one or more references from the database. To add a reference to the database, exit this node dialog, go to the Knime menu 'PMM-Lab', select 'Open DB GUI...' and select the references table. References can be either imported as *.ris or *.txt file via the table import (Ctrl+F1) or they can be entered manually by clicking the green '+' button in the database.<br></br><br></br>
+        Click on the '+' symbol to choose one or more references from the database. To add a reference to the database, exit this node dialog, go to the Knime menu 'PMM-Lab', select 'Open DB GUI...' and select the references table.<br></br>
+        References can be either imported as *.ris or *.txt file via the table import (Ctrl+F1) or they can be entered manually by clicking the green '+' button in the database.<br></br><br></br>
         <b>Experimental conditions</b><br></br>
         <u>Organism and Matrix:</u> Click the 'Select' button to get to the correspondent database tables and assign the appropriate entries.<br></br>
         <u>ID:</u> The ID can be a number or a character or a combination (e.g. 'Table A.1'). If no ID is given, PMM-Lab will create a negative 10-digit number as ID.<br></br>

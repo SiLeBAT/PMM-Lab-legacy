@@ -39,7 +39,7 @@
         <u>X and Y Transform:</u> Transforms the data on the X and Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).<br></br>
         <u>Conditions:</u> Add experimental conditions to the variables in the display menu. Which condition is currently displayed can be changed in the 'Variables on Display' and 'Other Variables' sections.</option>
         
-        <option name="Other Variables">Is more than one condition selected the other conditions can be configured here. Example: The inactivation of a bacterial agent was estimated for different temperatures, pH values and water activities. The change of the inactivation parameter k due to different temperature values i s displayed in the graph. Now choose from the 'Other Variables' for which pH and aw this change is displayed.</option>
+        <option name="Other Variables">Is more than one condition selected the other conditions can be configured here. Example: The inactivation of a bacterial agent was estimated for different temperatures, pH values and water activities. The change of the inactivation parameter k due to different temperature values is displayed in the graph. Now choose from the 'Other Variables' for which pH and aw this change should be displayed.</option>
         
         <option name="Columns">Click on <u>'Customize'</u> to select the columns to be displayed in the table (e.g. temperature, pH. Click on <u>'Set Optimal Width'</u> to be able to see all of the text in each cell.</option>
         

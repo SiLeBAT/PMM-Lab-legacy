@@ -40,7 +40,7 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Models/microbial data">Primary and secondary models as well as microbial data (e.g. from the Model Fitting node or the Fitted Model Reader node)</inPort>
+        <inPort index="0" name="Models/microbial data">Primary and secondary models as well as microbial data (e.g. from the Model Fitting node or the Model Reader node)</inPort>
         <outPort index="0" name="Selected models table">Table containing selected models and corresponding data</outPort>
         <outPort index="1" name="Selected models graph">PNG showing selected models and corresponding data (640x480 pixels)</outPort>
     </ports>    

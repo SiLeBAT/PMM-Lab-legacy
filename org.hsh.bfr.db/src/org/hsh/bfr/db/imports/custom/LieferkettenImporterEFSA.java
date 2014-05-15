@@ -84,9 +84,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	private int maxNodeID = 100000;
 	private HashMap<String, Integer> nodeIds = null;
 
-	public void mergeIDs() throws IOException {
+	public void mergeIDs() throws IOException {		
 		System.err.println("Merging...");
-
 		FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
 		POIFSFileSystem fs = new POIFSFileSystem(is);
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -107,7 +106,6 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				System.err.println(e.getMessage() + "\t" + i);
 			}
 		}
-
 		System.err.println("Merging...Fin!");
 	}
 

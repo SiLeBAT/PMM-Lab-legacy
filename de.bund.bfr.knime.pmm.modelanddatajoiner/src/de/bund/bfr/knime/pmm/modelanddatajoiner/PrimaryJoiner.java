@@ -121,13 +121,20 @@ public class PrimaryJoiner implements Joiner {
 
 			for (String var : variableCategories.get(id).keySet()) {
 				String category = variableCategories.get(id).get(var);
+				List<String> params = getParamsFromCategory(category); 
 				JComboBox<String> box = new JComboBox<String>(
-						getParamsFromCategory(category).toArray(new String[0]));
+						params.toArray(new String[0]));
 
 				if (assignmentsMap.containsKey(id)) {
 					box.setSelectedItem(assignmentsMap.get(id).get(var));
 				} else {
-					box.setSelectedItem(null);
+					if (params.contains(AttributeUtilities.TIME)) {
+						box.setSelectedItem(AttributeUtilities.TIME);
+					} else if (params.contains(AttributeUtilities.CONCENTRATION)) {
+						box.setSelectedItem(AttributeUtilities.CONCENTRATION);
+					} else {
+						box.setSelectedItem(null);
+					}
 				}
 
 				boxes.put(var, box);

@@ -45,6 +45,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelDate;
+import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLWriter;
@@ -62,15 +64,33 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 public class SBMLWriterNodeModel extends NodeModel {
 
 	protected static final String CFG_OUT_PATH = "outPath";
+	protected static final String CFG_VARIABLE_PARAM = "variableParams";
 	protected static final String CFG_MODEL_NAME = "modelName";
-	protected static final String CFG_VARIABLE_PARAMS = "variableParams";
+	protected static final String CFG_REFERENCE_DESCRIPTION = "referenceDescription";
+	protected static final String CFG_CREATORS = "Creators";
+	protected static final String CFG_CREATORS_CONTACT = "CreatorsContact";
+	protected static final String CFG_CREATED_DATE = "CreationDate";
+	protected static final String CFG_LAST_MODIFIED_DATE = "CreationDate";
+	protected static final String CFG_TERMS_OF_DISTRIBUTION = "TermsOfDistribution";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
+	private SettingsModelString variableParams = new SettingsModelOptionalString(
+			CFG_VARIABLE_PARAM, null, false);
 	private SettingsModelString modelName = new SettingsModelString(
 			CFG_MODEL_NAME, null);
-	private SettingsModelString variableParams = new SettingsModelString(
-			CFG_VARIABLE_PARAMS, null);
+	private SettingsModelString reference = new SettingsModelString(
+			CFG_REFERENCE_DESCRIPTION, null);
+	private SettingsModelString creators = new SettingsModelString(
+			CFG_CREATORS, null);
+	private SettingsModelString creatorsContact = new SettingsModelString(
+			CFG_CREATORS_CONTACT, null);
+	private SettingsModelDate createdDate = new SettingsModelDate(
+			CFG_CREATED_DATE);
+	private SettingsModelDate modifiedDate = new SettingsModelDate(
+			CFG_LAST_MODIFIED_DATE);
+	private SettingsModelString termsOfDistribution = new SettingsModelString(
+			CFG_TERMS_OF_DISTRIBUTION, null);
 
 	private KnimeSchema schema;
 
@@ -89,8 +109,11 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		TableReader reader = new TableReader(PmmUtilities.getTuples(inData[0],
-				schema), modelName.getStringValue(),
-				variableParams.getStringValue());
+				schema), variableParams.getStringValue(),
+				modelName.getStringValue(), reference.getStringValue(),
+				creators.getStringValue(), creatorsContact.getStringValue(),
+				createdDate.getDate(), modifiedDate.getDate(),
+				termsOfDistribution.getStringValue());
 
 		for (String name : reader.getDocuments().keySet()) {
 			SBMLDocument doc = reader.getDocuments().get(name);

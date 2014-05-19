@@ -36,8 +36,12 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentDate;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.SettingsModelDate;
+import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -62,18 +66,46 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null),
 				OUT_HISTORY, JFileChooser.SAVE_DIALOG, true);
+		DialogComponentOptionalString varParamComp = new DialogComponentOptionalString(
+				new SettingsModelOptionalString(
+						SBMLWriterNodeModel.CFG_VARIABLE_PARAM, null, false),
+				"Initial Concentration Parameter");
 		DialogComponentString nameComp = new DialogComponentString(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
 						null), "Model Name");
-		DialogComponentString varParamComp = new DialogComponentString(
+		DialogComponentString refComp = new DialogComponentString(
 				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_VARIABLE_PARAMS, null),
-				"Initial Concentration Parameter");
+						SBMLWriterNodeModel.CFG_REFERENCE_DESCRIPTION, null),
+				"Reference Description");
+		DialogComponentString creatorsComp = new DialogComponentString(
+				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATORS, null),
+				"Creators");
+		DialogComponentString creatorsContactComp = new DialogComponentString(
+				new SettingsModelString(
+						SBMLWriterNodeModel.CFG_CREATORS_CONTACT, null),
+				"Creators Contact");
+		DialogComponentDate createdComp = new DialogComponentDate(
+				new SettingsModelDate(SBMLWriterNodeModel.CFG_CREATED_DATE),
+				"Created");
+		DialogComponentDate modifiedComp = new DialogComponentDate(
+				new SettingsModelDate(
+						SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE),
+				"Last Modified");
+		DialogComponentString distComp = new DialogComponentString(
+				new SettingsModelString(
+						SBMLWriterNodeModel.CFG_TERMS_OF_DISTRIBUTION, null),
+				"Terms of Distribution");
 
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
-		addDialogComponent(nameComp);
 		addDialogComponent(varParamComp);
+		addDialogComponent(nameComp);
+		addDialogComponent(refComp);
+		addDialogComponent(creatorsComp);
+		addDialogComponent(creatorsContactComp);
+		addDialogComponent(createdComp);
+		addDialogComponent(modifiedComp);
+		addDialogComponent(distComp);
 	}
 }

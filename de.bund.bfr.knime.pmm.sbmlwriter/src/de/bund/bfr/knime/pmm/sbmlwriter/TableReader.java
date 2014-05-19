@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -79,8 +80,10 @@ public class TableReader {
 
 	private Map<String, SBMLDocument> documents;
 
-	public TableReader(List<KnimeTuple> tuples, String modelName,
-			String varParams) {
+	public TableReader(List<KnimeTuple> tuples, String varParams,
+			String modelName, String reference, String creators,
+			String creatorsContact, Date createdDate, Date modifiedDate,
+			String termsOfDistribution) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();

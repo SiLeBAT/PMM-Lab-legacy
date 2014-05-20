@@ -139,6 +139,7 @@ public class Plotable {
 						valueLists.get(var));
 				List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
+				valuesList.removeAll(Arrays.asList((Object) null));
 				Collections.sort(valuesList);
 				args.put(var, valuesList);
 			} else if (useMinMax && min != null) {

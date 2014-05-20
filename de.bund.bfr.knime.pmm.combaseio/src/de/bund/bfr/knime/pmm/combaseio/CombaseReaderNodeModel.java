@@ -134,6 +134,14 @@ public class CombaseReaderNodeModel extends NodeModel {
 		j = 0;
 		commonSchema = KnimeSchema.merge(new Model1Schema(),
 				new TimeSeriesSchema());
+		
+		PmmXmlDoc cmDoc = new PmmXmlDoc();
+		CatalogModelXml cmx = new CatalogModelXml(
+				MathUtilities.getRandomNegativeInt(), "D-Value",
+				AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
+						+ AttributeUtilities.TIME, null);
+		cmDoc.add(cmx);
+		
 		while (reader.hasMoreElements()) {
 
 			// fetch time series
@@ -148,13 +156,6 @@ public class CombaseReaderNodeModel extends NodeModel {
 
 				modelTuple = KnimeTuple.merge(commonSchema, modelTuple,
 						candidate);
-
-				PmmXmlDoc cmDoc = new PmmXmlDoc();
-				CatalogModelXml cmx = new CatalogModelXml(
-						MathUtilities.getRandomNegativeInt(), "D-Value",
-						AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
-								+ AttributeUtilities.TIME, null);
-				cmDoc.add(cmx);
 				modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
 				// modelTuple.setValue( Model1Schema.ATT_FORMULA,

@@ -78,6 +78,9 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class TableReader {
 
+	private final static String COMPARTMENT_MISSING = "CompartmentMissing";
+	private final static String SPECIES_MISSING = "SpeciesMissing";
+
 	private Map<String, SBMLDocument> documents;
 
 	public TableReader(List<KnimeTuple> tuples, String varParams,
@@ -122,18 +125,23 @@ public class TableReader {
 
 			model.setName(modelName);
 
-			if (organismXml.getName() != null) {
-				Species s = model
-						.createSpecies(createId(organismXml.getName()));
-
-				s.setName(organismXml.getName());
-			}
+			Compartment c;
+			Species s;
 
 			if (matrixXml.getName() != null) {
-				Compartment c = model.createCompartment(createId(matrixXml
-						.getName()));
-
+				c = model.createCompartment(createId(matrixXml.getName()));
 				c.setName(matrixXml.getName());
+			} else {
+				c = model.createCompartment(COMPARTMENT_MISSING);
+				c.setName(COMPARTMENT_MISSING);
+			}
+
+			if (organismXml.getName() != null) {
+				s = model.createSpecies(createId(organismXml.getName()), c);
+				s.setName(organismXml.getName());
+			} else {
+				s = model.createSpecies(SPECIES_MISSING, c);
+				s.setName(SPECIES_MISSING);
 			}
 
 			ListOf<Rule> rules = new ListOf<Rule>(2, 4);

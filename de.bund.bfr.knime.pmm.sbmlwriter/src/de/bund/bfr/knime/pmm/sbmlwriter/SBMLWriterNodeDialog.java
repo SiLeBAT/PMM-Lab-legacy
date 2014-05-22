@@ -77,13 +77,18 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelString(
 						SBMLWriterNodeModel.CFG_REFERENCE_DESCRIPTION, null),
 				"Reference Description");
-		DialogComponentString creatorsComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATORS, null),
-				"Creators");
-		DialogComponentString creatorsContactComp = new DialogComponentString(
+		DialogComponentString givenNameComp = new DialogComponentString(
 				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_CREATORS_CONTACT, null),
-				"Creators Contact");
+						SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null),
+				"Creator Given Name");
+		DialogComponentString familyNameComp = new DialogComponentString(
+				new SettingsModelString(
+						SBMLWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null),
+				"Creator Family Name");
+		DialogComponentString creatorContactComp = new DialogComponentString(
+				new SettingsModelString(
+						SBMLWriterNodeModel.CFG_CREATOR_CONTACT, null),
+				"Creator Contact");
 		DialogComponentDate createdComp = new DialogComponentDate(
 				new SettingsModelDate(SBMLWriterNodeModel.CFG_CREATED_DATE),
 				"Created");
@@ -102,8 +107,9 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(varParamComp);
 		addDialogComponent(nameComp);
 		addDialogComponent(refComp);
-		addDialogComponent(creatorsComp);
-		addDialogComponent(creatorsContactComp);
+		addDialogComponent(givenNameComp);
+		addDialogComponent(familyNameComp);
+		addDialogComponent(creatorContactComp);
 		addDialogComponent(createdComp);
 		addDialogComponent(modifiedComp);
 		addDialogComponent(distComp);

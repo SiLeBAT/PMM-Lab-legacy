@@ -45,6 +45,8 @@ import java.util.Set;
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Compartment;
+import org.sbml.jsbml.Creator;
+import org.sbml.jsbml.History;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
@@ -84,9 +86,9 @@ public class TableReader {
 	private Map<String, SBMLDocument> documents;
 
 	public TableReader(List<KnimeTuple> tuples, String varParams,
-			String modelName, String reference, String creators,
-			String creatorsContact, Date createdDate, Date modifiedDate,
-			String termsOfDistribution) {
+			String modelName, String reference, String creatorGivenName,
+			String creatorFamilyName, String creatorContact, Date createdDate,
+			Date modifiedDate, String termsOfDistribution) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();
@@ -119,11 +121,20 @@ public class TableReader {
 				continue;
 			}
 
+			History history = new History();
+
+			history.setCreatedDate(createdDate);
+			history.setModifiedDate(modifiedDate);
+			history.addCreator(new Creator(creatorGivenName, creatorFamilyName,
+					null, creatorContact));
+
 			String modelID = createId(modelName) + "_" + index;
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 
+			model.setMetaId("Meta_" + modelID);
 			model.setName(modelName);
+			model.setHistory(history);
 
 			Compartment c;
 			Species s;

@@ -67,10 +67,11 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_VARIABLE_PARAM = "variableParams";
 	protected static final String CFG_MODEL_NAME = "modelName";
 	protected static final String CFG_REFERENCE_DESCRIPTION = "referenceDescription";
-	protected static final String CFG_CREATORS = "Creators";
-	protected static final String CFG_CREATORS_CONTACT = "CreatorsContact";
+	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
+	protected static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
+	protected static final String CFG_CREATOR_CONTACT = "CreatorContact";
 	protected static final String CFG_CREATED_DATE = "CreationDate";
-	protected static final String CFG_LAST_MODIFIED_DATE = "CreationDate";
+	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
 	protected static final String CFG_TERMS_OF_DISTRIBUTION = "TermsOfDistribution";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
@@ -81,10 +82,12 @@ public class SBMLWriterNodeModel extends NodeModel {
 			CFG_MODEL_NAME, null);
 	private SettingsModelString reference = new SettingsModelString(
 			CFG_REFERENCE_DESCRIPTION, null);
-	private SettingsModelString creators = new SettingsModelString(
-			CFG_CREATORS, null);
-	private SettingsModelString creatorsContact = new SettingsModelString(
-			CFG_CREATORS_CONTACT, null);
+	private SettingsModelString creatorGivenName = new SettingsModelString(
+			CFG_CREATOR_GIVEN_NAME, null);
+	private SettingsModelString creatorFamilyName = new SettingsModelString(
+			CFG_CREATOR_FAMILY_NAME, null);
+	private SettingsModelString creatorContact = new SettingsModelString(
+			CFG_CREATOR_CONTACT, null);
 	private SettingsModelDate createdDate = new SettingsModelDate(
 			CFG_CREATED_DATE);
 	private SettingsModelDate modifiedDate = new SettingsModelDate(
@@ -111,9 +114,10 @@ public class SBMLWriterNodeModel extends NodeModel {
 		TableReader reader = new TableReader(PmmUtilities.getTuples(inData[0],
 				schema), variableParams.getStringValue(),
 				modelName.getStringValue(), reference.getStringValue(),
-				creators.getStringValue(), creatorsContact.getStringValue(),
-				createdDate.getDate(), modifiedDate.getDate(),
-				termsOfDistribution.getStringValue());
+				creatorGivenName.getStringValue(),
+				creatorFamilyName.getStringValue(),
+				creatorContact.getStringValue(), createdDate.getDate(),
+				modifiedDate.getDate(), termsOfDistribution.getStringValue());
 
 		for (String name : reader.getDocuments().keySet()) {
 			SBMLDocument doc = reader.getDocuments().get(name);
@@ -162,8 +166,15 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		outPath.saveSettingsTo(settings);
-		modelName.saveSettingsTo(settings);
 		variableParams.saveSettingsTo(settings);
+		modelName.saveSettingsTo(settings);
+		reference.saveSettingsTo(settings);
+		creatorGivenName.saveSettingsTo(settings);
+		creatorFamilyName.saveSettingsTo(settings);
+		creatorContact.saveSettingsTo(settings);
+		createdDate.saveSettingsTo(settings);
+		modifiedDate.saveSettingsTo(settings);
+		termsOfDistribution.saveSettingsTo(settings);
 	}
 
 	/**
@@ -173,8 +184,15 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		outPath.loadSettingsFrom(settings);
-		modelName.loadSettingsFrom(settings);
 		variableParams.loadSettingsFrom(settings);
+		modelName.loadSettingsFrom(settings);
+		reference.loadSettingsFrom(settings);
+		creatorGivenName.loadSettingsFrom(settings);
+		creatorFamilyName.loadSettingsFrom(settings);
+		creatorContact.loadSettingsFrom(settings);
+		createdDate.loadSettingsFrom(settings);
+		modifiedDate.loadSettingsFrom(settings);
+		termsOfDistribution.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -184,8 +202,15 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		outPath.validateSettings(settings);
-		modelName.validateSettings(settings);
 		variableParams.validateSettings(settings);
+		modelName.validateSettings(settings);
+		reference.validateSettings(settings);
+		creatorGivenName.validateSettings(settings);
+		creatorFamilyName.validateSettings(settings);
+		creatorContact.validateSettings(settings);
+		createdDate.validateSettings(settings);
+		modifiedDate.validateSettings(settings);
+		termsOfDistribution.validateSettings(settings);
 	}
 
 	/**

@@ -66,13 +66,12 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_OUT_PATH = "outPath";
 	protected static final String CFG_VARIABLE_PARAM = "variableParams";
 	protected static final String CFG_MODEL_NAME = "modelName";
-	protected static final String CFG_REFERENCE_DESCRIPTION = "referenceDescription";
 	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
 	protected static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
 	protected static final String CFG_CREATOR_CONTACT = "CreatorContact";
 	protected static final String CFG_CREATED_DATE = "CreationDate";
 	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
-	protected static final String CFG_TERMS_OF_DISTRIBUTION = "TermsOfDistribution";
+	protected static final String CFG_REFERENCE = "Reference";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
@@ -80,8 +79,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 			CFG_VARIABLE_PARAM, null, false);
 	private SettingsModelString modelName = new SettingsModelString(
 			CFG_MODEL_NAME, null);
-	private SettingsModelString reference = new SettingsModelString(
-			CFG_REFERENCE_DESCRIPTION, null);
 	private SettingsModelString creatorGivenName = new SettingsModelString(
 			CFG_CREATOR_GIVEN_NAME, null);
 	private SettingsModelString creatorFamilyName = new SettingsModelString(
@@ -92,8 +89,8 @@ public class SBMLWriterNodeModel extends NodeModel {
 			CFG_CREATED_DATE);
 	private SettingsModelDate modifiedDate = new SettingsModelDate(
 			CFG_LAST_MODIFIED_DATE);
-	private SettingsModelString termsOfDistribution = new SettingsModelString(
-			CFG_TERMS_OF_DISTRIBUTION, null);
+	private SettingsModelString reference = new SettingsModelString(
+			CFG_REFERENCE, null);
 
 	private KnimeSchema schema;
 
@@ -113,11 +110,10 @@ public class SBMLWriterNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		TableReader reader = new TableReader(PmmUtilities.getTuples(inData[0],
 				schema), variableParams.getStringValue(),
-				modelName.getStringValue(), reference.getStringValue(),
-				creatorGivenName.getStringValue(),
+				modelName.getStringValue(), creatorGivenName.getStringValue(),
 				creatorFamilyName.getStringValue(),
 				creatorContact.getStringValue(), createdDate.getDate(),
-				modifiedDate.getDate(), termsOfDistribution.getStringValue());
+				modifiedDate.getDate(), reference.getStringValue());
 
 		for (String name : reader.getDocuments().keySet()) {
 			SBMLDocument doc = reader.getDocuments().get(name);
@@ -168,13 +164,12 @@ public class SBMLWriterNodeModel extends NodeModel {
 		outPath.saveSettingsTo(settings);
 		variableParams.saveSettingsTo(settings);
 		modelName.saveSettingsTo(settings);
-		reference.saveSettingsTo(settings);
 		creatorGivenName.saveSettingsTo(settings);
 		creatorFamilyName.saveSettingsTo(settings);
 		creatorContact.saveSettingsTo(settings);
 		createdDate.saveSettingsTo(settings);
 		modifiedDate.saveSettingsTo(settings);
-		termsOfDistribution.saveSettingsTo(settings);
+		reference.saveSettingsTo(settings);
 	}
 
 	/**
@@ -186,13 +181,12 @@ public class SBMLWriterNodeModel extends NodeModel {
 		outPath.loadSettingsFrom(settings);
 		variableParams.loadSettingsFrom(settings);
 		modelName.loadSettingsFrom(settings);
-		reference.loadSettingsFrom(settings);
 		creatorGivenName.loadSettingsFrom(settings);
 		creatorFamilyName.loadSettingsFrom(settings);
 		creatorContact.loadSettingsFrom(settings);
 		createdDate.loadSettingsFrom(settings);
 		modifiedDate.loadSettingsFrom(settings);
-		termsOfDistribution.loadSettingsFrom(settings);
+		reference.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -204,13 +198,12 @@ public class SBMLWriterNodeModel extends NodeModel {
 		outPath.validateSettings(settings);
 		variableParams.validateSettings(settings);
 		modelName.validateSettings(settings);
-		reference.validateSettings(settings);
 		creatorGivenName.validateSettings(settings);
 		creatorFamilyName.validateSettings(settings);
 		creatorContact.validateSettings(settings);
 		createdDate.validateSettings(settings);
 		modifiedDate.validateSettings(settings);
-		termsOfDistribution.validateSettings(settings);
+		reference.validateSettings(settings);
 	}
 
 	/**

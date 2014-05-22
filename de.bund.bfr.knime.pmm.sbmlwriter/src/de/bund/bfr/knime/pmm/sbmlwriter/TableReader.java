@@ -57,6 +57,7 @@ import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
+import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -86,9 +87,9 @@ public class TableReader {
 	private Map<String, SBMLDocument> documents;
 
 	public TableReader(List<KnimeTuple> tuples, String varParams,
-			String modelName, String reference, String creatorGivenName,
+			String modelName, String creatorGivenName,
 			String creatorFamilyName, String creatorContact, Date createdDate,
-			Date modifiedDate, String termsOfDistribution) {
+			Date modifiedDate, String reference) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();
@@ -135,6 +136,8 @@ public class TableReader {
 			model.setMetaId("Meta_" + modelID);
 			model.setName(modelName);
 			model.setHistory(history);
+			model.setNotes(XMLNode.convertStringToXMLNode("<notes>" + reference
+					+ "</notes>"));
 
 			Compartment c;
 			Species s;

@@ -38,6 +38,7 @@ import javax.swing.JFileChooser;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentDate;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
 import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
@@ -73,10 +74,6 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentString nameComp = new DialogComponentString(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
 						null), "Model Name");
-		DialogComponentString refComp = new DialogComponentString(
-				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_REFERENCE_DESCRIPTION, null),
-				"Reference Description");
 		DialogComponentString givenNameComp = new DialogComponentString(
 				new SettingsModelString(
 						SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null),
@@ -96,22 +93,20 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelDate(
 						SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE),
 				"Last Modified");
-		DialogComponentString distComp = new DialogComponentString(
-				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_TERMS_OF_DISTRIBUTION, null),
-				"Terms of Distribution");
+		DialogComponentMultiLineString refComp = new DialogComponentMultiLineString(
+				new SettingsModelString(SBMLWriterNodeModel.CFG_REFERENCE, null),
+				"Reference as XHTML");
 
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
 		addDialogComponent(varParamComp);
 		addDialogComponent(nameComp);
-		addDialogComponent(refComp);
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);
 		addDialogComponent(createdComp);
 		addDialogComponent(modifiedComp);
-		addDialogComponent(distComp);
+		addDialogComponent(refComp);
 	}
 }

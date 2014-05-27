@@ -226,19 +226,6 @@ class MyDBTreeModel implements TreeModel {
 	  			do {
 	  				Integer id = rs.getInt("Basis");
 	  				Object oCode = rs.getObject("Code");
-	  				if (oCode == null) {
-	  					if (cutSystem == null) {
-	  						String description = rs.getString(3);
-		  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, "", description, false, codeSystemNum);
-		  					DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(mydbtn);
-							root.add(dmtn);
-							myIDs[codeSystemNum].put(id, dmtn); //  && !myLeafs.containsKey(id)
-	  					}
-	  					else {
-	  						System.err.println("Brümde????");
-	  					}
-	  				}
-	  				else {
 		  		    	int[] myCS = cutSystem;
 	  					String code = oCode.toString();
 		  				if (cutSystem == null && code.length() > 1 && knownCodeSysteme.containsKey(tablename_codeSystem + "_" + code.substring(0, 2))) {
@@ -252,16 +239,20 @@ class MyDBTreeModel implements TreeModel {
 		  				else {
 		  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, code, description, false, codeSystemNum);
 		  					DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(mydbtn);
-		  					DefaultMutableTreeNode n = look4ParentNode(myCodes, cutCode, myCS);
-							if (n != null) {
-								n.add(dmtn);
-							} else {
-								root.add(dmtn);
-							}
+		  					if (cutSystem == null && myCS == null) {
+		  						root.add(dmtn);
+		  					}
+		  					else {
+			  					DefaultMutableTreeNode n = look4ParentNode(myCodes, cutCode, myCS);
+								if (n != null) {
+									n.add(dmtn);
+								} else {
+									root.add(dmtn);
+								}
+		  					}
 							myIDs[codeSystemNum].put(id, dmtn); //  && !myLeafs.containsKey(id)
 							myCodes.put(cutCode, dmtn);
 		  				}
-	  				}
 	  			} while (rs.next());
 	  		}  	
 	    }

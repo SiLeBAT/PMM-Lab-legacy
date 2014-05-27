@@ -934,16 +934,17 @@ public class Bfrdb {
 		try {
 			//if (agentId == null || agentId < 0) {
 			agentId = queryAgentId(agentName == null ? agentDetail : agentName);
-			if (agentId == null) {
+			if (agentId == null && (agentName != null || agentDetail != null)) {
 				String sql = "INSERT INTO \"Agenzien\" (\"Agensname\") VALUES (?)";
 				PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 				psmt.setString(1, agentName == null ? agentDetail : agentName);
 				if (psmt.executeUpdate() > 0) {
 					agentId = DBKernel.getLastInsertedID(psmt);
 					if (agentId != null) {
-						sql = "INSERT INTO \"Codes_Agenzien\" (\"CodeSystem\",\"Basis\") VALUES ('PMF',?)";
+						sql = "INSERT INTO \"Codes_Agenzien\" (\"CodeSystem\",\"Code\",\"Basis\") VALUES ('PMF',?,?)";
 						psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-						psmt.setInt(1, agentId);
+						psmt.setString(1, agentId+"");
+						psmt.setInt(2, agentId);
 						psmt.executeUpdate();
 					}
 				}
@@ -951,16 +952,17 @@ public class Bfrdb {
 			//}
 			//if (matrixId == null || matrixId < 0) {
 			matrixId = queryMatrixId(matrixName == null ? matrixDetail : matrixName);
-			if (matrixId == null) {
+			if (matrixId == null && (matrixName != null || matrixDetail != null)) {
 				String sql = "INSERT INTO \"Matrices\" (\"Matrixname\") VALUES (?)";
 				PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 				psmt.setString(1, matrixName == null ? matrixDetail : matrixName);
 				if (psmt.executeUpdate() > 0) {
 					matrixId = DBKernel.getLastInsertedID(psmt);
 					if (matrixId != null) {
-						sql = "INSERT INTO \"Codes_Matrices\" (\"CodeSystem\",\"Basis\") VALUES ('PMF',?)";
+						sql = "INSERT INTO \"Codes_Matrices\" (\"CodeSystem\",\"Code\",\"Basis\") VALUES ('PMF',?,?)";
 						psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-						psmt.setInt(1, matrixId);
+						psmt.setString(1, matrixId+"");
+						psmt.setInt(2, matrixId);
 						psmt.executeUpdate();
 					}
 				}

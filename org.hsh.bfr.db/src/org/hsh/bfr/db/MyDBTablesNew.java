@@ -1726,8 +1726,8 @@ public class MyDBTablesNew extends MyDBI {
 	  	knownCodeSysteme.put("Matrices_Combase", new int[]{2,4,6}); // 
 	  	knownCodeSysteme.put("Agenzien_Combase", new int[]{2,4,6}); // 		
 	  	
-	  	knownCodeSysteme.put("Agenzien_Imported", null);
-	  	knownCodeSysteme.put("Matrices_Imported", null);
+	  	knownCodeSysteme.put("Agenzien_PMF", null);
+	  	knownCodeSysteme.put("Matrices_PMF", null);
 	  	
 	  	// treeStructure
 		treeStructure = new LinkedHashMap<Integer, String>();

@@ -249,9 +249,16 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GeschaetzteParameter' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
 
 		if (level == 2) {
+			Object gmId = DBKernel.getValue("Sekundaermodelle_Primaermodelle", "GeschaetztesSekundaermodell", rowEstMID+"", "GlobalModel");
 			numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
 			lid = DBKernel.getLastChangeLogEntries("Sekundaermodelle_Primaermodelle", firstCLID);
 			for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='Sekundaermodelle_Primaermodelle' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+			if (gmId != null) {
+				if (DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("GlobalModels") + " WHERE " + DBKernel.delimitL("ID") + "=" + gmId, true, false)) {
+					lid = DBKernel.getLastChangeLogEntries("GlobalModels", firstCLID);
+					for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GlobalModels' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+				}
+			}
 		}
 
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteModelle") + " WHERE " + DBKernel.delimitL("ID") + "=" + rowEstMID, false, false);

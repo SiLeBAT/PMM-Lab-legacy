@@ -137,7 +137,7 @@ public class EmReaderUi extends JPanel {
 	private void getDataTable(Bfrdb db) {
 		try {
 			try {
-				refresher.call();
+				if (refresher != null) refresher.call();
 			}
 			catch (Exception e1) {
 				e1.printStackTrace();

@@ -224,29 +224,43 @@ class MyDBTreeModel implements TreeModel {
 	  		ResultSet rs = DBKernel.getResultSet(sql, false);
 	  		if (rs.first()) {
 	  			do {
-	  		    	int[] myCS = cutSystem;
 	  				Integer id = rs.getInt("Basis");
-	  				String code = rs.getString("Code");
-	  				if (cutSystem == null && code.length() > 1 && knownCodeSysteme.containsKey(tablename_codeSystem + "_" + code.substring(0, 2))) {
-	  					myCS = knownCodeSysteme.get(tablename_codeSystem + "_" + code.substring(0, 2));
-	  				}
-	  				String cutCode = (myCS == null) ? cutEndZeros(code) : code; // codeSystemIsGS1
-	  				String description = rs.getString(3);
-	  				DefaultMutableTreeNode dmtn;
-	  				if (code == null || code.trim().length() == 0) {
-	  					System.err.println("Brümde?");
+	  				Object oCode = rs.getObject("Code");
+	  				if (oCode == null) {
+	  					if (cutSystem == null) {
+	  						String description = rs.getString(3);
+		  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, "", description, false, codeSystemNum);
+		  					DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(mydbtn);
+							root.add(dmtn);
+							myIDs[codeSystemNum].put(id, dmtn); //  && !myLeafs.containsKey(id)
+	  					}
+	  					else {
+	  						System.err.println("Brümde????");
+	  					}
 	  				}
 	  				else {
-	  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, code, description, false, codeSystemNum);
-	  					dmtn = new DefaultMutableTreeNode(mydbtn);
-	  					DefaultMutableTreeNode n = look4ParentNode(myCodes, cutCode, myCS);
-						if (n != null) {
-							n.add(dmtn);
-						} else {
-							root.add(dmtn);
-						}
-						myIDs[codeSystemNum].put(id, dmtn); //  && !myLeafs.containsKey(id)
-						myCodes.put(cutCode, dmtn);
+		  		    	int[] myCS = cutSystem;
+	  					String code = oCode.toString();
+		  				if (cutSystem == null && code.length() > 1 && knownCodeSysteme.containsKey(tablename_codeSystem + "_" + code.substring(0, 2))) {
+		  					myCS = knownCodeSysteme.get(tablename_codeSystem + "_" + code.substring(0, 2));
+		  				}
+		  				String cutCode = (myCS == null) ? cutEndZeros(code) : code; // codeSystemIsGS1
+		  				String description = rs.getString(3);
+		  				if (code == null || code.trim().length() == 0) {
+		  					System.err.println("Brümde?");
+		  				}
+		  				else {
+		  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, code, description, false, codeSystemNum);
+		  					DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(mydbtn);
+		  					DefaultMutableTreeNode n = look4ParentNode(myCodes, cutCode, myCS);
+							if (n != null) {
+								n.add(dmtn);
+							} else {
+								root.add(dmtn);
+							}
+							myIDs[codeSystemNum].put(id, dmtn); //  && !myLeafs.containsKey(id)
+							myCodes.put(cutCode, dmtn);
+		  				}
 	  				}
 	  			} while (rs.next());
 	  		}  	

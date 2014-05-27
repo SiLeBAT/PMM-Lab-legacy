@@ -940,6 +940,12 @@ public class Bfrdb {
 				psmt.setString(1, agentName == null ? agentDetail : agentName);
 				if (psmt.executeUpdate() > 0) {
 					agentId = DBKernel.getLastInsertedID(psmt);
+					if (agentId != null) {
+						sql = "INSERT INTO \"Codes_Agenzien\" (\"CodeSystem\",\"Basis\") VALUES ('Imported',?)";
+						psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+						psmt.setInt(1, agentId);
+						psmt.executeUpdate();
+					}
 				}
 			}
 			//}
@@ -951,6 +957,12 @@ public class Bfrdb {
 				psmt.setString(1, matrixName == null ? matrixDetail : matrixName);
 				if (psmt.executeUpdate() > 0) {
 					matrixId = DBKernel.getLastInsertedID(psmt);
+					if (matrixId != null) {
+						sql = "INSERT INTO \"Codes_Matrices\" (\"CodeSystem\",\"Basis\") VALUES ('Imported',?)";
+						psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+						psmt.setInt(1, matrixId);
+						psmt.executeUpdate();
+					}
 				}
 			}
 			//}

@@ -182,6 +182,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				if (row != null) {
 					String addressOther = getStrVal(row.getCell(7));
 					String product = getStrVal(row.getCell(8));
+					String DeliveryDate_Day = getStrVal(row.getCell(9));
+					String DeliveryDate_Month = getStrVal(row.getCell(10));
+					String DeliveryDate_Year = getStrVal(row.getCell(11));
+					String Amount = getStrVal(row.getCell(12));
+					String Lot_Invoice = getStrVal(row.getCell(13));
 					busRow = getRow(businessSheet, addressOther, 9);
 					if (busRow != null) {
 						String id = getStrVal(busRow.getCell(0)); //
@@ -193,8 +198,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String county = getStrVal(busRow.getCell(6));
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
-						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, null, null, null,
-								null, null, null, null, null, null, null, null, null, null, null, id, name, street, streetNo, zip, city, county, country, null, vat, "LSTZAKNoris"
+						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, Lot_Invoice, null, null,
+								null, null, null, null, null, DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, id, name, street, streetNo, zip, city, county, country, null, vat, "LSTZAKNoris"
 										+ efsaID + "_" + (i + 1), null, null, null, null, null);
 					} else if (addressOther != null) {
 						System.err.println("busRow = null... addressOther: " + addressOther + "\tRow: " + (i + 1));
@@ -223,6 +228,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				if (row != null) {
 					String addressOther = getStrVal(row.getCell(7));
 					String product = getStrVal(row.getCell(8));
+					String DeliveryDate_Day = getStrVal(row.getCell(9));
+					String DeliveryDate_Month = getStrVal(row.getCell(10));
+					String DeliveryDate_Year = getStrVal(row.getCell(11));
+					String Amount = getStrVal(row.getCell(12));
+					String Lot_Invoice = getStrVal(row.getCell(13));
 					busRow = getRow(businessSheet, addressOther, 9);
 					if (busRow != null) {
 						String id = getStrVal(busRow.getCell(0)); //
@@ -234,8 +244,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String county = getStrVal(busRow.getCell(6));
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
-						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, product, null, null, null, null, null, null, null, null, null, null,
-								null, null, null, null, null, null, idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, "LSTZAKNoris"
+						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, product, null, null, Lot_Invoice, null, null, null, null, null, null, null,
+								DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, "LSTZAKNoris"
 										+ efsaID + "_Sup_" + (i + 1), null, null, null, null, null);
 					} else if (addressOther != null) {
 						System.err.println("suppliers busRow = null... addressOther: " + addressOther + "\tRow: " + (i + 1));

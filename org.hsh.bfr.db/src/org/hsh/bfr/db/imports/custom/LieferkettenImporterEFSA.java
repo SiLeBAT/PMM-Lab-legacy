@@ -84,56 +84,62 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	private int maxNodeID = 100000;
 	private HashMap<String, Integer> nodeIds = null;
 
-	public void mergeIDs() throws IOException {		
+	public void mergeIDs() {		
 		System.err.println("Merging...");
-		FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
-		POIFSFileSystem fs = new POIFSFileSystem(is);
-		HSSFWorkbook wb = new HSSFWorkbook(fs);
+		try {
+			FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
+			POIFSFileSystem fs = new POIFSFileSystem(is);
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
 
-		HSSFSheet mergeSheet = wb.getSheet("mergeList");
-		int numRows = mergeSheet.getLastRowNum() + 1;
-		for (int i = 1; i < numRows; i++) {
-			try {
-				HSSFRow row = mergeSheet.getRow(i);
-				if (row != null) {
-					HSSFCell cell = row.getCell(0);
-					Integer oldEfsaID = (int) cell.getNumericCellValue();
-					cell = row.getCell(1);
-					Integer newEfsaID = (int) cell.getNumericCellValue();
-					DBKernel.mergeIDs(DBKernel.getDBConnection(), "Station", oldEfsaID, newEfsaID);
+			HSSFSheet mergeSheet = wb.getSheet("mergeList");
+			int numRows = mergeSheet.getLastRowNum() + 1;
+			for (int i = 1; i < numRows; i++) {
+				try {
+					HSSFRow row = mergeSheet.getRow(i);
+					if (row != null) {
+						HSSFCell cell = row.getCell(0);
+						Integer oldEfsaID = (int) cell.getNumericCellValue();
+						cell = row.getCell(1);
+						Integer newEfsaID = (int) cell.getNumericCellValue();
+						DBKernel.mergeIDs(DBKernel.getDBConnection(), "Station", oldEfsaID, newEfsaID);
+					}
+				} catch (Exception e) {
+					System.err.println(e.getMessage() + "\t" + i);
 				}
-			} catch (Exception e) {
-				System.err.println(e.getMessage() + "\t" + i);
 			}
 		}
+		catch (Exception e) {}
 		System.err.println("Merging...Fin!");
 	}
 
-	private HashMap<String, Integer> loadNodeIDs10000() throws IOException {
+	private HashMap<String, Integer> loadNodeIDs10000() {
 		System.err.println("loadNodeIDs10000...");
 
 		nodeIds = new HashMap<String, Integer>();
-		FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\nodesids10000.xls");
-		POIFSFileSystem fs = new POIFSFileSystem(is);
-		HSSFWorkbook wb = new HSSFWorkbook(fs);
+		try {
+			FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\nodesids10000.xls");
+			POIFSFileSystem fs = new POIFSFileSystem(is);
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
 
-		HSSFSheet defaultSheet = wb.getSheet("default");
-		int numRows = defaultSheet.getLastRowNum() + 1;
-		for (int i = 1; i < numRows; i++) {
-			try {
-				HSSFRow row = defaultSheet.getRow(i);
-				if (row != null) {
-					HSSFCell cell = row.getCell(0);
-					Integer id = (int) cell.getNumericCellValue();
-					if (id > maxNodeID) maxNodeID = id;
-					cell = row.getCell(1);
-					String name = cell.getStringCellValue();
-					nodeIds.put(name, id);
+			HSSFSheet defaultSheet = wb.getSheet("default");
+			int numRows = defaultSheet.getLastRowNum() + 1;
+			for (int i = 1; i < numRows; i++) {
+				try {
+					HSSFRow row = defaultSheet.getRow(i);
+					if (row != null) {
+						HSSFCell cell = row.getCell(0);
+						Integer id = (int) cell.getNumericCellValue();
+						if (id > maxNodeID) maxNodeID = id;
+						cell = row.getCell(1);
+						String name = cell.getStringCellValue();
+						nodeIds.put(name, id);
+					}
+				} catch (Exception e) {
+					System.err.println(e.getMessage() + "\t" + i);
 				}
-			} catch (Exception e) {
-				System.err.println(e.getMessage() + "\t" + i);
 			}
 		}
+		catch (Exception e) {}
 
 		System.err.println("loadNodeIDs10000...Fin!");
 		return nodeIds;

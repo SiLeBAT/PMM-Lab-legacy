@@ -445,16 +445,11 @@ public class TableReader {
 			index++;
 
 			if (isTertiaryModel) {
+				AgentXml agent = (AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0);
+				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0);
 				Set<String> secModels = new LinkedHashSet<String>();
-				Set<String> organisms = new LinkedHashSet<String>();
-				Set<String> matrices = new LinkedHashSet<String>();
-
-				for (KnimeTuple t : dataTuples.get(id)) {
-					organisms.add(((AgentXml) t.getPmmXml(
-							TimeSeriesSchema.ATT_AGENT).get(0)).getName());
-					matrices.add(((MatrixXml) t.getPmmXml(
-							TimeSeriesSchema.ATT_MATRIX).get(0)).getName());
-				}
 
 				for (KnimeTuple t : combined.get(tuple)) {
 					secModels.add(((CatalogModelXml) t.getPmmXml(
@@ -462,24 +457,14 @@ public class TableReader {
 				}
 
 				String secString = "";
-				String agentString = "";
-				String matrixString = "";
 
 				for (String s : secModels) {
 					secString += "," + s;
 				}
 
-				for (String s : organisms) {
-					agentString += "," + s;
-				}
-
-				for (String s : matrices) {
-					matrixString += "," + s;
-				}
-
 				stringColumnValues.get(5).add(secString.substring(1));
-				stringColumnValues.get(6).add(agentString.substring(1));
-				stringColumnValues.get(7).add(matrixString.substring(1));
+				stringColumnValues.get(6).add(agent.getName());
+				stringColumnValues.get(7).add(matrix.getName());
 			}
 
 			doubleColumnValues.get(0).add(

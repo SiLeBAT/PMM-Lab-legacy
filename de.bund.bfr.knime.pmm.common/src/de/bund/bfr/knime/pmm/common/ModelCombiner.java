@@ -83,6 +83,7 @@ public class ModelCombiner {
 		Map<Integer, Set<String>> matrices = new LinkedHashMap<Integer, Set<String>>();
 		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<Integer, Set<String>>();
 		Map<Integer, Set<String>> matrixDetails = new LinkedHashMap<Integer, Set<String>>();
+		Map<Integer, Set<String>> comments = new LinkedHashMap<Integer, Set<String>>();
 
 		for (KnimeTuple tuple : tuples) {
 			int modelId = -1;
@@ -111,6 +112,7 @@ public class ModelCombiner {
 				matrices.put(modelId, new LinkedHashSet<String>());
 				organismDetails.put(modelId, new LinkedHashSet<String>());
 				matrixDetails.put(modelId, new LinkedHashSet<String>());
+				comments.put(modelId, new LinkedHashSet<String>());
 			}
 
 			if (containsData) {
@@ -122,6 +124,8 @@ public class ModelCombiner {
 						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail();
 				String matrixDetail = ((MatrixXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail();
+				String comment = ((MdInfoXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment();
 
 				if (organism != null) {
 					organisms.get(modelId).add(organism);
@@ -137,6 +141,10 @@ public class ModelCombiner {
 
 				if (matrixDetail != null) {
 					matrixDetails.get(modelId).add(matrixDetail);
+				}
+
+				if (comment != null) {
+					comments.get(modelId).add(comment);
 				}
 			}
 
@@ -391,6 +399,7 @@ public class ModelCombiner {
 				String matrix = "";
 				String organismDetail = "";
 				String matrixDetail = "";
+				String comment = "";
 
 				for (String o : organisms.get(id)) {
 					organism += "," + o;
@@ -407,7 +416,7 @@ public class ModelCombiner {
 				if (!matrix.isEmpty()) {
 					matrix = matrix.substring(1);
 				}
-				
+
 				for (String o : organismDetails.get(id)) {
 					organismDetail += "," + o;
 				}
@@ -424,8 +433,18 @@ public class ModelCombiner {
 					matrixDetail = matrixDetail.substring(1);
 				}
 
+				for (String c : comments.get(id)) {
+					comment += "," + c;
+				}
+
+				if (!comment.isEmpty()) {
+					comment = comment.substring(1);
+				}
+
 				AgentXml organismXml = new AgentXml();
 				MatrixXml matrixXml = new MatrixXml();
+				MdInfoXml infoXml = new MdInfoXml(null, null, comment, null,
+						null);
 
 				organismXml.setName(organism);
 				organismXml.setDetail(organismDetail);
@@ -436,6 +455,8 @@ public class ModelCombiner {
 						organismXml));
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(
 						matrixXml));
+				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(
+						infoXml));
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -176,8 +177,13 @@ public class TableReader {
 			stringColumns = Arrays.asList(IDENTIFIER, ChartConstants.STATUS,
 					Model1Schema.FORMULA, Model1Schema.ATT_EMLIT,
 					Model1Schema.FITTEDMODELNAME, Model2Schema.FORMULA,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX);
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+					AttributeUtilities.AGENT_DETAILS,
+					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -212,8 +218,17 @@ public class TableReader {
 				stringColumns = Arrays.asList(IDENTIFIER,
 						ChartConstants.STATUS, Model1Schema.FORMULA,
 						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME,
-						AttributeUtilities.DATAID);
+						AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
+						TimeSeriesSchema.ATT_MATRIX,
+						AttributeUtilities.AGENT_DETAILS,
+						AttributeUtilities.MATRIX_DETAILS,
+						MdInfoXml.ATT_COMMENT);
 				stringColumnValues = new ArrayList<List<String>>();
+				stringColumnValues.add(new ArrayList<String>());
+				stringColumnValues.add(new ArrayList<String>());
+				stringColumnValues.add(new ArrayList<String>());
+				stringColumnValues.add(new ArrayList<String>());
+				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
@@ -444,11 +459,7 @@ public class TableReader {
 					((EstModelXml) estModelXml.get(0)).getName());
 			index++;
 
-			if (isTertiaryModel) {
-				AgentXml agent = (AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0);
-				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0);
+			if (isTertiaryModel) {				
 				Set<String> secModels = new LinkedHashSet<String>();
 
 				for (KnimeTuple t : combined.get(tuple)) {
@@ -462,9 +473,23 @@ public class TableReader {
 					secString += "," + s;
 				}
 
-				stringColumnValues.get(5).add(secString.substring(1));
+				stringColumnValues.get(5).add(secString.substring(1));				
+			}
+			
+			if (isTertiaryModel || containsData) {
+				AgentXml agent = (AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0);
+				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0);
+				
 				stringColumnValues.get(6).add(agent.getName());
 				stringColumnValues.get(7).add(matrix.getName());
+				stringColumnValues.get(8).add(agent.getDetail());
+				stringColumnValues.get(9).add(matrix.getDetail());
+				stringColumnValues.get(10).add(
+						((MdInfoXml) tuple.getPmmXml(
+								TimeSeriesSchema.ATT_MDINFO).get(0))
+								.getComment());
 			}
 
 			doubleColumnValues.get(0).add(

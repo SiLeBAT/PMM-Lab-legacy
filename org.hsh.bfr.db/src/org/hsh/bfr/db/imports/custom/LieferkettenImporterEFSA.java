@@ -370,8 +370,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
 				String serial = getStrVal(row.getCell(0)); // Serial_number
-				//String BL0 = getStrVal(row.getCell(1)); // Contact_Region
-				//String KP = getStrVal(row.getCell(2)); // Contact_person
+				String BL0 = getStrVal(row.getCell(1)); // Contact_Region
+				String KP = getStrVal(row.getCell(2)); // Contact_person
 
 				String idRec = getStrVal(row.getCell(3)); // ID_Address
 				String adressRec = getStrVal(row.getCell(4)); // Address
@@ -512,7 +512,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1)
+				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1) + ", KP: " + KP + ", BL0: " + BL0
 						+ "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
 
 				Integer c1 = null;
@@ -1069,6 +1069,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						if (transformFormat)
 						;
 						else nsf = doImportMaciel(wb, progress, "115"); // 115: Noris
+					} else if (filename.endsWith("agrifruct.xls")) {
+						if (transformFormat)
+						;
+						else nsf = doImportMaciel(wb, progress, "8"); // 8: Agrifruct
 					} else if (filename.endsWith("Sunnyside_Suppliers.xls")) {
 						if (transformFormat)
 						;

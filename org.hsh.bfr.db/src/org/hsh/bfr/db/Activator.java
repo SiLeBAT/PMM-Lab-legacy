@@ -60,7 +60,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		DBKernel.isKNIME = true;
 		MyLogger.isKNIME = true;
-		DBKernel.getLocalConn(false);
+		DBKernel.getLocalConn(true);
 		super.start(context);
 		plugin = this;
 	}

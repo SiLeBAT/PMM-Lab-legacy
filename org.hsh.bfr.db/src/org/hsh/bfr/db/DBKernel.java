@@ -70,6 +70,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.zip.CRC32;
 
 import javax.swing.JFrame;
 
@@ -1467,8 +1468,11 @@ public class DBKernel {
 		Connection result = null;
 		//try {
 		String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
-		String username = "SA";//DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA");
-		String password = "";//DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "");
+		CRC32 crc32 = new CRC32();
+		crc32.update(internalPath.getBytes());
+		long crc32Out = crc32.getValue();
+		String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA");
+		String password = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "");
 		new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
 		/*
 		 * DBKernel.isServerConnection = DBKernel.isHsqlServer(internalPath); if

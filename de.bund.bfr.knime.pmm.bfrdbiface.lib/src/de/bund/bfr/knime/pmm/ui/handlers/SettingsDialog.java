@@ -42,6 +42,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.sql.Connection;
+import java.util.zip.CRC32;
 
 import javax.swing.*;
 
@@ -71,10 +72,14 @@ public class SettingsDialog extends JFrame {
 	}
 
 	private void fillFields() {
-		dbPath.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath()));
-		username.setText("SA"); // DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA")
-		password.setText(""); // DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "")
-		readOnly.setSelected(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
+		String idbp = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath());
+		dbPath.setText(idbp);
+		CRC32 crc32 = new CRC32();
+		crc32.update(idbp.getBytes());
+		long crc32Out = crc32.getValue();
+		username.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA"));
+		password.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, ""));
+		readOnly.setSelected(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false));
 		username.setEnabled(false);
 		password.setEnabled(false);
 	}
@@ -101,9 +106,12 @@ public class SettingsDialog extends JFrame {
 		}
 		if (hasChanged(dbt, username.getText(), String.valueOf(password.getPassword()), readOnly.isSelected())) {
 			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
-			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
-			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
-			DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
+			CRC32 crc32 = new CRC32();
+			crc32.update(dbt.getBytes());
+			long crc32Out = crc32.getValue();
+			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, username.getText());
+			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, String.valueOf(password.getPassword()));
+			DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, readOnly.isSelected());
 			DBKernel.prefs.prefsFlush();
 			DBKernel.closeDBConnections(true);
 
@@ -127,20 +135,33 @@ public class SettingsDialog extends JFrame {
 				e1.printStackTrace();
 			}
 		}
+		username.setEnabled(false);
+		password.setEnabled(false);
 		this.dispose();
 	}
 
 	private boolean hasChanged(String dbt, String username, String password, boolean isRO) {
-		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "").equals(username)
-				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "").equals(password) || DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false) != isRO;
+		CRC32 crc32 = new CRC32();
+		crc32.update(dbt.getBytes());
+		long crc32Out = crc32.getValue();
+		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "").equals(username)
+				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "").equals(password) || DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false) != isRO;
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {
+		username.setEnabled(false);
+		password.setEnabled(false);
 		this.dispose();
+	}
+
+	private void button2ActionPerformed(ActionEvent e) {
+		username.setEnabled(true);
+		password.setEnabled(true);
 	}
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+		// Generated using JFormDesigner non-commercial license
 		dialogPane = new JPanel();
 		contentPanel = new JPanel();
 		label1 = new JLabel();
@@ -150,6 +171,7 @@ public class SettingsDialog extends JFrame {
 		username = new JTextField();
 		label4 = new JLabel();
 		password = new JPasswordField();
+		button2 = new JButton();
 		label2 = new JLabel();
 		readOnly = new JCheckBox();
 		buttonBar = new JPanel();
@@ -171,7 +193,7 @@ public class SettingsDialog extends JFrame {
 			{
 				contentPanel.setLayout(new FormLayout(
 					"2*(default, $lcgap), default",
-					"3*(default, $lgap), default"));
+					"4*(default, $lgap), default"));
 
 				//---- label1 ----
 				label1.setText("DB Path:");
@@ -201,14 +223,24 @@ public class SettingsDialog extends JFrame {
 				contentPanel.add(label4, CC.xy(1, 5));
 				contentPanel.add(password, CC.xywh(3, 5, 3, 1));
 
+				//---- button2 ----
+				button2.setText("Enable Username/password");
+				button2.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						button2ActionPerformed(e);
+					}
+				});
+				contentPanel.add(button2, CC.xy(3, 7));
+
 				//---- label2 ----
 				label2.setText("DB Read-only:");
 				label2.setVisible(false);
-				contentPanel.add(label2, CC.xy(1, 7));
+				contentPanel.add(label2, CC.xy(1, 9));
 
 				//---- readOnly ----
 				readOnly.setVisible(false);
-				contentPanel.add(readOnly, CC.xywh(3, 7, 3, 1));
+				contentPanel.add(readOnly, CC.xywh(3, 9, 3, 1));
 			}
 			dialogPane.add(contentPanel, BorderLayout.CENTER);
 
@@ -248,6 +280,7 @@ public class SettingsDialog extends JFrame {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+	// Generated using JFormDesigner non-commercial license
 	private JPanel dialogPane;
 	private JPanel contentPanel;
 	private JLabel label1;
@@ -257,6 +290,7 @@ public class SettingsDialog extends JFrame {
 	private JTextField username;
 	private JLabel label4;
 	private JPasswordField password;
+	private JButton button2;
 	private JLabel label2;
 	private JCheckBox readOnly;
 	private JPanel buttonBar;

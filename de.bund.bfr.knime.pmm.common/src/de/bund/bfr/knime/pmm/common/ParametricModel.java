@@ -63,6 +63,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_MODELID = "ModelCatalogId";
 	private static final String ATT_MODELCLASS = "ModelClass";
 	private static final String ATT_ESTMODELID = "EstModelId";
+	private static final String ATT_GLOBALMODELID = "GlobalModelId";
 	private static final String ATT_RMS = "RMS";
 	private static final String ATT_RSS = "RSS";
 	private static final String ATT_AIC = "AIC";
@@ -113,6 +114,15 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private Double bic;
 	private int condId;
 	
+	private Integer globalModelId = null;
+
+	public Integer getGlobalModelId() {
+		return globalModelId;
+	}
+	public void setGlobalModelId(Integer globalModelId) {
+		this.globalModelId = globalModelId;
+	}
+
 	private Boolean isChecked;
 	private Integer qualityScore;
 	private String comment;
@@ -134,6 +144,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		comment = null;
 		modelId = MathUtilities.getRandomNegativeInt();
 		estModelId = MathUtilities.getRandomNegativeInt();
+		globalModelId = MathUtilities.getRandomNegativeInt();
 		
 		estLit = new PmmXmlDoc();
 		modelLit = new PmmXmlDoc();
@@ -222,6 +233,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		if (this.aic == null) this.aic = Double.NaN;
 		if (this.bic == null) this.bic = Double.NaN;
 		if (newTsID != null) this.setCondId(newTsID);
+		
+		if (level == 2) {
+			globalModelId = row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+		}
 	}
 	public ParametricModel(final Element modelElement) {
 		this();
@@ -232,6 +247,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
+		if (modelElement.getAttributeValue(ATT_GLOBALMODELID) != null) globalModelId = Integer.valueOf(modelElement.getAttributeValue(ATT_GLOBALMODELID));
 		
 		if (modelElement.getAttributeValue(ATT_CHECKED) != null && !modelElement.getAttributeValue(ATT_CHECKED).isEmpty()) isChecked = Boolean.valueOf( modelElement.getAttributeValue(ATT_CHECKED) );
 		if (modelElement.getAttributeValue(ATT_COMMENT) != null && !modelElement.getAttributeValue(ATT_COMMENT).isEmpty()) comment = modelElement.getAttributeValue(ATT_COMMENT);
@@ -444,6 +460,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		clonedPM.setGlobalModelId(globalModelId);
 
 		return clonedPM;
 	}
@@ -1000,6 +1018,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelElement.setAttribute( ATT_LEVEL, String.valueOf( level ) );
 		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );
 		modelElement.setAttribute( ATT_ESTMODELID, String.valueOf( estModelId ) );
+		modelElement.setAttribute(ATT_GLOBALMODELID, String.valueOf(globalModelId));
 		modelElement.setAttribute( ATT_CONDID, String.valueOf( condId ) );
 		modelElement.setAttribute( ATT_RSS, String.valueOf( rss ) );
 		modelElement.setAttribute( ATT_RMS, String.valueOf( rms ) );
@@ -1108,6 +1127,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 
     		tuple.setValue(Model2Schema.ATT_MLIT, modelLit);
     		tuple.setValue(Model2Schema.ATT_EMLIT, estLit);
+    		
+    		if (globalModelId != null) {
+    			tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelId);
+    		}
 		}
 				
 		return tuple;

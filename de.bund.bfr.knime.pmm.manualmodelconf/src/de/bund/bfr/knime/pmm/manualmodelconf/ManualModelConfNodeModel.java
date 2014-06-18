@@ -109,7 +109,6 @@ public class ManualModelConfNodeModel extends NodeModel {
         	KnimeTuple tupleM1 = null;
         	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
         	PmmTimeSeries tstuple = new PmmTimeSeries();
-        	int globalID = MathUtilities.getRandomNegativeInt();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {
         		if (el instanceof ParametricModel) {
 	        		ParametricModel model = (ParametricModel) el;	        		
@@ -139,9 +138,8 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    	    		// SecondaryModel
 	    				//if (model.getIndepVarSet().size() > 0) {
 	    					KnimeTuple tupleM2 = model.getKnimeTuple();
-	    					tupleM2.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, null);
+
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
-	    					tupleM2.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalID);
 	    		    		rowSec.add(tupleM2);					
 	    				//}	    		
 	    			}

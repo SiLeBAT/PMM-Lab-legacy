@@ -796,7 +796,7 @@ public class MMC_M extends JPanel {
 
 		ParametricModel pm = finalizePM(-1);
 		
-		if (pm.getIndependent().getElementSet().isEmpty()) {
+		if (pm.getLevel() == 1 && pm.getIndependent().getElementSet().isEmpty()) {
 			throw new InvalidSettingsException("No Independent Variable is specified");
 		}
 		

@@ -53,7 +53,6 @@ import org.hsh.bfr.db.gui.Login;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
-import de.bund.bfr.knime.pmm.common.resources.Resources;
 import de.bund.bfr.knime.pmm.common.units.CategoryReader;
 
 /**
@@ -67,7 +66,7 @@ public class SettingsDialog extends JFrame {
 
 	public SettingsDialog() {
 		initComponents();
-		this.setIconImage(Resources.getInstance().getDefaultIcon());
+		//this.setIconImage(Resources.getInstance().getDefaultIcon());
 		fillFields();
 	}
 
@@ -145,7 +144,8 @@ public class SettingsDialog extends JFrame {
 		crc32.update(dbt.getBytes());
 		long crc32Out = crc32.getValue();
 		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "").equals(username)
-				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "").equals(password) || DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false) != isRO;
+				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "").equals(password)
+				|| DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false) != isRO;
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {
@@ -191,9 +191,7 @@ public class SettingsDialog extends JFrame {
 
 			//======== contentPanel ========
 			{
-				contentPanel.setLayout(new FormLayout(
-					"2*(default, $lcgap), default",
-					"4*(default, $lgap), default"));
+				contentPanel.setLayout(new FormLayout("2*(default, $lcgap), default", "4*(default, $lgap), default"));
 
 				//---- label1 ----
 				label1.setText("DB Path:");
@@ -224,7 +222,7 @@ public class SettingsDialog extends JFrame {
 				contentPanel.add(password, CC.xywh(3, 5, 3, 1));
 
 				//---- button2 ----
-				button2.setText("Enable Username/password");
+				button2.setText("Change Username/password");
 				button2.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -247,9 +245,7 @@ public class SettingsDialog extends JFrame {
 			//======== buttonBar ========
 			{
 				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
-				buttonBar.setLayout(new FormLayout(
-					"$glue, $button, $rgap, $button",
-					"pref"));
+				buttonBar.setLayout(new FormLayout("$glue, $button, $rgap, $button", "pref"));
 
 				//---- okButton ----
 				okButton.setText("OK");
@@ -296,6 +292,7 @@ public class SettingsDialog extends JFrame {
 	private JPanel buttonBar;
 	private JButton okButton;
 	private JButton cancelButton;
+
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 
 	class FolderFilter implements FilenameFilter {

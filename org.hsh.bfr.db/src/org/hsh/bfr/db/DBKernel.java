@@ -1449,7 +1449,7 @@ public class DBKernel {
 		final Connection connection = getLocalConn(true);
 		try {
 			connection.setReadOnly(DBKernel.isReadOnly());
-			if (DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null) {
+			if (DBKernel.mainFrame != null && DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null) {
 				DBKernel.mainFrame.getMyList().getMyDBTable().setConnection(connection);
 			}
 		} catch (SQLException e) {

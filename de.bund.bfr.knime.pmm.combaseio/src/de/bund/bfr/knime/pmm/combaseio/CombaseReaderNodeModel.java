@@ -67,6 +67,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 /**
  * This is the model implementation of CombaseReader.
@@ -109,141 +110,89 @@ public class CombaseReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-
-		BufferedDataContainer buf, buf2;
-		CombaseReader reader;
-		PmmTimeSeries candidate;
-		int j;
-		PmmXmlDoc doc;
-		ParamXml paramXml;
-		KnimeSchema tsm1Schema;
-		KnimeTuple modelTuple;
-		Double start;
-		KnimeSchema commonSchema;
-
-		tsm1Schema = KnimeSchema.merge(new TimeSeriesSchema(),
+		CombaseReader reader = new CombaseReader(filename);
+		KnimeSchema commonSchema = KnimeSchema.merge(new TimeSeriesSchema(),
 				new Model1Schema());
-
-		// initialize combase reader
-		reader = new CombaseReader(filename);
-
-		// initialize table buffer
-		buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
-		buf2 = exec.createDataContainer(tsm1Schema.createSpec());
-
-		j = 0;
-		commonSchema = KnimeSchema.merge(new Model1Schema(),
-				new TimeSeriesSchema());
-		
+		BufferedDataContainer buf = exec
+				.createDataContainer(new TimeSeriesSchema().createSpec());
+		BufferedDataContainer buf2 = exec.createDataContainer(commonSchema
+				.createSpec());
 		PmmXmlDoc cmDoc = new PmmXmlDoc();
-		CatalogModelXml cmx = new CatalogModelXml(
-				MathUtilities.getRandomNegativeInt(), "D-Value",
-				AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
-						+ AttributeUtilities.TIME, null);
-		cmDoc.add(cmx);
-		
+
+		cmDoc.add(new CatalogModelXml(MathUtilities.getRandomNegativeInt(),
+				"D-Value", AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
+						+ AttributeUtilities.TIME, null));
+
+		int j = 0;
+
 		while (reader.hasMoreElements()) {
+			PmmTimeSeries timeSeries = reader.nextElement();
 
-			// fetch time series
-			candidate = reader.nextElement();
+			if (timeSeries.isEmpty()) {
+				if (Double.isNaN(timeSeries.getMaximumRate())
+						|| Double.isInfinite(timeSeries.getMaximumRate())) {
+					continue;
+				}
 
-			if (candidate.isEmpty()) {
+				KnimeTuple modelTuple = KnimeTuple.merge(commonSchema,
+						new KnimeTuple(commonSchema), timeSeries);
 
-				PmmXmlDoc indepXML = new PmmXmlDoc();
-
-				modelTuple = new KnimeTuple(commonSchema);
-				indepXML.add(new IndepXml(AttributeUtilities.TIME, null, null));
-
-				modelTuple = KnimeTuple.merge(commonSchema, modelTuple,
-						candidate);
 				modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
-				// modelTuple.setValue( Model1Schema.ATT_FORMULA,
-				// TimeSeriesSchema.LOGC+"=LogC0+mumax*"+TimeSeriesSchema.TIME
-				// );
-				// modelTuple.setValue( Model1Schema.ATT_PARAMNAME,
-				// "LocC0,mumax" );
-
-				if (Double.isNaN(candidate.getMaximumRate())
-						|| Double.isInfinite(candidate.getMaximumRate()))
-					continue;
+				Double start;
 
 				if (useStartValue != 1) {
 					start = null;
-				} else if (candidate.getMaximumRate() >= 0) {
+				} else if (timeSeries.getMaximumRate() >= 0) {
 					start = startGrow;
 				} else {
 					start = startElim;
 				}
 
+				PmmXmlDoc depXml = new PmmXmlDoc();
+				PmmXmlDoc indepXML = new PmmXmlDoc();
 				PmmXmlDoc paramDoc = new PmmXmlDoc();
-				ParamXml px = new ParamXml("LocC0", start, null, null, null,
-						null, null);
-				paramDoc.add(px);
-				px = new ParamXml("mumax", candidate.getMaximumRate(), null,
-						null, null, null, null);
-				paramDoc.add(px);
-				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
-				// modelTuple.setValue( Model1Schema.ATT_VALUE,
-				// start+","+candidate.getMaximumRate() );
+
+				depXml.add(new DepXml(AttributeUtilities.CONCENTRATION,
+						Categories.getConcentrations().get(0), Categories
+								.getConcentrationCategories().get(0)
+								.getStandardUnit()));
+				indepXML.add(new IndepXml(AttributeUtilities.TIME, null, null,
+						Categories.getTime(), Categories.getTimeCategory()
+								.getStandardUnit()));
+				paramDoc.add(new ParamXml("LogC0", start, null, null, null,
+						null, null));
+				paramDoc.add(new ParamXml("mumax", timeSeries.getMaximumRate(),
+						null, null, null, null, null));
+
+				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depXml);
 				modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
-				paramDoc = new PmmXmlDoc();
-				DepXml dx = new DepXml(AttributeUtilities.CONCENTRATION);
-				paramDoc.add(dx);
-				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
-				// modelTuple.setValue(Model1Schema.ATT_DEPVAR,
-				// TimeSeriesSchema.LOGC);
-				// modelTuple.setValue( Model1Schema.ATT_MODELID,
-				// MathUtilities.getRandomNegativeInt() );
-				int ri = MathUtilities.getRandomNegativeInt();
+				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
+
 				PmmXmlDoc emDoc = new PmmXmlDoc();
-				EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null,
-						null, null, null);
-				emDoc.add(emx);
+				PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+				int estModelID = MathUtilities.getRandomNegativeInt();
+				int dataID = MathUtilities.getRandomNegativeInt();
+
+				emDoc.add(new EstModelXml(estModelID, "EM_" + estModelID, null,
+						null, null, null, null));
+				mdInfoDoc.add(new MdInfoXml(dataID, "i" + dataID,
+						COMMENT_CLAUSE, null, null));
+
 				modelTuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
-				// modelTuple.setValue( Model1Schema.ATT_ESTMODELID,
-				// MathUtilities.getRandomNegativeInt() );
-				// modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
-				// modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );
-				//modelTuple.setValue(TimeSeriesSchema.ATT_COMMENT, COMMENT_CLAUSE);
-        		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
-        		ri = MathUtilities.getRandomNegativeInt();
-        		MdInfoXml mdix = new MdInfoXml(ri, "i"+ri, COMMENT_CLAUSE, null, null);
-        		mdInfoDoc.add(mdix);
-        		modelTuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
-
-				doc = new PmmXmlDoc();
-
-				paramXml = new ParamXml("LogC0", start);
-				doc.add(paramXml);
-
-				paramXml = new ParamXml("mumax", candidate.getMaximumRate());
-				doc.add(paramXml);
-
-				modelTuple.setValue(Model1Schema.ATT_PARAMETER, doc);
+				modelTuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 
 				buf2.addRowToTable(new DefaultRow(String.valueOf(j++),
-						KnimeTuple.merge(tsm1Schema, candidate, modelTuple)));
-
-				continue;
+						modelTuple));
+			} else {
+				buf.addRowToTable(new DefaultRow(String.valueOf(j++),
+						timeSeries));
 			}
-
-			// doc.add( candidate );
-			buf.addRowToTable(new DefaultRow(String.valueOf(j++), candidate));
-
 		}
 		reader.close();
 		buf.close();
 		buf2.close();
 
-		/*
-		 * buf2 = exec.createDataContainer( createXmlSpec() ); row = new
-		 * StringCell[ 1 ]; row[ 0 ] = new StringCell( doc.toXmlString() );
-		 * 
-		 * buf2.addRowToTable( new DefaultRow( "0", row ) ); buf2.close();
-		 */
-
-		// return new BufferedDataTable[]{ buf.getTable(), buf2.getTable() };
 		return new BufferedDataTable[] { buf.getTable(), buf2.getTable() };
 	}
 

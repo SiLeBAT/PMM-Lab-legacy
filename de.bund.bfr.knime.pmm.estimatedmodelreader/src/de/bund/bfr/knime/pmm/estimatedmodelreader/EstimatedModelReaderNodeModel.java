@@ -321,7 +321,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    	Double bic = null;
 			if (result.getObject("BIC") != null) bic = result.getDouble("BIC");
 						
-			EstModelXml emx = new EstModelXml(emid, result.getString("FittedModelName"), rms, r2, aic, bic, null); // "EM_" + emid
+			EstModelXml emx = new EstModelXml(emid, result.getString("FittedModelName"), null, rms, r2, aic, bic, null); // "EM_" + emid
 			if (result.getObject("Geprueft") != null) emx.setChecked(result.getBoolean("Geprueft"));
 			if (result.getObject("Guetescore") != null) emx.setQualityScore(result.getInt("Guetescore"));
 			if (result.getObject("Kommentar") != null) emx.setComment(result.getString("Kommentar"));
@@ -407,7 +407,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				if (result.getObject("AIC2") != null) aic = result.getDouble("AIC2");
 		    	bic = null;
 				if (result.getObject("BIC2") != null) bic = result.getDouble("BIC2");
-				emx = new EstModelXml(emid, result.getString("FittedModelName2"), rms, r2, aic, bic, null);
+				emx = new EstModelXml(emid, result.getString("FittedModelName2"), null, rms, r2, aic, bic, null);
 				if (result.getObject("Geprueft2") != null) emx.setChecked(result.getBoolean("Geprueft2"));
 				if (result.getObject("Guetescore2") != null) emx.setQualityScore(result.getInt("Guetescore2"));
 				if (result.getObject("Kommentar2") != null) emx.setQualityScore(result.getInt("Kommentar2"));

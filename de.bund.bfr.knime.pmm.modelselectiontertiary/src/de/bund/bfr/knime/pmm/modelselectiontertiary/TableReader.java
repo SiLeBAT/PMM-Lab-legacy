@@ -338,9 +338,7 @@ public class TableReader {
 								TimeSeriesSchema.ATT_MDINFO).get(0))
 								.getComment());
 				doubleColumnValues.get(0).add(
-						MathUtilities.getSSE(
-								((EstModelXml) estModelXml.get(0)).getRms(),
-								((EstModelXml) estModelXml.get(0)).getDof()));
+						((EstModelXml) estModelXml.get(0)).getSse());
 				doubleColumnValues.get(1).add(
 						MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
 								.getRms()));
@@ -357,10 +355,7 @@ public class TableReader {
 							Model1Schema.ATT_ESTMODEL);
 
 					doubleColumnValues.get(5).add(
-							MathUtilities.getSSE(((EstModelXml) newEstModelXml
-									.get(0)).getRms(),
-									((EstModelXml) newEstModelXml.get(0))
-											.getDof()));
+							((EstModelXml) newEstModelXml.get(0)).getSse());
 					doubleColumnValues.get(6).add(
 							MathUtilities.getMSE(((EstModelXml) newEstModelXml
 									.get(0)).getRms()));

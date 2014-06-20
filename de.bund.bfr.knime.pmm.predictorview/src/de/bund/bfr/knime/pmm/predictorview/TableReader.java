@@ -459,7 +459,7 @@ public class TableReader {
 					((EstModelXml) estModelXml.get(0)).getName());
 			index++;
 
-			if (isTertiaryModel) {				
+			if (isTertiaryModel) {
 				Set<String> secModels = new LinkedHashSet<String>();
 
 				for (KnimeTuple t : combined.get(tuple)) {
@@ -473,15 +473,15 @@ public class TableReader {
 					secString += "," + s;
 				}
 
-				stringColumnValues.get(5).add(secString.substring(1));				
+				stringColumnValues.get(5).add(secString.substring(1));
 			}
-			
+
 			if (isTertiaryModel || containsData) {
 				AgentXml agent = (AgentXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_AGENT).get(0);
 				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MATRIX).get(0);
-				
+
 				stringColumnValues.get(6).add(agent.getName());
 				stringColumnValues.get(7).add(matrix.getName());
 				stringColumnValues.get(8).add(agent.getDetail());
@@ -493,9 +493,7 @@ public class TableReader {
 			}
 
 			doubleColumnValues.get(0).add(
-					MathUtilities.getSSE(
-							((EstModelXml) estModelXml.get(0)).getRms(),
-							((EstModelXml) estModelXml.get(0)).getDof()));
+					((EstModelXml) estModelXml.get(0)).getSse());
 			doubleColumnValues.get(1).add(
 					MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
 							.getRms()));

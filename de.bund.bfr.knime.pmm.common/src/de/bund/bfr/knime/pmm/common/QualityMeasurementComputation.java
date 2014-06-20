@@ -122,6 +122,7 @@ public class QualityMeasurementComputation {
 			}
 		}
 
+		Map<String, Double> sseMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
@@ -192,6 +193,7 @@ public class QualityMeasurementComputation {
 				Double bic = MathUtilities.bayesCriterion(paramXml
 						.getElementSet().size(), usedTargetValues.size(), sse);
 
+				sseMap.put(id, sse);
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);
 				aicMap.put(id, aic);
@@ -222,6 +224,7 @@ public class QualityMeasurementComputation {
 					PmmXmlDoc estModelXml = newTuple
 							.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
+					((EstModelXml) estModelXml.get(0)).setSse(sseMap.get(id));
 					((EstModelXml) estModelXml.get(0)).setRms(rmsMap.get(id));
 					((EstModelXml) estModelXml.get(0)).setR2(rSquaredMap
 							.get(id));
@@ -247,6 +250,7 @@ public class QualityMeasurementComputation {
 		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
+		Map<String, Double> sseMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
@@ -391,6 +395,7 @@ public class QualityMeasurementComputation {
 				Double bic = MathUtilities.bayesCriterion(paramMap.get(id)
 						.getElementSet().size(), usedTargetValues.size(), sse);
 
+				sseMap.put(id, sse);
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);
 				aicMap.put(id, aic);
@@ -415,6 +420,7 @@ public class QualityMeasurementComputation {
 				PmmXmlDoc estModelXml = newTuple
 						.getPmmXml(Model2Schema.ATT_ESTMODEL);
 
+				((EstModelXml) estModelXml.get(0)).setSse(sseMap.get(id));
 				((EstModelXml) estModelXml.get(0)).setRms(rmsMap.get(id));
 				((EstModelXml) estModelXml.get(0)).setR2(rSquaredMap.get(id));
 				((EstModelXml) estModelXml.get(0)).setAic(aicMap.get(id));

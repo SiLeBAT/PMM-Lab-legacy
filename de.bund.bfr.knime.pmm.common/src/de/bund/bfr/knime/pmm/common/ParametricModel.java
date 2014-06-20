@@ -415,7 +415,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public PmmXmlDoc getEstModel() {
 		PmmXmlDoc emDoc = new PmmXmlDoc();
 		int emid = getEstModelId();
-		EstModelXml emx = new EstModelXml(emid, fittedModelName, getRms(), getRsquared(), getAic(), getBic(), null, isChecked, qualityScore); // "EM_" + emid
+		EstModelXml emx = new EstModelXml(emid, fittedModelName, null, getRms(), getRsquared(), getAic(), getBic(), null, isChecked, qualityScore); // "EM_" + emid
 		emx.setComment(comment);
 		emDoc.add(emx);
 		return emDoc;

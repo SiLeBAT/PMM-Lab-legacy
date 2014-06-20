@@ -8,6 +8,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 
 	private static final String ATT_ID = "id";
 	private static final String ATT_NAME = "name";
+	private static final String ATT_SSE = "sse";
 	private static final String ATT_RMS = "rms";
 	private static final String ATT_R2 = "r2";
 	private static final String ATT_AIC = "aic";
@@ -20,6 +21,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 
 	private Integer id;
 	private String name;
+	private Double sse;
 	private Double rms;
 	private Double r2;
 	private Double aic;
@@ -30,22 +32,23 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private String comment;
 	private String dbuuid;
 
-	public EstModelXml(Integer id, String name, Double rms, Double r2,
-			Double aic, Double bic, Integer dof) {
-		this(id, name, rms, r2, aic, bic, dof, null, null, null);
+	public EstModelXml(Integer id, String name, Double sse, Double rms,
+			Double r2, Double aic, Double bic, Integer dof) {
+		this(id, name, sse, rms, r2, aic, bic, dof, null, null, null);
 	}
 
-	public EstModelXml(Integer id, String name, Double rms, Double r2,
-			Double aic, Double bic, Integer dof, Boolean checked,
+	public EstModelXml(Integer id, String name, Double sse, Double rms,
+			Double r2, Double aic, Double bic, Integer dof, Boolean checked,
 			Integer qualityScore) {
-		this(id, name, rms, r2, aic, bic, dof, checked, qualityScore, null);
+		this(id, name, sse, rms, r2, aic, bic, dof, checked, qualityScore, null);
 	}
 
-	public EstModelXml(Integer id, String name, Double rms, Double r2,
-			Double aic, Double bic, Integer dof, Boolean checked,
+	public EstModelXml(Integer id, String name, Double sse, Double rms,
+			Double r2, Double aic, Double bic, Integer dof, Boolean checked,
 			Integer qualityScore, String dbuuid) {
 		this.id = id;
 		this.name = name;
+		this.sse = sse;
 		this.rms = rms;
 		this.r2 = r2;
 		this.aic = aic;
@@ -58,10 +61,11 @@ public class EstModelXml implements PmmXmlElementConvertable {
 
 	public EstModelXml(Element el) {
 		this(XmlHelper.getInt(el, ATT_ID), XmlHelper.getString(el, ATT_NAME),
-				XmlHelper.getDouble(el, ATT_RMS), XmlHelper.getDouble(el,
-						ATT_R2), XmlHelper.getDouble(el, ATT_AIC), XmlHelper
-						.getDouble(el, ATT_BIC), XmlHelper.getInt(el, ATT_DOF),
-				XmlHelper.getBoolean(el, ATT_CHECKED), XmlHelper.getInt(el,
+				XmlHelper.getDouble(el, ATT_SSE), XmlHelper.getDouble(el,
+						ATT_RMS), XmlHelper.getDouble(el, ATT_R2), XmlHelper
+						.getDouble(el, ATT_AIC), XmlHelper.getDouble(el,
+						ATT_BIC), XmlHelper.getInt(el, ATT_DOF), XmlHelper
+						.getBoolean(el, ATT_CHECKED), XmlHelper.getInt(el,
 						ATT_QUALITYSCORE), XmlHelper.getString(el, ATT_DBUUID));
 		this.setComment(XmlHelper.getString(el, ATT_COMMENT));
 	}
@@ -72,6 +76,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 
 		ret.setAttribute(ATT_ID, XmlHelper.getNonNull(id));
 		ret.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
+		ret.setAttribute(ATT_SSE, XmlHelper.getNonNull(sse));
 		ret.setAttribute(ATT_RMS, XmlHelper.getNonNull(rms));
 		ret.setAttribute(ATT_R2, XmlHelper.getNonNull(r2));
 		ret.setAttribute(ATT_AIC, XmlHelper.getNonNull(aic));
@@ -99,6 +104,14 @@ public class EstModelXml implements PmmXmlElementConvertable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Double getSse() {
+		return sse;
+	}
+
+	public void setSse(Double sse) {
+		this.sse = sse;
 	}
 
 	public Double getRms() {

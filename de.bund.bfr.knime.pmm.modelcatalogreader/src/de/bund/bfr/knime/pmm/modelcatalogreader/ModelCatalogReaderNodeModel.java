@@ -199,7 +199,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 
 					//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();
-					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
+					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null, null);
 					emDoc.add(emx);
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
@@ -282,7 +282,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 
 					//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();
-					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
+					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null, null);
 					emDoc.add(emx);
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 

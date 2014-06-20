@@ -179,7 +179,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 				int dataID = MathUtilities.getRandomNegativeInt();
 
 				emDoc.add(new EstModelXml(estModelID, "EM_" + estModelID, null,
-						null, null, null, null));
+						null, null, null, null, null));
 				mdInfoDoc.add(new MdInfoXml(dataID, "i" + dataID,
 						COMMENT_CLAUSE, null, null));
 

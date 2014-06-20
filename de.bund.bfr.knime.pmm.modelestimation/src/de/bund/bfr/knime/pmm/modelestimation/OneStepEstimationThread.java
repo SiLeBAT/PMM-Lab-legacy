@@ -465,10 +465,10 @@ public class OneStepEstimationThread implements Runnable {
 
 					t.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(
 							new EstModelXml(estID, null, null, null, null,
-									null, null)));
+									null, null, null)));
 					t.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(
 							new EstModelXml(estID + index, null, null, null,
-									null, null, null)));
+									null, null, null, null)));
 					t.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 							Model1Schema.WRITABLE);
 					t.setValue(Model2Schema.ATT_DATABASEWRITABLE,

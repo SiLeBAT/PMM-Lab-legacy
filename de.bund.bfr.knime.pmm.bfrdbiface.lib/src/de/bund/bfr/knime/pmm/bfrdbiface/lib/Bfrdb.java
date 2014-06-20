@@ -318,7 +318,7 @@ public class Bfrdb {
 							result.getArray("ParamDescription"), null, null, null, null));
 
 					doc = new PmmXmlDoc();
-					doc.add(new EstModelXml(null, null, null, null, null, null, null));
+					doc.add(new EstModelXml(null, null, null, null, null, null, null, null));
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, doc);
 
 					String s = result.getString("LitMID");
@@ -372,7 +372,7 @@ public class Bfrdb {
 							result.getArray("ParamDescription"), null, null, null, null));
 
 					doc = new PmmXmlDoc();
-					doc.add(new EstModelXml(null, null, null, null, null, null, null));
+					doc.add(new EstModelXml(null, null, null, null, null, null, null, null));
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, doc);
 
 					tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, null);

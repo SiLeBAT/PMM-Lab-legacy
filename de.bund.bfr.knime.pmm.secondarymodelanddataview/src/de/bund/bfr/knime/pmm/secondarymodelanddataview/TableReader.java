@@ -99,6 +99,7 @@ public class TableReader {
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 		Map<String, Map<String, String>> miscUnitMaps = new LinkedHashMap<String, Map<String, String>>();
+		Map<String, Double> sseMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
@@ -264,6 +265,7 @@ public class TableReader {
 						tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));
 				paramMap.put(id, paramXmlSec);
 				depVarDataMap.put(id, new ArrayList<Double>());
+				sseMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getSse());
 				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRms());
 				rSquaredMap.put(id,
 						((EstModelXml) estModelXmlSec.get(0)).getR2());
@@ -384,8 +386,7 @@ public class TableReader {
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(dofMap.get(id));
 
-			doubleColumnValues.get(0).add(
-					MathUtilities.getSSE(rmsMap.get(id), dofMap.get(id)));
+			doubleColumnValues.get(0).add(sseMap.get(id));
 			doubleColumnValues.get(1).add(MathUtilities.getMSE(rmsMap.get(id)));
 			doubleColumnValues.get(2).add(rmsMap.get(id));
 			doubleColumnValues.get(3).add(rSquaredMap.get(id));

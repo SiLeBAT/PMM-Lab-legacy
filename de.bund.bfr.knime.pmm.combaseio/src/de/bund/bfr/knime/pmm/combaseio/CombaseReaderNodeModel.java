@@ -117,12 +117,12 @@ public class CombaseReaderNodeModel extends NodeModel {
 				.createDataContainer(new TimeSeriesSchema().createSpec());
 		BufferedDataContainer buf2 = exec.createDataContainer(commonSchema
 				.createSpec());
-		PmmXmlDoc cmDoc = new PmmXmlDoc();
-
-		cmDoc.add(new CatalogModelXml(MathUtilities.getRandomNegativeInt(),
-				"D-Value", AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
+		PmmXmlDoc dValue = new PmmXmlDoc(new CatalogModelXml(1000000,
+				"D-Value", AttributeUtilities.CONCENTRATION
+						+ "=LogC0-1/Dvalue*" + AttributeUtilities.TIME, null));
+		PmmXmlDoc linear = new PmmXmlDoc(new CatalogModelXml(1000001,
+				"LogLinear", AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
 						+ AttributeUtilities.TIME, null));
-
 		int j = 0;
 
 		while (reader.hasMoreElements()) {
@@ -136,22 +136,31 @@ public class CombaseReaderNodeModel extends NodeModel {
 
 				KnimeTuple modelTuple = KnimeTuple.merge(commonSchema,
 						new KnimeTuple(commonSchema), timeSeries);
-
-				modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
+				PmmXmlDoc paramDoc = new PmmXmlDoc();
 
 				Double start;
 
-				if (useStartValue != 1) {
-					start = null;
-				} else if (timeSeries.getMaximumRate() >= 0) {
-					start = startGrow;
+				if (timeSeries.getMaximumRate() >= 0) {
+					start = useStartValue == 1 ? startGrow : null;
+					modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, linear);
+					paramDoc.add(new ParamXml("LogC0", start, null, null, null,
+							null, null));
+					paramDoc.add(new ParamXml("mumax", timeSeries
+							.getMaximumRate(), null, null, null, null, null));
 				} else {
-					start = startElim;
+					start = useStartValue == 1 ? startElim : null;
+					modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, dValue);
+					paramDoc.add(new ParamXml("LogC0", start, null, null, null,
+							null, null));
+					paramDoc.add(new ParamXml("Dvalue", -1.0
+							/ timeSeries.getMaximumRate(), null, null, null,
+							null, null));
 				}
+
+				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
 
 				PmmXmlDoc depXml = new PmmXmlDoc();
 				PmmXmlDoc indepXML = new PmmXmlDoc();
-				PmmXmlDoc paramDoc = new PmmXmlDoc();
 
 				depXml.add(new DepXml(AttributeUtilities.CONCENTRATION,
 						Categories.getConcentrations().get(0), Categories
@@ -160,14 +169,9 @@ public class CombaseReaderNodeModel extends NodeModel {
 				indepXML.add(new IndepXml(AttributeUtilities.TIME, null, null,
 						Categories.getTime(), Categories.getTimeCategory()
 								.getStandardUnit()));
-				paramDoc.add(new ParamXml("LogC0", start, null, null, null,
-						null, null));
-				paramDoc.add(new ParamXml("mumax", timeSeries.getMaximumRate(),
-						null, null, null, null, null));
 
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depXml);
 				modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
-				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
 
 				PmmXmlDoc emDoc = new PmmXmlDoc();
 				PmmXmlDoc mdInfoDoc = new PmmXmlDoc();

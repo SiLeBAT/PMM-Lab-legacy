@@ -84,7 +84,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	private int maxNodeID = 100000;
 	private HashMap<String, Integer> nodeIds = null;
 
-	public void mergeIDs() {		
+	public void mergeIDs() {
 		System.err.println("Merging...");
 		try {
 			FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
@@ -107,8 +107,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					System.err.println(e.getMessage() + "\t" + i);
 				}
 			}
+		} catch (Exception e) {
 		}
-		catch (Exception e) {}
 		System.err.println("Merging...Fin!");
 	}
 
@@ -138,8 +138,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					System.err.println(e.getMessage() + "\t" + i);
 				}
 			}
+		} catch (Exception e) {
 		}
-		catch (Exception e) {}
 
 		System.err.println("loadNodeIDs10000...Fin!");
 		return nodeIds;
@@ -162,6 +162,53 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		int i = s.lastIndexOf('.');
 		if (i > 0 && i < s.length() - 1) return s.substring(i + 1).toLowerCase();
 		return "";
+	}
+
+	private int[] doImportErlenbacherFW(HSSFWorkbook wb, JProgressBar progress, String efsaID) {
+		int numSuccess = 0;
+		int numFails = 0;
+		HSSFSheet businessSheet = wb.getSheet("Business_List");
+		HSSFSheet transactionSheet = wb.getSheet("Receivers");
+		if (transactionSheet != null) {
+			int numRows = transactionSheet.getLastRowNum() + 1;
+			progress.setMaximum(numRows);
+			progress.setValue(0);
+			HSSFRow busRow = getRow(businessSheet, efsaID, 0);
+			String idLST = getStrVal(busRow.getCell(0));
+			String nameLST = getStrVal(busRow.getCell(1));
+			String streetLST = getStrVal(busRow.getCell(2));
+			String streetNoLST = getStrVal(busRow.getCell(3), 10);
+			String zipLST = getStrVal(busRow.getCell(4), 10);
+			String cityLST = getStrVal(busRow.getCell(5));
+			String countyLST = getStrVal(busRow.getCell(6));
+			String countryLST = getStrVal(busRow.getCell(7));
+			String vatLST = getStrVal(busRow.getCell(8));
+			for (int i = 2; i < numRows; i++) {
+				HSSFRow row = transactionSheet.getRow(i);
+				if (row != null) {
+					String product = getStrVal(row.getCell(2));
+					String DeliveryDate_Day = getStrVal(row.getCell(14));
+					String DeliveryDate_Month = getStrVal(row.getCell(15));
+					String DeliveryDate_Year = getStrVal(row.getCell(16));
+					String Amount = getStrVal(row.getCell(12));
+					String Lot_Invoice = getStrVal(row.getCell(4));
+
+					String id = null;
+					String name = getStrVal(row.getCell(5)); //
+					String street = null;
+					String streetNo = null;
+					String zip = null;
+					String city = getStrVal(row.getCell(6)); //
+					String county = null;
+					String country = getStrVal(row.getCell(7)); // 
+					String vat = getStrVal(row.getCell(8)); //
+					getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, Lot_Invoice, null, null,
+							null, null, null, null, null, DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, id, name, street, streetNo, zip, city,
+							county, country, null, vat, "Erlenbacher" + efsaID + "_" + (i + 1), null, null, null, null, null);
+				}
+			}
+		}
+		return new int[] { numSuccess, numFails };
 	}
 
 	private int[] doImportMaciel(HSSFWorkbook wb, JProgressBar progress, String efsaID) {
@@ -204,9 +251,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String county = getStrVal(busRow.getCell(6));
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
-						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, Lot_Invoice, null, null,
-								null, null, null, null, null, DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, id, name, street, streetNo, zip, city, county, country, null, vat, "LSTZAKNoris"
-										+ efsaID + "_" + (i + 1), null, null, null, null, null);
+						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, Lot_Invoice, null,
+								null, null, null, null, null, null, DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, id, name, street, streetNo, zip,
+								city, county, country, null, vat, "LSTZAKNoris" + efsaID + "_" + (i + 1), null, null, null, null, null);
 					} else if (addressOther != null) {
 						System.err.println("busRow = null... addressOther: " + addressOther + "\tRow: " + (i + 1));
 					}
@@ -250,9 +297,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String county = getStrVal(busRow.getCell(6));
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
-						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, product, null, null, Lot_Invoice, null, null, null, null, null, null, null,
-								DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, "LSTZAKNoris"
-										+ efsaID + "_Sup_" + (i + 1), null, null, null, null, null);
+						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, product, null, null, Lot_Invoice, null, null, null, null, null,
+								null, null, DeliveryDate_Day, DeliveryDate_Month, DeliveryDate_Year, Amount, null, null, idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST,
+								countyLST, countryLST, null, vatLST, "LSTZAKNoris" + efsaID + "_Sup_" + (i + 1), null, null, null, null, null);
 					} else if (addressOther != null) {
 						System.err.println("suppliers busRow = null... addressOther: " + addressOther + "\tRow: " + (i + 1));
 					}
@@ -512,8 +559,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1) + ", KP: " + KP + ", BL0: " + BL0
-						+ "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
+				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1)
+						+ ", KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
 
 				Integer c1 = null;
 				Integer c2 = null;
@@ -1081,6 +1128,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						if (transformFormat)
 						;
 						else nsf = doImportGaia(wb, progress);
+
+					} else if (filename.endsWith("Erlenbacher.xls")) {
+						if (transformFormat)
+						;
+						else nsf = doImportErlenbacherFW(wb, progress, "1786");
+
 					} else {
 						if (transformFormat) {
 							InputStream isNew = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\NewFormat.xls");
@@ -1311,11 +1364,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				}
 			}
 		}
-/*
-		if (feldVals[1] != null && feldVals[1].equals("AGROMA TRADING")) {
-			System.err.println(sql);
-		}
-*/
+		/*
+		 * if (feldVals[1] != null && feldVals[1].equals("AGROMA TRADING")) {
+		 * System.err.println(sql); }
+		 */
 		if (!fns.isEmpty() && !fvs.isEmpty()) {
 			ResultSet rs = DBKernel.getResultSet(sql, false);
 			try {

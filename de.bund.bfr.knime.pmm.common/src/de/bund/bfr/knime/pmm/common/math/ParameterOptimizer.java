@@ -76,8 +76,8 @@ public class ParameterOptimizer {
 	private PointVectorValuePair optimizerValues;
 
 	private boolean successful;
-	private List<Double> parameterValues;
-	private Double chiSquare;
+	private List<Double> parameterValues;	
+	private Double sse;
 	private Double rms;
 	private Double rSquare;
 	private Double aic;
@@ -277,7 +277,7 @@ public class ParameterOptimizer {
 			try {
 				optimize(startValues);
 
-				if (!successful || optimizer.getChiSquare() < chiSquare) {
+				if (!successful || optimizer.getChiSquare() < sse) {
 					useCurrentResults(startValues);
 
 					if (rSquare != 0.0) {
@@ -303,6 +303,10 @@ public class ParameterOptimizer {
 
 	public List<Double> getParameterValues() {
 		return parameterValues;
+	}
+	
+	public Double getSse() {
+		return sse;
 	}
 
 	public Double getRMS() {
@@ -367,8 +371,8 @@ public class ParameterOptimizer {
 
 	private void useCurrentResults(List<Double> startValues) {
 		parameterValues = new ArrayList<Double>(parameters.size());
-		chiSquare = optimizer.getChiSquare();
-		rms = MathUtilities.getRMSE(chiSquare, parameters.size(),
+		sse = optimizer.getChiSquare();		
+		rms = MathUtilities.getRMSE(sse, parameters.size(),
 				targetValues.size());
 		rSquare = MathUtilities.getRSquared(optimizer.getChiSquare(),
 				targetValues);

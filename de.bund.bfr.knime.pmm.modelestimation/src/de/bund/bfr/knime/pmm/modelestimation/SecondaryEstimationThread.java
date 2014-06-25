@@ -277,6 +277,7 @@ public class SecondaryEstimationThread implements Runnable {
 						covariances.add(nullList);
 					}
 
+					Double sse = null;
 					Double rms = null;
 					Double rSquared = null;
 					Double aic = null;
@@ -307,6 +308,7 @@ public class SecondaryEstimationThread implements Runnable {
 						parameterTValues = optimizer.getParameterTValues();
 						parameterPValues = optimizer.getParameterPValues();
 						covariances = optimizer.getCovariances();
+						sse = optimizer.getSse();
 						rms = optimizer.getRMS();
 						rSquared = optimizer.getRSquare();
 						aic = optimizer.getAIC();
@@ -347,6 +349,7 @@ public class SecondaryEstimationThread implements Runnable {
 							.getPmmXml(Model2Schema.ATT_ESTMODEL);
 
 					((EstModelXml) estModelXml.get(0)).setId(estID);
+					((EstModelXml) estModelXml.get(0)).setSse(sse);
 					((EstModelXml) estModelXml.get(0)).setRms(rms);
 					((EstModelXml) estModelXml.get(0)).setR2(rSquared);
 					((EstModelXml) estModelXml.get(0)).setAic(aic);

@@ -353,6 +353,7 @@ public class ModelCombiner {
 
 			((CatalogModelXml) modelXml.get(0)).setId(newID);
 			((EstModelXml) estModelXml.get(0)).setId(newEstID);
+			((EstModelXml) estModelXml.get(0)).setSse(null);
 			((EstModelXml) estModelXml.get(0)).setRms(null);
 			((EstModelXml) estModelXml.get(0)).setR2(null);
 			((EstModelXml) estModelXml.get(0)).setAic(null);

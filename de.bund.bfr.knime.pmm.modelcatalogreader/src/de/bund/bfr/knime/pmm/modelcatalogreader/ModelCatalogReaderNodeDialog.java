@@ -115,7 +115,9 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		try {
-			//updateModelName();
+			try {
+				updateModelName();
+			} catch (Exception e) {}
 			/*
 			dbui.setFilename(settings.getString(ModelCatalogReaderNodeModel.PARAM_FILENAME));
 			dbui.setLogin(settings.getString(ModelCatalogReaderNodeModel.PARAM_LOGIN));

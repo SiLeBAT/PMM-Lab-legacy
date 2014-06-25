@@ -90,8 +90,8 @@ public class XML2TableNodeModel extends NodeModel {
 				}
 
 				for (String element : set.getXmlElements()) {
-					String column = element + "_" + (i + 1);
-
+					String column = createColumnName(element, i, n);
+					
 					if (e != null) {
 						cells[outSpec.findColumnIndex(column)] = new StringCell(
 								e.getAttributeValue(element));
@@ -184,7 +184,7 @@ public class XML2TableNodeModel extends NodeModel {
 		return null;
 	}
 
-	private static DataTableSpec createSpec(DataTableSpec spec, int n,
+	private DataTableSpec createSpec(DataTableSpec spec, int n,
 			List<String> elements) {
 		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
 
@@ -192,14 +192,24 @@ public class XML2TableNodeModel extends NodeModel {
 			columns.add(column);
 		}
 
-		for (int i = 1; i <= n; i++) {
+		for (int i = 0; i < n; i++) {
 			for (String element : elements) {
-				columns.add(new DataColumnSpecCreator(element + "_" + i,
-						StringCell.TYPE).createSpec());
+				columns.add(new DataColumnSpecCreator(createColumnName(element,
+						i, n), StringCell.TYPE).createSpec());
 			}
 		}
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
+	}
+
+	private String createColumnName(String element, int i, int n) {
+		String column = set.getColumn() + "_" + element;
+
+		if (n > 1) {
+			column += "_" + (i + 1);
+		}
+
+		return column;
 	}
 
 }

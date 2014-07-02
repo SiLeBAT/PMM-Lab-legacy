@@ -44,6 +44,7 @@ import java.util.Set;
 
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Creator;
 import org.sbml.jsbml.History;
@@ -124,8 +125,14 @@ public class TableReader {
 
 			History history = new History();
 
-			history.setCreatedDate(createdDate);
-			history.setModifiedDate(modifiedDate);
+			if (createdDate != null) {
+				history.setCreatedDate(createdDate);
+			}
+
+			if (modifiedDate != null) {
+				history.setModifiedDate(modifiedDate);
+			}
+
 			history.addCreator(new Creator(creatorGivenName, creatorFamilyName,
 					null, creatorContact));
 
@@ -205,6 +212,7 @@ public class TableReader {
 
 				if (paramXml.getName().equals(varParams)) {
 					param.setConstant(false);
+					param.setAnnotation(new Annotation("<start/>"));
 				} else {
 					param.setConstant(true);
 				}

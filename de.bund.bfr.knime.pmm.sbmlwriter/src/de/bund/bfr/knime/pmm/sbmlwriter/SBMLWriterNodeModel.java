@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -112,8 +113,8 @@ public class SBMLWriterNodeModel extends NodeModel {
 				schema), variableParams.getStringValue(),
 				modelName.getStringValue(), creatorGivenName.getStringValue(),
 				creatorFamilyName.getStringValue(),
-				creatorContact.getStringValue(), createdDate.getDate(),
-				modifiedDate.getDate(), reference.getStringValue());
+				creatorContact.getStringValue(), getDate(createdDate),
+				getDate(modifiedDate), reference.getStringValue());
 
 		for (String name : reader.getDocuments().keySet()) {
 			SBMLDocument doc = reader.getDocuments().get(name);
@@ -222,6 +223,10 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	private static Date getDate(SettingsModelDate date) {
+		return date.getSelectedFields() != 0 ? date.getDate() : null;
 	}
 
 }

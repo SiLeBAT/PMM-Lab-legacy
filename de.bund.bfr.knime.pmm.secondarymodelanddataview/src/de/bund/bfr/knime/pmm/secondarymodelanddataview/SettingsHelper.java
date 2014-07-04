@@ -153,13 +153,11 @@ public class SettingsHelper {
 		try {
 			selectedID = settings.getString(CFG_SELECTEDID);
 		} catch (InvalidSettingsException e) {
-			selectedID = null;
 		}
 
 		try {
 			currentParamX = settings.getString(CFG_CURRENTPARAMX);
 		} catch (InvalidSettingsException e) {
-			currentParamX = null;
 		}
 
 		try {
@@ -167,7 +165,6 @@ public class SettingsHelper {
 					settings.getString(CFG_PARAMXVALUES),
 					new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
-			paramXValues = new LinkedHashMap<String, Double>();
 		}
 
 		try {
@@ -175,130 +172,109 @@ public class SettingsHelper {
 					settings.getString(CFG_SELECTEDVALUESX),
 					new LinkedHashMap<String, List<Boolean>>());
 		} catch (InvalidSettingsException e) {
-			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
 		}
 
 		try {
 			colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
 		} catch (InvalidSettingsException e) {
-			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
 			shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
-			shapes = new LinkedHashMap<String, Shape>();
 		}
 
 		try {
 			colorLists = XmlConverter.xmlToColorListMap(settings
 					.getString(CFG_COLORLISTS));
 		} catch (InvalidSettingsException e) {
-			colorLists = new LinkedHashMap<String, List<Color>>();
 		}
 
 		try {
 			shapeLists = XmlConverter.xmlToShapeListMap(settings
 					.getString(CFG_SHAPELISTS));
 		} catch (InvalidSettingsException e) {
-			shapeLists = new LinkedHashMap<String, List<Shape>>();
 		}
 
 		try {
 			manualRange = settings.getBoolean(CFG_MANUALRANGE);
 		} catch (InvalidSettingsException e) {
-			manualRange = DEFAULT_MANUALRANGE;
 		}
 
 		try {
 			minX = settings.getDouble(CFG_MINX);
 		} catch (InvalidSettingsException e) {
-			minX = DEFAULT_MINX;
 		}
 
 		try {
 			maxX = settings.getDouble(CFG_MAXX);
 		} catch (InvalidSettingsException e) {
-			maxX = DEFAULT_MAXX;
 		}
 
 		try {
 			minY = settings.getDouble(CFG_MINY);
 		} catch (InvalidSettingsException e) {
-			minY = DEFAULT_MINY;
 		}
 
 		try {
 			maxY = settings.getDouble(CFG_MAXY);
 		} catch (InvalidSettingsException e) {
-			maxY = DEFAULT_MAXY;
 		}
 
 		try {
 			drawLines = settings.getBoolean(CFG_DRAWLINES);
 		} catch (InvalidSettingsException e) {
-			drawLines = DEFAULT_DRAWLINES;
 		}
 
 		try {
 			showLegend = settings.getBoolean(CFG_SHOWLEGEND);
 		} catch (InvalidSettingsException e) {
-			showLegend = DEFAULT_SHOWLEGEND;
 		}
 
 		try {
 			addLegendInfo = settings.getBoolean(CFG_ADDLEGENDINFO);
 		} catch (InvalidSettingsException e) {
-			addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		}
 
 		try {
 			displayHighlighted = settings.getBoolean(CFG_DISPLAYHIGHLIGHTED);
 		} catch (InvalidSettingsException e) {
-			displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
 		}
 
 		try {
 			exportAsSvg = settings.getBoolean(CFG_EXPORTASSVG);
 		} catch (InvalidSettingsException e) {
-			exportAsSvg = DEFAULT_EXPORTASSVG;
 		}
 
 		try {
 			showConfidence = settings.getBoolean(CFG_SHOWCONFIDENCE);
 		} catch (InvalidSettingsException e) {
-			showConfidence = DEFAULT_SHOWCONFIDENCE;
 		}
 
 		try {
 			unitX = settings.getString(CFG_UNITX);
 		} catch (InvalidSettingsException e) {
-			unitX = null;
 		}
 
 		try {
 			unitY = settings.getString(CFG_UNITY);
 		} catch (InvalidSettingsException e) {
-			unitY = null;
 		}
 
 		try {
 			transformX = settings.getString(CFG_TRANSFORMX);
 		} catch (InvalidSettingsException e) {
-			transformX = DEFAULT_TRANSFORM;
 		}
 
 		try {
 			transformY = settings.getString(CFG_TRANSFORMY);
 		} catch (InvalidSettingsException e) {
-			transformY = DEFAULT_TRANSFORM;
 		}
 
 		try {
 			standardVisibleColumns = settings
 					.getBoolean(CFG_STANDARDVISIBLECOLUMNS);
 		} catch (InvalidSettingsException e) {
-			standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
 		}
 
 		try {
@@ -306,13 +282,11 @@ public class SettingsHelper {
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<String>();
 		}
 
 		try {
 			fittedFilter = settings.getString(CFG_FITTEDFILTER);
 		} catch (InvalidSettingsException e) {
-			fittedFilter = null;
 		}
 		
 		try {
@@ -320,7 +294,6 @@ public class SettingsHelper {
 					settings.getString(CFG_COLUMNWIDTHS),
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
-			columnWidths = new LinkedHashMap<String, Integer>();
 		}
 	}
 

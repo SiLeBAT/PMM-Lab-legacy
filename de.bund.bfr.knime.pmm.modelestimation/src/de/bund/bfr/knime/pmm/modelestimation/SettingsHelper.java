@@ -87,37 +87,31 @@ public class SettingsHelper {
 		try {
 			fittingType = settings.getString(CFGKEY_FITTINGTYPE);
 		} catch (InvalidSettingsException e) {
-			fittingType = DEFAULT_FITTINGTYPE;
 		}
 
 		try {
 			enforceLimits = settings.getBoolean(CFGKEY_ENFORCELIMITS);
 		} catch (InvalidSettingsException e) {
-			enforceLimits = DEFAULT_ENFORCELIMITS;
 		}
 
 		try {
 			expertSettings = settings.getBoolean(CFGKEY_EXPERTSETTINGS);
 		} catch (InvalidSettingsException e) {
-			expertSettings = DEFAULT_EXPERTSETTINGS;
 		}
 
 		try {
 			nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
 		} catch (InvalidSettingsException e) {
-			nParameterSpace = DEFAULT_NPARAMETERSPACE;
 		}
 
 		try {
 			nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
 		} catch (InvalidSettingsException e) {
-			nLevenberg = DEFAULT_NLEVENBERG;
 		}
 
 		try {
 			stopWhenSuccessful = settings.getBoolean(CFGKEY_STOPWHENSUCCESSFUL);
 		} catch (InvalidSettingsException e) {
-			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
 		}
 
 		try {
@@ -125,7 +119,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_PARAMETERGUESSES),
 					new LinkedHashMap<String, Map<String, Point2D.Double>>());
 		} catch (InvalidSettingsException e) {
-			parameterGuesses = new LinkedHashMap<String, Map<String, Point2D.Double>>();
 		}
 	}
 

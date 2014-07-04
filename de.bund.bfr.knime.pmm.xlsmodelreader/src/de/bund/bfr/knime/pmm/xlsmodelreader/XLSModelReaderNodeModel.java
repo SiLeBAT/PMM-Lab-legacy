@@ -102,9 +102,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			secModelTuples.put(key, new KnimeTuple(tuple.getSchema(), tuple
 					.getSchema().createSpec(), tuple));
 		}
-		
-		System.out.println(set.getModelDepUnit());
-		System.out.println(set.getModelIndepUnit());
 
 		PmmXmlDoc modelXml = modelTuple
 				.getPmmXml(Model1Schema.ATT_MODELCATALOG);
@@ -113,10 +110,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		PmmXmlDoc indepVar = modelTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
 		if (depVar.size() == 1) {
-			formula = MathUtilities
-					.replaceVariable(formula,
-							((DepXml) depVar.get(0)).getName(),
-							AttributeUtilities.CONCENTRATION);
+			formula = MathUtilities.replaceVariable(formula,
+					((DepXml) depVar.get(0)).getName(),
+					AttributeUtilities.CONCENTRATION);
 			((DepXml) depVar.get(0)).setName(AttributeUtilities.CONCENTRATION);
 		}
 
@@ -133,17 +129,16 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
-				xlsReader
-						.getModelTuples(new File(set.getFileName()),
-								set.getSheetName(), set.getColumnMappings(),
-								set.getAgentColumn(), set.getAgentMappings(),
-								set.getMatrixColumn(), set.getMatrixMappings(),
-								modelTuple, set.getModelMappings(),
-								secModelTuples, set.getSecModelMappings(),
-								set.getSecModelIndepMins(),
-								set.getSecModelIndepMaxs(),
-								set.getSecModelIndepUnits()).values());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
+				.getModelTuples(new File(set.getFileName()),
+						set.getSheetName(), set.getColumnMappings(),
+						set.getAgentColumn(), set.getAgentMappings(),
+						set.getMatrixColumn(), set.getMatrixMappings(),
+						modelTuple, set.getModelMappings(),
+						set.getModelDepUnit(), set.getModelIndepUnit(),
+						secModelTuples, set.getSecModelMappings(),
+						set.getSecModelIndepMins(), set.getSecModelIndepMaxs(),
+						set.getSecModelIndepUnits()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);

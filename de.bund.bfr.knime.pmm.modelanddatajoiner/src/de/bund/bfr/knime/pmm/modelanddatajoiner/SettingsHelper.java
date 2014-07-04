@@ -60,13 +60,11 @@ public class SettingsHelper {
 		try {
 			joinType = settings.getString(CFGKEY_JOINTYPE);
 		} catch (InvalidSettingsException e) {
-			joinType = DEFAULT_JOINTYPE;
 		}
 
 		try {
 			assignments = settings.getString(CFGKEY_ASSIGNMENTS);
 		} catch (InvalidSettingsException e) {
-			assignments = null;
 		}
 	}
 

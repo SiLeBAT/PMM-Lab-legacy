@@ -94,13 +94,11 @@ public class SettingsHelper {
 		try {
 			fileName = settings.getString(CFGKEY_FILENAME);
 		} catch (InvalidSettingsException e) {
-			fileName = null;
 		}
 
 		try {
 			sheetName = settings.getString(CFGKEY_SHEETNAME);
 		} catch (InvalidSettingsException e) {
-			sheetName = null;
 		}
 
 		try {
@@ -108,25 +106,21 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_COLUMNMAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
-			columnMappings = new LinkedHashMap<String, Object>();
 		}
 
 		try {
 			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		} catch (InvalidSettingsException e) {
-			timeUnit = null;
 		}
 
 		try {
 			concentrationUnit = settings.getString(CFGKEY_CONCENTRATIONUNIT);
 		} catch (InvalidSettingsException e) {
-			concentrationUnit = null;
 		}
 
 		try {
 			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
 		} catch (InvalidSettingsException e) {
-			agentColumn = null;
 		}
 
 		try {
@@ -134,13 +128,11 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_AGENTMAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
-			agentMappings = new LinkedHashMap<String, AgentXml>();
 		}
 
 		try {
 			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
 		} catch (InvalidSettingsException e) {
-			matrixColumn = null;
 		}
 
 		try {
@@ -148,21 +140,18 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRIXMAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
-			matrixMappings = new LinkedHashMap<String, MatrixXml>();
 		}
 
 		try {
 			agent = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENT),
 					null);
 		} catch (InvalidSettingsException e) {
-			agent = null;
 		}
 
 		try {
 			matrix = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_MATRIX), null);
 		} catch (InvalidSettingsException e) {
-			matrix = null;
 		}
 
 		try {
@@ -170,7 +159,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
-			literature = new ArrayList<LiteratureItem>();
 		}
 	}
 

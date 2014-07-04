@@ -116,27 +116,23 @@ public class SettingsHelper {
 		try {
 			fileName = settings.getString(CFGKEY_FILENAME);
 		} catch (InvalidSettingsException e) {
-			fileName = null;
 		}
 
 		try {
 			sheetName = settings.getString(CFGKEY_SHEETNAME);
 		} catch (InvalidSettingsException e) {
-			sheetName = null;
 		}
 
 		try {
 			modelTuple = XmlConverter.xmlToTuple(settings
 					.getString(CFGKEY_MODELTUPLE));
 		} catch (InvalidSettingsException e) {
-			modelTuple = null;
 		}
 
 		try {
 			secModelTuples = XmlConverter.xmlToTupleMap(settings
 					.getString(CFGKEY_SECMODELTUPLES));
 		} catch (InvalidSettingsException e) {
-			secModelTuples = new LinkedHashMap<String, KnimeTuple>();
 		}
 
 		try {
@@ -144,19 +140,16 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MODELMAPPINGS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			modelMappings = new LinkedHashMap<String, String>();
 		}
 
 		try {
 			modelDepUnit = settings.getString(CFGKEY_MODELDEPUNIT);
 		} catch (InvalidSettingsException e) {
-			modelDepUnit = null;
 		}
 
 		try {
 			modelIndepUnit = settings.getString(CFGKEY_MODELINDEPUNIT);
 		} catch (InvalidSettingsException e1) {
-			modelIndepUnit = null;
 		}
 
 		try {
@@ -164,7 +157,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELMAPPINGS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelMappings = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -172,7 +164,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELINDEPMINS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelIndepMins = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -180,7 +171,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELINDEPMAXS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelIndepMaxs = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -188,7 +178,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELINDEPUNITS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelIndepUnits = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -196,13 +185,11 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_COLUMNMAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
-			columnMappings = new LinkedHashMap<String, Object>();
 		}
 
 		try {
 			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
 		} catch (InvalidSettingsException e) {
-			agent = null;
 		}
 
 		try {
@@ -210,13 +197,11 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_AGENTMAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
-			agentMappings = new LinkedHashMap<String, AgentXml>();
 		}
 
 		try {
 			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
 		} catch (InvalidSettingsException e) {
-			matrixColumn = null;
 		}
 
 		try {
@@ -224,21 +209,18 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRIXMAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
-			matrixMappings = new LinkedHashMap<String, MatrixXml>();
 		}
 
 		try {
 			agent = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENT),
 					null);
 		} catch (InvalidSettingsException e) {
-			agent = null;
 		}
 
 		try {
 			matrix = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_MATRIX), null);
 		} catch (InvalidSettingsException e) {
-			matrix = null;
 		}
 
 		try {
@@ -246,7 +228,6 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
-			literature = new ArrayList<LiteratureItem>();
 		}
 	}
 

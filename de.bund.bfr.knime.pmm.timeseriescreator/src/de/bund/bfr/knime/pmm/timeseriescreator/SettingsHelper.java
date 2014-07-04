@@ -93,34 +93,28 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
-			literature = new ArrayList<LiteratureItem>();
-
 		}
 
 		try {
 			agent = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENT),
 					null);
 		} catch (InvalidSettingsException e) {
-			agent = null;
 		}
 
 		try {
 			matrix = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_MATRIX), null);
 		} catch (InvalidSettingsException e) {
-			matrix = null;
 		}
 
 		try {
 			id = settings.getString(CFGKEY_ID);
 		} catch (InvalidSettingsException e) {
-			id = null;
 		}
 
 		try {
 			comment = settings.getString(CFGKEY_COMMENT);
 		} catch (InvalidSettingsException e) {
-			comment = null;
 		}
 
 		try {
@@ -128,26 +122,22 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_TIMESERIES),
 					new ArrayList<TimeSeriesXml>());
 		} catch (InvalidSettingsException e) {
-			timeSeries = new ArrayList<TimeSeriesXml>();
 		}
 
 		try {
 			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		} catch (InvalidSettingsException e) {
-			timeUnit = DEFAULT_TIMEUNIT;
 		}
 
 		try {
 			logcUnit = settings.getString(CFGKEY_LOGCUNIT);
 		} catch (InvalidSettingsException e) {
-			logcUnit = DEFAULT_LOGCUNIT;
 		}
 
 		try {
 			misc = XmlConverter.xmlToObject(settings.getString(CFGKEY_MISC),
 					new ArrayList<MiscXml>());
 		} catch (InvalidSettingsException e) {
-			misc = new ArrayList<MiscXml>();
 		}
 	}
 

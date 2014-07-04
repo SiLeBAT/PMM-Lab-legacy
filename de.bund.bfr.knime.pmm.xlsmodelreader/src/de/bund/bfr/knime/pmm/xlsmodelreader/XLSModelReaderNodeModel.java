@@ -102,6 +102,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			secModelTuples.put(key, new KnimeTuple(tuple.getSchema(), tuple
 					.getSchema().createSpec(), tuple));
 		}
+		
+		System.out.println(set.getModelDepUnit());
+		System.out.println(set.getModelIndepUnit());
 
 		PmmXmlDoc modelXml = modelTuple
 				.getPmmXml(Model1Schema.ATT_MODELCATALOG);

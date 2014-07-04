@@ -75,6 +75,7 @@ import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DBUtilities;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
@@ -132,6 +133,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JButton modelButton;
 	private JButton modelReloadButton;
 	private Map<String, JComboBox<String>> modelBoxes;
+	private JComboBox<String> depUnitBox;
+	private JComboBox<String> indepUnitBox;
 	private Map<String, JButton> secModelButtons;
 	private Map<String, JButton> secModelReloadButtons;
 	private Map<String, Map<String, JComboBox<String>>> secModelBoxes;
@@ -185,6 +188,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelPanel.setLayout(new BorderLayout());
 		modelPanel.add(noLabel, BorderLayout.CENTER);
 		modelBoxes = new LinkedHashMap<String, JComboBox<String>>();
+		depUnitBox = null;
+		indepUnitBox = null;
 		secModelButtons = new LinkedHashMap<String, JButton>();
 		secModelReloadButtons = new LinkedHashMap<String, JButton>();
 		secModelBoxes = new LinkedHashMap<String, Map<String, JComboBox<String>>>();
@@ -697,6 +702,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		} else if (e.getSource() == matrixBox) {
 			set.setMatrixColumn((String) matrixBox.getSelectedItem());
 			updateMatrixPanel();
+		} else if (e.getSource() == depUnitBox) {
+			set.setModelDepUnit((String) depUnitBox.getSelectedItem());			
+		} else if (e.getSource() == indepUnitBox) {
+			set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
 		} else {
 			for (String param : modelBoxes.keySet()) {
 				if (e.getSource() == modelBoxes.get(param)) {
@@ -894,6 +903,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateModelPanel() {
 		modelBoxes.clear();
+		depUnitBox = null;
+		indepUnitBox = null;
 		secModelButtons.clear();
 		secModelReloadButtons.clear();
 		secModelBoxes.clear();
@@ -959,6 +970,31 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				northPanel.add(box, createConstraints(1, row));
 				row++;
 			}
+
+			DepXml depXml = (DepXml) set.getModelTuple()
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
+			IndepXml indepXml = (IndepXml) set.getModelTuple()
+					.getPmmXml(Model1Schema.ATT_INDEPENDENT).get(0);
+
+			depUnitBox = new JComboBox<String>(Categories
+					.getCategory(depXml.getCategory()).getAllUnits()
+					.toArray(new String[0]));
+			depUnitBox.setSelectedItem(depXml.getUnit());
+			depUnitBox.addItemListener(this);
+			indepUnitBox = new JComboBox<String>(Categories
+					.getCategory(indepXml.getCategory()).getAllUnits()
+					.toArray(new String[0]));
+			indepUnitBox.setSelectedItem(indepXml.getUnit());
+			indepUnitBox.addItemListener(this);
+
+			northPanel.add(new JLabel(depXml.getName() + " Unit:"),
+					createConstraints(0, row));
+			northPanel.add(depUnitBox, createConstraints(1, row));
+			row++;
+			northPanel.add(new JLabel(indepXml.getName() + " Unit:"),
+					createConstraints(0, row));
+			northPanel.add(indepUnitBox, createConstraints(1, row));
+			row++;
 
 			for (PmmXmlElementConvertable el : set.getModelTuple()
 					.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -1146,7 +1182,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		northPanel.add(agentBox, createConstraints(1, 0));
 
-		if (agentBox.getSelectedItem() == null) agentBox.setSelectedItem(DO_NOT_USE); 
+		if (agentBox.getSelectedItem() == null)
+			agentBox.setSelectedItem(DO_NOT_USE);
 		if (agentBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (agentBox.getSelectedItem().equals(OTHER_PARAMETER)) {
@@ -1220,7 +1257,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		northPanel.add(matrixBox, createConstraints(1, 0));
 
-		if (matrixBox.getSelectedItem() == null) matrixBox.setSelectedItem(DO_NOT_USE); 
+		if (matrixBox.getSelectedItem() == null)
+			matrixBox.setSelectedItem(DO_NOT_USE);
 		if (matrixBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (matrixBox.getSelectedItem().equals(OTHER_PARAMETER)) {

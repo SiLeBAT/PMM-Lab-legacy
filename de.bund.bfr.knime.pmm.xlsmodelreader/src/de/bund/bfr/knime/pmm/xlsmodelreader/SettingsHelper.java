@@ -53,6 +53,8 @@ public class SettingsHelper {
 	protected static final String CFGKEY_FILENAME = "FileName";
 	protected static final String CFGKEY_SHEETNAME = "SheetName";
 	protected static final String CFGKEY_MODELMAPPINGS = "ModelMappings";
+	protected static final String CFGKEY_MODELDEPUNIT = "ModelDepUnit";
+	protected static final String CFGKEY_MODELINDEPUNIT = "ModelIndepUnit";
 	protected static final String CFGKEY_SECMODELMAPPINGS = "SecModelMappings";
 	protected static final String CFGKEY_SECMODELINDEPMINS = "SecModelIndepMins";
 	protected static final String CFGKEY_SECMODELINDEPMAXS = "SecModelIndepMaxs";
@@ -71,6 +73,8 @@ public class SettingsHelper {
 	private String fileName;
 	private String sheetName;
 	private Map<String, String> modelMappings;
+	private String modelDepUnit;
+	private String modelIndepUnit;
 	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Map<String, String>> secModelIndepMins;
 	private Map<String, Map<String, String>> secModelIndepMaxs;
@@ -92,6 +96,8 @@ public class SettingsHelper {
 		modelTuple = null;
 		secModelTuples = new LinkedHashMap<String, KnimeTuple>();
 		modelMappings = new LinkedHashMap<String, String>();
+		modelDepUnit = null;
+		modelIndepUnit = null;
 		secModelMappings = new LinkedHashMap<String, Map<String, String>>();
 		secModelIndepMins = new LinkedHashMap<String, Map<String, String>>();
 		secModelIndepMaxs = new LinkedHashMap<String, Map<String, String>>();
@@ -139,6 +145,18 @@ public class SettingsHelper {
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<String, String>();
+		}
+
+		try {
+			modelDepUnit = settings.getString(CFGKEY_MODELDEPUNIT);
+		} catch (InvalidSettingsException e) {
+			modelDepUnit = null;
+		}
+
+		try {
+			modelIndepUnit = settings.getString(CFGKEY_MODELINDEPUNIT);
+		} catch (InvalidSettingsException e1) {
+			modelIndepUnit = null;
 		}
 
 		try {
@@ -241,6 +259,8 @@ public class SettingsHelper {
 				XmlConverter.tupleMapToXml(secModelTuples));
 		settings.addString(CFGKEY_MODELMAPPINGS,
 				XmlConverter.objectToXml(modelMappings));
+		settings.addString(CFGKEY_MODELDEPUNIT, modelDepUnit);
+		settings.addString(CFGKEY_MODELINDEPUNIT, modelIndepUnit);
 		settings.addString(CFGKEY_SECMODELMAPPINGS,
 				XmlConverter.objectToXml(secModelMappings));
 		settings.addString(CFGKEY_SECMODELINDEPMINS,
@@ -287,6 +307,22 @@ public class SettingsHelper {
 		this.modelMappings = modelMappings;
 	}
 
+	public String getModelDepUnit() {
+		return modelDepUnit;
+	}
+
+	public void setModelDepUnit(String modelDepUnit) {
+		this.modelDepUnit = modelDepUnit;
+	}
+
+	public String getModelIndepUnit() {
+		return modelIndepUnit;
+	}
+
+	public void setModelIndepUnit(String modelIndepUnit) {
+		this.modelIndepUnit = modelIndepUnit;
+	}
+
 	public Map<String, Map<String, String>> getSecModelMappings() {
 		return secModelMappings;
 	}
@@ -294,7 +330,7 @@ public class SettingsHelper {
 	public void setSecModelMappings(
 			Map<String, Map<String, String>> secModelMappings) {
 		this.secModelMappings = secModelMappings;
-	}	
+	}
 
 	public Map<String, Map<String, String>> getSecModelIndepMins() {
 		return secModelIndepMins;

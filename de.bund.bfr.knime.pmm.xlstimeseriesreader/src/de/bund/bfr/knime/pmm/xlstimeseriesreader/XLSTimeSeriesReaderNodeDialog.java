@@ -313,6 +313,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		Set<Object> assignments = new LinkedHashSet<Object>();
+		boolean idAssigned = false;
 
 		for (String column : set.getColumnMappings().keySet()) {
 			Object assignment = set.getColumnMappings().get(column);
@@ -334,6 +335,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				throw new InvalidSettingsException("\"" + name
 						+ "\" can only be assigned once");
 			}
+
+			if (assignment.equals(XLSReader.ID_COLUMN)) {
+				idAssigned = true;
+			}
+		}
+
+		if (!idAssigned) {
+			throw new InvalidSettingsException("\"" + XLSReader.ID_COLUMN
+					+ "\" must be assigned to a column");
 		}
 
 		if (set.getAgentColumn() != null

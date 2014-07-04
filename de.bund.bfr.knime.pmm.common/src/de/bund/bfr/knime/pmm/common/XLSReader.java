@@ -60,7 +60,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class XLSReader {
 
@@ -537,9 +536,29 @@ public class XLSReader {
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
 
+			PmmXmlDoc modelXml = modelTuple
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			PmmXmlDoc paramXml = modelTuple
 					.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc estXml = modelTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			PmmXmlDoc depXml = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
+			PmmXmlDoc indepXml = modelTuple
+					.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+			if (modelDepUnit != null
+					&& !modelDepUnit.equals(((DepXml) depXml.get(0)).getUnit())) {
+				((DepXml) depXml.get(0)).setUnit(modelDepUnit);
+				((CatalogModelXml) modelXml.get(0)).setId(MathUtilities
+						.getRandomNegativeInt());
+			}
+
+			if (modelIndepUnit != null
+					&& !modelIndepUnit.equals(((IndepXml) indepXml.get(0))
+							.getUnit())) {
+				((IndepXml) indepXml.get(0)).setUnit(modelIndepUnit);
+				((CatalogModelXml) modelXml.get(0)).setId(MathUtilities
+						.getRandomNegativeInt());
+			}
 
 			((EstModelXml) estXml.get(0)).setId(MathUtilities
 					.getRandomNegativeInt());
@@ -566,6 +585,9 @@ public class XLSReader {
 				}
 			}
 
+			modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depXml);
+			modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
+			modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 			modelTuple.setValue(Model1Schema.ATT_ESTMODEL, estXml);
 
@@ -627,55 +649,49 @@ public class XLSReader {
 						String unit = secModelIndepUnits.get(param).get(
 								element.getName());
 
-						if (unit != null) {
-							String minMapping = secModelIndepMins.get(param)
-									.get(element.getName());
-							String maxMapping = secModelIndepMaxs.get(param)
-									.get(element.getName());
+						if (unit == null) {
+							continue;
+						}
 
-							if (minMapping != null) {
-								Cell minCell = row.getCell(columns
-										.get(minMapping));
+						if (!unit.equals(element.getUnit())) {
+							element.setUnit(unit);
+							((CatalogModelXml) secModelXml.get(0))
+									.setId(MathUtilities.getRandomNegativeInt());
+						}
 
-								if (hasData(minCell)) {
-									try {
-										double value = Double
-												.parseDouble(getData(minCell)
-														.replace(",", "."));
+						String minMapping = secModelIndepMins.get(param).get(
+								element.getName());
+						String maxMapping = secModelIndepMaxs.get(param).get(
+								element.getName());
 
-										element.setMin(Categories.getCategory(
-												element.getCategory()).convert(
-												value, unit, element.getUnit()));
-									} catch (NumberFormatException e) {
-										warnings.add(minMapping
-												+ " value in row "
-												+ (rowNumber + 1)
-												+ " is not valid ("
-												+ getData(minCell) + ")");
-									}
+						if (minMapping != null) {
+							Cell minCell = row.getCell(columns.get(minMapping));
+
+							if (hasData(minCell)) {
+								try {
+									element.setMin(Double.parseDouble(getData(
+											minCell).replace(",", ".")));
+								} catch (NumberFormatException e) {
+									warnings.add(minMapping + " value in row "
+											+ (rowNumber + 1)
+											+ " is not valid ("
+											+ getData(minCell) + ")");
 								}
 							}
+						}
 
-							if (maxMapping != null) {
-								Cell maxCell = row.getCell(columns
-										.get(maxMapping));
+						if (maxMapping != null) {
+							Cell maxCell = row.getCell(columns.get(maxMapping));
 
-								if (hasData(maxCell)) {
-									try {
-										double value = Double
-												.parseDouble(getData(maxCell)
-														.replace(",", "."));
-
-										element.setMax(Categories.getCategory(
-												element.getCategory()).convert(
-												value, unit, element.getUnit()));
-									} catch (NumberFormatException e) {
-										warnings.add(maxMapping
-												+ " value in row "
-												+ (rowNumber + 1)
-												+ " is not valid ("
-												+ getData(maxCell) + ")");
-									}
+							if (hasData(maxCell)) {
+								try {
+									element.setMax(Double.parseDouble(getData(
+											maxCell).replace(",", ".")));
+								} catch (NumberFormatException e) {
+									warnings.add(maxMapping + " value in row "
+											+ (rowNumber + 1)
+											+ " is not valid ("
+											+ getData(maxCell) + ")");
 								}
 							}
 						}

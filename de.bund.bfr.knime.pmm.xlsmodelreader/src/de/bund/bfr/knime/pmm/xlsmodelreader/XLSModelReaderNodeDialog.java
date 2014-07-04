@@ -703,7 +703,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			set.setMatrixColumn((String) matrixBox.getSelectedItem());
 			updateMatrixPanel();
 		} else if (e.getSource() == depUnitBox) {
-			set.setModelDepUnit((String) depUnitBox.getSelectedItem());			
+			set.setModelDepUnit((String) depUnitBox.getSelectedItem());
 		} else if (e.getSource() == indepUnitBox) {
 			set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
 		} else {
@@ -979,12 +979,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			depUnitBox = new JComboBox<String>(Categories
 					.getCategory(depXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
-			depUnitBox.setSelectedItem(depXml.getUnit());
-			depUnitBox.addItemListener(this);
 			indepUnitBox = new JComboBox<String>(Categories
 					.getCategory(indepXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
-			indepUnitBox.setSelectedItem(indepXml.getUnit());
+
+			if (set.getModelDepUnit() != null) {
+				depUnitBox.setSelectedItem(set.getModelDepUnit());
+			} else {
+				depUnitBox.setSelectedItem(depXml.getUnit());
+				set.setModelDepUnit(depXml.getUnit());
+			}
+
+			if (set.getModelIndepUnit() != null) {
+				indepUnitBox.setSelectedItem(set.getModelIndepUnit());
+			} else {
+				indepUnitBox.setSelectedItem(indepXml.getUnit());
+				set.setModelIndepUnit(indepXml.getUnit());
+			}
+
+			depUnitBox.addItemListener(this);
 			indepUnitBox.addItemListener(this);
 
 			northPanel.add(new JLabel(depXml.getName() + " Unit:"),

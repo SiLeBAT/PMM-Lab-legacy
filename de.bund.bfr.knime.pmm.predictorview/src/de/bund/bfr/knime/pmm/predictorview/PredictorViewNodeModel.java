@@ -132,7 +132,8 @@ public class PredictorViewNodeModel extends NodeModel {
 
 				for (Map.Entry<String, List<Double>> entry : converted
 						.entrySet()) {
-					if (entry.getValue() != null
+					if (!entry.getKey().equals(AttributeUtilities.TIME)
+							&& entry.getValue() != null
 							&& entry.getValue().get(0) != null) {
 						double value = entry.getValue().get(0);
 						Double min = plotable.getMinArguments().get(
@@ -142,9 +143,8 @@ public class PredictorViewNodeModel extends NodeModel {
 
 						if ((min != null && value < min)
 								|| (max != null && value > max)) {
-							setWarningMessage(entry.getKey() + " = "
-									+ entry.getValue() + " is not in range "
-									+ min + " -> " + max);
+							setWarningMessage(entry.getKey() + " = " + value
+									+ " is not in range " + min + " -> " + max);
 						}
 					}
 				}

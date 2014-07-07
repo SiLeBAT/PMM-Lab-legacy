@@ -472,6 +472,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		nonVariables.addAll(set.getConcentrationParameters().values());
 		nonVariables.addAll(set.getLagParameters().values());
+		nonVariables.add(AttributeUtilities.TIME);
 
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);

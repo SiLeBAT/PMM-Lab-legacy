@@ -636,11 +636,16 @@ public class Plotable {
 				if (d != null) {
 					Double min = minArguments.get(AttributeUtilities.TIME);
 					Double max = maxArguments.get(AttributeUtilities.TIME);
+					String unit = units.get(AttributeUtilities.TIME);
 
 					if (min != null && d < min) {
-						warnings.add(d + " is smaller than min value " + min);
+						warnings.add("Time: " + d + " " + unit
+								+ " is smaller than min value " + min + " "
+								+ unit);
 					} else if (max != null && d > max) {
-						warnings.add(d + " is larger than max value " + max);
+						warnings.add("Time: " + d + " " + unit
+								+ " is larger than max value " + max + " "
+								+ unit);
 					}
 				}
 			}

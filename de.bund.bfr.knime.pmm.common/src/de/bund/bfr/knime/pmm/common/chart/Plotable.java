@@ -638,14 +638,19 @@ public class Plotable {
 					Double max = maxArguments.get(AttributeUtilities.TIME);
 					String unit = units.get(AttributeUtilities.TIME);
 
+					min = Categories.getTimeCategory()
+							.convert(min, unit, unitX);
+					max = Categories.getTimeCategory()
+							.convert(max, unit, unitX);
+
 					if (min != null && d < min) {
-						warnings.add("Time: " + d + " " + unit
+						warnings.add("Time: " + d + " " + unitX
 								+ " is smaller than min value " + min + " "
-								+ unit);
+								+ unitX);
 					} else if (max != null && d > max) {
-						warnings.add("Time: " + d + " " + unit
+						warnings.add("Time: " + d + " " + unitX
 								+ " is larger than max value " + max + " "
-								+ unit);
+								+ unitX);
 					}
 				}
 			}

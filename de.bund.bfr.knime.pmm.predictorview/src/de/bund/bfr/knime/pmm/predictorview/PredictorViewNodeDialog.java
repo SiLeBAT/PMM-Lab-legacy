@@ -526,8 +526,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		createChart();
 
 		if (!chartCreator.getWarnings().isEmpty()) {
-			JOptionPane.showMessageDialog(chartCreator,
-					"Some sample values are out of model range", "Warning",
+			String warning = "";
+
+			for (String s : chartCreator.getWarnings()) {
+				warning += s + "\n";
+			}
+
+			JOptionPane.showMessageDialog(chartCreator, warning, "Warning",
 					JOptionPane.WARNING_MESSAGE);
 		}
 	}
@@ -769,7 +774,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setMinY(chartCreator.getMinY());
 		configPanel.setMaxY(chartCreator.getMaxY());
 		configPanel.addConfigListener(this);
-		createChart();	
+		createChart();
 	}
 
 }

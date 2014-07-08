@@ -284,19 +284,7 @@ public class PredictorViewNodeModel extends NodeModel {
 			}
 		}
 
-		List<Double> values = new ArrayList<Double>();
-
-		for (Double t : set.getTimeValues()) {
-			try {
-				values.add(Categories.getTimeCategory().convert(t,
-						set.getUnitX(),
-						plotable.getUnits().get(AttributeUtilities.TIME)));
-			} catch (ConvertException e) {
-				e.printStackTrace();
-			}
-		}
-
-		plotable.setSamples(values);
+		plotable.setSamples(set.getTimeValues());
 
 		double[][] points = null;
 

@@ -53,7 +53,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -423,6 +422,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(validIds);
+		samplePanel.setWarnings(chartCreator.getWarnings());
 	}
 
 	private void writeSettingsToVariables() {
@@ -523,18 +523,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void timeValuesChanged() {
-		createChart();
-
-		if (!chartCreator.getWarnings().isEmpty()) {
-			String warning = "";
-
-			for (String s : chartCreator.getWarnings()) {
-				warning += s + "\n";
-			}
-
-			JOptionPane.showMessageDialog(chartCreator, warning, "Warning",
-					JOptionPane.WARNING_MESSAGE);
-		}
+		createChart();		
 	}
 
 	@Override

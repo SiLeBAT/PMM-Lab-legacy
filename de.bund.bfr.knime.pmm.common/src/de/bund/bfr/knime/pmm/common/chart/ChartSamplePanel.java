@@ -38,6 +38,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -71,7 +72,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	private static final double DEFAULT_TIMESTEPSIZE = 10.0;
 
 	private JScrollPane tablePane;
-	private TimeSeriesTable table;
+	private TimeSeriesTable table;	
+	private TextArea warningArea;
 	private JButton clearButton;
 	private JButton stepsButton;
 
@@ -85,6 +87,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		tablePane = new JScrollPane(table,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		warningArea = new TextArea(3, 10);
+		warningArea.setEditable(false);
 		stepsButton = new JButton("Set equidistant time steps");
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
@@ -96,9 +100,28 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		buttonPanel.add(stepsButton);
 		buttonPanel.add(clearButton);
 
+		JPanel buttomPanel = new JPanel();
+
+		buttomPanel.setLayout(new BorderLayout());
+		buttomPanel.add(warningArea, BorderLayout.CENTER);
+		buttomPanel.add(buttonPanel, BorderLayout.SOUTH);
+
 		setLayout(new BorderLayout());
 		add(tablePane, BorderLayout.CENTER);
-		add(buttonPanel, BorderLayout.SOUTH);
+		add(buttomPanel, BorderLayout.SOUTH);
+	}
+
+	public void setWarnings(List<String> warnings) {
+		String s = "";
+
+		for (String w : warnings) {
+			s += w + "\n";
+		}
+
+		if (!s.isEmpty()) {
+			s = s.substring(0, s.length() - 1);
+		}
+		warningArea.setText(s);
 	}
 
 	public TimeSeriesTable getTimeSeriesTable() {

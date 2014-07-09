@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.common.chart;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -121,7 +122,14 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		if (!s.isEmpty()) {
 			s = s.substring(0, s.length() - 1);
 		}
+		
 		warningArea.setText(s);
+		
+		if (warnings.isEmpty()) {
+			warningArea.setBackground(Color.WHITE);
+		} else {
+			warningArea.setBackground(Color.YELLOW);
+		}
 	}
 
 	public TimeSeriesTable getTimeSeriesTable() {

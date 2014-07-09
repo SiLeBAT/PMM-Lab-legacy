@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
  de.bund.bfr.knime.pmm.common,
  org.hsh.bfr.db
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib
 Bundle-ClassPath: .
 Bundle-Vendor: BfR

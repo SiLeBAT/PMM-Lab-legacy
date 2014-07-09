@@ -644,12 +644,22 @@ public class Plotable {
 							.convert(max, unit, unitX);
 
 					if (min != null && d < min) {
-						warnings.add("Time: " + d + " " + unitX
-								+ " is smaller than min value " + min + " "
+						warnings.add("Time exceeds the validity range of the model: "
+								+ d
+								+ " "
+								+ unitX
+								+ " < min value "
+								+ min
+								+ " "
 								+ unitX);
 					} else if (max != null && d > max) {
-						warnings.add("Time: " + d + " " + unitX
-								+ " is larger than max value " + max + " "
+						warnings.add("Time exceeds the validity range of the model: "
+								+ d
+								+ " "
+								+ unitX
+								+ " > max value "
+								+ max
+								+ " "
 								+ unitX);
 					}
 				}

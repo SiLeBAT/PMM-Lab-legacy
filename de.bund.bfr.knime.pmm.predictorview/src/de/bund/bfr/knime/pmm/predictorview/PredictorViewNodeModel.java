@@ -299,7 +299,7 @@ public class PredictorViewNodeModel extends NodeModel {
 					Double.POSITIVE_INFINITY, warnings);
 
 			for (String w : warnings) {
-				setWarningMessage(w + " (ID: " + id + ")");
+				setWarningMessage(w);
 			}
 		} catch (ConvertException e) {
 			e.printStackTrace();

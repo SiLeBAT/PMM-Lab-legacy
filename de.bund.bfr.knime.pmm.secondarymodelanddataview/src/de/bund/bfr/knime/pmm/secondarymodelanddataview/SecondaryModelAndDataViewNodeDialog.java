@@ -127,6 +127,8 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			throws InvalidSettingsException {
 		if (!selectionPanel.getSelectedIDs().isEmpty()) {
 			set.setSelectedID(selectionPanel.getSelectedIDs().get(0));
+		} else if (configPanel.isDisplayFocusedRow()){
+			set.setSelectedID(selectionPanel.getFocusedID());
 		} else {
 			set.setSelectedID(null);
 		}
@@ -248,7 +250,10 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 		chartCreator.addZoomListener(this);
-		createChart();
+
+		if (!set.isDisplayHighlighted()) {
+			createChart();
+		}
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 	}

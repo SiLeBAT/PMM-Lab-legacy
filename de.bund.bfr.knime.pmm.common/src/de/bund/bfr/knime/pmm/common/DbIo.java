@@ -253,7 +253,7 @@ public class DbIo {
     }
 
     public static LinkedHashMap<String, String> getVarParMap(String varparStr) {
-    	LinkedHashMap<String, String> ret = new LinkedHashMap<String, String>();
+    	LinkedHashMap<String, String> ret = new LinkedHashMap<>();
     	if (varparStr != null) {
     		String[] t1 = varparStr.split(",");
 

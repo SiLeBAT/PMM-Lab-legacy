@@ -84,7 +84,7 @@ class MyTableCellListener implements DBTableCellListener {
 							if (o != null && o instanceof Integer) {
 								Integer id = (Integer) o;
 								if (modifiedCells.containsKey(id)) vec = modifiedCells.get(id);
-								else vec = new HashSet<Integer>();
+								else vec = new HashSet<>();
 								vec.add(col-1);
 								modifiedCells.put(id, vec);
 							}							

@@ -48,7 +48,7 @@ public class UnitsFromDB {
 	}
 	
 	public void askDB() {
-		ghm = new LinkedHashMap<Integer, UnitsFromDB>();
+		ghm = new LinkedHashMap<>();
 		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Einheiten"), true);
 		try {
 			if (rs != null && rs.first()) {

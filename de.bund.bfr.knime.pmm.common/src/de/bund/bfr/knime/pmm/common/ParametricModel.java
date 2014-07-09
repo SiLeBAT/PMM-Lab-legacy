@@ -259,7 +259,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
 		condId = Integer.valueOf( modelElement.getAttributeValue( ATT_CONDID ) );
 		
-		HashMap<String, String> rMap = new HashMap<String, String>();
+		HashMap<String, String> rMap = new HashMap<>();
 		for (Element el : modelElement.getChildren()) {
 			if (el.getName().equals(ATT_FORMULA)) {
 				formula = el.getText();
@@ -934,7 +934,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public SortedMap<String, Boolean> getAllParVars(){
-		SortedMap<String, Boolean> result = new TreeMap<String, Boolean>();
+		SortedMap<String, Boolean> result = new TreeMap<>();
 		if (parameter != null && parameter.getElementSet() != null) {
 			for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 				if (el instanceof ParamXml) {

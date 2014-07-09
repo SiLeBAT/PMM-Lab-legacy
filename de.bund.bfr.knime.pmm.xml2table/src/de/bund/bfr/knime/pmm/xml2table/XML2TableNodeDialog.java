@@ -56,9 +56,9 @@ public class XML2TableNodeDialog extends DataAwareNodeDialogPane implements
 	protected XML2TableNodeDialog() {
 		set = new SettingsHelper();
 
-		columnBox = new JComboBox<String>();
+		columnBox = new JComboBox<>();
 		columnBox.addItemListener(this);
-		elementList = new JList<String>();
+		elementList = new JList<>();
 
 		JPanel columnPanel = new JPanel();
 
@@ -142,7 +142,7 @@ public class XML2TableNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private static List<String> getXmlColumns(DataTableSpec spec) {
-		List<String> columns = new ArrayList<String>();
+		List<String> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			if (column.getType().equals(XMLCell.TYPE)) {
@@ -156,7 +156,7 @@ public class XML2TableNodeDialog extends DataAwareNodeDialogPane implements
 	private static List<String> getElements(BufferedDataTable table,
 			String column) {
 		int index = table.getSpec().findColumnIndex(column);
-		Set<String> elements = new LinkedHashSet<String>();
+		Set<String> elements = new LinkedHashSet<>();
 
 		for (DataRow row : table) {
 			PmmXmlDoc xml = XML2TableNodeModel.createXml(row.getCell(index));
@@ -170,7 +170,7 @@ public class XML2TableNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		return new ArrayList<String>(elements);
+		return new ArrayList<>(elements);
 	}
 
 }

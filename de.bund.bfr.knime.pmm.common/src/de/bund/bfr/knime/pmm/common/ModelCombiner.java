@@ -67,23 +67,23 @@ public class ModelCombiner {
 		}
 
 		if (initParams == null) {
-			initParams = new LinkedHashMap<String, String>();
+			initParams = new LinkedHashMap<>();
 		}
 
 		if (lagParams == null) {
-			lagParams = new LinkedHashMap<String, String>();
+			lagParams = new LinkedHashMap<>();
 		}
 
-		Map<String, KnimeTuple> newTuples = new LinkedHashMap<String, KnimeTuple>();
-		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<String, List<KnimeTuple>>();
-		Map<String, Set<String>> replacements = new LinkedHashMap<String, Set<String>>();
-		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<Integer, Map<String, Double>>();
-		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<Integer, Map<String, Integer>>();
-		Map<Integer, Set<String>> organisms = new LinkedHashMap<Integer, Set<String>>();
-		Map<Integer, Set<String>> matrices = new LinkedHashMap<Integer, Set<String>>();
-		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<Integer, Set<String>>();
-		Map<Integer, Set<String>> matrixDetails = new LinkedHashMap<Integer, Set<String>>();
-		Map<Integer, Set<String>> comments = new LinkedHashMap<Integer, Set<String>>();
+		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
+		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<>();
+		Map<String, Set<String>> replacements = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<>();
+		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
+		Map<Integer, Set<String>> organisms = new LinkedHashMap<>();
+		Map<Integer, Set<String>> matrices = new LinkedHashMap<>();
+		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<>();
+		Map<Integer, Set<String>> matrixDetails = new LinkedHashMap<>();
+		Map<Integer, Set<String>> comments = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			int modelId = -1;
@@ -95,8 +95,8 @@ public class ModelCombiner {
 			}
 
 			if (!paramValueSums.containsKey(modelId)) {
-				Map<String, Double> sums = new LinkedHashMap<String, Double>();
-				Map<String, Integer> counts = new LinkedHashMap<String, Integer>();
+				Map<String, Double> sums = new LinkedHashMap<>();
+				Map<String, Integer> counts = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : tuple.getPmmXml(
 						Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -201,13 +201,13 @@ public class ModelCombiner {
 			}
 		}
 
-		tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
-		parameterRenaming = new LinkedHashMap<KnimeTuple, Map<KnimeTuple, Map<String, String>>>();
+		tupleCombinations = new LinkedHashMap<>();
+		parameterRenaming = new LinkedHashMap<>();
 
 		for (String id : newTuples.keySet()) {
 			KnimeTuple newTuple = newTuples.get(id);
 			List<KnimeTuple> usedTuples = usedTupleLists.get(id);
-			Map<KnimeTuple, Map<String, String>> rename = new LinkedHashMap<KnimeTuple, Map<String, String>>();
+			Map<KnimeTuple, Map<String, String>> rename = new LinkedHashMap<>();
 
 			for (KnimeTuple tuple : usedTuples) {
 				rename.put(tuple, new LinkedHashMap<String, String>());

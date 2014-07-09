@@ -80,7 +80,7 @@ public class SettingsHelper {
 		nParameterSpace = DEFAULT_NPARAMETERSPACE;
 		nLevenberg = DEFAULT_NLEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
-		parameterGuesses = new LinkedHashMap<String, Map<String, Point2D.Double>>();
+		parameterGuesses = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

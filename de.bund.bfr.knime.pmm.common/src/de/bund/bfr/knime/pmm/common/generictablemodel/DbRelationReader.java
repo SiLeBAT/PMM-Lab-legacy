@@ -58,7 +58,7 @@ public class DbRelationReader implements Enumeration<KnimeTuple> {
 			throw new PmmException( "Schema must not be null." );
 		
 		this.schema = schema;
-		mapKnimeDb = new HashMap<String,String>();
+		mapKnimeDb = new HashMap<>();
 		hasMore = false;
 	}
 	

@@ -54,7 +54,7 @@ class Users {
   
 	
   static LinkedHashMap<Object, String> getUserTypesHash() {
-  	LinkedHashMap<Object, String> result = new LinkedHashMap<Object, String>();
+  	LinkedHashMap<Object, String> result = new LinkedHashMap<>();
   	result.put(READ_ONLY, "READ_ONLY");					
   	result.put(WRITE_ACCESS, "WRITE_ACCESS");					
   	result.put(SUPER_WRITE_ACCESS, "SUPER_WRITE_ACCESS");					

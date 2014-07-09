@@ -100,7 +100,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
-		Set<String> idSet = new LinkedHashSet<String>(ids);
+		Set<String> idSet = new LinkedHashSet<>(ids);
 		int index = 0;
 
 		for (int i = 0; i < reader.getAllTuples().size(); i++) {

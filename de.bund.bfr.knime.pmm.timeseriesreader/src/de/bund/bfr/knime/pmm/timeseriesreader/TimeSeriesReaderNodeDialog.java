@@ -163,7 +163,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 			String[] mins = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN);
 			String[] maxs = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX);
 
-			LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+			LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<>();
 			for (int i=0;i<pars.length;i++) {
 				DoubleTextField[] dbl = new DoubleTextField[2];
 				dbl[0] = new DoubleTextField(true);

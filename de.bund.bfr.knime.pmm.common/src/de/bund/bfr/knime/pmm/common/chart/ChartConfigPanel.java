@@ -134,8 +134,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			boolean varsChangeable) {
 		this.type = type;
 		this.stdUnitForFields = stdUnitForFields;
-		configListeners = new ArrayList<ConfigListener>();
-		buttonListeners = new ArrayList<ExtraButtonListener>();
+		configListeners = new ArrayList<>();
+		buttonListeners = new ArrayList<>();
 		lastParamX = null;
 
 		JPanel mainPanel = new JPanel();
@@ -235,16 +235,16 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 		mainPanel.add(outerRangePanel, createConstraints(1));
 
-		xBox = new JComboBox<String>();
+		xBox = new JComboBox<>();
 		xBox.addActionListener(this);
-		yBox = new JComboBox<String>();
-		xUnitBox = new JComboBox<String>();
+		yBox = new JComboBox<>();
+		xUnitBox = new JComboBox<>();
 		xUnitBox.addActionListener(this);
-		yUnitBox = new JComboBox<String>();
+		yUnitBox = new JComboBox<>();
 		yUnitBox.addActionListener(this);
-		xTransBox = new JComboBox<String>(ChartConstants.TRANSFORMS);
+		xTransBox = new JComboBox<>(ChartConstants.TRANSFORMS);
 		xTransBox.addActionListener(this);
-		yTransBox = new JComboBox<String>(ChartConstants.TRANSFORMS);
+		yTransBox = new JComboBox<>(ChartConstants.TRANSFORMS);
 		yTransBox.addActionListener(this);
 
 		JPanel parametersPanel = new JPanel();
@@ -283,11 +283,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setLayout(new GridBagLayout());
-		parameterNames = new ArrayList<String>();
-		parameterFields = new ArrayList<DoubleTextField>();
-		parameterButtons = new ArrayList<JButton>();
-		parameterLabels = new ArrayList<JLabel>();
-		parameterSliders = new ArrayList<JSlider>();
+		parameterNames = new ArrayList<>();
+		parameterFields = new ArrayList<>();
+		parameterButtons = new ArrayList<>();
+		parameterLabels = new ArrayList<>();
+		parameterSliders = new ArrayList<>();
 
 		if (varsChangeable) {
 			JPanel outerParameterValuesPanel = new JPanel();
@@ -495,23 +495,23 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		boolean parametersChanged = false;
 
 		if (parametersX == null) {
-			parametersX = new LinkedHashMap<String, List<Double>>();
+			parametersX = new LinkedHashMap<>();
 		}
 
 		if (minParamXValues == null) {
-			minParamXValues = new LinkedHashMap<String, Double>();
+			minParamXValues = new LinkedHashMap<>();
 		}
 
 		if (maxParamXValues == null) {
-			maxParamXValues = new LinkedHashMap<String, Double>();
+			maxParamXValues = new LinkedHashMap<>();
 		}
 
 		if (categories == null) {
-			categories = new LinkedHashMap<String, List<String>>();
+			categories = new LinkedHashMap<>();
 		}
 
 		if (units == null) {
-			units = new LinkedHashMap<String, String>();
+			units = new LinkedHashMap<>();
 		}
 
 		if (this.parametersX == null
@@ -563,13 +563,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 
 			xBox.addActionListener(this);
-			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
+			selectedValuesX = new LinkedHashMap<>();
 
 			for (String param : parametersX.keySet()) {
 				List<Double> values = parametersX.get(param);
 
 				if (!values.isEmpty()) {
-					List<Boolean> selected = new ArrayList<Boolean>(
+					List<Boolean> selected = new ArrayList<>(
 							Collections.nCopies(values.size(), true));
 
 					selectedValuesX.put(param, selected);
@@ -602,7 +602,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	public Map<String, List<Double>> getParamsX() {
-		Map<String, List<Double>> valueLists = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> valueLists = new LinkedHashMap<>();
 
 		if (type == PARAMETER_FIELDS) {
 			for (int i = 0; i < parameterFields.size(); i++) {
@@ -613,18 +613,18 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				if (field.getValue() != null) {
 					valueLists.put(
 							paramName,
-							new ArrayList<Double>(Arrays.asList(field
+							new ArrayList<>(Arrays.asList(field
 									.getValue())));
 				} else {
 					valueLists.put(paramName,
-							new ArrayList<Double>(Arrays.asList(0.0)));
+							new ArrayList<>(Arrays.asList(0.0)));
 				}
 			}
 		} else if (type == PARAMETER_BOXES) {
 			for (String param : parametersX.keySet()) {
 				List<Double> values = parametersX.get(param);
 				List<Boolean> selected = selectedValuesX.get(param);
-				List<Double> newValues = new ArrayList<Double>();
+				List<Double> newValues = new ArrayList<>();
 
 				for (int j = 0; j < values.size(); j++) {
 					if (selected.get(j)) {
@@ -640,7 +640,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		valueLists.put((String) xBox.getSelectedItem(), new ArrayList<Double>(
+		valueLists.put((String) xBox.getSelectedItem(), new ArrayList<>(
 				Arrays.asList(0.0)));
 
 		return valueLists;
@@ -648,7 +648,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public Map<String, Double> getParamXValues() {
 		Map<String, List<Double>> paramsX = getParamsX();
-		Map<String, Double> paramXValues = new LinkedHashMap<String, Double>();
+		Map<String, Double> paramXValues = new LinkedHashMap<>();
 
 		for (Map.Entry<String, List<Double>> entry : paramsX.entrySet()) {
 			if (!entry.getValue().isEmpty()) {
@@ -998,7 +998,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			approved = false;
 			selected = null;
 
-			selectBoxes = new ArrayList<JCheckBox>();
+			selectBoxes = new ArrayList<>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");
@@ -1045,7 +1045,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
 				approved = true;
-				selected = new ArrayList<Boolean>();
+				selected = new ArrayList<>();
 
 				for (JCheckBox box : selectBoxes) {
 					selected.add(box.isSelected());

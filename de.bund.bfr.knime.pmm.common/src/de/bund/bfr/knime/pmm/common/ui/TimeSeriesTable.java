@@ -54,7 +54,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			boolean timeEditable, boolean logcEditable) {
 		this.rowCount = rowCount;
 		timeColumnName = AttributeUtilities.getName(AttributeUtilities.TIME);
-		cColumnNames = new ArrayList<String>();
+		cColumnNames = new ArrayList<>();
 
 		for (int i = 0; i < cColumnCount; i++) {
 			String name = AttributeUtilities
@@ -111,7 +111,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public List<TableColumn> getCColumns() {
-		List<TableColumn> columns = new ArrayList<TableColumn>();
+		List<TableColumn> columns = new ArrayList<>();
 
 		for (String name : getCColumnNames()) {
 			columns.add(getColumn(name));
@@ -121,7 +121,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public List<TimeSeriesXml> getTimeSeries() {
-		List<TimeSeriesXml> timeSeries = new ArrayList<TimeSeriesXml>();
+		List<TimeSeriesXml> timeSeries = new ArrayList<>();
 
 		for (int i = 0; i < rowCount; i++) {
 			timeSeries.add(new TimeSeriesXml(null, getTime(i), null,
@@ -235,8 +235,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		public TimeSeriesTableModel(int rowCount, int cColumnCount) {
 			this.rowCount = rowCount;
 			this.cColumnCount = cColumnCount;
-			timeList = new ArrayList<Double>(rowCount);
-			concentrationLists = new ArrayList<List<Double>>();
+			timeList = new ArrayList<>(rowCount);
+			concentrationLists = new ArrayList<>();
 
 			for (int i = 0; i < cColumnCount; i++) {
 				concentrationLists.add(new ArrayList<Double>());

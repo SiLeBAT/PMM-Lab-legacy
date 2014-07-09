@@ -318,7 +318,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			approved = false;
 			this.allConditions = PmmUtilities.getMiscParams(PmmUtilities
 					.getTuples(table, SchemaFactory.createDataSchema()));
-			this.usedConditions = new ArrayList<String>();
+			this.usedConditions = new ArrayList<>();
 
 			for (String cond : usedConditions) {
 				if (allConditions.contains(cond)) {
@@ -326,8 +326,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				}
 			}
 
-			conditionList = new JList<String>(
-					usedConditions.toArray(new String[0]));
+			conditionList = new JList<>(usedConditions.toArray(new String[0]));
 			addButton = new JButton("Add");
 			addButton.addActionListener(this);
 			removeButton = new JButton("Remove");

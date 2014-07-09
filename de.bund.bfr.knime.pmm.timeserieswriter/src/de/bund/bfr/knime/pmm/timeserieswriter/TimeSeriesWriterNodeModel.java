@@ -115,8 +115,8 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<Integer, PmmTimeSeries>();
-		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
+		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<>();
+		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<>();
     	String dbuuid = db.getDBUUID();
 
 		int j = 0;

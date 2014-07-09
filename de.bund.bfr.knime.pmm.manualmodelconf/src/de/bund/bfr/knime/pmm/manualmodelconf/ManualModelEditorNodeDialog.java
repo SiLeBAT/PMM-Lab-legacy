@@ -129,8 +129,8 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		}
 		catch (Exception e) {} // e.printStackTrace();
 		if (inData != null && inData.length == 1) {
-			HashMap<Integer, ParametricModel> mlist = new HashMap<Integer, ParametricModel>();
-			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<Integer, PmmTimeSeries>();
+			HashMap<Integer, ParametricModel> mlist = new HashMap<>();
+			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<>();
 			try {
 				if (mStr != null && !mStr.isEmpty()) {
 					PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
@@ -175,10 +175,10 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		    	if (hasTs) finalSchema = (finalSchema == null) ? tsSchema : KnimeSchema.merge(tsSchema, finalSchema);
 		    	if (finalSchema != null) {
 		    		KnimeRelationReader reader = new KnimeRelationReader(finalSchema, inData[0]);
-		    		HashMap<Integer, PmmTimeSeries> tss = new HashMap<Integer, PmmTimeSeries>();
-		    		HashMap<Integer, ParametricModel> m1s = new HashMap<Integer, ParametricModel>();
-		    		HashMap<Integer, ParametricModel> m2s = new HashMap<Integer, ParametricModel>();
-		    		HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = new HashMap<ParametricModel, HashMap<String, ParametricModel>>();
+		    		HashMap<Integer, PmmTimeSeries> tss = new HashMap<>();
+		    		HashMap<Integer, ParametricModel> m1s = new HashMap<>();
+		    		HashMap<Integer, ParametricModel> m2s = new HashMap<>();
+		    		HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = new HashMap<>();
 		    		Integer condID = null;
 		    		Integer m1EstID = null, m2EstID;
 		    		while (reader.hasMoreElements()) {

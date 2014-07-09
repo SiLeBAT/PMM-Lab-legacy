@@ -26,10 +26,10 @@ public class QualityMeasurementComputation {
 
 	public static List<KnimeTuple> computePrimary(List<KnimeTuple> tuples,
 			boolean perDataSet) {
-		Map<String, KnimeTuple> tupleMap = new LinkedHashMap<String, KnimeTuple>();
-		Map<String, Set<Integer>> usedCondIDs = new LinkedHashMap<String, Set<Integer>>();
-		Map<String, List<Double>> targetValueMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, Map<String, List<Double>>> variableValueMap = new LinkedHashMap<String, Map<String, List<Double>>>();
+		Map<String, KnimeTuple> tupleMap = new LinkedHashMap<>();
+		Map<String, Set<Integer>> usedCondIDs = new LinkedHashMap<>();
+		Map<String, List<Double>> targetValueMap = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> variableValueMap = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			if (((EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL)
@@ -71,7 +71,7 @@ public class QualityMeasurementComputation {
 
 			List<Double> targetValues = targetValueMap.get(id);
 			Map<String, List<Double>> variableValues = variableValueMap.get(id);
-			Map<String, Double> miscValues = new LinkedHashMap<String, Double>();
+			Map<String, Double> miscValues = new LinkedHashMap<>();
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			List<String> miscNames = CellIO.getNameList(miscXml);
 			boolean miscMissing = false;
@@ -122,12 +122,12 @@ public class QualityMeasurementComputation {
 			}
 		}
 
-		Map<String, Double> sseMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
-		Map<String, Integer> dofMap = new LinkedHashMap<String, Integer>();
+		Map<String, Double> sseMap = new LinkedHashMap<>();
+		Map<String, Double> rmsMap = new LinkedHashMap<>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();
+		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Integer> dofMap = new LinkedHashMap<>();
 
 		for (String id : tupleMap.keySet()) {
 			KnimeTuple tuple = tupleMap.get(id);
@@ -159,7 +159,7 @@ public class QualityMeasurementComputation {
 			}
 
 			double sse = 0.0;
-			List<Double> usedTargetValues = new ArrayList<Double>();
+			List<Double> usedTargetValues = new ArrayList<>();
 
 			for (int i = 0; i < targetValues.size(); i++) {
 				Object value = null;
@@ -203,7 +203,7 @@ public class QualityMeasurementComputation {
 			}
 		}
 
-		List<KnimeTuple> newTuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> newTuples = new ArrayList<>();
 
 		for (KnimeTuple tuple : tuples) {
 			KnimeTuple newTuple = new KnimeTuple(tuple.getSchema(), tuple
@@ -243,19 +243,19 @@ public class QualityMeasurementComputation {
 	}
 
 	public static List<KnimeTuple> computeSecondary(List<KnimeTuple> tuples) {
-		Set<String> idSet = new LinkedHashSet<String>();
-		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
-		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
-		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
-		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
-		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
-		Map<String, Double> sseMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
-		Map<String, Integer> dofMap = new LinkedHashMap<String, Integer>();
+		Set<String> idSet = new LinkedHashSet<>();
+		Map<String, String> formulaMap = new LinkedHashMap<>();
+		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
+		Map<String, String> depVarMap = new LinkedHashMap<>();
+		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
+		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
+		Map<String, Double> sseMap = new LinkedHashMap<>();
+		Map<String, Double> rmsMap = new LinkedHashMap<>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();
+		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 
 		for (KnimeTuple tuple : tuples) {
@@ -362,7 +362,7 @@ public class QualityMeasurementComputation {
 			}
 
 			double sse = 0.0;
-			List<Double> usedTargetValues = new ArrayList<Double>();
+			List<Double> usedTargetValues = new ArrayList<>();
 
 			for (int i = 0; i < depVarData.size(); i++) {
 				Object value = null;
@@ -405,7 +405,7 @@ public class QualityMeasurementComputation {
 			}
 		}
 
-		List<KnimeTuple> newTuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> newTuples = new ArrayList<>();
 
 		for (KnimeTuple tuple : tuples) {
 			KnimeTuple newTuple = new KnimeTuple(tuple.getSchema(), tuple

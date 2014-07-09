@@ -235,7 +235,7 @@ public class MathUtilities {
 	public static List<Double> evaluateFunction(String formula,
 			List<String> parameters, List<Double> parameterValues,
 			List<String> variables, List<List<Double>> variableValues) {
-		List<Double> values = new ArrayList<Double>();
+		List<Double> values = new ArrayList<>();
 		DJep parser = createParser();
 
 		for (int i = 0; i < parameters.size(); i++) {

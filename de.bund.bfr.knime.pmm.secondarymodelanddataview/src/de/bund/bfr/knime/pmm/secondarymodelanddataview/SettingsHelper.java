@@ -122,12 +122,12 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		selectedID = null;
 		currentParamX = null;
-		paramXValues = new LinkedHashMap<String, Double>();
-		selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
-		colorLists = new LinkedHashMap<String, List<Color>>();
-		shapeLists = new LinkedHashMap<String, List<Shape>>();
+		paramXValues = new LinkedHashMap<>();
+		selectedValuesX = new LinkedHashMap<>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
+		colorLists = new LinkedHashMap<>();
+		shapeLists = new LinkedHashMap<>();
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
 		maxX = DEFAULT_MAXX;
@@ -144,9 +144,9 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<String>();
+		visibleColumns = new ArrayList<>();
 		fittedFilter = null;
-		columnWidths = new LinkedHashMap<String, Integer>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

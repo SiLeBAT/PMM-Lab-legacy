@@ -93,9 +93,9 @@ public class DBKernel {
 	 * @param args
 	 */
 
-	private static HashMap<String, String> adminU = new HashMap<String, String>();
-	private static HashMap<String, String> adminP = new HashMap<String, String>();
-	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
+	private static HashMap<String, String> adminU = new HashMap<>();
+	private static HashMap<String, String> adminP = new HashMap<>();
+	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<>();
 
 	private static Connection localConn = null;
 	private static String m_Username = "";
@@ -365,7 +365,7 @@ public class DBKernel {
 	}
 
 	public static List<Integer> getLastChangeLogEntries(final String tablename, int fromID) {
-		List<Integer> result = new ArrayList<Integer>();
+		List<Integer> result = new ArrayList<>();
 		String sql = "SELECT " + delimitL("TabellenID") + " FROM " + delimitL("ChangeLog") + " WHERE " + delimitL("Tabelle") + " = '" + tablename + "' AND " + delimitL("ID")
 				+ " >= " + fromID;
 		ResultSet rs = getResultSet(sql, false);
@@ -382,7 +382,7 @@ public class DBKernel {
 	}
 
 	public static LinkedHashMap<String, Timestamp> getFirstUserFromChangeLog(final String tablename, final Integer tableID) {
-		LinkedHashMap<String, Timestamp> result = new LinkedHashMap<String, Timestamp>();
+		LinkedHashMap<String, Timestamp> result = new LinkedHashMap<>();
 		String sql = "SELECT " + delimitL("Username") + "," + delimitL("Zeitstempel") + " FROM " + delimitL("ChangeLog") + " WHERE " + delimitL("Tabelle") + " = '" + tablename
 				+ "' AND " + delimitL("TabellenID") + " = " + tableID + " ORDER BY " + delimitL("Zeitstempel") + " ASC";
 		ResultSet rs = getResultSet(sql, false);
@@ -410,8 +410,8 @@ public class DBKernel {
 
 	private static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(final Statement anfrage, final String tablename, final Integer tableID, final String username,
 			final boolean showDeletedAsWell) {
-		LinkedHashMap<Integer, Vector<String>> result = new LinkedHashMap<Integer, Vector<String>>();
-		Vector<String> entries = new Vector<String>();
+		LinkedHashMap<Integer, Vector<String>> result = new LinkedHashMap<>();
+		Vector<String> entries = new Vector<>();
 		String sql = "SELECT " + delimitL("TabellenID") + "," + delimitL("Username") + "," + delimitL("Zeitstempel") + "," + delimitL(tablename) + "." + delimitL("ID") + " AS "
 				+ delimitL("ID") + "," + delimitL("ChangeLog") + "." + delimitL("ID") + "," + delimitL("Alteintrag") + "," + delimitL(tablename) + ".*" + " FROM "
 				+ delimitL("ChangeLog") + " LEFT JOIN " + delimitL(tablename) + " ON " + delimitL("ChangeLog") + "." + delimitL("TabellenID") + "=" + delimitL(tablename) + "."
@@ -433,7 +433,7 @@ public class DBKernel {
 						if (result.containsKey(id)) {
 							entries = result.get(id);
 						} else {
-							entries = new Vector<String>();
+							entries = new Vector<>();
 						}
 						String newEntry = rs.getString("Username") + "\t" + sdf.format(rs.getTimestamp("Zeitstempel"));
 						Object o = rs.getObject("Alteintrag");
@@ -989,7 +989,7 @@ public class DBKernel {
 			return filledHashtables.get(foreignTable);
 		}
 
-		LinkedHashMap<Object, String> h = new LinkedHashMap<Object, String>();
+		LinkedHashMap<Object, String> h = new LinkedHashMap<>();
 		String selectSQL = theTable.getSelectSQL();
 		String sql = selectSQL;
 		ResultSet rs = getResultSet(sql, true);
@@ -1001,7 +1001,7 @@ public class DBKernel {
 			if (rs != null && rs.first()) {
 				MyTable[] foreignFields = theTable.getForeignFields();
 				String[] mnTable = theTable.getMNTable();
-				if (alreadyUsed == null) alreadyUsed = new HashSet<MyTable>();
+				if (alreadyUsed == null) alreadyUsed = new HashSet<>();
 				alreadyUsed.add(theTable);
 				boolean isdkz = theTable.getTablename().equals("DoubleKennzahlen");
 				do {
@@ -1609,7 +1609,7 @@ public class DBKernel {
 	 * catch (Exception he) { he.printStackTrace(); } // HeadlessException }
 	 */
 	public static String[] getItemListMisc(Connection conn) {
-		HashSet<String> hs = new HashSet<String>();
+		HashSet<String> hs = new HashSet<>();
 		try {
 			ResultSet rs = null;
 			String sql = "SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter");
@@ -1674,7 +1674,7 @@ public class DBKernel {
 	}
 
 	public static List<String> getUsageListOfID(final String tableName, int id) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'",
 				false);
 		try {

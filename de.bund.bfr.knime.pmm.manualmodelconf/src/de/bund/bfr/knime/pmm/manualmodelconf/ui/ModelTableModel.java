@@ -78,7 +78,7 @@ public class ModelTableModel extends JTable {
 	public ModelTableModel() {
 		super();
 		BooleanTableModel btm = new BooleanTableModel();
-		rowHasChanged = new HashMap<String, Boolean>();
+		rowHasChanged = new HashMap<>();
 		this.setModel(btm);	
 		this.setDefaultRenderer(Object.class, new MyTableCellRenderer());
 		this.setDefaultRenderer(Boolean.class, new MyTableCellRenderer());
@@ -94,7 +94,7 @@ public class ModelTableModel extends JTable {
 		thePM.validateParams();
 		this.revalidate();
 		hasChanged = false;
-		rowHasChanged = new HashMap<String, Boolean>();
+		rowHasChanged = new HashMap<>();
 	}
 	public ParametricModel getPM() {
 		return thePM;
@@ -124,7 +124,7 @@ public class ModelTableModel extends JTable {
 		thePM = new ParametricModel("", "", null, 1);
 		this.revalidate();
 		hasChanged = false;
-		rowHasChanged = new HashMap<String, Boolean>();
+		rowHasChanged = new HashMap<>();
 	}
 
 	// Here: functionality: always overwrite cell except for pressed F2, which means: activate cell

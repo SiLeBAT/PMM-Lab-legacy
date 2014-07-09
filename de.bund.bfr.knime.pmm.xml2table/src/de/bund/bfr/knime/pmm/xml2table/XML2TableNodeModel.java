@@ -186,7 +186,7 @@ public class XML2TableNodeModel extends NodeModel {
 
 	private DataTableSpec createSpec(DataTableSpec spec, int n,
 			List<String> elements) {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			columns.add(column);

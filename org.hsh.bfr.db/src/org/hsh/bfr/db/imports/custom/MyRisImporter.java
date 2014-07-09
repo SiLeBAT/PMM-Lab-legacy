@@ -136,7 +136,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 
       		String log = "";
       		int numFailed = 0, numSuccess = 0, numPapers = 0, numPapersFailed = 0, numRisses = 0;
-      		Vector<String> duplicates = new Vector<String>();
+      		Vector<String> duplicates = new Vector<>();
       		File f = new File(filename);
       		InputStream in = null;
 			//InputStream in = new FileInputStream(f);
@@ -374,7 +374,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 	 * objects.
 	 */
 	private LinkedHashMap<BibtexEntry, String> importEntries(InputStream stream) throws IOException {
-		LinkedHashMap<BibtexEntry, String> bibitems = new LinkedHashMap<BibtexEntry, String>();
+		LinkedHashMap<BibtexEntry, String> bibitems = new LinkedHashMap<>();
 		StringBuffer sb = new StringBuffer();
 		BufferedReader in = new BufferedReader(getReaderDefaultEncoding(stream));
 		String str;
@@ -394,7 +394,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 		    
         String type = "", author = "", editor = "", startPage = "", endPage = "", comment = "";
         String erstautor = "";
-        HashMap<String, String> hm = new HashMap<String, String>();
+        HashMap<String, String> hm = new HashMap<>();
 		
 		
 		    String[] fields = entries[i].split("\n");
@@ -539,7 +539,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 		    BibtexEntry b = new BibtexEntry(BibtexFields.DEFAULT_BIBTEXENTRY_ID, getEntryType(type)); // id assumes an existing database so don't
 		
 		    // Remove empty fields:
-		    ArrayList<Object> toRemove = new ArrayList<Object>();
+		    ArrayList<Object> toRemove = new ArrayList<>();
 		    for (Iterator<String> it = hm.keySet().iterator(); it.hasNext();) {
 		        Object key = it.next();
 		        String content = hm.get(key);

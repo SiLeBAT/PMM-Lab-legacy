@@ -57,7 +57,7 @@ public class CategoryReader {
 
 		Map<Integer, UnitsFromDB> map = unitDB.getMap();
 
-		categories = new LinkedHashMap<String, Category>();
+		categories = new LinkedHashMap<>();
 
 		for (UnitsFromDB unit : map.values()) {
 			String categoryName = unit.getKind_of_property_quantity();
@@ -87,11 +87,11 @@ public class CategoryReader {
 	private Category createCategory(Map<Integer, UnitsFromDB> units,
 			String categoryName) {
 		DJep parser = MathUtilities.createParser();
-		Map<String, Node> fromFormulas = new LinkedHashMap<String, Node>();
-		Map<String, Node> toFormulas = new LinkedHashMap<String, Node>();
-		Map<String, String> fromFormulaStrings = new LinkedHashMap<String, String>();
-		Map<String, String> toFormulaStrings = new LinkedHashMap<String, String>();
-		Map<String, String> sbmlStrings = new LinkedHashMap<String, String>();
+		Map<String, Node> fromFormulas = new LinkedHashMap<>();
+		Map<String, Node> toFormulas = new LinkedHashMap<>();
+		Map<String, String> fromFormulaStrings = new LinkedHashMap<>();
+		Map<String, String> toFormulaStrings = new LinkedHashMap<>();
+		Map<String, String> sbmlStrings = new LinkedHashMap<>();
 		String standardUnit = null;
 
 		parser.addVariable("x", 0.0);
@@ -176,7 +176,7 @@ public class CategoryReader {
 
 		@Override
 		public List<String> getAllUnits() {
-			return new ArrayList<String>(fromFormulas.keySet());
+			return new ArrayList<>(fromFormulas.keySet());
 		}
 
 		@Override

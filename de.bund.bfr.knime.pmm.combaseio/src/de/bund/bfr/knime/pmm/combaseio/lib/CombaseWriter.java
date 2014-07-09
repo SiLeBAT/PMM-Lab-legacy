@@ -54,7 +54,7 @@ public class CombaseWriter {
 	
 	public CombaseWriter( final String filename) {
 		this.filename = filename;
-		buffer = new LinkedList<PmmTimeSeries>();
+		buffer = new LinkedList<>();
 	}
 	
 	public void add( final PmmTimeSeries candidate ) throws PmmException {

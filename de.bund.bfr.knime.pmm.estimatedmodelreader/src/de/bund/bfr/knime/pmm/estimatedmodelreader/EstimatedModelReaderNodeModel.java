@@ -165,7 +165,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         matrixString = "";
         literatureString = "";
 
-        parameter = new LinkedHashMap<String, Double[]>();
+        parameter = new LinkedHashMap<>();
         set = new SettingsHelper();
     }
 
@@ -191,7 +191,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
          	catch (InvalidSettingsException e1) {}
     	}
 
-    	List<KnimeTuple> resultSet = new ArrayList<KnimeTuple>(); 
+    	List<KnimeTuple> resultSet = new ArrayList<>(); 
 
      	String dbuuid = db.getDBUUID();
     	ResultSet result = null;
@@ -447,7 +447,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	}
     	
     	if (level == 2) {    		
-    		Map<Integer,List<KnimeTuple>> tuplesBySecEstId = new LinkedHashMap<Integer, List<KnimeTuple>>();
+    		Map<Integer,List<KnimeTuple>> tuplesBySecEstId = new LinkedHashMap<>();
     		
     		for (KnimeTuple tuple : resultSet) {
     			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
@@ -738,7 +738,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		String[] mins = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMIN);
     		String[] maxs = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMAX);
 
-            parameter = new LinkedHashMap<String, Double[]>();
+            parameter = new LinkedHashMap<>();
     		for (int i=0;i<pars.length;i++) {
     			Double[] dbl = new Double[2];
     			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);
@@ -788,7 +788,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		String[] mins = c.getStringArray(PARAM_PARAMETERMIN);
 		String[] maxs = c.getStringArray(PARAM_PARAMETERMAX);
 
-        parameter = new LinkedHashMap<String, Double[]>();
+        parameter = new LinkedHashMap<>();
 		for (int i=0;i<pars.length;i++) {
 			Double[] dbl = new Double[2];
 			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);

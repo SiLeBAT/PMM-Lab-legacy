@@ -59,7 +59,7 @@ public class StringTextField extends JTextField implements DocumentListener {
 	public StringTextField(boolean optional) {
 		this.optional = optional;
 		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<TextListener>();
+		listeners = new ArrayList<>();
 		textChanged();
 	}
 

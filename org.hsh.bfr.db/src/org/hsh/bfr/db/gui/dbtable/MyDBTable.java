@@ -362,7 +362,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		// Das gilt erstmal für die beiden ReadOnly Tabellen: ChangeLog und DateiSpeicher
 		if (sorter != null) {
 			if (myT.isReadOnly()) {
-				List<SortKey> sortKeys = new ArrayList<SortKey>();
+				List<SortKey> sortKeys = new ArrayList<>();
 		  		sortKeys.add(new SortKey(1, SortOrder.DESCENDING));
 		  		sorter.setSortKeys(sortKeys);
 		  		sorter.sort();
@@ -530,7 +530,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			}
 			Object oldID = null;
 			if (copySelected) {
-				Vector<Object> vec = new Vector<Object>();
+				Vector<Object> vec = new Vector<>();
 				int row = this.getSelectedRow();
 				if (row < 0) {
 					return;
@@ -1031,7 +1031,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					extraFields++;
 				      c = this.getColumn(fieldTypes.length+extraFields); // Guetescore
 				      c.setReadOnly(false);
-				      Hashtable<Integer, ImageIcon> h = new Hashtable<Integer, ImageIcon>();
+				      Hashtable<Integer, ImageIcon> h = new Hashtable<>();
 				      h.put(new Integer(1), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/green.gif")));
 				      h.put(new Integer(2), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/yellow.gif")));
 				      h.put(new Integer(3), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/red.gif")));

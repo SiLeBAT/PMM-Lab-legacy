@@ -159,9 +159,9 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 							String sql1 = "";
 							String sql2 = "";
 							String sql3 = "";
-							Vector<String> codeSql1 = new Vector<String>();
-							Vector<String> codeSql2 = new Vector<String>();
-							LinkedHashMap<MyTable, Vector<Integer>> foreignTables = new LinkedHashMap<MyTable, Vector<Integer>>();
+							Vector<String> codeSql1 = new Vector<>();
+							Vector<String> codeSql2 = new Vector<>();
+							LinkedHashMap<MyTable, Vector<Integer>> foreignTables = new LinkedHashMap<>();
 							int numCols = row.getLastCellNum();
 							String[] fieldNames = new String[numCols];
 							String[] fieldTypes = new String[numCols];//getTypes(fieldNames, myT);
@@ -170,7 +170,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 							String[] kzS = new String[numCols];
 							String[] dbFieldnames = new String[numCols];
 							int lfdCol = 0;
-							Hashtable<String, String> dbFieldNames = new Hashtable<String, String>();
+							Hashtable<String, String> dbFieldNames = new Hashtable<>();
 							for (int j = 0; j < numCols; j++) {
 								String fieldName = row.getCell(j).getStringCellValue();
 								fieldNames[j] = fieldName;
@@ -216,8 +216,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 											+ ")";
 									psCodes[codesI] = DBKernel.getDBConnection().prepareStatement(sql);
 								}
-								LinkedHashMap<MyTable, PreparedStatement> psForeign = new LinkedHashMap<MyTable, PreparedStatement>();
-								LinkedHashMap<MyTable, PreparedStatement> psForeignUpdate = new LinkedHashMap<MyTable, PreparedStatement>();
+								LinkedHashMap<MyTable, PreparedStatement> psForeign = new LinkedHashMap<>();
+								LinkedHashMap<MyTable, PreparedStatement> psForeignUpdate = new LinkedHashMap<>();
 								for (Map.Entry<MyTable, Vector<Integer>> entry : foreignTables.entrySet()) {
 									Vector<Integer> vs = entry.getValue();
 									String ssql1 = "", ssql2 = "", ssql3 = "";
@@ -249,7 +249,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 										psCodes[codesI].clearParameters();
 										doCode[codesI] = false;
 									}
-									LinkedHashMap<MyTable, Integer> lfdColsForeign = new LinkedHashMap<MyTable, Integer>();
+									LinkedHashMap<MyTable, Integer> lfdColsForeign = new LinkedHashMap<>();
 									for (Map.Entry<MyTable, PreparedStatement> entry : psForeignUpdate.entrySet()) {
 										MyTable myT1 = entry.getKey();
 										psForeign.get(myT1).clearParameters();

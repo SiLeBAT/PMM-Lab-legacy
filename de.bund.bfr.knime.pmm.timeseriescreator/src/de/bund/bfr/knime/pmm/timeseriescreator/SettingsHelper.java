@@ -76,15 +76,15 @@ public class SettingsHelper {
 	private List<MiscXml> misc;
 
 	public SettingsHelper() {
-		literature = new ArrayList<LiteratureItem>();
+		literature = new ArrayList<>();
 		agent = null;
 		matrix = null;
 		id = null;
 		comment = null;
-		timeSeries = new ArrayList<TimeSeriesXml>();
+		timeSeries = new ArrayList<>();
 		timeUnit = DEFAULT_TIMEUNIT;
 		logcUnit = DEFAULT_LOGCUNIT;
-		misc = new ArrayList<MiscXml>();
+		misc = new ArrayList<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

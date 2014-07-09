@@ -76,7 +76,7 @@ public class MyDBForm extends JPanel {
 		initCs();
 	}
 	private void initCs() {
-		componentMap = new HashMap<String, JComponent>();
+		componentMap = new HashMap<>();
 		componentMap.put("ID", textField1);
 		componentMap.put("Referenz", textField2);
 		componentMap.put("Agens", textField3);

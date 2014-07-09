@@ -53,11 +53,11 @@ public class PmmXmlDoc {
 	private String warning = "";
 	
 	public PmmXmlDoc() {
-		elementSet = new ArrayList<PmmXmlElementConvertable>();
+		elementSet = new ArrayList<>();
 	}
 	
 	public PmmXmlDoc(PmmXmlElementConvertable rootElement) {		
-		elementSet = new ArrayList<PmmXmlElementConvertable>();
+		elementSet = new ArrayList<>();
 		elementSet.add(rootElement);
 	}
 	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {		

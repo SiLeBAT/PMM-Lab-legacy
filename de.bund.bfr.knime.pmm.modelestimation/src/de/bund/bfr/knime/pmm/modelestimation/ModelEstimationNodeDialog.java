@@ -121,7 +121,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	 * New pane for configuring the ModelEstimation node.
 	 */
 	protected ModelEstimationNodeDialog() {
-		fittingBox = new JComboBox<String>(new String[] {
+		fittingBox = new JComboBox<>(new String[] {
 				SettingsHelper.PRIMARY_FITTING,
 				SettingsHelper.SECONDARY_FITTING,
 				SettingsHelper.ONESTEP_FITTING });
@@ -235,10 +235,10 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			throw new InvalidSettingsException("");
 		}
 
-		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<String, Map<String, java.awt.geom.Point2D.Double>>();
+		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<>();
 
 		for (String modelName : parameters.keySet()) {
-			Map<String, Point2D.Double> guesses = new LinkedHashMap<String, java.awt.geom.Point2D.Double>();
+			Map<String, Point2D.Double> guesses = new LinkedHashMap<>();
 
 			for (String param : parameters.get(modelName)) {
 				Double min = minimumFields.get(modelName).get(param).getValue();
@@ -269,10 +269,10 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) {
-		modelNames = new LinkedHashMap<String, String>();
-		parameters = new LinkedHashMap<String, List<String>>();
-		minValues = new LinkedHashMap<String, Map<String, Double>>();
-		maxValues = new LinkedHashMap<String, Map<String, Double>>();
+		modelNames = new LinkedHashMap<>();
+		parameters = new LinkedHashMap<>();
+		minValues = new LinkedHashMap<>();
+		maxValues = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1Schema(), table);
@@ -285,9 +285,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 			if (!modelNames.containsKey(id)) {
 				PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-				List<String> paramNames = new ArrayList<String>();
-				Map<String, Double> min = new LinkedHashMap<String, Double>();
-				Map<String, Double> max = new LinkedHashMap<String, Double>();
+				List<String> paramNames = new ArrayList<>();
+				Map<String, Double> min = new LinkedHashMap<>();
+				Map<String, Double> max = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : params.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -320,9 +320,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 			if (!modelNames.containsKey(id)) {
 				PmmXmlDoc params = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
-				List<String> paramNames = new ArrayList<String>();
-				Map<String, Double> min = new LinkedHashMap<String, Double>();
-				Map<String, Double> max = new LinkedHashMap<String, Double>();
+				List<String> paramNames = new ArrayList<>();
+				Map<String, Double> min = new LinkedHashMap<>();
+				Map<String, Double> max = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : params.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -345,8 +345,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		JPanel panel = new JPanel();
 		JPanel rangePanel = new JPanel();
 
-		minimumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
-		maximumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
+		minimumFields = new LinkedHashMap<>();
+		maximumFields = new LinkedHashMap<>();
 
 		rangePanel.setLayout(new BoxLayout(rangePanel, BoxLayout.Y_AXIS));
 
@@ -355,8 +355,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			JPanel leftPanel = new JPanel();
 			JPanel rightPanel = new JPanel();
 			List<String> params = parameters.get(id);
-			Map<String, DoubleTextField> minFields = new LinkedHashMap<String, DoubleTextField>();
-			Map<String, DoubleTextField> maxFields = new LinkedHashMap<String, DoubleTextField>();
+			Map<String, DoubleTextField> minFields = new LinkedHashMap<>();
+			Map<String, DoubleTextField> maxFields = new LinkedHashMap<>();
 			Map<String, Point2D.Double> guesses = set.getParameterGuesses()
 					.get(id);
 
@@ -364,7 +364,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			rightPanel.setLayout(new GridLayout(params.size(), 1));
 
 			if (guesses == null) {
-				guesses = new LinkedHashMap<String, Point2D.Double>();
+				guesses = new LinkedHashMap<>();
 			}
 
 			for (String param : params) {

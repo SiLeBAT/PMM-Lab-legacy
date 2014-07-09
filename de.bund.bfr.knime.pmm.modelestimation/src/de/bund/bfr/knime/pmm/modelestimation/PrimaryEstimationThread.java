@@ -93,15 +93,15 @@ public class PrimaryEstimationThread implements Runnable {
 			String modelID = ((CatalogModelXml) modelXml.get(0)).getId() + "";
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			List<String> parameters = new ArrayList<String>();
-			List<Double> minParameterValues = new ArrayList<Double>();
-			List<Double> maxParameterValues = new ArrayList<Double>();
-			List<Double> minGuessValues = new ArrayList<Double>();
-			List<Double> maxGuessValues = new ArrayList<Double>();
+			List<String> parameters = new ArrayList<>();
+			List<Double> minParameterValues = new ArrayList<>();
+			List<Double> maxParameterValues = new ArrayList<>();
+			List<Double> minGuessValues = new ArrayList<>();
+			List<Double> maxGuessValues = new ArrayList<>();
 			PmmXmlDoc timeSeriesXml = tuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			List<Double> targetValues = new ArrayList<Double>();
-			List<Double> timeValues = new ArrayList<Double>();
+			List<Double> targetValues = new ArrayList<>();
+			List<Double> timeValues = new ArrayList<>();
 			List<String> arguments = Arrays.asList(AttributeUtilities.TIME);
 			Map<String, Point2D.Double> guesses = parameterGuesses
 					.get(ModelEstimationNodeModel.PRIMARY + modelID);
@@ -148,7 +148,7 @@ public class PrimaryEstimationThread implements Runnable {
 					parameters.size(), null);
 			List<Double> parameterPValues = Collections.nCopies(
 					parameters.size(), null);
-			List<List<Double>> covariances = new ArrayList<List<Double>>();
+			List<List<Double>> covariances = new ArrayList<>();
 
 			for (int j = 0; j < parameters.size(); j++) {
 				List<Double> nullList = Collections.nCopies(parameters.size(),
@@ -170,7 +170,7 @@ public class PrimaryEstimationThread implements Runnable {
 			ParameterOptimizer optimizer = null;
 
 			if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
-				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+				List<List<Double>> argumentValues = new ArrayList<>();
 
 				argumentValues.add(timeValues);
 				MathUtilities.removeNullValues(targetValues, argumentValues);

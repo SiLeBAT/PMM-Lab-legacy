@@ -93,15 +93,15 @@ public class TableReader {
 			Date modifiedDate, String reference) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
-		Set<Integer> idSet = new LinkedHashSet<Integer>();
+		Set<Integer> idSet = new LinkedHashSet<>();
 		int index = 1;
 
 		if (isTertiaryModel) {
-			tuples = new ArrayList<KnimeTuple>(new ModelCombiner(tuples, true,
+			tuples = new ArrayList<>(new ModelCombiner(tuples, true,
 					null, null).getTupleCombinations().keySet());
 		}
 
-		documents = new LinkedHashMap<String, SBMLDocument>();
+		documents = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			replaceCelsiusAndFahrenheit(tuple);
@@ -165,7 +165,7 @@ public class TableReader {
 				s.setName(SPECIES_MISSING);
 			}
 
-			ListOf<Rule> rules = new ListOf<Rule>(2, 4);
+			ListOf<Rule> rules = new ListOf<>(2, 4);
 			Parameter depParam = model.createParameter(depXml.getName());
 			String depSbmlUnit = Categories.getCategoryByUnit(depXml.getUnit())
 					.getSBML(depXml.getUnit());

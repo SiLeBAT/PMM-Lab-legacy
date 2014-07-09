@@ -54,8 +54,8 @@ public class KnimeSchema {
 	private LinkedHashMap<String, Integer> attributeMap;
 	
 	public KnimeSchema() {
-		attributeSet = new LinkedList<KnimeAttribute>();
-		attributeMap = new LinkedHashMap<String, Integer>();
+		attributeSet = new LinkedList<>();
+		attributeMap = new LinkedHashMap<>();
 	}
 	
 	/** Merges the two schemata a and b to a new schema.
@@ -74,7 +74,7 @@ public class KnimeSchema {
 			for (int j = 0; j < n; j++)
 				if (a.getName(i).equals(b.getName(j))) throw new PmmException( "Duplicate names are not allowed." );
 		
-		attributeSet = new LinkedList<KnimeAttribute>();
+		attributeSet = new LinkedList<>();
 		attributeSet.addAll(a.attributeSet);
 		attributeSet.addAll(b.attributeSet);
 		
@@ -203,7 +203,7 @@ public class KnimeSchema {
 	}
 	
 	private void generateMap() {
-		attributeMap = new LinkedHashMap<String, Integer>();
+		attributeMap = new LinkedHashMap<>();
 		for (int i=0;i<attributeSet.size();i++) {
 			attributeMap.put(attributeSet.get(i).getName(), i);
 		}		

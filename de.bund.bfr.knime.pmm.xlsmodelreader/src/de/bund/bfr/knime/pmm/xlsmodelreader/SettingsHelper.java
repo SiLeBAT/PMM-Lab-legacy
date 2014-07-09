@@ -94,22 +94,22 @@ public class SettingsHelper {
 		fileName = null;
 		sheetName = null;
 		modelTuple = null;
-		secModelTuples = new LinkedHashMap<String, KnimeTuple>();
-		modelMappings = new LinkedHashMap<String, String>();
+		secModelTuples = new LinkedHashMap<>();
+		modelMappings = new LinkedHashMap<>();
 		modelDepUnit = null;
 		modelIndepUnit = null;
-		secModelMappings = new LinkedHashMap<String, Map<String, String>>();
-		secModelIndepMins = new LinkedHashMap<String, Map<String, String>>();
-		secModelIndepMaxs = new LinkedHashMap<String, Map<String, String>>();
-		secModelIndepUnits = new LinkedHashMap<String, Map<String, String>>();
-		columnMappings = new LinkedHashMap<String, Object>();
+		secModelMappings = new LinkedHashMap<>();
+		secModelIndepMins = new LinkedHashMap<>();
+		secModelIndepMaxs = new LinkedHashMap<>();
+		secModelIndepUnits = new LinkedHashMap<>();
+		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
-		agentMappings = new LinkedHashMap<String, AgentXml>();
+		agentMappings = new LinkedHashMap<>();
 		matrixColumn = null;
-		matrixMappings = new LinkedHashMap<String, MatrixXml>();
+		matrixMappings = new LinkedHashMap<>();
 		agent = null;
 		matrix = null;
-		literature = new ArrayList<LiteratureItem>();
+		literature = new ArrayList<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

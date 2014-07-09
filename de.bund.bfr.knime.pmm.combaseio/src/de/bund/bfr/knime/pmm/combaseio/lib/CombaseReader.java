@@ -62,9 +62,9 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 
 	private BufferedReader reader;
 	private PmmTimeSeries next;
-	private Map<String, Integer> newAgentIDs = new LinkedHashMap<String, Integer>();
-	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<String, Integer>();
-	private Map<String, MiscXml> newMiscs = new LinkedHashMap<String, MiscXml>();
+	private Map<String, Integer> newAgentIDs = new LinkedHashMap<>();
+	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<>();
+	private Map<String, MiscXml> newMiscs = new LinkedHashMap<>();
 
 	public CombaseReader(final String filename) throws FileNotFoundException,
 			IOException, Exception {
@@ -532,7 +532,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		if (misc == null) {
 			return null;
 		}
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		StringTokenizer tok = new StringTokenizer(misc, ",");
 		int openParenthesis = 0;
 		while (tok.hasMoreTokens()) {

@@ -91,22 +91,22 @@ public class TableReader {
 	private Map<String, String> longLegend;
 
 	public TableReader(DataTable table, boolean schemaContainsData) {
-		Set<String> idSet = new LinkedHashSet<String>();
-		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
-		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
-		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
-		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
-		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
-		Map<String, Map<String, String>> miscUnitMaps = new LinkedHashMap<String, Map<String, String>>();
-		Map<String, Double> sseMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
-		Map<String, Integer> dofMap = new LinkedHashMap<String, Integer>();
-		Map<String, Set<String>> agentMap = new LinkedHashMap<String, Set<String>>();
-		Map<String, Set<String>> matrixMap = new LinkedHashMap<String, Set<String>>();
+		Set<String> idSet = new LinkedHashSet<>();
+		Map<String, String> formulaMap = new LinkedHashMap<>();
+		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
+		Map<String, String> depVarMap = new LinkedHashMap<>();
+		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
+		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
+		Map<String, Map<String, String>> miscUnitMaps = new LinkedHashMap<>();
+		Map<String, Double> sseMap = new LinkedHashMap<>();
+		Map<String, Double> rmsMap = new LinkedHashMap<>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();
+		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Integer> dofMap = new LinkedHashMap<>();
+		Map<String, Set<String>> agentMap = new LinkedHashMap<>();
+		Map<String, Set<String>> matrixMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
 		Map<String, List<String>> miscCategories = null;
 		List<KnimeTuple> tuples;
@@ -119,22 +119,22 @@ public class TableReader {
 					SchemaFactory.createM2Schema());
 		}
 
-		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
-		formulas = new ArrayList<String>();
-		parameterData = new ArrayList<Map<String, Double>>();
+		ids = new ArrayList<>();
+		plotables = new LinkedHashMap<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
+		formulas = new ArrayList<>();
+		parameterData = new ArrayList<>();
 		doubleColumns = Arrays.asList(Model2Schema.SSE, Model2Schema.MSE,
 				Model2Schema.RMSE, Model2Schema.RSQUARED, Model2Schema.AIC);
-		doubleColumnValues = new ArrayList<List<Double>>();
+		doubleColumnValues = new ArrayList<>();
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
-		standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+		standardVisibleColumns = new ArrayList<>(Arrays.asList(
 				ChartSelectionPanel.FORMULA, ChartSelectionPanel.PARAMETERS));
 
 		if (schemaContainsData) {
@@ -146,11 +146,11 @@ public class TableReader {
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			miscCategories = PmmUtilities.getMiscCategories(tuples);
 
-			colorCounts = new ArrayList<Integer>();
-			conditions = new ArrayList<String>();
-			conditionMinValues = new ArrayList<List<Double>>();
-			conditionMaxValues = new ArrayList<List<Double>>();
-			conditionUnits = new ArrayList<List<String>>();
+			colorCounts = new ArrayList<>();
+			conditions = new ArrayList<>();
+			conditionMinValues = new ArrayList<>();
+			conditionMaxValues = new ArrayList<>();
+			conditionUnits = new ArrayList<>();
 
 			for (String param : miscParams) {
 				conditions.add(param);
@@ -164,7 +164,7 @@ public class TableReader {
 					Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
 					ChartConstants.STATUS, TimeSeriesSchema.ATT_AGENT,
 					TimeSeriesSchema.ATT_MATRIX);
-			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues = new ArrayList<>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -180,7 +180,7 @@ public class TableReader {
 			stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
 					Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
 					ChartConstants.STATUS);
-			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues = new ArrayList<>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -216,7 +216,7 @@ public class TableReader {
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc paramXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
-				Map<String, Double> paramData = new LinkedHashMap<String, Double>();
+				Map<String, Double> paramData = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : paramXmlSec.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -332,13 +332,13 @@ public class TableReader {
 
 		for (String id : ids) {
 			Plotable plotable = null;
-			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
-			Map<String, Double> minArg = new LinkedHashMap<String, Double>();
-			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
-			Map<String, Double> constants = new LinkedHashMap<String, Double>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
-			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
-			Map<String, String> units = new LinkedHashMap<String, String>();
+			Map<String, List<Double>> arguments = new LinkedHashMap<>();
+			Map<String, Double> minArg = new LinkedHashMap<>();
+			Map<String, Double> maxArg = new LinkedHashMap<>();
+			Map<String, Double> constants = new LinkedHashMap<>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
 
@@ -353,7 +353,7 @@ public class TableReader {
 				IndepXml element = (IndepXml) el;
 
 				arguments.put(element.getName(),
-						new ArrayList<Double>(Arrays.asList(0.0)));
+						new ArrayList<>(Arrays.asList(0.0)));
 				minArg.put(element.getName(), element.getMin());
 				maxArg.put(element.getName(), element.getMax());
 				categories.put(element.getName(),
@@ -366,7 +366,7 @@ public class TableReader {
 
 				constants.put(element.getName(), element.getValue());
 
-				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+				Map<String, Double> cov = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el2 : paramMap.get(id)
 						.getElementSet()) {
@@ -426,7 +426,7 @@ public class TableReader {
 				}
 
 				for (int i = 0; i < miscParams.size(); i++) {
-					List<Double> nonNullValues = new ArrayList<Double>(
+					List<Double> nonNullValues = new ArrayList<>(
 							miscs.get(miscParams.get(i)));
 					Double min = null;
 					Double max = null;
@@ -438,7 +438,7 @@ public class TableReader {
 						if (!hasArguments) {
 							plotable.getFunctionArguments().put(
 									miscParams.get(i),
-									new ArrayList<Double>(Arrays.asList(0.0)));
+									new ArrayList<>(Arrays.asList(0.0)));
 						}
 
 						min = Collections.min(nonNullValues);
@@ -455,7 +455,7 @@ public class TableReader {
 			} else {
 				if (!hasArguments) {
 					plotable.getFunctionArguments().put("No argument",
-							new ArrayList<Double>(Arrays.asList(0.0)));
+							new ArrayList<>(Arrays.asList(0.0)));
 				}
 			}
 

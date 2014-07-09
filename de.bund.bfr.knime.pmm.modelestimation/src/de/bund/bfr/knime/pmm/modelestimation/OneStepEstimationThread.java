@@ -101,7 +101,7 @@ public class OneStepEstimationThread implements Runnable {
 		try {
 			KnimeRelationReader reader = new KnimeRelationReader(schema,
 					inTable);
-			List<KnimeTuple> seiTuples = new ArrayList<KnimeTuple>();
+			List<KnimeTuple> seiTuples = new ArrayList<>();
 
 			while (reader.hasMoreElements()) {
 				seiTuples.add(reader.nextElement());
@@ -116,7 +116,7 @@ public class OneStepEstimationThread implements Runnable {
 						.get(ModelEstimationNodeModel.PRIMARY + primID);
 
 				if (primaryGuesses == null) {
-					primaryGuesses = new LinkedHashMap<String, Point2D.Double>();
+					primaryGuesses = new LinkedHashMap<>();
 				}
 
 				for (PmmXmlElementConvertable el : params.getElementSet()) {
@@ -152,7 +152,7 @@ public class OneStepEstimationThread implements Runnable {
 						.get(ModelEstimationNodeModel.SECONDARY + secID);
 
 				if (secGuesses == null) {
-					secGuesses = new LinkedHashMap<String, Point2D.Double>();
+					secGuesses = new LinkedHashMap<>();
 				}
 
 				for (PmmXmlElementConvertable el : secParams.getElementSet()) {
@@ -185,12 +185,12 @@ public class OneStepEstimationThread implements Runnable {
 
 			ModelCombiner combiner = new ModelCombiner(seiTuples, true, null,
 					null);
-			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(combiner
+			List<KnimeTuple> tuples = new ArrayList<>(combiner
 					.getTupleCombinations().keySet());
 			Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> renamings = combiner
 					.getParameterRenaming();
-			Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
-			Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
+			Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<>();
+			Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<>();
 
 			for (KnimeTuple tuple : tuples) {
 				int id = ((CatalogModelXml) tuple.getPmmXml(
@@ -201,9 +201,9 @@ public class OneStepEstimationThread implements Runnable {
 				PmmXmlDoc timeSeriesXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 
-				List<Double> targetValues = new ArrayList<Double>();
-				List<Double> timeList = new ArrayList<Double>();
-				Map<String, List<Double>> miscLists = new LinkedHashMap<String, List<Double>>();
+				List<Double> targetValues = new ArrayList<>();
+				List<Double> timeList = new ArrayList<>();
+				Map<String, List<Double>> miscLists = new LinkedHashMap<>();
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 				for (PmmXmlElementConvertable el : timeSeriesXml
@@ -216,7 +216,7 @@ public class OneStepEstimationThread implements Runnable {
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
-					List<Double> list = new ArrayList<Double>(
+					List<Double> list = new ArrayList<>(
 							Collections.nCopies(timeList.size(),
 									element.getValue()));
 
@@ -244,9 +244,9 @@ public class OneStepEstimationThread implements Runnable {
 				}
 			}
 
-			Map<Integer, PmmXmlDoc> paramMap = new LinkedHashMap<Integer, PmmXmlDoc>();
-			Map<Integer, PmmXmlDoc> indepMap = new LinkedHashMap<Integer, PmmXmlDoc>();
-			Map<Integer, PmmXmlDoc> estModelMap = new LinkedHashMap<Integer, PmmXmlDoc>();
+			Map<Integer, PmmXmlDoc> paramMap = new LinkedHashMap<>();
+			Map<Integer, PmmXmlDoc> indepMap = new LinkedHashMap<>();
+			Map<Integer, PmmXmlDoc> estModelMap = new LinkedHashMap<>();
 			int n = tuples.size();
 
 			for (int i = 0; i < n; i++) {
@@ -262,12 +262,12 @@ public class OneStepEstimationThread implements Runnable {
 							.getPmmXml(Model1Schema.ATT_PARAMETER);
 					PmmXmlDoc indepXml = tuple
 							.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-					List<String> parameters = new ArrayList<String>();
-					List<String> paramOrigNames = new ArrayList<String>();
-					List<Double> minParameterValues = new ArrayList<Double>();
-					List<Double> maxParameterValues = new ArrayList<Double>();
-					List<Double> minGuessValues = new ArrayList<Double>();
-					List<Double> maxGuessValues = new ArrayList<Double>();
+					List<String> parameters = new ArrayList<>();
+					List<String> paramOrigNames = new ArrayList<>();
+					List<Double> minParameterValues = new ArrayList<>();
+					List<Double> maxParameterValues = new ArrayList<>();
+					List<Double> minGuessValues = new ArrayList<>();
+					List<Double> maxGuessValues = new ArrayList<>();
 					List<Double> targetValues = targetValuesMap.get(id);
 					List<String> arguments = CellIO.getNameList(indepXml);
 					List<List<Double>> argumentValues = argumentValuesMap
@@ -295,7 +295,7 @@ public class OneStepEstimationThread implements Runnable {
 							parameters.size(), null);
 					List<Double> parameterPValues = Collections.nCopies(
 							parameters.size(), null);
-					List<List<Double>> covariances = new ArrayList<List<Double>>();
+					List<List<Double>> covariances = new ArrayList<>();
 
 					for (int j = 0; j < parameters.size(); j++) {
 						List<Double> nullList = Collections.nCopies(
@@ -341,8 +341,8 @@ public class OneStepEstimationThread implements Runnable {
 						aic = optimizer.getAIC();
 						bic = optimizer.getBIC();
 						dof = targetValues.size() - parameters.size();
-						minValues = new ArrayList<Double>();
-						maxValues = new ArrayList<Double>();
+						minValues = new ArrayList<>();
+						maxValues = new ArrayList<>();
 
 						for (List<Double> values : argumentValues) {
 							minValues.add(Collections.min(values));

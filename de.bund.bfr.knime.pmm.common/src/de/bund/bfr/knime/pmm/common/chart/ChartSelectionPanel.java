@@ -180,15 +180,15 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			List<Map<String, String>> variables, List<String> formulas,
 			List<Integer> colorCounts) {
 		if (stringColumns == null) {
-			stringColumns = new ArrayList<String>();
+			stringColumns = new ArrayList<>();
 		}
 
 		if (qualityColumns == null) {
-			qualityColumns = new ArrayList<String>();
+			qualityColumns = new ArrayList<>();
 		}
 
 		if (conditions == null) {
-			conditions = new ArrayList<String>();
+			conditions = new ArrayList<>();
 		}
 
 		this.ids = ids;
@@ -207,8 +207,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		this.conditionMaxValues = conditionMaxValues;
 		this.conditionUnits = conditionUnits;
 
-		invalidIds = new ArrayList<String>();
-		conditionStandardUnits = new ArrayList<String>();
+		invalidIds = new ArrayList<>();
+		conditionStandardUnits = new ArrayList<>();
 
 		for (int i = 0; i < conditions.size(); i++) {
 			String standardUnit = null;
@@ -235,7 +235,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 
 		visualizationColumns = Arrays.asList(COLOR, SHAPE);
-		miscellaneousColumns = new ArrayList<String>();
+		miscellaneousColumns = new ArrayList<>();
 
 		if (data != null) {
 			miscellaneousColumns.add(DATA);
@@ -262,7 +262,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			hasConditionRanges = false;
 		}
 
-		listeners = new ArrayList<SelectionListener>();
+		listeners = new ArrayList<>();
 
 		JPanel upperPanel = new JPanel();
 
@@ -275,11 +275,11 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			upperPanel1.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 			filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-			comboBoxes = new LinkedHashMap<String, JComboBox<String>>();
+			comboBoxes = new LinkedHashMap<>();
 
 			for (String column : filterableStringColumns) {
-				List<String> values = new ArrayList<String>();
-				Set<String> valueSet = new LinkedHashSet<String>(
+				List<String> values = new ArrayList<>();
+				Set<String> valueSet = new LinkedHashSet<>(
 						stringColumnValues.get(stringColumns.indexOf(column)));
 
 				valueSet.remove(null);
@@ -287,7 +287,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				values.addAll(valueSet);
 				Collections.sort(values);
 
-				JComboBox<String> box = new JComboBox<String>(
+				JComboBox<String> box = new JComboBox<>(
 						values.toArray(new String[0]));
 
 				box.addActionListener(this);
@@ -342,15 +342,15 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			model = new SelectTableModel(colorAndShapes.getColorList(),
 					colorAndShapes.getShapeNameList(), false);
 		} else {
-			List<List<Color>> colorLists = new ArrayList<List<Color>>();
-			List<List<String>> shapeLists = new ArrayList<List<String>>();
+			List<List<Color>> colorLists = new ArrayList<>();
+			List<List<String>> shapeLists = new ArrayList<>();
 
 			colorAndShapes = new ColorAndShapeCreator(
 					Collections.max(colorCounts));
 
 			for (int n : colorCounts) {
-				ArrayList<Color> colors = new ArrayList<Color>();
-				ArrayList<String> shapes = new ArrayList<String>();
+				ArrayList<Color> colors = new ArrayList<>();
+				ArrayList<String> shapes = new ArrayList<>();
 
 				for (int i = 0; i < n; i++) {
 					colors.add(colorAndShapes.getColorList().get(i));
@@ -382,7 +382,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			selectTable.getColumn(COLOR).setCellEditor(new ColorEditor());
 			selectTable.getColumn(COLOR).setCellRenderer(new ColorRenderer());
 			selectTable.getColumn(SHAPE).setCellEditor(
-					new DefaultCellEditor(new JComboBox<String>(
+					new DefaultCellEditor(new JComboBox<>(
 							ColorAndShapeCreator.SHAPE_NAMES)));
 		} else {
 			selectTable.getColumn(COLOR).setCellEditor(new ColorListEditor());
@@ -437,7 +437,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public List<String> getSelectedIDs() {
-		List<String> selectedIDs = new ArrayList<String>();
+		List<String> selectedIDs = new ArrayList<>();
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
 			if ((Boolean) selectTable.getValueAt(i, 1)) {
@@ -449,7 +449,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public void setSelectedIDs(List<String> selectedIDs) {
-		Set<String> idSet = new LinkedHashSet<String>(selectedIDs);
+		Set<String> idSet = new LinkedHashSet<>(selectedIDs);
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
 			if (idSet.contains(selectTable.getValueAt(i, 0))) {
@@ -483,7 +483,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public Map<String, Color> getColors() {
-		Map<String, Color> paints = new LinkedHashMap<String, Color>(
+		Map<String, Color> paints = new LinkedHashMap<>(
 				selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
@@ -505,7 +505,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public Map<String, Shape> getShapes() {
-		Map<String, Shape> shapes = new LinkedHashMap<String, Shape>(
+		Map<String, Shape> shapes = new LinkedHashMap<>(
 				selectTable.getRowCount());
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
@@ -531,7 +531,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 	@SuppressWarnings("unchecked")
 	public Map<String, List<Color>> getColorLists() {
-		Map<String, List<Color>> paints = new LinkedHashMap<String, List<Color>>(
+		Map<String, List<Color>> paints = new LinkedHashMap<>(
 				selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
@@ -555,12 +555,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 	@SuppressWarnings("unchecked")
 	public Map<String, List<Shape>> getShapeLists() {
-		Map<String, List<Shape>> shapes = new LinkedHashMap<String, List<Shape>>(
+		Map<String, List<Shape>> shapes = new LinkedHashMap<>(
 				selectTable.getRowCount());
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
-			List<Shape> list = new ArrayList<Shape>();
+			List<Shape> list = new ArrayList<>();
 
 			for (String name : (List<String>) selectTable.getValueAt(i, 3)) {
 				list.add(shapeMap.get(name));
@@ -580,7 +580,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					.get(selectTable.getValueAt(i, 0));
 
 			if (shapeList != null) {
-				List<String> list = new ArrayList<String>();
+				List<String> list = new ArrayList<>();
 
 				for (Shape shape : shapeList) {
 					list.add(shapeMap.get(shape));
@@ -592,8 +592,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public List<String> getVisibleColumns() {
-		List<String> visibleColumns = new ArrayList<String>();
-		List<String> columns = new ArrayList<String>();
+		List<String> visibleColumns = new ArrayList<>();
+		List<String> columns = new ArrayList<>();
 
 		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS,
 				VARIABLES));
@@ -637,7 +637,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public Map<String, Integer> getColumnWidths() {
-		Map<String, Integer> widths = new LinkedHashMap<String, Integer>();
+		Map<String, Integer> widths = new LinkedHashMap<>();
 		Enumeration<TableColumn> columns = selectTable.getColumnModel()
 				.getColumns();
 
@@ -733,7 +733,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	private void applyFilters() {
-		Map<String, String> filters = new LinkedHashMap<String, String>();
+		Map<String, String> filters = new LinkedHashMap<>();
 
 		for (String column : comboBoxes.keySet()) {
 			JComboBox<String> box = comboBoxes.get(column);
@@ -748,7 +748,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	private void applyColumnSelection(List<String> visibleColumns) {
-		List<String> columns = new ArrayList<String>();
+		List<String> columns = new ArrayList<>();
 
 		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS,
 				VARIABLES));
@@ -875,7 +875,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				this.shapeLists = (List<List<String>>) shapes;
 			}
 
-			selections = new ArrayList<Boolean>(Collections.nCopies(ids.size(),
+			selections = new ArrayList<>(Collections.nCopies(ids.size(),
 					false));
 		}
 
@@ -1229,7 +1229,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private List<Color> colorList;
 
 		public ColorListRenderer() {
-			colorList = new ArrayList<Color>();
+			colorList = new ArrayList<>();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1268,7 +1268,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		public ColorListEditor() {
 			button = new JButton();
-			colorList = new ArrayList<Color>();
+			colorList = new ArrayList<>();
 			button.addActionListener(new ActionListener() {
 
 				@Override
@@ -1325,7 +1325,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		public ShapeListEditor() {
 			button = new JButton();
-			shapeList = new ArrayList<String>();
+			shapeList = new ArrayList<>();
 			button.addActionListener(new ActionListener() {
 
 				@Override
@@ -1368,7 +1368,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public TimeSeriesEditor() {
 			button = new JButton("View");
 			button.addActionListener(this);
-			timeSeries = new ArrayList<TimeSeriesXml>();
+			timeSeries = new ArrayList<>();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1440,7 +1440,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public ParameterEditor() {
 			button = new JButton("View");
 			button.addActionListener(this);
-			parameters = new LinkedHashMap<String, Double>();
+			parameters = new LinkedHashMap<>();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1476,7 +1476,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public VariableEditor() {
 			button = new JButton("View");
 			button.addActionListener(this);
-			variables = new LinkedHashMap<String, String>();
+			variables = new LinkedHashMap<>();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1589,7 +1589,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public SelectTableRowSorter(SelectTableModel model,
 				Map<String, String> filters) {
 			super(model);
-			this.filters = new LinkedHashMap<Integer, String>();
+			this.filters = new LinkedHashMap<>();
 
 			if (filters != null) {
 				for (String column : filters.keySet()) {
@@ -1657,7 +1657,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			approved = false;
 			colorList = null;
 
-			colorButtons = new ArrayList<JButton>();
+			colorButtons = new ArrayList<>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");
@@ -1711,7 +1711,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
 				approved = true;
-				colorList = new ArrayList<Color>();
+				colorList = new ArrayList<>();
 
 				for (JButton button : colorButtons) {
 					colorList.add(button.getBackground());
@@ -1751,7 +1751,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			approved = false;
 			shapeList = null;
 
-			shapeBoxes = new ArrayList<JComboBox<String>>();
+			shapeBoxes = new ArrayList<>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");
@@ -1765,7 +1765,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					.setLayout(new GridLayout(initialShapes.size(), 1, 5, 5));
 
 			for (String shape : initialShapes) {
-				JComboBox<String> box = new JComboBox<String>(
+				JComboBox<String> box = new JComboBox<>(
 						ColorAndShapeCreator.SHAPE_NAMES);
 
 				box.setSelectedItem(shape);
@@ -1803,7 +1803,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
 				approved = true;
-				shapeList = new ArrayList<String>();
+				shapeList = new ArrayList<>();
 
 				for (JComboBox<String> box : shapeBoxes) {
 					shapeList.add((String) box.getSelectedItem());
@@ -2010,7 +2010,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					"Column Selection", DEFAULT_MODALITY_TYPE);
 			approved = false;
 			selection = null;
-			selectionBoxes = new LinkedHashMap<String, JCheckBox>();
+			selectionBoxes = new LinkedHashMap<>();
 
 			JPanel visualizationPanel = new JPanel();
 
@@ -2156,7 +2156,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
 				approved = true;
-				selection = new ArrayList<String>();
+				selection = new ArrayList<>();
 
 				for (String column : selectionBoxes.keySet()) {
 					if (selectionBoxes.get(column).isSelected()) {

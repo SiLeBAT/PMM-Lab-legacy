@@ -83,21 +83,21 @@ public class SettingsHelper {
 	private Map<String, List<LiteratureItem>> references;
 
 	public SettingsHelper() {
-		addedConditions = new LinkedHashMap<Integer, MiscXml>();
-		addedConditionValues = new LinkedHashMap<Integer, Map<String, Double>>();
-		addedConditionUnits = new LinkedHashMap<Integer, Map<String, String>>();
-		conditions = new LinkedHashMap<Integer, MiscXml>();
-		conditionValues = new LinkedHashMap<Integer, Map<String, Double>>();
-		conditionUnits = new LinkedHashMap<Integer, Map<String, String>>();
-		agents = new LinkedHashMap<String, AgentXml>();
-		agentDetails = new LinkedHashMap<String, String>();
-		matrices = new LinkedHashMap<String, MatrixXml>();
-		matrixDetails = new LinkedHashMap<String, String>();
-		comments = new LinkedHashMap<String, String>();
-		qualityScores = new LinkedHashMap<String, Integer>();
-		checks = new LinkedHashMap<String, Boolean>();
-		timeSeries = new LinkedHashMap<String, List<TimeSeriesXml>>();
-		references = new LinkedHashMap<String, List<LiteratureItem>>();
+		addedConditions = new LinkedHashMap<>();
+		addedConditionValues = new LinkedHashMap<>();
+		addedConditionUnits = new LinkedHashMap<>();
+		conditions = new LinkedHashMap<>();
+		conditionValues = new LinkedHashMap<>();
+		conditionUnits = new LinkedHashMap<>();
+		agents = new LinkedHashMap<>();
+		agentDetails = new LinkedHashMap<>();
+		matrices = new LinkedHashMap<>();
+		matrixDetails = new LinkedHashMap<>();
+		comments = new LinkedHashMap<>();
+		qualityScores = new LinkedHashMap<>();
+		checks = new LinkedHashMap<>();
+		timeSeries = new LinkedHashMap<>();
+		references = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

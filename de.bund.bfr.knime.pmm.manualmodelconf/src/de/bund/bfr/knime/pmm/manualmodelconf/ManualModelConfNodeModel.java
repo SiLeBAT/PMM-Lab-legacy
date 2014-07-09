@@ -107,7 +107,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
 
         	KnimeTuple tupleM1 = null;
-        	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
+        	List<KnimeTuple> rowSec = new ArrayList<>();
         	PmmTimeSeries tstuple = new PmmTimeSeries();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {
         		if (el instanceof ParametricModel) {
@@ -117,7 +117,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    					if (tupleM1 != null) doBuf(tupleM1, tstuple, rowSec, buf, ks);
 	    					tupleM1 = model.getKnimeTuple();
 	    					tupleM1.setValue(Model1Schema.ATT_DATABASEWRITABLE, 1);
-	    					rowSec = new ArrayList<KnimeTuple>();
+	    					rowSec = new ArrayList<>();
 	    					tstuple = new PmmTimeSeries();
 	    		        	if (!formulaCreator) {
 	    		            	if (docTS != null) {

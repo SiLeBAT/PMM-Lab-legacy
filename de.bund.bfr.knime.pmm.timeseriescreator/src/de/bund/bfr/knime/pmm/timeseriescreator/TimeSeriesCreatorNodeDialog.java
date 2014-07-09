@@ -160,12 +160,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected TimeSeriesCreatorNodeDialog() {
 		xlsReader = new XLSReader();
 
-		condButtons = new ArrayList<JButton>();
-		conditions = new ArrayList<MiscXml>();
-		condValueFields = new ArrayList<DoubleTextField>();
-		condUnitFields = new ArrayList<JComboBox<String>>();
-		addButtons = new ArrayList<JButton>();
-		removeButtons = new ArrayList<JButton>();
+		condButtons = new ArrayList<>();
+		conditions = new ArrayList<>();
+		condValueFields = new ArrayList<>();
+		condUnitFields = new ArrayList<>();
+		addButtons = new ArrayList<>();
+		removeButtons = new ArrayList<>();
 
 		panel = new JPanel();
 		settingsPanel = new JPanel();
@@ -181,7 +181,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		addLiteratureButton.addActionListener(this);
 		removeLiteratureButton = new JButton("-");
 		removeLiteratureButton.addActionListener(this);
-		literatureList = new JList<LiteratureItem>();
+		literatureList = new JList<>();
 		agentButton = new JButton(SELECT);
 		agentButton.addActionListener(this);
 		matrixButton = new JButton(SELECT);
@@ -200,15 +200,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				true);
 		waterActivityField.setPreferredSize(new Dimension(100,
 				waterActivityField.getPreferredSize().height));
-		timeBox = new JComboBox<String>(Categories.getTimeCategory()
-				.getAllUnits().toArray(new String[0]));
-		logcBox = new JComboBox<String>(Categories.getUnitsFromCategories(
-				Categories.getConcentrationCategories()).toArray(new String[0]));
-		tempBox = new JComboBox<String>(Categories.getTempCategory()
-				.getAllUnits().toArray(new String[0]));
-		phBox = new JComboBox<String>(Categories.getPhCategory().getAllUnits()
+		timeBox = new JComboBox<>(Categories.getTimeCategory().getAllUnits()
 				.toArray(new String[0]));
-		awBox = new JComboBox<String>(Categories.getAwCategory().getAllUnits()
+		logcBox = new JComboBox<>(Categories.getUnitsFromCategories(
+				Categories.getConcentrationCategories()).toArray(new String[0]));
+		tempBox = new JComboBox<>(Categories.getTempCategory().getAllUnits()
+				.toArray(new String[0]));
+		phBox = new JComboBox<>(Categories.getPhCategory().getAllUnits()
+				.toArray(new String[0]));
+		awBox = new JComboBox<>(Categories.getAwCategory().getAllUnits()
 				.toArray(new String[0]));
 
 		settingsPanel.add(
@@ -389,10 +389,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		List<TimeSeriesXml> timeSeries = new ArrayList<TimeSeriesXml>();
+		List<TimeSeriesXml> timeSeries = new ArrayList<>();
 		String timeUnit = (String) timeBox.getSelectedItem();
 		String concentrationUnit = (String) logcBox.getSelectedItem();
-		List<MiscXml> miscValues = new ArrayList<MiscXml>();
+		List<MiscXml> miscValues = new ArrayList<>();
 
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
@@ -500,7 +500,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		} else if (event.getSource() == addLiteratureButton) {
 			Integer id = DBKernel.openLiteratureDBWindow(addLiteratureButton,
 					null);
-			Set<Integer> ids = new LinkedHashSet<Integer>();
+			Set<Integer> ids = new LinkedHashSet<>();
 
 			for (LiteratureItem item : set.getLiterature()) {
 				ids.add(item.getId());
@@ -622,7 +622,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			JButton removeButton = new JButton("-");
 			JButton button = new JButton(OTHER_PARAMETER);
 			DoubleTextField valueField = new DoubleTextField(true);
-			JComboBox<String> unitBox = new JComboBox<String>();
+			JComboBox<String> unitBox = new JComboBox<>();
 
 			addButton.addActionListener(this);
 			removeButton.addActionListener(this);
@@ -878,13 +878,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			approved = false;
 
-			mappings = new LinkedHashMap<String, Object>();
+			mappings = new LinkedHashMap<>();
 			timeUnit = null;
 			concentrationUnit = null;
 
-			mappingBoxes = new LinkedHashMap<String, JComboBox<String>>();
-			mappingButtons = new LinkedHashMap<String, JButton>();
-			unitBoxes = new LinkedHashMap<String, JComboBox<String>>();
+			mappingBoxes = new LinkedHashMap<>();
+			mappingButtons = new LinkedHashMap<>();
+			unitBoxes = new LinkedHashMap<>();
 
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
@@ -898,7 +898,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			northPanel.setLayout(new GridBagLayout());
 
 			for (String column : columnList) {
-				JComboBox<String> box = new JComboBox<String>(new String[] {
+				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.TIME,
 						AttributeUtilities.CONCENTRATION,
@@ -906,7 +906,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW,
 						OTHER_PARAMETER, NO_PARAMETER });
 				JButton button = new JButton();
-				JComboBox<String> unitBox = new JComboBox<String>();
+				JComboBox<String> unitBox = new JComboBox<>();
 
 				box.setSelectedItem(NO_PARAMETER);
 				button.setEnabled(false);

@@ -527,7 +527,7 @@ public class MainFrame extends JFrame {
 																		ResultSet rs = DBKernel.getResultSet(sql, false);
 																		try {
 																			if (rs != null && rs.first()) {
-																				List<Object> l = new ArrayList<Object>();
+																				List<Object> l = new ArrayList<>();
 																				do {
 																					if (rs.getObject(field1) != null) {
 																						l.add(rs.getObject(field1));

@@ -598,7 +598,7 @@ public class Bfrdb {
 		HashMap<Integer, String> ret;
 		ResultSet result;
 
-		ret = new HashMap<Integer, String>();
+		ret = new HashMap<>();
 
 		try {
 
@@ -679,7 +679,7 @@ public class Bfrdb {
 		PreparedStatement psPossibleModelName;
 		ResultSet result;
 
-		ret = new LinkedList<String>();
+		ret = new LinkedList<>();
 
 		q = "SELECT \"" + ATT_NAME + "\" FROM \"" + REL_MODEL + "\"";
 
@@ -705,7 +705,7 @@ public class Bfrdb {
 
 	public HashMap<Integer, List<Integer>> getModLitMatrix() {
 
-		HashMap<Integer, List<Integer>> resultt = new HashMap<Integer, List<Integer>>();
+		HashMap<Integer, List<Integer>> resultt = new HashMap<>();
 		//boolean[][] mat;
 		//int n, m, i, j;
 		//HashMap<Integer, String> literature;
@@ -738,7 +738,7 @@ public class Bfrdb {
 				//mat[ i ][ j ] = true;
 				List<Integer> li = resultt.get(result.getInt(1));
 				if (li == null) {
-					li = new ArrayList<Integer>();
+					li = new ArrayList<>();
 				}
 				li.add(result.getInt(2));
 				resultt.put(result.getInt(1), li);
@@ -811,7 +811,7 @@ public class Bfrdb {
 		int modelId = pm.getModelId();
 		String fittedModelName = pm.getFittedModelName();
 
-		HashMap<String, Integer> hmi = new HashMap<String, Integer>();
+		HashMap<String, Integer> hmi = new HashMap<>();
 		int responseId = queryParamId(modelId, pm.getDepXml().getOrigName(), PARAMTYPE_DEP);
 		if (!pm.getDepXml().getOrigName().equals(pm.getDepXml().getName())) hmi.put(pm.getDepXml().getName(), responseId);
 
@@ -1385,7 +1385,7 @@ public class Bfrdb {
 		}
 
 		// insert parameter set
-		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
+		LinkedList<Integer> paramIdSet = new LinkedList<>();
 
 		// insert dependent variable
 		DepXml depXml = m.getDepXml();

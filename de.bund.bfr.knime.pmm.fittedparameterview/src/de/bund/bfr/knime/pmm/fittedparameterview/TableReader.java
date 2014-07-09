@@ -44,34 +44,34 @@ public class TableReader {
 	private Map<String, String> longLegend;
 
 	public TableReader(DataTable table, List<String> usedConditions) {
-		Set<String> idSet = new LinkedHashSet<String>();
-		Map<String, String> paramNames = new LinkedHashMap<String, String>();
-		Map<String, List<Double>> paramDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
+		Set<String> idSet = new LinkedHashSet<>();
+		Map<String, String> paramNames = new LinkedHashMap<>();
+		Map<String, List<Double>> paramDataMap = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
 		List<KnimeTuple> tuples = PmmUtilities.getTuples(table,
 				SchemaFactory.createM1DataSchema());
-		Map<String, Integer> primModelIDs = new LinkedHashMap<String, Integer>();
+		Map<String, Integer> primModelIDs = new LinkedHashMap<>();
 		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 		Map<String, List<String>> miscCategories = PmmUtilities
 				.getMiscCategories(tuples);
-		Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<Integer, List<KnimeTuple>>();
+		Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
 
-		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
+		ids = new ArrayList<>();
+		plotables = new LinkedHashMap<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
 		stringColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
-		filterableStringColumns = new ArrayList<String>();
-		stringColumnValues = new ArrayList<List<String>>();
+		filterableStringColumns = new ArrayList<>();
+		stringColumnValues = new ArrayList<>();
 		stringColumnValues.add(new ArrayList<String>());
-		standardVisibleColumns = new ArrayList<String>(
+		standardVisibleColumns = new ArrayList<>(
 				Arrays.asList(Model1Schema.ATT_PARAMETER));
-		colorCounts = new ArrayList<Integer>();
+		colorCounts = new ArrayList<>();
 
-		conditions = new ArrayList<String>();
-		conditionMinValues = new ArrayList<List<Double>>();
-		conditionMaxValues = new ArrayList<List<Double>>();
-		conditionUnits = new ArrayList<List<String>>();
+		conditions = new ArrayList<>();
+		conditionMinValues = new ArrayList<>();
+		conditionMaxValues = new ArrayList<>();
+		conditionUnits = new ArrayList<>();
 
 		for (String param : miscParams) {
 			conditions.add(param);
@@ -93,7 +93,7 @@ public class TableReader {
 			tuplesByPrimID.get(modelXml.getId()).add(tuple);
 		}
 
-		Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<Integer, Map<String, String>>();
+		Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
 
 		for (int primID : tuplesByPrimID.keySet()) {
 			miscUnits.put(primID,
@@ -164,10 +164,10 @@ public class TableReader {
 
 		for (String id : ids) {
 			Plotable plotable = new Plotable(Plotable.DATASET_STRICT);
-			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
+			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
 			for (String param : usedConditions) {
-				arguments.put(param, new ArrayList<Double>(Arrays.asList(0.0)));
+				arguments.put(param, new ArrayList<>(Arrays.asList(0.0)));
 			}
 
 			plotable.setFunctionValue(paramNames.get(id));
@@ -183,7 +183,7 @@ public class TableReader {
 			}
 
 			for (int i = 0; i < miscParams.size(); i++) {
-				List<Double> nonNullValues = new ArrayList<Double>(
+				List<Double> nonNullValues = new ArrayList<>(
 						miscs.get(miscParams.get(i)));
 				Double min = null;
 				Double max = null;

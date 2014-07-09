@@ -51,10 +51,10 @@ public class Test extends JFrame implements ActionListener {
 		northPanel.add(new JLabel("ID"));
 		northPanel.add(idField);
 
-		kindBoxes = new ArrayList<JComboBox<Unit.Kind>>();
-		scaleFields = new ArrayList<JTextField>();
-		exponentFields = new ArrayList<JTextField>();
-		multiplierFields = new ArrayList<JTextField>();
+		kindBoxes = new ArrayList<>();
+		scaleFields = new ArrayList<>();
+		exponentFields = new ArrayList<>();
+		multiplierFields = new ArrayList<>();
 
 		JPanel centerPanel = new JPanel();
 
@@ -65,7 +65,7 @@ public class Test extends JFrame implements ActionListener {
 		centerPanel.add(new JLabel("Multiplier"));
 
 		for (int i = 0; i < 4; i++) {
-			List<Unit.Kind> units = new ArrayList<Unit.Kind>();
+			List<Unit.Kind> units = new ArrayList<>();
 
 			units.add(null);
 			units.addAll(Arrays.asList(Unit.Kind.values()));
@@ -73,7 +73,7 @@ public class Test extends JFrame implements ActionListener {
 			units.remove(Unit.Kind.LITER);
 			units.remove(Unit.Kind.METER);
 
-			JComboBox<Unit.Kind> box = new JComboBox<Unit.Kind>(
+			JComboBox<Unit.Kind> box = new JComboBox<>(
 					units.toArray(new Unit.Kind[0]));
 			JTextField scaleField = new JTextField();
 			JTextField expField = new JTextField();

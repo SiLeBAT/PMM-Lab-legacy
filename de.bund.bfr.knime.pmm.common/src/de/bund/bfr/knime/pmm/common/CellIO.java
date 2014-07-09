@@ -104,20 +104,20 @@ public class CellIO {
 
 	public static List<String> getStringList(DataCell cell) {
 		if (cell.isMissing()) {
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		}
 
 		String[] toks = ((StringCell) cell).getStringValue().split(",");
 
-		return new ArrayList<String>(Arrays.asList(toks));
+		return new ArrayList<>(Arrays.asList(toks));
 	}
 
 	public static List<Double> getDoubleList(DataCell cell) {
 		if (cell.isMissing()) {
-			return new ArrayList<Double>();
+			return new ArrayList<>();
 		}
 
-		List<Double> list = new ArrayList<Double>();
+		List<Double> list = new ArrayList<>();
 		String[] toks = ((StringCell) cell).getStringValue().split(",");
 
 		for (String t : toks) {
@@ -127,7 +127,7 @@ public class CellIO {
 				try {
 					list.add(Double.parseDouble(t));
 				} catch (NumberFormatException e) {
-					return new ArrayList<Double>();
+					return new ArrayList<>();
 				}
 			}
 		}
@@ -137,10 +137,10 @@ public class CellIO {
 
 	public static List<Integer> getIntList(DataCell cell) {
 		if (cell.isMissing()) {
-			return new ArrayList<Integer>();
+			return new ArrayList<>();
 		}
 
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		String[] toks = ((StringCell) cell).getStringValue().split(",");
 
 		for (String t : toks) {
@@ -150,7 +150,7 @@ public class CellIO {
 				try {
 					list.add(Integer.parseInt(t));
 				} catch (NumberFormatException e) {
-					return new ArrayList<Integer>();
+					return new ArrayList<>();
 				}
 			}
 		}
@@ -215,7 +215,7 @@ public class CellIO {
 		String[] t1, t2;
 		Map<String, String> ret;
 
-		ret = new LinkedHashMap<String, String>();
+		ret = new LinkedHashMap<>();
 
 		if (dataCell.isMissing())
 			return ret;
@@ -238,7 +238,7 @@ public class CellIO {
 	}
 
 	public static List<String> getNameList(PmmXmlDoc xml) {
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 
 		for (PmmXmlElementConvertable element : xml.getElementSet()) {
 			if (element instanceof MiscXml) {

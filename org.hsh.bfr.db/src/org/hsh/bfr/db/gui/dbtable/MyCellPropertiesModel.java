@@ -55,8 +55,8 @@ class MyCellPropertiesModel extends CellPropertiesModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<String, int[]>();	
-	private LinkedHashMap<Integer, HashSet<Integer>> modifiedCells = new LinkedHashMap<Integer, HashSet<Integer>>();
+	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<>();	
+	private LinkedHashMap<Integer, HashSet<Integer>> modifiedCells = new LinkedHashMap<>();
 	private MyDBTable myDBTable;
 	//Font ft = new Font();
 	

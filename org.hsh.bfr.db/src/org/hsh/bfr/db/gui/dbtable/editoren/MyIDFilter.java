@@ -59,7 +59,7 @@ public class MyIDFilter implements Filter {
 	
      public int[] filter(TableModel tm) {
     	 int[] result = null;
-    	 Vector<Integer> vv = new Vector<Integer>();
+    	 Vector<Integer> vv = new Vector<>();
     	 try {
     		 int numRows = tm.getRowCount();
     		 for (int row = 0; row < numRows; row++) {

@@ -141,7 +141,7 @@ public abstract class MyDBI {
 	private boolean isAdminConnection = false;
 
 	private Boolean passFalse = null;
-	private LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
+	private LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<>();
 
 	public String getDbPassword() {
 		return dbPassword;
@@ -190,7 +190,7 @@ public abstract class MyDBI {
 			if (!dbPath.endsWith(System.getProperty("file.separator"))) dbPath += System.getProperty("file.separator");
 		}
 		passFalse = false;
-		filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
+		filledHashtables = new LinkedHashMap<>();
 		establishNewConnection(dbUsername, dbPassword, dbPath, true);
 		return (conn != null);
 	}
@@ -407,7 +407,7 @@ public abstract class MyDBI {
 			return filledHashtables.get(foreignTable);
 		}
 
-		LinkedHashMap<Object, String> h = new LinkedHashMap<Object, String>();
+		LinkedHashMap<Object, String> h = new LinkedHashMap<>();
 		String selectSQL = theTable.getSelectSQL();
 		String sql = selectSQL;
 		ResultSet rs = getResultSet(sql, true);
@@ -419,7 +419,7 @@ public abstract class MyDBI {
 			if (rs != null && rs.first()) {
 				MyTable[] foreignFields = theTable.getForeignFields();
 				String[] mnTable = theTable.getMNTable();
-				if (alreadyUsed == null) alreadyUsed = new HashSet<MyTable>();
+				if (alreadyUsed == null) alreadyUsed = new HashSet<>();
 				alreadyUsed.add(theTable);
 				boolean isdkz = theTable.getTablename().equals("DoubleKennzahlen");
 				do {

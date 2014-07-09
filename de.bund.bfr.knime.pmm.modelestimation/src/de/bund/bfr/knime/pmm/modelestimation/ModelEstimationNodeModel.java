@@ -205,7 +205,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) {
-		parameterLimits = new LinkedHashMap<String, Map<String, java.awt.geom.Point2D.Double>>();
+		parameterLimits = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1Schema(), table);
@@ -217,7 +217,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			if (!parameterLimits.containsKey(id)) {
-				Map<String, Point2D.Double> limits = new LinkedHashMap<String, java.awt.geom.Point2D.Double>();
+				Map<String, Point2D.Double> limits = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : tuple.getPmmXml(
 						Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -254,7 +254,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							Model2Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			if (!parameterLimits.containsKey(id)) {
-				Map<String, Point2D.Double> limits = new LinkedHashMap<String, java.awt.geom.Point2D.Double>();
+				Map<String, Point2D.Double> limits = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : tuple.getPmmXml(
 						Model2Schema.ATT_PARAMETER).getElementSet()) {
@@ -285,7 +285,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				.createSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		int n = table.getRowCount();
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(n);
+		List<KnimeTuple> tuples = new ArrayList<>(n);
 		AtomicInteger runningThreads = new AtomicInteger(0);
 		AtomicInteger finishedThreads = new AtomicInteger(0);
 		Map<String, Map<String, Point2D.Double>> parameterGuesses;

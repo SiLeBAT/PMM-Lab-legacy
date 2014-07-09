@@ -61,7 +61,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 						el, ATT_VALUE), null,
 				XmlHelper.getString(el, ATT_UNIT), XmlHelper.getString(el,
 						ATT_ORIGUNIT), XmlHelper.getString(el, ATT_DBUUID));
-		categories = new ArrayList<String>();
+		categories = new ArrayList<>();
 
 		for (int i = 0;; i++) {
 			if (el.getAttribute(ATT_CATEGORY + i) == null) {

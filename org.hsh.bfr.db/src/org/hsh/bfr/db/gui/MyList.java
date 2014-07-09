@@ -124,7 +124,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 	
 		    root = new InvisibleNode(".");
 			children = new InvisibleNode[myTs.size()];
-			indexMap = new HashMap<Integer, Integer>();
+			indexMap = new HashMap<>();
 			int i=0;
 		    for (Integer key : myTs.keySet()) {
 			    children[i] = new InvisibleNode(GuiMessages.getString(myTs.get(key)));

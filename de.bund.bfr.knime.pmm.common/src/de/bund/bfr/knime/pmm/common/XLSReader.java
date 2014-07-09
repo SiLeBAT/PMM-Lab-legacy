@@ -71,7 +71,7 @@ public class XLSReader {
 	private FormulaEvaluator evaluator;
 
 	public XLSReader() {
-		warnings = new ArrayList<String>();
+		warnings = new ArrayList<>();
 		evaluator = null;
 	}
 
@@ -90,9 +90,9 @@ public class XLSReader {
 			throw new Exception("Sheet not found");
 		}
 
-		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, KnimeTuple> tuples = new LinkedHashMap<>();
 		Map<String, Integer> columns = getColumns(s);
-		Map<String, Integer> miscColumns = new LinkedHashMap<String, Integer>();
+		Map<String, Integer> miscColumns = new LinkedHashMap<>();
 		Integer idColumn = null;
 		Integer commentColumn = null;
 		Integer timeColumn = null;
@@ -400,9 +400,9 @@ public class XLSReader {
 			throw new Exception("Sheet not found");
 		}
 
-		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, KnimeTuple> tuples = new LinkedHashMap<>();
 		Map<String, Integer> columns = getColumns(s);
-		Map<String, Integer> miscColumns = new LinkedHashMap<String, Integer>();
+		Map<String, Integer> miscColumns = new LinkedHashMap<>();
 		Integer commentColumn = null;
 		Integer agentDetailsColumn = null;
 		Integer matrixDetailsColumn = null;
@@ -725,7 +725,7 @@ public class XLSReader {
 	}
 
 	public List<String> getSheets(File file) throws Exception {
-		List<String> sheets = new ArrayList<String>();
+		List<String> sheets = new ArrayList<>();
 		Workbook workbook = getWorkbook(file);
 
 		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
@@ -745,12 +745,12 @@ public class XLSReader {
 			throw new Exception("Sheet not found");
 		}
 
-		return new ArrayList<String>(getColumns(s).keySet());
+		return new ArrayList<>(getColumns(s).keySet());
 	}
 
 	public Set<String> getValuesInColumn(File file, String sheet, String column)
 			throws Exception {
-		Set<String> valueSet = new LinkedHashSet<String>();
+		Set<String> valueSet = new LinkedHashSet<>();
 		Workbook wb = getWorkbook(file);
 		Sheet s = wb.getSheet(sheet);
 
@@ -795,7 +795,7 @@ public class XLSReader {
 	}
 
 	private Map<String, Integer> getColumns(Sheet sheet) {
-		Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
+		Map<String, Integer> columns = new LinkedHashMap<>();
 
 		for (int i = 0;; i++) {
 			Cell cell = sheet.getRow(0).getCell(i);

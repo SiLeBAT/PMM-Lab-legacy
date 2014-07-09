@@ -94,7 +94,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		KnimeTuple modelTuple = new KnimeTuple(set.getModelTuple().getSchema(),
 				set.getModelTuple().getSchema().createSpec(),
 				set.getModelTuple());
-		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<>();
 		System.out.println(set.getModelDepUnit() + "\t"
 				+ set.getModelIndepUnit());
 
@@ -131,7 +131,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
+		List<KnimeTuple> tuples = new ArrayList<>(xlsReader
 				.getModelTuples(new File(set.getFileName()),
 						set.getSheetName(), set.getColumnMappings(),
 						set.getAgentColumn(), set.getAgentMappings(),

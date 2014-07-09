@@ -76,7 +76,7 @@ public class ParameterOptimizer {
 	private PointVectorValuePair optimizerValues;
 
 	private boolean successful;
-	private List<Double> parameterValues;	
+	private List<Double> parameterValues;
 	private Double sse;
 	private Double rms;
 	private Double rSquare;
@@ -117,7 +117,7 @@ public class ParameterOptimizer {
 
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
-		derivatives = new ArrayList<Node>(parameters.size());
+		derivatives = new ArrayList<>(parameters.size());
 
 		for (String arg : arguments) {
 			parser.addVariable(arg, 0.0);
@@ -131,9 +131,9 @@ public class ParameterOptimizer {
 
 	public void optimize(AtomicInteger progress, int nParameterSpace,
 			int nLevenberg, boolean stopWhenSuccessful) {
-		List<Double> paramMin = new ArrayList<Double>();
-		List<Integer> paramStepCount = new ArrayList<Integer>();
-		List<Double> paramStepSize = new ArrayList<Double>();
+		List<Double> paramMin = new ArrayList<>();
+		List<Integer> paramStepCount = new ArrayList<>();
+		List<Double> paramStepSize = new ArrayList<>();
 		int maxCounter = 1;
 		int paramsWithRange = 0;
 		int maxStepCount = 10;
@@ -193,17 +193,17 @@ public class ParameterOptimizer {
 			}
 		}
 
-		List<List<Double>> bestValues = new ArrayList<List<Double>>();
-		List<Double> bestError = new ArrayList<Double>();
+		List<List<Double>> bestValues = new ArrayList<>();
+		List<Double> bestError = new ArrayList<>();
 
 		for (int i = 0; i < nLevenberg; i++) {
-			bestValues.add(new ArrayList<Double>(Collections.nCopies(
+			bestValues.add(new ArrayList<>(Collections.nCopies(
 					parameters.size(), i + 1.0)));
 			bestError.add(Double.POSITIVE_INFINITY);
 		}
 
-		List<Integer> paramStepIndex = new ArrayList<Integer>(
-				Collections.nCopies(parameters.size(), 0));
+		List<Integer> paramStepIndex = new ArrayList<>(Collections.nCopies(
+				parameters.size(), 0));
 		boolean done = false;
 		int counter = 0;
 
@@ -212,7 +212,7 @@ public class ParameterOptimizer {
 					/ (float) maxCounter));
 			counter++;
 
-			List<Double> values = new ArrayList<Double>();
+			List<Double> values = new ArrayList<>();
 			double error = 0.0;
 
 			for (int i = 0; i < parameters.size(); i++) {
@@ -304,7 +304,7 @@ public class ParameterOptimizer {
 	public List<Double> getParameterValues() {
 		return parameterValues;
 	}
-	
+
 	public Double getSse() {
 		return sse;
 	}
@@ -370,10 +370,10 @@ public class ParameterOptimizer {
 	}
 
 	private void useCurrentResults(List<Double> startValues) {
-		parameterValues = new ArrayList<Double>(parameters.size());
-		sse = optimizer.getChiSquare();		
-		rms = MathUtilities.getRMSE(sse, parameters.size(),
-				targetValues.size());
+		parameterValues = new ArrayList<>(parameters.size());
+		sse = optimizer.getChiSquare();
+		rms = MathUtilities
+				.getRMSE(sse, parameters.size(), targetValues.size());
 		rSquare = MathUtilities.getRSquared(optimizer.getChiSquare(),
 				targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
@@ -395,10 +395,10 @@ public class ParameterOptimizer {
 			double factor = optimizer.getChiSquare()
 					/ (targetValues.size() - parameters.size());
 
-			parameterStandardErrors = new ArrayList<Double>(parameters.size());
-			parameterTValues = new ArrayList<Double>(parameters.size());
-			parameterPValues = new ArrayList<Double>(parameters.size());
-			covariances = new ArrayList<List<Double>>();
+			parameterStandardErrors = new ArrayList<>(parameters.size());
+			parameterTValues = new ArrayList<>(parameters.size());
+			parameterPValues = new ArrayList<>(parameters.size());
+			covariances = new ArrayList<>();
 
 			for (int i = 0; i < parameters.size(); i++) {
 				double error = Math.sqrt(factor * covMatrix[i][i]);
@@ -414,7 +414,7 @@ public class ParameterOptimizer {
 			}
 
 			for (int i = 0; i < parameters.size(); i++) {
-				List<Double> cov = new ArrayList<Double>();
+				List<Double> cov = new ArrayList<>();
 
 				for (int j = 0; j < parameters.size(); j++) {
 					cov.add(factor * covMatrix[i][j]);
@@ -427,7 +427,7 @@ public class ParameterOptimizer {
 					null);
 			parameterTValues = Collections.nCopies(parameters.size(), null);
 			parameterPValues = Collections.nCopies(parameters.size(), null);
-			covariances = new ArrayList<List<Double>>();
+			covariances = new ArrayList<>();
 
 			for (int i = 0; i < parameters.size(); i++) {
 				List<Double> nullList = Collections.nCopies(parameters.size(),
@@ -709,12 +709,11 @@ public class ParameterOptimizer {
 		private List<List<Integer>> createChangeLists() {
 			int n = arguments.length;
 			boolean done = false;
-			List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
-			List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n,
-					-1));
+			List<List<Integer>> changeLists = new ArrayList<>();
+			List<Integer> list = new ArrayList<>(Collections.nCopies(n, -1));
 
 			while (!done) {
-				changeLists.add(new ArrayList<Integer>(list));
+				changeLists.add(new ArrayList<>(list));
 
 				for (int i = 0;; i++) {
 					if (i >= n) {

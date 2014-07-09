@@ -72,7 +72,7 @@ public class MyFilter implements Filter {
     	 int[] result = null;
     	 Vector<Integer> rows2check = null;
     	 if (userIDs != null) {
-        	 rows2check = new Vector<Integer>();
+        	 rows2check = new Vector<>();
 		  	 for (int row = 0; row < tm.getRowCount(); row++) {
 		  		Integer o = (Integer) tm.getValueAt(row, 1);
 		  		if (userIDs.containsKey(o)) {
@@ -80,7 +80,7 @@ public class MyFilter implements Filter {
 		  		}
 			 }
     	 }
-    	 Vector<Integer> vv = new Vector<Integer>();
+    	 Vector<Integer> vv = new Vector<>();
     	 try {
     		 if (findString.trim().length() == 0) {
     			 result = getAllFilter(tm, rows2check);
@@ -94,13 +94,13 @@ public class MyFilter implements Filter {
     			 }
 */
     			 String theRealFindString = findString;
-    			 HashSet<Integer> cols2Search = new HashSet<Integer>();
+    			 HashSet<Integer> cols2Search = new HashSet<>();
 				 if (theRealFindString.startsWith("[COLS:")) { // [COLS:#,#,#], e.g. [COLS:2]case
 					 int endIndex = theRealFindString.indexOf("]");
 					 if (endIndex > 0) {
 						 try {
     						 String cols = theRealFindString.substring("[COLS:".length(), endIndex);
-    						 HashSet<Integer> localCols2Search = new HashSet<Integer>();
+    						 HashSet<Integer> localCols2Search = new HashSet<>();
     						 StringTokenizer tok = new StringTokenizer(cols, ",");
     						 while (tok.hasMoreTokens()) {
     							 int col = Integer.parseInt(tok.nextToken());

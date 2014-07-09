@@ -259,7 +259,7 @@ public class MyNewDoubleEditor extends JDialog {
 		textField1_exp = new JTextField();
 		checkBox1 = new JCheckBox();
 		label2 = new JLabel();
-		comboBox2 = new JComboBox<String>();
+		comboBox2 = new JComboBox<>();
 		label3 = new JLabel();
 		textField3 = new JTextField();
 		checkBox3 = new JCheckBox();
@@ -291,7 +291,7 @@ public class MyNewDoubleEditor extends JDialog {
 		checkBox10 = new JCheckBox();
 		label11 = new JLabel();
 		button11 = new JButton();
-		comboBox11 = new JComboBox<String>();
+		comboBox11 = new JComboBox<>();
 		label12 = new JLabel();
 		checkBox12 = new JCheckBox();
 		label13 = new JLabel();
@@ -370,7 +370,7 @@ public class MyNewDoubleEditor extends JDialog {
 		contentPane.add(label2, CC.xy(1, 5));
 
 		//---- comboBox2 ----
-		comboBox2.setModel(new DefaultComboBoxModel<String>(new String[] {
+		comboBox2.setModel(new DefaultComboBoxModel<>(new String[] {
 			"Einzelwert",
 			"Mittelwert",
 			"Median"
@@ -624,7 +624,7 @@ public class MyNewDoubleEditor extends JDialog {
 		contentPane.add(button11, CC.xy(3, 23));
 
 		//---- comboBox11 ----
-		comboBox11.setModel(new DefaultComboBoxModel<String>(new String[] {
+		comboBox11.setModel(new DefaultComboBoxModel<>(new String[] {
 			"\u00b0C",
 			"pH",
 			"aw",

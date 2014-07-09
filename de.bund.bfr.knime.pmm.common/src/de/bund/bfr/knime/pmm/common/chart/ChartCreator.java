@@ -102,16 +102,16 @@ public class ChartCreator extends ChartPanel {
 
 	public ChartCreator(Plotable plotable) {
 		super(new JFreeChart(new XYPlot()));
-		zoomListeners = new ArrayList<ZoomListener>();
+		zoomListeners = new ArrayList<>();
 		getPopupMenu().removeAll();
 		getPopupMenu().add(new DataAndModelChartSaveAsItem());
-		plotables = new LinkedHashMap<String, Plotable>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
-		colorLists = new LinkedHashMap<String, List<Color>>();
-		shapeLists = new LinkedHashMap<String, List<Shape>>();
+		plotables = new LinkedHashMap<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
+		colorLists = new LinkedHashMap<>();
+		shapeLists = new LinkedHashMap<>();
 
 		plotables.put("", plotable);
 		shortLegend.put("", "");
@@ -121,16 +121,16 @@ public class ChartCreator extends ChartPanel {
 	public ChartCreator(Map<String, Plotable> plotables,
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
 		super(new JFreeChart(new XYPlot()));
-		zoomListeners = new ArrayList<ZoomListener>();
+		zoomListeners = new ArrayList<>();
 		getPopupMenu().removeAll();
 		getPopupMenu().add(new DataAndModelChartSaveAsItem());
 		this.plotables = plotables;
 		this.shortLegend = shortLegend;
 		this.longLegend = longLegend;
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
-		colorLists = new LinkedHashMap<String, List<Color>>();
-		shapeLists = new LinkedHashMap<String, List<Shape>>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
+		colorLists = new LinkedHashMap<>();
+		shapeLists = new LinkedHashMap<>();
 	}
 	
 	public void addZoomListener(ZoomListener listener) {
@@ -162,7 +162,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	public void createChart() {
-		setChart(getChart(new ArrayList<String>(plotables.keySet())));
+		setChart(getChart(new ArrayList<>(plotables.keySet())));
 	}
 
 	public void createChart(String idToPaint) {
@@ -338,7 +338,7 @@ public class ChartCreator extends ChartPanel {
 			yAxis.setRange(new Range(minY, maxY));
 		}
 
-		Set<String> unconvertable = new LinkedHashSet<String>();
+		Set<String> unconvertable = new LinkedHashSet<>();
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -384,7 +384,7 @@ public class ChartCreator extends ChartPanel {
 			}
 		}
 
-		warnings = new ArrayList<String>();
+		warnings = new ArrayList<>();
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);

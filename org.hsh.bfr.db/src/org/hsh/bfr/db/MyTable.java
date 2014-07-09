@@ -86,7 +86,7 @@ public class MyTable {
 	private String[] mnSQL = null;
 	
 	// Parameter zum Abspeichern
-	private LinkedHashMap<Integer, Integer> rowHeights = new LinkedHashMap<Integer, Integer>();
+	private LinkedHashMap<Integer, Integer> rowHeights = new LinkedHashMap<>();
 	private int[] colWidths = null;
 	private List<? extends SortKey> sortKeyList = null;
 	private String searchString = "";
@@ -145,7 +145,7 @@ public class MyTable {
 			if (mnTable != null) {
 				for (int i=0;i<mnTable.length;i++) {
 					if (mnTable[i] != null && mnTable[i].length() > 0) {
-						if (listMNs == null) listMNs = new Vector<String>();
+						if (listMNs == null) listMNs = new Vector<>();
 						listMNs.add(fieldNames[i]);
 					}
 				}			
@@ -351,7 +351,7 @@ public class MyTable {
 		return readOnly || DBKernel.isReadOnly();
 	}
 	public Vector<Integer> getMyBLOBs() {
-		Vector<Integer> myBLOBs = new Vector<Integer>();
+		Vector<Integer> myBLOBs = new Vector<>();
     for (int i=0;i<fieldTypes.length;i++) {
     	if (fieldTypes[i].startsWith("BLOB(")) {    	
     		myBLOBs.add(i);
@@ -431,7 +431,7 @@ public class MyTable {
 	}
 	
 	public List<String> getIndexSQL() {
-		List<String> indexSQL = new ArrayList<String>();	
+		List<String> indexSQL = new ArrayList<>();	
     for (int i=0;i<fieldNames.length;i++) {
     	if (foreignFields[i] != null) {
     		if (mnTable == null || mnTable[i] == null || mnTable[i].length() == 0) {

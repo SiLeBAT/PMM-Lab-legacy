@@ -82,15 +82,15 @@ public class Plotable {
 
 	public Plotable(int type) {
 		this.type = type;
-		valueLists = new LinkedHashMap<String, List<Double>>();
-		functionArguments = new LinkedHashMap<String, List<Double>>();
-		minArguments = new LinkedHashMap<String, Double>();
-		maxArguments = new LinkedHashMap<String, Double>();
-		categories = new LinkedHashMap<String, List<String>>();
-		units = new LinkedHashMap<String, String>();
-		functionParameters = new LinkedHashMap<String, Double>();
-		covariances = new LinkedHashMap<String, Map<String, Double>>();
-		samples = new ArrayList<Double>();
+		valueLists = new LinkedHashMap<>();
+		functionArguments = new LinkedHashMap<>();
+		minArguments = new LinkedHashMap<>();
+		maxArguments = new LinkedHashMap<>();
+		categories = new LinkedHashMap<>();
+		units = new LinkedHashMap<>();
+		functionParameters = new LinkedHashMap<>();
+		covariances = new LinkedHashMap<>();
+		samples = new ArrayList<>();
 		degreesOfFreedom = null;
 	}
 
@@ -128,24 +128,24 @@ public class Plotable {
 
 	public Map<String, List<Double>> getPossibleArgumentValues(boolean useData,
 			boolean useMinMax) {
-		Map<String, List<Double>> args = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> args = new LinkedHashMap<>();
 
 		for (String var : functionArguments.keySet()) {
 			Double min = minArguments.get(var);
 			Double max = maxArguments.get(var);
 
 			if (useData && valueLists.get(var) != null) {
-				Set<Double> valuesSet = new LinkedHashSet<Double>(
+				Set<Double> valuesSet = new LinkedHashSet<>(
 						valueLists.get(var));
-				List<Double> valuesList = new ArrayList<Double>(valuesSet);
+				List<Double> valuesList = new ArrayList<>(valuesSet);
 
 				valuesList.removeAll(Arrays.asList((Object) null));
 				Collections.sort(valuesList);
 				args.put(var, valuesList);
 			} else if (useMinMax && min != null) {
-				args.put(var, new ArrayList<Double>(Arrays.asList(min)));
+				args.put(var, new ArrayList<>(Arrays.asList(min)));
 			} else if (useMinMax && max != null) {
-				args.put(var, new ArrayList<Double>(Arrays.asList(max)));
+				args.put(var, new ArrayList<>(Arrays.asList(max)));
 			} else {
 				args.put(var, new ArrayList<Double>());
 			}
@@ -239,7 +239,7 @@ public class Plotable {
 			return null;
 		}
 
-		List<Boolean> usedPoints = new ArrayList<Boolean>(Collections.nCopies(
+		List<Boolean> usedPoints = new ArrayList<>(Collections.nCopies(
 				xList.size(), true));
 
 		if (type == BOTH_STRICT || type == DATASET_STRICT) {
@@ -262,7 +262,7 @@ public class Plotable {
 			}
 		}
 
-		List<Point2D.Double> points = new ArrayList<Point2D.Double>(
+		List<Point2D.Double> points = new ArrayList<>(
 				xList.size());
 
 		for (int i = 0; i < xList.size(); i++) {
@@ -412,7 +412,7 @@ public class Plotable {
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
-		List<String> paramList = new ArrayList<String>(covariances.keySet());
+		List<String> paramList = new ArrayList<>(covariances.keySet());
 
 		for (String param : functionParameters.keySet()) {
 			if (functionParameters.get(param) == null) {
@@ -445,7 +445,7 @@ public class Plotable {
 			}
 		}
 
-		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+		Map<String, Node> derivatives = new LinkedHashMap<>();
 
 		parser.addVariable(paramX, 0.0);
 
@@ -718,7 +718,7 @@ public class Plotable {
 			}
 		}
 
-		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+		Map<String, Node> derivatives = new LinkedHashMap<>();
 
 		parser.addVariable(paramX, 0.0);
 
@@ -749,7 +749,7 @@ public class Plotable {
 			try {
 				Double y = 0.0;
 				boolean failed = false;
-				List<String> paramList = new ArrayList<String>(
+				List<String> paramList = new ArrayList<>(
 						functionParameters.keySet());
 
 				for (String param : paramList) {
@@ -828,8 +828,8 @@ public class Plotable {
 
 			return true;
 		} else {
-			List<String> paramsX = new ArrayList<String>(valueLists.keySet());
-			List<String> paramsY = new ArrayList<String>();
+			List<String> paramsX = new ArrayList<>(valueLists.keySet());
+			List<String> paramsY = new ArrayList<>();
 
 			if (type == DATASET || type == DATASET_STRICT) {
 				paramsY = paramsX;
@@ -852,14 +852,14 @@ public class Plotable {
 	}
 
 	public List<Map<String, Integer>> getAllChoices() {
-		List<Map<String, Integer>> choices = new ArrayList<Map<String, Integer>>();
-		List<String> argList = new ArrayList<String>(functionArguments.keySet());
-		List<Integer> choice = new ArrayList<Integer>(Collections.nCopies(
+		List<Map<String, Integer>> choices = new ArrayList<>();
+		List<String> argList = new ArrayList<>(functionArguments.keySet());
+		List<Integer> choice = new ArrayList<>(Collections.nCopies(
 				argList.size(), 0));
 		boolean done = false;
 
 		while (!done) {
-			Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+			Map<String, Integer> map = new LinkedHashMap<>();
 
 			for (int i = 0; i < argList.size(); i++) {
 				map.put(argList.get(i), choice.get(i));
@@ -891,7 +891,7 @@ public class Plotable {
 		int nMax = 0;
 
 		if (functionArguments.size() == 1) {
-			String arg = new ArrayList<String>(functionArguments.keySet())
+			String arg = new ArrayList<>(functionArguments.keySet())
 					.get(0);
 
 			if (valueLists.containsKey(arg) && valueLists.get(arg).size() != 0) {
@@ -905,7 +905,7 @@ public class Plotable {
 
 			for (String arg : functionArguments.keySet()) {
 				if (!arg.equals(arg0) && valueLists.containsKey(arg)) {
-					Set<Double> set = new LinkedHashSet<Double>(
+					Set<Double> set = new LinkedHashSet<>(
 							valueLists.get(arg));
 
 					n *= set.size();
@@ -942,7 +942,7 @@ public class Plotable {
 			return null;
 		}
 
-		Map<String, Integer> choice = new LinkedHashMap<String, Integer>();
+		Map<String, Integer> choice = new LinkedHashMap<>();
 
 		for (String arg : functionArguments.keySet()) {
 			choice.put(arg, 0);

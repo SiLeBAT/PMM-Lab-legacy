@@ -43,7 +43,7 @@ public class MyMNSQLJoinCollector {
 	private String toJoin = "";
 	private boolean hasUnknownFields = false;
 	private int addCounter = 0;
-	private HashSet<MyTable> alreadyJoined = new HashSet<MyTable>(); 
+	private HashSet<MyTable> alreadyJoined = new HashSet<>(); 
 
 	public MyMNSQLJoinCollector(String toSelect, String toJoin) {
 		this.toSelect = toSelect;

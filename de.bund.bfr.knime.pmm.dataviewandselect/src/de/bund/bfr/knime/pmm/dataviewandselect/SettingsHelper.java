@@ -108,9 +108,9 @@ public class SettingsHelper {
 	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
-		selectedIDs = new ArrayList<String>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
+		selectedIDs = new ArrayList<>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
 		selectAllIDs = DEFAULT_SELECTALLIDS;
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
@@ -127,8 +127,8 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<String>();
-		columnWidths = new LinkedHashMap<String, Integer>();
+		visibleColumns = new ArrayList<>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -161,7 +161,7 @@ public class SettingsHelper {
 
 		try {
 			minX = settings.getDouble(CFG_MINX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
@@ -206,12 +206,12 @@ public class SettingsHelper {
 
 		try {
 			unitX = settings.getString(CFG_UNITX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			unitY = settings.getString(CFG_UNITY);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
@@ -221,27 +221,27 @@ public class SettingsHelper {
 
 		try {
 			transformY = settings.getString(CFG_TRANSFORMY);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			standardVisibleColumns = settings
 					.getBoolean(CFG_STANDARDVISIBLECOLUMNS);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			visibleColumns = XmlConverter.xmlToObject(
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			columnWidths = XmlConverter.xmlToObject(
 					settings.getString(CFG_COLUMNWIDTHS),
 					new LinkedHashMap<String, Integer>());
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 	}
 
@@ -269,7 +269,7 @@ public class SettingsHelper {
 		settings.addString(CFG_VISIBLECOLUMNS,
 				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_COLUMNWIDTHS,
-				XmlConverter.objectToXml(columnWidths));		
+				XmlConverter.objectToXml(columnWidths));
 	}
 
 	public List<String> getSelectedIDs() {

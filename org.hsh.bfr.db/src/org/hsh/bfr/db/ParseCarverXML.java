@@ -58,9 +58,9 @@ public class ParseCarverXML {
 
 	private String[] processNames;
 	private int[] processIDs;
-	private LinkedHashMap<Integer, Integer> carverXMLIndex_processID = new LinkedHashMap<Integer, Integer>();
-	private LinkedHashMap<Integer, String> carverXMLIndex_processNames = new LinkedHashMap<Integer, String>();
-	private Vector<Integer[]> org_dst = new Vector <Integer[]>();	
+	private LinkedHashMap<Integer, Integer> carverXMLIndex_processID = new LinkedHashMap<>();
+	private LinkedHashMap<Integer, String> carverXMLIndex_processNames = new LinkedHashMap<>();
+	private Vector<Integer[]> org_dst = new Vector <>();	
 	
 	public ParseCarverXML(String filename) throws SAXException, IOException, ParserConfigurationException {
 	    File file = File.createTempFile("ParseCarverXML", ".pex");

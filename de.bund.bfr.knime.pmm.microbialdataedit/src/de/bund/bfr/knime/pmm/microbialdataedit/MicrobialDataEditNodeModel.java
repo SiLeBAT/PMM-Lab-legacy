@@ -85,7 +85,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), inData[0]);
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples = new ArrayList<>();
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());

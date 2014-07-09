@@ -66,10 +66,10 @@ public class TableReader {
 	public TableReader(BufferedDataTable table, boolean schemaContainsData) {
 		List<String> miscParams = null;
 		List<KnimeTuple> tertiaryTuples;
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples = new ArrayList<>();
 		List<KnimeTuple> newTuples = null;
-		List<List<KnimeTuple>> usedTuples = new ArrayList<List<KnimeTuple>>();
-		Set<String> idSet = new LinkedHashSet<String>();
+		List<List<KnimeTuple>> usedTuples = new ArrayList<>();
+		Set<String> idSet = new LinkedHashSet<>();
 
 		if (schemaContainsData) {
 			tertiaryTuples = PmmUtilities.getTuples(table,
@@ -89,13 +89,13 @@ public class TableReader {
 			usedTuples.add(entry.getValue());
 		}
 
-		allIds = new ArrayList<String>();
-		allTuples = new ArrayList<KnimeTuple>();
-		tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
-		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
+		allIds = new ArrayList<>();
+		allTuples = new ArrayList<>();
+		tupleCombinations = new LinkedHashMap<>();
+		ids = new ArrayList<>();
+		plotables = new LinkedHashMap<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
 
 		if (schemaContainsData) {
 			try {
@@ -117,7 +117,7 @@ public class TableReader {
 					AttributeUtilities.AGENT_DETAILS,
 					TimeSeriesSchema.ATT_MATRIX,
 					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
-			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues = new ArrayList<>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -133,7 +133,7 @@ public class TableReader {
 							+ " (Local)", Model1Schema.RMSE + " (Local)",
 					Model1Schema.RSQUARED + " (Local)", Model1Schema.AIC
 							+ " (Local)");
-			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues = new ArrayList<>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -144,7 +144,7 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					ChartSelectionPanel.DATA, ChartSelectionPanel.FORMULA,
 					ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
@@ -152,12 +152,12 @@ public class TableReader {
 			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					ChartConstants.STATUS, AttributeUtilities.DATAID);
 
-			data = new ArrayList<List<TimeSeriesXml>>();
-			formulas = new ArrayList<String>();
-			parameterData = new ArrayList<Map<String, Double>>();
-			conditions = new ArrayList<String>();
-			conditionValues = new ArrayList<List<Double>>();
-			conditionUnits = new ArrayList<List<String>>();
+			data = new ArrayList<>();
+			formulas = new ArrayList<>();
+			parameterData = new ArrayList<>();
+			conditions = new ArrayList<>();
+			conditionValues = new ArrayList<>();
+			conditionUnits = new ArrayList<>();
 
 			for (String param : miscParams) {
 				conditions.add(param);
@@ -168,19 +168,19 @@ public class TableReader {
 		} else {
 			stringColumns = Arrays.asList(Model1Schema.FORMULA,
 					Model1Schema.ATT_EMLIT, ChartConstants.STATUS);
-			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues = new ArrayList<>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
 					Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
-			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues = new ArrayList<>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns = new ArrayList<String>(
+			standardVisibleColumns = new ArrayList<>(
 					Arrays.asList(ChartSelectionPanel.FORMULA,
 							ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
@@ -189,8 +189,8 @@ public class TableReader {
 					ChartConstants.STATUS);
 
 			data = null;
-			formulas = new ArrayList<String>();
-			parameterData = new ArrayList<Map<String, Double>>();
+			formulas = new ArrayList<>();
+			parameterData = new ArrayList<>();
 			conditions = null;
 			conditionValues = null;
 			conditionUnits = null;
@@ -235,13 +235,13 @@ public class TableReader {
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			List<String> indepVars = CellIO.getNameList(indepXml);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			List<Double> paramValues = new ArrayList<Double>();
+			List<Double> paramValues = new ArrayList<>();
 			Plotable plotable = null;
-			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
-			Map<String, Double> paramData = new LinkedHashMap<String, Double>();
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
-			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
-			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<>();
+			Map<String, Double> paramData = new LinkedHashMap<>();
+			Map<String, List<Double>> variables = new LinkedHashMap<>();
+			Map<String, Double> varMin = new LinkedHashMap<>();
+			Map<String, Double> varMax = new LinkedHashMap<>();
 			String timeUnit = Categories.getTimeCategory().getStandardUnit();
 			String concentrationUnit = depXml.getUnit();
 
@@ -249,7 +249,7 @@ public class TableReader {
 				IndepXml element = (IndepXml) el;
 
 				if (element.getName().equals(AttributeUtilities.TIME)) {
-					variables.put(element.getName(), new ArrayList<Double>(
+					variables.put(element.getName(), new ArrayList<>(
 							Arrays.asList(0.0)));
 					varMin.put(element.getName(), element.getMin());
 					varMax.put(element.getName(), element.getMax());
@@ -273,7 +273,7 @@ public class TableReader {
 
 			if (schemaContainsData) {
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				Map<String, Double> miscValues = new LinkedHashMap<String, Double>();
+				Map<String, Double> miscValues = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
@@ -292,9 +292,9 @@ public class TableReader {
 
 				PmmXmlDoc timeSeriesXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-				List<Double> timeList = new ArrayList<Double>();
-				List<Double> logcList = new ArrayList<Double>();
-				List<TimeSeriesXml> dataPoints = new ArrayList<TimeSeriesXml>();
+				List<Double> timeList = new ArrayList<>();
+				List<Double> logcList = new ArrayList<>();
+				List<TimeSeriesXml> dataPoints = new ArrayList<>();
 
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
@@ -413,8 +413,8 @@ public class TableReader {
 						((EstModelXml) estModelXml.get(0)).getBic());
 			}
 
-			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
-			Map<String, String> units = new LinkedHashMap<String, String>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 
 			categories.put(AttributeUtilities.TIME,
 					Arrays.asList(Categories.getTime()));

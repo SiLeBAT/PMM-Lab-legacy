@@ -65,9 +65,9 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	public FilePanel(String name, int dialogType) {
 		this.dialogType = dialogType;
 		acceptAllFiles = true;
-		fileFilters = new ArrayList<FileFilter>();
+		fileFilters = new ArrayList<>();
 
-		listeners = new ArrayList<FileListener>();
+		listeners = new ArrayList<>();
 
 		button = new JButton("Browse...");
 		button.addActionListener(this);

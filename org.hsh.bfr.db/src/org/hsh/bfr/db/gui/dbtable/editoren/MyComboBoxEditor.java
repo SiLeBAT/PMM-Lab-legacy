@@ -72,8 +72,8 @@ public class MyComboBoxEditor implements CellComponent {
 			myTA.setWrapStyleWord(true);
 		}
 		else {
-			myCombo = new JComboBox<KeyValue>();
-			hashKVs = new LinkedHashMap<Object, KeyValue>();
+			myCombo = new JComboBox<>();
+			hashKVs = new LinkedHashMap<>();
 			for (Object key : hash.keySet()) {
 				KeyValue kv = new KeyValue(key, hash.get(key));
 				hashKVs.put(key, kv);

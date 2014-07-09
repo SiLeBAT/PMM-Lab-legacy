@@ -84,9 +84,8 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		JPanel panel = new JPanel();
 		JPanel upperPanel = new JPanel();
 
-		joinerBox = new JComboBox<String>(new String[] {
-				SettingsHelper.PRIMARY_JOIN, SettingsHelper.SECONDARY_JOIN,
-				SettingsHelper.COMBINED_JOIN });
+		joinerBox = new JComboBox<>(new String[] { SettingsHelper.PRIMARY_JOIN,
+				SettingsHelper.SECONDARY_JOIN, SettingsHelper.COMBINED_JOIN });
 		joinerBox.addActionListener(this);
 		joinerPanel = new JPanel();
 		joinerPanel.setBorder(BorderFactory.createTitledBorder("Join Options"));

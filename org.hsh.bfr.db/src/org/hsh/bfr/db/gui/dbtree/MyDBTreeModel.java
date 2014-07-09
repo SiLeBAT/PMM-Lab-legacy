@@ -146,7 +146,7 @@ class MyDBTreeModel implements TreeModel {
 		if (myT != null) {
 			root = new DefaultMutableTreeNode(new MyDBTreeNode(0, "", "Codes", false, -1));			
 	    // Erst die Codetypen
-			Vector<String> codeVec = new Vector<String>();
+			Vector<String> codeVec = new Vector<>();
 			String sql = "SELECT DISTINCT(" + DBKernel.delimitL("CodeSystem") + ") FROM " + DBKernel.delimitL(DBKernel.getCodesName(myT.getTablename()));
 			ResultSet rs = DBKernel.getResultSet(sql, true);
 			try {
@@ -211,9 +211,9 @@ class MyDBTreeModel implements TreeModel {
 						" ORDER BY " + DBKernel.delimitL("Code") + " ASC, LENGTH(" + DBKernel.delimitL("Code") + ") ASC";
 				
 				DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(new MyDBTreeNode(0, "", codeVec, false, lfd));
-				LinkedHashMap<String, DefaultMutableTreeNode> myCode  = new LinkedHashMap<String, DefaultMutableTreeNode>();
-				myIDs[lfd] = new LinkedHashMap<Integer, DefaultMutableTreeNode>();
-				myFilterIDs[lfd] = new LinkedHashMap<Integer, DefaultMutableTreeNode>();
+				LinkedHashMap<String, DefaultMutableTreeNode> myCode  = new LinkedHashMap<>();
+				myIDs[lfd] = new LinkedHashMap<>();
+				myFilterIDs[lfd] = new LinkedHashMap<>();
 				readDB(myCode, lfd, dmtn, sql, myT.getTablename() + "_" + codeVec, cutSystem);	
 				root.add(dmtn);
 			}		  

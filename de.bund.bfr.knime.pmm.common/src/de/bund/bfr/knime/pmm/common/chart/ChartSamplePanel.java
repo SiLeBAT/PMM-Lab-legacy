@@ -81,7 +81,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	private List<EditListener> listeners;
 
 	public ChartSamplePanel() {
-		listeners = new ArrayList<ChartSamplePanel.EditListener>();
+		listeners = new ArrayList<>();
 
 		table = new TimeSeriesTable(ROW_COUNT, 1, true, false);
 		table.getTimeColumn().getCellEditor().addCellEditorListener(this);
@@ -161,7 +161,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	}
 
 	public List<Double> getTimeValues() {
-		List<Double> timeValues = new ArrayList<Double>();
+		List<Double> timeValues = new ArrayList<>();
 
 		for (int i = 0; i < ROW_COUNT; i++) {
 			timeValues.add(table.getTime(i));
@@ -184,10 +184,10 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		String timeColumnName = getTimeColumnName();
 		List<Double> timeValues = getTimeValues();
 
-		Map<String, Map<Double, Double>> cValues = new LinkedHashMap<String, Map<Double, Double>>();
+		Map<String, Map<Double, Double>> cValues = new LinkedHashMap<>();
 
 		for (String id : points.keySet()) {
-			Map<Double, Double> values = new LinkedHashMap<Double, Double>();
+			Map<Double, Double> values = new LinkedHashMap<>();
 			double[][] ps = points.get(id);
 
 			if (ps != null && ps.length == 2) {

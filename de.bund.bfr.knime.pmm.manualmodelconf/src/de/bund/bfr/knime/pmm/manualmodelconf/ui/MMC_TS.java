@@ -164,12 +164,12 @@ public class MMC_TS extends JPanel {
 			mdInfoDoc.add(mdix);
 			theTS.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 			
-			List<String> cl = new ArrayList<String>();
+			List<String> cl = new ArrayList<>();
 			cl.add("Temperature");
 			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),cl,tempUnit.getSelectedIndex() >= 0 ? tempUnit.getSelectedItem().toString() : "°C");
-			cl = new ArrayList<String>();cl.add(Categories.getPhCategory().getName());
+			cl = new ArrayList<>();cl.add(Categories.getPhCategory().getName());
 			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),cl,Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
-			cl = new ArrayList<String>();cl.add(Categories.getAwCategory().getName());
+			cl = new ArrayList<>();cl.add(Categories.getAwCategory().getName());
 			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),cl,Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
 	}
 	private void fillFields() {
@@ -210,7 +210,7 @@ public class MMC_TS extends JPanel {
 		theTS.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 		theTS.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
 		theTS.setCondId(ri);
-		List<String> cl = new ArrayList<String>();
+		List<String> cl = new ArrayList<>();
 		cl.add("Temperature");
 		theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,cl,tempUnit);
 		theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null,null);
@@ -320,7 +320,7 @@ public class MMC_TS extends JPanel {
 		commentField = new StringTextField(true);
 		tempLabel = new JLabel();
 		temperatureField = new DoubleTextField(true);
-		tempUnit = new JComboBox<String>();
+		tempUnit = new JComboBox<>();
 		phLabel = new JLabel();
 		phField = new DoubleTextField(PmmConstants.MIN_PH, PmmConstants.MAX_PH, true);
 		awLabel = new JLabel();
@@ -403,7 +403,7 @@ public class MMC_TS extends JPanel {
 		add(temperatureField, CC.xywh(3, 7, 3, 1));
 
 		//---- tempUnit ----
-		tempUnit.setModel(new DefaultComboBoxModel<String>(new String[] {
+		tempUnit.setModel(new DefaultComboBoxModel<>(new String[] {
 			"\u00b0C",
 			"\u00b0F",
 			"K"

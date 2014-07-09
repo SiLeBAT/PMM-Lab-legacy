@@ -73,7 +73,7 @@ public class MyDBPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<String, int[]>();	
+	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<>();	
 	private int actualFindPos = 0;
 	private JDialog parentDialog = null;
 	private boolean savePressed = false;
@@ -565,7 +565,7 @@ public class MyDBPanel extends JPanel {
 		if (id > 0) {
 			myDBTable1.save();
 			refreshTable2();
-			Vector<Object> vec = new Vector<Object>();
+			Vector<Object> vec = new Vector<>();
 			Integer i1 = myDBTable2.getActualTable().getForeignFieldIndex(myDBTable1.getActualTable());
 			if (i1 == null) System.err.println("i1 == null???? " + myDBTable1.getActualTable() + "\t" + myDBTable2.getActualTable());
 				for (int i=0;i<myDBTable2.getColumnCount();i++) {

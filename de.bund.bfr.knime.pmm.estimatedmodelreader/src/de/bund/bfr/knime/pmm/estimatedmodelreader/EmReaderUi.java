@@ -144,7 +144,7 @@ public class EmReaderUi extends JPanel {
 			}
 			
 			//create table TTEST ("ID" INTEGER, "Referenz" INTEGER, "Agens" INTEGER, "AgensDetail" VARCHAR(255), "Matrix" INTEGER, "MatrixDetail" VARCHAR(255), "Temperatur" Double, "pH" Double, "aw" Double, "CO2" Double, "Druck" Double, "Luftfeuchtigkeit" Double, "Sonstiges" INTEGER, "Kommentar" VARCHAR(1023), "Guetescore" INTEGER, "Geprueft" BOOLEAN);
-			HashMap<String, Integer> codeLength = new HashMap<String, Integer>();
+			HashMap<String, Integer> codeLength = new HashMap<>();
 			codeLength.put("ADV", 4);
 			codeLength.put("BLS", 3);
 			codeLength.put("TOP", 4);
@@ -560,7 +560,7 @@ public class EmReaderUi extends JPanel {
     	this.defAw = defAw;
     	this.agentConc = agentConc;
     	this.refresher = refresher;
-		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<>();
 		if (c != null) {
 			if (c.containsKey("PredictorSettings")) {
 				set = new SettingsHelper();

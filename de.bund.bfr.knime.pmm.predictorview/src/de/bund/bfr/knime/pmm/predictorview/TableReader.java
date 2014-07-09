@@ -72,23 +72,23 @@ public class TableReader {
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
 			Map<String, String> lagParams, boolean defaultBehaviour) {
-		Set<String> idSet = new LinkedHashSet<String>();
+		Set<String> idSet = new LinkedHashSet<>();
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		boolean containsData = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createDataSchema());
 		List<String> miscParams = null;
-		Map<KnimeTuple, List<KnimeTuple>> combined = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+		Map<KnimeTuple, List<KnimeTuple>> combined = new LinkedHashMap<>();
 		List<KnimeTuple> rawTuples = tuples;
 
-		newInitParams = new LinkedHashMap<String, String>();
-		newLagParams = new LinkedHashMap<String, String>();
+		newInitParams = new LinkedHashMap<>();
+		newLagParams = new LinkedHashMap<>();
 
 		if (isTertiaryModel) {
 			combined = new ModelCombiner(tuples, containsData, initParams,
 					lagParams).getTupleCombinations();
 
-			tuples = new ArrayList<KnimeTuple>(combined.keySet());
+			tuples = new ArrayList<>(combined.keySet());
 
 			try {
 				List<KnimeTuple> newTuples = QualityMeasurementComputation
@@ -104,7 +104,7 @@ public class TableReader {
 			}
 
 			if (!defaultBehaviour) {
-				combinedTuples = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+				combinedTuples = new LinkedHashMap<>();
 
 				for (KnimeTuple t1 : combined.keySet()) {
 					combinedTuples.put(t1, new ArrayList<KnimeTuple>());
@@ -149,21 +149,21 @@ public class TableReader {
 			}
 		}
 
-		ids = new ArrayList<String>();
-		tupleMap = new LinkedHashMap<String, KnimeTuple>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
-		shortIds = new LinkedHashMap<String, String>();
-		tempParam = new LinkedHashMap<String, String>();
-		phParam = new LinkedHashMap<String, String>();
-		awParam = new LinkedHashMap<String, String>();
-		formulas = new ArrayList<String>();
-		parameterData = new ArrayList<Map<String, Double>>();
-		variableData = new ArrayList<Map<String, String>>();
+		ids = new ArrayList<>();
+		tupleMap = new LinkedHashMap<>();
+		plotables = new LinkedHashMap<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
+		shortIds = new LinkedHashMap<>();
+		tempParam = new LinkedHashMap<>();
+		phParam = new LinkedHashMap<>();
+		awParam = new LinkedHashMap<>();
+		formulas = new ArrayList<>();
+		parameterData = new ArrayList<>();
+		variableData = new ArrayList<>();
 		doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
 				Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
-		doubleColumnValues = new ArrayList<List<Double>>();
+		doubleColumnValues = new ArrayList<>();
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
@@ -182,7 +182,7 @@ public class TableReader {
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
 					AttributeUtilities.AGENT_DETAILS,
 					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
-			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues = new ArrayList<>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -194,7 +194,7 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = new ArrayList<String>(
+			standardVisibleColumns = new ArrayList<>(
 					Arrays.asList(ChartSelectionPanel.FORMULA,
 							ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
@@ -203,10 +203,10 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getIndeps(tuples);
 			miscParams.remove(AttributeUtilities.TIME);
-			conditions = new ArrayList<String>();
-			conditionMinValues = new ArrayList<List<Double>>();
-			conditionMaxValues = new ArrayList<List<Double>>();
-			conditionUnits = new ArrayList<List<String>>();
+			conditions = new ArrayList<>();
+			conditionMinValues = new ArrayList<>();
+			conditionMaxValues = new ArrayList<>();
+			conditionUnits = new ArrayList<>();
 
 			for (String param : miscParams) {
 				conditions.add(param);
@@ -225,7 +225,7 @@ public class TableReader {
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						MdInfoXml.ATT_COMMENT);
-				stringColumnValues = new ArrayList<List<String>>();
+				stringColumnValues = new ArrayList<>();
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
@@ -237,7 +237,7 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						ChartSelectionPanel.FORMULA,
 						ChartSelectionPanel.PARAMETERS));
 				standardVisibleColumns.addAll(stringColumns);
@@ -245,9 +245,9 @@ public class TableReader {
 				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
-				conditions = new ArrayList<String>();
-				conditionValues = new ArrayList<List<Double>>();
-				conditionUnits = new ArrayList<List<String>>();
+				conditions = new ArrayList<>();
+				conditionValues = new ArrayList<>();
+				conditionUnits = new ArrayList<>();
 
 				for (String param : miscParams) {
 					conditions.add(param);
@@ -259,13 +259,13 @@ public class TableReader {
 				stringColumns = Arrays.asList(IDENTIFIER,
 						ChartConstants.STATUS, Model1Schema.FORMULA,
 						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME);
-				stringColumnValues = new ArrayList<List<String>>();
+				stringColumnValues = new ArrayList<>();
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						ChartSelectionPanel.FORMULA,
 						ChartSelectionPanel.PARAMETERS));
 				standardVisibleColumns.addAll(stringColumns);
@@ -275,7 +275,7 @@ public class TableReader {
 			}
 		}
 
-		Map<String, List<KnimeTuple>> dataTuples = new LinkedHashMap<String, List<KnimeTuple>>();
+		Map<String, List<KnimeTuple>> dataTuples = new LinkedHashMap<>();
 
 		if (isTertiaryModel && containsData) {
 			for (KnimeTuple tuple : tuples) {
@@ -331,16 +331,16 @@ public class TableReader {
 			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
-			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
-			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
-			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
-			Map<String, Double> paramData = new LinkedHashMap<String, Double>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
+			Map<String, List<Double>> variables = new LinkedHashMap<>();
+			Map<String, Double> varMin = new LinkedHashMap<>();
+			Map<String, Double> varMax = new LinkedHashMap<>();
+			Map<String, Double> parameters = new LinkedHashMap<>();
+			Map<String, Double> paramData = new LinkedHashMap<>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
 			String initParam = initParams.get(primId);
 			String lagParam = lagParams.get(primId);
-			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
-			Map<String, String> units = new LinkedHashMap<String, String>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 
 			categories.put(depXml.getName(),
@@ -407,7 +407,7 @@ public class TableReader {
 					if (element.getValue() != null) {
 						plotable.addValueList(
 								element.getName(),
-								new ArrayList<Double>(Arrays.asList(element
+								new ArrayList<>(Arrays.asList(element
 										.getValue())));
 					} else {
 						plotable.addValueList(element.getName(),
@@ -424,7 +424,7 @@ public class TableReader {
 				}
 
 				if (initParam == null && lagParam == null) {
-					Map<String, Double> cov = new LinkedHashMap<String, Double>();
+					Map<String, Double> cov = new LinkedHashMap<>();
 
 					for (PmmXmlElementConvertable el2 : paramXml
 							.getElementSet()) {
@@ -462,7 +462,7 @@ public class TableReader {
 			index++;
 
 			if (isTertiaryModel) {
-				Set<String> secModels = new LinkedHashSet<String>();
+				Set<String> secModels = new LinkedHashSet<>();
 
 				for (KnimeTuple t : combined.get(tuple)) {
 					secModels.add(((CatalogModelXml) t.getPmmXml(
@@ -606,7 +606,7 @@ public class TableReader {
 				}
 			}
 
-			Map<String, String> varData = new LinkedHashMap<String, String>();
+			Map<String, String> varData = new LinkedHashMap<>();
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -744,7 +744,7 @@ public class TableReader {
 
 	private List<KnimeTuple> getAllDataTuples(KnimeTuple current,
 			List<KnimeTuple> all) {
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples = new ArrayList<>();
 		Integer primId = ((CatalogModelXml) current.getPmmXml(
 				Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 		Integer secEstId = ((EstModelXml) current.getPmmXml(

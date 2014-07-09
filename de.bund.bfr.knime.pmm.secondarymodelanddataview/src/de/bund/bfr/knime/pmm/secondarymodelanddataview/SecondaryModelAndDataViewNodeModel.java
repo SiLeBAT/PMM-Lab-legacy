@@ -111,14 +111,14 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		if (set.getSelectedID() != null
 				&& reader.getPlotables().get(set.getSelectedID()) != null) {
 			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
-			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
+			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
 			if (containsData) {
 				Map<String, List<Double>> possibleValues = plotable
 						.getPossibleArgumentValues(true, false);
 
 				for (String param : set.getSelectedValuesX().keySet()) {
-					List<Double> usedValues = new ArrayList<Double>();
+					List<Double> usedValues = new ArrayList<>();
 					List<Double> valuesList = possibleValues.get(param);
 
 					if (!param.equals(set.getCurrentParamX())) {

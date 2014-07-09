@@ -104,10 +104,10 @@ public class SecondaryEstimationThread implements Runnable {
 		try {
 			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable, schema);
 			List<String> miscParams = PmmUtilities.getMiscParams(tuples);
-			Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
-			Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
-			Set<String> ids = new LinkedHashSet<String>();
-			Map<Integer, Integer> globalIds = new LinkedHashMap<Integer, Integer>();
+			Map<String, List<Double>> depVarMap = new LinkedHashMap<>();
+			Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<>();
+			Set<String> ids = new LinkedHashSet<>();
+			Map<Integer, Integer> globalIds = new LinkedHashMap<>();
 
 			for (String param : miscParams) {
 				miscMaps.put(param, new LinkedHashMap<String, List<Double>>());
@@ -185,9 +185,9 @@ public class SecondaryEstimationThread implements Runnable {
 				}
 			}
 
-			Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
-			Map<String, PmmXmlDoc> indepMap = new LinkedHashMap<String, PmmXmlDoc>();
-			Map<String, PmmXmlDoc> estModelMap = new LinkedHashMap<String, PmmXmlDoc>();
+			Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
+			Map<String, PmmXmlDoc> indepMap = new LinkedHashMap<>();
+			Map<String, PmmXmlDoc> estModelMap = new LinkedHashMap<>();
 
 			for (KnimeTuple tuple : tuples) {
 				DepXml depXml = (DepXml) tuple.getPmmXml(
@@ -206,21 +206,21 @@ public class SecondaryEstimationThread implements Runnable {
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					String formula = ((CatalogModelXml) modelXml.get(0))
 							.getFormula();
-					List<String> parameters = new ArrayList<String>();
-					List<Double> minParameterValues = new ArrayList<Double>();
-					List<Double> maxParameterValues = new ArrayList<Double>();
-					List<Double> minGuessValues = new ArrayList<Double>();
-					List<Double> maxGuessValues = new ArrayList<Double>();
+					List<String> parameters = new ArrayList<>();
+					List<Double> minParameterValues = new ArrayList<>();
+					List<Double> maxParameterValues = new ArrayList<>();
+					List<Double> minGuessValues = new ArrayList<>();
+					List<Double> maxGuessValues = new ArrayList<>();
 					List<Double> targetValues = depVarMap.get(id);
 					List<String> arguments = CellIO.getNameList(indepXml);
-					List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+					List<List<Double>> argumentValues = new ArrayList<>();
 					String modelID = ((CatalogModelXml) modelXml.get(0))
 							.getId() + "";
 					Map<String, Point2D.Double> modelGuesses = parameterGuesses
 							.get(ModelEstimationNodeModel.SECONDARY + modelID);
 
 					if (modelGuesses == null) {
-						modelGuesses = new LinkedHashMap<String, Point2D.Double>();
+						modelGuesses = new LinkedHashMap<>();
 					}
 
 					for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -268,7 +268,7 @@ public class SecondaryEstimationThread implements Runnable {
 							parameters.size(), null);
 					List<Double> parameterPValues = Collections.nCopies(
 							parameters.size(), null);
-					List<List<Double>> covariances = new ArrayList<List<Double>>();
+					List<List<Double>> covariances = new ArrayList<>();
 
 					for (int j = 0; j < parameters.size(); j++) {
 						List<Double> nullList = Collections.nCopies(
@@ -314,8 +314,8 @@ public class SecondaryEstimationThread implements Runnable {
 						aic = optimizer.getAIC();
 						bic = optimizer.getBIC();
 						dof = targetValues.size() - parameters.size();
-						minValues = new ArrayList<Double>();
-						maxValues = new ArrayList<Double>();
+						minValues = new ArrayList<>();
+						maxValues = new ArrayList<>();
 
 						for (List<Double> values : argumentValues) {
 							minValues.add(Collections.min(values));

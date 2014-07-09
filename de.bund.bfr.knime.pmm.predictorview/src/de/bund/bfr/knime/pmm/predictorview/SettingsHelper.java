@@ -126,11 +126,11 @@ public class SettingsHelper {
 	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
-		selectedIDs = new ArrayList<String>();
-		paramXValues = new LinkedHashMap<String, Double>();
-		timeValues = new ArrayList<Double>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
+		selectedIDs = new ArrayList<>();
+		paramXValues = new LinkedHashMap<>();
+		timeValues = new ArrayList<>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
 		maxX = DEFAULT_MAXX;
@@ -146,15 +146,15 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<String>();
+		visibleColumns = new ArrayList<>();
 		fittedFilter = null;
-		concentrationParameters = new LinkedHashMap<String, String>();
-		lagParameters = new LinkedHashMap<String, String>();
-		selectedTuples = new ArrayList<KnimeTuple>();
-		selectedOldTuples = new ArrayList<KnimeTuple>();
-		newConcentrationParameters = new LinkedHashMap<String, String>();
-		newLagParameters = new LinkedHashMap<String, String>();
-		columnWidths = new LinkedHashMap<String, Integer>();
+		concentrationParameters = new LinkedHashMap<>();
+		lagParameters = new LinkedHashMap<>();
+		selectedTuples = new ArrayList<>();
+		selectedOldTuples = new ArrayList<>();
+		newConcentrationParameters = new LinkedHashMap<>();
+		newLagParameters = new LinkedHashMap<>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

@@ -113,13 +113,13 @@ public class PredictorViewNodeModel extends NodeModel {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
-		List<String> validIds = new ArrayList<String>();
+		List<String> validIds = new ArrayList<>();
 
 		for (String id : set.getSelectedIDs()) {
 			Plotable plotable = reader.getPlotables().get(id);
 
 			if (plotable != null) {
-				Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
+				Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
 				for (Map.Entry<String, Double> entry : set.getParamXValues()
 						.entrySet()) {
@@ -254,7 +254,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
 		PmmXmlDoc miscXml;
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
-		Set<String> allMiscs = new LinkedHashSet<String>();
+		Set<String> allMiscs = new LinkedHashSet<>();
 
 		if (tuple.getSchema().conforms(SchemaFactory.createDataSchema())) {
 			miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -289,7 +289,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		double[][] points = null;
 
 		try {
-			List<String> warnings = new ArrayList<String>();
+			List<String> warnings = new ArrayList<>();
 
 			points = plotable.getFunctionSamplePoints(AttributeUtilities.TIME,
 					AttributeUtilities.CONCENTRATION, set.getUnitX(),
@@ -384,7 +384,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected static Map<String, List<Double>> convertToUnits(
 			Map<String, List<Double>> arguments, Map<String, String> units)
 			throws ConvertException {
-		Map<String, List<Double>> converted = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> converted = new LinkedHashMap<>();
 
 		for (String arg : arguments.keySet()) {
 			String unit = units.get(arg);

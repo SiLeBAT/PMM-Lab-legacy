@@ -114,12 +114,12 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model1Conform = inSchema.conforms(new Model1Schema());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
-		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
+		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<>();
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
 		String dbuuid = db.getDBUUID();
 
 		int j = 0;
-		List<Integer> alreadySaved = new ArrayList<Integer>();
+		List<Integer> alreadySaved = new ArrayList<>();
 		String warnings = "";
 		while (reader.hasMoreElements()) {
 			exec.setProgress((double) j++ / n);

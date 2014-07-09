@@ -200,11 +200,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
-		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
-		Map<String, Double> minValues = new LinkedHashMap<String, Double>();
-		Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
-		Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
-		Map<String, String> units = new LinkedHashMap<String, String>();
+		Map<String, List<Double>> paramsX = new LinkedHashMap<>();
+		Map<String, Double> minValues = new LinkedHashMap<>();
+		Map<String, Double> maxValues = new LinkedHashMap<>();
+		Map<String, List<String>> categories = new LinkedHashMap<>();
+		Map<String, String> units = new LinkedHashMap<>();
 
 		for (Plotable plotable : reader.getPlotables().values()) {
 			paramsX.putAll(plotable.getFunctionArguments());
@@ -349,9 +349,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			selectedIDs = selectionPanel.getSelectedIDs();
 		}
 
-		List<String> validIds = new ArrayList<String>(selectedIDs);
+		List<String> validIds = new ArrayList<>(selectedIDs);
 
-		warnings = new ArrayList<String>();
+		warnings = new ArrayList<>();
 
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -365,7 +365,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		if (removeInvalid) {
-			List<String> invalidIds = new ArrayList<String>(getInvalidIds(
+			List<String> invalidIds = new ArrayList<>(getInvalidIds(
 					reader.getIds()).keySet());
 
 			validIds.removeAll(invalidIds);
@@ -382,7 +382,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setTransformX(configPanel.getTransformX());
 		chartCreator.setTransformY(configPanel.getTransformY());
 
-		Map<String, double[][]> points = new LinkedHashMap<String, double[][]>();
+		Map<String, double[][]> points = new LinkedHashMap<>();
 
 		for (String id : validIds) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -468,8 +468,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private Map<String, String> getInvalidIds(List<String> selectedIDs)
 			throws ConvertException {
-		Map<String, String> invalid = new LinkedHashMap<String, String>();
-		Set<String> nonVariables = new LinkedHashSet<String>();
+		Map<String, String> invalid = new LinkedHashMap<>();
+		Set<String> nonVariables = new LinkedHashSet<>();
 
 		nonVariables.addAll(set.getConcentrationParameters().values());
 		nonVariables.addAll(set.getLagParameters().values());
@@ -609,12 +609,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		private void readTable(List<KnimeTuple> tuples) {
-			Set<String> idSet = new LinkedHashSet<String>();
+			Set<String> idSet = new LinkedHashSet<>();
 
-			ids = new ArrayList<String>();
-			modelNames = new LinkedHashMap<String, String>();
-			formulas = new LinkedHashMap<String, String>();
-			availableParams = new LinkedHashMap<String, List<String>>();
+			ids = new ArrayList<>();
+			modelNames = new LinkedHashMap<>();
+			formulas = new LinkedHashMap<>();
+			availableParams = new LinkedHashMap<>();
 
 			for (KnimeTuple tuple : tuples) {
 				PmmXmlDoc modelXml = tuple
@@ -625,7 +625,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 					continue;
 				}
 
-				List<String> params = new ArrayList<String>();
+				List<String> params = new ArrayList<>();
 
 				params.add(NO_PARAM);
 				params.addAll(CellIO.getNameList(tuple
@@ -642,8 +642,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		private JPanel createPanel(Map<String, String> concentrationParameters,
 				Map<String, String> lagParameters) {
-			initBoxes = new LinkedHashMap<String, JComboBox<String>>();
-			lagBoxes = new LinkedHashMap<String, JComboBox<String>>();
+			initBoxes = new LinkedHashMap<>();
+			lagBoxes = new LinkedHashMap<>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");
@@ -662,9 +662,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			rightPanel.add(new JLabel("Lag"));
 
 			for (String id : ids) {
-				JComboBox<String> initBox = new JComboBox<String>(
+				JComboBox<String> initBox = new JComboBox<>(
 						availableParams.get(id).toArray(new String[0]));
-				JComboBox<String> lagBox = new JComboBox<String>(
+				JComboBox<String> lagBox = new JComboBox<>(
 						availableParams.get(id).toArray(new String[0]));
 				JLabel label = new JLabel(modelNames.get(id) + ":");
 
@@ -710,7 +710,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		private Map<String, String> getInitMap() {
-			Map<String, String> parameterMap = new LinkedHashMap<String, String>();
+			Map<String, String> parameterMap = new LinkedHashMap<>();
 
 			for (String id : ids) {
 				if (!initBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {
@@ -725,7 +725,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		private Map<String, String> getLagMap() {
-			Map<String, String> parameterMap = new LinkedHashMap<String, String>();
+			Map<String, String> parameterMap = new LinkedHashMap<>();
 
 			for (String id : ids) {
 				if (!lagBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {

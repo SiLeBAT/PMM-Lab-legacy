@@ -179,7 +179,7 @@ public class PlausibilityChecker {
 	}
 	public static Vector<String[]> getPlausibilityRow(MyDBTable table, MyTable myT, int row, String idField) {
 		String tablename = myT.getTablename();
-		Vector<String[]> result = new Vector<String[]>();
+		Vector<String[]> result = new Vector<>();
 		String idConf;
 		if (idField.equalsIgnoreCase("ID")) {
 			idConf = DBKernel.delimitL(tablename) + "." + DBKernel.delimitL("ID") + " AS " + DBKernel.delimitL("ID");
@@ -418,7 +418,7 @@ public class PlausibilityChecker {
 				}
 				//System.out.println("ergebnis: " + ergebnis);
 				if (ergebnis.trim().length() > 0) {
-					result = new Vector<String[]>();
+					result = new Vector<>();
 					result.add(new String[]{ergebnis});
 				}
 			}

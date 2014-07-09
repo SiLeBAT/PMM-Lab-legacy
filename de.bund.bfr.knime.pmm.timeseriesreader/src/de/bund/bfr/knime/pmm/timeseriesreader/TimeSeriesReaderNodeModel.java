@@ -114,7 +114,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 		agentString = "";
 		literatureString = "";
 
-		parameter = new LinkedHashMap<String, Double[]>();
+		parameter = new LinkedHashMap<>();
 	}
 
 	private String getWhere() {
@@ -330,7 +330,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 		String[] mins = c.getStringArray(PARAM_PARAMETERMIN);
 		String[] maxs = c.getStringArray(PARAM_PARAMETERMAX);
 
-		parameter = new LinkedHashMap<String, Double[]>();
+		parameter = new LinkedHashMap<>();
 		for (int i = 0; i < pars.length; i++) {
 			Double[] dbl = new Double[2];
 			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);

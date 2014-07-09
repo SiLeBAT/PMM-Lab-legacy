@@ -68,7 +68,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
 	private static final long serialVersionUID = 1L;
 //static final long serialVersionUID = 8847671986526504938L;
   
-  private Vector<CellEditorListener> listeners = new Vector<CellEditorListener>();
+  private Vector<CellEditorListener> listeners = new Vector<>();
   private Point screenLoc;
   private MyDBTable table = null;
   private String endungen = "";

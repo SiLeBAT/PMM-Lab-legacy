@@ -22,7 +22,7 @@ public class PmmUtilities {
 
 	public static List<KnimeTuple> getTuples(DataTable table, KnimeSchema schema) {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples = new ArrayList<>();
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
@@ -32,7 +32,7 @@ public class PmmUtilities {
 	}
 
 	public static List<String> getIndeps(List<KnimeTuple> tuples) {
-		Set<String> indepSet = new LinkedHashSet<String>();
+		Set<String> indepSet = new LinkedHashSet<>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc indep = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
@@ -44,11 +44,11 @@ public class PmmUtilities {
 			}
 		}
 
-		return new ArrayList<String>(indepSet);
+		return new ArrayList<>(indepSet);
 	}
 
 	public static List<String> getMiscParams(List<KnimeTuple> tuples) {
-		Set<String> paramSet = new LinkedHashSet<String>();
+		Set<String> paramSet = new LinkedHashSet<>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -60,12 +60,12 @@ public class PmmUtilities {
 			}
 		}
 
-		return new ArrayList<String>(paramSet);
+		return new ArrayList<>(paramSet);
 	}
 
 	public static Map<String, List<String>> getMiscCategories(
 			List<KnimeTuple> tuples) {
-		Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+		Map<String, List<String>> map = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -81,8 +81,8 @@ public class PmmUtilities {
 	}
 
 	public static Map<String, String> getMiscUnits(List<KnimeTuple> tuples) {
-		Map<String, Map<String, Integer>> occurences = new LinkedHashMap<String, Map<String, Integer>>();
-		Map<String, String> map = new LinkedHashMap<String, String>();
+		Map<String, Map<String, Integer>> occurences = new LinkedHashMap<>();
+		Map<String, String> map = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);

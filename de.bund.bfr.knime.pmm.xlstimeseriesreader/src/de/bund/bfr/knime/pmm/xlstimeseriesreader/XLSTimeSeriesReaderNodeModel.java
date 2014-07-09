@@ -83,7 +83,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
+		List<KnimeTuple> tuples = new ArrayList<>(xlsReader
 				.getTimeSeriesTuples(new File(set.getFileName()),
 						set.getSheetName(), set.getColumnMappings(),
 						set.getTimeUnit(), set.getConcentrationUnit(),

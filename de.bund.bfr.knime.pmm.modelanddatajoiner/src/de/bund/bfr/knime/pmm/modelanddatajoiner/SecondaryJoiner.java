@@ -121,21 +121,21 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		JPanel panel = new JPanel();
 		JPanel topPanel = new JPanel();
 
-		boxPanels = new LinkedHashMap<String, JPanel>();
-		buttonPanels = new LinkedHashMap<String, JPanel>();
-		comboBoxes = new LinkedHashMap<String, List<Map<String, JComboBox<String>>>>();
-		addButtons = new LinkedHashMap<String, List<JButton>>();
-		removeButtons = new LinkedHashMap<String, List<JButton>>();
+		boxPanels = new LinkedHashMap<>();
+		buttonPanels = new LinkedHashMap<>();
+		comboBoxes = new LinkedHashMap<>();
+		addButtons = new LinkedHashMap<>();
+		removeButtons = new LinkedHashMap<>();
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 		assignmentsMap = XmlConverter.xmlToObject(assignments,
 				new LinkedHashMap<String, List<Map<String, String>>>());
 
 		for (String modelID : models) {
-			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
-			List<Map<String, JComboBox<String>>> modelBoxes = new ArrayList<Map<String, JComboBox<String>>>();
-			List<JButton> modelAddButtons = new ArrayList<JButton>();
-			List<JButton> modelRemoveButtons = new ArrayList<JButton>();
+			List<Map<String, String>> modelAssignments = new ArrayList<>();
+			List<Map<String, JComboBox<String>>> modelBoxes = new ArrayList<>();
+			List<JButton> modelAddButtons = new ArrayList<>();
+			List<JButton> modelRemoveButtons = new ArrayList<>();
 
 			if (assignmentsMap.containsKey(modelID)) {
 				modelAssignments = assignmentsMap.get(modelID);
@@ -149,12 +149,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			rightPanel.setLayout(new GridLayout(0, 1));
 
 			for (Map<String, String> assignment : modelAssignments) {
-				Map<String, JComboBox<String>> boxes = new LinkedHashMap<String, JComboBox<String>>();
+				Map<String, JComboBox<String>> boxes = new LinkedHashMap<>();
 				JPanel assignmentPanel = new JPanel();
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-				JComboBox<String> depBox = new JComboBox<String>(getDepParams()
+				JComboBox<String> depBox = new JComboBox<>(getDepParams()
 						.toArray(new String[0]));
 
 				depBox.setSelectedItem(assignment.get(dependentVariables
@@ -167,7 +167,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				for (String indepVar : independentVariableCategories.get(
 						modelID).keySet()) {
-					JComboBox<String> indepBox = new JComboBox<String>(
+					JComboBox<String> indepBox = new JComboBox<>(
 							getIndepParamsFromCategory(
 									independentVariableCategories.get(modelID)
 											.get(indepVar)).toArray(
@@ -229,14 +229,14 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	@Override
 	public String getAssignments() {
-		Map<String, List<Map<String, String>>> assignmentsMap = new LinkedHashMap<String, List<Map<String, String>>>();
+		Map<String, List<Map<String, String>>> assignmentsMap = new LinkedHashMap<>();
 
 		for (String model : comboBoxes.keySet()) {
-			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
+			List<Map<String, String>> modelAssignments = new ArrayList<>();
 
 			for (Map<String, JComboBox<String>> modelBoxes : comboBoxes
 					.get(model)) {
-				Map<String, String> assignment = new LinkedHashMap<String, String>();
+				Map<String, String> assignment = new LinkedHashMap<>();
 
 				for (String var : modelBoxes.keySet()) {
 					JComboBox<String> box = modelBoxes.get(var);
@@ -263,13 +263,13 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		assignmentsMap = XmlConverter.xmlToObject(assignments,
 				new LinkedHashMap<String, List<Map<String, String>>>());
 
-		Map<Integer, Integer> globalIds = new LinkedHashMap<Integer, Integer>();
+		Map<Integer, Integer> globalIds = new LinkedHashMap<>();
 
 		for (String model : assignmentsMap.keySet()) {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {
 				KnimeRelationReader modelReader = new KnimeRelationReader(
 						SchemaFactory.createM2Schema(), modelTable);
-				Set<Integer> usedEstIDs = new LinkedHashSet<Integer>();
+				Set<Integer> usedEstIDs = new LinkedHashSet<>();
 
 				while (modelReader.hasMoreElements()) {
 					KnimeTuple modelTuple = modelReader.nextElement();
@@ -293,7 +293,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					PmmXmlDoc indepVarsSec = modelTuple
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
-					List<String> oldIndepVars = new ArrayList<String>();
+					List<String> oldIndepVars = new ArrayList<>();
 
 					if (!replace.containsKey(depVarSecName)) {
 						continue;
@@ -343,8 +343,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 					List<KnimeTuple> dataTuples = PmmUtilities.getTuples(
 							dataTable, SchemaFactory.createM1DataSchema());
-					Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<Integer, List<KnimeTuple>>();
-					Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<Integer, Map<String, String>>();
+					Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
+					Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
 
 					for (KnimeTuple dataTuple : dataTuples) {
 						CatalogModelXml modelXml = (CatalogModelXml) dataTuple
@@ -376,7 +376,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
 						PmmXmlDoc miscs = dataTuple
 								.getPmmXml(TimeSeriesSchema.ATT_MISC);
-						Map<String, String> paramsConvertTo = new LinkedHashMap<String, String>();
+						Map<String, String> paramsConvertTo = new LinkedHashMap<>();
 
 						if (!CellIO.getNameList(params).contains(
 								newDepVarSecName)) {
@@ -454,12 +454,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readModelTable() {
-		models = new ArrayList<String>();
-		modelNames = new LinkedHashMap<String, String>();
-		modelFormulas = new LinkedHashMap<String, String>();
-		dependentVariables = new LinkedHashMap<String, String>();
-		independentVariableCategories = new LinkedHashMap<String, Map<String, String>>();
-		independentVariableUnits = new LinkedHashMap<String, Map<String, String>>();
+		models = new ArrayList<>();
+		modelNames = new LinkedHashMap<>();
+		modelFormulas = new LinkedHashMap<>();
+		dependentVariables = new LinkedHashMap<>();
+		independentVariableCategories = new LinkedHashMap<>();
+		independentVariableUnits = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM2Schema(), modelTable);
@@ -482,8 +482,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					((CatalogModelXml) modelXml.get(0)).getFormula());
 			dependentVariables.put(modelID, depXml.getName());
 
-			Map<String, String> indepCategories = new LinkedHashMap<String, String>();
-			Map<String, String> indepUnits = new LinkedHashMap<String, String>();
+			Map<String, String> indepCategories = new LinkedHashMap<>();
+			Map<String, String> indepUnits = new LinkedHashMap<>();
 
 			for (PmmXmlElementConvertable el : row.getPmmXml(
 					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
@@ -499,9 +499,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readDataTable() {
-		dependentParameters = new LinkedHashMap<Integer, List<String>>();
-		primaryModelNames = new LinkedHashMap<Integer, String>();
-		independentParameterCategories = new LinkedHashMap<String, String>();
+		dependentParameters = new LinkedHashMap<>();
+		primaryModelNames = new LinkedHashMap<>();
+		independentParameterCategories = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1DataSchema(), dataTable);
@@ -512,7 +512,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					Model1Schema.ATT_MODELCATALOG).get(0);
 
 			if (!primaryModelNames.containsKey(modelXml.getId())) {
-				List<String> params = new ArrayList<String>();
+				List<String> params = new ArrayList<>();
 
 				for (PmmXmlElementConvertable el : row.getPmmXml(
 						Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -537,7 +537,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private List<String> getDepParams() {
-		List<String> params = new ArrayList<String>();
+		List<String> params = new ArrayList<>();
 
 		for (int modelID : dependentParameters.keySet()) {
 			for (String param : dependentParameters.get(modelID)) {
@@ -549,7 +549,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private List<String> getIndepParamsFromCategory(String category) {
-		List<String> params = new ArrayList<String>();
+		List<String> params = new ArrayList<>();
 
 		for (String param : independentParameterCategories.keySet()) {
 			if (category == null
@@ -573,12 +573,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 			if (modelAddButtons.contains(button)) {
 				int index = modelAddButtons.indexOf(button);
-				Map<String, JComboBox<String>> boxes = new LinkedHashMap<String, JComboBox<String>>();
+				Map<String, JComboBox<String>> boxes = new LinkedHashMap<>();
 				JPanel assignmentPanel = new JPanel();
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-				JComboBox<String> depBox = new JComboBox<String>(getDepParams()
+				JComboBox<String> depBox = new JComboBox<>(getDepParams()
 						.toArray(new String[0]));
 
 				depBox.setSelectedItem(null);
@@ -590,7 +590,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				for (String indepVar : independentVariableCategories.get(model)
 						.keySet()) {
-					JComboBox<String> indepBox = new JComboBox<String>(
+					JComboBox<String> indepBox = new JComboBox<>(
 							getIndepParamsFromCategory(
 									independentVariableCategories.get(model)
 											.get(indepVar)).toArray(
@@ -639,7 +639,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void checkIfInputIsValid() {
-		Map<String, JComboBox<String>> depVarBoxes = new LinkedHashMap<String, JComboBox<String>>();
+		Map<String, JComboBox<String>> depVarBoxes = new LinkedHashMap<>();
 		isValid = true;
 
 		for (String model : comboBoxes.keySet()) {
@@ -670,7 +670,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			String depVar = dependentVariables.get(model);
 
 			for (Map<String, JComboBox<String>> boxes : comboBoxes.get(model)) {
-				Map<String, JComboBox<String>> indepVarBoxes = new LinkedHashMap<String, JComboBox<String>>();
+				Map<String, JComboBox<String>> indepVarBoxes = new LinkedHashMap<>();
 
 				for (String var : boxes.keySet()) {
 					if (var.equals(depVar)) {

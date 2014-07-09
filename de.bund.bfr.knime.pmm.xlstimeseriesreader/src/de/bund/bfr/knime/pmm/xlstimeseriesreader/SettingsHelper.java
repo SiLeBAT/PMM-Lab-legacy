@@ -78,16 +78,16 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		fileName = null;
 		sheetName = null;
-		columnMappings = new LinkedHashMap<String, Object>();
+		columnMappings = new LinkedHashMap<>();
 		timeUnit = null;
 		concentrationUnit = null;
 		agentColumn = null;
-		agentMappings = new LinkedHashMap<String, AgentXml>();
+		agentMappings = new LinkedHashMap<>();
 		matrixColumn = null;
-		matrixMappings = new LinkedHashMap<String, MatrixXml>();
+		matrixMappings = new LinkedHashMap<>();
 		agent = null;
 		matrix = null;
-		literature = new ArrayList<LiteratureItem>();
+		literature = new ArrayList<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

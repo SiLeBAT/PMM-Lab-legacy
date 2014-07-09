@@ -144,9 +144,9 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
-		Map<String, String> units = new LinkedHashMap<String, String>();
-		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<String>> categories = new LinkedHashMap<>();
+		Map<String, String> units = new LinkedHashMap<>();
+		Map<String, List<Double>> paramsX = new LinkedHashMap<>();
 
 		categories.put(AttributeUtilities.TIME,
 				Arrays.asList(Categories.getTime()));

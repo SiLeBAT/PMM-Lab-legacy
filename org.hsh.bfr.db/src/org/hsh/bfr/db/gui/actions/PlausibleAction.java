@@ -110,7 +110,7 @@ public class PlausibleAction extends AbstractAction {
 			        	  	boolean showOnlyDataFromCurrentUser = pd.checkBox1.isSelected();
 			        		//String result = "";
 		        			String selectedTN = myDB.getActualTable().getTablename();
-			        		Vector<String> result = new Vector<String>();
+			        		Vector<String> result = new Vector<>();
 			        		for(String key : myTables.keySet()) {
 			        			MyTable myT = myTables.get(key);
 			        			String tn = myT.getTablename();
@@ -328,7 +328,7 @@ public class PlausibleAction extends AbstractAction {
 				}
 				else {					
 					Integer pID = Integer.parseInt(p[idColumn]);
-					LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
+					LinkedHashSet<Integer> filterIDs = new LinkedHashSet<>();
 					filterIDs.add(pID);
 					LinkedHashSet<String[]> lhs = vals.get(p);
 					for (String[] sa : lhs) {
@@ -365,7 +365,7 @@ public class PlausibleAction extends AbstractAction {
 	}
 	private LinkedHashMap<String[], LinkedHashSet<String[]>> checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores,
 			String otherTable, String otherTableField, String[] otherTableDesires, boolean gentle) throws SQLException {
-		LinkedHashMap<String[], LinkedHashSet<String[]>> ldResult = new LinkedHashMap<String[], LinkedHashSet<String[]>>();
+		LinkedHashMap<String[], LinkedHashSet<String[]>> ldResult = new LinkedHashMap<>();
 		if (maxScores.length != fieldnames.length) {
 			System.err.println("fieldnames and simScores with different size...");
 			return null;
@@ -429,7 +429,7 @@ public class PlausibleAction extends AbstractAction {
                 //sql += " ORDER BY SCORE ASC";
                 ResultSet rs2 = DBKernel.getResultSet(sql, false);
                 if (rs2 != null && rs2.first()) {
-                	LinkedHashSet<String[]> resSetOther = new LinkedHashSet<String[]>(); 
+                	LinkedHashSet<String[]> resSetOther = new LinkedHashSet<>(); 
                 	do {
                 		
                 		String[] resRowOther = new String[fieldnames.length + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
@@ -505,7 +505,7 @@ public class PlausibleAction extends AbstractAction {
 					catch (Exception e) {MyLogger.handleException(e);}
 				}
 			}
-			LinkedHashMap<String, Vector<String[]>> sqlsAll = new LinkedHashMap<String, Vector<String[]>>();
+			LinkedHashMap<String, Vector<String[]>> sqlsAll = new LinkedHashMap<>();
 			sqlsAll.put(null, PlausibilityChecker.getPlausibilityRow(null, myT, 0, "ID"));
 			if (myT.getTablename().equals("Versuchsbedingungen")) {
 				sqlsAll.put("Messwerte", PlausibilityChecker.getPlausibilityRow(null, DBKernel.myDBi.getTable("Messwerte"), 0, "Versuchsbedingungen"));
@@ -574,7 +574,7 @@ public class PlausibleAction extends AbstractAction {
   				i1 = temp;
   			}
   			int[] res = new int[]{i1, i2};
-  			Vector<int []> result = new Vector<int[]>();
+  			Vector<int []> result = new Vector<>();
   			result.add(res);
   	  		return result;  			
   		}

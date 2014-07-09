@@ -109,15 +109,15 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 		panel0.add(new JLabel("Level   "));
 
-		if (fitted) levelBox = new JComboBox<String>(new String[] { LABEL_PRIM, LABEL_TERT });
-		else levelBox = new JComboBox<String>(new String[] { LABEL_PRIM, LABEL_SEC });
+		if (fitted) levelBox = new JComboBox<>(new String[] { LABEL_PRIM, LABEL_TERT });
+		else levelBox = new JComboBox<>(new String[] { LABEL_PRIM, LABEL_SEC });
 		levelBox.addActionListener(this);
 		levelBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(levelBox);
 
 		panel0.add(new JLabel("Model class   "));
 
-		classBox = new JComboBox<String>(new String[] {"All","growth","inactivation","survival"});
+		classBox = new JComboBox<>(new String[] {"All","growth","inactivation","survival"});
 		classBox.addActionListener(this);
 		classBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(classBox);
@@ -148,10 +148,10 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public void clearModelSet() {
-		modelBoxSetPrim = new LinkedHashMap<Integer, JCheckBox>();
-		modelBoxSetSec = new LinkedHashMap<Integer, JCheckBox>();
-		modelTypeSetPrim = new LinkedHashMap<Integer, String>();
-		modelTypeSetSec = new LinkedHashMap<Integer, String>();
+		modelBoxSetPrim = new LinkedHashMap<>();
+		modelBoxSetSec = new LinkedHashMap<>();
+		modelTypeSetPrim = new LinkedHashMap<>();
+		modelTypeSetSec = new LinkedHashMap<>();
 	}
 
 	@Override
@@ -290,7 +290,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public int[] getModelList() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		HashSet<Integer> ret = new HashSet<>();
 
 		for (Integer key : modelBoxSetPrim.keySet()) {
 			if (modelBoxSetPrim.containsKey(key)) {

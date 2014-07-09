@@ -117,9 +117,9 @@ public class SettingsHelper {
 	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
-		selectedIDs = new ArrayList<String>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
+		selectedIDs = new ArrayList<>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
 		selectAllIDs = DEFAULT_SELECTALLIDS;
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
@@ -137,11 +137,11 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<String>();
+		visibleColumns = new ArrayList<>();
 		modelFilter = null;
 		dataFilter = null;
 		fittedFilter = null;
-		columnWidths = new LinkedHashMap<String, Integer>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

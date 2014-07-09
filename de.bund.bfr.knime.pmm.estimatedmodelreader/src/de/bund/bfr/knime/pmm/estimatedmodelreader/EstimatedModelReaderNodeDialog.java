@@ -195,7 +195,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 				String[] mins = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN);
 				String[] maxs = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX);
 
-				LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+				LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<>();
 				for (int i=0;i<pars.length;i++) {
 					DoubleTextField[] dbl = new DoubleTextField[2];
 					dbl[0] = new DoubleTextField(true);

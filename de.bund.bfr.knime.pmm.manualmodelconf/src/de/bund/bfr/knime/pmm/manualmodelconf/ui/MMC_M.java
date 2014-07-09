@@ -118,7 +118,7 @@ public class MMC_M extends JPanel {
 		this.formulaCreator = formulaCreator;
 		this.m_mmcts = m_mmcts;
 		initComponents();
-		m_secondaryModels = new HashMap<ParametricModel, HashMap<String, ParametricModel>>();
+		m_secondaryModels = new HashMap<>();
 		depVarLabel.setText(paramName);
 		if (level == 1) {
 			radioButton1.setSelected(true);
@@ -244,7 +244,7 @@ public class MMC_M extends JPanel {
 	private void insertRefs(PmmXmlDoc modelLit) {
 		for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
 			if (el instanceof LiteratureItem) {
-				Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
+				Vector<LiteratureItem> vli = new Vector<>();
 				LiteratureItem li = (LiteratureItem) el;
 				vli.add(li);
 				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
@@ -274,7 +274,7 @@ public class MMC_M extends JPanel {
 		remove(modelNameBox);
 		modelNameBox = threeBoxes[getSelRadio() - 1];
 		if (modelNameBox == null) {
-			modelNameBox = new JComboBox<ParametricModel>();
+			modelNameBox = new JComboBox<>();
 			modelNameBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -538,7 +538,7 @@ public class MMC_M extends JPanel {
 	private void cloneSecondary(ParametricModel pm, ParametricModel newPM) {
 		HashMap<String, ParametricModel> smOld = m_secondaryModels.get(pm);
 		if (smOld != null && !m_secondaryModels.containsKey(newPM)) {
-			HashMap<String, ParametricModel> smNew = new HashMap<String, ParametricModel>();
+			HashMap<String, ParametricModel> smNew = new HashMap<>();
 			for (String key : smOld.keySet()) {
 				if (smOld.get(key) != null)
 					smNew.put(key, smOld.get(key).clone());
@@ -822,7 +822,7 @@ public class MMC_M extends JPanel {
 		this.tss = tss;
 		this.m_secondaryModels = m_secondaryModels;
 		dontFireList = true;
-		listModel = new DefaultListModel<ParametricModel>();
+		listModel = new DefaultListModel<>();
 		list1.setModel(listModel);
 		for (ParametricModel pm : m1s) {
 			listModel.addElement(pm);
@@ -839,7 +839,7 @@ public class MMC_M extends JPanel {
 			PmmXmlDoc doc = new PmmXmlDoc(xmlString);
 			// fetch model set
 			ParametricModel theModel = null;
-			HashMap<String, ParametricModel> sm = new HashMap<String, ParametricModel>();
+			HashMap<String, ParametricModel> sm = new HashMap<>();
 			for (int i = 0; i < doc.size(); i++) {
 				PmmXmlElementConvertable el = doc.get(i);
 				if (el instanceof ParametricModel) {
@@ -927,7 +927,7 @@ public class MMC_M extends JPanel {
 				(Object) "Literatur", null, 1, 1, null, true, null, this);
 		if (newVal != null && newVal instanceof Integer) {			
 			LiteratureItem li = DBUtilities.getLiteratureItem(newVal);
-			Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
+			Vector<LiteratureItem> vli = new Vector<>();
 			vli.add(li);
 			if (oldLi != null) {
 				int selRow = referencesTable.getSelectedRow();
@@ -1144,18 +1144,18 @@ public class MMC_M extends JPanel {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		depVarLabel = new JLabel();
 		scrollPane3 = new JScrollPane();
-		list1 = new JList<ParametricModel>();
+		list1 = new JList<>();
 		label7 = new JLabel();
 		radioButton1 = new JRadioButton();
 		radioButton2 = new JRadioButton();
 		radioButton3 = new JRadioButton();
 		modelNameLabel = new JLabel();
-		modelNameBox = new JComboBox<ParametricModel>();
+		modelNameBox = new JComboBox<>();
 		button4 = new JButton();
 		label1 = new JLabel();
 		modelnameField = new JTextField();
 		typeLabel = new JLabel();
-		typeBox = new JComboBox<String>();
+		typeBox = new JComboBox<>();
 		label2 = new JLabel();
 		formulaArea = new JTextField();
 		formulaApply = new JButton();
@@ -1184,7 +1184,7 @@ public class MMC_M extends JPanel {
 		button2 = new JButton();
 		label10 = new JLabel();
 		label11 = new JLabel();
-		qScoreBox = new JComboBox<Color>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
+		qScoreBox = new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
 		qScoreBox.setRenderer(new DefaultListCellRenderer() {
 					private static final long serialVersionUID = 1L;
 

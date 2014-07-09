@@ -111,7 +111,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 	      		File xmlFile = new File(filename);
 			    int numSuccess = 0;
 	      		if (xmlFile.exists()) {
-	      			Vector<Integer> importedCarverIDs = new Vector<Integer>();
+	      			Vector<Integer> importedCarverIDs = new Vector<>();
 			    	ParseCarverXML pcxml = new ParseCarverXML(filename);
 			    	//String[] pn = pcxml.getProcessNames();
 			    	//int[] pid = pcxml.getProcessIDs();
@@ -146,7 +146,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 						    int i=0;
 						    Vector<Integer> indexReihenfolge = getReihenfolge(org_dst);
 						    cleanReihenfolgeListe(indexReihenfolge, index_processID, org_dst);
-					    	LinkedHashMap<Integer, Integer> index_ProzessdatenID = new LinkedHashMap<Integer, Integer>();
+					    	LinkedHashMap<Integer, Integer> index_ProzessdatenID = new LinkedHashMap<>();
 					    	//for (Map.Entry<Integer, Integer> entry : index_processID.entrySet()) {
 						    for (int ii=0;ii<indexReihenfolge.size();ii++) {
 								if (progress != null) progress.setValue(i);
@@ -296,7 +296,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 	  }
 		
 		private Vector<Integer> getReihenfolge(Vector<Integer[]> org_dst) {
-			Vector<Integer> indexReihenfolge = new Vector<Integer>();
+			Vector<Integer> indexReihenfolge = new Vector<>();
 			Integer[] int2 = org_dst.get(0);
 			int[] valsA = new int[2];
 			int[] valsE = new int[2];
@@ -321,7 +321,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 			    }
 			    if (j == org_dst.size() && int2[1] != ende) {
 			    	System.err.println("NewEnde: " + int2[1]);
-					Vector<Integer> indexReihenfolgeNewEnde = new Vector<Integer>();
+					Vector<Integer> indexReihenfolgeNewEnde = new Vector<>();
 					indexReihenfolgeNewEnde.add(int2[1]);
 					getReihenfolgePrev(org_dst, indexReihenfolgeNewEnde);
 					for (j=indexReihenfolgeNewEnde.size()-1;j>=0;j--) {
@@ -366,19 +366,19 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 		private int getReihenfolgePrev(Vector<Integer[]> org_dst, Vector<Integer> indexReihenfolge) {
 			int wegPfeile = 0; // Ein Knoten kann mehrere Pfeile haben, die ihn verlassen ..., z.B. Salami_Test_Britta, gleich der erste Knoten "Wareneingang" führt zum einen zu "Speck (Meat, Raw)" zum anderen zu "Schweinefleich , roh (Meat, Raw)"
 			if (indexReihenfolge != null) {
-				Vector<Vector<Integer>> rhflgn = new Vector<Vector<Integer>>();
+				Vector<Vector<Integer>> rhflgn = new Vector<>();
 				int firstIndex = indexReihenfolge.get(0);
 				Integer[] int2;
 			    for (int i=0;i<org_dst.size();i++) {
 			    	int2 = org_dst.get(i);
 			    	if (firstIndex == int2[1]) {
-			    		Vector<Integer> rhflge = new Vector<Integer>();
+			    		Vector<Integer> rhflge = new Vector<>();
 			    		rhflge.add(int2[0]);
 			    		rhflgn.add(rhflge);
 			    		wegPfeile += getReihenfolgePrev(org_dst, rhflge);
 			    	}
 			    }
-		    	LinkedHashMap<Integer, String> alreadyAdded = new LinkedHashMap<Integer, String>();
+		    	LinkedHashMap<Integer, String> alreadyAdded = new LinkedHashMap<>();
 			    for (int i=0;i<rhflgn.size();i++) {
 			    	boolean pfeilAlreadySeen = false;
 			    	Vector<Integer> rhflge = rhflgn.get(i);

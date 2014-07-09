@@ -63,8 +63,8 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 	}
 
 	private JComponent createTableChartComponent(List<TimeSeriesXml> timeSeries) {
-		List<Double> timeList = new ArrayList<Double>();
-		List<Double> logcList = new ArrayList<Double>();
+		List<Double> timeList = new ArrayList<>();
+		List<Double> logcList = new ArrayList<>();
 		String timeUnit = Categories.getTimeCategory().getStandardUnit();
 		String concentrationUnit = Categories.getConcentrationCategories()
 				.get(0).getStandardUnit();

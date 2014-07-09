@@ -63,7 +63,7 @@ public class MyStringFilter implements Filter {
 	
      public int[] filter(TableModel tm) {
     	 int[] result = null;
-    	 Vector<Integer> vv = new Vector<Integer>();
+    	 Vector<Integer> vv = new Vector<>();
     	 try {
     		 if (myTable == null || findString.trim().length() == 0) {
     			 result = getAllFilter(tm, null);

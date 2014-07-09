@@ -47,16 +47,16 @@ public class TableReader {
 	private Map<String, String> longLegend;
 
 	public TableReader(BufferedDataTable table) {
-		allIds = new ArrayList<String>();
+		allIds = new ArrayList<>();
 		allTuples = PmmUtilities.getTuples(table,
 				SchemaFactory.createDataSchema());
-		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
+		ids = new ArrayList<>();
+		plotables = new LinkedHashMap<>();
 		stringColumns = Arrays.asList(AttributeUtilities.DATAID,
 				TimeSeriesSchema.ATT_AGENT, AttributeUtilities.AGENT_DETAILS,
 				TimeSeriesSchema.ATT_MATRIX, AttributeUtilities.MATRIX_DETAILS,
 				MdInfoXml.ATT_COMMENT, TimeSeriesSchema.ATT_LITMD);
-		stringColumnValues = new ArrayList<List<String>>();
+		stringColumnValues = new ArrayList<>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
@@ -64,16 +64,16 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		conditions = new ArrayList<String>();
-		conditionValues = new ArrayList<List<Double>>();
-		conditionUnits = new ArrayList<List<String>>();
-		data = new ArrayList<List<TimeSeriesXml>>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
-		standardVisibleColumns = new ArrayList<String>(stringColumns);
+		conditions = new ArrayList<>();
+		conditionValues = new ArrayList<>();
+		conditionUnits = new ArrayList<>();
+		data = new ArrayList<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
+		standardVisibleColumns = new ArrayList<>(stringColumns);
 		standardVisibleColumns.add(ChartSelectionPanel.DATA);
 
-		Set<String> idSet = new LinkedHashSet<String>();
+		Set<String> idSet = new LinkedHashSet<>();
 		List<String> miscParams = PmmUtilities.getMiscParams(allTuples);
 
 		for (String param : miscParams) {
@@ -97,9 +97,9 @@ public class TableReader {
 
 			PmmXmlDoc timeSeriesXml = tuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			List<Double> timeList = new ArrayList<Double>();
-			List<Double> logcList = new ArrayList<Double>();
-			List<TimeSeriesXml> dataPoints = new ArrayList<TimeSeriesXml>();
+			List<Double> timeList = new ArrayList<>();
+			List<Double> logcList = new ArrayList<>();
+			List<TimeSeriesXml> dataPoints = new ArrayList<>();
 			String timeUnit = Categories.getTimeCategory().getStandardUnit();
 			String concentrationUnit = Categories.getConcentrationCategories()
 					.get(0).getStandardUnit();
@@ -172,8 +172,8 @@ public class TableReader {
 			}
 
 			Plotable plotable = new Plotable(Plotable.DATASET);
-			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
-			Map<String, String> units = new LinkedHashMap<String, String>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 
 			categories.put(AttributeUtilities.TIME,
 					Arrays.asList(Categories.getTime()));

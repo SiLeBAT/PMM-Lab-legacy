@@ -64,8 +64,8 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 	private MyTable myT = null;
 	private int selectedColumn;
 	private boolean isINTmn = false;
-	private LinkedHashMap<Object, String> theValues = new LinkedHashMap<Object, String>();
-	private LinkedHashMap<Object, Long> lastUpdate = new LinkedHashMap<Object, Long>();
+	private LinkedHashMap<Object, String> theValues = new LinkedHashMap<>();
+	private LinkedHashMap<Object, Long> lastUpdate = new LinkedHashMap<>();
 	
 	public MyMNRenderer(MyDBTable myDB, int selectedColumn) {
 		this.myT = myDB.getActualTable();

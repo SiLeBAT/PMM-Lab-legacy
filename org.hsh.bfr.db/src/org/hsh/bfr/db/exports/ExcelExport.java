@@ -65,7 +65,7 @@ public class ExcelExport extends FileFilter {
   This is the one of the methods that is declared in 
   the abstract class
  */
-	private Hashtable<String, Integer> kzS = new Hashtable<String, Integer>();
+	private Hashtable<String, Integer> kzS = new Hashtable<>();
 	private int colLfd = 0;
 	private HSSFCellStyle cs = null;
 	

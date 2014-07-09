@@ -106,7 +106,7 @@ public class MdReaderUi extends JPanel {
 	private void handleParams() {
 		DoubleTextField[] dtf;
 		if (params == null || params.size() == 0) {
-			params = new LinkedHashMap<String, DoubleTextField[]>();
+			params = new LinkedHashMap<>();
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put(AttributeUtilities.ATT_TEMPERATURE, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
@@ -158,7 +158,7 @@ public class MdReaderUi extends JPanel {
 				c = textField;
 			}
 			else {
-				final JComboBox<String> comboBox = new JComboBox<String>();
+				final JComboBox<String> comboBox = new JComboBox<>();
 				ListCellRenderer<?> renderer = comboBox.getRenderer();
 				if(renderer instanceof BasicComboBoxRenderer) {
 					((BasicComboBoxRenderer) renderer).setHorizontalAlignment(SwingConstants.RIGHT);
@@ -180,7 +180,7 @@ public class MdReaderUi extends JPanel {
 			        		comboBox.setSelectedItem(deselectedItem);
 			        	}
 			        	else if (params.containsKey(deselectedItem)) {
-			        		LinkedHashMap<String, DoubleTextField[]> newParams = new LinkedHashMap<String, DoubleTextField[]>();
+			        		LinkedHashMap<String, DoubleTextField[]> newParams = new LinkedHashMap<>();
 			        		for (String key : params.keySet()) {
 			        			if (key.equals(deselectedItem)) newParams.put(itemEvent.getItem().toString(), params.get(deselectedItem));
 			        			else newParams.put(key, params.get(key));

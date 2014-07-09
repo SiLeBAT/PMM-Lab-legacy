@@ -109,11 +109,11 @@ public class PrimaryJoiner implements Joiner {
 
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-		variableBoxes = new LinkedHashMap<Integer, Map<String, JComboBox<String>>>();
+		variableBoxes = new LinkedHashMap<>();
 
 		for (Integer id : modelNames.keySet()) {
 			JPanel modelPanel = new JPanel();
-			Map<String, JComboBox<String>> boxes = new LinkedHashMap<String, JComboBox<String>>();
+			Map<String, JComboBox<String>> boxes = new LinkedHashMap<>();
 
 			modelPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			modelPanel.setBorder(BorderFactory.createTitledBorder(modelNames
@@ -122,7 +122,7 @@ public class PrimaryJoiner implements Joiner {
 			for (String var : variableCategories.get(id).keySet()) {
 				String category = variableCategories.get(id).get(var);
 				List<String> params = getParamsFromCategory(category); 
-				JComboBox<String> box = new JComboBox<String>(
+				JComboBox<String> box = new JComboBox<>(
 						params.toArray(new String[0]));
 
 				if (assignmentsMap.containsKey(id)) {
@@ -153,7 +153,7 @@ public class PrimaryJoiner implements Joiner {
 
 	@Override
 	public String getAssignments() {
-		Map<Integer, Map<String, String>> assignmentsMap = new LinkedHashMap<Integer, Map<String, String>>();
+		Map<Integer, Map<String, String>> assignmentsMap = new LinkedHashMap<>();
 
 		for (int id : variableBoxes.keySet()) {
 			assignmentsMap.put(id, new LinkedHashMap<String, String>());
@@ -194,7 +194,7 @@ public class PrimaryJoiner implements Joiner {
 					.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc newIndepVar = new PmmXmlDoc();
 			Map<String, String> assign = assignmentsMap.get(id);
-			List<String> oldVars = new ArrayList<String>();
+			List<String> oldVars = new ArrayList<>();
 
 			if (!assign.containsKey(depVarName)) {
 				continue;
@@ -243,7 +243,7 @@ public class PrimaryJoiner implements Joiner {
 				PmmXmlDoc timeSeries = dataTuple
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				PmmXmlDoc misc = dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				Map<String, String> paramsConvertTo = new LinkedHashMap<String, String>();
+				Map<String, String> paramsConvertTo = new LinkedHashMap<>();
 
 				for (String var : oldVars) {
 					paramsConvertTo.put(assign.get(var), variableUnits.get(id)
@@ -320,12 +320,12 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	private void readModelTable() {
-		Set<Integer> ids = new LinkedHashSet<Integer>();
-		Set<Integer> estIDs = new LinkedHashSet<Integer>();
+		Set<Integer> ids = new LinkedHashSet<>();
+		Set<Integer> estIDs = new LinkedHashSet<>();
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1Schema(), modelTable);
 
-		modelTuples = new ArrayList<KnimeTuple>();
+		modelTuples = new ArrayList<>();
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
@@ -345,9 +345,9 @@ public class PrimaryJoiner implements Joiner {
 			}
 		}
 
-		modelNames = new LinkedHashMap<Integer, String>();
-		variableCategories = new LinkedHashMap<Integer, Map<String, String>>();
-		variableUnits = new LinkedHashMap<Integer, Map<String, String>>();
+		modelNames = new LinkedHashMap<>();
+		variableCategories = new LinkedHashMap<>();
+		variableUnits = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : modelTuples) {
 			CatalogModelXml modelXml = ((CatalogModelXml) tuple.getPmmXml(
@@ -360,8 +360,8 @@ public class PrimaryJoiner implements Joiner {
 
 			modelNames.put(id, modelXml.getName());
 
-			Map<String, String> categories = new LinkedHashMap<String, String>();
-			Map<String, String> units = new LinkedHashMap<String, String>();
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 
 			DepXml dep = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
 					.get(0);
@@ -383,7 +383,7 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	private void readDataTable() {
-		parameterCategories = new LinkedHashMap<String, String>();
+		parameterCategories = new LinkedHashMap<>();
 		parameterCategories.put(AttributeUtilities.TIME, Categories.getTime());
 		parameterCategories.put(AttributeUtilities.CONCENTRATION,
 				Categories.NO_CATEGORY);
@@ -405,7 +405,7 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	private List<String> getParamsFromCategory(String category) {
-		List<String> params = new ArrayList<String>();
+		List<String> params = new ArrayList<>();
 
 		for (String param : parameterCategories.keySet()) {
 			String paramCat = parameterCategories.get(param);

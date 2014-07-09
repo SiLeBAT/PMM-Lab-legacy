@@ -138,18 +138,18 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
 		Integer rowEstM2ID = null;
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
+		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<>();
 		String dbuuid = db.getDBUUID();
 
-		HashMap<Integer, List<Integer>> secModels = new HashMap<Integer, List<Integer>>();
-		HashMap<Integer, HashSet<Integer>> globalModels = new HashMap<Integer, HashSet<Integer>>();
+		HashMap<Integer, List<Integer>> secModels = new HashMap<>();
+		HashMap<Integer, HashSet<Integer>> globalModels = new HashMap<>();
 		ParametricModel ppm = null, spm;
 
 		int j = 0;
-		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<Integer, ParametricModel>();
-		HashMap<Integer, ParametricModel> alreadyInsertedEModel = new HashMap<Integer, ParametricModel>();
-		HashMap<Integer, Integer> alreadyInsertedGModel = new HashMap<Integer, Integer>();
-		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<Integer, PmmTimeSeries>();
+		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<>();
+		HashMap<Integer, ParametricModel> alreadyInsertedEModel = new HashMap<>();
+		HashMap<Integer, Integer> alreadyInsertedGModel = new HashMap<>();
+		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<>();
 		boolean M1Writable = false, M2Writable = false;
 		String warnings = "";
 		Integer wfID = saveWF(exec);
@@ -568,7 +568,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 	}
 
 	private List<String> populateFilesList(List<String> filesListInDir, File dir) throws IOException {
-		if (filesListInDir == null) filesListInDir = new ArrayList<String>();
+		if (filesListInDir == null) filesListInDir = new ArrayList<>();
 		File[] files = dir.listFiles();
 		for (File file : files) {
 			if (file.isFile()) {

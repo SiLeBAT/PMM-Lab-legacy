@@ -191,7 +191,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 				reader.getConditions(), reader.getConditionValues(), null,
 				null, reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), reader.getData(),
-				reader.getParameterData(), reader.getFormulas());
+				reader.getParameterData(), null, reader.getFormulas());
 		selectionPanel.setColors(set.getColors());
 		selectionPanel.setShapes(set.getShapes());
 		selectionPanel.setColumnWidths(set.getColumnWidths());

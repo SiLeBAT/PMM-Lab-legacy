@@ -49,6 +49,7 @@ public class TableReader {
 	private List<List<Double>> doubleColumnValues;
 	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
+	private List<Map<String, String>> variableData;
 	private List<String> conditions;
 	private List<List<Double>> conditionValues;
 	private List<List<Double>> conditionMinValues;
@@ -159,6 +160,7 @@ public class TableReader {
 		awParam = new LinkedHashMap<String, String>();
 		formulas = new ArrayList<String>();
 		parameterData = new ArrayList<Map<String, Double>>();
+		variableData = new ArrayList<Map<String, String>>();
 		doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
 				Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
 		doubleColumnValues = new ArrayList<List<Double>>();
@@ -604,6 +606,24 @@ public class TableReader {
 				}
 			}
 
+			Map<String, String> varData = new LinkedHashMap<String, String>();
+
+			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+				IndepXml element = (IndepXml) el;
+
+				if (element.getMin() != null) {
+					varData.put(element.getName() + " Min", element.getMin()
+							+ " " + units.get(element.getName()));
+				}
+
+				if (element.getMax() != null) {
+					varData.put(element.getName() + " Max", element.getMax()
+							+ " " + units.get(element.getName()));
+				}
+			}
+
+			variableData.add(varData);
+
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(1).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
@@ -656,6 +676,10 @@ public class TableReader {
 
 	public List<Map<String, Double>> getParameterData() {
 		return parameterData;
+	}
+
+	public List<Map<String, String>> getVariableData() {
+		return variableData;
 	}
 
 	public List<String> getConditions() {

@@ -164,7 +164,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				null, null, reader.getConditions(), null,
 				reader.getConditionMinValues(), reader.getConditionMaxValues(),
 				reader.getConditionUnits(), set.getVisibleColumns(),
-				reader.getFilterableStringColumns(), null, null, null,
+				reader.getFilterableStringColumns(), null, null, null, null,
 				reader.getColorCounts());
 		selectionPanel.setColorLists(set.getColorLists());
 		selectionPanel.setShapeLists(set.getShapeLists());
@@ -416,7 +416,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setMinY(chartCreator.getMinY());
 		configPanel.setMaxY(chartCreator.getMaxY());
 		configPanel.addConfigListener(this);
-		createChart();		
+		createChart();
 	}
 
 }

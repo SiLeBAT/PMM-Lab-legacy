@@ -313,7 +313,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				reader.getConditionMinValues(), reader.getConditionMaxValues(),
 				reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), null,
-				reader.getParameterData(), reader.getFormulas());
+				reader.getParameterData(), reader.getVariableData(),
+				reader.getFormulas());
 		selectionPanel.setColors(set.getColors());
 		selectionPanel.setShapes(set.getShapes());
 		selectionPanel.setColumnWidths(set.getColumnWidths());
@@ -523,7 +524,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void timeValuesChanged() {
-		createChart();		
+		createChart();
 	}
 
 	@Override

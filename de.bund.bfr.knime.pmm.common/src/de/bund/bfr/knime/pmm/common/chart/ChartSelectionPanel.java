@@ -67,6 +67,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
@@ -99,6 +100,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	public static final String SHAPE = "Shape";
 	public static final String DATA = "Data Points";
 	public static final String PARAMETERS = "Parameters";
+	public static final String VARIABLES = "Variables";
 	public static final String FORMULA = "Math Formula";
 
 	private static final long serialVersionUID = 1L;
@@ -118,6 +120,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private List<List<TimeSeriesXml>> data;
 	private List<String> formulas;
 	private List<Map<String, Double>> parameters;
+	private List<Map<String, String>> variables;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> qualityColumns;
@@ -154,12 +157,13 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			List<List<Double>> conditionMaxValues,
 			List<List<String>> conditionUnits, List<String> visibleColumns,
 			List<String> filterableColumns, List<List<TimeSeriesXml>> data,
-			List<Map<String, Double>> parameters, List<String> formulas) {
+			List<Map<String, Double>> parameters,
+			List<Map<String, String>> variables, List<String> formulas) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
 				qualityColumns, qualityColumnValues, conditions,
 				conditionValues, conditionMinValues, conditionMaxValues,
 				conditionUnits, visibleColumns, filterableColumns, data,
-				parameters, formulas, null);
+				parameters, variables, formulas, null);
 	}
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
@@ -172,7 +176,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			List<List<String>> conditionUnits, List<String> visibleColumns,
 			List<String> filterableStringColumns,
 			List<List<TimeSeriesXml>> data,
-			List<Map<String, Double>> parameters, List<String> formulas,
+			List<Map<String, Double>> parameters,
+			List<Map<String, String>> variables, List<String> formulas,
 			List<Integer> colorCounts) {
 		if (stringColumns == null) {
 			stringColumns = new ArrayList<String>();
@@ -191,6 +196,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		this.data = data;
 		this.formulas = formulas;
 		this.parameters = parameters;
+		this.variables = variables;
 		this.stringColumns = stringColumns;
 		this.stringColumnValues = stringColumnValues;
 		this.qualityColumns = qualityColumns;
@@ -241,6 +247,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		if (parameters != null) {
 			miscellaneousColumns.add(PARAMETERS);
+		}
+
+		if (variables != null) {
+			miscellaneousColumns.add(VARIABLES);
 		}
 
 		miscellaneousColumns.addAll(stringColumns);
@@ -393,6 +403,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		selectTable.getColumn(FORMULA).setCellRenderer(new ViewRenderer());
 		selectTable.getColumn(PARAMETERS).setCellEditor(new ParameterEditor());
 		selectTable.getColumn(PARAMETERS).setCellRenderer(new ViewRenderer());
+		selectTable.getColumn(VARIABLES).setCellEditor(new VariableEditor());
+		selectTable.getColumn(VARIABLES).setCellRenderer(new ViewRenderer());
 		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		applyColumnSelection(visibleColumns);
 
@@ -583,7 +595,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		List<String> visibleColumns = new ArrayList<String>();
 		List<String> columns = new ArrayList<String>();
 
-		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS));
+		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS,
+				VARIABLES));
 		columns.addAll(stringColumns);
 		columns.addAll(qualityColumns);
 
@@ -737,7 +750,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private void applyColumnSelection(List<String> visibleColumns) {
 		List<String> columns = new ArrayList<String>();
 
-		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS));
+		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS,
+				VARIABLES));
 		columns.addAll(stringColumns);
 		columns.addAll(qualityColumns);
 
@@ -879,7 +893,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				conditionCount -= conditions.size();
 			}
 
-			return 7 + stringColumns.size() + qualityColumns.size()
+			return 8 + stringColumns.size() + qualityColumns.size()
 					+ conditionCount;
 		}
 
@@ -900,8 +914,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				return FORMULA;
 			case 6:
 				return PARAMETERS;
+			case 7:
+				return VARIABLES;
 			default:
-				int i1 = column - 7;
+				int i1 = column - 8;
 				int i2 = i1 - stringColumns.size();
 				int i3 = i2 - qualityColumns.size();
 
@@ -972,8 +988,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				return formulas != null ? formulas.get(row) : null;
 			case 6:
 				return parameters != null ? parameters.get(row) : null;
+			case 7:
+				return variables != null ? variables.get(row) : null;
 			default:
-				int i1 = column - 7;
+				int i1 = column - 8;
 				int i2 = i1 - stringColumns.size();
 				int i3 = i2 - qualityColumns.size();
 
@@ -1036,8 +1054,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				return String.class;
 			case 6:
 				return Map.class;
+			case 7:
+				return Map.class;
 			default:
-				int i1 = column - 7;
+				int i1 = column - 8;
 				int i2 = i1 - stringColumns.size();
 				int i3 = i2 - qualityColumns.size();
 
@@ -1104,7 +1124,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		@Override
 		public boolean isCellEditable(int row, int column) {
 			return column == 1 || column == 2 || column == 3 || column == 4
-					|| column == 5 || column == 6;
+					|| column == 5 || column == 6 || column == 7;
 		}
 	}
 
@@ -1440,6 +1460,42 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			ParameterDialog dialog = new ParameterDialog(parameters);
+
+			dialog.setVisible(true);
+		}
+	}
+
+	private class VariableEditor extends AbstractCellEditor implements
+			TableCellEditor, ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton button;
+		private Map<String, String> variables;
+
+		public VariableEditor() {
+			button = new JButton("View");
+			button.addActionListener(this);
+			variables = new LinkedHashMap<String, String>();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			variables = (Map<String, String>) value;
+
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return variables;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			VariableDialog dialog = new VariableDialog(variables);
 
 			dialog.setVisible(true);
 		}
@@ -1832,6 +1888,69 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				Double value = parameters.get(param);
 
 				field.setValue(value);
+				field.setEditable(false);
+
+				leftPanel.add(new JLabel(param + ":"));
+				rightPanel.add(field);
+			}
+
+			JPanel panel = new JPanel();
+
+			panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.setLayout(new BorderLayout(5, 5));
+			panel.add(leftPanel, BorderLayout.WEST);
+			panel.add(rightPanel, BorderLayout.CENTER);
+
+			JPanel mainPanel = new JPanel();
+
+			mainPanel.setLayout(new BorderLayout());
+			mainPanel.add(panel, BorderLayout.NORTH);
+
+			JPanel bottomPanel = new JPanel();
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			bottomPanel.add(okButton);
+
+			setLayout(new BorderLayout());
+			add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setLocationRelativeTo(ChartSelectionPanel.this);
+			UI.adjustDialog(this);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dispose();
+		}
+	}
+
+	private class VariableDialog extends JDialog implements ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton okButton;
+
+		public VariableDialog(Map<String, String> variables) {
+			super(SwingUtilities.getWindowAncestor(ChartSelectionPanel.this),
+					"Variables", DEFAULT_MODALITY_TYPE);
+
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+
+			JPanel leftPanel = new JPanel();
+			JPanel rightPanel = new JPanel();
+
+			leftPanel.setLayout(new GridLayout(variables.size(), 1, 5, 5));
+			rightPanel.setLayout(new GridLayout(variables.size(), 1, 5, 5));
+
+			for (String param : variables.keySet()) {
+				StringTextField field = new StringTextField(true);
+				String value = variables.get(param);
+
+				field.setValue(" " + value);
+				field.setHorizontalAlignment(JTextField.RIGHT);
 				field.setEditable(false);
 
 				leftPanel.add(new JLabel(param + ":"));

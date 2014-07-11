@@ -2,9 +2,7 @@ package de.bund.bfr.knime.pmm.secondarypredictorview;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +30,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 /**
  * This is the model implementation of SecondaryPredictorView.
  * 
- *
+ * 
  * @author Christian Thoens
  */
 public class SecondaryPredictorViewNodeModel extends NodeModel {
-    
+
 	private SettingsHelper set;
 
 	/**
@@ -56,20 +54,11 @@ public class SecondaryPredictorViewNodeModel extends NodeModel {
 			throws Exception {
 		DataTable table = (DataTable) inObjects[0];
 		TableReader reader;
-		boolean containsData;
 
 		if (SchemaFactory.createDataSchema().conforms(table)) {
 			reader = new TableReader(table, true);
-
-			if (Collections.max(reader.getColorCounts()) == 0) {
-				reader = new TableReader(table, false);
-				containsData = false;
-			} else {
-				containsData = true;
-			}
 		} else {
 			reader = new TableReader(table, false);
-			containsData = false;
 		}
 
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
@@ -80,33 +69,9 @@ public class SecondaryPredictorViewNodeModel extends NodeModel {
 			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
-			if (containsData) {
-				Map<String, List<Double>> possibleValues = plotable
-						.getPossibleArgumentValues(true, false);
-
-				for (String param : set.getSelectedValuesX().keySet()) {
-					List<Double> usedValues = new ArrayList<>();
-					List<Double> valuesList = possibleValues.get(param);
-
-					if (!param.equals(set.getCurrentParamX())) {
-						for (int i = 0; i < set.getSelectedValuesX().get(param)
-								.size(); i++) {
-							if (set.getSelectedValuesX().get(param).get(i)) {
-								usedValues.add(valuesList.get(i));
-							}
-						}
-					} else {
-						usedValues.add(0.0);
-					}
-
-					arguments.put(param, usedValues);
-				}
-			} else {
-				for (Map.Entry<String, Double> entry : set.getParamXValues()
-						.entrySet()) {
-					arguments.put(entry.getKey(),
-							Arrays.asList(entry.getValue()));
-				}
+			for (Map.Entry<String, Double> entry : set.getParamXValues()
+					.entrySet()) {
+				arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
 			}
 
 			plotable.setFunctionArguments(arguments);
@@ -125,14 +90,8 @@ public class SecondaryPredictorViewNodeModel extends NodeModel {
 			creator.setUnitY(set.getUnitY());
 			creator.setTransformX(set.getTransformX());
 			creator.setTransformY(set.getTransformY());
-
-			if (containsData) {
-				creator.setColorLists(set.getColorLists());
-				creator.setShapeLists(set.getShapeLists());
-			} else {
-				creator.setColors(set.getColors());
-				creator.setShapes(set.getShapes());
-			}
+			creator.setColors(set.getColors());
+			creator.setShapes(set.getShapes());
 		}
 
 		return new PortObject[] { ChartUtilities.getImage(
@@ -205,4 +164,3 @@ public class SecondaryPredictorViewNodeModel extends NodeModel {
 	}
 
 }
-

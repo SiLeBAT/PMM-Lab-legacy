@@ -72,7 +72,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TableReader {
 
 	private List<String> ids;
-	private List<Integer> colorCounts;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
@@ -146,7 +145,6 @@ public class TableReader {
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			miscCategories = PmmUtilities.getMiscCategories(tuples);
 
-			colorCounts = new ArrayList<>();
 			conditions = new ArrayList<>();
 			conditionMinValues = new ArrayList<>();
 			conditionMaxValues = new ArrayList<>();
@@ -331,7 +329,7 @@ public class TableReader {
 		}
 
 		for (String id : ids) {
-			Plotable plotable = null;
+			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 			Map<String, Double> minArg = new LinkedHashMap<>();
 			Map<String, Double> maxArg = new LinkedHashMap<>();
@@ -341,12 +339,6 @@ public class TableReader {
 			Map<String, String> units = new LinkedHashMap<>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
-
-			if (schemaContainsData) {
-				plotable = new Plotable(Plotable.BOTH_STRICT);
-			} else {
-				plotable = new Plotable(Plotable.FUNCTION);
-			}
 
 			for (PmmXmlElementConvertable el : indepVarMap.get(id)
 					.getElementSet()) {
@@ -450,8 +442,6 @@ public class TableReader {
 					conditionMaxValues.get(i).add(max);
 					conditionUnits.get(i).add(unit);
 				}
-
-				colorCounts.add(plotable.getNumberOfCombinations());
 			} else {
 				if (!hasArguments) {
 					plotable.getFunctionArguments().put("No argument",
@@ -478,10 +468,6 @@ public class TableReader {
 
 	public List<String> getIds() {
 		return ids;
-	}
-
-	public List<Integer> getColorCounts() {
-		return colorCounts;
 	}
 
 	public Map<String, Plotable> getPlotables() {

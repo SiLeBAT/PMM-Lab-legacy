@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Shape;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -45,7 +44,6 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 
 	private TableReader reader;
 	private SettingsHelper set;
-	private boolean containsData;
 
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
@@ -71,16 +69,8 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 
 		if (SchemaFactory.createDataSchema().conforms(table)) {
 			reader = new TableReader(table, true);
-
-			if (Collections.max(reader.getColorCounts()) == 0) {
-				reader = new TableReader(table, false);
-				containsData = false;
-			} else {
-				containsData = true;
-			}
 		} else {
 			reader = new TableReader(table, false);
-			containsData = false;
 		}
 
 		((JPanel) getTab("Options")).removeAll();
@@ -99,18 +89,10 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			set.setSelectedID(null);
 		}
 
-		if (containsData) {
-			set.setColors(new LinkedHashMap<String, Color>());
-			set.setShapes(new LinkedHashMap<String, Shape>());
-			set.setColorLists(selectionPanel.getColorLists());
-			set.setShapeLists(selectionPanel.getShapeLists());
-		} else {
-			set.setColors(selectionPanel.getColors());
-			set.setShapes(selectionPanel.getShapes());
-			set.setColorLists(new LinkedHashMap<String, List<Color>>());
-			set.setShapeLists(new LinkedHashMap<String, List<Shape>>());
-		}
-
+		set.setColors(selectionPanel.getColors());
+		set.setShapes(selectionPanel.getShapes());
+		set.setColorLists(new LinkedHashMap<String, List<Color>>());
+		set.setShapeLists(new LinkedHashMap<String, List<Shape>>());
 		set.setCurrentParamX(configPanel.getParamX());
 		set.setParamXValues(configPanel.getParamXValues());
 		set.setSelectedValuesX(configPanel.getSelectedValuesX());
@@ -141,60 +123,32 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
-		if (containsData) {
-			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_BOXES, true, null, false, true);
-			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
-					reader.getStringColumns(), reader.getStringColumnValues(),
-					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-					reader.getConditions(), null,
-					reader.getConditionMinValues(),
-					reader.getConditionMaxValues(), reader.getConditionUnits(),
-					set.getVisibleColumns(),
-					reader.getFilterableStringColumns(), null,
-					reader.getParameterData(), null, reader.getFormulas(),
-					reader.getColorCounts());
-		} else {
-			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, true, null, false, true);
-			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
-					reader.getStringColumns(), reader.getStringColumnValues(),
-					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-					reader.getConditions(), null,
-					reader.getConditionMinValues(),
-					reader.getConditionMaxValues(), reader.getConditionUnits(),
-					set.getVisibleColumns(),
-					reader.getFilterableStringColumns(), null,
-					reader.getParameterData(), null, reader.getFormulas());
-		}
+		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
+				true, null, false, true);
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
+				reader.getStringColumns(), reader.getStringColumnValues(),
+				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+				reader.getConditions(), null, reader.getConditionMinValues(),
+				reader.getConditionMaxValues(), reader.getConditionUnits(),
+				set.getVisibleColumns(), reader.getFilterableStringColumns(),
+				null, reader.getParameterData(), null, reader.getFormulas());
 
 		if (set.getSelectedID() != null
 				&& reader.getPlotables().get(set.getSelectedID()) != null) {
 			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 
-			configPanel.setParameters(plotable.getFunctionValue(), plotable
-					.getPossibleArgumentValues(containsData, !containsData),
+			configPanel.setParameters(plotable.getFunctionValue(),
+					plotable.getPossibleArgumentValues(false, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					plotable.getCategories(), plotable.getUnits(), null);
 			configPanel.setParamX(set.getCurrentParamX());
 			configPanel.setUnitX(set.getUnitX());
 			configPanel.setUnitY(set.getUnitY());
-
-			if (containsData) {
-				configPanel.setSelectedValuesX(set.getSelectedValuesX());
-			} else {
-				configPanel.setParamXValues(set.getParamXValues());
-			}
+			configPanel.setParamXValues(set.getParamXValues());
 		}
 
-		if (containsData) {
-			selectionPanel.setColorLists(set.getColorLists());
-			selectionPanel.setShapeLists(set.getShapeLists());
-		} else {
-			selectionPanel.setColors(set.getColors());
-			selectionPanel.setShapes(set.getShapes());
-		}
-
+		selectionPanel.setColors(set.getColors());
+		selectionPanel.setShapes(set.getShapes());
 		configPanel.setUseManualRange(set.isManualRange());
 		configPanel.setMinX(set.getMinX());
 		configPanel.setMaxX(set.getMaxX());
@@ -238,8 +192,8 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
 
-			configPanel.setParameters(plotable.getFunctionValue(), plotable
-					.getPossibleArgumentValues(containsData, !containsData),
+			configPanel.setParameters(plotable.getFunctionValue(),
+					plotable.getPossibleArgumentValues(false, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					plotable.getCategories(), plotable.getUnits(), null);
 			chartCreator.setParamX(configPanel.getParamX());
@@ -258,14 +212,8 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setTransformY(null);
 		}
 
-		if (containsData) {
-			chartCreator.setColorLists(selectionPanel.getColorLists());
-			chartCreator.setShapeLists(selectionPanel.getShapeLists());
-		} else {
-			chartCreator.setColors(selectionPanel.getColors());
-			chartCreator.setShapes(selectionPanel.getShapes());
-		}
-
+		chartCreator.setColors(selectionPanel.getColors());
+		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

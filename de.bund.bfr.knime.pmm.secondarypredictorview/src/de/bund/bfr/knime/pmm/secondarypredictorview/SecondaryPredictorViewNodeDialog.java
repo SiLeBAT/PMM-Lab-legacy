@@ -6,6 +6,7 @@ import java.awt.Shape;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -23,9 +24,11 @@ import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartSamplePanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * <code>NodeDialog</code> for the "SecondaryPredictorView" Node.
@@ -40,7 +43,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  */
 public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
+		ChartConfigPanel.ConfigListener, ChartSamplePanel.EditListener,
+		ChartCreator.ZoomListener {
 
 	private TableReader reader;
 	private SettingsHelper set;
@@ -48,6 +52,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
+	private ChartSamplePanel samplePanel;
 
 	/**
 	 * New pane for configuring the SecondaryModelAndDataView node.
@@ -170,12 +175,15 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 		chartCreator.addZoomListener(this);
+		samplePanel = new ChartSamplePanel();
+		samplePanel.addEditListener(this);
 
 		if (!set.isDisplayHighlighted()) {
 			createChart();
 		}
 
-		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
+		return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
+				samplePanel);
 	}
 
 	private void createChart() {
@@ -203,6 +211,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setTransformX(configPanel.getTransformX());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
+			plotable.setSamples(samplePanel.getTimeValues());
 		} else {
 			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);
@@ -211,6 +220,32 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setUnitY(null);
 			chartCreator.setTransformY(null);
 		}
+
+		Map<String, double[][]> points = new LinkedHashMap<>();
+
+		if (selectedID != null) {
+			Plotable plotable = chartCreator.getPlotables().get(selectedID);
+
+			if (plotable != null) {
+				try {
+					points.put(configPanel.getParamY(), plotable
+							.getFunctionSamplePoints(configPanel.getParamX(),
+									configPanel.getParamY(),
+									configPanel.getUnitX(),
+									configPanel.getUnitY(),
+									configPanel.getTransformX(),
+									configPanel.getTransformY(),
+									Double.NEGATIVE_INFINITY,
+									Double.POSITIVE_INFINITY,
+									Double.NEGATIVE_INFINITY,
+									Double.POSITIVE_INFINITY, null));
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		samplePanel.setDataPoints(points);
 
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
@@ -242,6 +277,11 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		if (configPanel.isDisplayFocusedRow()) {
 			createChart();
 		}
+	}
+
+	@Override
+	public void timeValuesChanged() {
+		createChart();
 	}
 
 	@Override

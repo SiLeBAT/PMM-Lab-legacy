@@ -73,7 +73,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	private static final double DEFAULT_TIMESTEPSIZE = 10.0;
 
 	private JScrollPane tablePane;
-	private TimeSeriesTable table;	
+	private TimeSeriesTable table;
 	private TextArea warningArea;
 	private JButton clearButton;
 	private JButton stepsButton;
@@ -90,7 +90,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		warningArea = new TextArea(3, 10);
 		warningArea.setEditable(false);
-		stepsButton = new JButton("Set equidistant time steps");
+		stepsButton = new JButton("Set equidistant steps");
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
@@ -122,9 +122,9 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		if (!s.isEmpty()) {
 			s = s.substring(0, s.length() - 1);
 		}
-		
+
 		warningArea.setText(s);
-		
+
 		if (warnings.isEmpty()) {
 			warningArea.setBackground(Color.WHITE);
 		} else {
@@ -178,6 +178,10 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 				table.setTime(i, timeValues.get(i));
 			}
 		}
+	}
+
+	public void setSampleName(String name) {
+		table.setTimeColumnName(name);
 	}
 
 	public void setDataPoints(Map<String, double[][]> points) {
@@ -308,7 +312,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		private JButton cancelButton;
 
 		public TimeStepDialog(Component owner) {
-			super(SwingUtilities.getWindowAncestor(owner), "Time Steps",
+			super(SwingUtilities.getWindowAncestor(owner), "Steps",
 					DEFAULT_MODALITY_TYPE);
 
 			approved = false;
@@ -337,7 +341,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 			leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			leftPanel.setLayout(new GridLayout(2, 1, 5, 5));
-			leftPanel.add(new JLabel("Number of Time Steps:"));
+			leftPanel.add(new JLabel("Number of Steps:"));
 			leftPanel.add(new JLabel("Step Size:"));
 
 			rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

@@ -245,6 +245,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
+		samplePanel.setSampleName(configPanel.getParamX());
 		samplePanel.setDataPoints(points);
 
 		chartCreator.setColors(selectionPanel.getColors());

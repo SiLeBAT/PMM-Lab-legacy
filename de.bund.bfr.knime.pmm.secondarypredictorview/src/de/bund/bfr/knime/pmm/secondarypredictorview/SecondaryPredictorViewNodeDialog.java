@@ -94,13 +94,13 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			set.setSelectedID(null);
 		}
 
+		set.setTimeValues(samplePanel.getTimeValues());
 		set.setColors(selectionPanel.getColors());
 		set.setShapes(selectionPanel.getShapes());
 		set.setColorLists(new LinkedHashMap<String, List<Color>>());
 		set.setShapeLists(new LinkedHashMap<String, List<Shape>>());
 		set.setCurrentParamX(configPanel.getParamX());
 		set.setParamXValues(configPanel.getParamXValues());
-		set.setSelectedValuesX(configPanel.getSelectedValuesX());
 		set.setManualRange(configPanel.isUseManualRange());
 		set.setMinX(configPanel.getMinX());
 		set.setMaxX(configPanel.getMaxX());
@@ -176,6 +176,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 				reader.getShortLegend(), reader.getLongLegend());
 		chartCreator.addZoomListener(this);
 		samplePanel = new ChartSamplePanel();
+		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
 
 		if (!set.isDisplayHighlighted()) {
@@ -245,7 +246,12 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		samplePanel.setSampleName(configPanel.getParamX());
+		if (configPanel.getParamX() != null) {
+			samplePanel.setSampleName(configPanel.getParamX());
+		} else {
+			samplePanel.setSampleName("null");
+		}
+
 		samplePanel.setDataPoints(points);
 
 		chartCreator.setColors(selectionPanel.getColors());

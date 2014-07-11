@@ -52,7 +52,7 @@ public class SettingsHelper {
 	protected static final String CFG_SELECTEDID = "SelectedID";
 	protected static final String CFG_CURRENTPARAMX = "CurrentParamX";
 	protected static final String CFG_PARAMXVALUES = "ParamXValues";
-	protected static final String CFG_SELECTEDVALUESX = "SelectedValuesX";
+	protected static final String CFG_TIMEVALUES = "TimeValues";
 	protected static final String CFG_COLORS = "Colors";
 	protected static final String CFG_SHAPES = "Shapes";
 	protected static final String CFG_COLORLISTS = "ColorLists";
@@ -94,7 +94,7 @@ public class SettingsHelper {
 	private String selectedID;
 	private String currentParamX;
 	private Map<String, Double> paramXValues;
-	private Map<String, List<Boolean>> selectedValuesX;
+	private List<Double> timeValues;
 	private Map<String, Color> colors;
 	private Map<String, Shape> shapes;
 	private Map<String, List<Color>> colorLists;
@@ -123,7 +123,7 @@ public class SettingsHelper {
 		selectedID = null;
 		currentParamX = null;
 		paramXValues = new LinkedHashMap<>();
-		selectedValuesX = new LinkedHashMap<>();
+		timeValues = new ArrayList<>();
 		colors = new LinkedHashMap<>();
 		shapes = new LinkedHashMap<>();
 		colorLists = new LinkedHashMap<>();
@@ -168,10 +168,10 @@ public class SettingsHelper {
 		}
 
 		try {
-			selectedValuesX = XmlConverter.xmlToObject(
-					settings.getString(CFG_SELECTEDVALUESX),
-					new LinkedHashMap<String, List<Boolean>>());
-		} catch (InvalidSettingsException e) {
+			timeValues = XmlConverter
+					.xmlToObject(settings.getString(CFG_TIMEVALUES),
+							new ArrayList<Double>());
+		} catch (InvalidSettingsException e1) {
 		}
 
 		try {
@@ -288,7 +288,7 @@ public class SettingsHelper {
 			fittedFilter = settings.getString(CFG_FITTEDFILTER);
 		} catch (InvalidSettingsException e) {
 		}
-		
+
 		try {
 			columnWidths = XmlConverter.xmlToObject(
 					settings.getString(CFG_COLUMNWIDTHS),
@@ -302,8 +302,7 @@ public class SettingsHelper {
 		settings.addString(CFG_CURRENTPARAMX, currentParamX);
 		settings.addString(CFG_PARAMXVALUES,
 				XmlConverter.objectToXml(paramXValues));
-		settings.addString(CFG_SELECTEDVALUESX,
-				XmlConverter.objectToXml(selectedValuesX));
+		settings.addString(CFG_TIMEVALUES, XmlConverter.objectToXml(timeValues));
 		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
 		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
 		settings.addString(CFG_COLORLISTS,
@@ -357,12 +356,12 @@ public class SettingsHelper {
 		this.paramXValues = paramXValues;
 	}
 
-	public Map<String, List<Boolean>> getSelectedValuesX() {
-		return selectedValuesX;
+	public List<Double> getTimeValues() {
+		return timeValues;
 	}
 
-	public void setSelectedValuesX(Map<String, List<Boolean>> selectedValuesX) {
-		this.selectedValuesX = selectedValuesX;
+	public void setTimeValues(List<Double> timeValues) {
+		this.timeValues = timeValues;
 	}
 
 	public Map<String, Color> getColors() {
@@ -540,7 +539,7 @@ public class SettingsHelper {
 	public void setFittedFilter(String fittedFilter) {
 		this.fittedFilter = fittedFilter;
 	}
-	
+
 	public Map<String, Integer> getColumnWidths() {
 		return columnWidths;
 	}

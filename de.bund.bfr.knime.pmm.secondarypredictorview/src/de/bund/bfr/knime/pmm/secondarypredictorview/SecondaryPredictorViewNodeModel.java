@@ -75,6 +75,7 @@ public class SecondaryPredictorViewNodeModel extends NodeModel {
 			}
 
 			plotable.setFunctionArguments(arguments);
+			plotable.setSamples(set.getTimeValues());
 			creator.setParamX(set.getCurrentParamX());
 			creator.setParamY(plotable.getFunctionValue());
 			creator.setUseManualRange(set.isManualRange());

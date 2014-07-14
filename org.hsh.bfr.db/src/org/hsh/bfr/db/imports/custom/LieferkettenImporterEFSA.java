@@ -180,7 +180,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			String streetNoLST = getStrVal(busRow.getCell(3), 10);
 			String zipLST = getStrVal(busRow.getCell(4), 10);
 			String cityLST = getStrVal(busRow.getCell(5));
-			String countyLST = getStrVal(busRow.getCell(6));
+			String countyLST = getStrVal(busRow.getCell(6), 30);
 			String countryLST = getStrVal(busRow.getCell(7));
 			String vatLST = getStrVal(busRow.getCell(8));
 			for (int i = 2; i < numRows; i++) {
@@ -227,7 +227,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			String streetNoLST = getStrVal(busRow.getCell(3), 10);
 			String zipLST = getStrVal(busRow.getCell(4), 10);
 			String cityLST = getStrVal(busRow.getCell(5));
-			String countyLST = getStrVal(busRow.getCell(6));
+			String countyLST = getStrVal(busRow.getCell(6), 30);
 			String countryLST = getStrVal(busRow.getCell(7));
 			String vatLST = getStrVal(busRow.getCell(8));
 			for (int i = 2; i < numRows; i++) {
@@ -248,7 +248,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String streetNo = getStrVal(busRow.getCell(3), 10); //
 						String zip = getStrVal(busRow.getCell(4), 10); //
 						String city = getStrVal(busRow.getCell(5)); //
-						String county = getStrVal(busRow.getCell(6));
+						String county = getStrVal(busRow.getCell(6), 30);
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
 						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, Lot_Invoice, null,
@@ -273,7 +273,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			String streetNoLST = getStrVal(busRow.getCell(3), 10);
 			String zipLST = getStrVal(busRow.getCell(4), 10);
 			String cityLST = getStrVal(busRow.getCell(5));
-			String countyLST = getStrVal(busRow.getCell(6));
+			String countyLST = getStrVal(busRow.getCell(6), 30);
 			String countryLST = getStrVal(busRow.getCell(7));
 			String vatLST = getStrVal(busRow.getCell(8));
 			for (int i = 2; i < numRows; i++) {
@@ -294,7 +294,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String streetNo = getStrVal(busRow.getCell(3), 10); //
 						String zip = getStrVal(busRow.getCell(4), 10); //
 						String city = getStrVal(busRow.getCell(5)); //
-						String county = getStrVal(busRow.getCell(6));
+						String county = getStrVal(busRow.getCell(6), 30);
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
 						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, product, null, null, Lot_Invoice, null, null, null, null, null,
@@ -337,7 +337,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoRec = getStrVal(busRow.getCell(3), 10); //
 					zipRec = getStrVal(busRow.getCell(4), 10); //
 					cityRec = getStrVal(busRow.getCell(5)); //
-					countyRec = getStrVal(busRow.getCell(6));
+					countyRec = getStrVal(busRow.getCell(6), 30);
 					countryRec = getStrVal(busRow.getCell(7)); // 
 					vatRec = getStrVal(busRow.getCell(8)); //
 					if (!adressRec.startsWith(nameRec)) {
@@ -370,7 +370,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoSup = getStrVal(busRow.getCell(3), 10); //
 					zipSup = getStrVal(busRow.getCell(4), 10); //
 					citySup = getStrVal(busRow.getCell(5)); //
-					countySup = getStrVal(busRow.getCell(6));
+					countySup = getStrVal(busRow.getCell(6), 30);
 					countrySup = getStrVal(busRow.getCell(7)); // 
 					vatSup = getStrVal(busRow.getCell(8)); //
 					if (!adressSup.startsWith(nameSup)) {
@@ -413,7 +413,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		progress.setMaximum(numRows);
 		progress.setValue(0);
 
-		for (int i = 1; i < numRows; i++) {
+		for (int i = 6; i < numRows; i++) { // 6  1
 			HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
 				String serial = getStrVal(row.getCell(0)); // Serial_number
@@ -441,7 +441,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoRec = getStrVal(busRow.getCell(3), 10); //
 					zipRec = getStrVal(busRow.getCell(4), 10); //
 					cityRec = getStrVal(busRow.getCell(5)); //
-					countyRec = getStrVal(busRow.getCell(6));
+					countyRec = getStrVal(busRow.getCell(6), 30);
 					countryRec = getStrVal(busRow.getCell(7)); // 
 					vatRec = getStrVal(busRow.getCell(8)); //
 					if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
@@ -490,7 +490,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoInsp = getStrVal(busRow.getCell(3), 10); //
 					zipInsp = getStrVal(busRow.getCell(4), 10); //
 					cityInsp = getStrVal(busRow.getCell(5)); //
-					countyInsp = getStrVal(busRow.getCell(6));
+					countyInsp = getStrVal(busRow.getCell(6), 30);
 					countryInsp = getStrVal(busRow.getCell(7)); // 
 					vatInsp = getStrVal(busRow.getCell(8)); //
 					if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
@@ -539,7 +539,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoSup = getStrVal(busRow.getCell(3), 10); //
 					zipSup = getStrVal(busRow.getCell(4), 10); //
 					citySup = getStrVal(busRow.getCell(5)); //
-					countySup = getStrVal(busRow.getCell(6));
+					countySup = getStrVal(busRow.getCell(6), 30);
 					countrySup = getStrVal(busRow.getCell(7)); // 
 					vatSup = getStrVal(busRow.getCell(8)); //
 					if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
@@ -646,7 +646,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoSup = getStrVal(busRow.getCell(3), 10);
 					zipSup = getStrVal(busRow.getCell(4), 10);
 					citySup = getStrVal(busRow.getCell(5));
-					countySup = getStrVal(busRow.getCell(6));
+					countySup = getStrVal(busRow.getCell(6), 30);
 					countrySup = getStrVal(busRow.getCell(7));
 					vatSup = getStrVal(busRow.getCell(8));
 				} else if (adressSup != null) {
@@ -692,7 +692,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					streetNoRec = getStrVal(busRow.getCell(3), 10);
 					zipRec = getStrVal(busRow.getCell(4), 10);
 					cityRec = getStrVal(busRow.getCell(5));
-					countyRec = getStrVal(busRow.getCell(6));
+					countyRec = getStrVal(busRow.getCell(6), 30);
 					countryRec = getStrVal(busRow.getCell(7));
 					vatRec = getStrVal(busRow.getCell(8));
 				} else if (adressRec != null) {
@@ -1085,7 +1085,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						progress.setString("Importiere Lieferketten Datei...");
 						progress.setMinimum(0);
 					}
-
+					
 					loadNodeIDs10000();
 
 					InputStream is = null;

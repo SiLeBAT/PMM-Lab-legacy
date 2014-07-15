@@ -92,7 +92,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override

@@ -120,7 +120,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 		defaultBehaviour = true;
 		removeInvalid = true;
 	}
@@ -662,10 +662,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			rightPanel.add(new JLabel("Lag"));
 
 			for (String id : ids) {
-				JComboBox<String> initBox = new JComboBox<>(
-						availableParams.get(id).toArray(new String[0]));
-				JComboBox<String> lagBox = new JComboBox<>(
-						availableParams.get(id).toArray(new String[0]));
+				JComboBox<String> initBox = new JComboBox<>(availableParams
+						.get(id).toArray(new String[0]));
+				JComboBox<String> lagBox = new JComboBox<>(availableParams.get(
+						id).toArray(new String[0]));
 				JLabel label = new JLabel(modelNames.get(id) + ":");
 
 				if (concentrationParameters.get(id) != null) {

@@ -160,7 +160,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		panel.add(listPanel, BorderLayout.NORTH);
 		panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override

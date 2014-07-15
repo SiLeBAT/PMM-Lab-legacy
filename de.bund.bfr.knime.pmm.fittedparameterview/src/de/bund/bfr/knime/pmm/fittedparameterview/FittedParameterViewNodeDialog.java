@@ -100,7 +100,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override

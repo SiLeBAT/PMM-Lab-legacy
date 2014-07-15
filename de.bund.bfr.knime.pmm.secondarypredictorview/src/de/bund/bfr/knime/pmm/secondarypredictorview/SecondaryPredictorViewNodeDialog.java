@@ -61,7 +61,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override

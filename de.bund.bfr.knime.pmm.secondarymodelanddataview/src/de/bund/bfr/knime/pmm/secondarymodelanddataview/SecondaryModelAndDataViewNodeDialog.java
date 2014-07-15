@@ -92,7 +92,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			throws InvalidSettingsException {
 		if (!selectionPanel.getSelectedIDs().isEmpty()) {
 			set.setSelectedID(selectionPanel.getSelectedIDs().get(0));
-		} else if (configPanel.isDisplayFocusedRow()){
+		} else if (configPanel.isDisplayFocusedRow()) {
 			set.setSelectedID(selectionPanel.getFocusedID());
 		} else {
 			set.setSelectedID(null);

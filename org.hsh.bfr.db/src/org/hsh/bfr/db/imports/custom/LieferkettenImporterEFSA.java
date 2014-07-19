@@ -594,7 +594,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					numFails++;
 				} else {
 					if (c2 != null) {
-						if (getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null) == null) {
+						Integer cvID = getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null);
+						if (cvID == null) {
 							System.err.println("Fehlerchenchen_4!! Row: " + (i + 1));
 							numFails++;
 						} else {
@@ -1294,9 +1295,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					new boolean[] { false, true, true, true, true });
 			result[1] = lastID;
 			if (lastID != null) {
+				String c_serial = serial; 
+				if (charge == null && dayP == null && monthP == null && yearP == null) {
+					dayP = dayD;
+					monthP = monthD;
+					yearP = yearD;
+					c_serial = serial + " (proddate adapted from deliverydate)"; 
+				}
 				lastID = getID("Chargen", new String[] { "Artikel", "ChargenNr", "MHD_day", "MHD_month", "MHD_year", "pd_day", "pd_month", "pd_year", "OriginCountry", "Serial",
 						"MicrobioSample" },
-						new String[] { lastID.toString(), charge, dayMHD, monthMHD, yearMHD, dayP, monthP, yearP, originCountry, serial, MicrobiologicalSample }, new boolean[] {
+						new String[] { lastID.toString(), charge, dayMHD, monthMHD, yearMHD, dayP, monthP, yearP, originCountry, c_serial, MicrobiologicalSample }, new boolean[] {
 								true, true, true, true, true, true, true, true, false, false, false }, new boolean[] { false, true, false, false, false, false, false, false, true,
 								true, true });
 				result[2] = lastID;

@@ -71,7 +71,7 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 public class ChartCreator extends ChartPanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private List<ZoomListener> zoomListeners;
 
 	private Map<String, Plotable> plotables;
@@ -103,8 +103,8 @@ public class ChartCreator extends ChartPanel {
 	public ChartCreator(Plotable plotable) {
 		super(new JFreeChart(new XYPlot()));
 		zoomListeners = new ArrayList<>();
-		getPopupMenu().removeAll();
-		getPopupMenu().add(new DataAndModelChartSaveAsItem());
+		getPopupMenu().remove(3);
+		getPopupMenu().add(new DataAndModelChartSaveAsItem(), 3);
 		plotables = new LinkedHashMap<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
@@ -122,8 +122,8 @@ public class ChartCreator extends ChartPanel {
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
 		super(new JFreeChart(new XYPlot()));
 		zoomListeners = new ArrayList<>();
-		getPopupMenu().removeAll();
-		getPopupMenu().add(new DataAndModelChartSaveAsItem());
+		getPopupMenu().remove(3);
+		getPopupMenu().add(new DataAndModelChartSaveAsItem(), 3);
 		this.plotables = plotables;
 		this.shortLegend = shortLegend;
 		this.longLegend = longLegend;
@@ -132,7 +132,7 @@ public class ChartCreator extends ChartPanel {
 		colorLists = new LinkedHashMap<>();
 		shapeLists = new LinkedHashMap<>();
 	}
-	
+
 	public void addZoomListener(ZoomListener listener) {
 		zoomListeners.add(listener);
 	}
@@ -140,7 +140,7 @@ public class ChartCreator extends ChartPanel {
 	public void removeZoomListener(ZoomListener listener) {
 		zoomListeners.remove(listener);
 	}
-	
+
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		ValueAxis domainAxis = ((XYPlot) getChart().getPlot()).getDomainAxis();
@@ -609,7 +609,7 @@ public class ChartCreator extends ChartPanel {
 	public List<String> getWarnings() {
 		return warnings;
 	}
-	
+
 	private void fireZoomChanged() {
 		for (ZoomListener listener : zoomListeners) {
 			listener.zoomChanged();
@@ -1220,7 +1220,7 @@ public class ChartCreator extends ChartPanel {
 		}
 
 	}
-	
+
 	public static interface ZoomListener {
 
 		public void zoomChanged();

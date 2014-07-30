@@ -87,7 +87,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	public void mergeIDs() {
 		System.err.println("Merging...");
 		try {
-			FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
+			//FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
+			FileInputStream is = new FileInputStream(DBKernel.HSHDB_PATH + "mergeList.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 
@@ -98,10 +99,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					HSSFRow row = mergeSheet.getRow(i);
 					if (row != null) {
 						HSSFCell cell = row.getCell(0);
-						Integer oldEfsaID = (int) cell.getNumericCellValue();
-						cell = row.getCell(1);
-						Integer newEfsaID = (int) cell.getNumericCellValue();
-						DBKernel.mergeIDs(DBKernel.getDBConnection(), "Station", oldEfsaID, newEfsaID);
+						if (cell != null) {
+							Integer oldEfsaID = (int) cell.getNumericCellValue();
+							if (cell != null) {
+								cell = row.getCell(1);
+								Integer newEfsaID = (int) cell.getNumericCellValue();
+								DBKernel.mergeIDs(DBKernel.getDBConnection(), "Station", oldEfsaID, newEfsaID);
+							}
+						}
 					}
 				} catch (Exception e) {
 					System.err.println(e.getMessage() + "\t" + i);
@@ -117,7 +122,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 		nodeIds = new HashMap<String, Integer>();
 		try {
-			FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\nodesids10000.xls");
+			//FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\nodesids10000.xls");
+			FileInputStream is = new FileInputStream(DBKernel.HSHDB_PATH + "nodesids10000.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 

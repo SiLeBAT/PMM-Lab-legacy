@@ -64,6 +64,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
+	public static String NAME_COLUMN = "Name";
 	public static String CONCENTRATION_STDDEV_COLUMN = "Value StdDev";
 	public static String CONCENTRATION_MEASURE_NUMBER = "Value Measurements";
 
@@ -403,6 +404,7 @@ public class XLSReader {
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<>();
 		Map<String, Integer> columns = getColumns(s);
 		Map<String, Integer> miscColumns = new LinkedHashMap<>();
+		Integer idColumn = null;
 		Integer commentColumn = null;
 		Integer agentDetailsColumn = null;
 		Integer matrixDetailsColumn = null;
@@ -423,6 +425,8 @@ public class XLSReader {
 
 				if (mapping instanceof MiscXml) {
 					miscColumns.put(column, columns.get(column));
+				} else if (mapping.equals(NAME_COLUMN)) {
+					idColumn = columns.get(column);
 				} else if (mapping.equals(MdInfoXml.ATT_COMMENT)) {
 					commentColumn = columns.get(column);
 				} else if (mapping.equals(AttributeUtilities.AGENT_DETAILS)) {
@@ -444,11 +448,16 @@ public class XLSReader {
 			KnimeTuple dataTuple = new KnimeTuple(
 					SchemaFactory.createDataSchema());
 			Row row = s.getRow(rowNumber);
+			Cell idCell = null;
 			Cell commentCell = null;
 			Cell agentDetailsCell = null;
 			Cell matrixDetailsCell = null;
 			Cell agentCell = null;
 			Cell matrixCell = null;
+
+			if (idColumn != null) {
+				idCell = row.getCell(idColumn);
+			}
 
 			if (commentColumn != null) {
 				commentCell = row.getCell(commentColumn);
@@ -563,6 +572,10 @@ public class XLSReader {
 			((EstModelXml) estXml.get(0)).setId(MathUtilities
 					.getRandomNegativeInt());
 			((EstModelXml) estXml.get(0)).setComment(getData(commentCell));
+
+			if (hasData(idCell)) {
+				((EstModelXml) estXml.get(0)).setName(getData(idCell));
+			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;

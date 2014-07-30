@@ -804,7 +804,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					String selected = (String) columnBoxes.get(column)
 							.getSelectedItem();
 
-					if (selected.equals(MdInfoXml.ATT_COMMENT)
+					if (selected.equals(XLSReader.NAME_COLUMN)
+							|| selected.equals(MdInfoXml.ATT_COMMENT)
 							|| selected
 									.equals(AttributeUtilities.AGENT_DETAILS)
 							|| selected
@@ -1103,9 +1104,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 								secOptions.toArray(new String[0]));
 						JComboBox<String> maxBox = new JComboBox<>(
 								secOptions.toArray(new String[0]));
-						JComboBox<String> unitBox = new JComboBox<>(
-								Categories.getCategory(indep.getCategory())
-										.getAllUnits().toArray(new String[0]));
+						JComboBox<String> unitBox = new JComboBox<>(Categories
+								.getCategory(indep.getCategory()).getAllUnits()
+								.toArray(new String[0]));
 						Map<String, String> mins = set.getSecModelIndepMins()
 								.get(element.getName());
 						Map<String, String> maxs = set.getSecModelIndepMaxs()
@@ -1170,8 +1171,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateAgentPanel() {
 		agentButtons.clear();
-		agentBox = new JComboBox<>(new String[] { DO_NOT_USE,
-				OTHER_PARAMETER });
+		agentBox = new JComboBox<>(new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		agentButton = new JButton(OTHER_PARAMETER);
 
 		for (String column : fileColumnList) {
@@ -1245,8 +1245,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateMatrixPanel() {
 		matrixButtons.clear();
-		matrixBox = new JComboBox<>(new String[] { DO_NOT_USE,
-				OTHER_PARAMETER });
+		matrixBox = new JComboBox<>(
+				new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		matrixButton = new JButton(OTHER_PARAMETER);
 
 		for (String column : fileColumnList) {
@@ -1331,7 +1331,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						DO_NOT_USE, OTHER_PARAMETER, MdInfoXml.ATT_COMMENT,
+						DO_NOT_USE, OTHER_PARAMETER, XLSReader.NAME_COLUMN,
+						MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,

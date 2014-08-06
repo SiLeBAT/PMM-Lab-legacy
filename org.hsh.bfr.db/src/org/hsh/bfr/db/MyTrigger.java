@@ -135,6 +135,7 @@ public class MyTrigger implements Trigger {
 	          	}
 	          	
         	}
+        	
         	if (DBKernel.myDBi != null) {
         		MyTable myT = DBKernel.myDBi.getTable(tableName);
             	if (myT != null && myT.getCaller4Trigger() != null) {
@@ -142,6 +143,7 @@ public class MyTrigger implements Trigger {
         			  catch (Exception e) {e.printStackTrace();}
             	}
         	}
+        	
         }
         catch (Exception e) {
         	MyLogger.handleException(e);
@@ -220,7 +222,7 @@ public class MyTrigger implements Trigger {
 
   
 	private boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
-		if (DBKernel.dontLog || MainKernel.dontLog) return true;
+		if (MainKernel.dontLog || DBKernel.dontLog) return true;
 		else {
 			boolean diff = different(rowBefore, rowAfter);
 			if (!diff) return true;
@@ -228,10 +230,10 @@ public class MyTrigger implements Trigger {
 			try {
 		    	Connection conn = getDefaultConnection();
 		    	String username = getUsername(conn);
-				PreparedStatement ps = conn.prepareStatement("INSERT INTO " + DBKernel.delimitL("ChangeLog") + " (" + DBKernel.delimitL("ID") + ", "
-						+ DBKernel.delimitL("Zeitstempel") + ", " + DBKernel.delimitL("Username") + ", " + DBKernel.delimitL("Tabelle") + ", "
-						+ DBKernel.delimitL("TabellenID") + ", " + DBKernel.delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR "
-						+ DBKernel.delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
+				PreparedStatement ps = conn.prepareStatement("INSERT INTO " + MainKernel.delimitL("ChangeLog") + " (" + MainKernel.delimitL("ID") + ", "
+						+ MainKernel.delimitL("Zeitstempel") + ", " + MainKernel.delimitL("Username") + ", " + MainKernel.delimitL("Tabelle") + ", "
+						+ MainKernel.delimitL("TabellenID") + ", " + MainKernel.delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR "
+						+ MainKernel.delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
 
 				ps.setTimestamp(1, new Timestamp(new Date().getTime()));
 				ps.setString(2, username);

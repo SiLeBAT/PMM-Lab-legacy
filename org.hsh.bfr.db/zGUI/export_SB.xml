@@ -8,7 +8,7 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="org.hsh.bfr.db.StartApp"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.6-20091214.jar hsqldb.jar poi-scratchpad-3.6-20091214.jar jcommon-1.0.20.jar jcm1.0-config.jar jfreechart-1.0.16.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar xstream-1.4.7.jar sqltool.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.6-20091214.jar hsqldb.jar poi-scratchpad-3.6-20091214.jar jcommon-1.0.20.jar jcm1.0-config.jar jfreechart-1.0.16.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar xstream-1.4.7.jar sqltool.jar xmlpull-1.1.3.1.jar"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <fileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\bin">
@@ -30,6 +30,7 @@
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\lib" includes="MyJabRef-2.6.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.jgoodies\lib" includes="jgoodies-common-1.4.0.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.thoughtworks.xstream\lib" includes="xstream-1.4.7.jar"/>
+            <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.thoughtworks.xstream\lib" includes="xmlpull-1.1.3.1.jar"/>
         	
         	<!--<zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db/src" includes="org/hsh/bfr/db/res/exclude/firstDB_SB.tar.gz" fullpath="org/hsh/bfr/db/res/firstDB.tar.gz"/>-->
         </jar>

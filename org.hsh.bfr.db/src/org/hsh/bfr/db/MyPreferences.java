@@ -60,7 +60,11 @@ public class MyPreferences {
 		return prefsReg.getBoolean(key, defaultValue);
 	}
 }
-zum debuggen auf der commandline app starten mit: 'java -Xms512m -Xmx768m -jar "C:\Dokumente und Einstellungen\Weiser\Lokale Einstellungen\Anwendungsdaten\SiLeBAT-DB\SiLeBAT_1.7.9.jar"'
+
+Außerdem:
+- alle DBKernels weg in MyTrigger für Server.jar!!!
+- zum debuggen auf der commandline app starten mit: 'java -Xms512m -Xmx768m -jar "C:\Dokumente und Einstellungen\Weiser\Lokale Einstellungen\Anwendungsdaten\SiLeBAT-DB\SiLeBAT_1.7.9.jar"'
+
 */
 package org.hsh.bfr.db;
 

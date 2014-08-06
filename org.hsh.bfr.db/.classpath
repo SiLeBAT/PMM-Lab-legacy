@@ -7,7 +7,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/MyJabRef-2.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/quicktable2swing11.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry excluding="org/hsh/bfr/db/res/exclude/" kind="src" path="src"/>
+	<classpathentry excluding="**/*.jfd|org/hsh/bfr/db/res/exclude/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

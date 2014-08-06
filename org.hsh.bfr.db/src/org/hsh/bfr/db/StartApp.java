@@ -52,7 +52,7 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
  *
  */
 
-class StartApp {
+public class StartApp {
 
 	public static void main(final String[] args) {
 	    try {

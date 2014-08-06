@@ -8,7 +8,7 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="org.hsh.bfr.db.StartApp"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.6-20091214.jar hsqldb.jar poi-scratchpad-3.6-20091214.jar jcommon-1.0.20.jar jcm1.0-config.jar jfreechart-1.0.16.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar xstream-1.4.7.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.6-20091214.jar hsqldb.jar poi-scratchpad-3.6-20091214.jar jcommon-1.0.20.jar jcm1.0-config.jar jfreechart-1.0.16.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar xstream-1.4.7.jar sqltool.jar"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <fileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\bin">
@@ -20,12 +20,13 @@
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\lib" includes="jcalendar.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.jgoodies\lib" includes="jgoodies-forms-1.6.0.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.jgoodies\lib" includes="jgoodies-looks-2.5.2.jar"/>
-            <zipfileset dir="C:\Programme\User\eclipse_knime_2.8.2\plugins\org.apache.poi_3.6.0.0037770" includes="poi-3.6-20091214.jar"/>
+            <zipfileset dir="C:\Programme\User\eclipse_knime_2.10.0\plugins\org.apache.poi_3.6.0.0042431" includes="poi-3.6-20091214.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\lib" includes="hsqldb.jar"/>
-            <zipfileset dir="C:\Programme\User\eclipse_knime_2.8.2\plugins\org.apache.poi_3.6.0.0037770" includes="poi-scratchpad-3.6-20091214.jar"/>
-            <zipfileset dir="C:\Programme\User\eclipse_knime_2.8.2\plugins\org.knime.ext.jfreechart_2.9.2.0041455\lib" includes="jcommon-1.0.20.jar"/>
+            <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\lib" includes="sqltool.jar"/>
+            <zipfileset dir="C:\Programme\User\eclipse_knime_2.10.0\plugins\org.apache.poi_3.6.0.0042431" includes="poi-scratchpad-3.6-20091214.jar"/>
+            <zipfileset dir="C:\Programme\User\eclipse_knime_2.10.0\plugins\org.knime.ext.jfreechart_2.10.0.0042428\lib" includes="jcommon-1.0.20.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\lib" includes="jcm1.0-config.jar"/>
-            <zipfileset dir="C:\Programme\User\eclipse_knime_2.8.2\plugins\org.knime.ext.jfreechart_2.9.2.0041455\lib" includes="jfreechart-1.0.16.jar"/>
+            <zipfileset dir="C:\Programme\User\eclipse_knime_2.10.0\plugins\org.knime.ext.jfreechart_2.10.0.0042428\lib" includes="jfreechart-1.0.16.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\org.hsh.bfr.db\lib" includes="MyJabRef-2.6.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.jgoodies\lib" includes="jgoodies-common-1.4.0.jar"/>
             <zipfileset dir="C:\Dokumente und Einstellungen\Weiser\workspace\pmmlab\com.thoughtworks.xstream\lib" includes="xstream-1.4.7.jar"/>

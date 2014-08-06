@@ -59,7 +59,9 @@ public class MyPreferences {
 	public boolean getBoolean(String key, boolean defaultValue) {
 		return prefsReg.getBoolean(key, defaultValue);
 	}
-}*/
+}
+zum debuggen auf der commandline app starten mit: 'java -Xms512m -Xmx768m -jar "C:\Dokumente und Einstellungen\Weiser\Lokale Einstellungen\Anwendungsdaten\SiLeBAT-DB\SiLeBAT_1.7.9.jar"'
+*/
 package org.hsh.bfr.db;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;

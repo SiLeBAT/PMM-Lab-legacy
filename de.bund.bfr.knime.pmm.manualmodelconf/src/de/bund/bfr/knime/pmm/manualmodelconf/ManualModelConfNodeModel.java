@@ -111,7 +111,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         	PmmTimeSeries tstuple = new PmmTimeSeries();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {
         		if (el instanceof ParametricModel) {
-	        		ParametricModel model = (ParametricModel) el;	        		
+	        		ParametricModel model = (ParametricModel) el;	 
 	    			if (model.getLevel() == 1) {
 	    				if (model.getIndependent().size() > 0) {
 	    					if (tupleM1 != null) doBuf(tupleM1, tstuple, rowSec, buf, ks);

@@ -185,6 +185,8 @@ public class CombaseReaderNodeModel extends NodeModel {
 
 				modelTuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 				modelTuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
+				modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
+						Model1Schema.WRITABLE);
 
 				buf2.addRowToTable(new DefaultRow(String.valueOf(j++),
 						modelTuple));

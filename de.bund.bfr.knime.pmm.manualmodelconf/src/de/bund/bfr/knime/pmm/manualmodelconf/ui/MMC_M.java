@@ -112,8 +112,7 @@ public class MMC_M extends JPanel {
 		this(null, 1, "", false, null);
 	}
 
-	public MMC_M(final Frame parentFrame, final int level,
-			final String paramName, boolean formulaCreator, MMC_TS m_mmcts) {
+	public MMC_M(final Frame parentFrame, final int level, final String paramName, boolean formulaCreator, MMC_TS m_mmcts) {
 		this.m_parentFrame = parentFrame;
 		this.formulaCreator = formulaCreator;
 		this.m_mmcts = m_mmcts;
@@ -123,20 +122,19 @@ public class MMC_M extends JPanel {
 		if (level == 1) {
 			radioButton1.setSelected(true);
 			// depVarLabel.setVisible(false);
-		}
-		else {
+		} else {
 			depVarLabel.setVisible(true);
 			radioButton2.setSelected(true);
 			radioButton1.setEnabled(false);
 			radioButton2.setEnabled(false);
 			radioButton3.setEnabled(false);
-		}				
+		}
 
 		for (String s : DBKernel.myDBi.getHashMap("ModelType").values()) {
 			typeBox.addItem(s);
 		}
 		scrollPane3.setVisible(false); // List1
-			
+
 		if (formulaCreator) {
 			label11.setVisible(false);
 			label10.setVisible(false);
@@ -144,6 +142,7 @@ public class MMC_M extends JPanel {
 			label4.setVisible(false);
 			label5.setVisible(false);
 			label6.setVisible(false);
+			label8.setVisible(false);
 			label12.setVisible(false);
 			fittedModelName.setVisible(false);
 			r2Field.setVisible(false);
@@ -164,21 +163,20 @@ public class MMC_M extends JPanel {
 		table.getColumnModel().getColumn(2).setPreferredWidth(100);
 		table.getColumnModel().getColumn(7).setPreferredWidth(400);
 
-		referencesTable.getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
+		referencesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-					public void valueChanged(ListSelectionEvent lse) {
-						if (!lse.getValueIsAdjusting()) {
-							if (referencesTable.getSelectedRowCount() > 0) {
-								button2.setEnabled(true);
-								button3.setEnabled(true);
-							} else {
-								button2.setEnabled(false);
-								button3.setEnabled(false);
-							}
-						}
+			public void valueChanged(ListSelectionEvent lse) {
+				if (!lse.getValueIsAdjusting()) {
+					if (referencesTable.getSelectedRowCount() > 0) {
+						button2.setEnabled(true);
+						button3.setEnabled(true);
+					} else {
+						button2.setEnabled(false);
+						button3.setEnabled(false);
 					}
-				});
+				}
+			}
+		});
 	}
 
 	public ParametricModel getPM() {
@@ -229,14 +227,12 @@ public class MMC_M extends JPanel {
 				((DefaultTableModel) referencesTable.getModel()).removeRow(0);
 			insertRefs(pm.getEstModelLit());
 			insertRefs(pm.getModelLit());
-			if (pm.isChecked() != null && pm.isChecked())
-				checkBox1.setSelected(true);
-			else
-				checkBox1.setSelected(false);
-			if (pm.getQualityScore() != null)
-				qScoreBox.setSelectedIndex(pm.getQualityScore());
-			else
-				qScoreBox.setSelectedIndex(0);
+			if (pm.isChecked() != null && pm.isChecked()) checkBox1.setSelected(true);
+			else checkBox1.setSelected(false);
+			if (pm.getQualityScore() != null) qScoreBox.setSelectedIndex(pm.getQualityScore());
+			else qScoreBox.setSelectedIndex(0);
+			if (pm.getComment() != null) textField1.setText(pm.getComment());
+			else textField1.setText("");
 			insertNselectPMintoBox(pm);
 		}
 	}
@@ -253,10 +249,8 @@ public class MMC_M extends JPanel {
 	}
 
 	private void setDblTextVal(DoubleTextField tf, Double value) {
-		if (value == null || Double.isNaN(value))
-			tf.setText("");
-		else
-			tf.setValue(value);
+		if (value == null || Double.isNaN(value)) tf.setText("");
+		else tf.setValue(value);
 	}
 
 	public void setConnection(final Connection conn) {
@@ -289,8 +283,7 @@ public class MMC_M extends JPanel {
 		}
 	}
 
-	private void manageDBMinMax(ResultSet result, ParametricModel pm)
-			throws SQLException {
+	private void manageDBMinMax(ResultSet result, ParametricModel pm) throws SQLException {
 		Array array = result.getArray(Bfrdb.ATT_PARAMNAME);
 		Array arrayMin = result.getArray(Bfrdb.ATT_MINVALUE);
 		Array arrayMax = result.getArray(Bfrdb.ATT_MAXVALUE);
@@ -308,26 +301,19 @@ public class MMC_M extends JPanel {
 				if (o != null && o.length > 0) {
 					for (int ii = 0; ii < o.length; ii++) {
 						pm.addParam(o[ii].toString(), Double.NaN, Double.NaN);
-						if (oMin != null && oMin.length > ii
-								&& oMin[ii] != null) {
-							pm.setParamMin(o[ii].toString(),
-									Double.parseDouble(oMin[ii].toString()));
+						if (oMin != null && oMin.length > ii && oMin[ii] != null) {
+							pm.setParamMin(o[ii].toString(), Double.parseDouble(oMin[ii].toString()));
 						}
-						if (oMax != null && oMax.length > ii
-								&& oMax[ii] != null) {
-							pm.setParamMax(o[ii].toString(),
-									Double.parseDouble(oMax[ii].toString()));
+						if (oMax != null && oMax.length > ii && oMax[ii] != null) {
+							pm.setParamMax(o[ii].toString(), Double.parseDouble(oMax[ii].toString()));
 						}
-						if (oCat != null && oCat.length > ii
-								&& oCat[ii] != null) {
+						if (oCat != null && oCat.length > ii && oCat[ii] != null) {
 							pm.setParamCategory(o[ii].toString(), oCat[ii].toString());
 						}
-						if (oUnit != null && oUnit.length > ii
-								&& oUnit[ii] != null) {
+						if (oUnit != null && oUnit.length > ii && oUnit[ii] != null) {
 							pm.setParamUnit(o[ii].toString(), oUnit[ii].toString());
 						}
-						if (oDesc != null && oDesc.length > ii
-								&& oDesc[ii] != null) {
+						if (oDesc != null && oDesc.length > ii && oDesc[ii] != null) {
 							pm.setParamDescription(o[ii].toString(), oDesc[ii].toString());
 						}
 					}
@@ -355,10 +341,10 @@ public class MMC_M extends JPanel {
 				Object[] u = (Object[]) unit.getArray();
 				Object[] d = (Object[]) desc.getArray();
 				if (o != null && o.length > 0) {
-					for (int i = 0; i < o.length; i++) {						
+					for (int i = 0; i < o.length; i++) {
 						pm.addIndepVar(o[i].toString(), mi == null || mi[i] == null ? null : Double.parseDouble(mi[i].toString()),
-								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), c == null || c[i] == null ? null : c[i].toString(),
-										u == null || u[i] == null ? null : u[i].toString(), d[i] == null ? null : d[i].toString());
+								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), c == null || c[i] == null ? null : c[i].toString(), u == null
+										|| u[i] == null ? null : u[i].toString(), d[i] == null ? null : d[i].toString());
 					}
 				}
 			} catch (SQLException e) {
@@ -375,7 +361,7 @@ public class MMC_M extends JPanel {
 	}
 
 	private void parseFormula(ParametricModel oldPM, ParametricModel newPM) {
-		String formula = MathUtilities.getFormula(formulaArea.getText(), boundaryArea.getText());		
+		String formula = MathUtilities.getFormula(formulaArea.getText(), boundaryArea.getText());
 		formula = formula.replaceAll("\n", "");
 		formula = formula.replaceAll("\\s", "");
 		formula = formula.replace("~", "=").trim();
@@ -384,9 +370,9 @@ public class MMC_M extends JPanel {
 		if (index < 0) {
 			return;
 		}
-		
+
 		formulaArea.setText(MathUtilities.getAllButBoundaryCondition(formula));
-		boundaryArea.setText(MathUtilities.getBoundaryCondition(formula));		
+		boundaryArea.setText(MathUtilities.getBoundaryCondition(formula));
 		String depVar = formula.substring(0, index).trim();
 		newPM.setDepVar(depVar, true);
 		newPM.setDepCategory(oldPM.getDepCategory());
@@ -400,13 +386,9 @@ public class MMC_M extends JPanel {
 				String os = o.toString();
 				if (!os.equals(depVar)) {
 					if (oldPM.containsIndep(os)) {
-						newPM.addIndepVar(os, oldPM.getIndepMin(os),
-								oldPM.getIndepMax(os), oldPM.getIndepCategory(os),
-								oldPM.getIndepUnit(os), oldPM.getIndepDescription(os));
+						newPM.addIndepVar(os, oldPM.getIndepMin(os), oldPM.getIndepMax(os), oldPM.getIndepCategory(os), oldPM.getIndepUnit(os), oldPM.getIndepDescription(os));
 					} else if (oldPM.containsParam(os)) {
-						newPM.addParam(os, oldPM.getParamValue(os),
-								oldPM.getParamError(os), oldPM.getParamMin(os),
-								oldPM.getParamMax(os), oldPM.getParamCategory(os),
+						newPM.addParam(os, oldPM.getParamValue(os), oldPM.getParamError(os), oldPM.getParamMin(os), oldPM.getParamMax(os), oldPM.getParamCategory(os),
 								oldPM.getParamUnit(os), oldPM.getParamDescription(os));
 					} else {
 						newPM.addParam(os);
@@ -414,16 +396,14 @@ public class MMC_M extends JPanel {
 				}
 			}
 		} catch (ParseException e) {
-			if (!e.getErrorInfo().startsWith("Unexpected \"<EOF>\"")
-					&& !e.getErrorInfo().startsWith("Encountered \"-\" at")) {
+			if (!e.getErrorInfo().startsWith("Unexpected \"<EOF>\"") && !e.getErrorInfo().startsWith("Encountered \"-\" at")) {
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private void modelNameBoxActionPerformed(ActionEvent e) {
-		if (dontTouch)
-			return;
+		if (dontTouch) return;
 		table.clearTable();
 		// if (!dontRemoveSec && m_secondaryModels != null)
 		// m_secondaryModels.clear();
@@ -435,11 +415,8 @@ public class MMC_M extends JPanel {
 		ParametricModel pm = (ParametricModel) modelNameBox.getSelectedItem();
 		if (pm != null) {
 			setPM(pm);
-		}
-		else if (modelNameBox.getItemCount() > 1) {
-			System.err.println("pm = null???\t"
-					+ modelNameBox.getSelectedItem() + "\t"
-					+ modelNameBox.getItemCount());
+		} else if (modelNameBox.getItemCount() > 1) {
+			System.err.println("pm = null???\t" + modelNameBox.getSelectedItem() + "\t" + modelNameBox.getItemCount());
 		} else {
 			// System.err.println("pm = null???\t" +
 			// modelNameBox.getItemCount());
@@ -473,12 +450,10 @@ public class MMC_M extends JPanel {
 	private void formulaAreaFocusLost(FocusEvent e) {
 		ParametricModel pm = table.getPM();
 		String newFormula = MathUtilities.getFormula(formulaArea.getText(), boundaryArea.getText());
-		
+
 		if (pm != null && !pm.getFormula().equals(newFormula)) {
 			String newMN = getNewModelname(pm);
-			ParametricModel newPM = new ParametricModel(newMN,
-					newFormula, pm.getDepXml(), pm.getLevel(),
-					MathUtilities.getRandomNegativeInt());
+			ParametricModel newPM = new ParametricModel(newMN, newFormula, pm.getDepXml(), pm.getLevel(), MathUtilities.getRandomNegativeInt());
 			newPM.setModelClass(pm.getModelClass());
 			refreshRefsInPM(newPM);
 
@@ -496,11 +471,9 @@ public class MMC_M extends JPanel {
 	}
 
 	private String getNewModelname(ParametricModel pm) {
-		if (pm == null)
-			return null;
+		if (pm == null) return null;
 		String mn = pm.getModelName();
-		if (modelNameChangedManually)
-			return mn;
+		if (modelNameChangedManually) return mn;
 		int lio = mn.lastIndexOf(" (v");
 		String result = mn;
 		try {
@@ -540,8 +513,7 @@ public class MMC_M extends JPanel {
 		if (smOld != null && !m_secondaryModels.containsKey(newPM)) {
 			HashMap<String, ParametricModel> smNew = new HashMap<>();
 			for (String key : smOld.keySet()) {
-				if (smOld.get(key) != null)
-					smNew.put(key, smOld.get(key).clone());
+				if (smOld.get(key) != null) smNew.put(key, smOld.get(key).clone());
 			}
 			m_secondaryModels.put(newPM, smNew);
 		}
@@ -600,8 +572,7 @@ public class MMC_M extends JPanel {
 						defCategory = pm.getDepCategory();
 						defUnit = pm.getDepUnit();
 					} else {
-						if (isIndep != null && isIndep instanceof Boolean
-								&& ((Boolean) isIndep)) {
+						if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
 							if (e.isShiftDown()) {
 								pm.setIndepCategory(param, null);
 								pm.setIndepUnit(param, null);
@@ -620,52 +591,39 @@ public class MMC_M extends JPanel {
 						}
 					}
 
-					String categoryStr = (String) JOptionPane.showInputDialog(
-							table, "Bitte eine Einheitenkategorie angeben für "
-									+ param + ":", "Einheit des Parameters "
-									+ param, JOptionPane.QUESTION_MESSAGE,
-							null, Categories.getAllCategories().toArray(), defCategory);
+					String categoryStr = (String) JOptionPane.showInputDialog(table, "Bitte eine Einheitenkategorie angeben für " + param + ":", "Einheit des Parameters " + param,
+							JOptionPane.QUESTION_MESSAGE, null, Categories.getAllCategories().toArray(), defCategory);
 
 					if (categoryStr != null) {
 						Category category = Categories.getCategory(categoryStr);
-						String unit = (String) JOptionPane.showInputDialog(
-								null, "Bitte eine Einheit angeben für " + param
-										+ " (Kategorie: " + categoryStr + "):",
-								"Einheit des Parameters " + param,
-								JOptionPane.QUESTION_MESSAGE, null, category
-										.getAllUnits().toArray(new String[0]),
-								defUnit != null && !defUnit.isEmpty() ? defUnit
-										: category.getStandardUnit());
+						String unit = (String) JOptionPane.showInputDialog(null, "Bitte eine Einheit angeben für " + param + " (Kategorie: " + categoryStr + "):",
+								"Einheit des Parameters " + param, JOptionPane.QUESTION_MESSAGE, null, category.getAllUnits().toArray(new String[0]),
+								defUnit != null && !defUnit.isEmpty() ? defUnit : category.getStandardUnit());
 
 						//if (unit != null) {
-							if (row == 0) {
-								pm.setDepCategory(categoryStr);
-								pm.setDepUnit(unit);
-							} else if (isIndep != null
-									&& isIndep instanceof Boolean
-									&& ((Boolean) isIndep)) {
-								pm.setIndepCategory(param, categoryStr);
-								pm.setIndepUnit(param, unit);
-							} else {
-								pm.setParamCategory(param, categoryStr);
-								pm.setParamUnit(param, unit);
-							}
+						if (row == 0) {
+							pm.setDepCategory(categoryStr);
+							pm.setDepUnit(unit);
+						} else if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
+							pm.setIndepCategory(param, categoryStr);
+							pm.setIndepUnit(param, unit);
+						} else {
+							pm.setParamCategory(param, categoryStr);
+							pm.setParamUnit(param, unit);
+						}
 						//}
 					}
 				}
-			}
-			else if (col == 0 && row > 0 && radioButton3.isSelected()) {
+			} else if (col == 0 && row > 0 && radioButton3.isSelected()) {
 				Object isIndep = table.getValueAt(row, 2);
 				if (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep)) {
 					SecDialog secondaryDialog = new SecDialog(m_parentFrame);
 					secondaryDialog.setModal(true);
-					secondaryDialog.setIconImage(Resources.getInstance()
-							.getDefaultIcon());
+					secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());
 					String param = table.getValueAt(row, 0).toString();
 					MMC_M m2 = new MMC_M(null, 2, param, formulaCreator, null);
 					m2.setConnection(m_conn);
-					HashMap<String, ParametricModel> sm = m_secondaryModels
-							.get(table.getPM());
+					HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM());
 					m2.setPM(sm.get(param));
 					secondaryDialog.setPanel(m2, param, sm);
 					secondaryDialog.pack();
@@ -688,7 +646,7 @@ public class MMC_M extends JPanel {
 			 * //if (!radioButton3.isSelected()) m_secondaryModels.clear(); if
 			 * (level != pm.getLevel())
 			 */
-			
+
 			setComboBox();
 			modelNameBox.repaint();
 			this.revalidate();
@@ -703,8 +661,7 @@ public class MMC_M extends JPanel {
 	private ParametricModel finalizePM(int lastSelIndex) {
 		ParametricModel pm = table.getPM();
 		if (table.hasChanged()) {
-			if (pm != null
-					&& pm.getModelName().equals(modelnameField.getText())) {
+			if (pm != null && pm.getModelName().equals(modelnameField.getText())) {
 				modelnameField.setText(getNewModelname(pm));
 				modelnameFieldFocusLost(null);
 				pm = (ParametricModel) modelNameBox.getSelectedItem();
@@ -712,8 +669,7 @@ public class MMC_M extends JPanel {
 		}
 		refreshRefsInPM(pm);
 
-		if (listModel != null && lastSelIndex >= 0
-				&& lastSelIndex < listModel.size()) {
+		if (listModel != null && lastSelIndex >= 0 && lastSelIndex < listModel.size()) {
 			dontFireList = true;
 			listModel.remove(lastSelIndex);
 			listModel.add(lastSelIndex, pm);
@@ -726,11 +682,9 @@ public class MMC_M extends JPanel {
 		if (m_secondaryModels.containsKey(pm)) {
 			HashMap<String, ParametricModel> hm = m_secondaryModels.get(pm);
 			for (ParametricModel pm_ : hm.values()) {
-				for (HashMap<String, ParametricModel> hmAll : m_secondaryModels
-						.values()) {
+				for (HashMap<String, ParametricModel> hmAll : m_secondaryModels.values()) {
 					for (ParametricModel pmAll : hmAll.values()) {
-						if (!pm_.equals(pmAll)
-								&& pmAll.getEstModelId() == pm_.getEstModelId()) {
+						if (!pm_.equals(pmAll) && pmAll.getEstModelId() == pm_.getEstModelId()) {
 							System.err.println("WEW");
 						}
 					}
@@ -746,22 +700,20 @@ public class MMC_M extends JPanel {
 		return pm;
 	}
 
-	public String listToXmlString() throws InvalidSettingsException  {
+	public String listToXmlString() throws InvalidSettingsException {
 		if (listModel == null || listModel.size() == 0) {
-			if (m_mmcts != null && m_mmcts.getCondId() != null)
-				getPM().setCondId(m_mmcts.getCondId());
+			if (m_mmcts != null && m_mmcts.getCondId() != null) getPM().setCondId(m_mmcts.getCondId());
 			return toXmlString();
 		}
 		PmmXmlDoc doc = new PmmXmlDoc();
 		for (int i = 0; i < listModel.size(); i++) {
-			if (list1.isSelectedIndex(i))
-				finalizePM(i);
+			if (list1.isSelectedIndex(i)) finalizePM(i);
 			ParametricModel pm1 = listModel.get(i);
-			
+
 			if (pm1.getIndependent().getElementSet().isEmpty()) {
 				throw new InvalidSettingsException("No Independent Variable is specified");
 			}
-			
+
 			doc.add(pm1);
 			if (m_secondaryModels.containsKey(pm1)) {
 				for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm1).entrySet()) {
@@ -777,8 +729,7 @@ public class MMC_M extends JPanel {
 	}
 
 	public String tssToXmlString() {
-		if (formulaCreator)
-			return "";
+		if (formulaCreator) return "";
 		PmmXmlDoc doc = new PmmXmlDoc();
 		if (tss == null) {
 			PmmTimeSeries ts = m_mmcts.getTS();
@@ -795,16 +746,15 @@ public class MMC_M extends JPanel {
 		PmmXmlDoc doc = new PmmXmlDoc();
 
 		ParametricModel pm = finalizePM(-1);
-		
+
 		if (pm.getLevel() == 1 && pm.getIndependent().getElementSet().isEmpty()) {
 			throw new InvalidSettingsException("No Independent Variable is specified");
 		}
-		
+
 		doc.add(pm);
 
 		if (radioButton3.isSelected()) {
-			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels
-					.get(pm).entrySet()) {
+			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm).entrySet()) {
 				String key = entry.getKey();
 				if (pm.containsParam(key)) {
 					ParametricModel value = entry.getValue();
@@ -815,10 +765,7 @@ public class MMC_M extends JPanel {
 		return doc.toXmlString();
 	}
 
-	public void setInputData(
-			Collection<ParametricModel> m1s,
-			HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels,
-			HashMap<Integer, PmmTimeSeries> tss) {
+	public void setInputData(Collection<ParametricModel> m1s, HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels, HashMap<Integer, PmmTimeSeries> tss) {
 		this.tss = tss;
 		this.m_secondaryModels = m_secondaryModels;
 		dontFireList = true;
@@ -830,8 +777,7 @@ public class MMC_M extends JPanel {
 		scrollPane3.setVisible(true);
 		isEditor = true;
 		dontFireList = false;
-		if (listModel.getSize() > 0)
-			list1.setSelectedIndex(0);
+		if (listModel.getSize() > 0) list1.setSelectedIndex(0);
 	}
 
 	public void setFromXmlString(final String xmlString) {
@@ -847,10 +793,8 @@ public class MMC_M extends JPanel {
 
 					if (pm.getLevel() == 1) {
 						theModel = pm;
-					}
-					else {
-						if (theModel == null)
-							theModel = pm;
+					} else {
+						if (theModel == null) theModel = pm;
 						sm.put(pm.getDepVar(), pm);
 					}
 				}
@@ -865,7 +809,7 @@ public class MMC_M extends JPanel {
 				}
 				setComboBox();
 				setPM(theModel);
-				
+
 				if (theModel.getLevel() == 2) radioButton2.setSelected(true);
 				else if (sm.size() > 0) radioButton3.setSelected(true);
 				else radioButton1.setSelected(true);
@@ -897,8 +841,7 @@ public class MMC_M extends JPanel {
 
 	private void button3ActionPerformed(ActionEvent e) {
 		// Edit
-		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(
-				referencesTable.getSelectedRow(), 0);
+		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(referencesTable.getSelectedRow(), 0);
 		// if (li != null) doLit(li.getId());
 		doLit(li);
 	}
@@ -907,33 +850,29 @@ public class MMC_M extends JPanel {
 		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());
 		refreshRefsInPM(getPM());
 	}
+
 	private void refreshRefsInPM(ParametricModel pm) {
 		pm.removeEstModelLits();
 		pm.removeModelLits();
 		for (int i = 0; i < referencesTable.getRowCount(); i++) {
 			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
-			if (formulaCreator || !table.isEstimated())
-				pm.addModelLit(li);
-			else
-				pm.addEstModelLit(li);
-		}		
+			if (formulaCreator || !table.isEstimated()) pm.addModelLit(li);
+			else pm.addEstModelLit(li);
+		}
 	}
 
 	private void doLit(LiteratureItem oldLi) {
 		MyTable lit = DBKernel.myDBi.getTable("Literatur");
-		Integer litID = (oldLi != null && (dbuuid != null && dbuuid
-				.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
-		Integer newVal = (Integer) DBKernel.mainFrame.openNewWindow(lit, litID,
-				(Object) "Literatur", null, 1, 1, null, true, null, this);
-		if (newVal != null && newVal instanceof Integer) {			
+		Integer litID = (oldLi != null && (dbuuid != null && dbuuid.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
+		Integer newVal = (Integer) DBKernel.mainFrame.openNewWindow(lit, litID, (Object) "Literatur", null, 1, 1, null, true, null, this);
+		if (newVal != null && newVal instanceof Integer) {
 			LiteratureItem li = DBUtilities.getLiteratureItem(newVal);
 			Vector<LiteratureItem> vli = new Vector<>();
 			vli.add(li);
 			if (oldLi != null) {
 				int selRow = referencesTable.getSelectedRow();
 				deleteSelLitRow();
-				((DefaultTableModel) referencesTable.getModel()).insertRow(
-						selRow, vli);
+				((DefaultTableModel) referencesTable.getModel()).insertRow(selRow, vli);
 			} else {
 				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
 			}
@@ -1024,13 +963,10 @@ public class MMC_M extends JPanel {
 	}
 
 	private void list1ValueChanged(ListSelectionEvent e) {
-		if (!dontFireList && !e.getValueIsAdjusting()
-				&& list1.getSelectedIndex() >= 0) {
-			if (list1.getSelectedIndex() != e.getFirstIndex())
-				finalizePM(e.getFirstIndex());
+		if (!dontFireList && !e.getValueIsAdjusting() && list1.getSelectedIndex() >= 0) {
+			if (list1.getSelectedIndex() != e.getFirstIndex()) finalizePM(e.getFirstIndex());
 			ParametricModel pm1 = list1.getSelectedValue();
-			if (m_secondaryModels.get(pm1) != null
-					&& m_secondaryModels.get(pm1).size() > 0) {
+			if (m_secondaryModels.get(pm1) != null && m_secondaryModels.get(pm1).size() > 0) {
 				radioButton3.setSelected(true);
 			}
 			setComboBox();
@@ -1061,6 +997,7 @@ public class MMC_M extends JPanel {
 	private void button4ActionPerformed(ActionEvent e) {
 		loadFromDB();
 	}
+
 	private void loadFromDB() {
 		ParametricModel ppm = table.getPM();
 		modelNameBox.removeAllItems();
@@ -1068,7 +1005,8 @@ public class MMC_M extends JPanel {
 		int level = radioButton2.isSelected() ? 2 : 1;
 		ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", null, level);
 		modelNameBox.addItem(pm);
-		boolean addPreviousSelectedPM = (ppm != null && !ppm.getModelName().equals(LABEL_OWNMODEL) && (ppm.getLevel() == 2 && getSelRadio() == 2 || pm.getLevel() == 1 && getSelRadio() != 2));
+		boolean addPreviousSelectedPM = (ppm != null && !ppm.getModelName().equals(LABEL_OWNMODEL) && (ppm.getLevel() == 2 && getSelRadio() == 2 || pm.getLevel() == 1
+				&& getSelRadio() != 2));
 		if (addPreviousSelectedPM) modelNameBox.addItem(ppm);
 		// System.err.println("added1:" + pm + "\t" + pm.hashCode());
 		try {
@@ -1076,13 +1014,13 @@ public class MMC_M extends JPanel {
 			ResultSet result = db.selectModel(level);
 			while (result.next()) {
 				int modelID = result.getInt(Bfrdb.ATT_MODELID);
-				Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", ""+modelID, "visible");
-				if (visible == null || (visible instanceof Boolean && (Boolean) visible)) {					
+				Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", "" + modelID, "visible");
+				if (visible == null || (visible instanceof Boolean && (Boolean) visible)) {
 					String modelName = result.getString(Bfrdb.ATT_NAME);
 					String formula = result.getString("Formel");
 					String depDesc = result.getString("DepDescription");
 
-		    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
+					DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
 					dx.setDescription(depDesc);
 					pm = new ParametricModel(modelName, formula, dx, level, modelID);
 					pm.setModelClass(result.getInt("Klasse"));
@@ -1100,23 +1038,22 @@ public class MMC_M extends JPanel {
 			result.getStatement().close();
 			result.close();
 			db.close();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		if (addPreviousSelectedPM) modelNameBox.setSelectedItem(ppm);
-	}	
+	}
 
 	private void typeBoxActionPerformed(ActionEvent e) {
 		String typeString = (String) typeBox.getSelectedItem();
 		Integer type = null;
-		
+
 		for (Map.Entry<Object, String> entry : DBKernel.myDBi.getHashMap("ModelType").entrySet()) {
 			if (entry.getValue().equals(typeString)) {
 				type = (Integer) entry.getKey();
 			}
 		}
-				
+
 		if (table != null && table.getPM() != null) {
 			table.getPM().setModelClass(type);
 		}
@@ -1184,57 +1121,50 @@ public class MMC_M extends JPanel {
 		button2 = new JButton();
 		label10 = new JLabel();
 		label11 = new JLabel();
-		qScoreBox = new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
+		qScoreBox = new JComboBox<>(new Color[] { Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED });
 		qScoreBox.setRenderer(new DefaultListCellRenderer() {
-					private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L;
 
-					private Color color = Color.WHITE;
-					private boolean isSelected = false;
+			private Color color = Color.WHITE;
+			private boolean isSelected = false;
 
-					@Override
-					public Component getListCellRendererComponent(JList<?> list,
-							Object value, int index, boolean isSelected,
-							boolean cellHasFocus) {
-						color = (Color) value;
-						this.isSelected = isSelected;
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				color = (Color) value;
+				this.isSelected = isSelected;
 
-						return super.getListCellRendererComponent(list, value, index,
-								isSelected, cellHasFocus);
+				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			}
+
+			@Override
+			protected void paintComponent(Graphics g) {
+				Rectangle rect = g.getClipBounds();
+
+				if (rect != null) {
+					g.setColor(color);
+					g.fillRect(rect.x, rect.y, rect.width, rect.height);
+
+					if (isSelected) {
+						g.setColor(UIManager.getDefaults().getColor("List.selectionBackground"));
+					} else {
+						g.setColor(UIManager.getDefaults().getColor("List.background"));
 					}
 
-					@Override
-					protected void paintComponent(Graphics g) {
-						Rectangle rect = g.getClipBounds();
-
-						if (rect != null) {
-							g.setColor(color);
-							g.fillRect(rect.x, rect.y, rect.width, rect.height);
-
-							if (isSelected) {
-								g.setColor(UIManager.getDefaults().getColor(
-										"List.selectionBackground"));
-							} else {
-								g.setColor(UIManager.getDefaults().getColor(
-										"List.background"));
-							}
-
-							((Graphics2D) g).setStroke(new BasicStroke(5));
-							g.drawRect(rect.x, rect.y, rect.width, rect.height);
-						}
-					}
+					((Graphics2D) g).setStroke(new BasicStroke(5));
+					g.drawRect(rect.x, rect.y, rect.width, rect.height);
+				}
+			}
 		});
 		checkBox1 = new JCheckBox();
 		label14 = new JLabel();
 		textField1 = new JTextField();
 
 		//======== this ========
-		setBorder(new CompoundBorder(
-			new TitledBorder("Model Properties"),
-			Borders.DLU2_BORDER));
+		setBorder(new CompoundBorder(new TitledBorder("Model Properties"), Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
-			"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-			"default, $rgap, default, $ugap, 2*(default, $pgap), default, $lgap, 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
-		((FormLayout)getLayout()).setColumnGroups(new int[][] {{5, 11, 17}, {7, 13, 19}, {9, 15, 21}});
+				"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
+				"default, $rgap, default, $ugap, 2*(default, $pgap), default, $lgap, 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
+		((FormLayout) getLayout()).setColumnGroups(new int[][] { { 5, 11, 17 }, { 7, 13, 19 }, { 9, 15, 21 } });
 
 		//---- depVarLabel ----
 		depVarLabel.setText("Parameter");
@@ -1521,16 +1451,9 @@ public class MMC_M extends JPanel {
 			scrollPane2.setPreferredSize(new Dimension(452, 120));
 
 			//---- referencesTable ----
-			referencesTable.setModel(new DefaultTableModel(
-				new Object[][] {
-				},
-				new String[] {
-					"Reference"
-				}
-			) {
-				boolean[] columnEditable = new boolean[] {
-					false
-				};
+			referencesTable.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Reference" }) {
+				boolean[] columnEditable = new boolean[] { false };
+
 				@Override
 				public boolean isCellEditable(int rowIndex, int columnIndex) {
 					return columnEditable[columnIndex];

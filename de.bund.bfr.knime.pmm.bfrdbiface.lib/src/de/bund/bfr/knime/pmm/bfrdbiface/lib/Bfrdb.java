@@ -821,9 +821,11 @@ public class Bfrdb {
 		}
 
 		if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-			updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID, pm.getComment());
+			updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), pm.isChecked(), workflowID,
+					pm.getComment());
 		} else {
-			estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID, pm.getComment());
+			estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), pm.isChecked(), workflowID,
+					pm.getComment());
 			pm.setEstModelId(estModelId);
 		}
 
@@ -943,7 +945,7 @@ public class Bfrdb {
 					if (agentId != null) {
 						sql = "INSERT INTO \"Codes_Agenzien\" (\"CodeSystem\",\"Code\",\"Basis\") VALUES ('PMF',?,?)";
 						psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-						psmt.setString(1, agentId+"");
+						psmt.setString(1, agentId + "");
 						psmt.setInt(2, agentId);
 						psmt.executeUpdate();
 					}
@@ -961,7 +963,7 @@ public class Bfrdb {
 					if (matrixId != null) {
 						sql = "INSERT INTO \"Codes_Matrices\" (\"CodeSystem\",\"Code\",\"Basis\") VALUES ('PMF',?,?)";
 						psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-						psmt.setString(1, matrixId+"");
+						psmt.setString(1, matrixId + "");
 						psmt.setInt(2, matrixId);
 						psmt.executeUpdate();
 					}
@@ -1857,9 +1859,9 @@ public class Bfrdb {
 	}
 
 	private void updateEstModel(final int estModelId, String name, final int condId, final int modelId, final double rms, final double rsquared, final double aic,
-			final double bic, final int responseId, Integer qualityScore, Integer workflowID, String comment) {
+			final double bic, final int responseId, Integer qualityScore, Boolean isChecked, Integer workflowID, String comment) {
 		try {
-			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"Kommentar\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"Geprueft\"=?, \"Kommentar\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {
@@ -1901,17 +1903,22 @@ public class Bfrdb {
 			} else {
 				ps.setInt(9, qualityScore);
 			}
-			if (comment == null) {
-				ps.setNull(10, Types.VARCHAR);
+			if (isChecked == null) {
+				ps.setNull(10, Types.BOOLEAN);
 			} else {
-				ps.setString(10, comment);
+				ps.setBoolean(10, isChecked);
+			}
+			if (comment == null) {
+				ps.setNull(11, Types.VARCHAR);
+			} else {
+				ps.setString(11, comment);
 			}
 			if (workflowID != null && workflowID > 0) {
-				ps.setInt(11, workflowID);
+				ps.setInt(12, workflowID);
 			} else {
-				ps.setNull(11, Types.INTEGER);
+				ps.setNull(12, Types.INTEGER);
 			}
-			ps.setInt(12, estModelId);
+			ps.setInt(13, estModelId);
 
 			ps.executeUpdate();
 			ps.close();
@@ -1921,11 +1928,11 @@ public class Bfrdb {
 	}
 
 	private int insertEstModel(String name, final int condId, final int modelId, final Double rms, final Double rsquared, final Double aic, final Double bic, final int responseId,
-			Integer qualityScore, Integer workflowID, String comment) {
+			Integer qualityScore, Boolean isChecked, Integer workflowID, String comment) {
 		int ret = -1;
 		try {
 			PreparedStatement ps = conn.prepareStatement(
-					"INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"Kommentar\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+					"INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"Geprueft\", \"Kommentar\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
@@ -1968,15 +1975,20 @@ public class Bfrdb {
 			} else {
 				ps.setInt(9, qualityScore);
 			}
-			if (comment == null) {
-				ps.setNull(10, Types.VARCHAR);
+			if (isChecked == null) {
+				ps.setNull(10, Types.BOOLEAN);
 			} else {
-				ps.setString(10, comment);
+				ps.setBoolean(10, isChecked);
+			}
+			if (comment == null) {
+				ps.setNull(11, Types.VARCHAR);
+			} else {
+				ps.setString(11, comment);
 			}
 			if (workflowID != null && workflowID > 0) {
-				ps.setInt(11, workflowID);
+				ps.setInt(12, workflowID);
 			} else {
-				ps.setNull(11, Types.INTEGER);
+				ps.setNull(12, Types.INTEGER);
 			}
 
 			ps.executeUpdate();

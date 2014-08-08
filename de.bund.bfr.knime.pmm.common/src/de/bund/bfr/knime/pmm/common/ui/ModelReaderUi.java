@@ -49,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
 
@@ -115,9 +116,13 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		levelBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(levelBox);
 
-		panel0.add(new JLabel("Model class   "));
+		panel0.add(new JLabel("Type:   "));
 
-		classBox = new JComboBox<>(new String[] {"All","growth","inactivation","survival"});
+		classBox = new JComboBox<>();// new String[] {"All","growth","inactivation","survival"}
+		classBox.addItem("All");
+		for (String s : DBKernel.myDBi.getHashMap("ModelType").values()) {
+			classBox.addItem(s);
+		}
 		classBox.addActionListener(this);
 		classBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(classBox);

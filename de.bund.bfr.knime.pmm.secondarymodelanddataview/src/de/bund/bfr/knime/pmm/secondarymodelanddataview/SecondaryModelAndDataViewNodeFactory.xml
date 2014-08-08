@@ -11,21 +11,28 @@
         <intro>View the result of secondary model estimations: The change of model parameters with changing environmental conditions is visualized, e.g. an increasing bacterial growth rate with temperature.</intro>
 		
 		<option name="Graph">Visualizes secondary model estimations and associated model parameters.<br></br><br></br>
-        <b>Mouse zoom:</b> To view a part of the graph in detail left click and simultaneously drag the mouse right and down. To zoom out drag the mouse from the opposite direction or simply deselect "Set Manual Range".<br></br><br></br>
+        <b>Mouse zoom:</b> To view a part of the graph in detail left click and simultaneously drag the mouse right and down. Another way is to use the zoom options in the context menu.<br></br><br></br>
         <b>Context Menu</b> (Right click in the graph):<br></br>
-        <u>Save as...:</u> Saves the graph as PNG (a bitmap image) or as SVG (a vector image). Compared to the PNG image in the outport (which has a resolution of 640x480 pixels) this PNG is saved with the same size as on the screen.</option>
+        <u>Properties:</u> Change font (type, size, color) and labels as well as the appearance of the graph. These changes are lost as soon as the options dialog is closed. To save a graph with changed properties (e.g. for a publication) use the "Save as..." option in the context menu.<br></br>
+        <u>Copy:</u> Copies the graph to the clipboard enabling you to paste it in a graphical editor.<br></br>
+        <u>Save as...:</u> Saves the graph as PNG (a bitmap image) or as SVG (a vector image). Compared to the PNG image in the outport (which has a resolution of 640x480 pixels) this PNG is saved with the same size as on the screen.<br></br>
+        <u>Print:</u> Print the graph directly from Knime PMM-Lab.<br></br>
+        <u>Zoom:</u> Zoom in and out or auto range the view for one or both axes.</option>
+       
         <option name="Display Options">
         <u>Draw Lines:</u> Connect data points with lines which helps to distinguish between different sets of data.<br></br> 
-        <u>Display Highlighted Row:</u> If checked, only the highlighted row in the table on the right is displayed. A comfortable way to select sets of data is to highlight a row and then navigate with the arrow keys (up/down). Using the keyboard, the space bar can be used to select/unselect a set of data.<br></br>
-        <u>Show Legend:</u> Display the model ID and the data set ID together with symbol and color.<br></br>
-        <u>Add Info in Legend:</u> Adds the formula to the legend. This option is only available when the legend is displayed.<br></br>
+        <u>Display Highlighted Row:</u> If checked, only the highlighted row in the table is displayed. A comfortable way to select sets of data is to highlight a row and then navigate with the arrow keys (up/down) through the table. Using the keyboard, the space bar can be used to select/unselect a set of data.<br></br>
+        <u>Show Legend:</u> Display the parameter name together with symbol and color.<br></br>
+        <u>Add Info in Legend:</u> Adds to the legend the name of the formula with which the secondary model was estimated. This option is only available when the legend is displayed.<br></br>
         <u>Export as SVG:</u> If checked, the graph outport contains a SVG file and not a PNG file after execution of the node.<br></br>
         <u>Show Confidence Interval:</u> Computes and displays confidence intervals.</option>
         
         <option name="Range">Check the box to set the minimum and maximum values for x and y axes.</option>
         
         <option name="Variables on Display"><u>X and Y:</u> Displays the heading of the displayed data column. Changing units automatically reformats the axes.<br></br>
-        <u>X/Y Transform:</u> Transforms the data on the X/Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).</option>
+        <u>X/Y Transform:</u> Transforms data on the X/Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).</option>
+        
+        <option name="Other Variables">If a parameter is dependent on more than one environmental condition (e.g. temperature and pH-value), the Secondary Model View displays one environmental condition on the x-axis and summarizes all additional environmental conditions in the Other Variables section. By clicking on one variable name, the values to be displayed in the graph can be selected in a popup window. By default, all values are displayed.</option>
         
         <option name="Filter">Filter the rows in the table to be displayed for the model status:<br></br>
         <u>Ok</u> = fitting successful.<br></br>
@@ -41,7 +48,7 @@
     
     <ports>
         <inPort index="0" name="Secondary model and parameters">Secondary model and parameters (e.g. from the Model Fitting node or the Fitted Model Reader node)</inPort>
-        <outPort index="0" name="Selected models graph">Graph containing selected secondary models</outPort>
+        <outPort index="0" name="Selected models graph">Graph containing selected secondary models; the image is a PNG file (default) or a SVG file (see section 'Display Options')</outPort>
     </ports>    
 
 </knimeNode>

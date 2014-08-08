@@ -36,19 +36,13 @@
 <knimeNode icon="./ModelFormulaWriter.png" type="Sink">
     <name>Formula Writer</name>
     
-     <shortDescription>Saves growth/survival/inactivation models to a database</shortDescription>
+     <shortDescription>Saves model formulas to the internal database</shortDescription>
     
     <fullDescription>
-        <intro>
-          Saves primary or secondary models. This can either be the internal database or any HSQL database with the appropriate data structure.
-        </intro>
-        
-        
-<option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
-
+        <intro>Saves primary or secondary model formulas to the internal PMM-Lab database.</intro>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Microbial model table">A table containing the model formula and additional information.</inPort>
+        <inPort index="0" name="Model formulas">Model formulas (e.g. from the Formula Creator node)</inPort>
     </ports>    
 </knimeNode>

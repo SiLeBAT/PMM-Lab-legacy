@@ -24,7 +24,7 @@
    <extension
          point="org.knime.workbench.repository.metanode">
       <PersistedMetaNode
-            category-path="/pmmlab/converter"
+            category-path="/pmmlab/converters"
             expert-flag="false"
             icon="metanode_templates/NuMLCreator.png"
             id="de.bund.bfr.knime.pmm.dataviewandselect.numlwriter"

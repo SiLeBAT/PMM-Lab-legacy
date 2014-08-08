@@ -37,22 +37,19 @@
     <name>Model Reader</name>
     
     <shortDescription>
-        Loads previously estimated primary or secondary models from a database
+        Loads estimated primary or secondary models from the internal database
     </shortDescription>
     
     <fullDescription>
-        <intro>Loads primary or secondary models together with previously estimated parameter values from a database. This can either be the internal database or any HSQL database with the appropriate data structure.</intro>
-        
-        
-        <option name="Use external database">By default the internal database is accessed. This internal database can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...".<br></br>In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
-        <option name="Level">Load either estimated primary or secondary models.</option>
-        <option name="Model">Check the box and choose one or more models by clicking the listed names.</option>
-        <option name="Estimation quality">Filter the fitted models either by RMS or by R squared by entering a value into the textbox.</option>
-        <option name="Organism">Check the box and enter the name of an organism.</option>
-        <option name="Matrix">Check the box and enter the name of a matrix.</option>
+        <intro>Loads primary or secondary models together with previously estimated parameter values from the internal database.</intro>
+                
+        <option name="Level">Filter for primary or secondary model formulas. Primary model formulas can be further filtered according to the '<u>Type</u>' (e.g. growth models).</option>
+        <option name="Model">Check the box 'Filter by formula' and choose one or more models by clicking the listed names. If the above mentioned filter options were used the list is already reduced.</option>
+        <option name="Estimation quality">Filter estimated models either by RMS or by R<sup>2</sup> by entering a value into the textbox.</option>
+        <option name="MD Filter">To filter for models estimated for specific organisms (e.g. '<i>E. coli</i> ') or matrices (e.g. 'beef') type an organism or matrix name into one of the text boxes or tick the [...] button to choose entries from the internal database. Now either press 'OK' and execute the node or press 'ApplyAndShowFilterResults'. The latter option allows to view estimated models in a graph as well as in a table. Here, entries can be sorted for quality parameters or environmental conditions. All ticked entries will be in the outport after execution of the node.</option>
     </fullDescription>
     
     <ports>
-        <outPort index="0" name="Microbial model table">Microbial model table</outPort>
+        <outPort index="0" name="Models">Imported models</outPort>
     </ports>    
 </knimeNode>

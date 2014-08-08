@@ -41,16 +41,13 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Loads laboratory test data from a database, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).
-        <br></br><br></br>Note: The Microbial Data Reader loads only test conditions containing test results and time values.</intro>
+        <intro>Loads laboratory test data from the internal database, stored for example as bacterial cell counts (log10(cfu/g)) over time (hours) measured for a specific test organism in a matrix with defined environmental conditions (e.g. temperature, pH value (ph) and water activity (aw)).</intro>
         
-        
-        <option name="Use external database">By default the internal database is accessed. This internal database can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
-        <option name="Organism">Check the box and enter the name of an organism.</option>
-        <option name="Matrix">Check the box and enter the name of a matrix.</option>
+        <option name="MD Filter">Filter entries of the internal database for organism, matrix and/or literature either by typing into the text boxes or by clicking the '...' button which allows to select the names directly in the internal database.</option>
+        <option name="Parameters">Additionally, database entries can be filtered for environmental conditions like temperature, pH value and water activity. Other environmental conditions can be chosen from the drop-down menu.</option>
     </fullDescription>
     
     <ports>
-        <outPort index="0" name="Microbial data table">Microbial data table</outPort>     
+        <outPort index="0" name="Data">Imported data</outPort>     
     </ports>    
 </knimeNode>

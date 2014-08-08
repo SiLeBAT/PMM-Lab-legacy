@@ -55,6 +55,6 @@
     
     <ports>
         <inPort index="0" name="Input data">Table with test conditions or models from the database, e.g. from the Data Reader or the Model Reader</inPort>
-        <outPort index="0" name="Input data with Delete status">Input table with additional column "DBResult". A number greater than zero indicates that the command was processed successfully.</outPort>
+        <outPort index="0" name="Input data with delete status">Input table with additional column "DBResult"; a number greater than zero indicates that the command was processed successfully</outPort>
     </ports>    
 </knimeNode>

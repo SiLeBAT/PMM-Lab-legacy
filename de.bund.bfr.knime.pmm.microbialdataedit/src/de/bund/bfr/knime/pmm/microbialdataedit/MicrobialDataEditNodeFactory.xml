@@ -4,18 +4,20 @@
     <name>Data Editor</name>
     
    <shortDescription>
-        Add assay conditions to microbial data
+        Correct data sets or add information
     </shortDescription>
     
     <fullDescription>
-        <intro>This node is designed to add information to previously loaded microbial data. For example, not all available information in the <a href="http://www.combase.cc">ComBase</a> can be exported to a CSV file. Also data from the database or from an XLS file may not contain all necessary information. The Microbial Data Editor allows to add columns containing additional conditions.</intro>
+        <intro>This node is designed to add information to previously loaded microbial data or to correct details. For example, not all available information in the <a href="http://www.combase.cc">ComBase</a> can be exported to a CSV file (e.g. the references). Also data from the database or from an XLS file may not contain all necessary information.</intro>
         
         
-        <option name="Conditions to add">Click 'Add' to enter the database and choose one or more additional conditions. They will be listed in the white box below the add button and they will also appear as headline of an empty column next to the ID. Here, the values for the condition can be typed in. To delete an assay condition highlight it in the white box and click 'Remove'.</option>
+        <option name="Conditions to add">Click 'Add' to enter the database and choose one or more additional environmental conditions. By clicking on the '+' button new conditions can be added to the database. For each selected environmental condition (e.g. sucrose concentration) two new columns are added at the end of the Data Editor table: One column for values and one in which the unit should be defined.<br></br><br></br>
+        To delete an assay condition highlight its name in the white box above the table and click 'Remove'.</option>
+        <option name="Table">The available data sets can be viewed in the table. Except for the ID and the time series (column 'MD_Data') all cells can be changed.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Microbial data">Microbial data from spreadsheets (via ComBase Reader or XLS Data Reader) or from a database (via Data Reader)</inPort>       
-        <outPort index="0" name="Microbial data table">Edited microbial data</outPort>  
+        <inPort index="0" name="Data">Data from spreadsheets (e.g. from the nodes ComBase Reader or XLS Data Reader) or from a database (via Data Reader)</inPort>       
+        <outPort index="0" name="Edited Data">Edited data sets</outPort>  
     </ports>    
 </knimeNode>

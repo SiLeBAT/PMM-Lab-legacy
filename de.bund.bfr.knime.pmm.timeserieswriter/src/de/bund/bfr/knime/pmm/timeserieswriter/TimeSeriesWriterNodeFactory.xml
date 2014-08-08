@@ -37,18 +37,16 @@
     <name>Data Writer</name>
     
     <shortDescription>
-        Writes microbial data to a database
+        Writes microbial data to the internal database
     </shortDescription>
     
     <fullDescription>
-        <intro>Saves laboratory test data to a database, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).</intro>
-        
-        
-        <option name="Use external database">By default the internal database is accessed. This internal database can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...".<br></br>
-        In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
+        <intro>Saves laboratory test data to the internal database, accessible from 'PMM-Lab' -> 'Open DB GUI...'.<br></br><br></br>
+        <b>Attention:</b><br></br>If you change data sets from the internal database with the Data Editor node and save them again with the Data Writer the original database entries will be overwritten. Changed values cannot be reset.</intro>
+       
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Microbial data table">Microbial data table</inPort>
+        <inPort index="0" name="Data">Data (e.g. from the nodes ComBase Reader, Data Creator, XLS Data Reader, Data Editor, Data Selection)</inPort>
     </ports>    
 </knimeNode>

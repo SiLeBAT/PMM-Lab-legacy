@@ -36,21 +36,18 @@
 <knimeNode icon="./ModelFormulaReader.png" type="Source">
     <name>Formula Reader</name>
     
-    <shortDescription>Loads growth/survival/inactivation models from a database</shortDescription>
+    <shortDescription>Loads primary or secondary models</shortDescription>
     
     <fullDescription>
         <intro>
-          Loads primary or secondary models. This can either be the internal database or any HSQL database with the appropriate data structure.
+          Loads primary or secondary model formulas from the internal database. If none of the filter options below are used all formulas will be loaded.
         </intro>
         
-        
-<option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
-        <option name="Level">Load either estimated primary or secondary models.</option>
-        <option name="Model">Check the box and choose one or more models by clicking the listed names.</option>
-        
+        <option name="Level">Filter available formulas for primary or secondary model formulas. Primary model formulas can be further filtered according to the '<u>Type</u>' (e.g. growth models).</option>
+        <option name="Model">Check the box and choose one or more models by clicking the listed names. If the above mentioned filter options were used the list is already reduced.</option>
     </fullDescription>
     
     <ports>
-        <outPort index="0" name="Microbial model table">A table containing the model formula and additional information.</outPort>
+        <outPort index="0" name="Model formulas">Imported model formulas</outPort>
     </ports>        
 </knimeNode>

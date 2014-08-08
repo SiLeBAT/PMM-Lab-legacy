@@ -4,11 +4,11 @@
 	<name>SBML Writer</name>
 
 	<shortDescription>
-     	This node writes each tertiary or primary models from the input to a seperate SBML file.
+     	This node writes primary and tertiary models to SBML files
     </shortDescription>
 
 	<fullDescription>
-		<intro>This node writes each tertiary or primary models from the input to a seperate SBML file.
+		<intro>This node writes primary and tertiary models to SBML files. Each model is saved in a separate XML file.
 		</intro>
 
 		<option name="Output Path">
@@ -24,7 +24,7 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Models">All Primary or Tertiary Models that should be written to SBML
+		<inPort index="0" name="Models">Primary or tertiary models (e.g. from the nodes Model Fitting, Primary Model Selection, Tertiary Model Selection)
 		</inPort>
 	</ports>
 </knimeNode>

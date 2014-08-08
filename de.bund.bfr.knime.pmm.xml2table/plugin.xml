@@ -17,7 +17,7 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/pmmlab/converter"
+            category-path="/pmmlab/converters"
             factory-class="de.bund.bfr.knime.pmm.xml2table.XML2TableNodeFactory"
             id="de.bund.bfr.knime.pmm.xml2table.XML2TableNodeFactory"/>
    </extension>

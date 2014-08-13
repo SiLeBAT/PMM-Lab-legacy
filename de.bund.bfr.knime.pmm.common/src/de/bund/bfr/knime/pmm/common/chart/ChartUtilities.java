@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
@@ -78,7 +79,7 @@ public class ChartUtilities {
 				Document document = domImpl.createDocument(null, "svg", null);
 				SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
 				Writer outsvg = new OutputStreamWriter(new FileOutputStream(
-						fileName), "UTF-8");
+						fileName), StandardCharsets.UTF_8);
 
 				chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width,
 						height));

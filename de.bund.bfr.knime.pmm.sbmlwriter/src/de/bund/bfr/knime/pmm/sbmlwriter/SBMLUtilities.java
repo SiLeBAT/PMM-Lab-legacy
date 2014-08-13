@@ -2,6 +2,7 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -26,7 +27,7 @@ public class SBMLUtilities {
 		try {
 			SBMLWriter.write(doc, out, "test", "1.0", ' ', (short) 0);
 
-			String xml = out.toString("UTF-8");
+			String xml = out.toString(StandardCharsets.UTF_8.name());
 			String from = "<listOfUnitDefinitions>";
 			String to = "</listOfUnitDefinitions>";
 

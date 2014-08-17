@@ -137,8 +137,12 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			else {
 	    	    		// SecondaryModel
 	    				//if (model.getIndepVarSet().size() > 0) {
+	    				if (model.getDepXml().getOrigName() == null) {
+	    					model.getDepXml().setOrigName(model.getDepXml().getName());
+	    				}
 	    					KnimeTuple tupleM2 = model.getKnimeTuple();
 
+	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
 	    		    		rowSec.add(tupleM2);					
 	    				//}	    		

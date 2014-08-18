@@ -542,8 +542,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			reader = new TableReader(tuples, set.getConcentrationParameters(),
 					set.getLagParameters(), defaultBehaviour);
 
-			int divider = ((ChartAllPanel) mainComponent.getComponent(0))
-					.getDividerLocation();
+			int verticalDivider = ((ChartAllPanel) mainComponent
+					.getComponent(0)).getVerticalDividerLocation();
+			int horizontalDivider = ((ChartAllPanel) mainComponent
+					.getComponent(0)).getHorizontalDividerLocation();
 
 			ChartAllPanel chartPanel = createMainComponent();
 
@@ -553,7 +555,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				((JPanel) getTab("Options")).revalidate();
 			}
 
-			chartPanel.setDividerLocation(divider);
+			chartPanel.setVerticalDividerLocation(verticalDivider);
+			chartPanel.setHorizontalDividerLocation(horizontalDivider);
 			mainComponent.removeAll();
 			mainComponent.add(chartPanel, BorderLayout.CENTER);
 			mainComponent.revalidate();

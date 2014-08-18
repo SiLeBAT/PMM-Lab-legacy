@@ -12,16 +12,20 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private JSplitPane splitPane;
+	private JSplitPane verticalSplitPane;
+	private JSplitPane horizontalSplitPane;
+
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
 	private ChartSamplePanel samplePanel;
 
-	private boolean adjusted;
+	private boolean verticalPaneAdjusted;
+	private boolean horizontalPaneAdjusted;
 
 	public ChartAllPanel(ChartCreator chartCreator,
 			ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel) {
-		adjusted = false;
+		verticalPaneAdjusted = false;
+		horizontalPaneAdjusted = false;
 
 		this.selectionPanel = selectionPanel;
 		this.configPanel = configPanel;
@@ -33,18 +37,19 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
 
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
-				selectionPanel);
-		splitPane.addComponentListener(this);
+		verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				upperPanel, selectionPanel);
+		verticalSplitPane.addComponentListener(this);
 
 		setLayout(new BorderLayout());
-		add(splitPane, BorderLayout.CENTER);
+		add(verticalSplitPane, BorderLayout.CENTER);
 	}
 
 	public ChartAllPanel(ChartCreator chartCreator,
 			ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel,
 			ChartSamplePanel samplePanel) {
-		adjusted = false;
+		verticalPaneAdjusted = false;
+		horizontalPaneAdjusted = false;
 
 		this.selectionPanel = selectionPanel;
 		this.configPanel = configPanel;
@@ -57,18 +62,16 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
 
-		JPanel bottomPanel = new JPanel();
+		horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				selectionPanel, samplePanel);
+		horizontalSplitPane.addComponentListener(this);
 
-		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(selectionPanel, BorderLayout.CENTER);
-		bottomPanel.add(samplePanel, BorderLayout.EAST);
-
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
-				bottomPanel);
-		splitPane.addComponentListener(this);
+		verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				upperPanel, horizontalSplitPane);
+		verticalSplitPane.addComponentListener(this);
 
 		setLayout(new BorderLayout());
-		add(splitPane, BorderLayout.CENTER);
+		add(verticalSplitPane, BorderLayout.CENTER);
 	}
 
 	public ChartSelectionPanel getSelectionPanel() {
@@ -83,12 +86,20 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 		return samplePanel;
 	}
 
-	public int getDividerLocation() {
-		return splitPane.getDividerLocation();
+	public int getVerticalDividerLocation() {
+		return verticalSplitPane.getDividerLocation();
 	}
 
-	public void setDividerLocation(int location) {
-		splitPane.setDividerLocation(location);
+	public void setVerticalDividerLocation(int location) {
+		verticalSplitPane.setDividerLocation(location);
+	}
+
+	public int getHorizontalDividerLocation() {
+		return horizontalSplitPane.getDividerLocation();
+	}
+
+	public void setHorizontalDividerLocation(int location) {
+		horizontalSplitPane.setDividerLocation(location);
 	}
 
 	@Override
@@ -101,11 +112,18 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		JSplitPane pane = (JSplitPane) e.getComponent();
+		if (e.getComponent() == verticalSplitPane && !verticalPaneAdjusted
+				&& verticalSplitPane.getWidth() > 0
+				&& verticalSplitPane.getHeight() > 0) {
+			verticalSplitPane.setDividerLocation(0.5);
+			verticalPaneAdjusted = true;
+		}
 
-		if (!adjusted && pane.getWidth() > 0 && pane.getHeight() > 0) {
-			pane.setDividerLocation(0.5);
-			adjusted = true;
+		if (e.getComponent() == horizontalSplitPane && !horizontalPaneAdjusted
+				&& horizontalSplitPane.getWidth() > 0
+				&& horizontalSplitPane.getHeight() > 0) {
+			horizontalSplitPane.setDividerLocation(0.5);
+			horizontalPaneAdjusted = true;
 		}
 	}
 

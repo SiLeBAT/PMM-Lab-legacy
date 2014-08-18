@@ -285,13 +285,13 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			set.setSelectedID(null);
 			reader = new TableReader(table, set.getUsedConditions());
 
-			int divider = mainComponent.getDividerLocation();
+			int divider = mainComponent.getVerticalDividerLocation();
 
 			mainComponent = createMainComponent();
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(mainComponent);
 			((JPanel) getTab("Options")).revalidate();
-			mainComponent.setDividerLocation(divider);
+			mainComponent.setVerticalDividerLocation(divider);
 		}
 	}
 

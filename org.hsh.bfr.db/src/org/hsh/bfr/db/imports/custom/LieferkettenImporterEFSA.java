@@ -410,6 +410,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		return new int[] { numSuccess, numFails };
 	}
 
+	private boolean isBVL(HSSFRow row) {
+		String A0 = getStrVal(row.getCell(0));
+		return A0.equals("Beispieleintrag");
+	}
 	private int[] doImportStandard(HSSFWorkbook wb, JProgressBar progress) {
 		int numSuccess = 0;
 		int numFails = 0;
@@ -419,7 +423,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		progress.setMaximum(numRows);
 		progress.setValue(0);
 
-		for (int i = 6; i < numRows; i++) { // 6  1
+		boolean isBvl = isBVL(transactionSheet.getRow(0));
+		for (int i = isBvl ? 6 : 1; i < numRows; i++) {
 			HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
 				String serial = getStrVal(row.getCell(0)); // Serial_number

@@ -419,7 +419,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		progress.setMaximum(numRows);
 		progress.setValue(0);
 
-		for (int i = 1; i < numRows; i++) { // 6  1
+		for (int i = 6; i < numRows; i++) { // 6  1
 			HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
 				String serial = getStrVal(row.getCell(0)); // Serial_number

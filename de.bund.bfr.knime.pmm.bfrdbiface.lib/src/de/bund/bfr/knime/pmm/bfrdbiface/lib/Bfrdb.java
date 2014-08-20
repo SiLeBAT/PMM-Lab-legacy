@@ -1334,6 +1334,9 @@ public class Bfrdb {
 		Integer fID = getId4Formula(m.getFormula());
 		boolean iop = isObjectPresent("Modellkatalog", modelId);
 
+		if (m.getFormula().length() > 511) {
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false, true);			
+		}
 		if (iop) { //  || fID != null
 			//Date date = new Date( System.currentTimeMillis() );		
 			if (!iop) {

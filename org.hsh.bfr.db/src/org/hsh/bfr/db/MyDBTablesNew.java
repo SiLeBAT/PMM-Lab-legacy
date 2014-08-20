@@ -1470,7 +1470,7 @@ public class MyDBTablesNew extends MyDBI {
 				"eingegeben_von","Beschreibung","Formel","Ableitung","Software",
 				"Parameter","Referenzen","visible"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","INTEGER","INTEGER","VARCHAR(255)","DATE",
-				"VARCHAR(255)","VARCHAR(1023)","VARCHAR(511)","INTEGER","VARCHAR(255)",
+				"VARCHAR(255)","VARCHAR(1023)","VARCHAR(1023)","INTEGER","VARCHAR(255)",
 				"INTEGER","INTEGER","BOOLEAN"},
 				new String[]{null,null,"1: primary, 2:secondary","1:growth, 2:inactivation, 3:survival,\n4:growth/inactivation, 5:inactivation/survival, 6: growth/survival,\n7:growth/inactivation/survival\n8: T, 9: pH, 10:aw, 11:T/pH, 12:T/aw, 13:pH/aw, 14:T/pH/aw",null,null,"Ersteller des Datensatzes","Beschreibung des Modells","zugrundeliegende Formel für das Modell","Ableitung","schreibt den Schaetzknoten vor",
 				"Parameterdefinitionen, die dem Modell zugrunde liegen: abhaengige Variable, unabhaengige Variable, Parameter","Referenzen, die dem Modell zugrunde liegen",null},

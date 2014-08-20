@@ -649,7 +649,9 @@ public class DBKernel {
 	public static Connection getLocalConn(boolean autoUpdate) {
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
 		try {
-			if ((localConn == null || localConn.isClosed()) && isKNIME) localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
+			if ((localConn == null || localConn.isClosed()) && isKNIME) {
+				localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

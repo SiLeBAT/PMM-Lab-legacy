@@ -356,8 +356,7 @@ public class ModelCombiner {
 			((EstModelXml) estModelXml.get(0)).setSse(null);
 			((EstModelXml) estModelXml.get(0)).setRms(null);
 			((EstModelXml) estModelXml.get(0)).setR2(null);
-			((EstModelXml) estModelXml.get(0)).setAic(null);
-			((EstModelXml) estModelXml.get(0)).setBic(null);
+			((EstModelXml) estModelXml.get(0)).setAic(null);			
 
 			newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);

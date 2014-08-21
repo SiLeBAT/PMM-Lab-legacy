@@ -249,8 +249,8 @@ public class TableReader {
 				IndepXml element = (IndepXml) el;
 
 				if (element.getName().equals(AttributeUtilities.TIME)) {
-					variables.put(element.getName(), new ArrayList<>(
-							Arrays.asList(0.0)));
+					variables.put(element.getName(),
+							new ArrayList<>(Arrays.asList(0.0)));
 					varMin.put(element.getName(), element.getMin());
 					varMax.put(element.getName(), element.getMax());
 					timeUnit = element.getUnit();
@@ -404,13 +404,16 @@ public class TableReader {
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
 				doubleColumnValues.get(0).add(
-						((EstModelXml) estModelXml.get(0)).getRms());
+						((EstModelXml) estModelXml.get(0)).getSse());
 				doubleColumnValues.get(1).add(
-						((EstModelXml) estModelXml.get(0)).getR2());
+						MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
+								.getRms()));
 				doubleColumnValues.get(2).add(
-						((EstModelXml) estModelXml.get(0)).getAic());
+						((EstModelXml) estModelXml.get(0)).getRms());
 				doubleColumnValues.get(3).add(
-						((EstModelXml) estModelXml.get(0)).getBic());
+						((EstModelXml) estModelXml.get(0)).getR2());
+				doubleColumnValues.get(4).add(
+						((EstModelXml) estModelXml.get(0)).getAic());
 			}
 
 			Map<String, List<String>> categories = new LinkedHashMap<>();

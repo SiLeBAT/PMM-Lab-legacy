@@ -80,8 +80,7 @@ public class ParameterOptimizer {
 	private Double sse;
 	private Double rms;
 	private Double rSquare;
-	private Double aic;
-	private Double bic;
+	private Double aic;	
 	private List<Double> parameterStandardErrors;
 	private List<Double> parameterTValues;
 	private List<Double> parameterPValues;
@@ -319,11 +318,7 @@ public class ParameterOptimizer {
 
 	public Double getAIC() {
 		return aic;
-	}
-
-	public Double getBIC() {
-		return bic;
-	}
+	}	
 
 	public List<Double> getParameterStandardErrors() {
 		return parameterStandardErrors;
@@ -377,9 +372,7 @@ public class ParameterOptimizer {
 		rSquare = MathUtilities.getRSquared(optimizer.getChiSquare(),
 				targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
-				targetValues.size(), optimizer.getChiSquare());
-		bic = MathUtilities.bayesCriterion(parameters.size(),
-				targetValues.size(), optimizer.getChiSquare());
+				targetValues.size(), optimizer.getChiSquare());		
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.add(optimizerValues.getPoint()[i]);

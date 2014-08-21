@@ -125,8 +125,7 @@ public class QualityMeasurementComputation {
 		Map<String, Double> sseMap = new LinkedHashMap<>();
 		Map<String, Double> rmsMap = new LinkedHashMap<>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
-		Map<String, Double> aicMap = new LinkedHashMap<>();
-		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();		
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 
 		for (String id : tupleMap.keySet()) {
@@ -189,15 +188,12 @@ public class QualityMeasurementComputation {
 				Double rSquared = MathUtilities.getRSquared(sse,
 						usedTargetValues);
 				Double aic = MathUtilities.akaikeCriterion(paramXml
-						.getElementSet().size(), usedTargetValues.size(), sse);
-				Double bic = MathUtilities.bayesCriterion(paramXml
-						.getElementSet().size(), usedTargetValues.size(), sse);
+						.getElementSet().size(), usedTargetValues.size(), sse);				
 
 				sseMap.put(id, sse);
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);
-				aicMap.put(id, aic);
-				bicMap.put(id, bic);
+				aicMap.put(id, aic);				
 				dofMap.put(id, usedTargetValues.size()
 						- paramXml.getElementSet().size());
 			}
@@ -228,8 +224,7 @@ public class QualityMeasurementComputation {
 					((EstModelXml) estModelXml.get(0)).setRms(rmsMap.get(id));
 					((EstModelXml) estModelXml.get(0)).setR2(rSquaredMap
 							.get(id));
-					((EstModelXml) estModelXml.get(0)).setAic(aicMap.get(id));
-					((EstModelXml) estModelXml.get(0)).setBic(bicMap.get(id));
+					((EstModelXml) estModelXml.get(0)).setAic(aicMap.get(id));					
 					((EstModelXml) estModelXml.get(0)).setDof(dofMap.get(id));
 
 					newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
@@ -253,8 +248,7 @@ public class QualityMeasurementComputation {
 		Map<String, Double> sseMap = new LinkedHashMap<>();
 		Map<String, Double> rmsMap = new LinkedHashMap<>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
-		Map<String, Double> aicMap = new LinkedHashMap<>();
-		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();		
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 
@@ -391,15 +385,12 @@ public class QualityMeasurementComputation {
 				Double rSquared = MathUtilities.getRSquared(sse,
 						usedTargetValues);
 				Double aic = MathUtilities.akaikeCriterion(paramMap.get(id)
-						.getElementSet().size(), usedTargetValues.size(), sse);
-				Double bic = MathUtilities.bayesCriterion(paramMap.get(id)
-						.getElementSet().size(), usedTargetValues.size(), sse);
+						.getElementSet().size(), usedTargetValues.size(), sse);				
 
 				sseMap.put(id, sse);
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);
-				aicMap.put(id, aic);
-				bicMap.put(id, bic);
+				aicMap.put(id, aic);				
 				dofMap.put(id, usedTargetValues.size()
 						- paramMap.get(id).getElementSet().size());
 			}
@@ -423,8 +414,7 @@ public class QualityMeasurementComputation {
 				((EstModelXml) estModelXml.get(0)).setSse(sseMap.get(id));
 				((EstModelXml) estModelXml.get(0)).setRms(rmsMap.get(id));
 				((EstModelXml) estModelXml.get(0)).setR2(rSquaredMap.get(id));
-				((EstModelXml) estModelXml.get(0)).setAic(aicMap.get(id));
-				((EstModelXml) estModelXml.get(0)).setBic(bicMap.get(id));
+				((EstModelXml) estModelXml.get(0)).setAic(aicMap.get(id));				
 				((EstModelXml) estModelXml.get(0)).setDof(dofMap.get(id));
 
 				newTuple.setValue(Model2Schema.ATT_ESTMODEL, estModelXml);

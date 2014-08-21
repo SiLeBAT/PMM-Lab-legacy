@@ -307,8 +307,7 @@ public class OneStepEstimationThread implements Runnable {
 					Double sse = null;
 					Double rms = null;
 					Double rSquared = null;
-					Double aic = null;
-					Double bic = null;
+					Double aic = null;					
 					Integer dof = null;
 					Integer estID = MathUtilities.getRandomNegativeInt();
 					List<Double> minValues = Collections.nCopies(
@@ -338,8 +337,7 @@ public class OneStepEstimationThread implements Runnable {
 						sse = optimizer.getSse();
 						rms = optimizer.getRMS();
 						rSquared = optimizer.getRSquare();
-						aic = optimizer.getAIC();
-						bic = optimizer.getBIC();
+						aic = optimizer.getAIC();						
 						dof = targetValues.size() - parameters.size();
 						minValues = new ArrayList<>();
 						maxValues = new ArrayList<>();
@@ -379,8 +377,7 @@ public class OneStepEstimationThread implements Runnable {
 					((EstModelXml) estModelXml.get(0)).setSse(sse);
 					((EstModelXml) estModelXml.get(0)).setRms(rms);
 					((EstModelXml) estModelXml.get(0)).setR2(rSquared);
-					((EstModelXml) estModelXml.get(0)).setAic(aic);
-					((EstModelXml) estModelXml.get(0)).setBic(bic);
+					((EstModelXml) estModelXml.get(0)).setAic(aic);					
 					((EstModelXml) estModelXml.get(0)).setDof(dof);
 
 					paramMap.put(id, paramXml);

@@ -161,7 +161,6 @@ public class PrimaryEstimationThread implements Runnable {
 			Double rms = null;
 			Double rSquare = null;
 			Double aic = null;
-			Double bic = null;
 			Integer dof = null;
 			Double minIndep = null;
 			Double maxIndep = null;
@@ -195,8 +194,7 @@ public class PrimaryEstimationThread implements Runnable {
 				sse = optimizer.getSse();
 				rms = optimizer.getRMS();
 				rSquare = optimizer.getRSquare();
-				aic = optimizer.getAIC();
-				bic = optimizer.getBIC();
+				aic = optimizer.getAIC();				
 				dof = targetValues.size() - parameters.size();
 				estID = MathUtilities.getRandomNegativeInt();
 			}
@@ -227,8 +225,7 @@ public class PrimaryEstimationThread implements Runnable {
 			((EstModelXml) estModelXml.get(0)).setSse(sse);
 			((EstModelXml) estModelXml.get(0)).setRms(rms);
 			((EstModelXml) estModelXml.get(0)).setR2(rSquare);
-			((EstModelXml) estModelXml.get(0)).setAic(aic);
-			((EstModelXml) estModelXml.get(0)).setBic(bic);
+			((EstModelXml) estModelXml.get(0)).setAic(aic);			
 			((EstModelXml) estModelXml.get(0)).setDof(dof);
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);

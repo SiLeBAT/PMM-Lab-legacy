@@ -329,12 +329,6 @@ public class MathUtilities {
 				* (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
 	}
 
-	public static Double bayesCriterion(final int numParam,
-			final int numSample, final double sse) {
-		return numSample * Math.log(sse / numSample) + numParam
-				* Math.log(numSample);
-	}
-
 	public static double getPValue(double tValue, int degreesOfFreedom) {
 		TDistribution dist = new TDistribution(degreesOfFreedom);
 

@@ -101,8 +101,7 @@ public class TableReader {
 		Map<String, Double> sseMap = new LinkedHashMap<>();
 		Map<String, Double> rmsMap = new LinkedHashMap<>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
-		Map<String, Double> aicMap = new LinkedHashMap<>();
-		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();		
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		Map<String, Set<String>> agentMap = new LinkedHashMap<>();
 		Map<String, Set<String>> matrixMap = new LinkedHashMap<>();
@@ -267,8 +266,7 @@ public class TableReader {
 				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRms());
 				rSquaredMap.put(id,
 						((EstModelXml) estModelXmlSec.get(0)).getR2());
-				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAic());
-				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBic());
+				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAic());				
 				dofMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getDof());
 				agentMap.put(id, new LinkedHashSet<String>());
 				matrixMap.put(id, new LinkedHashSet<String>());

@@ -34,8 +34,7 @@ public class TableReader {
 
 	private List<String> ids;
 
-	private List<String> stringColumns;
-	private List<List<String>> stringColumnValues;
+	private Map<String, List<String>> stringColumns;
 	private List<List<TimeSeriesXml>> data;
 	private List<String> conditions;
 	private List<List<Double>> conditionValues;
@@ -52,25 +51,23 @@ public class TableReader {
 				SchemaFactory.createDataSchema());
 		ids = new ArrayList<>();
 		plotables = new LinkedHashMap<>();
-		stringColumns = Arrays.asList(AttributeUtilities.DATAID,
-				TimeSeriesSchema.ATT_AGENT, AttributeUtilities.AGENT_DETAILS,
-				TimeSeriesSchema.ATT_MATRIX, AttributeUtilities.MATRIX_DETAILS,
-				MdInfoXml.ATT_COMMENT, TimeSeriesSchema.ATT_LITMD);
-		stringColumnValues = new ArrayList<>();
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
+		stringColumns = new LinkedHashMap<>();
+		stringColumns.put(AttributeUtilities.DATAID, new ArrayList<String>());
+		stringColumns.put(TimeSeriesSchema.ATT_AGENT, new ArrayList<String>());
+		stringColumns.put(AttributeUtilities.AGENT_DETAILS,
+				new ArrayList<String>());
+		stringColumns.put(TimeSeriesSchema.ATT_MATRIX, new ArrayList<String>());
+		stringColumns.put(AttributeUtilities.MATRIX_DETAILS,
+				new ArrayList<String>());
+		stringColumns.put(MdInfoXml.ATT_COMMENT, new ArrayList<String>());
+		stringColumns.put(TimeSeriesSchema.ATT_LITMD, new ArrayList<String>());
 		conditions = new ArrayList<>();
 		conditionValues = new ArrayList<>();
 		conditionUnits = new ArrayList<>();
 		data = new ArrayList<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
-		standardVisibleColumns = new ArrayList<>(stringColumns);
+		standardVisibleColumns = new ArrayList<>(stringColumns.keySet());
 		standardVisibleColumns.add(ChartSelectionPanel.DATA);
 
 		Set<String> idSet = new LinkedHashSet<>();
@@ -136,15 +133,18 @@ public class TableReader {
 				literature = literature.substring(1);
 			}
 
-			stringColumnValues.get(0).add(dataName);
-			stringColumnValues.get(1).add(agent.getName());
-			stringColumnValues.get(2).add(agent.getDetail());
-			stringColumnValues.get(3).add(matrix.getName());
-			stringColumnValues.get(4).add(matrix.getDetail());
-			stringColumnValues.get(5).add(
+			stringColumns.get(AttributeUtilities.DATAID).add(dataName);
+			stringColumns.get(TimeSeriesSchema.ATT_AGENT).add(agent.getName());
+			stringColumns.get(AttributeUtilities.AGENT_DETAILS).add(
+					agent.getDetail());
+			stringColumns.get(TimeSeriesSchema.ATT_MATRIX)
+					.add(matrix.getName());
+			stringColumns.get(AttributeUtilities.MATRIX_DETAILS).add(
+					matrix.getDetail());
+			stringColumns.get(MdInfoXml.ATT_COMMENT).add(
 					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 							.get(0)).getComment());
-			stringColumnValues.get(6).add(literature);
+			stringColumns.get(TimeSeriesSchema.ATT_LITMD).add(literature);
 			data.add(dataPoints);
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent.getName());
@@ -207,12 +207,8 @@ public class TableReader {
 		return ids;
 	}
 
-	public List<String> getStringColumns() {
+	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
-	}
-
-	public List<List<String>> getStringColumnValues() {
-		return stringColumnValues;
 	}
 
 	public List<List<TimeSeriesXml>> getData() {

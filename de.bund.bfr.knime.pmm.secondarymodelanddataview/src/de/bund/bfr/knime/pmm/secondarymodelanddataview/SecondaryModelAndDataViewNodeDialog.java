@@ -179,8 +179,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			configPanel = new ChartConfigPanel(
 					ChartConfigPanel.PARAMETER_BOXES, true, null, false, true);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
-					reader.getStringColumns(), reader.getStringColumnValues(),
-					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+					reader.getStringColumns(), reader.getDoubleColumns(),
 					reader.getConditions(), null,
 					reader.getConditionMinValues(),
 					reader.getConditionMaxValues(), reader.getConditionUnits(),
@@ -192,8 +191,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			configPanel = new ChartConfigPanel(
 					ChartConfigPanel.PARAMETER_FIELDS, true, null, false, true);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
-					reader.getStringColumns(), reader.getStringColumnValues(),
-					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+					reader.getStringColumns(), reader.getDoubleColumns(),
 					reader.getConditions(), null,
 					reader.getConditionMinValues(),
 					reader.getConditionMaxValues(), reader.getConditionUnits(),

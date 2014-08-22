@@ -307,8 +307,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
-				reader.getStringColumns(), reader.getStringColumnValues(),
-				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+				reader.getStringColumns(), reader.getDoubleColumns(),
 				reader.getConditions(), reader.getConditionValues(),
 				reader.getConditionMinValues(), reader.getConditionMaxValues(),
 				reader.getConditionUnits(), set.getVisibleColumns(),

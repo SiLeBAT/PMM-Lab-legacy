@@ -189,8 +189,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
-				reader.getStringColumns(), reader.getStringColumnValues(),
-				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+				reader.getStringColumns(), reader.getDoubleColumns(),
 				reader.getConditions(), reader.getConditionValues(), null,
 				null, reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), reader.getData(),

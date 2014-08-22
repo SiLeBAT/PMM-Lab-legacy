@@ -46,10 +46,8 @@ public class TableReader {
 
 	private List<String> ids;
 
-	private List<String> stringColumns;
-	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
+	private Map<String, List<String>> stringColumns;
+	private Map<String, List<Double>> doubleColumns;
 	private List<List<TimeSeriesXml>> data;
 	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
@@ -111,44 +109,42 @@ public class TableReader {
 			}
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
-			stringColumns = Arrays.asList(Model1Schema.FORMULA,
-					Model1Schema.ATT_EMLIT, ChartConstants.STATUS,
-					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
-					AttributeUtilities.AGENT_DETAILS,
-					TimeSeriesSchema.ATT_MATRIX,
-					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
-			stringColumnValues = new ArrayList<>();
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
-					Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC,
-					Model1Schema.SSE + " (Local)", Model1Schema.MSE
-							+ " (Local)", Model1Schema.RMSE + " (Local)",
-					Model1Schema.RSQUARED + " (Local)", Model1Schema.AIC
-							+ " (Local)");
-			doubleColumnValues = new ArrayList<>();
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
+			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model1Schema.FORMULA, new ArrayList<String>());
+			stringColumns.put(Model1Schema.ATT_EMLIT, new ArrayList<String>());
+			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
+			stringColumns.put(AttributeUtilities.DATAID,
+					new ArrayList<String>());
+			stringColumns.put(TimeSeriesSchema.ATT_AGENT,
+					new ArrayList<String>());
+			stringColumns.put(AttributeUtilities.AGENT_DETAILS,
+					new ArrayList<String>());
+			stringColumns.put(TimeSeriesSchema.ATT_MATRIX,
+					new ArrayList<String>());
+			stringColumns.put(AttributeUtilities.MATRIX_DETAILS,
+					new ArrayList<String>());
+			stringColumns.put(MdInfoXml.ATT_COMMENT, new ArrayList<String>());
+			doubleColumns = new LinkedHashMap<>();
+			doubleColumns.put(Model1Schema.SSE, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.MSE, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.RMSE, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.RSQUARED, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.AIC, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.SSE + " (Local)",
+					new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.MSE + " (Local)",
+					new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.RMSE + " (Local)",
+					new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.RSQUARED + " (Local)",
+					new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.AIC + " (Local)",
+					new ArrayList<Double>());
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					ChartSelectionPanel.DATA, ChartSelectionPanel.FORMULA,
 					ChartSelectionPanel.PARAMETERS));
-			standardVisibleColumns.addAll(stringColumns);
-			standardVisibleColumns.addAll(doubleColumns);
+			standardVisibleColumns.addAll(stringColumns.keySet());
+			standardVisibleColumns.addAll(doubleColumns.keySet());
 			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					ChartConstants.STATUS, AttributeUtilities.DATAID);
 
@@ -166,25 +162,21 @@ public class TableReader {
 				standardVisibleColumns.add(param);
 			}
 		} else {
-			stringColumns = Arrays.asList(Model1Schema.FORMULA,
-					Model1Schema.ATT_EMLIT, ChartConstants.STATUS);
-			stringColumnValues = new ArrayList<>();
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
-					Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
-			doubleColumnValues = new ArrayList<>();
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
+			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model1Schema.FORMULA, new ArrayList<String>());
+			stringColumns.put(Model1Schema.ATT_EMLIT, new ArrayList<String>());
+			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
+			doubleColumns = new LinkedHashMap<>();
+			doubleColumns.put(Model1Schema.SSE, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.MSE, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.RMSE, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.RSQUARED, new ArrayList<Double>());
+			doubleColumns.put(Model1Schema.AIC, new ArrayList<Double>());
 			standardVisibleColumns = new ArrayList<>(
 					Arrays.asList(ChartSelectionPanel.FORMULA,
 							ChartSelectionPanel.PARAMETERS));
-			standardVisibleColumns.addAll(stringColumns);
-			standardVisibleColumns.addAll(doubleColumns);
+			standardVisibleColumns.addAll(stringColumns.keySet());
+			standardVisibleColumns.addAll(doubleColumns.keySet());
 			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					ChartConstants.STATUS);
 
@@ -328,25 +320,29 @@ public class TableReader {
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
-				stringColumnValues.get(3).add(dataName);
-				stringColumnValues.get(4).add(agent.getName());
-				stringColumnValues.get(5).add(agent.getDetail());
-				stringColumnValues.get(6).add(matrix.getName());
-				stringColumnValues.get(7).add(matrix.getDetail());
-				stringColumnValues.get(8).add(
+				stringColumns.get(AttributeUtilities.DATAID).add(dataName);
+				stringColumns.get(TimeSeriesSchema.ATT_AGENT).add(
+						agent.getName());
+				stringColumns.get(AttributeUtilities.AGENT_DETAILS).add(
+						agent.getDetail());
+				stringColumns.get(TimeSeriesSchema.ATT_MATRIX).add(
+						matrix.getName());
+				stringColumns.get(AttributeUtilities.MATRIX_DETAILS).add(
+						matrix.getDetail());
+				stringColumns.get(MdInfoXml.ATT_COMMENT).add(
 						((MdInfoXml) tuple.getPmmXml(
 								TimeSeriesSchema.ATT_MDINFO).get(0))
 								.getComment());
-				doubleColumnValues.get(0).add(
+				doubleColumns.get(Model1Schema.SSE).add(
 						((EstModelXml) estModelXml.get(0)).getSse());
-				doubleColumnValues.get(1).add(
+				doubleColumns.get(Model1Schema.MSE).add(
 						MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
 								.getRms()));
-				doubleColumnValues.get(2).add(
+				doubleColumns.get(Model1Schema.RMSE).add(
 						((EstModelXml) estModelXml.get(0)).getRms());
-				doubleColumnValues.get(3).add(
+				doubleColumns.get(Model1Schema.RSQUARED).add(
 						((EstModelXml) estModelXml.get(0)).getR2());
-				doubleColumnValues.get(4).add(
+				doubleColumns.get(Model1Schema.AIC).add(
 						((EstModelXml) estModelXml.get(0)).getAic());
 				data.add(dataPoints);
 
@@ -354,23 +350,24 @@ public class TableReader {
 					PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
 							Model1Schema.ATT_ESTMODEL);
 
-					doubleColumnValues.get(5).add(
+					doubleColumns.get(Model1Schema.SSE + " (Local)").add(
 							((EstModelXml) newEstModelXml.get(0)).getSse());
-					doubleColumnValues.get(6).add(
+					doubleColumns.get(Model1Schema.MSE + " (Local)").add(
 							MathUtilities.getMSE(((EstModelXml) newEstModelXml
 									.get(0)).getRms()));
-					doubleColumnValues.get(7).add(
+					doubleColumns.get(Model1Schema.RMSE + " (Local)").add(
 							((EstModelXml) newEstModelXml.get(0)).getRms());
-					doubleColumnValues.get(8).add(
+					doubleColumns.get(Model1Schema.RSQUARED + " (Local)").add(
 							((EstModelXml) newEstModelXml.get(0)).getR2());
-					doubleColumnValues.get(9).add(
+					doubleColumns.get(Model1Schema.AIC + " (Local)").add(
 							((EstModelXml) newEstModelXml.get(0)).getAic());
 				} else {
-					doubleColumnValues.get(5).add(null);
-					doubleColumnValues.get(6).add(null);
-					doubleColumnValues.get(7).add(null);
-					doubleColumnValues.get(8).add(null);
-					doubleColumnValues.get(9).add(null);
+					doubleColumns.get(Model1Schema.SSE + " (Local)").add(null);
+					doubleColumns.get(Model1Schema.MSE + " (Local)").add(null);
+					doubleColumns.get(Model1Schema.RMSE + " (Local)").add(null);
+					doubleColumns.get(Model1Schema.RSQUARED + " (Local)").add(
+							null);
+					doubleColumns.get(Model1Schema.AIC + " (Local)").add(null);
 				}
 
 				for (int i = 0; i < miscParams.size(); i++) {
@@ -403,16 +400,16 @@ public class TableReader {
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
-				doubleColumnValues.get(0).add(
+				doubleColumns.get(Model1Schema.SSE).add(
 						((EstModelXml) estModelXml.get(0)).getSse());
-				doubleColumnValues.get(1).add(
+				doubleColumns.get(Model1Schema.MSE).add(
 						MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
 								.getRms()));
-				doubleColumnValues.get(2).add(
+				doubleColumns.get(Model1Schema.RMSE).add(
 						((EstModelXml) estModelXml.get(0)).getRms());
-				doubleColumnValues.get(3).add(
+				doubleColumns.get(Model1Schema.RSQUARED).add(
 						((EstModelXml) estModelXml.get(0)).getR2());
-				doubleColumnValues.get(4).add(
+				doubleColumns.get(Model1Schema.AIC).add(
 						((EstModelXml) estModelXml.get(0)).getAic());
 			}
 
@@ -446,17 +443,20 @@ public class TableReader {
 				literature = literature.substring(1);
 			}
 
-			stringColumnValues.get(0).add(modelName);
-			stringColumnValues.get(1).add(literature);
+			stringColumns.get(Model1Schema.FORMULA).add(modelName);
+			stringColumns.get(Model1Schema.ATT_EMLIT).add(literature);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(2).add(ChartConstants.FAILED);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(2).add(ChartConstants.OK);
+				stringColumns.get(ChartConstants.STATUS).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -479,20 +479,12 @@ public class TableReader {
 		return ids;
 	}
 
-	public List<String> getStringColumns() {
+	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
 	}
 
-	public List<List<String>> getStringColumnValues() {
-		return stringColumnValues;
-	}
-
-	public List<String> getDoubleColumns() {
+	public Map<String, List<Double>> getDoubleColumns() {
 		return doubleColumns;
-	}
-
-	public List<List<Double>> getDoubleColumnValues() {
-		return doubleColumnValues;
 	}
 
 	public List<List<TimeSeriesXml>> getData() {

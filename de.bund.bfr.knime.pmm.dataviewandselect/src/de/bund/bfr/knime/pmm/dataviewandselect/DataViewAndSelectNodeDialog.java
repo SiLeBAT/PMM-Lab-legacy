@@ -173,8 +173,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
-				reader.getStringColumns(), reader.getStringColumnValues(),
-				new ArrayList<String>(), new ArrayList<List<Double>>(),
+				reader.getStringColumns(),
+				new LinkedHashMap<String, List<Double>>(),
 				reader.getConditions(), reader.getConditionValues(), null,
 				null, reader.getConditionUnits(), set.getVisibleColumns(),
 				new ArrayList<String>(), reader.getData(), null, null, null);

@@ -30,8 +30,7 @@ public class TableReader {
 
 	private List<String> ids;
 	private List<Integer> colorCounts;
-	private List<String> stringColumns;
-	private List<List<String>> stringColumnValues;
+	private Map<String, List<String>> stringColumns;
 	private List<String> conditions;
 	private List<List<Double>> conditionMinValues;
 	private List<List<Double>> conditionMaxValues;
@@ -60,10 +59,9 @@ public class TableReader {
 		plotables = new LinkedHashMap<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
-		stringColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
+		stringColumns = new LinkedHashMap<>();
+		stringColumns.put(Model1Schema.ATT_PARAMETER, new ArrayList<String>());
 		filterableStringColumns = new ArrayList<>();
-		stringColumnValues = new ArrayList<>();
-		stringColumnValues.add(new ArrayList<String>());
 		standardVisibleColumns = new ArrayList<>(
 				Arrays.asList(Model1Schema.ATT_PARAMETER));
 		colorCounts = new ArrayList<>();
@@ -115,7 +113,7 @@ public class TableReader {
 					paramNames.put(id, element1.getName());
 					ids.add(id);
 					primModelIDs.put(id, modelXml.getId());
-					stringColumnValues.get(0).add(name);
+					stringColumns.get(Model1Schema.ATT_PARAMETER).add(name);
 					shortLegend.put(id, name);
 					longLegend.put(id, name);
 
@@ -220,12 +218,8 @@ public class TableReader {
 		return plotables;
 	}
 
-	public List<String> getStringColumns() {
+	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
-	}
-
-	public List<List<String>> getStringColumnValues() {
-		return stringColumnValues;
 	}
 
 	public List<String> getConditions() {

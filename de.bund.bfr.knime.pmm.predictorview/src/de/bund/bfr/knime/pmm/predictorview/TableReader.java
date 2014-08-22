@@ -43,10 +43,8 @@ public class TableReader {
 
 	private List<String> ids;
 	private Map<String, KnimeTuple> tupleMap;
-	private List<String> stringColumns;
-	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
+	private Map<String, List<String>> stringColumns;
+	private Map<String, List<Double>> doubleColumns;
 	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
 	private List<Map<String, String>> variableData;
@@ -161,14 +159,12 @@ public class TableReader {
 		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
 		variableData = new ArrayList<>();
-		doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
-				Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
-		doubleColumnValues = new ArrayList<>();
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumns = new LinkedHashMap<>();
+		doubleColumns.put(Model1Schema.SSE, new ArrayList<Double>());
+		doubleColumns.put(Model1Schema.MSE, new ArrayList<Double>());
+		doubleColumns.put(Model1Schema.RMSE, new ArrayList<Double>());
+		doubleColumns.put(Model1Schema.RSQUARED, new ArrayList<Double>());
+		doubleColumns.put(Model1Schema.AIC, new ArrayList<Double>());
 		conditions = null;
 		conditionValues = null;
 		conditionMinValues = null;
@@ -176,29 +172,28 @@ public class TableReader {
 		conditionUnits = null;
 
 		if (isTertiaryModel) {
-			stringColumns = Arrays.asList(IDENTIFIER, ChartConstants.STATUS,
-					Model1Schema.FORMULA, Model1Schema.ATT_EMLIT,
-					Model1Schema.FITTEDMODELNAME, Model2Schema.FORMULA,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					AttributeUtilities.AGENT_DETAILS,
-					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
-			stringColumnValues = new ArrayList<>();
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
+			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(IDENTIFIER, new ArrayList<String>());
+			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
+			stringColumns.put(Model1Schema.FORMULA, new ArrayList<String>());
+			stringColumns.put(Model1Schema.ATT_EMLIT, new ArrayList<String>());
+			stringColumns.put(Model1Schema.FITTEDMODELNAME,
+					new ArrayList<String>());
+			stringColumns.put(Model2Schema.FORMULA, new ArrayList<String>());
+			stringColumns.put(TimeSeriesSchema.ATT_AGENT,
+					new ArrayList<String>());
+			stringColumns.put(TimeSeriesSchema.ATT_MATRIX,
+					new ArrayList<String>());
+			stringColumns.put(AttributeUtilities.AGENT_DETAILS,
+					new ArrayList<String>());
+			stringColumns.put(AttributeUtilities.MATRIX_DETAILS,
+					new ArrayList<String>());
+			stringColumns.put(MdInfoXml.ATT_COMMENT, new ArrayList<String>());
 			standardVisibleColumns = new ArrayList<>(
 					Arrays.asList(ChartSelectionPanel.FORMULA,
 							ChartSelectionPanel.PARAMETERS));
-			standardVisibleColumns.addAll(stringColumns);
-			standardVisibleColumns.addAll(doubleColumns);
+			standardVisibleColumns.addAll(stringColumns.keySet());
+			standardVisibleColumns.addAll(doubleColumns.keySet());
 			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 			miscParams = PmmUtilities.getIndeps(tuples);
@@ -217,31 +212,33 @@ public class TableReader {
 			}
 		} else {
 			if (containsData) {
-				stringColumns = Arrays.asList(IDENTIFIER,
-						ChartConstants.STATUS, Model1Schema.FORMULA,
-						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME,
-						AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
-						TimeSeriesSchema.ATT_MATRIX,
-						AttributeUtilities.AGENT_DETAILS,
-						AttributeUtilities.MATRIX_DETAILS,
-						MdInfoXml.ATT_COMMENT);
-				stringColumnValues = new ArrayList<>();
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
+				stringColumns = new LinkedHashMap<>();
+				stringColumns.put(IDENTIFIER, new ArrayList<String>());
+				stringColumns.put(ChartConstants.STATUS,
+						new ArrayList<String>());
+				stringColumns
+						.put(Model1Schema.FORMULA, new ArrayList<String>());
+				stringColumns.put(Model1Schema.ATT_EMLIT,
+						new ArrayList<String>());
+				stringColumns.put(Model1Schema.FITTEDMODELNAME,
+						new ArrayList<String>());
+				stringColumns.put(AttributeUtilities.DATAID,
+						new ArrayList<String>());
+				stringColumns.put(TimeSeriesSchema.ATT_AGENT,
+						new ArrayList<String>());
+				stringColumns.put(TimeSeriesSchema.ATT_MATRIX,
+						new ArrayList<String>());
+				stringColumns.put(AttributeUtilities.AGENT_DETAILS,
+						new ArrayList<String>());
+				stringColumns.put(AttributeUtilities.MATRIX_DETAILS,
+						new ArrayList<String>());
+				stringColumns.put(MdInfoXml.ATT_COMMENT,
+						new ArrayList<String>());
 				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						ChartSelectionPanel.FORMULA,
 						ChartSelectionPanel.PARAMETERS));
-				standardVisibleColumns.addAll(stringColumns);
-				standardVisibleColumns.addAll(doubleColumns);
+				standardVisibleColumns.addAll(stringColumns.keySet());
+				standardVisibleColumns.addAll(doubleColumns.keySet());
 				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
@@ -256,20 +253,21 @@ public class TableReader {
 					standardVisibleColumns.add(param);
 				}
 			} else {
-				stringColumns = Arrays.asList(IDENTIFIER,
-						ChartConstants.STATUS, Model1Schema.FORMULA,
-						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME);
-				stringColumnValues = new ArrayList<>();
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
+				stringColumns = new LinkedHashMap<>();
+				stringColumns.put(IDENTIFIER, new ArrayList<String>());
+				stringColumns.put(ChartConstants.STATUS,
+						new ArrayList<String>());
+				stringColumns
+						.put(Model1Schema.FORMULA, new ArrayList<String>());
+				stringColumns.put(Model1Schema.ATT_EMLIT,
+						new ArrayList<String>());
+				stringColumns.put(Model1Schema.FITTEDMODELNAME,
+						new ArrayList<String>());
 				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						ChartSelectionPanel.FORMULA,
 						ChartSelectionPanel.PARAMETERS));
-				standardVisibleColumns.addAll(stringColumns);
-				standardVisibleColumns.addAll(doubleColumns);
+				standardVisibleColumns.addAll(stringColumns.keySet());
+				standardVisibleColumns.addAll(doubleColumns.keySet());
 				filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 						ChartConstants.STATUS);
 			}
@@ -454,10 +452,10 @@ public class TableReader {
 			shortLegend.put(id, index + "");
 			longLegend.put(id, index + "");
 			shortIds.put(id, index + "");
-			stringColumnValues.get(0).add(index + "");
-			stringColumnValues.get(2).add(modelName);
-			stringColumnValues.get(3).add(literature);
-			stringColumnValues.get(4).add(
+			stringColumns.get(IDENTIFIER).add(index + "");
+			stringColumns.get(Model1Schema.FORMULA).add(modelName);
+			stringColumns.get(Model1Schema.ATT_EMLIT).add(literature);
+			stringColumns.get(Model1Schema.FITTEDMODELNAME).add(
 					((EstModelXml) estModelXml.get(0)).getName());
 			index++;
 
@@ -475,7 +473,8 @@ public class TableReader {
 					secString += "," + s;
 				}
 
-				stringColumnValues.get(5).add(secString.substring(1));
+				stringColumns.get(Model2Schema.FORMULA).add(
+						secString.substring(1));
 			}
 
 			if (isTertiaryModel || containsData) {
@@ -484,26 +483,30 @@ public class TableReader {
 				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MATRIX).get(0);
 
-				stringColumnValues.get(6).add(agent.getName());
-				stringColumnValues.get(7).add(matrix.getName());
-				stringColumnValues.get(8).add(agent.getDetail());
-				stringColumnValues.get(9).add(matrix.getDetail());
-				stringColumnValues.get(10).add(
+				stringColumns.get(TimeSeriesSchema.ATT_AGENT).add(
+						agent.getName());
+				stringColumns.get(TimeSeriesSchema.ATT_MATRIX).add(
+						matrix.getName());
+				stringColumns.get(AttributeUtilities.AGENT_DETAILS).add(
+						agent.getDetail());
+				stringColumns.get(AttributeUtilities.MATRIX_DETAILS).add(
+						matrix.getDetail());
+				stringColumns.get(MdInfoXml.ATT_COMMENT).add(
 						((MdInfoXml) tuple.getPmmXml(
 								TimeSeriesSchema.ATT_MDINFO).get(0))
 								.getComment());
 			}
 
-			doubleColumnValues.get(0).add(
+			doubleColumns.get(Model1Schema.SSE).add(
 					((EstModelXml) estModelXml.get(0)).getSse());
-			doubleColumnValues.get(1).add(
+			doubleColumns.get(Model1Schema.MSE).add(
 					MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
 							.getRms()));
-			doubleColumnValues.get(2).add(
+			doubleColumns.get(Model1Schema.RMSE).add(
 					((EstModelXml) estModelXml.get(0)).getRms());
-			doubleColumnValues.get(3).add(
+			doubleColumns.get(Model1Schema.RSQUARED).add(
 					((EstModelXml) estModelXml.get(0)).getR2());
-			doubleColumnValues.get(4).add(
+			doubleColumns.get(Model1Schema.AIC).add(
 					((EstModelXml) estModelXml.get(0)).getAic());
 
 			plotable.setFunction(modelXml.getFormula());
@@ -584,7 +587,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				stringColumnValues.get(5).add(dataName);
+				stringColumns.get(AttributeUtilities.DATAID).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double value = null;
@@ -625,13 +628,16 @@ public class TableReader {
 			variableData.add(varData);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(1).add(ChartConstants.FAILED);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(1).add(ChartConstants.OK);
+				stringColumns.get(ChartConstants.STATUS).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -652,22 +658,14 @@ public class TableReader {
 
 	public Map<String, String> getShortIds() {
 		return shortIds;
-	}
+	}	
 
-	public List<String> getStringColumns() {
+	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
 	}
 
-	public List<List<String>> getStringColumnValues() {
-		return stringColumnValues;
-	}
-
-	public List<String> getDoubleColumns() {
+	public Map<String, List<Double>> getDoubleColumns() {
 		return doubleColumns;
-	}
-
-	public List<List<Double>> getDoubleColumnValues() {
-		return doubleColumnValues;
 	}
 
 	public List<String> getFormulas() {

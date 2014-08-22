@@ -72,10 +72,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TableReader {
 
 	private List<String> ids;
-	private List<String> stringColumns;
-	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
+	private Map<String, List<String>> stringColumns;
+	private Map<String, List<Double>> doubleColumns;
 	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
 	private List<String> conditions;
@@ -101,7 +99,7 @@ public class TableReader {
 		Map<String, Double> sseMap = new LinkedHashMap<>();
 		Map<String, Double> rmsMap = new LinkedHashMap<>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
-		Map<String, Double> aicMap = new LinkedHashMap<>();		
+		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		Map<String, Set<String>> agentMap = new LinkedHashMap<>();
 		Map<String, Set<String>> matrixMap = new LinkedHashMap<>();
@@ -123,14 +121,12 @@ public class TableReader {
 		longLegend = new LinkedHashMap<>();
 		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
-		doubleColumns = Arrays.asList(Model2Schema.SSE, Model2Schema.MSE,
-				Model2Schema.RMSE, Model2Schema.RSQUARED, Model2Schema.AIC);
-		doubleColumnValues = new ArrayList<>();
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumns = new LinkedHashMap<>();
+		doubleColumns.put(Model2Schema.SSE, new ArrayList<Double>());
+		doubleColumns.put(Model2Schema.MSE, new ArrayList<Double>());
+		doubleColumns.put(Model2Schema.RMSE, new ArrayList<Double>());
+		doubleColumns.put(Model2Schema.RSQUARED, new ArrayList<Double>());
+		doubleColumns.put(Model2Schema.AIC, new ArrayList<Double>());
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 		standardVisibleColumns = new ArrayList<>(Arrays.asList(
 				ChartSelectionPanel.FORMULA, ChartSelectionPanel.PARAMETERS));
@@ -157,35 +153,32 @@ public class TableReader {
 				standardVisibleColumns.add(param);
 			}
 
-			stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-					Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
-					ChartConstants.STATUS, TimeSeriesSchema.ATT_AGENT,
-					TimeSeriesSchema.ATT_MATRIX);
-			stringColumnValues = new ArrayList<>();
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
+			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model2Schema.ATT_DEPENDENT,
+					new ArrayList<String>());
+			stringColumns.put(Model2Schema.FORMULA, new ArrayList<String>());
+			stringColumns.put(Model2Schema.ATT_EMLIT, new ArrayList<String>());
+			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
+			stringColumns.put(TimeSeriesSchema.ATT_AGENT,
+					new ArrayList<String>());
+			stringColumns.put(TimeSeriesSchema.ATT_MATRIX,
+					new ArrayList<String>());
 		} else {
 			conditions = null;
 			conditionMinValues = null;
 			conditionMaxValues = null;
 			conditionUnits = null;
 
-			stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-					Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
-					ChartConstants.STATUS);
-			stringColumnValues = new ArrayList<>();
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
-			stringColumnValues.add(new ArrayList<String>());
+			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model2Schema.ATT_DEPENDENT,
+					new ArrayList<String>());
+			stringColumns.put(Model2Schema.FORMULA, new ArrayList<String>());
+			stringColumns.put(Model2Schema.ATT_EMLIT, new ArrayList<String>());
+			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
 		}
 
-		standardVisibleColumns.addAll(stringColumns);
-		standardVisibleColumns.addAll(doubleColumns);
+		standardVisibleColumns.addAll(stringColumns.keySet());
+		standardVisibleColumns.addAll(doubleColumns.keySet());
 
 		for (KnimeTuple tuple : tuples) {
 			DepXml depXml = (DepXml) tuple
@@ -248,9 +241,10 @@ public class TableReader {
 
 				idSet.add(id);
 				ids.add(id);
-				stringColumnValues.get(0).add(depVarSecDesc);
-				stringColumnValues.get(1).add(modelNameSec);
-				stringColumnValues.get(2).add(literature);
+				stringColumns.get(Model2Schema.ATT_DEPENDENT)
+						.add(depVarSecDesc);
+				stringColumns.get(Model2Schema.FORMULA).add(modelNameSec);
+				stringColumns.get(Model2Schema.ATT_EMLIT).add(literature);
 				formulas.add(formulaSec);
 				parameterData.add(paramData);
 				shortLegend.put(id, depVarSec);
@@ -266,7 +260,7 @@ public class TableReader {
 				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRms());
 				rSquaredMap.put(id,
 						((EstModelXml) estModelXmlSec.get(0)).getR2());
-				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAic());				
+				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAic());
 				dofMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getDof());
 				agentMap.put(id, new LinkedHashSet<String>());
 				matrixMap.put(id, new LinkedHashSet<String>());
@@ -376,15 +370,18 @@ public class TableReader {
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(dofMap.get(id));
 
-			doubleColumnValues.get(0).add(sseMap.get(id));
-			doubleColumnValues.get(1).add(MathUtilities.getMSE(rmsMap.get(id)));
-			doubleColumnValues.get(2).add(rmsMap.get(id));
-			doubleColumnValues.get(3).add(rSquaredMap.get(id));
-			doubleColumnValues.get(4).add(aicMap.get(id));
+			doubleColumns.get(Model2Schema.SSE).add(sseMap.get(id));
+			doubleColumns.get(Model2Schema.MSE).add(
+					MathUtilities.getMSE(rmsMap.get(id)));
+			doubleColumns.get(Model2Schema.RMSE).add(rmsMap.get(id));
+			doubleColumns.get(Model2Schema.RSQUARED).add(rSquaredMap.get(id));
+			doubleColumns.get(Model2Schema.AIC).add(aicMap.get(id));
 
 			if (schemaContainsData) {
-				stringColumnValues.get(4).add(toString(agentMap.get(id)));
-				stringColumnValues.get(5).add(toString(matrixMap.get(id)));
+				stringColumns.get(TimeSeriesSchema.ATT_AGENT).add(
+						toString(agentMap.get(id)));
+				stringColumns.get(TimeSeriesSchema.ATT_MATRIX).add(
+						toString(matrixMap.get(id)));
 
 				List<Double> depVarData = depVarDataMap.get(id);
 				Map<String, List<Double>> miscs = miscDataMaps.get(id);
@@ -451,13 +448,16 @@ public class TableReader {
 			plotable.setUnits(units);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(3).add(ChartConstants.FAILED);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramMap.get(id))) {
-				stringColumnValues.get(3).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramMap.get(id))) {
-				stringColumnValues.get(3).add(ChartConstants.NO_COVARIANCE);
+				stringColumns.get(ChartConstants.STATUS).add(
+						ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(3).add(ChartConstants.OK);
+				stringColumns.get(ChartConstants.STATUS).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -472,20 +472,12 @@ public class TableReader {
 		return plotables;
 	}
 
-	public List<String> getStringColumns() {
+	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
 	}
 
-	public List<List<String>> getStringColumnValues() {
-		return stringColumnValues;
-	}
-
-	public List<String> getDoubleColumns() {
+	public Map<String, List<Double>> getDoubleColumns() {
 		return doubleColumns;
-	}
-
-	public List<List<Double>> getDoubleColumnValues() {
-		return doubleColumnValues;
 	}
 
 	public List<String> getFormulas() {

@@ -174,11 +174,10 @@ public class TableReader {
 		if (isTertiaryModel) {
 			stringColumns = new LinkedHashMap<>();
 			stringColumns.put(IDENTIFIER, new ArrayList<String>());
+			stringColumns.put(Model1Schema.NAME, new ArrayList<String>());
 			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
 			stringColumns.put(Model1Schema.FORMULA, new ArrayList<String>());
 			stringColumns.put(Model1Schema.ATT_EMLIT, new ArrayList<String>());
-			stringColumns.put(Model1Schema.FITTEDMODELNAME,
-					new ArrayList<String>());
 			stringColumns.put(Model2Schema.FORMULA, new ArrayList<String>());
 			stringColumns.put(TimeSeriesSchema.ATT_AGENT,
 					new ArrayList<String>());
@@ -220,8 +219,7 @@ public class TableReader {
 						.put(Model1Schema.FORMULA, new ArrayList<String>());
 				stringColumns.put(Model1Schema.ATT_EMLIT,
 						new ArrayList<String>());
-				stringColumns.put(Model1Schema.FITTEDMODELNAME,
-						new ArrayList<String>());
+				stringColumns.put(Model1Schema.NAME, new ArrayList<String>());
 				stringColumns.put(AttributeUtilities.DATAID,
 						new ArrayList<String>());
 				stringColumns.put(TimeSeriesSchema.ATT_AGENT,
@@ -261,8 +259,7 @@ public class TableReader {
 						.put(Model1Schema.FORMULA, new ArrayList<String>());
 				stringColumns.put(Model1Schema.ATT_EMLIT,
 						new ArrayList<String>());
-				stringColumns.put(Model1Schema.FITTEDMODELNAME,
-						new ArrayList<String>());
+				stringColumns.put(Model1Schema.NAME, new ArrayList<String>());
 				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						ChartSelectionPanel.FORMULA,
 						ChartSelectionPanel.PARAMETERS));
@@ -455,7 +452,7 @@ public class TableReader {
 			stringColumns.get(IDENTIFIER).add(index + "");
 			stringColumns.get(Model1Schema.FORMULA).add(modelName);
 			stringColumns.get(Model1Schema.ATT_EMLIT).add(literature);
-			stringColumns.get(Model1Schema.FITTEDMODELNAME).add(
+			stringColumns.get(Model1Schema.NAME).add(
 					((EstModelXml) estModelXml.get(0)).getName());
 			index++;
 
@@ -658,7 +655,7 @@ public class TableReader {
 
 	public Map<String, String> getShortIds() {
 		return shortIds;
-	}	
+	}
 
 	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;

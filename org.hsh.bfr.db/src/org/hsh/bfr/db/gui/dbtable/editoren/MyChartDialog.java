@@ -37,14 +37,24 @@
 
 package org.hsh.bfr.db.gui.dbtable.editoren;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.StringTokenizer;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.WindowConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
@@ -59,10 +69,14 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.lsmp.djep.djep.DJep;
+import org.lsmp.djep.djep.diffRules.MacroDiffRules;
+import org.lsmp.djep.xjep.MacroFunction;
+import org.nfunk.jep.Node;
+import org.nfunk.jep.ParseException;
 
-import com.jgoodies.forms.layout.*;
-import edu.hws.jcm.data.*;
-import edu.hws.jcm.awt.*;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * @author Armin Weiser
@@ -335,7 +349,11 @@ class MyChartDialog extends JDialog {
         		Double val = getDouble(function); 
         		if (val != null && tVal != null) series2.add(tVal, val);   
         		else {
-        			parseString(series2, function, interval); // z.B. sin(x)+2*cos(3*x)
+        			try {
+						parseString(series2, function, interval); // z.B. sin(x)+2*cos(3*x)
+					} catch (ParseException e) {
+						e.printStackTrace();
+					} 
         		}
         	}
         }
@@ -374,13 +392,12 @@ class MyChartDialog extends JDialog {
     	}
     	return result;
     }
-    private void parseString(XYSeries series, String function, String interval) { 	   
-        Parser parser = new Parser();      // Create the parser and the variable, x.
-        Variable x = new Variable("x");
-        parser.add(x);
-        
-        ExpressionInput input = new ExpressionInput(function, parser);  // For user input
-        Function func = input.getFunction(x);  // The function that will be graphed.
+    private void parseString(XYSeries series, String function, String interval) throws ParseException {
+    	DJep parser = createParser();
+    	
+    	parser.addVariable("x", 0.0);
+    	
+        Node f = parser.parse(function);        
         
         int index = interval.indexOf("-", interval.charAt(0) == '-' ? 1 : 0);
         if (index > 0) {
@@ -391,11 +408,39 @@ class MyChartDialog extends JDialog {
                 double iv = (max - min) / numPoints;
                 for (int i=0;i<numPoints+1;i++) {
                 	double t = min+i*iv;
-                	series.add(t, func.getVal(new double[]{t}));   
+                	
+                	parser.setVarValue("x", t);
+                	
+                	Object number = parser.evaluate(f);
+                	
+                	if (number instanceof Double) {
+                		series.add(t, (Double) number);
+                	}                	  
                 }
         	}
         }
-     } 
+     }
+    private static DJep createParser() {
+		DJep parser = new DJep();
+
+		parser.setAllowAssignment(true);
+		parser.setAllowUndeclared(true);
+		parser.setImplicitMul(true);
+		parser.addStandardFunctions();
+		parser.addStandardDiffRules();
+		parser.removeVariable("x");
+
+		try {
+			parser.addFunction("log10", new MacroFunction("log10", 1,
+					"ln(x)/ln(10)", parser));
+			parser.addDiffRule(new MacroDiffRules(parser, "log10",
+					"1/(x*ln(10))"));			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return parser;
+	}
     /**
      * Creates a chart.
      * 

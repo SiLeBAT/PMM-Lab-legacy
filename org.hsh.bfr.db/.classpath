@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry exported="true" kind="lib" path="lib/sqltool.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jcm1.0-config.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcalendar.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/quicktable2swing11.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>

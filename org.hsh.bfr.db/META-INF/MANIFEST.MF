@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.poi,
  org.knime.ext.jfreechart,
  com.jgoodies,
- com.thoughtworks.xstream
+ com.thoughtworks.xstream,
+ net.sf.jabref
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.hsh.bfr.db,
@@ -41,7 +42,6 @@ Export-Package: org.hsh.bfr.db,
  quick.dbtable
 Bundle-ClassPath: .,
  lib/jcalendar.jar,
- lib/MyJabRef-2.6.jar,
  lib/quicktable2swing11.jar,
  lib/jcm1.0-config.jar,
  lib/hsqldb.jar,

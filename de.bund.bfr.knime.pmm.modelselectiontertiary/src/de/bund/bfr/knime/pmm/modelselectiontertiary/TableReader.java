@@ -110,6 +110,7 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model1Schema.NAME, new ArrayList<String>());
 			stringColumns.put(Model1Schema.FORMULA, new ArrayList<String>());
 			stringColumns.put(Model1Schema.ATT_EMLIT, new ArrayList<String>());
 			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
@@ -163,6 +164,7 @@ public class TableReader {
 			}
 		} else {
 			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model1Schema.NAME, new ArrayList<String>());
 			stringColumns.put(Model1Schema.FORMULA, new ArrayList<String>());
 			stringColumns.put(Model1Schema.ATT_EMLIT, new ArrayList<String>());
 			stringColumns.put(ChartConstants.STATUS, new ArrayList<String>());
@@ -443,6 +445,9 @@ public class TableReader {
 				literature = literature.substring(1);
 			}
 
+			stringColumns.get(Model1Schema.NAME).add(
+					((EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL)
+							.get(0)).getName());
 			stringColumns.get(Model1Schema.FORMULA).add(modelName);
 			stringColumns.get(Model1Schema.ATT_EMLIT).add(literature);
 

@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.ui,
  org.knime.ext.jep,
  com.jgoodies,
  com.thoughtworks.xstream,
- net.sf.jabref
+ net.sf.jabref,
+ quick.dbtable;visibility:=reexport,
+ org.freixas.jcalendar
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.hsh.bfr.db,
@@ -39,11 +41,8 @@ Export-Package: org.hsh.bfr.db,
  org.hsqldb.scriptio,
  org.hsqldb.server,
  org.hsqldb.types,
- org.hsqldb.util,
- quick.dbtable
+ org.hsqldb.util
 Bundle-ClassPath: .,
- lib/jcalendar.jar,
- lib/quicktable2swing11.jar,
  lib/hsqldb.jar,
  lib/sqltool.jar
 Bundle-Vendor: BfR

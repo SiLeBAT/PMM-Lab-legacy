@@ -97,7 +97,7 @@ import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.editoren.BLOBEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyBlobSizeRenderer;
-import org.hsh.bfr.db.gui.dbtable.editoren.MyCellEditorDate;
+//import org.hsh.bfr.db.gui.dbtable.editoren.MyCellEditorDate;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyCheckBoxEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyComboBoxEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyImageCell;
@@ -958,7 +958,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					}
 					else if (fieldTypes[i].startsWith("DATE")) { // DATE, DATETIME
 					    c.setUserCellRenderer(new MyImageCell(fieldTypes[i].equals("DATETIME") ? MyImageCell.DATETIME : MyImageCell.DATE));
-					    c.setUserCellEditor(new MyCellEditorDate());
+					    //c.setUserCellEditor(new MyCellEditorDate());
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]); tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 						if (sorter != null) {
 							sorter.setComparator(i+2, new MyDatetimeSorter());

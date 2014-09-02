@@ -95,6 +95,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		set.setTimeValues(samplePanel.getTimeValues());
+		set.setSampleInverse(samplePanel.isInverse());
 		set.setColors(selectionPanel.getColors());
 		set.setShapes(selectionPanel.getShapes());
 		set.setColorLists(new LinkedHashMap<String, List<Color>>());
@@ -175,6 +176,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 				reader.getShortLegend(), reader.getLongLegend());
 		chartCreator.addZoomListener(this);
 		samplePanel = new ChartSamplePanel();
+		samplePanel.setInverse(set.isSampleInverse());
 		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
 
@@ -228,31 +230,55 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 
 			if (plotable != null) {
 				try {
-					points.put(configPanel.getParamY(), plotable
-							.getFunctionSamplePoints(configPanel.getParamX(),
-									configPanel.getParamY(),
-									configPanel.getUnitX(),
-									configPanel.getUnitY(),
-									configPanel.getTransformX(),
-									configPanel.getTransformY(),
-									Double.NEGATIVE_INFINITY,
-									Double.POSITIVE_INFINITY,
-									Double.NEGATIVE_INFINITY,
-									Double.POSITIVE_INFINITY, null));
+					if (!samplePanel.isInverse()) {
+						points.put(configPanel.getParamY(), plotable
+								.getFunctionSamplePoints(
+										configPanel.getParamX(),
+										configPanel.getParamY(),
+										configPanel.getUnitX(),
+										configPanel.getUnitY(),
+										configPanel.getTransformX(),
+										configPanel.getTransformY(),
+										Double.NEGATIVE_INFINITY,
+										Double.POSITIVE_INFINITY,
+										Double.NEGATIVE_INFINITY,
+										Double.POSITIVE_INFINITY, null));
+					} else {
+						double[][] data = plotable
+								.getInverseFunctionSamplePoints(
+										configPanel.getParamX(),
+										configPanel.getParamY(),
+										configPanel.getUnitX(),
+										configPanel.getUnitY(),
+										configPanel.getTransformX(),
+										configPanel.getTransformY(),
+										configPanel.getMinX(),
+										configPanel.getMaxX(),
+										Double.NEGATIVE_INFINITY,
+										Double.POSITIVE_INFINITY, null);
+						double[][] inverse = null;
+
+						if (data != null) {
+							inverse = new double[][] { data[1], data[0] };
+						}
+
+						points.put(configPanel.getParamX(), inverse);
+					}
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
-		if (configPanel.getParamX() != null) {
+		if (!samplePanel.isInverse()) {
 			samplePanel.setSampleName(configPanel.getParamX());
 		} else {
-			samplePanel.setSampleName("null");
+			samplePanel.setSampleName(configPanel.getParamY());
 		}
 
 		samplePanel.setDataPoints(points);
 
+		chartCreator.setInverse(samplePanel.isInverse());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());

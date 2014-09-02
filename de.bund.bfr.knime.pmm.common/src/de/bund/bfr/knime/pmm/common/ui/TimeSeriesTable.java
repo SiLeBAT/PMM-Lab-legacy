@@ -91,7 +91,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public void setTimeColumnName(String timeColumnName) {
-		getColumn(this.timeColumnName).setHeaderValue(timeColumnName);
+		getColumnModel().getColumn(0).setHeaderValue(timeColumnName);
 		getTableHeader().repaint();
 		this.timeColumnName = timeColumnName;
 	}
@@ -101,7 +101,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public void setCColumnName(int i, String cColumnName) {
-		getColumn(cColumnNames.get(i)).setHeaderValue(cColumnName);
+		getColumnModel().getColumn(i + 1).setHeaderValue(cColumnName);
 		getTableHeader().repaint();
 		cColumnNames.set(i, cColumnName);
 	}
@@ -132,25 +132,25 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public Double getTime(int row) {
-		return (Double) getValueAt(row, 0);
+		return (Double) getModel().getValueAt(row, 0);
 	}
 
 	public void setTime(int row, Double time) {
-		setValueAt(time, row, 0);
+		getModel().setValueAt(time, row, 0);
 	}
 
 	public Double getLogc(int row) {
-		return (Double) getValueAt(row, 1);
+		return (Double) getModel().getValueAt(row, 1);
 	}
 
 	public void setLogc(int row, Double logc) {
 		if (!cColumnNames.isEmpty()) {
-			setValueAt(logc, row, 1);
+			getModel().setValueAt(logc, row, 1);
 		}
 	}
 
 	public void setLogc(int row, int cColumn, Double logc) {
-		setValueAt(logc, row, cColumn + 1);
+		getModel().setValueAt(logc, row, cColumn + 1);
 	}
 
 	@Override

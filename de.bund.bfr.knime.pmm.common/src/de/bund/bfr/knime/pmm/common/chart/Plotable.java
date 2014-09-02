@@ -871,9 +871,9 @@ public class Plotable {
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < samples.size(); i++) {
-			Double y = samples.get(i);
+			Double y = samples.get(i);			
 			Double x = getValueX(paramX, paramY, unitX, unitY, transformX,
-					transformY, y, minX, maxX, null, null, parser, f);
+					transformY, y, minX, maxX, null, null, parser, f);			
 
 			if (MathUtilities.isValid(x) && MathUtilities.isValid(y)) {
 				containsValidPoint = true;

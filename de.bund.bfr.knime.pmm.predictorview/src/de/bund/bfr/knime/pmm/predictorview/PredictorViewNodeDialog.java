@@ -416,7 +416,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 										configPanel.getMaxX(),
 										Double.NEGATIVE_INFINITY,
 										Double.POSITIVE_INFINITY, null);
-						double[][] inverse = new double[][] { data[1], data[0] };
+						double[][] inverse = null;
+
+						if (data != null) {
+							inverse = new double[][] { data[1], data[0] };
+						}
 
 						points.put(reader.getShortIds().get(id), inverse);
 					}

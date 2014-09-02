@@ -93,6 +93,7 @@ public class SecondaryPredictorViewNodeModel extends NodeModel {
 			creator.setTransformY(set.getTransformY());
 			creator.setColors(set.getColors());
 			creator.setShapes(set.getShapes());
+			creator.setInverse(set.isSampleInverse());
 		}
 
 		return new PortObject[] { ChartUtilities.getImage(

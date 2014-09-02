@@ -52,48 +52,50 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 
 public class SettingsHelper {
 
-	protected static final String CFG_SELECTEDIDS = "SelectedIDs";
-	protected static final String CFG_PARAMXVALUES = "ParamXValues";
-	protected static final String CFG_TIMEVALUES = "TimeValues";
-	protected static final String CFG_COLORS = "Colors";
-	protected static final String CFG_SHAPES = "Shapes";
-	protected static final String CFG_MANUALRANGE = "ManualRange";
-	protected static final String CFG_MINX = "MinX";
-	protected static final String CFG_MAXX = "MaxX";
-	protected static final String CFG_MINY = "MinY";
-	protected static final String CFG_MAXY = "MaxY";
-	protected static final String CFG_DRAWLINES = "DrawLines";
-	protected static final String CFG_SHOWLEGEND = "ShowLegend";
-	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
-	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
-	protected static final String CFG_EXPORTASSVG = "ExportAsSvg";
-	protected static final String CFG_UNITX = "UnitX";
-	protected static final String CFG_UNITY = "UnitY";
-	protected static final String CFG_TRANSFORMX = "TransformX";
-	protected static final String CFG_TRANSFORMY = "TransformY";
-	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
-	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
-	protected static final String CFG_FITTEDFILTER = "FittedFilter";
-	protected static final String CFG_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
-	protected static final String CFG_LAGPARAMETERS = "LagParameters";
-	protected static final String CFG_SELECTEDTUPLES = "SelectedTuples";
-	protected static final String CFG_SELECTEDOLDTUPLES = "SelectedOldTuples";
-	protected static final String CFG_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
-	protected static final String CFG_NEWLAGPARAMETERS = "NewLagParameters";
-	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
+	private static final String CFG_SELECTEDIDS = "SelectedIDs";
+	private static final String CFG_PARAMXVALUES = "ParamXValues";
+	private static final String CFG_TIMEVALUES = "TimeValues";
+	private static final String CFG_COLORS = "Colors";
+	private static final String CFG_SHAPES = "Shapes";
+	private static final String CFG_MANUALRANGE = "ManualRange";
+	private static final String CFG_MINX = "MinX";
+	private static final String CFG_MAXX = "MaxX";
+	private static final String CFG_MINY = "MinY";
+	private static final String CFG_MAXY = "MaxY";
+	private static final String CFG_DRAWLINES = "DrawLines";
+	private static final String CFG_SHOWLEGEND = "ShowLegend";
+	private static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
+	private static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
+	private static final String CFG_EXPORTASSVG = "ExportAsSvg";
+	private static final String CFG_UNITX = "UnitX";
+	private static final String CFG_UNITY = "UnitY";
+	private static final String CFG_TRANSFORMX = "TransformX";
+	private static final String CFG_TRANSFORMY = "TransformY";
+	private static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
+	private static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
+	private static final String CFG_FITTEDFILTER = "FittedFilter";
+	private static final String CFG_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
+	private static final String CFG_LAGPARAMETERS = "LagParameters";
+	private static final String CFG_SELECTEDTUPLES = "SelectedTuples";
+	private static final String CFG_SELECTEDOLDTUPLES = "SelectedOldTuples";
+	private static final String CFG_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
+	private static final String CFG_NEWLAGPARAMETERS = "NewLagParameters";
+	private static final String CFG_COLUMNWIDTHS = "ColumnWidths";
+	private static final String CFG_SAMPLE_INVERSE = "SampleInverse";
 
-	protected static final boolean DEFAULT_MANUALRANGE = false;
-	protected static final double DEFAULT_MINX = 0.0;
-	protected static final double DEFAULT_MAXX = 100.0;
-	protected static final double DEFAULT_MINY = 0.0;
-	protected static final double DEFAULT_MAXY = 10.0;
-	protected static final boolean DEFAULT_DRAWLINES = false;
-	protected static final boolean DEFAULT_SHOWLEGEND = true;
-	protected static final boolean DEFAULT_ADDLEGENDINFO = false;
-	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = true;
-	protected static final boolean DEFAULT_EXPORTASSVG = false;
-	protected static final String DEFAULT_TRANSFORM = ChartConstants.NO_TRANSFORM;
-	protected static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
+	private static final boolean DEFAULT_MANUALRANGE = false;
+	private static final double DEFAULT_MINX = 0.0;
+	private static final double DEFAULT_MAXX = 100.0;
+	private static final double DEFAULT_MINY = 0.0;
+	private static final double DEFAULT_MAXY = 10.0;
+	private static final boolean DEFAULT_DRAWLINES = false;
+	private static final boolean DEFAULT_SHOWLEGEND = true;
+	private static final boolean DEFAULT_ADDLEGENDINFO = false;
+	private static final boolean DEFAULT_DISPLAYHIGHLIGHTED = true;
+	private static final boolean DEFAULT_EXPORTASSVG = false;
+	private static final String DEFAULT_TRANSFORM = ChartConstants.NO_TRANSFORM;
+	private static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
+	private static final boolean DEFAULT_SAMPLE_INVERSE = false;
 
 	private List<String> selectedIDs;
 	private Map<String, Double> paramXValues;
@@ -124,6 +126,7 @@ public class SettingsHelper {
 	private Map<String, String> newConcentrationParameters;
 	private Map<String, String> newLagParameters;
 	private Map<String, Integer> columnWidths;
+	private boolean sampleInverse;
 
 	public SettingsHelper() {
 		selectedIDs = new ArrayList<>();
@@ -155,6 +158,7 @@ public class SettingsHelper {
 		newConcentrationParameters = new LinkedHashMap<>();
 		newLagParameters = new LinkedHashMap<>();
 		columnWidths = new LinkedHashMap<>();
+		sampleInverse = DEFAULT_SAMPLE_INVERSE;
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -323,6 +327,11 @@ public class SettingsHelper {
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			sampleInverse = settings.getBoolean(CFG_SAMPLE_INVERSE);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -365,6 +374,7 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(newLagParameters));
 		settings.addString(CFG_COLUMNWIDTHS,
 				XmlConverter.objectToXml(columnWidths));
+		settings.addBoolean(CFG_SAMPLE_INVERSE, sampleInverse);
 	}
 
 	public void loadConfig(Config settings) {
@@ -607,5 +617,13 @@ public class SettingsHelper {
 
 	public void setSelectedOldTuples(List<KnimeTuple> selectedOldTuples) {
 		this.selectedOldTuples = selectedOldTuples;
+	}
+
+	public boolean isSampleInverse() {
+		return sampleInverse;
+	}
+
+	public void setSampleInverse(boolean sampleInverse) {
+		this.sampleInverse = sampleInverse;
 	}
 }

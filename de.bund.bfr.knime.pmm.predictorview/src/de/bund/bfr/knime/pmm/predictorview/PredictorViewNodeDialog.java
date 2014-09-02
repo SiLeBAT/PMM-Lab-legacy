@@ -324,6 +324,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.addZoomListener(this);
 		samplePanel = new ChartSamplePanel();
 		samplePanel.setTimeValues(set.getTimeValues());
+		samplePanel.setInverse(set.isSampleInverse());
 		samplePanel.addEditListener(this);
 
 		selectionPanel.setSelectedIDs(set.getSelectedIDs());
@@ -451,6 +452,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setSelectedIDs(selectionPanel.getSelectedIDs());
 		set.setParamXValues(configPanel.getParamXValues());
 		set.setTimeValues(samplePanel.getTimeValues());
+		set.setSampleInverse(samplePanel.isInverse());
 		set.setColors(selectionPanel.getColors());
 		set.setShapes(selectionPanel.getShapes());
 		set.setManualRange(configPanel.isUseManualRange());

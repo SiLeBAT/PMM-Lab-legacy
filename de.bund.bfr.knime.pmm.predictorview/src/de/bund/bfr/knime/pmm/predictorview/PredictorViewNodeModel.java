@@ -174,6 +174,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		creator.setTransformY(set.getTransformY());
 		creator.setColors(set.getColors());
 		creator.setShapes(set.getShapes());
+		creator.setInverse(set.isSampleInverse());
 
 		ImagePortObject image = ChartUtilities.getImage(
 				creator.getChart(validIds), set.isExportAsSvg());
@@ -291,12 +292,23 @@ public class PredictorViewNodeModel extends NodeModel {
 		try {
 			List<String> warnings = new ArrayList<>();
 
-			points = plotable.getFunctionSamplePoints(AttributeUtilities.TIME,
-					AttributeUtilities.CONCENTRATION, set.getUnitX(),
-					set.getUnitY(), ChartConstants.NO_TRANSFORM,
-					ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY, warnings);
+			if (!set.isSampleInverse()) {
+				points = plotable.getFunctionSamplePoints(
+						AttributeUtilities.TIME,
+						AttributeUtilities.CONCENTRATION, set.getUnitX(),
+						set.getUnitY(), ChartConstants.NO_TRANSFORM,
+						ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
+						Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+						Double.POSITIVE_INFINITY, warnings);
+			} else {
+				points = plotable.getInverseFunctionSamplePoints(
+						AttributeUtilities.TIME,
+						AttributeUtilities.CONCENTRATION, set.getUnitX(),
+						set.getUnitY(), ChartConstants.NO_TRANSFORM,
+						ChartConstants.NO_TRANSFORM, set.getMinX(),
+						set.getMaxX(), Double.NEGATIVE_INFINITY,
+						Double.POSITIVE_INFINITY, warnings);
+			}
 
 			for (String w : warnings) {
 				setWarningMessage(w);

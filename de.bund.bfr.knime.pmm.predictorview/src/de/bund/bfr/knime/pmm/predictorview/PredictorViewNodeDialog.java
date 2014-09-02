@@ -380,6 +380,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setUnitY(configPanel.getUnitY());
 		chartCreator.setTransformX(configPanel.getTransformX());
 		chartCreator.setTransformY(configPanel.getTransformY());
+		chartCreator.setInverse(samplePanel.isInverse());
 
 		Map<String, double[][]> points = new LinkedHashMap<>();
 
@@ -388,29 +389,50 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			if (plotable != null) {
 				try {
-					points.put(reader.getShortIds().get(id), plotable
-							.getFunctionSamplePoints(AttributeUtilities.TIME,
-									AttributeUtilities.CONCENTRATION,
-									configPanel.getUnitX(),
-									configPanel.getUnitY(),
-									configPanel.getTransformX(),
-									configPanel.getTransformY(),
-									Double.NEGATIVE_INFINITY,
-									Double.POSITIVE_INFINITY,
-									Double.NEGATIVE_INFINITY,
-									Double.POSITIVE_INFINITY, null));
+					if (!samplePanel.isInverse()) {
+						points.put(reader.getShortIds().get(id), plotable
+								.getFunctionSamplePoints(
+										AttributeUtilities.TIME,
+										AttributeUtilities.CONCENTRATION,
+										configPanel.getUnitX(),
+										configPanel.getUnitY(),
+										configPanel.getTransformX(),
+										configPanel.getTransformY(),
+										Double.NEGATIVE_INFINITY,
+										Double.POSITIVE_INFINITY,
+										Double.NEGATIVE_INFINITY,
+										Double.POSITIVE_INFINITY, null));
+					} else {
+						double[][] data = plotable
+								.getInverseFunctionSamplePoints(
+										AttributeUtilities.TIME,
+										AttributeUtilities.CONCENTRATION,
+										configPanel.getUnitX(),
+										configPanel.getUnitY(),
+										configPanel.getTransformX(),
+										configPanel.getTransformY(),
+										configPanel.getMinX(),
+										configPanel.getMaxX(),
+										Double.NEGATIVE_INFINITY,
+										Double.POSITIVE_INFINITY, null);
+						double[][] inverse = new double[][] { data[1], data[0] };
+
+						points.put(reader.getShortIds().get(id), inverse);
+					}
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
+		if (!samplePanel.isInverse()) {
+			samplePanel.setSampleName(AttributeUtilities.TIME);
+		} else {
+			samplePanel.setSampleName(AttributeUtilities.CONCENTRATION);
+		}
+
 		samplePanel.setDataPoints(points);
-		// samplePanel.setTimeColumnName(AttributeUtilities.getNameWithUnit(
-		// AttributeUtilities.TIME, configPanel.getUnitX()));
-		// samplePanel.setLogcColumnName(AttributeUtilities.getNameWithUnit(
-		// AttributeUtilities.CONCENTRATION, configPanel.getUnitY(),
-		// configPanel.getTransformY()));
+
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

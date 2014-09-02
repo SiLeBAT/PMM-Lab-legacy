@@ -49,6 +49,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -77,6 +78,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	private TextArea warningArea;
 	private JButton clearButton;
 	private JButton stepsButton;
+	private JCheckBox inverseButton;
 
 	private List<EditListener> listeners;
 
@@ -94,12 +96,15 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
+		inverseButton = new JCheckBox("Inverse");
+		inverseButton.addActionListener(this);
 
 		JPanel buttonPanel = new JPanel();
 
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		buttonPanel.add(stepsButton);
 		buttonPanel.add(clearButton);
+		buttonPanel.add(inverseButton);
 
 		JPanel buttomPanel = new JPanel();
 
@@ -134,23 +139,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 	public TimeSeriesTable getTimeSeriesTable() {
 		return table;
-	}
-
-	public String getTimeColumnName() {
-		return table.getTimeColumnName();
-	}
-
-	public void setTimeColumnName(String timeColumnName) {
-		table.setTimeColumnName(timeColumnName);
-	}
-
-	public List<String> getCColumnNames() {
-		return table.getCColumnNames();
-	}
-
-	public void setCColumnName(int i, String cColumnName) {
-		table.setCColumnName(i, cColumnName);
-	}
+	}	
 
 	public void addEditListener(EditListener listener) {
 		listeners.add(listener);
@@ -158,6 +147,14 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 	public void removeEditListener(EditListener listener) {
 		listeners.remove(listener);
+	}
+
+	public boolean isInverse() {
+		return inverseButton.isSelected();
+	}
+
+	public void setInverse(boolean inverse) {
+		inverseButton.setSelected(inverse);
 	}
 
 	public List<Double> getTimeValues() {
@@ -182,10 +179,10 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 	public void setSampleName(String name) {
 		table.setTimeColumnName(name);
-	}
+	}	
 
 	public void setDataPoints(Map<String, double[][]> points) {
-		String timeColumnName = getTimeColumnName();
+		String timeColumnName = table.getTimeColumnName();
 		List<Double> timeValues = getTimeValues();
 
 		Map<String, Map<Double, Double>> cValues = new LinkedHashMap<>();
@@ -214,7 +211,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			add(tablePane, BorderLayout.CENTER);
 			revalidate();
-			setTimeColumnName(timeColumnName);
+			table.setTimeColumnName(timeColumnName);
 			setTimeValues(timeValues);
 		}
 
@@ -272,6 +269,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 				table.repaint();
 				fireTimeValuesChanged();
 			}
+		} else if (e.getSource() == inverseButton) {
+			fireTimeValuesChanged();
 		}
 	}
 

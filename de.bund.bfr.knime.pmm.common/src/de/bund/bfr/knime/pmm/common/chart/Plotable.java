@@ -58,7 +58,7 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 public class Plotable {
 
 	private static final int FUNCTION_STEPS = 1000;
-	private static final double EPSILON = 0.01;
+	private static final double EPSILON = 1e-5;
 
 	public static final int DATASET = 0;
 	public static final int DATASET_STRICT = 1;
@@ -817,6 +817,79 @@ public class Plotable {
 		return points;
 	}
 
+	public double[][] getInverseFunctionSamplePoints(String paramX,
+			String paramY, String unitX, String unitY, String transformX,
+			String transformY, double minX, double maxX, double minY,
+			double maxY, List<String> warnings) throws ConvertException {
+		return getInverseFunctionSamplePoints(paramX, paramY, unitX, unitY,
+				transformX, transformY, minX, maxX, minY, maxY,
+				getStandardChoice(), warnings);
+	}
+
+	public double[][] getInverseFunctionSamplePoints(String paramX,
+			String paramY, String unitX, String unitY, String transformX,
+			String transformY, double minX, double maxX, double minY,
+			double maxY, Map<String, Integer> choice, List<String> warnings)
+			throws ConvertException {
+		if (function == null || samples.isEmpty()) {
+			return null;
+		}
+
+		if (!function.startsWith(paramY + "=")
+				|| !functionArguments.containsKey(paramX)) {
+			return null;
+		}
+
+		DJep parser = MathUtilities.createParser();
+
+		for (String param : functionParameters.keySet()) {
+			if (functionParameters.get(param) == null) {
+				return null;
+			}
+
+			parser.addConstant(param, functionParameters.get(param));
+		}
+
+		for (String param : functionArguments.keySet()) {
+			if (!param.equals(paramX)) {
+				parser.addConstant(param,
+						functionArguments.get(param).get(choice.get(param)));
+			}
+		}
+
+		parser.addVariable(paramX, 0.0);
+
+		Node f = null;
+
+		try {
+			f = parser.parse(function.replace(paramY + "=", ""));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		double[][] points = new double[2][samples.size()];
+		boolean containsValidPoint = false;
+
+		for (int i = 0; i < samples.size(); i++) {
+			Double y = samples.get(i);
+			Double x = getValueX(paramX, paramY, unitX, unitY, transformX,
+					transformY, y, minX, maxX, null, null, parser, f);
+
+			if (MathUtilities.isValid(x) && MathUtilities.isValid(y)) {
+				containsValidPoint = true;
+			}
+
+			points[0][i] = MathUtilities.isValid(x) ? x : Double.NaN;
+			points[1][i] = MathUtilities.isValid(y) ? y : Double.NaN;
+		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		return points;
+	}
+
 	public boolean isPlotable() {
 		if (type == FUNCTION || type == FUNCTION_SAMPLE) {
 			for (String param : functionParameters.keySet()) {
@@ -994,7 +1067,6 @@ public class Plotable {
 		return value != null && !value.isNaN() && !value.isInfinite();
 	}
 
-	@SuppressWarnings("unused")
 	private Double getValueX(String paramX, String paramY, String unitX,
 			String unitY, String transformX, String transformY, Double y,
 			double minX, double maxX, Double minY, Double maxY, DJep parser,
@@ -1034,7 +1106,7 @@ public class Plotable {
 		}
 
 		if (Math.abs(minX - maxX) < EPSILON) {
-			return minY;
+			return minX;
 		}
 
 		double midX = (minX + maxX) / 2;

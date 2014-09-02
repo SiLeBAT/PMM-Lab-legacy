@@ -97,6 +97,7 @@ public class ChartCreator extends ChartPanel {
 	private boolean showLegend;
 	private boolean addInfoInLegend;
 	private boolean showConfidenceInterval;
+	private boolean inverse;
 
 	private List<String> warnings;
 
@@ -574,6 +575,14 @@ public class ChartCreator extends ChartPanel {
 		this.showConfidenceInterval = showConfidenceInterval;
 	}
 
+	public boolean isInverse() {
+		return inverse;
+	}
+
+	public void setInverse(boolean inverse) {
+		this.inverse = inverse;
+	}
+
 	public Map<String, Color> getColors() {
 		return colors;
 	}
@@ -806,9 +815,20 @@ public class ChartCreator extends ChartPanel {
 		double[][] functionPoints = plotable.getFunctionPoints(paramX, paramY,
 				unitX, unitY, transformX, transformY, minX, maxX,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-		double[][] samplePoints = plotable.getFunctionSamplePoints(paramX,
-				paramY, unitX, unitY, transformX, transformY, minX, maxX,
-				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, warnings);
+		double[][] samplePoints;
+
+		if (!inverse) {
+			samplePoints = plotable.getFunctionSamplePoints(paramX, paramY,
+					unitX, unitY, transformX, transformY, minX, maxX,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+					warnings);
+		} else {
+			samplePoints = plotable.getInverseFunctionSamplePoints(paramX,
+					paramY, unitX, unitY, transformX, transformY, minX, maxX,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+					warnings);
+		}
+
 		double[][] functionErrors = null;
 		String legend = shortLegend.get(id);
 		Color color = colors.get(id);

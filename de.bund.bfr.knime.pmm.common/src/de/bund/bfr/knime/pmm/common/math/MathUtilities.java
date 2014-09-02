@@ -392,8 +392,9 @@ public class MathUtilities {
 		}
 	}
 
-	public static boolean isValid(Double value) {
-		return value != null && !value.isNaN() && !value.isInfinite();
+	public static boolean isValid(Object value) {
+		return value instanceof Double && !((Double) value).isNaN()
+				&& !((Double) value).isInfinite();
 	}
 
 	private static int countOccurences(String s, char c) {

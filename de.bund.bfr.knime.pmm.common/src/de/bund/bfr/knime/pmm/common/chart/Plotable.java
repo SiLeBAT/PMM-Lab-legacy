@@ -58,6 +58,7 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 public class Plotable {
 
 	private static final int FUNCTION_STEPS = 1000;
+	private static final double EPSILON = 0.01;
 
 	public static final int DATASET = 0;
 	public static final int DATASET_STRICT = 1;
@@ -135,8 +136,7 @@ public class Plotable {
 			Double max = maxArguments.get(var);
 
 			if (useData && valueLists.get(var) != null) {
-				Set<Double> valuesSet = new LinkedHashSet<>(
-						valueLists.get(var));
+				Set<Double> valuesSet = new LinkedHashSet<>(valueLists.get(var));
 				List<Double> valuesList = new ArrayList<>(valuesSet);
 
 				valuesList.removeAll(Arrays.asList((Object) null));
@@ -262,8 +262,7 @@ public class Plotable {
 			}
 		}
 
-		List<Point2D.Double> points = new ArrayList<>(
-				xList.size());
+		List<Point2D.Double> points = new ArrayList<>(xList.size());
 
 		for (int i = 0; i < xList.size(); i++) {
 			Double x = xList.get(i);
@@ -891,8 +890,7 @@ public class Plotable {
 		int nMax = 0;
 
 		if (functionArguments.size() == 1) {
-			String arg = new ArrayList<>(functionArguments.keySet())
-					.get(0);
+			String arg = new ArrayList<>(functionArguments.keySet()).get(0);
 
 			if (valueLists.containsKey(arg) && valueLists.get(arg).size() != 0) {
 				return 1;
@@ -905,8 +903,7 @@ public class Plotable {
 
 			for (String arg : functionArguments.keySet()) {
 				if (!arg.equals(arg0) && valueLists.containsKey(arg)) {
-					Set<Double> set = new LinkedHashSet<>(
-							valueLists.get(arg));
+					Set<Double> set = new LinkedHashSet<>(valueLists.get(arg));
 
 					n *= set.size();
 					valueFound = true;
@@ -995,6 +992,76 @@ public class Plotable {
 
 	private boolean isValidValue(Double value) {
 		return value != null && !value.isNaN() && !value.isInfinite();
+	}
+
+	@SuppressWarnings("unused")
+	private Double getValueX(String paramX, String paramY, String unitX,
+			String unitY, String transformX, String transformY, Double y,
+			double minX, double maxX, Double minY, Double maxY, DJep parser,
+			Node f) {
+		if (y == null) {
+			return null;
+		}
+
+		if (minY == null) {
+			parser.setVarValue(
+					paramX,
+					convertFromUnit(paramX, inverseTransform(minX, transformX),
+							unitX));
+
+			try {
+				minY = (Double) parser.evaluate(f);
+			} catch (ParseException e) {
+			} catch (ClassCastException e) {
+			}
+		}
+
+		if (maxY == null) {
+			parser.setVarValue(
+					paramX,
+					convertFromUnit(paramX, inverseTransform(maxX, transformX),
+							unitX));
+
+			try {
+				maxY = (Double) parser.evaluate(f);
+			} catch (ParseException e) {
+			} catch (ClassCastException e) {
+			}
+		}
+
+		if (!MathUtilities.isValid(minY) || !MathUtilities.isValid(maxY)) {
+			return null;
+		}
+
+		if (Math.abs(minX - maxX) < EPSILON) {
+			return minY;
+		}
+
+		double midX = (minX + maxX) / 2;
+		Double midY = null;
+
+		parser.setVarValue(
+				paramX,
+				convertFromUnit(paramX, inverseTransform(midX, transformX),
+						unitX));
+
+		try {
+			midY = (Double) parser.evaluate(f);
+		} catch (ParseException e) {
+		} catch (ClassCastException e) {
+		}
+
+		if ((minY <= y && midY >= y) || (minY >= y && midY <= y)) {
+			return getValueX(paramX, paramY, unitX, unitY, transformX,
+					transformY, y, minX, midX, minY, midY, parser, f);
+		}
+
+		if ((midY <= y && maxY >= y) || (midY >= y && maxY <= y)) {
+			return getValueX(paramX, paramY, unitX, unitY, transformX,
+					transformY, y, midX, maxX, midY, maxY, parser, f);
+		}
+
+		return null;
 	}
 
 	public static Double transform(Double value, String transform) {

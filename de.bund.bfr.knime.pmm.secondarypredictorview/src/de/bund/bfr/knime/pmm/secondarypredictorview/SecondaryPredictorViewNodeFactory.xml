@@ -48,7 +48,7 @@
         <u>'Set optimal width'</u> changes the width of the columns such that the whole text is visible in each cell.</option>
         
         <option name="Left Table">The table shows the estimated models for parameters, whether they are currently being displayed (selected), the color and shape of the symbol and other information (see "Columns"). Clicking on a column header sorts the rows. To change the order of the columns drag the column headline. This is temporarily and not saved when the node dialog is closed.</option>
-        <option name="Right Table">Values can be entered into the first column. For these environmental conditions parameter values are predicted according to the estimated model chosen in the left table. Results can be entered into spreadsheets and text files via copy and paste.<br></br><u>Set equidistant steps</u> facilitates the entry of evenly distributed values. The unit is the same as on the x-axis in the graph and can be changed in the 'Variables on Display' section.</option>    
+        <option name="Right Table">Values can be entered into the first column. For these environmental conditions parameter values are predicted according to the estimated model chosen in the left table. Results can be entered into spreadsheets and text files via copy and paste.<br></br><u>Set equidistant steps</u> facilitates the entry of evenly distributed values. The unit is the same as on the x-axis in the graph and can be changed in the 'Variables on Display' section. If 'Inverse' is checked, y-Axis values can be entered and the software tries to find the corresponding x-Axis value.</option>    
     </fullDescription>
     
     <ports>

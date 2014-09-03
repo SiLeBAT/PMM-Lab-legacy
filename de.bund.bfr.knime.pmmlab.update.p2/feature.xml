@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.pmmlab"
       label="Pmmlab"
-      version="1.0.0.qualifier"
+      version="1.0.2.qualifier"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">

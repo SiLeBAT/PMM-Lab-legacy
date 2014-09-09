@@ -34,7 +34,7 @@
 package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.StringReader;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -94,23 +94,16 @@ public class TableReader {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<>();
-		Map<KnimeTuple, List<KnimeTuple>> tupleMap;
 		int index = 1;
 
 		if (isTertiaryModel) {
-			tupleMap = new ModelCombiner(tuples, true, null, null)
-					.getTupleCombinations();
-		} else {
-			tupleMap = new LinkedHashMap<>();
-
-			for (KnimeTuple tuple : tuples) {
-				tupleMap.put(tuple, Arrays.asList(tuple));
-			}
+			tuples = new ArrayList<>(new ModelCombiner(tuples, true,
+					null, null).getTupleCombinations().keySet());
 		}
 
 		documents = new LinkedHashMap<>();
 
-		for (KnimeTuple tuple : tupleMap.keySet()) {
+		for (KnimeTuple tuple : tuples) {
 			replaceCelsiusAndFahrenheit(tuple);
 			renameLog(tuple);
 
@@ -143,8 +136,7 @@ public class TableReader {
 			history.addCreator(new Creator(creatorGivenName, creatorFamilyName,
 					null, creatorContact));
 
-			String modelID = createId(((EstModelXml) tupleMap.get(tuple).get(0)
-					.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0)).getName());
+			String modelID = createId(modelName) + "_" + index;
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 

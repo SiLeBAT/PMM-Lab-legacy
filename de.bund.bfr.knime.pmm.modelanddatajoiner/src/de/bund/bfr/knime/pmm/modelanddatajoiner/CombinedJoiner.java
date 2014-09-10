@@ -346,8 +346,12 @@ public class CombinedJoiner implements Joiner {
 				}
 
 				for (String var : oldSecVars) {
-					paramsConvertTo.put(secAssign.get(var),
-							secondaryVariableUnits.get(modelIDSec).get(var));
+					String unit = secondaryVariableUnits.get(modelIDSec).get(
+							var);
+
+					if (unit != null) {
+						paramsConvertTo.put(secAssign.get(var), unit);
+					}
 				}
 
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);

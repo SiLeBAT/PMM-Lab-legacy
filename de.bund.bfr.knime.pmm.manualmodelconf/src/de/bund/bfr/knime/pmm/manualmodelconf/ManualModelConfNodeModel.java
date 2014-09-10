@@ -83,6 +83,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	private PmmXmlDoc doc = null;
 	private PmmXmlDoc docTS = null;
 	
+	private boolean hasEditFeature;
 	private boolean formulaCreator;
 	
 	/**
@@ -93,6 +94,7 @@ public class ManualModelConfNodeModel extends NodeModel {
     }
     protected ManualModelConfNodeModel(boolean hasEditFeature, boolean formulaCreator) {    
         super(hasEditFeature ? 1 : 0, 1);
+        this.hasEditFeature = hasEditFeature;
         this.formulaCreator = formulaCreator;
     }
 
@@ -109,6 +111,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         	KnimeTuple tupleM1 = null;
         	List<KnimeTuple> rowSec = new ArrayList<>();
         	PmmTimeSeries tstuple = new PmmTimeSeries();
+        	int globalID = MathUtilities.getRandomNegativeInt();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {
         		if (el instanceof ParametricModel) {
 	        		ParametricModel model = (ParametricModel) el;	 
@@ -141,9 +144,12 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    					model.getDepXml().setOrigName(model.getDepXml().getName());
 	    				}
 	    					KnimeTuple tupleM2 = model.getKnimeTuple();
+	    					
+	    					if (!hasEditFeature) tupleM2.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, null);
 
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
+	    					if (!hasEditFeature && !formulaCreator) tupleM2.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalID);
 	    		    		rowSec.add(tupleM2);					
 	    				//}	    		
 	    			}

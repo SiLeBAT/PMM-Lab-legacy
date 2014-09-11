@@ -36,6 +36,8 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -46,10 +48,10 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLWriter;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -64,6 +66,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  */
 public class SBMLWriterNodeModel extends NodeModel {
 
+	protected static final String CFG_OVERWRITE = "Overwrite";
 	protected static final String CFG_OUT_PATH = "outPath";
 	protected static final String CFG_VARIABLE_PARAM = "variableParams";
 	protected static final String CFG_MODEL_NAME = "modelName";
@@ -74,6 +77,8 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
 	protected static final String CFG_REFERENCE = "Reference";
 
+	private SettingsModelBoolean overwrite = new SettingsModelBoolean(
+			CFG_OVERWRITE, false);
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
 	private SettingsModelString variableParams = new SettingsModelOptionalString(
@@ -115,13 +120,23 @@ public class SBMLWriterNodeModel extends NodeModel {
 				creatorFamilyName.getStringValue(),
 				creatorContact.getStringValue(), getDate(createdDate),
 				getDate(modifiedDate), reference.getStringValue());
+		Map<String, File> files = new LinkedHashMap<>();
 
 		for (String name : reader.getDocuments().keySet()) {
-			SBMLDocument doc = reader.getDocuments().get(name);
 			File file = new File(outPath.getStringValue() + "/" + name
 					+ ".sbml.xml");
 
-			SBMLWriter.write(doc, file, name, "1.0");
+			if (!overwrite.getBooleanValue() && file.exists()) {
+				throw new IOException(file.getAbsolutePath()
+						+ " already exists");
+			}
+
+			files.put(name, file);
+		}
+
+		for (String name : reader.getDocuments().keySet()) {
+			SBMLWriter.write(reader.getDocuments().get(name), files.get(name),
+					name, "1.0");
 		}
 
 		return new BufferedDataTable[] {};
@@ -162,6 +177,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		overwrite.saveSettingsTo(settings);
 		outPath.saveSettingsTo(settings);
 		variableParams.saveSettingsTo(settings);
 		modelName.saveSettingsTo(settings);
@@ -179,6 +195,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
+		overwrite.loadSettingsFrom(settings);
 		outPath.loadSettingsFrom(settings);
 		variableParams.loadSettingsFrom(settings);
 		modelName.loadSettingsFrom(settings);
@@ -196,6 +213,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
+		overwrite.validateSettings(settings);
 		outPath.validateSettings(settings);
 		variableParams.validateSettings(settings);
 		modelName.validateSettings(settings);

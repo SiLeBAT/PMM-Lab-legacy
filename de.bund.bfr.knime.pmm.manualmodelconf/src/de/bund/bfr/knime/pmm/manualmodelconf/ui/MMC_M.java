@@ -461,6 +461,7 @@ public class MMC_M extends JPanel {
 			parseFormula(pm, newPM);
 			cloneSecondary(pm, newPM);
 			modelNameBox.setSelectedItem(newPM);
+			table.repaint();
 		}
 	}
 

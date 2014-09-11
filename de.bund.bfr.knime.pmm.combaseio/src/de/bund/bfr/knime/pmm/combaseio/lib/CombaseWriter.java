@@ -51,123 +51,147 @@ public class CombaseWriter {
 
 	private LinkedList<PmmTimeSeries> buffer;
 	private String filename;
-	
-	public CombaseWriter( final String filename) {
+
+	public CombaseWriter(final String filename) {
 		this.filename = filename;
 		buffer = new LinkedList<>();
 	}
-	
-	public void add( final PmmTimeSeries candidate ) throws PmmException {
-		
-		if( candidate == null )
-			throw new PmmException( "Candidate must not be null." );
-		
-		buffer.add( candidate );
+
+	public void add(final PmmTimeSeries candidate) throws PmmException {
+
+		if (candidate == null)
+			throw new PmmException("Candidate must not be null.");
+
+		buffer.add(candidate);
 	}
-		
-	public void flush() throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
+
+	public void flush() throws UnsupportedEncodingException,
+			FileNotFoundException, IOException, PmmException {
 		flush16le(); // "UTF-16LE"
 	}
 
-	public void flush16le()
-	throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
+	public void flush16le() throws UnsupportedEncodingException,
+			FileNotFoundException, IOException, PmmException {
 		StringBuffer buf = new StringBuffer();
-		for( PmmTimeSeries candidate : buffer ) {
-			
-			if( candidate.hasCombaseId() ) {
-				buf.append( "\"RecordID\"\t\""+candidate.getCombaseId()+"\"\n" );
+		for (PmmTimeSeries candidate : buffer) {
+			String organism = "";
+			String matrix = "";
+
+			if (candidate.getAgentName() != null) {
+				organism = candidate.getAgentName();
+			} else if (candidate.getAgentDetail() != null) {
+				organism = candidate.getAgentDetail();
 			}
-			
-			if( candidate.hasAgent() ) {
-				buf.append( "\"Organism\"\t\""+candidate.getAgentDetail()+"\"\n" );
+
+			if (candidate.getMatrixName() != null) {
+				matrix = candidate.getMatrixName();
+			} else if (candidate.getMatrixDetail() != null) {
+				matrix = candidate.getMatrixDetail();
 			}
-			
-			if( candidate.hasMatrix() ) {
-				buf.append( "\"Environment\"\t\""+candidate.getMatrixDetail()+"\"\n" );
+
+			if (candidate.hasCombaseId()) {
+				buf.append("\"RecordID\"\t\"" + candidate.getCombaseId()
+						+ "\"\n");
 			}
-			
-			if( candidate.hasTemperature() ) {
-				buf.append( "\"Temperature\"\t\""+candidate.getTemperature()+" °C\"\n" );
+
+			if (candidate.hasAgent()) {
+				buf.append("\"Organism\"\t\"" + organism + "\"\n");
 			}
-			
-			if( candidate.hasPh() ) {
-				buf.append( "\"pH\"\t\""+candidate.getPh()+"\"\n" );
+
+			if (candidate.hasMatrix()) {
+				buf.append("\"Environment\"\t\"" + matrix + "\"\n");
 			}
-			
-			if( candidate.hasWaterActivity() ) {
-				buf.append( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
+
+			if (candidate.hasTemperature()) {
+				buf.append("\"Temperature\"\t\"" + candidate.getTemperature()
+						+ " °C\"\n");
 			}
-			
-			if( candidate.hasMisc() ) {
+
+			if (candidate.hasPh()) {
+				buf.append("\"pH\"\t\"" + candidate.getPh() + "\"\n");
+			}
+
+			if (candidate.hasWaterActivity()) {
+				buf.append("\"Water Activity\"\t\""
+						+ candidate.getWaterActivity() + "\"\n");
+			}
+
+			if (candidate.hasMisc()) {
 				PmmXmlDoc doc = candidate.getMisc();
 				if (doc != null) {
-					//String xmlStr = doc.toXmlString();
+					// String xmlStr = doc.toXmlString();
 					String cb = xml2Combase(doc);
-					if (cb != null) buf.append("\"Conditions\"\t\""+cb+"\"\n");
+					if (cb != null)
+						buf.append("\"Conditions\"\t\"" + cb + "\"\n");
 				}
 			}
-			
-			/* if( candidate.hasMaximumRate() ) {
-				buf.append( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
-			}
-			
-			if( candidate.hasDoublingTime() ) {
-				buf.append( "\"Doubling Time (h)\"\t\""+candidate.getDoublingTime()+"\"\n" );
-			} */
-			
-			buf.append( "\"Time (h)\"\t\"logc\"\n" );
-			
-			if( !candidate.isEmpty() ) {
+
+			/*
+			 * if( candidate.hasMaximumRate() ) { buf.append(
+			 * "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" ); }
+			 * 
+			 * if( candidate.hasDoublingTime() ) { buf.append(
+			 * "\"Doubling Time (h)\"\t\""+candidate.getDoublingTime()+"\"\n" );
+			 * }
+			 */
+
+			buf.append("\"Time (h)\"\t\"logc\"\n");
+
+			if (!candidate.isEmpty()) {
 				PmmXmlDoc tsXmlDoc = candidate.getTimeSeries();
-            	for (PmmXmlElementConvertable el : tsXmlDoc.getElementSet()) {
-            		if (el instanceof TimeSeriesXml) {
-            			TimeSeriesXml tsx = (TimeSeriesXml) el;
-            			buf.append("\"" + tsx.getTime() + "\"\t\"" + tsx.getConcentration() + "\"\n" );
-            		}
-            	}
+				for (PmmXmlElementConvertable el : tsXmlDoc.getElementSet()) {
+					if (el instanceof TimeSeriesXml) {
+						TimeSeriesXml tsx = (TimeSeriesXml) el;
+						buf.append("\"" + tsx.getTime() + "\"\t\""
+								+ tsx.getConcentration() + "\"\n");
+					}
+				}
 			}
-			
-			buf.append( "\n\n\n" );
+
+			buf.append("\n\n\n");
 		}
 		OutputStream out = new FileOutputStream(filename);
 		out.write(encodeString(buf.toString()));
 		out.close();
 	}
+
 	public static byte[] encodeString(final String message) {
 
-	    byte[] tmp = null;
-	    try {
-	        tmp = message.getBytes("UTF-16LE");
-	    } catch(UnsupportedEncodingException e) {
-	        // should not possible
-	        AssertionError ae =
-	        new AssertionError("Could not encode UTF-16LE");
-	        ae.initCause(e);
-	        throw ae;
-	    }
+		byte[] tmp = null;
+		try {
+			tmp = message.getBytes("UTF-16LE");
+		} catch (UnsupportedEncodingException e) {
+			// should not possible
+			AssertionError ae = new AssertionError("Could not encode UTF-16LE");
+			ae.initCause(e);
+			throw ae;
+		}
 
-	    // use brute force method to add BOM
-	    byte[] utf16lemessage = new byte[2 + tmp.length];
-	    utf16lemessage[0] = (byte)0xFF;
-	    utf16lemessage[1] = (byte)0xFE;
-	    System.arraycopy(tmp, 0,
-	                     utf16lemessage, 2,
-	                     tmp.length);
-	    return utf16lemessage;
-	}	
+		// use brute force method to add BOM
+		byte[] utf16lemessage = new byte[2 + tmp.length];
+		utf16lemessage[0] = (byte) 0xFF;
+		utf16lemessage[1] = (byte) 0xFE;
+		System.arraycopy(tmp, 0, utf16lemessage, 2, tmp.length);
+		return utf16lemessage;
+	}
+
 	private String xml2Combase(PmmXmlDoc misc) {
 		String result = null;
 		if (misc != null) {
 			result = "";
-        	for (PmmXmlElementConvertable el : misc.getElementSet()) {      		
-        		if (el instanceof MiscXml) {        		
-        			MiscXml mx = (MiscXml) el;
-        			if (!result.isEmpty()) result += ", ";
-        			result += mx.getDescription();
-        			if (mx.getUnit() != null && !mx.getUnit().isEmpty()) result += " (" + mx.getUnit() + ")";
-        			if (mx.getValue() != null && !Double.isNaN(mx.getValue())) result += ":" + mx.getValue();
-        		}
-        	}
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				if (el instanceof MiscXml) {
+					MiscXml mx = (MiscXml) el;
+					if (!result.isEmpty())
+						result += ", ";
+					result += mx.getDescription() != null ? mx.getDescription()
+							: mx.getName();
+					if (mx.getUnit() != null && !mx.getUnit().isEmpty())
+						result += " (" + mx.getUnit() + ")";
+					if (mx.getValue() != null && !Double.isNaN(mx.getValue()))
+						result += ":" + mx.getValue();
+				}
+			}
 		}
 		return result;
 	}

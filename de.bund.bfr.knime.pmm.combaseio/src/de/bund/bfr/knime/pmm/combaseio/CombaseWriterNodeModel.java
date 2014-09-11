@@ -57,140 +57,143 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 /**
  * This is the model implementation of CombaseWriter.
  * 
- *
+ * 
  * @author Jorgen Brandt
  */
 public class CombaseWriterNodeModel extends NodeModel {
-	
+
 	protected static final String PARAM_FILENAME = "filename";
 	protected static final String PARAM_OVERWRITE = "overwrite";
-	protected static final String DEFAULT_FILENAME = "";	
-	
+	protected static final String DEFAULT_FILENAME = "";
+
 	private String filename;
 	private boolean overwrite;
 
-    /**
-     * Constructor for the node model.
-     */
-    protected CombaseWriterNodeModel() {
-    
-        super( 1, 0 );
-        
-        filename = DEFAULT_FILENAME;
-    }
+	/**
+	 * Constructor for the node model.
+	 */
+	protected CombaseWriterNodeModel() {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
-    	
-    	File f = new File(filename);
-    	if (!f.exists() || overwrite) {
-        	int n = inData[ 0 ].getRowCount();
-        	
-    		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
-    		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-    		int j = 0;
-    		CombaseWriter cbw = new CombaseWriter(filename);
-    		while (reader.hasMoreElements()) {
-        		exec.setProgress( ( double )j++/n );
-        		
-    			KnimeTuple row = reader.nextElement();
+		super(1, 0);
 
-    			PmmTimeSeries ts = new PmmTimeSeries(row);
-    			cbw.add( ts );
-    		}
-        	cbw.flush();
-    	}
-        return null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void reset() {}
+		filename = DEFAULT_FILENAME;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DataTableSpec[] configure( final DataTableSpec[] inSpecs ) throws InvalidSettingsException {   	
-    	if( filename.isEmpty() )
-    		throw new InvalidSettingsException( "Filename must be specified." );
-    	File f = new File(filename);
-    	if (f.exists() && overwrite) this.setWarningMessage("Selected output file exists and will be overwritten!");
-    	getInSchema(inSpecs[0]);    	
-    	return null;//new DataTableSpec[]{};
-    }
-    
-    private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
-    	KnimeSchema result = null;
-    	String errorMsg = "Unexpected format - Microbial data is not present in the columns of the incoming table";
-    	KnimeSchema inSchema = new TimeSeriesSchema();
-    	try {
-    		if (inSchema.conforms(inSpec)) {
-    			result = inSchema;
-    		}
-    	}
-    	catch (PmmException e) {
-    	}
-    	if (result == null) {
-    		throw new InvalidSettingsException(errorMsg);
-    	}
-    	return result;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+			final ExecutionContext exec) throws Exception {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) {
-    	settings.addString(PARAM_FILENAME, filename);    	
-    	settings.addBoolean(PARAM_OVERWRITE, overwrite);
-    }
+		File f = new File(filename);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-    	filename = settings.getString(PARAM_FILENAME);
-    	overwrite = settings.getBoolean(PARAM_OVERWRITE);
-    }
+		if (f.exists() && !overwrite) {
+			throw new IOException(f.getAbsolutePath() + " already exists");
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {    	
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {}
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {}
-    
+		int n = inData[0].getRowCount();
 
-    
+		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
+		KnimeRelationReader reader = new KnimeRelationReader(inSchema,
+				inData[0]);
+		int j = 0;
+		CombaseWriter cbw = new CombaseWriter(filename);
+		while (reader.hasMoreElements()) {
+			exec.setProgress((double) j++ / n);
 
-    
+			KnimeTuple row = reader.nextElement();
 
+			PmmTimeSeries ts = new PmmTimeSeries(row);
+			cbw.add(ts);
+		}
+		cbw.flush();
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void reset() {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+			throws InvalidSettingsException {
+		if (filename.isEmpty())
+			throw new InvalidSettingsException("Filename must be specified.");
+		File f = new File(filename);
+		if (f.exists() && overwrite)
+			this.setWarningMessage("Selected output file exists and will be overwritten!");
+		getInSchema(inSpecs[0]);
+		return null;// new DataTableSpec[]{};
+	}
+
+	private KnimeSchema getInSchema(final DataTableSpec inSpec)
+			throws InvalidSettingsException {
+		KnimeSchema result = null;
+		String errorMsg = "Unexpected format - Microbial data is not present in the columns of the incoming table";
+		KnimeSchema inSchema = new TimeSeriesSchema();
+		try {
+			if (inSchema.conforms(inSpec)) {
+				result = inSchema;
+			}
+		} catch (PmmException e) {
+		}
+		if (result == null) {
+			throw new InvalidSettingsException(errorMsg);
+		}
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addString(PARAM_FILENAME, filename);
+		settings.addBoolean(PARAM_OVERWRITE, overwrite);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+			throws InvalidSettingsException {
+		filename = settings.getString(PARAM_FILENAME);
+		overwrite = settings.getBoolean(PARAM_OVERWRITE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings)
+			throws InvalidSettingsException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File internDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File internDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+	}
 
 }
-

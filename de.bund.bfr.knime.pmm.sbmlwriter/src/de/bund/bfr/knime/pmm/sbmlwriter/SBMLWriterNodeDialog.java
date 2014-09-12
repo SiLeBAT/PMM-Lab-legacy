@@ -66,12 +66,12 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 	 * New pane for configuring the SBMLWriter node.
 	 */
 	protected SBMLWriterNodeDialog() {
-		DialogComponentBoolean overwriteComp = new DialogComponentBoolean(
-				new SettingsModelBoolean(SBMLWriterNodeModel.CFG_OVERWRITE,
-						false), "Overwrite Files");
 		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null),
 				OUT_HISTORY, JFileChooser.SAVE_DIALOG, true);
+		DialogComponentBoolean overwriteComp = new DialogComponentBoolean(
+				new SettingsModelBoolean(SBMLWriterNodeModel.CFG_OVERWRITE,
+						false), "Overwrite OK");
 		DialogComponentOptionalString varParamComp = new DialogComponentOptionalString(
 				new SettingsModelOptionalString(
 						SBMLWriterNodeModel.CFG_VARIABLE_PARAM, null, false),
@@ -103,9 +103,9 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				"Reference as XHTML");
 
 		outComp.setBorderTitle("Output Path");
-
-		addDialogComponent(overwriteComp);
+		
 		addDialogComponent(outComp);
+		addDialogComponent(overwriteComp);
 		addDialogComponent(varParamComp);
 		addDialogComponent(nameComp);
 		addDialogComponent(givenNameComp);

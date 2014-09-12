@@ -1363,7 +1363,7 @@ public class Bfrdb {
 				PreparedStatement ps = conn.prepareStatement(
 						"INSERT INTO \"Modellkatalog\" (\"Name\", \"Level\", \"Eingabedatum\", \"Formel\", \"Notation\", \"Klasse\") VALUES( ?, ?, ?, ?, ?, ? )",
 						Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1, m.getModelName() + "_" + (-modelId));
+				ps.setString(1, m.getModelName()); //  + "_" + (-modelId)
 				ps.setInt(2, m.getLevel());
 				ps.setDate(3, date);
 				ps.setString(4, m.getFormula());

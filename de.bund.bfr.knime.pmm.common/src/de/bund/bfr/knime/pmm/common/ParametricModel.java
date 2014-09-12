@@ -59,9 +59,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_DEPVAR = "DepVar";
 	private static final String ATT_INDEPVAR = "IndepVar";
 	private static final String ATT_VALUE = "Value";
+	private static final String ATT_MDBUUID = "M_DB_UID";
 	private static final String ATT_MODELNAME = "ModelName";
 	private static final String ATT_MODELID = "ModelCatalogId";
 	private static final String ATT_MODELCLASS = "ModelClass";
+	private static final String ATT_EMDBUUID = "EM_DB_UID";
 	private static final String ATT_ESTMODELID = "EstModelId";
 	private static final String ATT_GLOBALMODELID = "GlobalModelId";
 	private static final String ATT_RMS = "RMS";
@@ -91,6 +93,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private PmmXmlDoc estLit = null;
 	private PmmXmlDoc modelLit = null;
 
+	private String m_dbuuid;
+	private String em_dbuuid;
 	private String modelName;
 	private Integer modelClass;
 	private String fittedModelName;
@@ -184,6 +188,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 					CatalogModelXml cmx = (CatalogModelXml) el;
 					this.modelId = cmx.getId();
 					this.modelName = cmx.getName();
+					this.m_dbuuid = cmx.getDbuuid();
 					setFormula(cmx.getFormula());
 					break;
 				}
@@ -216,6 +221,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 					this.isChecked = emx.getChecked();
 					this.comment = emx.getComment();
 					this.fittedModelName = emx.getName();
+					this.em_dbuuid = emx.getDbuuid();
 					break;
 				}
 			}
@@ -241,6 +247,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public ParametricModel(final Element modelElement) {
 		this();
 		
+		m_dbuuid = modelElement.getAttributeValue( ATT_MDBUUID );
+		em_dbuuid = modelElement.getAttributeValue( ATT_EMDBUUID );		
 		modelName = modelElement.getAttributeValue( ATT_MODELNAME );
 		if (modelElement.getAttributeValue("FittedModelName") != null && !modelElement.getAttributeValue("FittedModelName").isEmpty()) fittedModelName = modelElement.getAttributeValue("FittedModelName");
 		modelClass = XmlHelper.getInt(modelElement, ATT_MODELCLASS);
@@ -408,14 +416,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public PmmXmlDoc getModelLit() {return modelLit;}
 	public PmmXmlDoc getCatModel() {		
 		PmmXmlDoc catModel = new PmmXmlDoc();
-		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula(), getModelClass()); 
+		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula(), getModelClass(), getMDbUuid()); 
 		catModel.add(cmx);
 		return catModel;
 	}
 	public PmmXmlDoc getEstModel() {
 		PmmXmlDoc emDoc = new PmmXmlDoc();
 		int emid = getEstModelId();
-		EstModelXml emx = new EstModelXml(emid, fittedModelName, null, getRms(), getRsquared(), getAic(), getBic(), null, isChecked, qualityScore); // "EM_" + emid
+		EstModelXml emx = new EstModelXml(emid, fittedModelName, null, getRms(), getRsquared(), getAic(), getBic(), null, isChecked, qualityScore, getEMDbUuid()); // "EM_" + emid
 		emx.setComment(comment);
 		emDoc.add(emx);
 		return emDoc;
@@ -425,6 +433,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public ParametricModel clone() {
 		ParametricModel clonedPM = new ParametricModel(modelName, formula, depXml, level, modelId, estModelId);
 		clonedPM.setModelClass(modelClass);
+		clonedPM.setMDbUuid(m_dbuuid);
+		clonedPM.setEMDbUuid(em_dbuuid);
 
 		try {
 			clonedPM.setRms(rms);
@@ -996,6 +1006,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void setModelId(final int modelId) {this.modelId = modelId;}
 	public void setModelName(final String modelName) {this.modelName = modelName;}
 	public void setModelClass(final Integer modelClass) {this.modelClass = modelClass;}
+	public void setMDbUuid(final String dbuuid) {this.m_dbuuid = dbuuid;}
+	public void setEMDbUuid(final String dbuuid) {this.em_dbuuid = dbuuid;}
 	public int getEstModelId() { return estModelId; }
 	public void setEstModelId(final int estModelId) {this.estModelId = estModelId;}
 	public int getCondId() { return condId; }
@@ -1006,12 +1018,16 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Double getBic() { return bic; }
 	public String getModelName() { return modelName; }
 	public Integer getModelClass() { return modelClass; }
+	public String getMDbUuid() { return m_dbuuid; }
+	public String getEMDbUuid() { return em_dbuuid; }
 	
 	public String getDepVar() {return depXml == null ? null : depXml.getName();}
 	
 	@Override
 	public Element toXmlElement() {
-		Element modelElement = new Element(ELEMENT_PARAMETRICMODEL);
+		Element modelElement = new Element(ELEMENT_PARAMETRICMODEL);		
+		modelElement.setAttribute( ATT_MDBUUID, m_dbuuid == null ? "" : m_dbuuid );
+		modelElement.setAttribute( ATT_EMDBUUID, em_dbuuid == null ? "" : em_dbuuid );
 		modelElement.setAttribute( ATT_MODELNAME, modelName );
 		modelElement.setAttribute( ATT_MODELCLASS, XmlHelper.getNonNull(modelClass) );
 		modelElement.setAttribute("FittedModelName", fittedModelName == null ? "" : fittedModelName);

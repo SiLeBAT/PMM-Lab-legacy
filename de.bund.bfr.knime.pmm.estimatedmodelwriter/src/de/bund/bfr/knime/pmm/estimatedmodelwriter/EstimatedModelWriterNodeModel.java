@@ -243,10 +243,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
 
 						boolean checkAnywayDueToNegativeId = (rowMcID < 0);
-						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+						String rowuuid = row.getString(Model1Schema.ATT_DBUUID);
+						if (rowuuid == null) rowuuid = cmx.getDbuuid();
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 						db.insertM(ppm);
-						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID),
-								checkAnywayDueToNegativeId);
+						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 
 						alreadyInsertedModel.put(rowMcID, ppm);
 						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
@@ -279,10 +280,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						String[] dbTablenames = new String[] { "GeschaetzteModelle", "Literatur" };
 
 						boolean checkAnywayDueToNegativeId = (ppm.getEstModelId() < 0);
-						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+						String rowuuid = row.getString(Model1Schema.ATT_DBUUID);
+						if (rowuuid == null) rowuuid = emx.getDbuuid();
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 						newPrimEstID = db.insertEm(ppm, wfID);
-						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID),
-								checkAnywayDueToNegativeId);
+						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 
 						if (newPrimEstID != null) {
 							//ppm.setEstModelId(newPrimEstID);
@@ -354,11 +356,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
 
 							boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
-							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
-									checkAnywayDueToNegativeId);
+							String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+							if (rowuuid == null) rowuuid = cmx.getDbuuid();
+							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 							db.insertM(spm);
-							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
-									checkAnywayDueToNegativeId);
+							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 
 							alreadyInsertedModel.put(rowMcID, spm);
 							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
@@ -390,11 +392,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							String[] dbTablenames = new String[] { "GeschaetzteModelle", "Literatur" };
 
 							boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
-							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
-									checkAnywayDueToNegativeId);
+							String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+							if (rowuuid == null) rowuuid = emx.getDbuuid();
+							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 							db.insertEm(spm, wfID, ppm);
-							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID),
-									checkAnywayDueToNegativeId);
+							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 							alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
 						}

@@ -128,8 +128,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 		String fileName = getFileName();
 
 		if (dialogType == OPEN_DIALOG) {
-			// TODO test if file exists
-			return fileName != null;
+			return fileName != null && new File(fileName).exists();
 		} else if (dialogType == SAVE_DIALOG) {
 			return fileName != null;
 		}

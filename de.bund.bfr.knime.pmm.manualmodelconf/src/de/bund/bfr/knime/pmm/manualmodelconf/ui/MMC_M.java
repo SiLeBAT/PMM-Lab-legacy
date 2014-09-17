@@ -212,7 +212,7 @@ public class MMC_M extends JPanel {
 					// MathUtilities.replaceVariable(formula.substring(index),
 					// depVar, depVar+depVar);
 					formula = depVar + formula.substring(index);
-					pm.setDepVar(depVar, true);
+					pm.setDepVar(depVar, false); // true; Hier: false wichtig, sonst geht was beim Speichern schief, siehe Ticket #329
 					pm.setFormula(formula);
 				}
 			}

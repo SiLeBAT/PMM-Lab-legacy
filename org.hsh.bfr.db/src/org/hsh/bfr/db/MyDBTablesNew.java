@@ -1574,7 +1574,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null},
 				null,
 				new String[] {null,null,null});
-		addTable(VarParMaps, -1);	
+		addTable(VarParMaps, PMModelle_LIST);	
 		MyTable GeschaetzteParameterCovCor = new MyTable("GeschaetzteParameterCovCor", new String[]{"param1","param2",
 				"GeschaetztesModell","cor","Wert"},
 				new String[]{"INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE"},

@@ -603,7 +603,12 @@ public class MainFrame extends JFrame {
 									o[0][0] = theNewTable.getForeignFieldName(myTLeft);
 									o[0][1] = dbTable.getValueAt(row, myT.getForeignFieldIndex(myTOrigin) + 1);
 									newDBTable.setTable(theNewTable, o);
-									break;
+									if (newDBTable.getRowCount() == 0) {
+										o = null;
+									}
+									else {
+										break;
+									}
 								}
 							}
 						}

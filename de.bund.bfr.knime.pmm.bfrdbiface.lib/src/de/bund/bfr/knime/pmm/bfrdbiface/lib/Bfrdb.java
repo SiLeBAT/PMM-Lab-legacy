@@ -65,6 +65,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -1331,32 +1332,30 @@ public class Bfrdb {
 
 	public Integer insertM(final ParametricModel m) {
 		int modelId = m.getModelId();
-		Integer fID = getId4Formula(m.getFormula());
+		Integer fID = getId4Formula(m.getFormula(), m.getLevel(), modelId);
 		boolean iop = isObjectPresent("Modellkatalog", modelId);
 
 		if (m.getFormula().length() > 511) {
 			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false, true);			
 		}
-		if (iop) { //  || fID != null
-			//Date date = new Date( System.currentTimeMillis() );		
-			if (!iop) {
-				modelId = fID;
-				m.setModelId(modelId);
-			}
+
+		if (iop && fID != null && fID == modelId) {
 			try {
-				PreparedStatement ps = conn.prepareStatement("UPDATE \"Modellkatalog\" SET \"Name\"=?, \"Level\"=?, \"Formel\"=? WHERE \"ID\"=?");
+				PreparedStatement ps = conn.prepareStatement("UPDATE \"Modellkatalog\" SET \"Name\"=? WHERE \"ID\"=?");
 				ps.setString(1, m.getModelName());
-				ps.setInt(2, m.getLevel());
-				//ps.setDate( 3, date );
-				ps.setString(3, m.getFormula());
-				ps.setInt(4, modelId);
+				ps.setInt(2, modelId);
 
 				ps.executeUpdate();
 				ps.close();
 			} catch (SQLException ex) {
 				ex.printStackTrace();
 			}
-		} else {
+		}
+		else {
+			if (iop) {
+				modelId = MathUtilities.getRandomNegativeInt();
+				m.setModelId(modelId);
+			}
 			Date date = new Date(System.currentTimeMillis());
 
 			try {
@@ -1387,46 +1386,35 @@ public class Bfrdb {
 			if (modelId < 0) {
 				return null;
 			}
-		}
+			
+			// insert dependent variable
+			DepXml depXml = m.getDepXml();
+			insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit(), depXml.getDescription());
+			if (depXml.getUnit() == null || depXml.getUnit().isEmpty()) {
+				m.setWarning(m.getWarning() + "\nUnit not defined for dependant variable '" + depXml.getName() + "' in model with ID " + m.getModelId() + "!");
+			}
 
-		// insert parameter set
-		LinkedList<Integer> paramIdSet = new LinkedList<>();
+			// insert independent variable set
+			for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
+				if (el instanceof IndepXml) {
+					IndepXml ix = (IndepXml) el;
+					insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit(), ix.getDescription());
+					if (ix.getUnit() == null || ix.getUnit().isEmpty()) {
+						m.setWarning(m.getWarning() + "\nUnit not defined for independant variable '" + ix.getName() + "' in model with ID " + m.getModelId() + "!");
+					}
+				}
+			}
 
-		// insert dependent variable
-		DepXml depXml = m.getDepXml();
-		int paramId = insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit(), depXml.getDescription());
-		paramIdSet.add(paramId);
-		if (depXml.getUnit() == null || depXml.getUnit().isEmpty()) {
-			m.setWarning(m.getWarning() + "\nUnit not defined for dependant variable '" + depXml.getName() + "' in model with ID " + m.getModelId() + "!");
-		}
-
-		// insert independent variable set
-		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
-			if (el instanceof IndepXml) {
-				IndepXml ix = (IndepXml) el;
-				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit(), ix.getDescription());
-				paramIdSet.add(paramId);
-				if (ix.getUnit() == null || ix.getUnit().isEmpty()) {
-					m.setWarning(m.getWarning() + "\nUnit not defined for independant variable '" + ix.getName() + "' in model with ID " + m.getModelId() + "!");
+			// insert parameters
+			for (PmmXmlElementConvertable el : m.getParameter().getElementSet()) {
+				if (el instanceof ParamXml) {
+					ParamXml px = (ParamXml) el;
+					insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax(), px.getCategory(), px.getUnit(), px.getDescription());
 				}
 			}
 		}
 
-		// insert parameters
-		for (PmmXmlElementConvertable el : m.getParameter().getElementSet()) {
-			if (el instanceof ParamXml) {
-				ParamXml px = (ParamXml) el;
-				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax(), px.getCategory(), px.getUnit(), px.getDescription());
-				paramIdSet.add(paramId);
-			}
-		}
-
 		insertModLit(modelId, m.getModelLit(), false, m);
-
-		// delete dangling parameters
-		// deleteParamNotIn kann man eigentlich nicht machen!!! Sonst sind irgendwann die Response-Verknüpfungen weg....
-		// andererseits hat man das Problem, dass sich die Parameter sammeln...
-		deleteParamNotIn(modelId, paramIdSet);
 
 		return modelId;
 	}
@@ -1736,8 +1724,9 @@ public class Bfrdb {
 		return id;
 	}
 
-	private Integer getId4Formula(final String formula) {
-		Integer o = (Integer) DBKernel.getValue(conn, "Modellkatalog", "Formel", formula, "ID");
+	private Integer getId4Formula(final String formula, int level, int modelId) {
+		Integer o = (Integer) DBKernel.getValue(conn, "Modellkatalog", new String[]{"Formel","Level","ID"}, new String[]{formula,""+level,""+modelId}, "ID");
+		if (o == null) o = (Integer) DBKernel.getValue(conn, "Modellkatalog", new String[]{"Formel","Level"}, new String[]{formula,""+level}, "ID");
 		return o;
 	}
 
@@ -2007,29 +1996,6 @@ public class Bfrdb {
 		}
 
 		return ret;
-	}
-
-	private void deleteParamNotIn(final int modelId, final LinkedList<Integer> paramIdSet) {
-		String r = "( ";
-		for (Integer i : paramIdSet) {
-
-			if (!r.equals("( ")) {
-				r += ", ";
-			}
-
-			r += i;
-		}
-		r += ")";
-
-		String q = "DELETE FROM \"ModellkatalogParameter\" WHERE \"Modell\"=" + modelId + " AND \"ID\" NOT IN " + r;
-
-		try {
-			PreparedStatement ps = conn.prepareStatement(q);
-			ps.executeUpdate();
-			ps.close();
-		} catch (SQLException ex) {
-			// ex.printStackTrace();
-		}
 	}
 
 	private PmmXmlDoc getLiterature(String s) {

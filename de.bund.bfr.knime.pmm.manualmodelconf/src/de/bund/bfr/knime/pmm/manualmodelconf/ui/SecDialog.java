@@ -81,7 +81,7 @@ public class SecDialog extends JDialog {
 	private void okButtonActionPerformed(ActionEvent e) {
 		ParametricModel pm = m_m2.getPM();
 		if (!pm.getFormula().isEmpty()) {
-			pm.setDepVar(m_depVar, true);
+			pm.setDepVar(m_depVar, false); // true; Hier: false wichtig, sonst geht was beim Speichern schief, siehe Ticket #329
 			m_secondaryModels.put(m_depVar, pm);
 		}
 		this.dispose();

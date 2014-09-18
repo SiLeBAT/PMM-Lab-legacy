@@ -67,11 +67,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.knime.base"/>
       <import plugin="org.knime.core"/>
       <import plugin="org.knime.ext.svg"/>
+      <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
-      <import plugin="org.apache.xmlbeans" version="2.5.0" match="greaterOrEqual"/>
-      <import plugin="org.apache.commons.logging" version="1.0.4" match="greaterOrEqual"/>
-      <import plugin="org.apache.log4j" version="1.2.15" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.math3"/>
    </requires>
 
    <plugin
@@ -238,18 +237,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="com.thoughtworks.xstream"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.poi"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.math3"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

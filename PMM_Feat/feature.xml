@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.pmm.base"
       label="PMM Nodes"
-      version="1.0.2.qualifier"
+      version="1.0.3.qualifier"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">
@@ -71,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
       <import plugin="org.apache.commons.math3"/>
+      <import plugin="org.knime.ext.poi"/>
    </requires>
 
    <plugin
@@ -254,12 +255,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"/>
 
    <plugin
-         id="net.sf.jabref"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.freixas.jcalendar"
          download-size="0"
          install-size="0"
@@ -273,6 +268,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="de.bund.bfr.knime.pmm.secondarypredictorview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="net.sf.jabref"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

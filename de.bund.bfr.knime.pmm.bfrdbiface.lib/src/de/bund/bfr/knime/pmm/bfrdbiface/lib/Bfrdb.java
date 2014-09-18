@@ -1335,10 +1335,6 @@ public class Bfrdb {
 		Integer fID = getId4Formula(m.getFormula(), m.getLevel(), modelId);
 		boolean iop = isObjectPresent("Modellkatalog", modelId);
 
-		if (m.getFormula().length() > 511) {
-			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false, true);			
-		}
-
 		if (iop && fID != null && fID == modelId) {
 			try {
 				PreparedStatement ps = conn.prepareStatement("UPDATE \"Modellkatalog\" SET \"Name\"=? WHERE \"ID\"=?");

@@ -54,12 +54,20 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class UpdateChecker {
 	public static void check4Updates_179_180() {
-		// dran denken, diese Zeile wieder auskommentieren aus Bfrdb.java, Row 1338 
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false);
 		
-		//DBKernel.sendRequest("DELETE FROM \"DataSource\"", false, false);
+		try {
+			ResultSet rs = DBKernel.getResultSet("SELECT MIN(\"ID\") AS \"ID\", \"Table\",\"TableID\",\"SourceDBUUID\",\"SourceID\" FROM \"DataSource\" GROUP BY \"Table\",\"TableID\",\"SourceDBUUID\",\"SourceID\"", false);
+			if (rs != null && rs.first())  {
+				do {
+					DBKernel.sendRequest("DELETE FROM \"DataSource\" WHERE \"Table\"='" + rs.getString("Table") + "' AND \"TableID\"=" + rs.getInt("TableID") + " AND \"SourceDBUUID\"='" + rs.getString("SourceDBUUID") + "' AND \"SourceID\"=" + rs.getInt("SourceID") + " AND \"ID\" != " + rs.getInt("ID"), false);
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();}		
 		DBKernel.sendRequest("ALTER TABLE \"DataSource\" ADD CONSTRAINT \"DataSource_uni_0\" UNIQUE (\"Table\",\"TableID\",\"SourceDBUUID\",\"SourceID\");", false);
 		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("District") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Bundesland"), false);
 	}
 	public static void check4Updates_178_179() {
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

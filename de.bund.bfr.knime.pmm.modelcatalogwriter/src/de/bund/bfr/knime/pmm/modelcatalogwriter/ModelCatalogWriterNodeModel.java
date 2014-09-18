@@ -161,9 +161,11 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
 
 					boolean checkAnywayDueToNegativeId = (pm.getModelId() < 0);
-					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+					String rowuuid = row.getString(Model1Schema.ATT_DBUUID);
+					if (rowuuid == null) rowuuid = cmx.getDbuuid();
+					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 					db.insertM(pm);
-					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 					if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 				}
 			}
@@ -204,15 +206,18 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
 
 					boolean checkAnywayDueToNegativeId = (pm.getModelId() < 0);
-					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+					String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+					if (rowuuid == null) rowuuid = cmx.getDbuuid();
+					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 					db.insertM(pm);
-					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID), checkAnywayDueToNegativeId);
+					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 					if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 					//}
 				}
 			}
 		}
 
+		DBKernel.setKnownIDs4PMM(conn, foreignDbIds);
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}
@@ -226,17 +231,17 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String[] schemaAttr, String[] dbTablename, String rowuuid, boolean checkAnywayDueToNegativeId)
 			throws PmmException {
 		if (checkAnywayDueToNegativeId || rowuuid == null || !rowuuid.equals(dbuuid)) {
-			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
-			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
+			if (!foreignDbIds.containsKey(rowuuid)) foreignDbIds.put(rowuuid, new HashMap<String, HashMap<Integer, Integer>>());
+			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(rowuuid);
 
 			for (int i = 0; i < schemaAttr.length; i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
 				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				HashMap<Integer, Integer> h = CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
 				d.put(dbTablename[i], h);
-				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				//if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
-			foreignDbIds.put(dbuuid, d);
+			foreignDbIds.put(rowuuid, d);
 		}
 		return foreignDbIds;
 	}

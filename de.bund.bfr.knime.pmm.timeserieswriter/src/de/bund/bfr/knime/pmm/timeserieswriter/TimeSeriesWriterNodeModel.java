@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -137,9 +138,14 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 
 				boolean checkAnywayDueToNegativeId = (ts.getCondId() < 0);
-				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID), checkAnywayDueToNegativeId);				
+				String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
+				if (rowuuid == null) rowuuid = ts.getDbuuid();
+				if (rowuuid == null && ts.getMatrix() != null && ts.getMatrix().size() > 0) {
+					rowuuid = ((MatrixXml) ts.getMatrix().get(0)).getDbuuid();
+				}
+				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);				
 				db.insertTs(ts);				
-				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID), checkAnywayDueToNegativeId);
+				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 				
 				alreadyInsertedTs.put(rowTsID, ts);
 				
@@ -150,6 +156,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 				}
 			}
 		}
+		DBKernel.setKnownIDs4PMM(conn, foreignDbIds);
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
@@ -162,17 +169,17 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid, boolean checkAnywayDueToNegativeId) throws PmmException {
 		if (checkAnywayDueToNegativeId || rowuuid == null || !rowuuid.equals(dbuuid)) {
-			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
-			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
+			if (!foreignDbIds.containsKey(rowuuid)) foreignDbIds.put(rowuuid, new HashMap<String, HashMap<Integer, Integer>>());
+			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(rowuuid);
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
 				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				HashMap<Integer, Integer> h = CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
 				d.put(dbTablename[i], h);
-				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				//if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
-			foreignDbIds.put(dbuuid, d);
+			foreignDbIds.put(rowuuid, d);
 		}    	
 		return foreignDbIds;
     }

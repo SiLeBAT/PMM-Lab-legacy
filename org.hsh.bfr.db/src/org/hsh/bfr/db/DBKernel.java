@@ -1870,7 +1870,7 @@ public class DBKernel {
 		}
 	}
 
-	public static void setKnownIDs4PMM(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+	private static void setKnownIDs4PMM(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
 		for (Integer sID : foreignDbIds.keySet()) {
 			Object id = DBKernel.getValue(conn, "DataSource", new String[] { "Table", "SourceDBUUID", "SourceID" }, new String[] { tablename, rowuuid, sID + "" }, "TableID");
 			if (id == null) {
@@ -1878,6 +1878,14 @@ public class DBKernel {
 						+ DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") + ") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid
 						+ "'," + sID + ");";
 				DBKernel.sendRequest(conn, sql, false, false);
+			}
+		}
+	}
+	public static void setKnownIDs4PMM(Connection conn, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds) {
+		for (String rowuuid : foreignDbIds.keySet()) {
+			HashMap<String, HashMap<Integer, Integer>> hm = foreignDbIds.get(rowuuid);
+			for (String tableName : hm.keySet()) {
+				DBKernel.setKnownIDs4PMM(conn, hm.get(tableName), tableName, rowuuid);
 			}
 		}
 	}

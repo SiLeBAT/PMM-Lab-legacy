@@ -55,7 +55,11 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 public class UpdateChecker {
 	public static void check4Updates_179_180() {
 		// dran denken, diese Zeile wieder auskommentieren aus Bfrdb.java, Row 1338 
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false);
+		
+		//DBKernel.sendRequest("DELETE FROM \"DataSource\"", false, false);
+		DBKernel.sendRequest("ALTER TABLE \"DataSource\" ADD CONSTRAINT \"DataSource_uni_0\" UNIQUE (\"Table\",\"TableID\",\"SourceDBUUID\",\"SourceID\");", false);
+		
 	}
 	public static void check4Updates_178_179() {
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

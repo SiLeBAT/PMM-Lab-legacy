@@ -1444,7 +1444,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","INTEGER"},
 				new String[]{null,null,null,null},
 				new MyTable[]{null,null,null,null},
-				null,
+				new String[][]{{"Table","TableID","SourceDBUUID","SourceID"}},
 				new LinkedHashMap[]{null,null,null,null},
 				null);
 		addTable(DataSource, -1);	

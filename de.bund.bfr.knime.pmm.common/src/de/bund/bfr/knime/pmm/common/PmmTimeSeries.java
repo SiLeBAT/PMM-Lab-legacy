@@ -191,6 +191,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return isNull(TimeSeriesSchema.ATT_TIMESERIES); // TimeSeriesSchema.ATT_TIME
 	}
 	
+	public String getDbuuid() throws PmmException {
+		return getString( TimeSeriesSchema.ATT_DBUUID );
+	}
 	public Integer getCondId() throws PmmException {
 		return getInt( TimeSeriesSchema.ATT_CONDID );
 	}

@@ -36,8 +36,12 @@ package de.bund.bfr.knime.pmm.manualmodelconf;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -61,6 +65,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -68,6 +73,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_M;
+import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
 
 /**
  * This is the model implementation of ManualModelConf.
@@ -104,6 +111,7 @@ public class ManualModelConfNodeModel extends NodeModel {
     @Override
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
+    	//mergeInportNSettings(inData);
     	if (doc != null) {        	
         	KnimeSchema ks = getSchema();
         	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
@@ -284,6 +292,97 @@ public class ManualModelConfNodeModel extends NodeModel {
 			e.printStackTrace();
 		}
 		return ks;
+    }
+    
+    @SuppressWarnings("unused")
+	private void mergeInportNSettings(BufferedDataTable[] inData) {
+		if (inData != null && inData.length == 1) {
+			HashMap<Integer, ParametricModel> mlist = new HashMap<>();
+			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<>();
+	    	if (doc != null) {        	
+				for (int i = 0; i < doc.size(); i++) {
+					PmmXmlElementConvertable el = doc.get(i);
+					if (el instanceof ParametricModel) {
+						ParametricModel pm = (ParametricModel) el;
+						mlist.put(pm.getEstModelId(), pm);
+					}
+				}
+	    	}
+	    	if (docTS != null) {        	
+				for (int i = 0; i < docTS.size(); i++) {
+					PmmXmlElementConvertable el = docTS.get(i);
+					if (el instanceof PmmTimeSeries) {
+						PmmTimeSeries ts = (PmmTimeSeries) el;
+						tslist.put(ts.getCondId(), ts);
+					}
+				}
+			}
+		    DataTableSpec inSpec = inData[0].getDataTableSpec();
+		    try {
+			    KnimeSchema tsSchema = new TimeSeriesSchema();
+			    KnimeSchema inSchema1 = new Model1Schema();
+			    KnimeSchema inSchema2 = new Model2Schema();
+			    boolean hasTs = tsSchema.conforms(inSpec);
+			    boolean hasM1 = inSchema1.conforms(inSpec);
+			    boolean hasM2 = inSchema2.conforms(inSpec);
+		    	
+			    KnimeSchema finalSchema = null;
+		    	if (hasM1 && hasM2) finalSchema = KnimeSchema.merge(inSchema1, inSchema2);
+		    	else if (hasM1) finalSchema = inSchema1;
+		    	else if (hasM2) finalSchema = inSchema2;
+		    	if (hasTs) finalSchema = (finalSchema == null) ? tsSchema : KnimeSchema.merge(tsSchema, finalSchema);
+		    	if (finalSchema != null) {
+		    		KnimeRelationReader reader = new KnimeRelationReader(finalSchema, inData[0]);
+		    		HashMap<Integer, PmmTimeSeries> tss = new HashMap<>();
+		    		HashMap<Integer, ParametricModel> m1s = new HashMap<>();
+		    		HashMap<Integer, ParametricModel> m2s = new HashMap<>();
+		    		HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = new HashMap<>();
+		    		Integer condID = null;
+		    		Integer m1EstID = null, m2EstID;
+		    		while (reader.hasMoreElements()) {
+		    			KnimeTuple row = reader.nextElement();
+		    			if (hasTs) {
+			    			PmmTimeSeries ts = new PmmTimeSeries(row);
+			    			condID = ts.getCondId();
+			    			//System.err.println(condID);
+			    			if (tslist.containsKey(condID)) tss.put(condID, tslist.get(condID));
+			    			else tss.put(condID, ts);
+		    			}
+		    			if (hasM1) {
+			    			ParametricModel pm1 = new ParametricModel(row, 1, hasTs ? condID : null);
+			    			m1EstID = pm1.getEstModelId();
+			    			if (!m1s.containsKey(m1EstID)) {
+				    			if (mlist.containsKey(m1EstID)) m1s.put(m1EstID, mlist.get(m1EstID));
+				    			else m1s.put(m1EstID, pm1);			    				
+			    			}
+			    			if (hasM2) {
+			    				ParametricModel pm2 = new ParametricModel(row, 2, null);
+			    				m2EstID = pm2.getEstModelId();
+				    			if (!m2s.containsKey(m2EstID)) {
+					    			if (mlist.containsKey(m2EstID)) m2s.put(m2EstID, mlist.get(m2EstID));
+					    			else m2s.put(m2EstID, pm2);			    				
+				    			}
+				    			if (!m_secondaryModels.containsKey(m1s.get(m1EstID))) m_secondaryModels.put(m1s.get(m1EstID), new HashMap<String, ParametricModel>());
+				    			HashMap<String, ParametricModel> hm = m_secondaryModels.get(m1s.get(m1EstID));
+				    			hm.put(pm2.getDepVar(), m2s.get(m2EstID));
+			    			}
+		    			}
+		    		}
+		    		MMC_TS m_mmcts = new MMC_TS();
+		    		MMC_M m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", false, m_mmcts);
+		    		m_mmcm.setConnection(DBKernel.getLocalConn(true));
+		    		m_mmcm.setInputData(m1s.values(), m_secondaryModels, tss);
+		    		m_mmcm.stopCellEditing();
+		    		try {
+						doc = m_mmcm.listToDoc();
+					} catch (InvalidSettingsException e) {
+						e.printStackTrace();
+					}
+		    		docTS = m_mmcm.tssToDoc();
+		    	}
+		    }
+		    catch (PmmException e) {}    	
+		}
     }
 
     /**

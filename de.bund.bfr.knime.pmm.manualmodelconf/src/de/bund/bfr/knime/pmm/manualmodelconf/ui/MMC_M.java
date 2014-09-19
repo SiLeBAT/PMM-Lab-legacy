@@ -702,9 +702,14 @@ public class MMC_M extends JPanel {
 	}
 
 	public String listToXmlString() throws InvalidSettingsException {
+		PmmXmlDoc doc = listToDoc();
+		if (doc == null) return "";
+		return doc.toXmlString();
+	}
+	public PmmXmlDoc listToDoc() throws InvalidSettingsException {
 		if (listModel == null || listModel.size() == 0) {
 			if (m_mmcts != null && m_mmcts.getCondId() != null) getPM().setCondId(m_mmcts.getCondId());
-			return toXmlString();
+			return toDoc();
 		}
 		PmmXmlDoc doc = new PmmXmlDoc();
 		for (int i = 0; i < listModel.size(); i++) {
@@ -726,11 +731,16 @@ public class MMC_M extends JPanel {
 				}
 			}
 		}
-		return doc.toXmlString();
+		return doc;
 	}
 
 	public String tssToXmlString() {
-		if (formulaCreator) return "";
+		PmmXmlDoc doc = tssToDoc();
+		if (doc == null) return "";
+		return doc.toXmlString();
+	}
+	public PmmXmlDoc tssToDoc() {
+		if (formulaCreator) return null;
 		PmmXmlDoc doc = new PmmXmlDoc();
 		if (tss == null) {
 			PmmTimeSeries ts = m_mmcts.getTS();
@@ -740,10 +750,10 @@ public class MMC_M extends JPanel {
 				doc.add(ts);
 			}
 		}
-		return doc.toXmlString();
+		return doc;
 	}
 
-	private String toXmlString() throws InvalidSettingsException {
+	private PmmXmlDoc toDoc() throws InvalidSettingsException {
 		PmmXmlDoc doc = new PmmXmlDoc();
 
 		ParametricModel pm = finalizePM(-1);
@@ -763,7 +773,7 @@ public class MMC_M extends JPanel {
 				}
 			}
 		}
-		return doc.toXmlString();
+		return doc;
 	}
 
 	public void setInputData(Collection<ParametricModel> m1s, HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels, HashMap<Integer, PmmTimeSeries> tss) {

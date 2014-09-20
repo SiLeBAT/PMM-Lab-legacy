@@ -1877,7 +1877,7 @@ public class DBKernel {
 				String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") + " (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + ","
 						+ DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") + ") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid
 						+ "'," + sID + ");";
-				DBKernel.sendRequest(conn, sql, false, false);
+				DBKernel.sendRequest(conn, sql, true, false);
 			}
 		}
 	}

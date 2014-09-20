@@ -364,7 +364,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							String[] attrs = new String[] { Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT };
 							String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
 
-							boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
+							boolean checkAnywayDueToNegativeId = (rowMcID < 0);
 							String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
 							if (rowuuid == null) rowuuid = cmx.getDbuuid();
 							
@@ -405,8 +405,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
 							if (rowuuid == null) rowuuid = emx.getDbuuid();
 							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-							db.insertEm(spm, wfID, ppm);
-							
+							db.insertEm(spm, wfID, ppm);				
 							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
 							alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();

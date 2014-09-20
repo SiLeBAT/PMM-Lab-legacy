@@ -323,7 +323,7 @@ public class Bfrdb {
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, doc);
 
 					String s = result.getString("LitMID");
-					if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
+					if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s, dbuuid));
 
 					tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 					tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
@@ -379,7 +379,7 @@ public class Bfrdb {
 					tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, null);
 
 					String s = result.getString("LitMID");
-					if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
+					if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s, dbuuid));
 
 					tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
 					tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
@@ -395,11 +395,11 @@ public class Bfrdb {
 		return tuple;
 	}
 
-	public PmmXmlDoc getLiteratureXml(String s) {
+	public PmmXmlDoc getLiteratureXml(String s, String dbuuid) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String[] ids = s.split(",");
 		for (String id : ids) {
-			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id));
+			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id), dbuuid);
 			l.add(li);
 		}
 		return l;
@@ -1994,11 +1994,11 @@ public class Bfrdb {
 		return ret;
 	}
 
-	private PmmXmlDoc getLiterature(String s) {
+	private PmmXmlDoc getLiterature(String s, String dbuuid) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String[] ids = s.split(",");
 		for (String id : ids) {
-			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id));
+			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id), dbuuid);
 			l.add(li);
 		}
 		return l;

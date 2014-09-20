@@ -10,10 +10,10 @@ public class DBUtilities {
 	}
 
 	public static LiteratureItem getLiteratureItem(Integer id) {
-		return getLiteratureItem(null, id);
+		return getLiteratureItem(null, id, null);
 	}
 
-	public static LiteratureItem getLiteratureItem(Connection conn, Integer id) {
+	public static LiteratureItem getLiteratureItem(Connection conn, Integer id, String dbuuid) {
 		String author = (String) DBKernel.getValue(conn, "Literatur", "ID", id
 				+ "", "Erstautor");
 		String title = (String) DBKernel.getValue(conn, "Literatur", "ID", id
@@ -39,7 +39,10 @@ public class DBUtilities {
 		Integer type = (Integer) DBKernel.getValue("Literatur", "ID", id + "",
 				"Literaturtyp");
 
-		return new LiteratureItem(author, year, title, mAbstract, journal,
+		LiteratureItem li = new LiteratureItem(author, year, title, mAbstract, journal,
 				volume, issue, page, approvalMode, website, type, comment, id);
+		li.setDbuuid(dbuuid);
+
+		return li;
 	}
 }

@@ -322,7 +322,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			id = newMatrixIDs.get(matrixname);
 		matrixdetail = id < 0 ? matrixname + " (" + matrixdetail + ")"
 				: matrixdetail;
-		next.setMatrix(id, id < 0 ? null : matrixname, matrixdetail);
+		next.setMatrix(id, id < 0 ? null : matrixname, matrixdetail, null);
 	}
 
 	private void setAgent(PmmTimeSeries next, String agentsname) {
@@ -337,7 +337,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		} else
 			id = newAgentIDs.get(agentsname);
 		next.setAgent(id, id < 0 ? null : agentsname, id < 0 ? agentsname
-				: null);
+				: null, null);
 	}
 
 	private MiscXml getMiscXml(String description, Double dbl) {

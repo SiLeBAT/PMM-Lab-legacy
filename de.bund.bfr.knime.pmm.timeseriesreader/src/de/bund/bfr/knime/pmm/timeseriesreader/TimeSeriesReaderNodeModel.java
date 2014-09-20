@@ -198,23 +198,23 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 				tuple.setCombaseId(result.getString("CombaseID"));
 				//PmmXmlDoc miscDoc = null; miscDoc = db.getMiscXmlDoc(result);
 				PmmXmlDoc miscDoc = DbIo.convertArrays2MiscXmlDoc(result.getArray("SonstigesID"), result.getArray("Parameter"), result.getArray("Beschreibung"),
-						result.getArray("SonstigesWert"), result.getArray("Einheit"));
+						result.getArray("SonstigesWert"), result.getArray("Einheit"), dbuuid);
 				if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
 					double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
 					MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE, AttributeUtilities.ATT_TEMPERATURE, dbl,
-							Arrays.asList(Categories.getTempCategory().getName()), Categories.getTempCategory().getStandardUnit());//null,"°C");
+							Arrays.asList(Categories.getTempCategory().getName()), Categories.getTempCategory().getStandardUnit(), dbuuid);//null,"°C");
 					miscDoc.add(mx);
 				}
 				if (result.getObject(Bfrdb.ATT_PH) != null) {
 					double dbl = result.getDouble(Bfrdb.ATT_PH);
 					MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, dbl,
-							Arrays.asList(Categories.getPhCategory().getName()), Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
+							Arrays.asList(Categories.getPhCategory().getName()), Categories.getPhCategory().getAllUnits().toArray(new String[0])[0], dbuuid);
 					miscDoc.add(mx);
 				}
 				if (result.getObject(Bfrdb.ATT_AW) != null) {
 					double dbl = result.getDouble(Bfrdb.ATT_AW);
 					MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_AW, AttributeUtilities.ATT_AW, dbl,
-							Arrays.asList(Categories.getAwCategory().getName()), Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
+							Arrays.asList(Categories.getAwCategory().getName()), Categories.getAwCategory().getAllUnits().toArray(new String[0])[1], dbuuid);
 					miscDoc.add(mx);
 				}
 				tuple.addMiscs(miscDoc);
@@ -228,8 +228,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 				mdInfoDoc.add(mdix);
 				tuple.setMdInfo(mdInfoDoc);
 
-				tuple.setAgent(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL));
-				tuple.setMatrix(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL));
+				tuple.setAgent(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL), dbuuid);
+				tuple.setMatrix(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL), dbuuid);
 				tuple.setMdData(tsDoc);
 				//tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
 				tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dbuuid);
@@ -237,7 +237,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 				String s = result.getString(Bfrdb.ATT_LITERATUREID);
 				if (s != null) {
 					PmmXmlDoc l = new PmmXmlDoc();
-					LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(s));
+					LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(s), dbuuid);
+					li.setDbuuid(dbuuid);
 					l.add(li);
 					tuple.setLiterature(l);
 				}

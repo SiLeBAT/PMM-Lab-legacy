@@ -1038,7 +1038,7 @@ public class MMC_M extends JPanel {
 					pm.setModelClass(result.getInt("Klasse"));
 					pm.setDepDescription(depDesc);
 					String s = result.getString("LitMID");
-					if (s != null) pm.setMLit(db.getLiteratureXml(s));
+					if (s != null) pm.setMLit(db.getLiteratureXml(s, db.getDBUUID()));
 					manageDBMinMax(result, pm);
 					manageIndep(pm, result);
 

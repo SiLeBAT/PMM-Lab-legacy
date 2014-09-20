@@ -441,7 +441,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue( TimeSeriesSchema.ATT_COMBASEID, combaseId );
 	}
 	
-	private void setAgentAttribute(Integer id, String name, String detail) throws PmmException {
+	private void setAgentAttribute(Integer id, String name, String detail, String dbuuid) throws PmmException {
 		PmmXmlDoc agentXmlDoc = getAgent();
 		if (agentXmlDoc == null) agentXmlDoc = new PmmXmlDoc();
 		AgentXml ax = null;
@@ -451,6 +451,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     			if (id != null) ax.setId(id);
     			if (name != null) ax.setName(name);
     			if (detail != null) ax.setDetail(detail);
+    			if (dbuuid != null) ax.setDbuuid(dbuuid);
     			break;
     		}
     	}
@@ -459,7 +460,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
    		agentXmlDoc.add(ax);    		
     	setValue(TimeSeriesSchema.ATT_AGENT, agentXmlDoc);		
 	}
-	private void setMatrixAttribute(Integer id, String name, String detail) throws PmmException {
+	private void setMatrixAttribute(Integer id, String name, String detail, String dbuuid) throws PmmException {
 		PmmXmlDoc matrixXmlDoc = getMatrix();
 		if (matrixXmlDoc == null) matrixXmlDoc = new PmmXmlDoc();
 		MatrixXml mx = null;
@@ -469,6 +470,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     			if (id != null) mx.setId(id);
     			if (name != null) mx.setName(name);
     			if (detail != null) mx.setDetail(detail);
+    			if (dbuuid != null) mx.setDbuuid(dbuuid);
     			break;
     		}
     	}
@@ -479,33 +481,33 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void setAgentName( final String agentName ) throws PmmException {
-		setAgentAttribute(null, agentName, null);
+		setAgentAttribute(null, agentName, null, null);
 	}
 	public void setMatrixName( final String matrixName ) throws PmmException {
-		setMatrixAttribute(null, matrixName, null);
+		setMatrixAttribute(null, matrixName, null, null);
 	}
 	
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
-		setAgentAttribute(null, null, agentDetail);
+		setAgentAttribute(null, null, agentDetail, null);
 	}
 	public void setMatrixDetail( final String matrixDetail ) throws PmmException {
-		setMatrixAttribute(null, null, matrixDetail);
+		setMatrixAttribute(null, null, matrixDetail, null);
 	}
 	
 	public void setAgentId( final Integer agentId ) throws PmmException {
-		setAgentAttribute(agentId, null, null);
+		setAgentAttribute(agentId, null, null, null);
 	}
 	
 	public void setMatrixId( final Integer matrixId ) throws PmmException {
-		setMatrixAttribute(matrixId, null, null);
+		setMatrixAttribute(matrixId, null, null, null);
 	}
 	
-	public void setMatrix( final int matrixId, final String matrixName, final String matrixDetail ) throws PmmException {
-		setMatrixAttribute(matrixId, matrixName, matrixDetail);
+	public void setMatrix( final int matrixId, final String matrixName, final String matrixDetail, String dbuuid ) throws PmmException {
+		setMatrixAttribute(matrixId, matrixName, matrixDetail, dbuuid);
 	}
 	
-	public void setAgent( final int agentId, final String agentName, final String agentDetail ) throws PmmException {
-		setAgentAttribute(agentId, agentName, agentDetail);
+	public void setAgent( final int agentId, final String agentName, final String agentDetail, String dbuuid ) throws PmmException {
+		setAgentAttribute(agentId, agentName, agentDetail, dbuuid);
 	}
 
 	public void addMisc(int attrID, String attribute, String description, Double value, List<String> categories, String unit) throws PmmException {

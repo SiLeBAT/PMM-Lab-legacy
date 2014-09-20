@@ -212,30 +212,30 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
         		//PmmXmlDoc miscDoc = null; miscDoc = db.getMiscXmlDoc(result);
         		PmmXmlDoc miscDoc = DbIo.convertArrays2MiscXmlDoc(result.getArray("SonstigesID"), result.getArray("Parameter"),
-        				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
+        				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"), dbuuid);
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,Arrays.asList(Categories.getTempCategory().getName()),Categories.getTempCategory().getStandardUnit());//"°C"); // Categories.getTempCategory().getStandardUnit()
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,Arrays.asList(Categories.getTempCategory().getName()),Categories.getTempCategory().getStandardUnit(), dbuuid);//"°C"); // Categories.getTempCategory().getStandardUnit()
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_PH) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_PH);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,Arrays.asList(Categories.getPhCategory().getName()),Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,Arrays.asList(Categories.getPhCategory().getName()),Categories.getPhCategory().getAllUnits().toArray(new String[0])[0], dbuuid);
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_AW) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_AW);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAwCategory().getName()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAwCategory().getName()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1], dbuuid);
         			miscDoc.add(mx);
         		}
         		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 
         		PmmXmlDoc matDoc = new PmmXmlDoc(); 
-    			MatrixXml mx = new MatrixXml(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL));
+    			MatrixXml mx = new MatrixXml(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL), dbuuid);
     			matDoc.add(mx);
     			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
         		PmmXmlDoc agtDoc = new PmmXmlDoc(); 
-    			AgentXml ax = new AgentXml(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL));
+    			AgentXml ax = new AgentXml(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL), dbuuid);
     			agtDoc.add(ax);
     			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
 
@@ -260,7 +260,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		String s = result.getString(Bfrdb.ATT_LITERATUREID);
         		if (s != null) {
         			PmmXmlDoc l = new PmmXmlDoc();        			
-        			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(s));
+        			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(s), dbuuid);
         			l.add(li);
     				tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
     			}
@@ -285,7 +285,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			if (!varMap.containsKey(AttributeUtilities.CONCENTRATION)) formula = MathUtilities.replaceVariable(formula, "LOG10N", AttributeUtilities.CONCENTRATION);
     		
 			PmmXmlDoc cmDoc = new PmmXmlDoc();
-			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
+			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null, dbuuid); 
     		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
     		cmx.setModelClass((Integer) cls);
 			cmDoc.add(cmx);
@@ -322,6 +322,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			if (result.getObject("BIC") != null) bic = result.getDouble("BIC");
 						
 			EstModelXml emx = new EstModelXml(emid, result.getString("FittedModelName"), null, rms, r2, aic, bic, null); // "EM_" + emid
+			emx.setDbuuid(dbuuid);
 			if (result.getObject("Geprueft") != null) emx.setChecked(result.getBoolean("Geprueft"));
 			if (result.getObject("Guetescore") != null) emx.setQualityScore(result.getInt("Guetescore"));
 			if (result.getObject("Kommentar") != null) emx.setComment(result.getString("Kommentar"));
@@ -343,9 +344,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription"), result.getArray("ParamP"), result.getArray("Paramt"), cmx.getId(), emid));
     		
     		String s = result.getString("LitMID");
-    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s));
+    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s, dbuuid));
     		s = result.getString("LitEmID");
-    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(conn, s));
+    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(conn, s, dbuuid));
     		
     		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model1Schema.NOTWRITABLE : Model1Schema.WRITABLE);
     		tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
@@ -362,7 +363,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		}
 
     			cmDoc = new PmmXmlDoc();
-    			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula, null); 
+    			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula, null, dbuuid); 
         		cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID+"2")+"", "Klasse");
         		cmx.setModelClass((Integer) cls);
     			   			
@@ -408,6 +409,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		    	bic = null;
 				if (result.getObject("BIC2") != null) bic = result.getDouble("BIC2");
 				emx = new EstModelXml(emid, result.getString("FittedModelName2"), null, rms, r2, aic, bic, null);
+				emx.setDbuuid(dbuuid);
 				if (result.getObject("Geprueft2") != null) emx.setChecked(result.getBoolean("Geprueft2"));
 				if (result.getObject("Guetescore2") != null) emx.setQualityScore(result.getInt("Guetescore2"));
 				if (result.getObject("Kommentar2") != null) emx.setQualityScore(result.getInt("Kommentar2"));
@@ -429,9 +431,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2"), result.getArray("ParamP2"), result.getArray("Paramt2"), cmx.getId(), emid));
 
 	    		s = result.getString("LitMID2");
-	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(conn, s));
+	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(conn, s, dbuuid));
 	    		s = result.getString("LitEmID2");
-	    		if (s != null) tuple.setValue(Model2Schema.ATT_EMLIT, getLiterature(conn, s));
+	    		if (s != null) tuple.setValue(Model2Schema.ATT_EMLIT, getLiterature(conn, s, dbuuid));
 
 	    		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model2Schema.NOTWRITABLE : Model2Schema.WRITABLE);
 	    		tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
@@ -536,11 +538,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
         return new BufferedDataTable[]{ buf.getTable() };
     }
-    private static PmmXmlDoc getLiterature(Connection conn, String s) {
+    private static PmmXmlDoc getLiterature(Connection conn, String s, String dbuuid) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
 		for (String id : ids) {			
-			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id));
+			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id), dbuuid);
 			l.add(li);
 		}    
 		return l;

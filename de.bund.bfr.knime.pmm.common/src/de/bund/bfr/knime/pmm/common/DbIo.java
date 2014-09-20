@@ -216,7 +216,7 @@ public class DbIo {
 	    }
 		return indepDoc;
     }
-    public static PmmXmlDoc convertArrays2MiscXmlDoc(Array id, Array param, Array desc, Array value, Array unit) {
+    public static PmmXmlDoc convertArrays2MiscXmlDoc(Array id, Array param, Array desc, Array value, Array unit, String dbuuid) {
 		PmmXmlDoc miscDoc = new PmmXmlDoc();
 	    if (id != null) {
 		    try {
@@ -232,7 +232,7 @@ public class DbIo {
 						String sdes = (sde == null || sde[i] == null ? null : sde[i].toString());
 						Double svd = (sv == null || sv[i] == null) ? Double.NaN : Double.parseDouble(sv[i].toString());
 						String sus = (su == null || su[i] == null ? null : su[i].toString());
-			    		MiscXml mx = new MiscXml(sidi,spas,sdes,svd,null,sus);
+			    		MiscXml mx = new MiscXml(sidi,spas,sdes,svd,null,sus,dbuuid);
 						miscDoc.add(mx);
 					}					
 				}

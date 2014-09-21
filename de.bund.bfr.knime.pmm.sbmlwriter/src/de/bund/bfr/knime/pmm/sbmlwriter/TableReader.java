@@ -143,8 +143,14 @@ public class TableReader {
 			history.addCreator(new Creator(creatorGivenName, creatorFamilyName,
 					null, creatorContact));
 
-			String modelID = createId(((EstModelXml) tupleMap.get(tuple).get(0)
-					.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0)).getName());
+			String modelName = ((EstModelXml) tupleMap.get(tuple).get(0)
+					.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0)).getName();
+
+			if (modelName == null || modelName.trim().isEmpty()) {
+				throw new IOException("Model Name missing");
+			}
+
+			String modelID = createId(modelName);
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 

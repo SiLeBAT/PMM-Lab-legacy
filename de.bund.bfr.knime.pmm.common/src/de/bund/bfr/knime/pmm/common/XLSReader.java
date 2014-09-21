@@ -491,6 +491,11 @@ public class XLSReader {
 						null, null));
 			} else {
 				dataInfo.add(new MdInfoXml(null, null, null, null, null));
+
+				if (commentColumn != null) {
+					warnings.add(MdInfoXml.ATT_COMMENT + " value in row "
+							+ (rowNumber + 1) + " is missing");
+				}
 			}
 
 			if (hasData(agentCell)
@@ -498,6 +503,11 @@ public class XLSReader {
 				agentXml.add(new AgentXml(agentMappings.get(getData(agentCell))));
 			} else {
 				agentXml.add(new AgentXml());
+
+				if (agentColumn != null) {
+					warnings.add(TimeSeriesSchema.ATT_AGENT + " value in row "
+							+ (rowNumber + 1) + " is missing");
+				}
 			}
 
 			if (hasData(matrixCell)
@@ -506,16 +516,27 @@ public class XLSReader {
 						.get(getData(matrixCell))));
 			} else {
 				matrixXml.add(new MatrixXml());
+
+				if (matrixColumn != null) {
+					warnings.add(TimeSeriesSchema.ATT_MATRIX + " value in row "
+							+ (rowNumber + 1) + " is missing");
+				}
 			}
 
 			if (hasData(agentDetailsCell)) {
 				((AgentXml) agentXml.get(0))
 						.setDetail(getData(agentDetailsCell));
+			} else if (agentDetailsColumn != null) {
+				warnings.add(AttributeUtilities.AGENT_DETAILS
+						+ " value in row " + (rowNumber + 1) + " is missing");
 			}
 
 			if (hasData(matrixDetailsCell)) {
 				((MatrixXml) matrixXml.get(0))
 						.setDetail(getData(matrixDetailsCell));
+			} else if (matrixDetailsColumn != null) {
+				warnings.add(AttributeUtilities.MATRIX_DETAILS
+						+ " value in row " + (rowNumber + 1) + " is missing");
 			}
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
@@ -537,6 +558,9 @@ public class XLSReader {
 								+ (rowNumber + 1) + " is not valid ("
 								+ getData(cell) + ")");
 					}
+				} else {
+					warnings.add(column + " value in row " + (rowNumber + 1)
+							+ " is missing");
 				}
 
 				misc.setOrigUnit(misc.getUnit());
@@ -594,6 +618,9 @@ public class XLSReader {
 									+ (rowNumber + 1) + " is not valid ("
 									+ getData(cell) + ")");
 						}
+					} else {
+						warnings.add(mapping + " value in row "
+								+ (rowNumber + 1) + " is missing");
 					}
 				}
 			}
@@ -652,6 +679,9 @@ public class XLSReader {
 											+ " is not valid (" + getData(cell)
 											+ ")");
 								}
+							} else {
+								warnings.add(mapping + " value in row "
+										+ (rowNumber + 1) + " is missing");
 							}
 						}
 					}
@@ -690,6 +720,9 @@ public class XLSReader {
 											+ " is not valid ("
 											+ getData(minCell) + ")");
 								}
+							} else {
+								warnings.add(minMapping + " value in row "
+										+ (rowNumber + 1) + " is missing");
 							}
 						}
 
@@ -706,6 +739,9 @@ public class XLSReader {
 											+ " is not valid ("
 											+ getData(maxCell) + ")");
 								}
+							} else {
+								warnings.add(maxMapping + " value in row "
+										+ (rowNumber + 1) + " is missing");
 							}
 						}
 					}

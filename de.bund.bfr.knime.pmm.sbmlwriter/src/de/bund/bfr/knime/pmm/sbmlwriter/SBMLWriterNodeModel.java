@@ -69,7 +69,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_OVERWRITE = "Overwrite";
 	protected static final String CFG_OUT_PATH = "outPath";
 	protected static final String CFG_VARIABLE_PARAM = "variableParams";
-	protected static final String CFG_MODEL_NAME = "modelName";
 	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
 	protected static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
 	protected static final String CFG_CREATOR_CONTACT = "CreatorContact";
@@ -83,8 +82,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 			null);
 	private SettingsModelString variableParams = new SettingsModelOptionalString(
 			CFG_VARIABLE_PARAM, null, false);
-	private SettingsModelString modelName = new SettingsModelString(
-			CFG_MODEL_NAME, null);
 	private SettingsModelString creatorGivenName = new SettingsModelString(
 			CFG_CREATOR_GIVEN_NAME, null);
 	private SettingsModelString creatorFamilyName = new SettingsModelString(
@@ -116,7 +113,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		TableReader reader = new TableReader(PmmUtilities.getTuples(inData[0],
 				schema), variableParams.getStringValue(),
-				modelName.getStringValue(), creatorGivenName.getStringValue(),
+				creatorGivenName.getStringValue(),
 				creatorFamilyName.getStringValue(),
 				creatorContact.getStringValue(), getDate(createdDate),
 				getDate(modifiedDate), reference.getStringValue());
@@ -125,7 +122,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		for (String name : reader.getDocuments().keySet()) {
 			File file = new File(outPath.getStringValue() + "/" + name
 					+ ".sbml.xml");
-
+			
 			if (!overwrite.getBooleanValue() && file.exists()) {
 				throw new IOException(file.getAbsolutePath()
 						+ " already exists");
@@ -162,7 +159,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM1DataSchema();
 		} else if (outPath.getStringValue() == null
-				|| modelName.getStringValue() == null
 				|| variableParams.getStringValue() == null) {
 			throw new InvalidSettingsException("Node must be configured");
 		} else {
@@ -179,8 +175,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		overwrite.saveSettingsTo(settings);
 		outPath.saveSettingsTo(settings);
-		variableParams.saveSettingsTo(settings);
-		modelName.saveSettingsTo(settings);
+		variableParams.saveSettingsTo(settings);		
 		creatorGivenName.saveSettingsTo(settings);
 		creatorFamilyName.saveSettingsTo(settings);
 		creatorContact.saveSettingsTo(settings);
@@ -197,8 +192,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		overwrite.loadSettingsFrom(settings);
 		outPath.loadSettingsFrom(settings);
-		variableParams.loadSettingsFrom(settings);
-		modelName.loadSettingsFrom(settings);
+		variableParams.loadSettingsFrom(settings);		
 		creatorGivenName.loadSettingsFrom(settings);
 		creatorFamilyName.loadSettingsFrom(settings);
 		creatorContact.loadSettingsFrom(settings);
@@ -215,8 +209,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		overwrite.validateSettings(settings);
 		outPath.validateSettings(settings);
-		variableParams.validateSettings(settings);
-		modelName.validateSettings(settings);
+		variableParams.validateSettings(settings);		
 		creatorGivenName.validateSettings(settings);
 		creatorFamilyName.validateSettings(settings);
 		creatorContact.validateSettings(settings);

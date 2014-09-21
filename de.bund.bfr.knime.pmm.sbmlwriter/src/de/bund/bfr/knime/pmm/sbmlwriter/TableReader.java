@@ -33,8 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.sbmlwriter;
 
+import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -88,22 +89,28 @@ public class TableReader {
 	private Map<String, SBMLDocument> documents;
 
 	public TableReader(List<KnimeTuple> tuples, String varParams,
-			String modelName, String creatorGivenName,
-			String creatorFamilyName, String creatorContact, Date createdDate,
-			Date modifiedDate, String reference) {
+			String creatorGivenName, String creatorFamilyName,
+			String creatorContact, Date createdDate, Date modifiedDate,
+			String reference) throws IOException {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<>();
-		int index = 1;
+		Map<KnimeTuple, List<KnimeTuple>> tupleMap;
 
 		if (isTertiaryModel) {
-			tuples = new ArrayList<>(new ModelCombiner(tuples, true,
-					null, null).getTupleCombinations().keySet());
+			tupleMap = new ModelCombiner(tuples, true, null, null)
+					.getTupleCombinations();
+		} else {
+			tupleMap = new LinkedHashMap<>();
+
+			for (KnimeTuple tuple : tuples) {
+				tupleMap.put(tuple, Arrays.asList(tuple));
+			}
 		}
 
 		documents = new LinkedHashMap<>();
 
-		for (KnimeTuple tuple : tuples) {
+		for (KnimeTuple tuple : tupleMap.keySet()) {
 			replaceCelsiusAndFahrenheit(tuple);
 			renameLog(tuple);
 
@@ -136,12 +143,13 @@ public class TableReader {
 			history.addCreator(new Creator(creatorGivenName, creatorFamilyName,
 					null, creatorContact));
 
-			String modelID = createId(modelName) + "_" + index;
+			String modelID = createId(((EstModelXml) tupleMap.get(tuple).get(0)
+					.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0)).getName());
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 
 			model.setMetaId("Meta_" + modelID);
-			model.setName(modelName);
+			model.setName(modelID);
 			model.setHistory(history);
 			model.setNotes(XMLNode.convertStringToXMLNode("<notes>" + reference
 					+ "</notes>"));
@@ -285,8 +293,12 @@ public class TableReader {
 			}
 
 			model.setListOfRules(rules);
+
+			if (documents.containsKey(modelID)) {
+				throw new IOException("Duplicate model name: " + modelID);
+			}
+
 			documents.put(modelID, doc);
-			index++;
 		}
 	}
 

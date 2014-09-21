@@ -76,9 +76,6 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelOptionalString(
 						SBMLWriterNodeModel.CFG_VARIABLE_PARAM, null, false),
 				"Initial Concentration Parameter");
-		DialogComponentString nameComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
-						null), "Model Name");
 		DialogComponentString givenNameComp = new DialogComponentString(
 				new SettingsModelString(
 						SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null),
@@ -103,11 +100,10 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				"Reference as XHTML");
 
 		outComp.setBorderTitle("Output Path");
-		
+
 		addDialogComponent(outComp);
 		addDialogComponent(overwriteComp);
 		addDialogComponent(varParamComp);
-		addDialogComponent(nameComp);
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);

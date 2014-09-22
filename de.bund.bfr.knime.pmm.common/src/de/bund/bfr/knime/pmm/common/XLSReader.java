@@ -825,6 +825,26 @@ public class XLSReader {
 		return valueSet;
 	}
 
+	public List<Integer> getMissingData(File file, String sheet, String column)
+			throws Exception {
+		List<Integer> missing = new ArrayList<>();
+		Workbook wb = getWorkbook(file);
+		Sheet s = wb.getSheet(sheet);
+
+		evaluator = wb.getCreationHelper().createFormulaEvaluator();
+
+		Map<String, Integer> columns = getColumns(s);
+		int columnId = columns.get(column);
+
+		for (int i = 1; i <= s.getLastRowNum(); i++) {
+			if (s.getRow(i) != null && !hasData(s.getRow(i).getCell(columnId))) {
+				missing.add(i + 1);
+			}
+		}
+
+		return missing;
+	}
+
 	private Workbook getWorkbook(File file) throws Exception {
 		InputStream inputStream = null;
 

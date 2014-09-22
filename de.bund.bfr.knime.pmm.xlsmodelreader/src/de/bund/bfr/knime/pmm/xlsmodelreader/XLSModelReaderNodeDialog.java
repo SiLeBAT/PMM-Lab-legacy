@@ -90,8 +90,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
-import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 
 /**
@@ -395,15 +395,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			set.setMatrix(null);
 		}
 
-		if (set.getAgentColumn() != null
-				&& (set.getAgentColumn().equals(OTHER_PARAMETER) || set
-						.getAgentColumn().equals(DO_NOT_USE))) {
+		if (OTHER_PARAMETER.equals(set.getAgentColumn())
+				|| DO_NOT_USE.equals(set.getAgentColumn())) {
 			set.setAgentColumn(null);
 		}
 
-		if (set.getMatrixColumn() != null
-				&& (set.getMatrixColumn().equals(OTHER_PARAMETER) || set
-						.getMatrixColumn().equals(DO_NOT_USE))) {
+		if (OTHER_PARAMETER.equals(set.getMatrixColumn())
+				|| DO_NOT_USE.equals(set.getMatrixColumn())) {
 			set.setMatrixColumn(null);
 		}
 
@@ -927,7 +925,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelButton.addActionListener(this);
 		modelReloadButton.addActionListener(this);
 
-		JPanel northPanel = new JPanel();
+		JPanel panel = new JPanel();
 		int row = 0;
 
 		JPanel modelButtonPanel = new JPanel();
@@ -936,9 +934,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelButtonPanel.add(modelButton, BorderLayout.WEST);
 		modelButtonPanel.add(modelReloadButton, BorderLayout.EAST);
 
-		northPanel.setLayout(new GridBagLayout());
-		northPanel.add(new JLabel("Primary Model:"), createConstraints(0, row));
-		northPanel.add(modelButtonPanel, createConstraints(1, row));
+		panel.setLayout(new GridBagLayout());
+		panel.add(new JLabel("Primary Model:"), createConstraints(0, row));
+		panel.add(modelButtonPanel, createConstraints(1, row));
 		row++;
 
 		if (set.getModelTuple() != null) {
@@ -966,9 +964,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				box.addItemListener(this);
 				modelBoxes.put(element.getName(), box);
 
-				northPanel.add(new JLabel(element.getName() + ":"),
+				panel.add(new JLabel(element.getName() + ":"),
 						createConstraints(0, row));
-				northPanel.add(box, createConstraints(1, row));
+				panel.add(box, createConstraints(1, row));
 				row++;
 			}
 
@@ -1001,13 +999,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			depUnitBox.addItemListener(this);
 			indepUnitBox.addItemListener(this);
 
-			northPanel.add(new JLabel(depXml.getName() + " Unit:"),
+			panel.add(new JLabel(depXml.getName() + " Unit:"),
 					createConstraints(0, row));
-			northPanel.add(depUnitBox, createConstraints(1, row));
+			panel.add(depUnitBox, createConstraints(1, row));
 			row++;
-			northPanel.add(new JLabel(indepXml.getName() + " Unit:"),
+			panel.add(new JLabel(indepXml.getName() + " Unit:"),
 					createConstraints(0, row));
-			northPanel.add(indepUnitBox, createConstraints(1, row));
+			panel.add(indepUnitBox, createConstraints(1, row));
 			row++;
 
 			for (PmmXmlElementConvertable el : set.getModelTuple()
@@ -1046,9 +1044,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				secReloadButton.addActionListener(this);
 				secModelButtons.put(element.getName(), secButton);
 				secModelReloadButtons.put(element.getName(), secReloadButton);
-				northPanel.add(new JLabel(element.getName() + ":"),
+				panel.add(new JLabel(element.getName() + ":"),
 						createConstraints(0, row));
-				northPanel.add(secButtonPanel, createConstraints(1, row));
+				panel.add(secButtonPanel, createConstraints(1, row));
 				row++;
 
 				if (secModelTuple != null) {
@@ -1085,9 +1083,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						secModelBoxes.get(element.getName()).put(
 								element2.getName(), box);
 
-						northPanel.add(new JLabel(element2.getName() + ":"),
+						panel.add(new JLabel(element2.getName() + ":"),
 								createConstraints(0, row));
-						northPanel.add(box, createConstraints(1, row));
+						panel.add(box, createConstraints(1, row));
 						row++;
 					}
 
@@ -1142,30 +1140,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						secUnitBoxes.get(element.getName()).put(
 								indep.getName(), unitBox);
 
-						northPanel.add(new JLabel("Min " + indep.getName()
-								+ ":"), createConstraints(0, row));
-						northPanel.add(minBox, createConstraints(1, row));
-						row++;
-						northPanel.add(new JLabel("Max " + indep.getName()
-								+ ":"), createConstraints(0, row));
-						northPanel.add(maxBox, createConstraints(1, row));
-						row++;
-						northPanel.add(new JLabel(indep.getName() + " Unit:"),
+						panel.add(new JLabel("Min " + indep.getName() + ":"),
 								createConstraints(0, row));
-						northPanel.add(unitBox, createConstraints(1, row));
+						panel.add(minBox, createConstraints(1, row));
+						row++;
+						panel.add(new JLabel("Max " + indep.getName() + ":"),
+								createConstraints(0, row));
+						panel.add(maxBox, createConstraints(1, row));
+						row++;
+						panel.add(new JLabel(indep.getName() + " Unit:"),
+								createConstraints(0, row));
+						panel.add(unitBox, createConstraints(1, row));
 						row++;
 					}
 				}
 			}
 		}
 
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BorderLayout());
-		panel.add(northPanel, BorderLayout.NORTH);
-
 		modelPanel.removeAll();
-		modelPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+		modelPanel.add(panel, BorderLayout.NORTH);
 		modelPanel.revalidate();
 	}
 
@@ -1189,18 +1182,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		agentBox.addItemListener(this);
 		agentButton.addActionListener(this);
 
-		JPanel northPanel = new JPanel();
+		JPanel panel = new JPanel();
 
-		northPanel.setLayout(new GridBagLayout());
-		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
-		northPanel.add(agentBox, createConstraints(1, 0));
+		panel.setLayout(new GridBagLayout());
+		panel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
+		panel.add(agentBox, createConstraints(1, 0));
 
 		if (agentBox.getSelectedItem() == null)
 			agentBox.setSelectedItem(DO_NOT_USE);
 		if (agentBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (agentBox.getSelectedItem().equals(OTHER_PARAMETER)) {
-			northPanel.add(agentButton, createConstraints(1, 1));
+			panel.add(agentButton, createConstraints(1, 1));
 		} else {
 			int row = 1;
 			String column = (String) agentBox.getSelectedItem();
@@ -1226,20 +1219,32 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				button.addActionListener(this);
 				agentButtons.put(value, button);
 
-				northPanel.add(new JLabel(value + ":"),
-						createConstraints(0, row));
-				northPanel.add(button, createConstraints(1, row));
+				panel.add(new JLabel(value + ":"), createConstraints(0, row));
+				panel.add(button, createConstraints(1, row));
 				row++;
 			}
 		}
 
-		JPanel panel = new JPanel();
+		JPanel p = new JPanel();
 
-		panel.setLayout(new BorderLayout());
-		panel.add(northPanel, BorderLayout.NORTH);
+		p.setLayout(new BorderLayout());
+		p.add(panel, BorderLayout.CENTER);
+
+		if (set.getAgentColumn() != null
+				&& !set.getAgentColumn().equals(OTHER_PARAMETER)
+				&& !set.getAgentColumn().equals(DO_NOT_USE)) {
+			try {
+				p.add(new JLabel("Data missing in rows: "
+						+ getMissingString(xlsReader.getMissingData(new File(
+								filePanel.getFileName()), (String) sheetBox
+								.getSelectedItem(), set.getAgentColumn()))),
+						BorderLayout.SOUTH);
+			} catch (Exception e) {
+			}
+		}
 
 		agentPanel.removeAll();
-		agentPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+		agentPanel.add(p, BorderLayout.NORTH);
 		agentPanel.revalidate();
 	}
 
@@ -1264,18 +1269,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		matrixBox.addItemListener(this);
 		matrixButton.addActionListener(this);
 
-		JPanel northPanel = new JPanel();
+		JPanel panel = new JPanel();
 
-		northPanel.setLayout(new GridBagLayout());
-		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
-		northPanel.add(matrixBox, createConstraints(1, 0));
+		panel.setLayout(new GridBagLayout());
+		panel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
+		panel.add(matrixBox, createConstraints(1, 0));
 
 		if (matrixBox.getSelectedItem() == null)
 			matrixBox.setSelectedItem(DO_NOT_USE);
 		if (matrixBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (matrixBox.getSelectedItem().equals(OTHER_PARAMETER)) {
-			northPanel.add(matrixButton, createConstraints(1, 1));
+			panel.add(matrixButton, createConstraints(1, 1));
 		} else {
 			int row = 1;
 			String column = (String) matrixBox.getSelectedItem();
@@ -1301,20 +1306,32 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				button.addActionListener(this);
 				matrixButtons.put(value, button);
 
-				northPanel.add(new JLabel(value + ":"),
-						createConstraints(0, row));
-				northPanel.add(button, createConstraints(1, row));
+				panel.add(new JLabel(value + ":"), createConstraints(0, row));
+				panel.add(button, createConstraints(1, row));
 				row++;
 			}
 		}
 
-		JPanel panel = new JPanel();
+		JPanel p = new JPanel();
 
-		panel.setLayout(new BorderLayout());
-		panel.add(northPanel, BorderLayout.NORTH);
+		p.setLayout(new BorderLayout());
+		p.add(panel, BorderLayout.CENTER);
+
+		if (set.getMatrixColumn() != null
+				&& !set.getMatrixColumn().equals(OTHER_PARAMETER)
+				&& !set.getMatrixColumn().equals(DO_NOT_USE)) {
+			try {
+				p.add(new JLabel("Data missing in rows: "
+						+ getMissingString(xlsReader.getMissingData(new File(
+								filePanel.getFileName()), (String) sheetBox
+								.getSelectedItem(), set.getMatrixColumn()))),
+						BorderLayout.SOUTH);
+			} catch (Exception e) {
+			}
+		}
 
 		matrixPanel.removeAll();
-		matrixPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+		matrixPanel.add(p, BorderLayout.NORTH);
 		matrixPanel.revalidate();
 	}
 
@@ -1324,10 +1341,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			columnButtons.clear();
 			columnUnitBoxes.clear();
 
-			JPanel northPanel = new JPanel();
+			JPanel panel = new JPanel();
 			int row = 0;
 
-			northPanel.setLayout(new GridBagLayout());
+			panel.setLayout(new GridBagLayout());
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
@@ -1382,10 +1399,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				columnBoxes.put(column, box);
 				columnButtons.put(column, button);
 
-				northPanel.add(new JLabel(column + ":"),
-						createConstraints(0, row));
-				northPanel.add(box, createConstraints(1, row));
-				northPanel.add(button, createConstraints(2, row));
+				panel.add(new JLabel(column + ":"), createConstraints(0, row));
+				panel.add(box, createConstraints(1, row));
+				panel.add(button, createConstraints(2, row));
 
 				if (set.getColumnMappings().get(column) instanceof MiscXml) {
 					MiscXml condition = (MiscXml) set.getColumnMappings().get(
@@ -1403,23 +1419,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					UI.select(unitBox, condition.getUnit());
 					unitBox.addItemListener(this);
 					columnUnitBoxes.put(column, unitBox);
-					northPanel.add(unitBox, createConstraints(3, row));
+					panel.add(unitBox, createConstraints(3, row));
 				}
 
 				row++;
 			}
 
-			JPanel panel = new JPanel();
-
-			panel.setLayout(new BorderLayout());
-			panel.add(northPanel, BorderLayout.NORTH);
-
 			columnsPanel.removeAll();
-			columnsPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+			columnsPanel.add(panel, BorderLayout.NORTH);
 			columnsPanel.revalidate();
 		} else {
 			columnsPanel.removeAll();
-			columnsPanel.add(noLabel, BorderLayout.CENTER);
+			columnsPanel.add(noLabel, BorderLayout.NORTH);
 			columnsPanel.revalidate();
 			columnButtons.clear();
 		}
@@ -1571,5 +1582,27 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			set.getSecModelIndepUnits().put(param,
 					new LinkedHashMap<String, String>());
 		}
+	}
+
+	private static String getMissingString(List<Integer> missing) {
+		String s = "";
+
+		if (missing.size() <= 10) {
+			for (int m : missing) {
+				s += "," + m;
+			}
+		} else {
+			for (int i = 0; i < 10; i++) {
+				s += "," + missing.get(i);
+			}
+
+			s += ",...";
+		}
+
+		if (!s.isEmpty()) {
+			s = s.substring(1);
+		}
+
+		return s;
 	}
 }

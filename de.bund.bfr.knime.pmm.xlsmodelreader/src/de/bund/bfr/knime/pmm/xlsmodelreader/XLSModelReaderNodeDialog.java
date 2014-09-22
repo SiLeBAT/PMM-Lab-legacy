@@ -1235,11 +1235,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				&& !set.getAgentColumn().equals(OTHER_PARAMETER)
 				&& !set.getAgentColumn().equals(DO_NOT_USE)) {
 			try {
-				p.add(new JLabel("Data missing in rows: "
-						+ getMissingString(xlsReader.getMissingData(new File(
-								filePanel.getFileName()), (String) sheetBox
-								.getSelectedItem(), set.getAgentColumn()))),
-						BorderLayout.SOUTH);
+				List<Integer> missing = xlsReader.getMissingData(new File(
+						filePanel.getFileName()), (String) sheetBox
+						.getSelectedItem(), set.getAgentColumn());
+
+				if (!missing.isEmpty()) {
+					p.add(new JLabel("Data missing in rows: "
+							+ getMissingString(missing)), BorderLayout.SOUTH);
+				}
 			} catch (Exception e) {
 			}
 		}
@@ -1322,11 +1325,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				&& !set.getMatrixColumn().equals(OTHER_PARAMETER)
 				&& !set.getMatrixColumn().equals(DO_NOT_USE)) {
 			try {
-				p.add(new JLabel("Data missing in rows: "
-						+ getMissingString(xlsReader.getMissingData(new File(
-								filePanel.getFileName()), (String) sheetBox
-								.getSelectedItem(), set.getMatrixColumn()))),
-						BorderLayout.SOUTH);
+				List<Integer> missing = xlsReader.getMissingData(new File(
+						filePanel.getFileName()), (String) sheetBox
+						.getSelectedItem(), set.getMatrixColumn());
+
+				if (!missing.isEmpty()) {
+					p.add(new JLabel("Data missing in rows: "
+							+ getMissingString(missing)), BorderLayout.SOUTH);
+				}
 			} catch (Exception e) {
 			}
 		}

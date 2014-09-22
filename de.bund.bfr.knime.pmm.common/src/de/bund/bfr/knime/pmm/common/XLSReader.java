@@ -493,8 +493,8 @@ public class XLSReader {
 				dataInfo.add(new MdInfoXml(null, null, null, null, null));
 
 				if (commentColumn != null) {
-					warnings.add(MdInfoXml.ATT_COMMENT + " value in row "
-							+ (rowNumber + 1) + " is missing");
+					// warnings.add(MdInfoXml.ATT_COMMENT + " value in row "
+					// + (rowNumber + 1) + " is missing");
 				}
 			}
 

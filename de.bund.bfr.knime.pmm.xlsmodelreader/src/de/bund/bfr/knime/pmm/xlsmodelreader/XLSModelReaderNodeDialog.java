@@ -1163,13 +1163,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateAgentPanel() {
-		agentButtons.clear();
-		agentBox = new JComboBox<>(new String[] { DO_NOT_USE, OTHER_PARAMETER });
-		agentButton = new JButton(OTHER_PARAMETER);
+		List<String> items = new ArrayList<>();
 
-		for (String column : fileColumnList) {
-			agentBox.addItem(column);
-		}
+		items.add(DO_NOT_USE);
+		items.add(OTHER_PARAMETER);
+		items.addAll(fileColumnList);
+
+		agentButtons.clear();
+		agentBox = new JComboBox<>(items.toArray(new String[0]));
+		agentButton = new JButton(OTHER_PARAMETER);
 
 		UI.select(agentBox, set.getAgentColumn());
 
@@ -1188,9 +1190,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		panel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		panel.add(agentBox, createConstraints(1, 0));
 
-		if (agentBox.getSelectedItem() == null)
-			agentBox.setSelectedItem(DO_NOT_USE);
-		if (agentBox.getSelectedItem().equals(DO_NOT_USE)) {
+		if (agentBox.getSelectedItem() == null
+				|| agentBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (agentBox.getSelectedItem().equals(OTHER_PARAMETER)) {
 			panel.add(agentButton, createConstraints(1, 1));
@@ -1249,14 +1250,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateMatrixPanel() {
-		matrixButtons.clear();
-		matrixBox = new JComboBox<>(
-				new String[] { DO_NOT_USE, OTHER_PARAMETER });
-		matrixButton = new JButton(OTHER_PARAMETER);
+		List<String> items = new ArrayList<>();
 
-		for (String column : fileColumnList) {
-			matrixBox.addItem(column);
-		}
+		items.add(DO_NOT_USE);
+		items.add(OTHER_PARAMETER);
+		items.addAll(fileColumnList);
+
+		matrixButtons.clear();
+		matrixBox = new JComboBox<>(items.toArray(new String[0]));
+		matrixButton = new JButton(OTHER_PARAMETER);
 
 		UI.select(matrixBox, set.getMatrixColumn());
 
@@ -1275,9 +1277,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		panel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		panel.add(matrixBox, createConstraints(1, 0));
 
-		if (matrixBox.getSelectedItem() == null)
-			matrixBox.setSelectedItem(DO_NOT_USE);
-		if (matrixBox.getSelectedItem().equals(DO_NOT_USE)) {
+		if (matrixBox.getSelectedItem() == null
+				|| matrixBox.getSelectedItem().equals(DO_NOT_USE)) {
 			// Do nothing
 		} else if (matrixBox.getSelectedItem().equals(OTHER_PARAMETER)) {
 			panel.add(matrixButton, createConstraints(1, 1));

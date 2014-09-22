@@ -527,16 +527,16 @@ public class XLSReader {
 				((AgentXml) agentXml.get(0))
 						.setDetail(getData(agentDetailsCell));
 			} else if (agentDetailsColumn != null) {
-				warnings.add(AttributeUtilities.AGENT_DETAILS
-						+ " value in row " + (rowNumber + 1) + " is missing");
+				// warnings.add(AttributeUtilities.AGENT_DETAILS
+				// + " value in row " + (rowNumber + 1) + " is missing");
 			}
 
 			if (hasData(matrixDetailsCell)) {
 				((MatrixXml) matrixXml.get(0))
 						.setDetail(getData(matrixDetailsCell));
 			} else if (matrixDetailsColumn != null) {
-				warnings.add(AttributeUtilities.MATRIX_DETAILS
-						+ " value in row " + (rowNumber + 1) + " is missing");
+				// warnings.add(AttributeUtilities.MATRIX_DETAILS
+				// + " value in row " + (rowNumber + 1) + " is missing");
 			}
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);

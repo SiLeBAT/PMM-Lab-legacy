@@ -156,6 +156,7 @@ public class TableReader {
 			}
 
 			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model2Schema.NAME, new ArrayList<String>());
 			stringColumns.put(Model2Schema.ATT_DEPENDENT,
 					new ArrayList<String>());
 			stringColumns.put(Model2Schema.FORMULA, new ArrayList<String>());
@@ -172,6 +173,7 @@ public class TableReader {
 			conditionUnits = null;
 
 			stringColumns = new LinkedHashMap<>();
+			stringColumns.put(Model2Schema.NAME, new ArrayList<String>());
 			stringColumns.put(Model2Schema.ATT_DEPENDENT,
 					new ArrayList<String>());
 			stringColumns.put(Model2Schema.FORMULA, new ArrayList<String>());
@@ -243,6 +245,9 @@ public class TableReader {
 
 				idSet.add(id);
 				ids.add(id);
+				stringColumns.get(Model2Schema.NAME).add(
+						((EstModelXml) tuple.getPmmXml(
+								Model2Schema.ATT_ESTMODEL).get(0)).getName());
 				stringColumns.get(Model2Schema.ATT_DEPENDENT)
 						.add(depVarSecDesc);
 				stringColumns.get(Model2Schema.FORMULA).add(modelNameSec);

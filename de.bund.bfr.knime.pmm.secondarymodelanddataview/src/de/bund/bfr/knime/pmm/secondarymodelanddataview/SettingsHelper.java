@@ -288,7 +288,7 @@ public class SettingsHelper {
 			fittedFilter = settings.getString(CFG_FITTEDFILTER);
 		} catch (InvalidSettingsException e) {
 		}
-		
+
 		try {
 			columnWidths = XmlConverter.xmlToObject(
 					settings.getString(CFG_COLUMNWIDTHS),
@@ -540,7 +540,7 @@ public class SettingsHelper {
 	public void setFittedFilter(String fittedFilter) {
 		this.fittedFilter = fittedFilter;
 	}
-	
+
 	public Map<String, Integer> getColumnWidths() {
 		return columnWidths;
 	}

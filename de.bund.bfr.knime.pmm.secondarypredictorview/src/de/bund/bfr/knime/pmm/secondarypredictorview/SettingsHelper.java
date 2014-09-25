@@ -299,7 +299,7 @@ public class SettingsHelper {
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
 		}
-		
+
 		try {
 			sampleInverse = settings.getBoolean(CFG_SAMPLE_INVERSE);
 		} catch (InvalidSettingsException e) {
@@ -557,7 +557,7 @@ public class SettingsHelper {
 	public void setColumnWidths(Map<String, Integer> columnWidths) {
 		this.columnWidths = columnWidths;
 	}
-	
+
 	public boolean isSampleInverse() {
 		return sampleInverse;
 	}

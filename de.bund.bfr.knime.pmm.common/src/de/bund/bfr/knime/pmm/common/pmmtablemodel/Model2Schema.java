@@ -55,7 +55,8 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_GLOBAL_MODEL_ID = "GlobalModelID";
 
 	public static final int WRITABLE = 1;
-	public static final int NOTWRITABLE = 0;	
+	public static final int NOTWRITABLE = 0;
+	public static final String NAME = "Name";
 	public static final String FORMULA = "FormulaSec";
 	public static final String SSE = "SSE";
 	public static final String MSE = "MSE";

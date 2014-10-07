@@ -58,14 +58,6 @@ public class ModelCombiner {
 
 	public ModelCombiner(List<KnimeTuple> tuples, boolean containsData,
 			Map<String, String> initParams, Map<String, String> lagParams) {
-		KnimeSchema outSchema = null;
-
-		if (containsData) {
-			outSchema = SchemaFactory.createM1DataSchema();
-		} else {
-			outSchema = SchemaFactory.createM1Schema();
-		}
-
 		if (initParams == null) {
 			initParams = new LinkedHashMap<>();
 		}
@@ -74,9 +66,6 @@ public class ModelCombiner {
 			lagParams = new LinkedHashMap<>();
 		}
 
-		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
-		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<>();
-		Map<String, Set<String>> replacements = new LinkedHashMap<>();
 		Map<Integer, Map<String, Double>> paramValues = getParamMeanValues(tuples);
 		Map<Integer, Set<String>> organisms = new LinkedHashMap<>();
 		Map<Integer, Set<String>> matrices = new LinkedHashMap<>();
@@ -85,20 +74,20 @@ public class ModelCombiner {
 		Map<Integer, Set<String>> comments = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
-			int modelId = -1;
+			int id = -1;
 
 			try {
-				modelId = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+				id = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			} catch (Exception e) {
 				continue;
 			}
 
-			if (!organisms.containsKey(modelId)) {
-				organisms.put(modelId, new LinkedHashSet<String>());
-				matrices.put(modelId, new LinkedHashSet<String>());
-				organismDetails.put(modelId, new LinkedHashSet<String>());
-				matrixDetails.put(modelId, new LinkedHashSet<String>());
-				comments.put(modelId, new LinkedHashSet<String>());
+			if (!organisms.containsKey(id)) {
+				organisms.put(id, new LinkedHashSet<String>());
+				matrices.put(id, new LinkedHashSet<String>());
+				organismDetails.put(id, new LinkedHashSet<String>());
+				matrixDetails.put(id, new LinkedHashSet<String>());
+				comments.put(id, new LinkedHashSet<String>());
 			}
 
 			if (containsData) {
@@ -114,71 +103,32 @@ public class ModelCombiner {
 						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment();
 
 				if (organism != null) {
-					organisms.get(modelId).add(organism);
+					organisms.get(id).add(organism);
 				}
 
 				if (matrix != null) {
-					matrices.get(modelId).add(matrix);
+					matrices.get(id).add(matrix);
 				}
 
 				if (organismDetail != null) {
-					organismDetails.get(modelId).add(organismDetail);
+					organismDetails.get(id).add(organismDetail);
 				}
 
 				if (matrixDetail != null) {
-					matrixDetails.get(modelId).add(matrixDetail);
+					matrixDetails.get(id).add(matrixDetail);
 				}
 
 				if (comment != null) {
-					comments.get(modelId).add(comment);
+					comments.get(id).add(comment);
 				}
-			}
-
-			String id = modelId + "";
-
-			if (containsData) {
-				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
-			}
-
-			if (!newTuples.containsKey(id)) {
-				KnimeTuple newTuple = new KnimeTuple(outSchema);
-
-				for (int i = 0; i < outSchema.size(); i++) {
-					String attr = outSchema.getName(i);
-
-					newTuple.setCell(attr, tuple.getCell(attr));
-				}
-
-				PmmXmlDoc params = newTuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-				for (PmmXmlElementConvertable el : params.getElementSet()) {
-					ParamXml element = (ParamXml) el;
-
-					element.setValue(null);
-				}
-
-				newTuple.setValue(Model1Schema.ATT_PARAMETER, params);
-
-				newTuples.put(id, newTuple);
-				usedTupleLists.put(id, new ArrayList<KnimeTuple>());
-				replacements.put(id, new LinkedHashSet<String>());
-			}
-
-			String depVarSec = ((DepXml) tuple.getPmmXml(
-					Model2Schema.ATT_DEPENDENT).get(0)).getName();
-
-			if (replacements.get(id).add(depVarSec)) {
-				usedTupleLists.get(id).add(tuple);
 			}
 		}
 
-		tupleCombinations = new LinkedHashMap<>();
+		tupleCombinations = getTuplesToCombine(tuples, containsData);
 		parameterRenaming = new LinkedHashMap<>();
 
-		for (String id : newTuples.keySet()) {
-			KnimeTuple newTuple = newTuples.get(id);
-			List<KnimeTuple> usedTuples = usedTupleLists.get(id);
+		for (KnimeTuple newTuple : tupleCombinations.keySet()) {
+			List<KnimeTuple> usedTuples = tupleCombinations.get(newTuple);
 			Map<KnimeTuple, Map<String, String>> rename = new LinkedHashMap<>();
 
 			for (KnimeTuple tuple : usedTuples) {
@@ -335,9 +285,6 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_DBUUID, null);
 			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
-
-			tupleCombinations.put(newTuple, usedTuples);
-			parameterRenaming.put(newTuple, rename);
 		}
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
@@ -433,6 +380,76 @@ public class ModelCombiner {
 
 	public Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> getParameterRenaming() {
 		return parameterRenaming;
+	}
+
+	private Map<KnimeTuple, List<KnimeTuple>> getTuplesToCombine(
+			List<KnimeTuple> tuples, boolean containsData) {
+		KnimeSchema outSchema = null;
+
+		if (containsData) {
+			outSchema = SchemaFactory.createM1DataSchema();
+		} else {
+			outSchema = SchemaFactory.createM1Schema();
+		}
+
+		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
+		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<>();
+		Map<String, Set<String>> replacements = new LinkedHashMap<>();
+
+		for (KnimeTuple tuple : tuples) {
+			String id = null;
+
+			try {
+				id = String.valueOf(tuple
+						.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
+			} catch (Exception e) {
+				continue;
+			}
+
+			if (containsData) {
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+			}
+
+			if (!newTuples.containsKey(id)) {
+				KnimeTuple newTuple = new KnimeTuple(outSchema);
+
+				for (int i = 0; i < outSchema.size(); i++) {
+					String attr = outSchema.getName(i);
+
+					newTuple.setCell(attr, tuple.getCell(attr));
+				}
+
+				PmmXmlDoc params = newTuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
+
+				for (PmmXmlElementConvertable el : params.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					element.setValue(null);
+				}
+
+				newTuple.setValue(Model1Schema.ATT_PARAMETER, params);
+
+				newTuples.put(id, newTuple);
+				usedTupleLists.put(id, new ArrayList<KnimeTuple>());
+				replacements.put(id, new LinkedHashSet<String>());
+			}
+
+			String depVarSec = ((DepXml) tuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0)).getName();
+
+			if (replacements.get(id).add(depVarSec)) {
+				usedTupleLists.get(id).add(tuple);
+			}
+		}
+
+		Map<KnimeTuple, List<KnimeTuple>> toCombine = new LinkedHashMap<>();
+
+		for (String id : newTuples.keySet()) {
+			toCombine.put(newTuples.get(id), usedTupleLists.get(id));
+		}
+
+		return toCombine;
 	}
 
 	private Map<Integer, Map<String, Double>> getParamMeanValues(

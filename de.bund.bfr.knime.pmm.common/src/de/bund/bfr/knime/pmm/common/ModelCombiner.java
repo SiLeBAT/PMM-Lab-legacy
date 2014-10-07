@@ -66,64 +66,6 @@ public class ModelCombiner {
 			lagParams = new LinkedHashMap<>();
 		}
 
-		Map<Integer, Map<String, Double>> paramValues = getParamMeanValues(tuples);
-		Map<Integer, Set<String>> organisms = new LinkedHashMap<>();
-		Map<Integer, Set<String>> matrices = new LinkedHashMap<>();
-		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<>();
-		Map<Integer, Set<String>> matrixDetails = new LinkedHashMap<>();
-		Map<Integer, Set<String>> comments = new LinkedHashMap<>();
-
-		for (KnimeTuple tuple : tuples) {
-			int id = -1;
-
-			try {
-				id = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-			} catch (Exception e) {
-				continue;
-			}
-
-			if (!organisms.containsKey(id)) {
-				organisms.put(id, new LinkedHashSet<String>());
-				matrices.put(id, new LinkedHashSet<String>());
-				organismDetails.put(id, new LinkedHashSet<String>());
-				matrixDetails.put(id, new LinkedHashSet<String>());
-				comments.put(id, new LinkedHashSet<String>());
-			}
-
-			if (containsData) {
-				String organism = ((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
-				String matrix = ((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
-				String organismDetail = ((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail();
-				String matrixDetail = ((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail();
-				String comment = ((MdInfoXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment();
-
-				if (organism != null) {
-					organisms.get(id).add(organism);
-				}
-
-				if (matrix != null) {
-					matrices.get(id).add(matrix);
-				}
-
-				if (organismDetail != null) {
-					organismDetails.get(id).add(organismDetail);
-				}
-
-				if (matrixDetail != null) {
-					matrixDetails.get(id).add(matrixDetail);
-				}
-
-				if (comment != null) {
-					comments.get(id).add(comment);
-				}
-			}
-		}
-
 		tupleCombinations = getTuplesToCombine(tuples, containsData);
 		parameterRenaming = new LinkedHashMap<>();
 
@@ -285,93 +227,15 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_DBUUID, null);
 			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
+
+			parameterRenaming.put(newTuple, rename);
 		}
 
-		for (KnimeTuple tuple : tupleCombinations.keySet()) {
-			int id = tupleCombinations.get(tuple).get(0)
-					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
-				ParamXml param = (ParamXml) el;
-
-				if (param.getValue() == null
-						&& paramValues.get(id).get(param.getName()) != null) {
-					param.setValue(paramValues.get(id).get(param.getName()));
-					param.getAllCorrelations().clear();
-					param.setError(null);
-					param.setT(null);
-					param.setP(null);
-				}
-			}
-
-			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
-
-			if (containsData) {
-				String organism = "";
-				String matrix = "";
-				String organismDetail = "";
-				String matrixDetail = "";
-				String comment = "";
-
-				for (String o : organisms.get(id)) {
-					organism += "," + o;
-				}
-
-				if (!organism.isEmpty()) {
-					organism = organism.substring(1);
-				}
-
-				for (String m : matrices.get(id)) {
-					matrix += "," + m;
-				}
-
-				if (!matrix.isEmpty()) {
-					matrix = matrix.substring(1);
-				}
-
-				for (String o : organismDetails.get(id)) {
-					organismDetail += "," + o;
-				}
-
-				if (!organismDetail.isEmpty()) {
-					organismDetail = organismDetail.substring(1);
-				}
-
-				for (String m : matrixDetails.get(id)) {
-					matrixDetail += "," + m;
-				}
-
-				if (!matrixDetail.isEmpty()) {
-					matrixDetail = matrixDetail.substring(1);
-				}
-
-				for (String c : comments.get(id)) {
-					comment += "," + c;
-				}
-
-				if (!comment.isEmpty()) {
-					comment = comment.substring(1);
-				}
-
-				AgentXml organismXml = new AgentXml();
-				MatrixXml matrixXml = new MatrixXml();
-				MdInfoXml infoXml = new MdInfoXml(null, null, comment, null,
-						null);
-
-				organismXml.setName(organism);
-				organismXml.setDetail(organismDetail);
-				matrixXml.setName(matrix);
-				matrixXml.setDetail(matrixDetail);
-
-				tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(
-						organismXml));
-				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(
-						matrixXml));
-				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(
-						infoXml));
-			}
+		if (containsData) {
+			updateMetaData(tuples, tupleCombinations);
 		}
+
+		updateParamValues(tuples, tupleCombinations);
 	}
 
 	public Map<KnimeTuple, List<KnimeTuple>> getTupleCombinations() {
@@ -382,7 +246,7 @@ public class ModelCombiner {
 		return parameterRenaming;
 	}
 
-	private Map<KnimeTuple, List<KnimeTuple>> getTuplesToCombine(
+	private static Map<KnimeTuple, List<KnimeTuple>> getTuplesToCombine(
 			List<KnimeTuple> tuples, boolean containsData) {
 		KnimeSchema outSchema = null;
 
@@ -452,8 +316,131 @@ public class ModelCombiner {
 		return toCombine;
 	}
 
-	private Map<Integer, Map<String, Double>> getParamMeanValues(
-			List<KnimeTuple> tuples) {
+	private static void updateMetaData(List<KnimeTuple> tuples,
+			Map<KnimeTuple, List<KnimeTuple>> tupleCombinations) {
+		Map<Integer, Set<String>> organisms = new LinkedHashMap<>();
+		Map<Integer, Set<String>> matrices = new LinkedHashMap<>();
+		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<>();
+		Map<Integer, Set<String>> matrixDetails = new LinkedHashMap<>();
+		Map<Integer, Set<String>> comments = new LinkedHashMap<>();
+
+		for (KnimeTuple tuple : tuples) {
+			int id = -1;
+
+			try {
+				id = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			} catch (Exception e) {
+				continue;
+			}
+
+			if (!organisms.containsKey(id)) {
+				organisms.put(id, new LinkedHashSet<String>());
+				matrices.put(id, new LinkedHashSet<String>());
+				organismDetails.put(id, new LinkedHashSet<String>());
+				matrixDetails.put(id, new LinkedHashSet<String>());
+				comments.put(id, new LinkedHashSet<String>());
+			}
+
+			String organism = ((AgentXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_AGENT).get(0)).getName();
+			String matrix = ((MatrixXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
+			String organismDetail = ((AgentXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_AGENT).get(0)).getDetail();
+			String matrixDetail = ((MatrixXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail();
+			String comment = ((MdInfoXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_MDINFO).get(0)).getComment();
+
+			if (organism != null) {
+				organisms.get(id).add(organism);
+			}
+
+			if (matrix != null) {
+				matrices.get(id).add(matrix);
+			}
+
+			if (organismDetail != null) {
+				organismDetails.get(id).add(organismDetail);
+			}
+
+			if (matrixDetail != null) {
+				matrixDetails.get(id).add(matrixDetail);
+			}
+
+			if (comment != null) {
+				comments.get(id).add(comment);
+			}
+		}
+
+		for (KnimeTuple tuple : tupleCombinations.keySet()) {
+			int id = tupleCombinations.get(tuple).get(0)
+					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			String organism = "";
+			String matrix = "";
+			String organismDetail = "";
+			String matrixDetail = "";
+			String comment = "";
+
+			for (String o : organisms.get(id)) {
+				organism += "," + o;
+			}
+
+			if (!organism.isEmpty()) {
+				organism = organism.substring(1);
+			}
+
+			for (String m : matrices.get(id)) {
+				matrix += "," + m;
+			}
+
+			if (!matrix.isEmpty()) {
+				matrix = matrix.substring(1);
+			}
+
+			for (String o : organismDetails.get(id)) {
+				organismDetail += "," + o;
+			}
+
+			if (!organismDetail.isEmpty()) {
+				organismDetail = organismDetail.substring(1);
+			}
+
+			for (String m : matrixDetails.get(id)) {
+				matrixDetail += "," + m;
+			}
+
+			if (!matrixDetail.isEmpty()) {
+				matrixDetail = matrixDetail.substring(1);
+			}
+
+			for (String c : comments.get(id)) {
+				comment += "," + c;
+			}
+
+			if (!comment.isEmpty()) {
+				comment = comment.substring(1);
+			}
+
+			AgentXml organismXml = new AgentXml();
+			MatrixXml matrixXml = new MatrixXml();
+			MdInfoXml infoXml = new MdInfoXml(null, null, comment, null, null);
+
+			organismXml.setName(organism);
+			organismXml.setDetail(organismDetail);
+			matrixXml.setName(matrix);
+			matrixXml.setDetail(matrixDetail);
+
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(
+					organismXml));
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX,
+					new PmmXmlDoc(matrixXml));
+			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(infoXml));
+		}
+	}
+
+	private static void updateParamValues(List<KnimeTuple> tuples,
+			Map<KnimeTuple, List<KnimeTuple>> tupleCombinations) {
 		Map<Integer, Map<String, Double>> paramSums = new LinkedHashMap<>();
 		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
 		Map<Integer, Map<String, Double>> paramValues = new LinkedHashMap<>();
@@ -510,6 +497,25 @@ public class ModelCombiner {
 			}
 		}
 
-		return paramValues;
+		for (KnimeTuple tuple : tupleCombinations.keySet()) {
+			int id = tupleCombinations.get(tuple).get(0)
+					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+
+			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+				ParamXml param = (ParamXml) el;
+
+				if (param.getValue() == null
+						&& paramValues.get(id).get(param.getName()) != null) {
+					param.setValue(paramValues.get(id).get(param.getName()));
+					param.getAllCorrelations().clear();
+					param.setError(null);
+					param.setT(null);
+					param.setP(null);
+				}
+			}
+
+			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
+		}
 	}
 }

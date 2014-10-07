@@ -149,22 +149,47 @@ public class ModelCombiner {
 							}
 						}
 
-						String fromUnit = original.getUnit();
-						String toUnit = element.getUnit();
-						Category cat = Categories.getCategoryByUnit(fromUnit);
+						Double min = element.getMin();
+						Double max = element.getMax();
 
-						if (fromUnit != null && !fromUnit.equals(toUnit)) {
+						if (original.getUnit() != null
+								&& !original.getUnit()
+										.equals(element.getUnit())) {
+							Category cat = Categories
+									.getCategoryByUnit(original.getUnit());
+
 							try {
 								String conversion = "("
 										+ cat.getConversionString(
-												element.getName(), fromUnit,
-												toUnit) + ")";
+												element.getName(),
+												original.getUnit(),
+												element.getUnit()) + ")";
 
 								replacement = MathUtilities.replaceVariable(
 										replacement, element.getName(),
 										conversion);
+								min = cat.convert(min, element.getUnit(),
+										original.getUnit());
+								max = cat.convert(max, element.getUnit(),
+										original.getUnit());
 							} catch (ConvertException e) {
 								e.printStackTrace();
+							}
+						}
+
+						if (min != null) {
+							if (original.getMin() != null) {
+								original.setMin(Math.min(original.getMin(), min));
+							} else {
+								original.setMin(min);
+							}
+						}
+
+						if (max != null) {
+							if (original.getMax() != null) {
+								original.setMax(Math.max(original.getMax(), max));
+							} else {
+								original.setMax(max);
 							}
 						}
 					}

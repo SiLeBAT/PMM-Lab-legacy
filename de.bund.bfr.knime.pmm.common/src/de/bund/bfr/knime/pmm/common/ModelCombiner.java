@@ -597,16 +597,19 @@ public class ModelCombiner {
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
 			int id = tupleCombinations.get(tuple).get(0)
 					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-			Map<String, Double> min = indepMin.get(id);
-			Map<String, Double> max = indepMax.get(id);
+			Map<String, Double> mins = indepMin.get(id);
+			Map<String, Double> maxs = indepMax.get(id);
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml indep = (IndepXml) el;
 
-				if (min.containsKey(indep.getName())) {
-					indep.setMin(min.get(indep.getName()));
-					indep.setMax(max.get(indep.getName()));
+				if (mins.containsKey(indep.getName())) {
+					Double min = mins.get(indep.getName());
+					Double max = maxs.get(indep.getName());
+
+					indep.setMin(!min.isInfinite() ? min : null);
+					indep.setMax(!max.isInfinite() ? max : null);
 				}
 			}
 

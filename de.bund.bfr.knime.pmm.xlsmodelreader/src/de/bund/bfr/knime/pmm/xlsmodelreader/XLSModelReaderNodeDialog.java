@@ -135,6 +135,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JButton modelReloadButton;
 	private Map<String, JComboBox<String>> modelBoxes;
 	private JComboBox<String> depUnitBox;
+	private JComboBox<String> indepMinBox;
+	private JComboBox<String> indepMaxBox;
 	private JComboBox<String> indepUnitBox;
 	private Map<String, JButton> secModelButtons;
 	private Map<String, JButton> secModelReloadButtons;
@@ -191,6 +193,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelPanel.add(noLabel, BorderLayout.CENTER);
 		modelBoxes = new LinkedHashMap<>();
 		depUnitBox = null;
+		indepMinBox = null;
+		indepMaxBox = null;
 		indepUnitBox = null;
 		secModelButtons = new LinkedHashMap<>();
 		secModelReloadButtons = new LinkedHashMap<>();
@@ -707,6 +711,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			updateMatrixPanel();
 		} else if (e.getSource() == depUnitBox) {
 			set.setModelDepUnit((String) depUnitBox.getSelectedItem());
+		} else if (e.getSource() == indepMinBox) {
+			set.setModelIndepMin((String) indepMinBox.getSelectedItem());
+		} else if (e.getSource() == indepMaxBox) {
+			set.setModelIndepMax((String) indepMaxBox.getSelectedItem());
 		} else if (e.getSource() == indepUnitBox) {
 			set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
 		} else {
@@ -966,6 +974,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		modelBoxes.clear();
 		depUnitBox = null;
+		indepMinBox = null;
+		indepMaxBox = null;
 		indepUnitBox = null;
 		secModelButtons.clear();
 		secModelReloadButtons.clear();
@@ -1004,17 +1014,22 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		row++;
 
 		if (set.getModelTuple() != null) {
+			List<String> paramOptions = new ArrayList<>();
+
+			paramOptions.add(DO_NOT_USE);
+			paramOptions.add(USE_SECONDARY_MODEL);
+			paramOptions.addAll(fileColumnList);
+
 			List<String> options = new ArrayList<>();
 
 			options.add(DO_NOT_USE);
-			options.add(USE_SECONDARY_MODEL);
 			options.addAll(fileColumnList);
 
 			for (PmmXmlElementConvertable el : set.getModelTuple()
 					.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
 				ParamXml element = (ParamXml) el;
 				JComboBox<String> box = new JComboBox<>(
-						options.toArray(new String[0]));
+						paramOptions.toArray(new String[0]));
 
 				if (!set.getModelMappings().containsKey(element.getName())) {
 					UI.select(box, DO_NOT_USE);
@@ -1042,6 +1057,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			depUnitBox = new JComboBox<>(Categories
 					.getCategory(depXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
+			indepMinBox = new JComboBox<>(options.toArray(new String[0]));
+			indepMaxBox = new JComboBox<>(options.toArray(new String[0]));
 			indepUnitBox = new JComboBox<>(Categories
 					.getCategory(indepXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
@@ -1053,6 +1070,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				set.setModelDepUnit(depXml.getUnit());
 			}
 
+			if (set.getModelIndepMin() != null) {
+				indepMinBox.setSelectedItem(set.getModelIndepMin());
+			} else {
+				indepMinBox.setSelectedItem(DO_NOT_USE);
+			}
+
+			if (set.getModelIndepMax() != null) {
+				indepMaxBox.setSelectedItem(set.getModelIndepMax());
+			} else {
+				indepMaxBox.setSelectedItem(DO_NOT_USE);
+			}
+
 			if (set.getModelIndepUnit() != null) {
 				indepUnitBox.setSelectedItem(set.getModelIndepUnit());
 			} else {
@@ -1061,11 +1090,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 
 			depUnitBox.addItemListener(this);
+			indepMinBox.addItemListener(this);
+			indepMaxBox.addItemListener(this);
 			indepUnitBox.addItemListener(this);
 
 			panel.add(new JLabel(depXml.getName() + " Unit:"),
 					createConstraints(0, row));
 			panel.add(depUnitBox, createConstraints(1, row));
+			row++;
+			panel.add(new JLabel(indepXml.getName() + " Min:"),
+					createConstraints(0, row));
+			panel.add(indepMinBox, createConstraints(1, row));
+			row++;
+			panel.add(new JLabel(indepXml.getName() + " Max:"),
+					createConstraints(0, row));
+			panel.add(indepMaxBox, createConstraints(1, row));
 			row++;
 			panel.add(new JLabel(indepXml.getName() + " Unit:"),
 					createConstraints(0, row));
@@ -1114,11 +1153,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				row++;
 
 				if (secModelTuple != null) {
-					List<String> secOptions = new ArrayList<>();
-
-					secOptions.add(DO_NOT_USE);
-					secOptions.addAll(fileColumnList);
-
 					secModelBoxes.put(element.getName(),
 							new LinkedHashMap<String, JComboBox<String>>());
 					secMinBoxes.put(element.getName(),
@@ -1135,7 +1169,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							.getElementSet()) {
 						ParamXml element2 = (ParamXml) el2;
 						JComboBox<String> box = new JComboBox<>(
-								secOptions.toArray(new String[0]));
+								options.toArray(new String[0]));
 						Map<String, String> mappings = set
 								.getSecModelMappings().get(element.getName());
 
@@ -1174,9 +1208,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Map<String, String> units = set.getSecModelIndepUnits()
 								.get(element.getName());
 						JComboBox<String> minBox = new JComboBox<>(
-								secOptions.toArray(new String[0]));
+								options.toArray(new String[0]));
 						JComboBox<String> maxBox = new JComboBox<>(
-								secOptions.toArray(new String[0]));
+								options.toArray(new String[0]));
 						JComboBox<String> categoryBox = new JComboBox<>(
 								Categories.getAllCategories().toArray(
 										new String[0]));

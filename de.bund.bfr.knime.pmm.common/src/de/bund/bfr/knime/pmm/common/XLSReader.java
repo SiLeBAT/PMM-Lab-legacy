@@ -385,7 +385,8 @@ public class XLSReader {
 			Map<String, AgentXml> agentMappings, String matrixColumnName,
 			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
 			Map<String, String> modelMappings, String modelDepUnit,
-			String modelIndepUnit, Map<String, KnimeTuple> secModelTuples,
+			String modelIndepMin, String modelIndepMax, String modelIndepUnit,
+			Map<String, KnimeTuple> secModelTuples,
 			Map<String, Map<String, String>> secModelMappings,
 			Map<String, Map<String, String>> secModelIndepMins,
 			Map<String, Map<String, String>> secModelIndepMaxs,
@@ -411,6 +412,8 @@ public class XLSReader {
 		Integer matrixDetailsColumn = null;
 		Integer agentColumn = null;
 		Integer matrixColumn = null;
+		Integer indepMinColumn = null;
+		Integer indepMaxColumn = null;
 
 		if (agentColumnName != null) {
 			agentColumn = columns.get(agentColumnName);
@@ -418,6 +421,14 @@ public class XLSReader {
 
 		if (matrixColumnName != null) {
 			matrixColumn = columns.get(matrixColumnName);
+		}
+
+		if (modelIndepMin != null) {
+			indepMinColumn = columns.get(modelIndepMin);
+		}
+
+		if (modelIndepMax != null) {
+			indepMaxColumn = columns.get(modelIndepMax);
 		}
 
 		for (String column : columns.keySet()) {
@@ -455,6 +466,8 @@ public class XLSReader {
 			Cell matrixDetailsCell = null;
 			Cell agentCell = null;
 			Cell matrixCell = null;
+			Cell indepMinCell = null;
+			Cell indepMaxCell = null;
 
 			if (idColumn != null) {
 				idCell = row.getCell(idColumn);
@@ -478,6 +491,14 @@ public class XLSReader {
 
 			if (matrixColumn != null) {
 				matrixCell = row.getCell(matrixColumn);
+			}
+
+			if (indepMinColumn != null) {
+				indepMinCell = row.getCell(indepMinColumn);
+			}
+
+			if (indepMaxColumn != null) {
+				indepMaxCell = row.getCell(indepMaxColumn);
 			}
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_CONDID,
@@ -584,6 +605,30 @@ public class XLSReader {
 				((DepXml) depXml.get(0)).setUnit(modelDepUnit);
 				((CatalogModelXml) modelXml.get(0)).setId(MathUtilities
 						.getRandomNegativeInt());
+			}
+
+			if (hasData(indepMinCell)) {
+				try {
+					((IndepXml) indepXml.get(0)).setMin(Double
+							.parseDouble(getData(indepMinCell)
+									.replace(",", ".")));
+				} catch (NumberFormatException e) {
+					warnings.add(modelIndepMin + " value in row "
+							+ (rowNumber + 1) + " is not valid ("
+							+ getData(indepMinCell) + ")");
+				}
+			}
+
+			if (hasData(indepMaxCell)) {
+				try {
+					((IndepXml) indepXml.get(0)).setMax(Double
+							.parseDouble(getData(indepMaxCell)
+									.replace(",", ".")));
+				} catch (NumberFormatException e) {
+					warnings.add(modelIndepMax + " value in row "
+							+ (rowNumber + 1) + " is not valid ("
+							+ getData(indepMaxCell) + ")");
+				}
 			}
 
 			if (modelIndepUnit != null

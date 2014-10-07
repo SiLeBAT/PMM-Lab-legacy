@@ -236,6 +236,7 @@ public class ModelCombiner {
 		}
 
 		updateParamValues(tuples, tupleCombinations);
+		updatePrimaryIndepRanges(tuples, tupleCombinations);
 	}
 
 	public Map<KnimeTuple, List<KnimeTuple>> getTupleCombinations() {
@@ -516,6 +517,75 @@ public class ModelCombiner {
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
+		}
+	}
+
+	private static void updatePrimaryIndepRanges(List<KnimeTuple> tuples,
+			Map<KnimeTuple, List<KnimeTuple>> tupleCombinations) {
+		Map<Integer, Map<String, Double>> indepMin = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> indepMax = new LinkedHashMap<>();
+
+		for (KnimeTuple tuple : tuples) {
+			int id = -1;
+
+			try {
+				id = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			} catch (Exception e) {
+				continue;
+			}
+
+			if (!indepMin.containsKey(id)) {
+				Map<String, Double> min = new LinkedHashMap<>();
+				Map<String, Double> max = new LinkedHashMap<>();
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+					IndepXml indep = (IndepXml) el;
+
+					min.put(indep.getName(), Double.POSITIVE_INFINITY);
+					max.put(indep.getName(), Double.NEGATIVE_INFINITY);
+				}
+
+				indepMin.put(id, min);
+				indepMax.put(id, max);
+			}
+
+			Map<String, Double> min = indepMin.get(id);
+			Map<String, Double> max = indepMax.get(id);
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+				IndepXml indep = (IndepXml) el;
+
+				if (indep.getMin() != null) {
+					min.put(indep.getName(),
+							Math.min(min.get(indep.getName()), indep.getMin()));
+				}
+
+				if (indep.getMax() != null) {
+					max.put(indep.getName(),
+							Math.max(max.get(indep.getName()), indep.getMax()));
+				}
+			}
+		}
+
+		for (KnimeTuple tuple : tupleCombinations.keySet()) {
+			int id = tupleCombinations.get(tuple).get(0)
+					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			Map<String, Double> min = indepMin.get(id);
+			Map<String, Double> max = indepMax.get(id);
+			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+				IndepXml indep = (IndepXml) el;
+
+				if (min.containsKey(indep.getName())) {
+					indep.setMin(min.get(indep.getName()));
+					indep.setMax(max.get(indep.getName()));
+				}
+			}
+
+			tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
 		}
 	}
 }

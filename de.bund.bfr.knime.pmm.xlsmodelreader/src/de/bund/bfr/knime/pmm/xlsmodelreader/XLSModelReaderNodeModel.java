@@ -94,7 +94,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		KnimeTuple modelTuple = new KnimeTuple(set.getModelTuple().getSchema(),
 				set.getModelTuple().getSchema().createSpec(),
 				set.getModelTuple());
-		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<>();		
+		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<>();
 
 		for (String key : set.getSecModelTuples().keySet()) {
 			KnimeTuple tuple = set.getSecModelTuples().get(key);
@@ -129,16 +129,15 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<>(xlsReader
-				.getModelTuples(new File(set.getFileName()),
-						set.getSheetName(), set.getColumnMappings(),
-						set.getAgentColumn(), set.getAgentMappings(),
-						set.getMatrixColumn(), set.getMatrixMappings(),
-						modelTuple, set.getModelMappings(),
-						set.getModelDepUnit(), set.getModelIndepUnit(),
-						secModelTuples, set.getSecModelMappings(),
-						set.getSecModelIndepMins(), set.getSecModelIndepMaxs(),
-						set.getSecModelIndepUnits()).values());
+		List<KnimeTuple> tuples = new ArrayList<>(xlsReader.getModelTuples(
+				new File(set.getFileName()), set.getSheetName(),
+				set.getColumnMappings(), set.getAgentColumn(),
+				set.getAgentMappings(), set.getMatrixColumn(),
+				set.getMatrixMappings(), modelTuple, set.getModelMappings(),
+				set.getModelDepUnit(), set.getModelIndepUnit(), secModelTuples,
+				set.getSecModelMappings(), set.getSecModelIndepMins(),
+				set.getSecModelIndepMaxs(), set.getSecModelIndepCategories(),
+				set.getSecModelIndepUnits()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);

@@ -389,6 +389,7 @@ public class XLSReader {
 			Map<String, Map<String, String>> secModelMappings,
 			Map<String, Map<String, String>> secModelIndepMins,
 			Map<String, Map<String, String>> secModelIndepMaxs,
+			Map<String, Map<String, String>> secModelIndepCategories,
 			Map<String, Map<String, String>> secModelIndepUnits)
 			throws Exception {
 		Workbook wb = getWorkbook(file);
@@ -689,11 +690,19 @@ public class XLSReader {
 					for (PmmXmlElementConvertable el : secIndepXml
 							.getElementSet()) {
 						IndepXml element = (IndepXml) el;
+						String category = secModelIndepCategories.get(param)
+								.get(element.getName());
 						String unit = secModelIndepUnits.get(param).get(
 								element.getName());
 
-						if (unit == null) {
+						if (category == null || unit == null) {
 							continue;
+						}
+
+						if (!category.equals(element.getCategory())) {
+							element.setCategory(category);
+							((CatalogModelXml) secModelXml.get(0))
+									.setId(MathUtilities.getRandomNegativeInt());
 						}
 
 						if (!unit.equals(element.getUnit())) {

@@ -50,25 +50,26 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 
 public class SettingsHelper {
 
-	protected static final String CFGKEY_FILENAME = "FileName";
-	protected static final String CFGKEY_SHEETNAME = "SheetName";
-	protected static final String CFGKEY_MODELMAPPINGS = "ModelMappings";
-	protected static final String CFGKEY_MODELDEPUNIT = "ModelDepUnit";
-	protected static final String CFGKEY_MODELINDEPUNIT = "ModelIndepUnit";
-	protected static final String CFGKEY_SECMODELMAPPINGS = "SecModelMappings";
-	protected static final String CFGKEY_SECMODELINDEPMINS = "SecModelIndepMins";
-	protected static final String CFGKEY_SECMODELINDEPMAXS = "SecModelIndepMaxs";
-	protected static final String CFGKEY_SECMODELINDEPUNITS = "SecModelIndepUnits";
-	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
-	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
-	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
-	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
-	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
-	protected static final String CFGKEY_MODELTUPLE = "ModelTuple";
-	protected static final String CFGKEY_SECMODELTUPLES = "SecModelTuples";
-	protected static final String CFGKEY_AGENT = "Agent";
-	protected static final String CFGKEY_MATRIX = "Matrix";
-	protected static final String CFGKEY_LITERATURE = "Literature";
+	private static final String CFGKEY_FILE_NAME = "FileName";
+	private static final String CFGKEY_SHEET_NAME = "SheetName";
+	private static final String CFGKEY_MODEL_MAPPINGS = "ModelMappings";
+	private static final String CFGKEY_MODEL_DEP_UNIT = "ModelDepUnit";
+	private static final String CFGKEY_MODEL_INDEP_UNIT = "ModelIndepUnit";
+	private static final String CFGKEY_SEC_MODEL_MAPPINGS = "SecModelMappings";
+	private static final String CFGKEY_SEC_MODEL_INDEP_MINS = "SecModelIndepMins";
+	private static final String CFGKEY_SEC_MODEL_INDEP_MAXS = "SecModelIndepMaxs";
+	private static final String CFGKEY_SEC_MODEL_INDEP_CATEGORIES = "SecModelIndepCategories";
+	private static final String CFGKEY_SEC_MODEL_INDEP_UNITS = "SecModelIndepUnits";
+	private static final String CFGKEY_COLUMN_MAPPINGS = "ColumnMappings";
+	private static final String CFGKEY_AGENT_COLUMN = "AgentColumn";
+	private static final String CFGKEY_AGENT_MAPPINGS = "AgentMappings";
+	private static final String CFGKEY_MATRIX_COLUMN = "MatrixColumn";
+	private static final String CFGKEY_MATRIX_MAPPINGS = "MatrixMappings";
+	private static final String CFGKEY_MODEL_TUPLE = "ModelTuple";
+	private static final String CFGKEY_SEC_MODEL_TUPLES = "SecModelTuples";
+	private static final String CFGKEY_AGENT = "Agent";
+	private static final String CFGKEY_MATRIX = "Matrix";
+	private static final String CFGKEY_LITERATURE = "Literature";
 
 	private String fileName;
 	private String sheetName;
@@ -78,6 +79,7 @@ public class SettingsHelper {
 	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Map<String, String>> secModelIndepMins;
 	private Map<String, Map<String, String>> secModelIndepMaxs;
+	private Map<String, Map<String, String>> secModelIndepCategories;
 	private Map<String, Map<String, String>> secModelIndepUnits;
 	private Map<String, Object> columnMappings;
 	private String agentColumn;
@@ -101,6 +103,7 @@ public class SettingsHelper {
 		secModelMappings = new LinkedHashMap<>();
 		secModelIndepMins = new LinkedHashMap<>();
 		secModelIndepMaxs = new LinkedHashMap<>();
+		secModelIndepCategories = new LinkedHashMap<>();
 		secModelIndepUnits = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
@@ -114,99 +117,106 @@ public class SettingsHelper {
 
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			fileName = settings.getString(CFGKEY_FILENAME);
+			fileName = settings.getString(CFGKEY_FILE_NAME);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			sheetName = settings.getString(CFGKEY_SHEETNAME);
+			sheetName = settings.getString(CFGKEY_SHEET_NAME);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			modelTuple = XmlConverter.xmlToTuple(settings
-					.getString(CFGKEY_MODELTUPLE));
+					.getString(CFGKEY_MODEL_TUPLE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			secModelTuples = XmlConverter.xmlToTupleMap(settings
-					.getString(CFGKEY_SECMODELTUPLES));
+					.getString(CFGKEY_SEC_MODEL_TUPLES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			modelMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_MODELMAPPINGS),
+					settings.getString(CFGKEY_MODEL_MAPPINGS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			modelDepUnit = settings.getString(CFGKEY_MODELDEPUNIT);
+			modelDepUnit = settings.getString(CFGKEY_MODEL_DEP_UNIT);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			modelIndepUnit = settings.getString(CFGKEY_MODELINDEPUNIT);
+			modelIndepUnit = settings.getString(CFGKEY_MODEL_INDEP_UNIT);
 		} catch (InvalidSettingsException e1) {
 		}
 
 		try {
 			secModelMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_SECMODELMAPPINGS),
+					settings.getString(CFGKEY_SEC_MODEL_MAPPINGS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			secModelIndepMins = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_SECMODELINDEPMINS),
+					settings.getString(CFGKEY_SEC_MODEL_INDEP_MINS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			secModelIndepMaxs = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_SECMODELINDEPMAXS),
+					settings.getString(CFGKEY_SEC_MODEL_INDEP_MAXS),
+					new LinkedHashMap<String, Map<String, String>>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			secModelIndepCategories = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_SEC_MODEL_INDEP_CATEGORIES),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			secModelIndepUnits = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_SECMODELINDEPUNITS),
+					settings.getString(CFGKEY_SEC_MODEL_INDEP_UNITS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			columnMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_COLUMNMAPPINGS),
+					settings.getString(CFGKEY_COLUMN_MAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
+			agentColumn = settings.getString(CFGKEY_AGENT_COLUMN);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			agentMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_AGENTMAPPINGS),
+					settings.getString(CFGKEY_AGENT_MAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
+			matrixColumn = settings.getString(CFGKEY_MATRIX_COLUMN);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			matrixMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_MATRIXMAPPINGS),
+					settings.getString(CFGKEY_MATRIX_MAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -232,31 +242,33 @@ public class SettingsHelper {
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFGKEY_FILENAME, fileName);
-		settings.addString(CFGKEY_SHEETNAME, sheetName);
-		settings.addString(CFGKEY_MODELTUPLE,
+		settings.addString(CFGKEY_FILE_NAME, fileName);
+		settings.addString(CFGKEY_SHEET_NAME, sheetName);
+		settings.addString(CFGKEY_MODEL_TUPLE,
 				XmlConverter.tupleToXml(modelTuple));
-		settings.addString(CFGKEY_SECMODELTUPLES,
+		settings.addString(CFGKEY_SEC_MODEL_TUPLES,
 				XmlConverter.tupleMapToXml(secModelTuples));
-		settings.addString(CFGKEY_MODELMAPPINGS,
+		settings.addString(CFGKEY_MODEL_MAPPINGS,
 				XmlConverter.objectToXml(modelMappings));
-		settings.addString(CFGKEY_MODELDEPUNIT, modelDepUnit);
-		settings.addString(CFGKEY_MODELINDEPUNIT, modelIndepUnit);
-		settings.addString(CFGKEY_SECMODELMAPPINGS,
+		settings.addString(CFGKEY_MODEL_DEP_UNIT, modelDepUnit);
+		settings.addString(CFGKEY_MODEL_INDEP_UNIT, modelIndepUnit);
+		settings.addString(CFGKEY_SEC_MODEL_MAPPINGS,
 				XmlConverter.objectToXml(secModelMappings));
-		settings.addString(CFGKEY_SECMODELINDEPMINS,
+		settings.addString(CFGKEY_SEC_MODEL_INDEP_MINS,
 				XmlConverter.objectToXml(secModelIndepMins));
-		settings.addString(CFGKEY_SECMODELINDEPMAXS,
+		settings.addString(CFGKEY_SEC_MODEL_INDEP_MAXS,
 				XmlConverter.objectToXml(secModelIndepMaxs));
-		settings.addString(CFGKEY_SECMODELINDEPUNITS,
+		settings.addString(CFGKEY_SEC_MODEL_INDEP_CATEGORIES,
+				XmlConverter.objectToXml(secModelIndepCategories));
+		settings.addString(CFGKEY_SEC_MODEL_INDEP_UNITS,
 				XmlConverter.objectToXml(secModelIndepUnits));
-		settings.addString(CFGKEY_COLUMNMAPPINGS,
+		settings.addString(CFGKEY_COLUMN_MAPPINGS,
 				XmlConverter.objectToXml(columnMappings));
-		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
-		settings.addString(CFGKEY_AGENTMAPPINGS,
+		settings.addString(CFGKEY_AGENT_COLUMN, agentColumn);
+		settings.addString(CFGKEY_AGENT_MAPPINGS,
 				XmlConverter.objectToXml(agentMappings));
-		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
-		settings.addString(CFGKEY_MATRIXMAPPINGS,
+		settings.addString(CFGKEY_MATRIX_COLUMN, matrixColumn);
+		settings.addString(CFGKEY_MATRIX_MAPPINGS,
 				XmlConverter.objectToXml(matrixMappings));
 		settings.addString(CFGKEY_AGENT, XmlConverter.objectToXml(agent));
 		settings.addString(CFGKEY_MATRIX, XmlConverter.objectToXml(matrix));
@@ -329,6 +341,15 @@ public class SettingsHelper {
 	public void setSecModelIndepMaxs(
 			Map<String, Map<String, String>> secModelIndepMaxs) {
 		this.secModelIndepMaxs = secModelIndepMaxs;
+	}
+
+	public Map<String, Map<String, String>> getSecModelIndepCategories() {
+		return secModelIndepCategories;
+	}
+
+	public void setSecModelIndepCategories(
+			Map<String, Map<String, String>> secModelIndepCategories) {
+		this.secModelIndepCategories = secModelIndepCategories;
 	}
 
 	public Map<String, Map<String, String>> getSecModelIndepUnits() {

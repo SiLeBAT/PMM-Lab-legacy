@@ -82,6 +82,7 @@ import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -140,6 +141,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private Map<String, Map<String, JComboBox<String>>> secModelBoxes;
 	private Map<String, Map<String, JComboBox<String>>> secMinBoxes;
 	private Map<String, Map<String, JComboBox<String>>> secMaxBoxes;
+	private Map<String, Map<String, JComboBox<String>>> secCategoryBoxes;
 	private Map<String, Map<String, JComboBox<String>>> secUnitBoxes;
 
 	private JPanel agentPanel;
@@ -195,6 +197,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		secModelBoxes = new LinkedHashMap<>();
 		secMinBoxes = new LinkedHashMap<>();
 		secMaxBoxes = new LinkedHashMap<>();
+		secCategoryBoxes = new LinkedHashMap<>();
 		secUnitBoxes = new LinkedHashMap<>();
 
 		agentPanel = new JPanel();
@@ -535,7 +538,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
 
 						try {
-							addSecModel(param, db.getSecModelById(id));
+							set.getSecModelTuples().put(param,
+									db.getSecModelById(id));
 						} catch (SQLException ex) {
 							ex.printStackTrace();
 						}
@@ -558,7 +562,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
 
 						try {
-							addSecModel(param, db.getSecModelById(id));
+							set.getSecModelTuples().put(param,
+									db.getSecModelById(id));
 						} catch (SQLException ex) {
 							ex.printStackTrace();
 						}
@@ -720,7 +725,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					}
 
 					updateModelPanel();
-					break;
+					return;
 				}
 			}
 
@@ -739,7 +744,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 									.put(param2, (String) box.getSelectedItem());
 						}
 
-						break;
+						return;
 					}
 				}
 			}
@@ -759,7 +764,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 									.put(param2, (String) box.getSelectedItem());
 						}
 
-						break;
+						return;
 					}
 				}
 			}
@@ -779,7 +784,22 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 									.put(param2, (String) box.getSelectedItem());
 						}
 
-						break;
+						return;
+					}
+				}
+			}
+
+			for (String param1 : secCategoryBoxes.keySet()) {
+				for (String param2 : secCategoryBoxes.get(param1).keySet()) {
+					if (e.getSource() == secCategoryBoxes.get(param1).get(
+							param2)) {
+						JComboBox<String> box = secCategoryBoxes.get(param1)
+								.get(param2);
+
+						set.getSecModelIndepCategories().get(param1)
+								.put(param2, (String) box.getSelectedItem());
+						updateModelPanel();
+						return;
 					}
 				}
 			}
@@ -792,7 +812,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 						set.getSecModelIndepUnits().get(param1)
 								.put(param2, (String) box.getSelectedItem());
-						break;
+						return;
 					}
 				}
 			}
@@ -843,7 +863,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					}
 
 					updateColumnsPanel();
-					break;
+					return;
 				}
 			}
 
@@ -855,8 +875,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							column);
 
 					condition.setUnit(unit);
-
-					break;
+					return;
 				}
 			}
 		}
@@ -901,6 +920,50 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateModelPanel() {
+		for (String param : set.getSecModelTuples().keySet()) {
+			KnimeTuple tuple = set.getSecModelTuples().get(param);
+			PmmXmlDoc indepXml = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+
+			if (!set.getSecModelMappings().containsKey(param)) {
+				set.getSecModelMappings().put(param,
+						new LinkedHashMap<String, String>());
+			}
+
+			if (!set.getSecModelIndepMins().containsKey(param)) {
+				set.getSecModelIndepMins().put(param,
+						new LinkedHashMap<String, String>());
+			}
+
+			if (!set.getSecModelIndepMaxs().containsKey(param)) {
+				set.getSecModelIndepMaxs().put(param,
+						new LinkedHashMap<String, String>());
+			}
+
+			if (!set.getSecModelIndepCategories().containsKey(param)) {
+				set.getSecModelIndepCategories().put(param,
+						new LinkedHashMap<String, String>());
+
+				for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+					IndepXml indep = (IndepXml) el;
+
+					set.getSecModelIndepCategories().get(param)
+							.put(indep.getName(), indep.getCategory());
+				}
+			}
+
+			if (!set.getSecModelIndepUnits().containsKey(param)) {
+				set.getSecModelIndepUnits().put(param,
+						new LinkedHashMap<String, String>());
+
+				for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+					IndepXml indep = (IndepXml) el;
+
+					set.getSecModelIndepUnits().get(param)
+							.put(indep.getName(), indep.getUnit());
+				}
+			}
+		}
+
 		modelBoxes.clear();
 		depUnitBox = null;
 		indepUnitBox = null;
@@ -909,6 +972,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		secModelBoxes.clear();
 		secMinBoxes.clear();
 		secMaxBoxes.clear();
+		secCategoryBoxes.clear();
 		secUnitBoxes.clear();
 
 		if (set.getModelTuple() != null) {
@@ -1061,6 +1125,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							new LinkedHashMap<String, JComboBox<String>>());
 					secMaxBoxes.put(element.getName(),
 							new LinkedHashMap<String, JComboBox<String>>());
+					secCategoryBoxes.put(element.getName(),
+							new LinkedHashMap<String, JComboBox<String>>());
 					secUnitBoxes.put(element.getName(),
 							new LinkedHashMap<String, JComboBox<String>>());
 
@@ -1098,19 +1164,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							continue;
 						}
 
-						JComboBox<String> minBox = new JComboBox<>(
-								secOptions.toArray(new String[0]));
-						JComboBox<String> maxBox = new JComboBox<>(
-								secOptions.toArray(new String[0]));
-						JComboBox<String> unitBox = new JComboBox<>(Categories
-								.getCategory(indep.getCategory()).getAllUnits()
-								.toArray(new String[0]));
 						Map<String, String> mins = set.getSecModelIndepMins()
 								.get(element.getName());
 						Map<String, String> maxs = set.getSecModelIndepMaxs()
 								.get(element.getName());
+						Map<String, String> categories = set
+								.getSecModelIndepCategories().get(
+										element.getName());
 						Map<String, String> units = set.getSecModelIndepUnits()
 								.get(element.getName());
+						JComboBox<String> minBox = new JComboBox<>(
+								secOptions.toArray(new String[0]));
+						JComboBox<String> maxBox = new JComboBox<>(
+								secOptions.toArray(new String[0]));
+						JComboBox<String> categoryBox = new JComboBox<>(
+								Categories.getAllCategories().toArray(
+										new String[0]));
+						JComboBox<String> unitBox = new JComboBox<>(Categories
+								.getCategory(categories.get(indep.getName()))
+								.getAllUnits().toArray(new String[0]));
 
 						if (mins.get(indep.getName()) == null) {
 							UI.select(minBox, DO_NOT_USE);
@@ -1124,6 +1196,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							UI.select(maxBox, maxs.get(indep.getName()));
 						}
 
+						if (categories.get(indep.getName()) == null) {
+							UI.select(categoryBox, null);
+						} else {
+							UI.select(categoryBox,
+									categories.get(indep.getName()));
+						}
+
 						if (units.get(indep.getName()) == null) {
 							UI.select(unitBox, null);
 						} else {
@@ -1132,11 +1211,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 						minBox.addItemListener(this);
 						maxBox.addItemListener(this);
+						categoryBox.addItemListener(this);
 						unitBox.addItemListener(this);
 						secMinBoxes.get(element.getName()).put(indep.getName(),
 								minBox);
 						secMaxBoxes.get(element.getName()).put(indep.getName(),
 								maxBox);
+						secCategoryBoxes.get(element.getName()).put(
+								indep.getName(), categoryBox);
 						secUnitBoxes.get(element.getName()).put(
 								indep.getName(), unitBox);
 
@@ -1147,6 +1229,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						panel.add(new JLabel("Max " + indep.getName() + ":"),
 								createConstraints(0, row));
 						panel.add(maxBox, createConstraints(1, row));
+						row++;
+						panel.add(new JLabel(indep.getName() + " Category:"),
+								createConstraints(0, row));
+						panel.add(categoryBox, createConstraints(1, row));
 						row++;
 						panel.add(new JLabel(indep.getName() + " Unit:"),
 								createConstraints(0, row));
@@ -1455,6 +1541,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		Map<String, Map<String, String>> newSecModelMappings = new LinkedHashMap<>();
 		Map<String, Map<String, String>> newSecModelIndepMins = new LinkedHashMap<>();
 		Map<String, Map<String, String>> newSecModelIndepMaxs = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelIndepCategories = new LinkedHashMap<>();
 		Map<String, Map<String, String>> newSecModelIndepUnits = new LinkedHashMap<>();
 		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
 		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<>();
@@ -1520,6 +1607,22 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
+		for (String param1 : secCategoryBoxes.keySet()) {
+			newSecModelIndepCategories.put(param1,
+					new LinkedHashMap<String, String>());
+
+			for (String param2 : secCategoryBoxes.get(param1).keySet()) {
+				if (set.getSecModelIndepCategories().containsKey(param1)
+						&& set.getSecModelIndepCategories().get(param1)
+								.containsKey(param2)) {
+					newSecModelIndepCategories.get(param1).put(
+							param2,
+							set.getSecModelIndepCategories().get(param1)
+									.get(param2));
+				}
+			}
+		}
+
 		for (String param1 : secUnitBoxes.keySet()) {
 			newSecModelIndepUnits.put(param1,
 					new LinkedHashMap<String, String>());
@@ -1561,34 +1664,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setSecModelMappings(newSecModelMappings);
 		set.setSecModelIndepMins(newSecModelIndepMins);
 		set.setSecModelIndepMaxs(newSecModelIndepMaxs);
+		set.setSecModelIndepCategories(newSecModelIndepCategories);
 		set.setSecModelIndepUnits(newSecModelIndepUnits);
 		set.setAgentMappings(newAgentMappings);
 		set.setMatrixMappings(newMatrixMappings);
 		set.setColumnMappings(newColumnMappings);
-	}
-
-	private void addSecModel(String param, KnimeTuple tuple) {
-		set.getSecModelTuples().put(param, tuple);
-
-		if (!set.getSecModelMappings().containsKey(param)) {
-			set.getSecModelMappings().put(param,
-					new LinkedHashMap<String, String>());
-		}
-
-		if (!set.getSecModelIndepMins().containsKey(param)) {
-			set.getSecModelIndepMins().put(param,
-					new LinkedHashMap<String, String>());
-		}
-
-		if (!set.getSecModelIndepMaxs().containsKey(param)) {
-			set.getSecModelIndepMaxs().put(param,
-					new LinkedHashMap<String, String>());
-		}
-
-		if (!set.getSecModelIndepUnits().containsKey(param)) {
-			set.getSecModelIndepUnits().put(param,
-					new LinkedHashMap<String, String>());
-		}
 	}
 
 	private static String getMissingString(List<Integer> missing) {

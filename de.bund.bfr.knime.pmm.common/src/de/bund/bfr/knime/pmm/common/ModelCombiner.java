@@ -77,8 +77,7 @@ public class ModelCombiner {
 		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
 		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<>();
 		Map<String, Set<String>> replacements = new LinkedHashMap<>();
-		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<>();
-		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> paramValues = getParamMeanValues(tuples);
 		Map<Integer, Set<String>> organisms = new LinkedHashMap<>();
 		Map<Integer, Set<String>> matrices = new LinkedHashMap<>();
 		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<>();
@@ -94,20 +93,7 @@ public class ModelCombiner {
 				continue;
 			}
 
-			if (!paramValueSums.containsKey(modelId)) {
-				Map<String, Double> sums = new LinkedHashMap<>();
-				Map<String, Integer> counts = new LinkedHashMap<>();
-
-				for (PmmXmlElementConvertable el : tuple.getPmmXml(
-						Model1Schema.ATT_PARAMETER).getElementSet()) {
-					ParamXml param = (ParamXml) el;
-
-					sums.put(param.getName(), 0.0);
-					counts.put(param.getName(), 0);
-				}
-
-				paramValueSums.put(modelId, sums);
-				paramCounts.put(modelId, counts);
+			if (!organisms.containsKey(modelId)) {
 				organisms.put(modelId, new LinkedHashSet<String>());
 				matrices.put(modelId, new LinkedHashSet<String>());
 				organismDetails.put(modelId, new LinkedHashSet<String>());
@@ -145,20 +131,6 @@ public class ModelCombiner {
 
 				if (comment != null) {
 					comments.get(modelId).add(comment);
-				}
-			}
-
-			Map<String, Double> sums = paramValueSums.get(modelId);
-			Map<String, Integer> counts = paramCounts.get(modelId);
-
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					Model1Schema.ATT_PARAMETER).getElementSet()) {
-				ParamXml param = (ParamXml) el;
-
-				if (param.getValue() != null) {
-					sums.put(param.getName(),
-							sums.get(param.getName()) + param.getValue());
-					counts.put(param.getName(), counts.get(param.getName()) + 1);
 				}
 			}
 
@@ -356,7 +328,7 @@ public class ModelCombiner {
 			((EstModelXml) estModelXml.get(0)).setSse(null);
 			((EstModelXml) estModelXml.get(0)).setRms(null);
 			((EstModelXml) estModelXml.get(0)).setR2(null);
-			((EstModelXml) estModelXml.get(0)).setAic(null);			
+			((EstModelXml) estModelXml.get(0)).setAic(null);
 
 			newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
@@ -372,19 +344,13 @@ public class ModelCombiner {
 			int id = tupleCombinations.get(tuple).get(0)
 					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			Map<String, Double> sums = paramValueSums.get(id);
-			Map<String, Integer> counts = paramCounts.get(id);
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml param = (ParamXml) el;
 
 				if (param.getValue() == null
-						&& counts.get(param.getName()) != null) {
-					if (counts.get(param.getName()) != 0) {
-						param.setValue(sums.get(param.getName())
-								/ counts.get(param.getName()));
-					}
-
+						&& paramValues.get(id).get(param.getName()) != null) {
+					param.setValue(paramValues.get(id).get(param.getName()));
 					param.getAllCorrelations().clear();
 					param.setError(null);
 					param.setT(null);
@@ -467,5 +433,66 @@ public class ModelCombiner {
 
 	public Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> getParameterRenaming() {
 		return parameterRenaming;
+	}
+
+	private Map<Integer, Map<String, Double>> getParamMeanValues(
+			List<KnimeTuple> tuples) {
+		Map<Integer, Map<String, Double>> paramSums = new LinkedHashMap<>();
+		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> paramValues = new LinkedHashMap<>();
+
+		for (KnimeTuple tuple : tuples) {
+			int id = -1;
+
+			try {
+				id = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			} catch (Exception e) {
+				continue;
+			}
+
+			if (!paramSums.containsKey(id)) {
+				Map<String, Double> sums = new LinkedHashMap<>();
+				Map<String, Integer> counts = new LinkedHashMap<>();
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model1Schema.ATT_PARAMETER).getElementSet()) {
+					ParamXml param = (ParamXml) el;
+
+					sums.put(param.getName(), 0.0);
+					counts.put(param.getName(), 0);
+				}
+
+				paramSums.put(id, sums);
+				paramCounts.put(id, counts);
+				paramValues.put(id, new LinkedHashMap<String, Double>());
+			}
+
+			Map<String, Double> sums = paramSums.get(id);
+			Map<String, Integer> counts = paramCounts.get(id);
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_PARAMETER).getElementSet()) {
+				ParamXml param = (ParamXml) el;
+
+				if (param.getValue() != null) {
+					sums.put(param.getName(),
+							sums.get(param.getName()) + param.getValue());
+					counts.put(param.getName(), counts.get(param.getName()) + 1);
+				}
+			}
+		}
+
+		for (Integer id : paramSums.keySet()) {
+			for (String param : paramSums.get(id).keySet()) {
+				int count = paramCounts.get(id).get(param);
+
+				if (count != 0) {
+					paramValues.get(id).put(param,
+							paramSums.get(id).get(param) / count);
+				}
+			}
+		}
+
+		return paramValues;
 	}
 }

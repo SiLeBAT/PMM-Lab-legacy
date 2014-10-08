@@ -43,9 +43,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -194,7 +196,7 @@ public class PrimaryEstimationThread implements Runnable {
 				sse = optimizer.getSse();
 				rms = optimizer.getRMS();
 				rSquare = optimizer.getRSquare();
-				aic = optimizer.getAIC();				
+				aic = optimizer.getAIC();
 				dof = targetValues.size() - parameters.size();
 				estID = MathUtilities.getRandomNegativeInt();
 			}
@@ -222,10 +224,11 @@ public class PrimaryEstimationThread implements Runnable {
 			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 			((EstModelXml) estModelXml.get(0)).setId(estID);
+			((EstModelXml) estModelXml.get(0)).setName(createModelName(tuple));
 			((EstModelXml) estModelXml.get(0)).setSse(sse);
 			((EstModelXml) estModelXml.get(0)).setRms(rms);
 			((EstModelXml) estModelXml.get(0)).setR2(rSquare);
-			((EstModelXml) estModelXml.get(0)).setAic(aic);			
+			((EstModelXml) estModelXml.get(0)).setAic(aic);
 			((EstModelXml) estModelXml.get(0)).setDof(dof);
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
@@ -236,5 +239,25 @@ public class PrimaryEstimationThread implements Runnable {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private String createModelName(KnimeTuple tuple) {
+		String combaseId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		int condId = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+		AgentXml agent = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT)
+				.get(0);
+		MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+
+		String dataName = combaseId != null ? combaseId : String
+				.valueOf(condId);
+		String agentName = agent.getName() != null ? agent.getName() : agent
+				.getDetail();
+		String matrixName = matrix.getName() != null ? matrix.getName()
+				: matrix.getDetail();
+		String modelName = ((CatalogModelXml) tuple.getPmmXml(
+				Model1Schema.ATT_MODELCATALOG).get(0)).getName();
+
+		return dataName + "_" + agentName + "_" + matrixName + "_" + modelName;
 	}
 }

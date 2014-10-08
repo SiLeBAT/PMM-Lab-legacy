@@ -61,6 +61,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -109,12 +110,6 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		ActionListener, ItemListener, FileListener {
 
-	private static final String DO_NOT_USE = "Do Not Use";
-	private static final String OTHER_PARAMETER = "Select Other";
-	private static final String SELECT = "Select";
-	private static final String USE_SECONDARY_MODEL = "Use Sec. Model";
-	private static final String RELOAD = "Reload";
-
 	private XLSReader xlsReader;
 
 	private SettingsHelper set;
@@ -134,17 +129,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JButton modelButton;
 	private JButton modelReloadButton;
 	private Map<String, JComboBox<String>> modelBoxes;
+	private Map<String, JButton> modelButtons;
 	private JComboBox<String> depUnitBox;
 	private JComboBox<String> indepMinBox;
 	private JComboBox<String> indepMaxBox;
 	private JComboBox<String> indepUnitBox;
-	private Map<String, JButton> secModelButtons;
-	private Map<String, JButton> secModelReloadButtons;
-	private Map<String, Map<String, JComboBox<String>>> secModelBoxes;
-	private Map<String, Map<String, JComboBox<String>>> secMinBoxes;
-	private Map<String, Map<String, JComboBox<String>>> secMaxBoxes;
-	private Map<String, Map<String, JComboBox<String>>> secCategoryBoxes;
-	private Map<String, Map<String, JComboBox<String>>> secUnitBoxes;
 
 	private JPanel agentPanel;
 	private JComboBox<String> agentBox;
@@ -192,17 +181,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelPanel.setLayout(new BorderLayout());
 		modelPanel.add(noLabel, BorderLayout.CENTER);
 		modelBoxes = new LinkedHashMap<>();
+		modelButtons = new LinkedHashMap<>();
 		depUnitBox = null;
 		indepMinBox = null;
 		indepMaxBox = null;
 		indepUnitBox = null;
-		secModelButtons = new LinkedHashMap<>();
-		secModelReloadButtons = new LinkedHashMap<>();
-		secModelBoxes = new LinkedHashMap<>();
-		secMinBoxes = new LinkedHashMap<>();
-		secMaxBoxes = new LinkedHashMap<>();
-		secCategoryBoxes = new LinkedHashMap<>();
-		secUnitBoxes = new LinkedHashMap<>();
 
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
@@ -242,8 +225,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		literaturePanel.setLayout(new BorderLayout());
 		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
 		literaturePanel.add(new JScrollPane(literatureList,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.CENTER);
 
 		JPanel optionsPanel = new JPanel();
 
@@ -310,17 +294,17 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		if (set.getAgentColumn() == null) {
 			if (set.getAgent() != null) {
-				set.setAgentColumn(OTHER_PARAMETER);
+				set.setAgentColumn(SettingsHelper.OTHER_PARAMETER);
 			} else {
-				set.setAgentColumn(DO_NOT_USE);
+				set.setAgentColumn(SettingsHelper.DO_NOT_USE);
 			}
 		}
 
 		if (set.getMatrixColumn() == null) {
 			if (set.getMatrix() != null) {
-				set.setMatrixColumn(OTHER_PARAMETER);
+				set.setMatrixColumn(SettingsHelper.OTHER_PARAMETER);
 			} else {
-				set.setMatrixColumn(DO_NOT_USE);
+				set.setMatrixColumn(SettingsHelper.DO_NOT_USE);
 			}
 		}
 
@@ -355,14 +339,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		if (set.getAgentColumn() != null
-				&& set.getAgentColumn().equals(OTHER_PARAMETER)
+				&& set.getAgentColumn().equals(SettingsHelper.OTHER_PARAMETER)
 				&& set.getAgent() == null) {
 			throw new InvalidSettingsException("No assignment for "
 					+ TimeSeriesSchema.ATT_AGENT);
 		}
 
 		if (set.getMatrixColumn() != null
-				&& set.getMatrixColumn().equals(OTHER_PARAMETER)
+				&& set.getMatrixColumn().equals(SettingsHelper.OTHER_PARAMETER)
 				&& set.getMatrix() == null) {
 			throw new InvalidSettingsException("No assignment for "
 					+ TimeSeriesSchema.ATT_MATRIX);
@@ -393,22 +377,23 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		if (set.getAgentColumn() != null
-				&& !set.getAgentColumn().equals(OTHER_PARAMETER)) {
+				&& !set.getAgentColumn().equals(SettingsHelper.OTHER_PARAMETER)) {
 			set.setAgent(null);
 		}
 
 		if (set.getMatrixColumn() != null
-				&& !set.getMatrixColumn().equals(OTHER_PARAMETER)) {
+				&& !set.getMatrixColumn()
+						.equals(SettingsHelper.OTHER_PARAMETER)) {
 			set.setMatrix(null);
 		}
 
-		if (OTHER_PARAMETER.equals(set.getAgentColumn())
-				|| DO_NOT_USE.equals(set.getAgentColumn())) {
+		if (SettingsHelper.OTHER_PARAMETER.equals(set.getAgentColumn())
+				|| SettingsHelper.DO_NOT_USE.equals(set.getAgentColumn())) {
 			set.setAgentColumn(null);
 		}
 
-		if (OTHER_PARAMETER.equals(set.getMatrixColumn())
-				|| DO_NOT_USE.equals(set.getMatrixColumn())) {
+		if (SettingsHelper.OTHER_PARAMETER.equals(set.getMatrixColumn())
+				|| SettingsHelper.DO_NOT_USE.equals(set.getMatrixColumn())) {
 			set.setMatrixColumn(null);
 		}
 
@@ -522,60 +507,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						new LiteratureItem[0]));
 			}
 		} else {
-			for (String param : secModelButtons.keySet()) {
-				if (e.getSource() == secModelButtons.get(param)) {
-					KnimeTuple secModelTuple = set.getSecModelTuples().get(
-							param);
-					Integer id;
+			for (String param : modelButtons.keySet()) {
+				if (e.getSource() == modelButtons.get(param)) {
+					JButton button = modelButtons.get(param);
+					SecondaryModelDialog dialog = new SecondaryModelDialog(
+							button, fileColumnList, set, param);
 
-					if (secModelTuple != null) {
-						id = DBKernel.openSecModelDBWindow(secModelButtons
-								.get(param), ((CatalogModelXml) secModelTuple
-								.getPmmXml(Model2Schema.ATT_MODELCATALOG)
-								.get(0)).getId());
-					} else {
-						id = DBKernel.openSecModelDBWindow(
-								secModelButtons.get(param), null);
-					}
-
-					if (id != null) {
-						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
-
-						try {
-							set.getSecModelTuples().put(param,
-									db.getSecModelById(id));
-						} catch (SQLException ex) {
-							ex.printStackTrace();
-						}
-
-						updateModelPanel();
-					}
-
-					break;
-				}
-			}
-
-			for (String param : secModelReloadButtons.keySet()) {
-				if (e.getSource() == secModelReloadButtons.get(param)) {
-					KnimeTuple secModelTuple = set.getSecModelTuples().get(
-							param);
-					Integer id = ((CatalogModelXml) secModelTuple.getPmmXml(
-							Model2Schema.ATT_MODELCATALOG).get(0)).getId();
-
-					if (id != null) {
-						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
-
-						try {
-							set.getSecModelTuples().put(param,
-									db.getSecModelById(id));
-						} catch (SQLException ex) {
-							ex.printStackTrace();
-						}
-
-						updateModelPanel();
-					}
-
-					break;
+					dialog.setVisible(true);
+					return;
 				}
 			}
 
@@ -722,10 +661,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				if (e.getSource() == modelBoxes.get(param)) {
 					JComboBox<String> box = modelBoxes.get(param);
 
-					if (box.getSelectedItem().equals(DO_NOT_USE)) {
+					if (box.getSelectedItem().equals(SettingsHelper.DO_NOT_USE)) {
 						set.getModelMappings().remove(param);
-					} else if (box.getSelectedItem()
-							.equals(USE_SECONDARY_MODEL)) {
+					} else if (box.getSelectedItem().equals(
+							SettingsHelper.USE_SECONDARY_MODEL)) {
 						set.getModelMappings().put(param, null);
 					} else {
 						set.getModelMappings().put(param,
@@ -734,94 +673,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 					updateModelPanel();
 					return;
-				}
-			}
-
-			for (String param1 : secModelBoxes.keySet()) {
-				for (String param2 : secModelBoxes.get(param1).keySet()) {
-					if (e.getSource() == secModelBoxes.get(param1).get(param2)) {
-						JComboBox<String> box = secModelBoxes.get(param1).get(
-								param2);
-
-						if (box.getSelectedItem().equals(DO_NOT_USE)) {
-							set.getSecModelMappings().get(param1)
-									.put(param2, null);
-						} else {
-							set.getSecModelMappings()
-									.get(param1)
-									.put(param2, (String) box.getSelectedItem());
-						}
-
-						return;
-					}
-				}
-			}
-
-			for (String param1 : secMinBoxes.keySet()) {
-				for (String param2 : secMinBoxes.get(param1).keySet()) {
-					if (e.getSource() == secMinBoxes.get(param1).get(param2)) {
-						JComboBox<String> box = secMinBoxes.get(param1).get(
-								param2);
-
-						if (box.getSelectedItem().equals(DO_NOT_USE)) {
-							set.getSecModelIndepMins().get(param1)
-									.put(param2, null);
-						} else {
-							set.getSecModelIndepMins()
-									.get(param1)
-									.put(param2, (String) box.getSelectedItem());
-						}
-
-						return;
-					}
-				}
-			}
-
-			for (String param1 : secMaxBoxes.keySet()) {
-				for (String param2 : secMaxBoxes.get(param1).keySet()) {
-					if (e.getSource() == secMaxBoxes.get(param1).get(param2)) {
-						JComboBox<String> box = secMaxBoxes.get(param1).get(
-								param2);
-
-						if (box.getSelectedItem().equals(DO_NOT_USE)) {
-							set.getSecModelIndepMaxs().get(param1)
-									.put(param2, null);
-						} else {
-							set.getSecModelIndepMaxs()
-									.get(param1)
-									.put(param2, (String) box.getSelectedItem());
-						}
-
-						return;
-					}
-				}
-			}
-
-			for (String param1 : secCategoryBoxes.keySet()) {
-				for (String param2 : secCategoryBoxes.get(param1).keySet()) {
-					if (e.getSource() == secCategoryBoxes.get(param1).get(
-							param2)) {
-						JComboBox<String> box = secCategoryBoxes.get(param1)
-								.get(param2);
-
-						set.getSecModelIndepCategories().get(param1)
-								.put(param2, (String) box.getSelectedItem());
-						updateModelPanel();
-						return;
-					}
-				}
-			}
-
-			for (String param1 : secUnitBoxes.keySet()) {
-				for (String param2 : secUnitBoxes.get(param1).keySet()) {
-					if (e.getSource() == secUnitBoxes.get(param1).get(param2)) {
-						JComboBox<String> box = secUnitBoxes.get(param1).get(
-								param2);
-
-						set.getSecModelIndepUnits().get(param1)
-								.put(param2, (String) box.getSelectedItem());
-						return;
-					}
 				}
 			}
 
@@ -864,9 +715,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 										Arrays.asList(Categories
 												.getAwCategory().getName()),
 										Categories.getAwUnit()));
-					} else if (selected.equals(OTHER_PARAMETER)) {
+					} else if (selected.equals(SettingsHelper.OTHER_PARAMETER)) {
 						set.getColumnMappings().put(column, null);
-					} else if (selected.equals(DO_NOT_USE)) {
+					} else if (selected.equals(SettingsHelper.DO_NOT_USE)) {
 						set.getColumnMappings().remove(column);
 					}
 
@@ -928,6 +779,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateModelPanel() {
+		if (set.getModelTuple() != null) {
+			if (set.getModelDepUnit() == null) {
+				set.setModelDepUnit(((DepXml) set.getModelTuple()
+						.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0))
+						.getUnit());
+			}
+
+			if (set.getModelIndepUnit() == null) {
+				set.setModelIndepUnit(((IndepXml) set.getModelTuple()
+						.getPmmXml(Model1Schema.ATT_INDEPENDENT).get(0))
+						.getUnit());
+			}
+		}
+
 		for (String param : set.getSecModelTuples().keySet()) {
 			KnimeTuple tuple = set.getSecModelTuples().get(param);
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
@@ -973,26 +838,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		modelBoxes.clear();
+		modelButtons.clear();
 		depUnitBox = null;
 		indepMinBox = null;
 		indepMaxBox = null;
 		indepUnitBox = null;
-		secModelButtons.clear();
-		secModelReloadButtons.clear();
-		secModelBoxes.clear();
-		secMinBoxes.clear();
-		secMaxBoxes.clear();
-		secCategoryBoxes.clear();
-		secUnitBoxes.clear();
 
 		if (set.getModelTuple() != null) {
 			modelButton = new JButton(((CatalogModelXml) set.getModelTuple()
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getName());
-			modelReloadButton = new JButton(RELOAD);
+			modelReloadButton = new JButton(SettingsHelper.RELOAD);
 			modelReloadButton.setEnabled(true);
 		} else {
-			modelButton = new JButton(SELECT);
-			modelReloadButton = new JButton(RELOAD);
+			modelButton = new JButton(SettingsHelper.SELECT);
+			modelReloadButton = new JButton(SettingsHelper.RELOAD);
 			modelReloadButton.setEnabled(false);
 		}
 
@@ -1016,36 +875,46 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		if (set.getModelTuple() != null) {
 			List<String> paramOptions = new ArrayList<>();
 
-			paramOptions.add(DO_NOT_USE);
-			paramOptions.add(USE_SECONDARY_MODEL);
+			paramOptions.add(SettingsHelper.DO_NOT_USE);
+			paramOptions.add(SettingsHelper.USE_SECONDARY_MODEL);
 			paramOptions.addAll(fileColumnList);
 
 			List<String> options = new ArrayList<>();
 
-			options.add(DO_NOT_USE);
+			options.add(SettingsHelper.DO_NOT_USE);
 			options.addAll(fileColumnList);
 
 			for (PmmXmlElementConvertable el : set.getModelTuple()
 					.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
-				ParamXml element = (ParamXml) el;
+				ParamXml param = (ParamXml) el;
 				JComboBox<String> box = new JComboBox<>(
 						paramOptions.toArray(new String[0]));
+				JButton button = new JButton("Configure");
 
-				if (!set.getModelMappings().containsKey(element.getName())) {
-					UI.select(box, DO_NOT_USE);
-				} else if (set.getModelMappings().get(element.getName()) == null) {
-					UI.select(box, USE_SECONDARY_MODEL);
+				if (!set.getModelMappings().containsKey(param.getName())) {
+					UI.select(box, SettingsHelper.DO_NOT_USE);
+					button.setEnabled(false);
+				} else if (set.getModelMappings().get(param.getName()) == null) {
+					UI.select(box, SettingsHelper.USE_SECONDARY_MODEL);
 				} else {
-					UI.select(box, set.getModelMappings()
-							.get(element.getName()));
+					UI.select(box, set.getModelMappings().get(param.getName()));
+					button.setEnabled(false);
 				}
 
 				box.addItemListener(this);
-				modelBoxes.put(element.getName(), box);
+				button.addActionListener(this);
+				modelBoxes.put(param.getName(), box);
+				modelButtons.put(param.getName(), button);
 
-				panel.add(new JLabel(element.getName() + ":"),
+				JPanel modelPanel = new JPanel();
+
+				modelPanel.setLayout(new BorderLayout());
+				modelPanel.add(box, BorderLayout.WEST);
+				modelPanel.add(button, BorderLayout.EAST);
+
+				panel.add(new JLabel(param.getName() + ":"),
 						createConstraints(0, row));
-				panel.add(box, createConstraints(1, row));
+				panel.add(modelPanel, createConstraints(1, row));
 				row++;
 			}
 
@@ -1063,31 +932,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					.getCategory(indepXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
 
-			if (set.getModelDepUnit() != null) {
-				depUnitBox.setSelectedItem(set.getModelDepUnit());
-			} else {
-				depUnitBox.setSelectedItem(depXml.getUnit());
-				set.setModelDepUnit(depXml.getUnit());
-			}
-
-			if (set.getModelIndepMin() != null) {
-				indepMinBox.setSelectedItem(set.getModelIndepMin());
-			} else {
-				indepMinBox.setSelectedItem(DO_NOT_USE);
-			}
-
-			if (set.getModelIndepMax() != null) {
-				indepMaxBox.setSelectedItem(set.getModelIndepMax());
-			} else {
-				indepMaxBox.setSelectedItem(DO_NOT_USE);
-			}
-
-			if (set.getModelIndepUnit() != null) {
-				indepUnitBox.setSelectedItem(set.getModelIndepUnit());
-			} else {
-				indepUnitBox.setSelectedItem(indepXml.getUnit());
-				set.setModelIndepUnit(indepXml.getUnit());
-			}
+			UI.select(depUnitBox, set.getModelDepUnit());
+			UI.select(indepMinBox, set.getModelIndepMin());
+			UI.select(indepMaxBox, set.getModelIndepMax());
+			UI.select(indepUnitBox, set.getModelIndepUnit());
 
 			depUnitBox.addItemListener(this);
 			indepMinBox.addItemListener(this);
@@ -1110,171 +958,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					createConstraints(0, row));
 			panel.add(indepUnitBox, createConstraints(1, row));
 			row++;
-
-			for (PmmXmlElementConvertable el : set.getModelTuple()
-					.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
-				ParamXml element = (ParamXml) el;
-
-				if (!set.getModelMappings().containsKey(element.getName())
-						|| set.getModelMappings().get(element.getName()) != null) {
-					continue;
-				}
-
-				KnimeTuple secModelTuple = set.getSecModelTuples().get(
-						element.getName());
-				JButton secButton;
-				JButton secReloadButton;
-				JPanel secButtonPanel = new JPanel();
-
-				if (secModelTuple != null) {
-					secButton = new JButton(
-							((CatalogModelXml) secModelTuple.getPmmXml(
-									Model2Schema.ATT_MODELCATALOG).get(0))
-									.getName());
-					secReloadButton = new JButton(RELOAD);
-					secReloadButton.setEnabled(true);
-				} else {
-					secButton = new JButton(SELECT);
-					secReloadButton = new JButton(RELOAD);
-					secReloadButton.setEnabled(false);
-				}
-
-				secButtonPanel.setLayout(new BorderLayout());
-				secButtonPanel.add(secButton, BorderLayout.WEST);
-				secButtonPanel.add(secReloadButton, BorderLayout.EAST);
-
-				secButton.addActionListener(this);
-				secReloadButton.addActionListener(this);
-				secModelButtons.put(element.getName(), secButton);
-				secModelReloadButtons.put(element.getName(), secReloadButton);
-				panel.add(new JLabel(element.getName() + ":"),
-						createConstraints(0, row));
-				panel.add(secButtonPanel, createConstraints(1, row));
-				row++;
-
-				if (secModelTuple != null) {
-					secModelBoxes.put(element.getName(),
-							new LinkedHashMap<String, JComboBox<String>>());
-					secMinBoxes.put(element.getName(),
-							new LinkedHashMap<String, JComboBox<String>>());
-					secMaxBoxes.put(element.getName(),
-							new LinkedHashMap<String, JComboBox<String>>());
-					secCategoryBoxes.put(element.getName(),
-							new LinkedHashMap<String, JComboBox<String>>());
-					secUnitBoxes.put(element.getName(),
-							new LinkedHashMap<String, JComboBox<String>>());
-
-					for (PmmXmlElementConvertable el2 : secModelTuple
-							.getPmmXml(Model2Schema.ATT_PARAMETER)
-							.getElementSet()) {
-						ParamXml element2 = (ParamXml) el2;
-						JComboBox<String> box = new JComboBox<>(
-								options.toArray(new String[0]));
-						Map<String, String> mappings = set
-								.getSecModelMappings().get(element.getName());
-
-						if (mappings.get(element2.getName()) == null) {
-							UI.select(box, DO_NOT_USE);
-						} else {
-							UI.select(box, mappings.get(element2.getName()));
-						}
-
-						box.addItemListener(this);
-						secModelBoxes.get(element.getName()).put(
-								element2.getName(), box);
-
-						panel.add(new JLabel(element2.getName() + ":"),
-								createConstraints(0, row));
-						panel.add(box, createConstraints(1, row));
-						row++;
-					}
-
-					for (PmmXmlElementConvertable el2 : secModelTuple
-							.getPmmXml(Model2Schema.ATT_INDEPENDENT)
-							.getElementSet()) {
-						IndepXml indep = (IndepXml) el2;
-
-						if (indep.getUnit() == null) {
-							continue;
-						}
-
-						Map<String, String> mins = set.getSecModelIndepMins()
-								.get(element.getName());
-						Map<String, String> maxs = set.getSecModelIndepMaxs()
-								.get(element.getName());
-						Map<String, String> categories = set
-								.getSecModelIndepCategories().get(
-										element.getName());
-						Map<String, String> units = set.getSecModelIndepUnits()
-								.get(element.getName());
-						JComboBox<String> minBox = new JComboBox<>(
-								options.toArray(new String[0]));
-						JComboBox<String> maxBox = new JComboBox<>(
-								options.toArray(new String[0]));
-						JComboBox<String> categoryBox = new JComboBox<>(
-								Categories.getAllCategories().toArray(
-										new String[0]));
-						JComboBox<String> unitBox = new JComboBox<>(Categories
-								.getCategory(categories.get(indep.getName()))
-								.getAllUnits().toArray(new String[0]));
-
-						if (mins.get(indep.getName()) == null) {
-							UI.select(minBox, DO_NOT_USE);
-						} else {
-							UI.select(minBox, mins.get(indep.getName()));
-						}
-
-						if (maxs.get(indep.getName()) == null) {
-							UI.select(maxBox, DO_NOT_USE);
-						} else {
-							UI.select(maxBox, maxs.get(indep.getName()));
-						}
-
-						if (categories.get(indep.getName()) == null) {
-							UI.select(categoryBox, null);
-						} else {
-							UI.select(categoryBox,
-									categories.get(indep.getName()));
-						}
-
-						if (units.get(indep.getName()) == null) {
-							UI.select(unitBox, null);
-						} else {
-							UI.select(unitBox, units.get(indep.getName()));
-						}
-
-						minBox.addItemListener(this);
-						maxBox.addItemListener(this);
-						categoryBox.addItemListener(this);
-						unitBox.addItemListener(this);
-						secMinBoxes.get(element.getName()).put(indep.getName(),
-								minBox);
-						secMaxBoxes.get(element.getName()).put(indep.getName(),
-								maxBox);
-						secCategoryBoxes.get(element.getName()).put(
-								indep.getName(), categoryBox);
-						secUnitBoxes.get(element.getName()).put(
-								indep.getName(), unitBox);
-
-						panel.add(new JLabel("Min " + indep.getName() + ":"),
-								createConstraints(0, row));
-						panel.add(minBox, createConstraints(1, row));
-						row++;
-						panel.add(new JLabel("Max " + indep.getName() + ":"),
-								createConstraints(0, row));
-						panel.add(maxBox, createConstraints(1, row));
-						row++;
-						panel.add(new JLabel(indep.getName() + " Category:"),
-								createConstraints(0, row));
-						panel.add(categoryBox, createConstraints(1, row));
-						row++;
-						panel.add(new JLabel(indep.getName() + " Unit:"),
-								createConstraints(0, row));
-						panel.add(unitBox, createConstraints(1, row));
-						row++;
-					}
-				}
-			}
 		}
 
 		modelPanel.removeAll();
@@ -1285,20 +968,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private void updateAgentPanel() {
 		List<String> items = new ArrayList<>();
 
-		items.add(DO_NOT_USE);
-		items.add(OTHER_PARAMETER);
+		items.add(SettingsHelper.DO_NOT_USE);
+		items.add(SettingsHelper.OTHER_PARAMETER);
 		items.addAll(fileColumnList);
 
 		agentButtons.clear();
 		agentBox = new JComboBox<>(items.toArray(new String[0]));
-		agentButton = new JButton(OTHER_PARAMETER);
+		agentButton = new JButton(SettingsHelper.OTHER_PARAMETER);
 
 		UI.select(agentBox, set.getAgentColumn());
 
 		if (set.getAgent() != null) {
 			agentButton.setText(set.getAgent().getName());
 		} else {
-			agentButton.setText(OTHER_PARAMETER);
+			agentButton.setText(SettingsHelper.OTHER_PARAMETER);
 		}
 
 		agentBox.addItemListener(this);
@@ -1311,9 +994,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		panel.add(agentBox, createConstraints(1, 0));
 
 		if (agentBox.getSelectedItem() == null
-				|| agentBox.getSelectedItem().equals(DO_NOT_USE)) {
+				|| agentBox.getSelectedItem().equals(SettingsHelper.DO_NOT_USE)) {
 			// Do nothing
-		} else if (agentBox.getSelectedItem().equals(OTHER_PARAMETER)) {
+		} else if (agentBox.getSelectedItem().equals(
+				SettingsHelper.OTHER_PARAMETER)) {
 			panel.add(agentButton, createConstraints(1, 1));
 		} else {
 			int row = 1;
@@ -1334,7 +1018,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				if (set.getAgentMappings().get(value) != null) {
 					button.setText(set.getAgentMappings().get(value).getName());
 				} else {
-					button.setText(OTHER_PARAMETER);
+					button.setText(SettingsHelper.OTHER_PARAMETER);
 				}
 
 				button.addActionListener(this);
@@ -1352,8 +1036,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		p.add(panel, BorderLayout.CENTER);
 
 		if (set.getAgentColumn() != null
-				&& !set.getAgentColumn().equals(OTHER_PARAMETER)
-				&& !set.getAgentColumn().equals(DO_NOT_USE)) {
+				&& !set.getAgentColumn().equals(SettingsHelper.OTHER_PARAMETER)
+				&& !set.getAgentColumn().equals(SettingsHelper.DO_NOT_USE)) {
 			try {
 				List<Integer> missing = xlsReader.getMissingData(new File(
 						filePanel.getFileName()), (String) sheetBox
@@ -1375,20 +1059,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private void updateMatrixPanel() {
 		List<String> items = new ArrayList<>();
 
-		items.add(DO_NOT_USE);
-		items.add(OTHER_PARAMETER);
+		items.add(SettingsHelper.DO_NOT_USE);
+		items.add(SettingsHelper.OTHER_PARAMETER);
 		items.addAll(fileColumnList);
 
 		matrixButtons.clear();
 		matrixBox = new JComboBox<>(items.toArray(new String[0]));
-		matrixButton = new JButton(OTHER_PARAMETER);
+		matrixButton = new JButton(SettingsHelper.OTHER_PARAMETER);
 
 		UI.select(matrixBox, set.getMatrixColumn());
 
 		if (set.getMatrix() != null) {
 			matrixButton.setText(set.getMatrix().getName());
 		} else {
-			matrixButton.setText(OTHER_PARAMETER);
+			matrixButton.setText(SettingsHelper.OTHER_PARAMETER);
 		}
 
 		matrixBox.addItemListener(this);
@@ -1401,9 +1085,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		panel.add(matrixBox, createConstraints(1, 0));
 
 		if (matrixBox.getSelectedItem() == null
-				|| matrixBox.getSelectedItem().equals(DO_NOT_USE)) {
+				|| matrixBox.getSelectedItem()
+						.equals(SettingsHelper.DO_NOT_USE)) {
 			// Do nothing
-		} else if (matrixBox.getSelectedItem().equals(OTHER_PARAMETER)) {
+		} else if (matrixBox.getSelectedItem().equals(
+				SettingsHelper.OTHER_PARAMETER)) {
 			panel.add(matrixButton, createConstraints(1, 1));
 		} else {
 			int row = 1;
@@ -1424,7 +1110,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				if (set.getMatrixMappings().get(value) != null) {
 					button.setText(set.getMatrixMappings().get(value).getName());
 				} else {
-					button.setText(OTHER_PARAMETER);
+					button.setText(SettingsHelper.OTHER_PARAMETER);
 				}
 
 				button.addActionListener(this);
@@ -1442,8 +1128,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		p.add(panel, BorderLayout.CENTER);
 
 		if (set.getMatrixColumn() != null
-				&& !set.getMatrixColumn().equals(OTHER_PARAMETER)
-				&& !set.getMatrixColumn().equals(DO_NOT_USE)) {
+				&& !set.getMatrixColumn()
+						.equals(SettingsHelper.OTHER_PARAMETER)
+				&& !set.getMatrixColumn().equals(SettingsHelper.DO_NOT_USE)) {
 			try {
 				List<Integer> missing = xlsReader.getMissingData(new File(
 						filePanel.getFileName()), (String) sheetBox
@@ -1475,7 +1162,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						DO_NOT_USE, OTHER_PARAMETER, XLSReader.NAME_COLUMN,
+						SettingsHelper.DO_NOT_USE,
+						SettingsHelper.OTHER_PARAMETER, XLSReader.NAME_COLUMN,
 						MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
@@ -1487,38 +1175,38 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					Object mapping = set.getColumnMappings().get(column);
 
 					if (mapping == null) {
-						UI.select(box, OTHER_PARAMETER);
+						UI.select(box, SettingsHelper.OTHER_PARAMETER);
 						button.setEnabled(true);
-						button.setText(OTHER_PARAMETER);
+						button.setText(SettingsHelper.OTHER_PARAMETER);
 					} else if (mapping instanceof String) {
 						UI.select(box, mapping);
 						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
+						button.setText(SettingsHelper.OTHER_PARAMETER);
 					} else if (mapping instanceof MiscXml) {
 						int id = ((MiscXml) mapping).getId();
 
 						if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
 							UI.select(box, AttributeUtilities.ATT_TEMPERATURE);
 							button.setEnabled(false);
-							button.setText(OTHER_PARAMETER);
+							button.setText(SettingsHelper.OTHER_PARAMETER);
 						} else if (id == AttributeUtilities.ATT_PH_ID) {
 							UI.select(box, AttributeUtilities.ATT_PH);
 							button.setEnabled(false);
-							button.setText(OTHER_PARAMETER);
+							button.setText(SettingsHelper.OTHER_PARAMETER);
 						} else if (id == AttributeUtilities.ATT_AW_ID) {
 							UI.select(box, AttributeUtilities.ATT_AW);
 							button.setEnabled(false);
-							button.setText(OTHER_PARAMETER);
+							button.setText(SettingsHelper.OTHER_PARAMETER);
 						} else {
-							UI.select(box, OTHER_PARAMETER);
+							UI.select(box, SettingsHelper.OTHER_PARAMETER);
 							button.setEnabled(true);
 							button.setText(((MiscXml) mapping).getName());
 						}
 					}
 				} else {
-					UI.select(box, DO_NOT_USE);
+					UI.select(box, SettingsHelper.DO_NOT_USE);
 					button.setEnabled(false);
-					button.setText(OTHER_PARAMETER);
+					button.setText(SettingsHelper.OTHER_PARAMETER);
 				}
 
 				box.addItemListener(this);
@@ -1589,86 +1277,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					newModelMappings.put(param,
 							set.getModelMappings().get(param));
 				}
-			}
-		}
 
-		for (String param : secModelButtons.keySet()) {
-			if (set.getSecModelTuples().containsKey(param)) {
-				newSecModelTuples
-						.put(param, set.getSecModelTuples().get(param));
-			}
-		}
-
-		for (String param1 : secModelBoxes.keySet()) {
-			newSecModelMappings
-					.put(param1, new LinkedHashMap<String, String>());
-
-			for (String param2 : secModelBoxes.get(param1).keySet()) {
-				if (set.getSecModelMappings().containsKey(param1)
-						&& set.getSecModelMappings().get(param1)
-								.containsKey(param2)) {
-					newSecModelMappings.get(param1).put(param2,
-							set.getSecModelMappings().get(param1).get(param2));
-				}
-			}
-		}
-
-		for (String param1 : secMinBoxes.keySet()) {
-			newSecModelIndepMins.put(param1,
-					new LinkedHashMap<String, String>());
-
-			for (String param2 : secMinBoxes.get(param1).keySet()) {
-				if (set.getSecModelIndepMins().containsKey(param1)
-						&& set.getSecModelIndepMins().get(param1)
-								.containsKey(param2)) {
-					newSecModelIndepMins.get(param1).put(param2,
-							set.getSecModelIndepMins().get(param1).get(param2));
-				}
-			}
-		}
-
-		for (String param1 : secMaxBoxes.keySet()) {
-			newSecModelIndepMaxs.put(param1,
-					new LinkedHashMap<String, String>());
-
-			for (String param2 : secMaxBoxes.get(param1).keySet()) {
-				if (set.getSecModelIndepMaxs().containsKey(param1)
-						&& set.getSecModelIndepMaxs().get(param1)
-								.containsKey(param2)) {
-					newSecModelIndepMaxs.get(param1).put(param2,
-							set.getSecModelIndepMaxs().get(param1).get(param2));
-				}
-			}
-		}
-
-		for (String param1 : secCategoryBoxes.keySet()) {
-			newSecModelIndepCategories.put(param1,
-					new LinkedHashMap<String, String>());
-
-			for (String param2 : secCategoryBoxes.get(param1).keySet()) {
-				if (set.getSecModelIndepCategories().containsKey(param1)
-						&& set.getSecModelIndepCategories().get(param1)
-								.containsKey(param2)) {
-					newSecModelIndepCategories.get(param1).put(
-							param2,
-							set.getSecModelIndepCategories().get(param1)
-									.get(param2));
-				}
-			}
-		}
-
-		for (String param1 : secUnitBoxes.keySet()) {
-			newSecModelIndepUnits.put(param1,
-					new LinkedHashMap<String, String>());
-
-			for (String param2 : secUnitBoxes.get(param1).keySet()) {
-				if (set.getSecModelIndepUnits().containsKey(param1)
-						&& set.getSecModelIndepUnits().get(param1)
-								.containsKey(param2)) {
-					newSecModelIndepUnits.get(param1)
-							.put(param2,
-									set.getSecModelIndepUnits().get(param1)
-											.get(param2));
+				if (value == null) {
+					newSecModelTuples.put(param,
+							set.getSecModelTuples().get(param));
+					newSecModelMappings.put(param, set.getSecModelMappings()
+							.get(param));
+					newSecModelIndepMins.put(param, set.getSecModelIndepMins()
+							.get(param));
+					newSecModelIndepMaxs.put(param, set.getSecModelIndepMaxs()
+							.get(param));
+					newSecModelIndepCategories.put(param, set
+							.getSecModelIndepCategories().get(param));
+					newSecModelIndepUnits.put(param, set
+							.getSecModelIndepUnits().get(param));
 				}
 			}
 		}

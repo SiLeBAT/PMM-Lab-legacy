@@ -50,6 +50,12 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 
 public class SettingsHelper {
 
+	public static final String DO_NOT_USE = "Do Not Use";
+	public static final String OTHER_PARAMETER = "Select Other";
+	public static final String SELECT = "Select";
+	public static final String USE_SECONDARY_MODEL = "Use Sec. Model";
+	public static final String RELOAD = "Reload";
+
 	private static final String CFG_FILE_NAME = "FileName";
 	private static final String CFG_SHEET_NAME = "SheetName";
 	private static final String CFG_MODEL_MAPPINGS = "ModelMappings";

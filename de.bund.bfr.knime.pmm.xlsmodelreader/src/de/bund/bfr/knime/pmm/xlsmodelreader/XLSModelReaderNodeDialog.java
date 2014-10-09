@@ -150,6 +150,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private Map<String, JComboBox<String>> columnBoxes;
 	private Map<String, JButton> columnButtons;
 	private Map<String, JComboBox<String>> columnUnitBoxes;
+	private Map<String, JComboBox<String>> paramErrorBoxes;
 
 	private JLabel noLabel;
 
@@ -215,6 +216,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		columnBoxes = new LinkedHashMap<>();
 		columnButtons = new LinkedHashMap<>();
 		columnUnitBoxes = new LinkedHashMap<>();
+		paramErrorBoxes = new LinkedHashMap<>();
 
 		JPanel northLiteraturePanel = new JPanel();
 
@@ -333,6 +335,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setModelAic((String) aicBox.getSelectedItem());
 
 		Map<String, String> newModelMappings = new LinkedHashMap<>();
+		Map<String, String> newModelParamErrors = new LinkedHashMap<>();
 		Map<String, KnimeTuple> newSecModelTuples = new LinkedHashMap<>();
 		Map<String, Map<String, String>> newSecModelMappings = new LinkedHashMap<>();
 		Map<String, Map<String, String>> newSecModelIndepMins = new LinkedHashMap<>();
@@ -346,10 +349,16 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		for (String param : modelBoxes.keySet()) {
 			if (set.getModelMappings().containsKey(param)) {
 				String value = set.getModelMappings().get(param);
+				String error = set.getModelParamErrors().get(param);
 
 				if (value == null || fileColumnList.contains(value)) {
 					newModelMappings.put(param,
 							set.getModelMappings().get(param));
+				}
+
+				if (error == null || fileColumnList.contains(error)) {
+					newModelParamErrors.put(param, set.getModelParamErrors()
+							.get(param));
 				}
 
 				if (value == null) {
@@ -390,6 +399,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		set.setModelMappings(newModelMappings);
+		set.setModelParamErrors(newModelParamErrors);
 		set.setSecModelTuples(newSecModelTuples);
 		set.setSecModelMappings(newSecModelMappings);
 		set.setSecModelIndepMins(newSecModelIndepMins);
@@ -822,6 +832,19 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					return;
 				}
 			}
+
+			for (String param : paramErrorBoxes.keySet()) {
+				if (e.getSource() == paramErrorBoxes.get(param)) {
+					JComboBox<String> box = paramErrorBoxes.get(param);
+
+					if (box.getSelectedItem().equals(SettingsHelper.DO_NOT_USE)) {
+						set.getModelParamErrors().put(param, null);
+					} else {
+						set.getModelParamErrors().put(param,
+								(String) box.getSelectedItem());
+					}
+				}
+			}
 		}
 	}
 
@@ -893,6 +916,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		modelBoxes.clear();
 		modelButtons.clear();
+		paramErrorBoxes.clear();
 
 		if (set.getModelTuple() != null) {
 			modelButton = new JButton(((CatalogModelXml) set.getModelTuple()
@@ -940,6 +964,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				JComboBox<String> box = new JComboBox<>(
 						paramOptions.toArray(new String[0]));
 				JButton button = new JButton("Configure");
+				JComboBox<String> errorBox = new JComboBox<>(
+						options.toArray(new String[0]));
 
 				if (!set.getModelMappings().containsKey(param.getName())) {
 					UI.select(box, SettingsHelper.DO_NOT_USE);
@@ -951,10 +977,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					button.setEnabled(false);
 				}
 
+				UI.select(errorBox,
+						set.getModelParamErrors().get(param.getName()),
+						SettingsHelper.DO_NOT_USE);
 				box.addItemListener(this);
 				button.addActionListener(this);
+				errorBox.addItemListener(this);
 				modelBoxes.put(param.getName(), box);
 				modelButtons.put(param.getName(), button);
+				paramErrorBoxes.put(param.getName(), errorBox);
 
 				JPanel modelPanel = new JPanel();
 
@@ -965,6 +996,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				panel.add(new JLabel(param.getName() + ":"),
 						createConstraints(0, row));
 				panel.add(modelPanel, createConstraints(1, row));
+				row++;
+				panel.add(new JLabel(param.getName() + " Error:"),
+						createConstraints(0, row));
+				panel.add(errorBox, createConstraints(1, row));
 				row++;
 			}
 

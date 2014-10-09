@@ -384,7 +384,8 @@ public class XLSReader {
 			Map<String, Object> columnMappings, String agentColumnName,
 			Map<String, AgentXml> agentMappings, String matrixColumnName,
 			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
-			Map<String, String> modelMappings, String modelDepUnit,
+			Map<String, String> modelMappings,
+			Map<String, String> modelParamErrors, String modelDepUnit,
 			String modelIndepMin, String modelIndepMax, String modelIndepUnit,
 			String modelRmse, String modelR2, String modelAic,
 			Map<String, KnimeTuple> secModelTuples,
@@ -642,8 +643,7 @@ public class XLSReader {
 				String mapping = modelMappings.get(element.getName());
 
 				if (mapping != null) {
-					int column = columns.get(mapping);
-					Cell cell = row.getCell(column);
+					Cell cell = row.getCell(columns.get(mapping));
 
 					if (hasData(cell)) {
 						try {
@@ -656,6 +656,26 @@ public class XLSReader {
 						}
 					} else {
 						warnings.add(mapping + " value in row "
+								+ (rowNumber + 1) + " is missing");
+					}
+				}
+
+				String errorMapping = modelParamErrors.get(element.getName());
+
+				if (errorMapping != null) {
+					Cell cell = row.getCell(columns.get(errorMapping));
+
+					if (hasData(cell)) {
+						try {
+							element.setError(Double.parseDouble(getData(cell)
+									.replace(",", ".")));
+						} catch (NumberFormatException e) {
+							warnings.add(errorMapping + " value in row "
+									+ (rowNumber + 1) + " is not valid ("
+									+ getData(cell) + ")");
+						}
+					} else {
+						warnings.add(errorMapping + " value in row "
 								+ (rowNumber + 1) + " is missing");
 					}
 				}

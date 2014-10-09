@@ -66,6 +66,7 @@ public class SettingsHelper {
 	private static final String CFG_MODEL_RMSE = "ModelRMSE";
 	private static final String CFG_MODEL_R2 = "ModelR2";
 	private static final String CFG_MODEL_AIC = "ModelAIC";
+	private static final String CFG_MODEL_PARAM_ERRORS = "ModelParamErrors";
 	private static final String CFG_SEC_MODEL_MAPPINGS = "SecModelMappings";
 	private static final String CFG_SEC_MODEL_INDEP_MINS = "SecModelIndepMins";
 	private static final String CFG_SEC_MODEL_INDEP_MAXS = "SecModelIndepMaxs";
@@ -95,6 +96,7 @@ public class SettingsHelper {
 	private String modelRmse;
 	private String modelR2;
 	private String modelAic;
+	private Map<String, String> modelParamErrors;
 	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Map<String, String>> secModelIndepMins;
 	private Map<String, Map<String, String>> secModelIndepMaxs;
@@ -127,6 +129,7 @@ public class SettingsHelper {
 		modelRmse = null;
 		modelR2 = null;
 		modelAic = null;
+		modelParamErrors = new LinkedHashMap<>();
 		secModelMappings = new LinkedHashMap<>();
 		secModelIndepMins = new LinkedHashMap<>();
 		secModelIndepMaxs = new LinkedHashMap<>();
@@ -208,6 +211,13 @@ public class SettingsHelper {
 		try {
 			modelAic = settings.getString(CFG_MODEL_AIC);
 		} catch (InvalidSettingsException e1) {
+		}
+
+		try {
+			modelParamErrors = XmlConverter.xmlToObject(
+					settings.getString(CFG_MODEL_PARAM_ERRORS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
@@ -332,6 +342,8 @@ public class SettingsHelper {
 		settings.addString(CFG_MODEL_RMSE, modelRmse);
 		settings.addString(CFG_MODEL_R2, modelR2);
 		settings.addString(CFG_MODEL_AIC, modelAic);
+		settings.addString(CFG_MODEL_PARAM_ERRORS,
+				XmlConverter.objectToXml(modelParamErrors));
 		settings.addString(CFG_SEC_MODEL_MAPPINGS,
 				XmlConverter.objectToXml(secModelMappings));
 		settings.addString(CFG_SEC_MODEL_INDEP_MINS,
@@ -439,6 +451,14 @@ public class SettingsHelper {
 
 	public void setModelAic(String modelAic) {
 		this.modelAic = modelAic;
+	}
+
+	public Map<String, String> getModelParamErrors() {
+		return modelParamErrors;
+	}
+
+	public void setModelParamErrors(Map<String, String> modelParamErrors) {
+		this.modelParamErrors = modelParamErrors;
 	}
 
 	public Map<String, Map<String, String>> getSecModelMappings() {

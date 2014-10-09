@@ -48,7 +48,7 @@ public class UI {
 
 	private UI() {
 	}
-	
+
 	public static void packColumns(JTable table) {
 		for (int c = 0; c < table.getColumnCount(); c++) {
 			TableColumn col = table.getColumnModel().getColumn(c);
@@ -77,22 +77,27 @@ public class UI {
 		}
 	}
 
-	public static void select(JComboBox<?> box, Object item) {
+	public static String select(JComboBox<String> box, Object item) {
 		box.setSelectedItem(item);
 
 		if (box.getSelectedItem() != null
 				&& !box.getSelectedItem().equals(item)) {
 			box.setSelectedItem(null);
 		}
+
+		return (String) box.getSelectedItem();
 	}
 
-	public static void select(JComboBox<?> box, Object item, Object defaultItem) {
+	public static String select(JComboBox<String> box, Object item,
+			Object defaultItem) {
 		box.setSelectedItem(item);
 
-		if (box.getSelectedItem() != null
-				&& !box.getSelectedItem().equals(item)) {
+		if (box.getSelectedItem() == null
+				|| !box.getSelectedItem().equals(item)) {
 			box.setSelectedItem(defaultItem);
 		}
+
+		return (String) box.getSelectedItem();
 	}
 
 	public static void adjustDialog(JDialog dialog) {

@@ -103,6 +103,10 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				param));
 		units = new LinkedHashMap<>(set.getSecModelIndepUnits().get(param));
 
+		replaceNullWithDoNotUse(mappings);
+		replaceNullWithDoNotUse(mins);
+		replaceNullWithDoNotUse(maxs);
+
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
@@ -118,13 +122,17 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		setLayout(new BorderLayout());
 		add(buttonPanel, BorderLayout.SOUTH);
 		updateConfigPanel();
-		pack();
+		setResizable(false);
 		setLocationRelativeTo(parent);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
+			replaceDoNotUseWithNull(mappings);
+			replaceDoNotUseWithNull(mins);
+			replaceDoNotUseWithNull(maxs);
+
 			set.getSecModelTuples().put(param, tuple);
 			set.getSecModelMappings().put(param, mappings);
 			set.getSecModelIndepMins().put(param, mins);
@@ -179,14 +187,8 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	public void itemStateChanged(ItemEvent e) {
 		for (String param2 : modelBoxes.keySet()) {
 			if (e.getSource() == modelBoxes.get(param2)) {
-				JComboBox<String> box = modelBoxes.get(param2);
-
-				if (box.getSelectedItem().equals(SettingsHelper.DO_NOT_USE)) {
-					mappings.put(param2, null);
-				} else {
-					mappings.put(param2, (String) box.getSelectedItem());
-				}
-
+				mappings.put(param2, (String) modelBoxes.get(param2)
+						.getSelectedItem());
 				return;
 			}
 		}
@@ -274,11 +276,9 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				JComboBox<String> box = new JComboBox<>(
 						options.toArray(new String[0]));
 
-				if (mappings.get(secParam.getName()) == null) {
-					UI.select(box, SettingsHelper.DO_NOT_USE);
-				} else {
-					UI.select(box, mappings.get(secParam.getName()));
-				}
+				mappings.put(secParam.getName(), UI.select(box,
+						mappings.get(secParam.getName()),
+						SettingsHelper.DO_NOT_USE));
 
 				box.addItemListener(this);
 				modelBoxes.put(secParam.getName(), box);
@@ -292,44 +292,33 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			for (PmmXmlElementConvertable el2 : tuple.getPmmXml(
 					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
 				IndepXml indep = (IndepXml) el2;
-
-				if (indep.getUnit() == null) {
-					continue;
-				}
+				String[] categoryChoice = Categories.getAllCategories()
+						.toArray(new String[0]);
+				String defaultCategory = indep.getCategory() != null ? indep
+						.getCategory() : categoryChoice[0];
 
 				JComboBox<String> minBox = new JComboBox<>(
 						options.toArray(new String[0]));
 				JComboBox<String> maxBox = new JComboBox<>(
 						options.toArray(new String[0]));
-				JComboBox<String> categoryBox = new JComboBox<>(Categories
-						.getAllCategories().toArray(new String[0]));
-				JComboBox<String> unitBox = new JComboBox<>(Categories
+				JComboBox<String> categoryBox = new JComboBox<>(categoryChoice);
+
+				mins.put(indep.getName(), UI.select(minBox,
+						mins.get(indep.getName()), SettingsHelper.DO_NOT_USE));
+				maxs.put(indep.getName(), UI.select(maxBox,
+						maxs.get(indep.getName()), SettingsHelper.DO_NOT_USE));
+				categories.put(indep.getName(), UI.select(categoryBox,
+						categories.get(indep.getName()), defaultCategory));
+
+				String[] unitChoice = Categories
 						.getCategory(categories.get(indep.getName()))
-						.getAllUnits().toArray(new String[0]));
+						.getAllUnits().toArray(new String[0]);
+				String defaultUnit = indep.getUnit() != null ? indep.getUnit()
+						: unitChoice[0];
+				JComboBox<String> unitBox = new JComboBox<>(unitChoice);
 
-				if (mins.get(indep.getName()) == null) {
-					UI.select(minBox, SettingsHelper.DO_NOT_USE);
-				} else {
-					UI.select(minBox, mins.get(indep.getName()));
-				}
-
-				if (maxs.get(indep.getName()) == null) {
-					UI.select(maxBox, SettingsHelper.DO_NOT_USE);
-				} else {
-					UI.select(maxBox, maxs.get(indep.getName()));
-				}
-
-				if (categories.get(indep.getName()) == null) {
-					UI.select(categoryBox, null);
-				} else {
-					UI.select(categoryBox, categories.get(indep.getName()));
-				}
-
-				if (units.get(indep.getName()) == null) {
-					UI.select(unitBox, null);
-				} else {
-					UI.select(unitBox, units.get(indep.getName()));
-				}
+				units.put(indep.getName(), UI.select(unitBox,
+						units.get(indep.getName()), defaultUnit));
 
 				minBox.addItemListener(this);
 				maxBox.addItemListener(this);
@@ -360,11 +349,28 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		}
 
 		add(configPanel, BorderLayout.CENTER);
+		pack();
 	}
 
 	private GridBagConstraints createConstraints(int x, int y) {
 		return new GridBagConstraints(x, y, 1, 1, 0, 0,
 				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0);
+	}
+
+	private void replaceDoNotUseWithNull(Map<String, String> map) {
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			if (entry.getValue().equals(SettingsHelper.DO_NOT_USE)) {
+				entry.setValue(null);
+			}
+		}
+	}
+
+	private void replaceNullWithDoNotUse(Map<String, String> map) {
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			if (entry.getValue() == null) {
+				entry.setValue(SettingsHelper.DO_NOT_USE);
+			}
+		}
 	}
 }

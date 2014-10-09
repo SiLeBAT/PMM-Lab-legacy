@@ -83,13 +83,11 @@ import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
@@ -666,6 +664,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					} else if (box.getSelectedItem().equals(
 							SettingsHelper.USE_SECONDARY_MODEL)) {
 						set.getModelMappings().put(param, null);
+						set.getSecModelTuples().put(param, null);
 					} else {
 						set.getModelMappings().put(param,
 								(String) box.getSelectedItem());
@@ -794,9 +793,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		for (String param : set.getSecModelTuples().keySet()) {
-			KnimeTuple tuple = set.getSecModelTuples().get(param);
-			PmmXmlDoc indepXml = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-
 			if (!set.getSecModelMappings().containsKey(param)) {
 				set.getSecModelMappings().put(param,
 						new LinkedHashMap<String, String>());
@@ -815,25 +811,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			if (!set.getSecModelIndepCategories().containsKey(param)) {
 				set.getSecModelIndepCategories().put(param,
 						new LinkedHashMap<String, String>());
-
-				for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
-					IndepXml indep = (IndepXml) el;
-
-					set.getSecModelIndepCategories().get(param)
-							.put(indep.getName(), indep.getCategory());
-				}
 			}
 
 			if (!set.getSecModelIndepUnits().containsKey(param)) {
 				set.getSecModelIndepUnits().put(param,
 						new LinkedHashMap<String, String>());
-
-				for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
-					IndepXml indep = (IndepXml) el;
-
-					set.getSecModelIndepUnits().get(param)
-							.put(indep.getName(), indep.getUnit());
-				}
 			}
 		}
 

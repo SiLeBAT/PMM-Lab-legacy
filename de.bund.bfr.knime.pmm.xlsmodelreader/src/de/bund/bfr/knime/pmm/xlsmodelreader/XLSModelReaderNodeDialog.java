@@ -318,7 +318,78 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		cleanMaps();
+		set.setModelDepUnit((String) depUnitBox.getSelectedItem());
+		set.setModelIndepMin((String) indepMinBox.getSelectedItem());
+		set.setModelIndepMax((String) indepMaxBox.getSelectedItem());
+		set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
+
+		Map<String, String> newModelMappings = new LinkedHashMap<>();
+		Map<String, KnimeTuple> newSecModelTuples = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelMappings = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelIndepMins = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelIndepMaxs = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelIndepCategories = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelIndepUnits = new LinkedHashMap<>();
+		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
+		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<>();
+		Map<String, Object> newColumnMappings = new LinkedHashMap<>();
+
+		for (String param : modelBoxes.keySet()) {
+			if (set.getModelMappings().containsKey(param)) {
+				String value = set.getModelMappings().get(param);
+
+				if (value == null || fileColumnList.contains(value)) {
+					newModelMappings.put(param,
+							set.getModelMappings().get(param));
+				}
+
+				if (value == null) {
+					newSecModelTuples.put(param,
+							set.getSecModelTuples().get(param));
+					newSecModelMappings.put(param, set.getSecModelMappings()
+							.get(param));
+					newSecModelIndepMins.put(param, set.getSecModelIndepMins()
+							.get(param));
+					newSecModelIndepMaxs.put(param, set.getSecModelIndepMaxs()
+							.get(param));
+					newSecModelIndepCategories.put(param, set
+							.getSecModelIndepCategories().get(param));
+					newSecModelIndepUnits.put(param, set
+							.getSecModelIndepUnits().get(param));
+				}
+			}
+		}
+
+		for (String agent : agentButtons.keySet()) {
+			if (set.getAgentMappings().containsKey(agent)) {
+				newAgentMappings.put(agent, set.getAgentMappings().get(agent));
+			}
+		}
+
+		for (String matrix : matrixButtons.keySet()) {
+			if (set.getMatrixMappings().containsKey(matrix)) {
+				newMatrixMappings.put(matrix,
+						set.getMatrixMappings().get(matrix));
+			}
+		}
+
+		for (String column : columnBoxes.keySet()) {
+			if (set.getColumnMappings().containsKey(column)) {
+				newColumnMappings.put(column,
+						set.getColumnMappings().get(column));
+			}
+		}
+
+		set.setModelMappings(newModelMappings);
+		set.setSecModelTuples(newSecModelTuples);
+		set.setSecModelMappings(newSecModelMappings);
+		set.setSecModelIndepMins(newSecModelIndepMins);
+		set.setSecModelIndepMaxs(newSecModelIndepMaxs);
+		set.setSecModelIndepCategories(newSecModelIndepCategories);
+		set.setSecModelIndepUnits(newSecModelIndepUnits);
+		set.setAgentMappings(newAgentMappings);
+		set.setMatrixMappings(newMatrixMappings);
+		set.setColumnMappings(newColumnMappings);
 
 		if (set.getFileName() == null) {
 			throw new InvalidSettingsException("No file is specfied");
@@ -778,20 +849,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateModelPanel() {
-		if (set.getModelTuple() != null) {
-			if (set.getModelDepUnit() == null) {
-				set.setModelDepUnit(((DepXml) set.getModelTuple()
-						.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0))
-						.getUnit());
-			}
-
-			if (set.getModelIndepUnit() == null) {
-				set.setModelIndepUnit(((IndepXml) set.getModelTuple()
-						.getPmmXml(Model1Schema.ATT_INDEPENDENT).get(0))
-						.getUnit());
-			}
-		}
-
 		for (String param : set.getSecModelTuples().keySet()) {
 			if (!set.getSecModelMappings().containsKey(param)) {
 				set.getSecModelMappings().put(param,
@@ -914,10 +971,12 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					.getCategory(indepXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
 
-			UI.select(depUnitBox, set.getModelDepUnit());
-			UI.select(indepMinBox, set.getModelIndepMin());
-			UI.select(indepMaxBox, set.getModelIndepMax());
-			UI.select(indepUnitBox, set.getModelIndepUnit());
+			UI.select(depUnitBox, set.getModelDepUnit(), depXml.getUnit());
+			UI.select(indepMinBox, set.getModelIndepMin(),
+					SettingsHelper.DO_NOT_USE);
+			UI.select(indepMaxBox, set.getModelIndepMax(),
+					SettingsHelper.DO_NOT_USE);
+			UI.select(indepUnitBox, set.getModelIndepUnit(), indepXml.getUnit());
 
 			depUnitBox.addItemListener(this);
 			indepMinBox.addItemListener(this);
@@ -958,7 +1017,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		agentBox = new JComboBox<>(items.toArray(new String[0]));
 		agentButton = new JButton(SettingsHelper.OTHER_PARAMETER);
 
-		UI.select(agentBox, set.getAgentColumn());
+		UI.select(agentBox, set.getAgentColumn(), SettingsHelper.DO_NOT_USE);
 
 		if (set.getAgent() != null) {
 			agentButton.setText(set.getAgent().getName());
@@ -1049,7 +1108,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		matrixBox = new JComboBox<>(items.toArray(new String[0]));
 		matrixButton = new JButton(SettingsHelper.OTHER_PARAMETER);
 
-		UI.select(matrixBox, set.getMatrixColumn());
+		UI.select(matrixBox, set.getMatrixColumn(), SettingsHelper.DO_NOT_USE);
 
 		if (set.getMatrix() != null) {
 			matrixButton.setText(set.getMatrix().getName());
@@ -1237,76 +1296,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		return new GridBagConstraints(x, y, 1, 1, 0, 0,
 				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0);
-	}
-
-	private void cleanMaps() {
-		Map<String, String> newModelMappings = new LinkedHashMap<>();
-		Map<String, KnimeTuple> newSecModelTuples = new LinkedHashMap<>();
-		Map<String, Map<String, String>> newSecModelMappings = new LinkedHashMap<>();
-		Map<String, Map<String, String>> newSecModelIndepMins = new LinkedHashMap<>();
-		Map<String, Map<String, String>> newSecModelIndepMaxs = new LinkedHashMap<>();
-		Map<String, Map<String, String>> newSecModelIndepCategories = new LinkedHashMap<>();
-		Map<String, Map<String, String>> newSecModelIndepUnits = new LinkedHashMap<>();
-		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
-		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<>();
-		Map<String, Object> newColumnMappings = new LinkedHashMap<>();
-
-		for (String param : modelBoxes.keySet()) {
-			if (set.getModelMappings().containsKey(param)) {
-				String value = set.getModelMappings().get(param);
-
-				if (value == null || fileColumnList.contains(value)) {
-					newModelMappings.put(param,
-							set.getModelMappings().get(param));
-				}
-
-				if (value == null) {
-					newSecModelTuples.put(param,
-							set.getSecModelTuples().get(param));
-					newSecModelMappings.put(param, set.getSecModelMappings()
-							.get(param));
-					newSecModelIndepMins.put(param, set.getSecModelIndepMins()
-							.get(param));
-					newSecModelIndepMaxs.put(param, set.getSecModelIndepMaxs()
-							.get(param));
-					newSecModelIndepCategories.put(param, set
-							.getSecModelIndepCategories().get(param));
-					newSecModelIndepUnits.put(param, set
-							.getSecModelIndepUnits().get(param));
-				}
-			}
-		}
-
-		for (String agent : agentButtons.keySet()) {
-			if (set.getAgentMappings().containsKey(agent)) {
-				newAgentMappings.put(agent, set.getAgentMappings().get(agent));
-			}
-		}
-
-		for (String matrix : matrixButtons.keySet()) {
-			if (set.getMatrixMappings().containsKey(matrix)) {
-				newMatrixMappings.put(matrix,
-						set.getMatrixMappings().get(matrix));
-			}
-		}
-
-		for (String column : columnBoxes.keySet()) {
-			if (set.getColumnMappings().containsKey(column)) {
-				newColumnMappings.put(column,
-						set.getColumnMappings().get(column));
-			}
-		}
-
-		set.setModelMappings(newModelMappings);
-		set.setSecModelTuples(newSecModelTuples);
-		set.setSecModelMappings(newSecModelMappings);
-		set.setSecModelIndepMins(newSecModelIndepMins);
-		set.setSecModelIndepMaxs(newSecModelIndepMaxs);
-		set.setSecModelIndepCategories(newSecModelIndepCategories);
-		set.setSecModelIndepUnits(newSecModelIndepUnits);
-		set.setAgentMappings(newAgentMappings);
-		set.setMatrixMappings(newMatrixMappings);
-		set.setColumnMappings(newColumnMappings);
 	}
 
 	private static String getMissingString(List<Integer> missing) {

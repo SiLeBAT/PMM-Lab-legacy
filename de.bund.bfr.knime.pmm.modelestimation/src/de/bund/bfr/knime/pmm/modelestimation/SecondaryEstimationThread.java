@@ -47,11 +47,13 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -280,7 +282,7 @@ public class SecondaryEstimationThread implements Runnable {
 					Double sse = null;
 					Double rms = null;
 					Double rSquared = null;
-					Double aic = null;					
+					Double aic = null;
 					Integer dof = null;
 					Integer estID = MathUtilities.getRandomNegativeInt();
 					List<Double> minValues = Collections.nCopies(
@@ -310,7 +312,7 @@ public class SecondaryEstimationThread implements Runnable {
 						sse = optimizer.getSse();
 						rms = optimizer.getRMS();
 						rSquared = optimizer.getRSquare();
-						aic = optimizer.getAIC();						
+						aic = optimizer.getAIC();
 						dof = targetValues.size() - parameters.size();
 						minValues = new ArrayList<>();
 						maxValues = new ArrayList<>();
@@ -347,10 +349,12 @@ public class SecondaryEstimationThread implements Runnable {
 							.getPmmXml(Model2Schema.ATT_ESTMODEL);
 
 					((EstModelXml) estModelXml.get(0)).setId(estID);
+					((EstModelXml) estModelXml.get(0))
+							.setName(createModelName(tuple));
 					((EstModelXml) estModelXml.get(0)).setSse(sse);
 					((EstModelXml) estModelXml.get(0)).setRms(rms);
 					((EstModelXml) estModelXml.get(0)).setR2(rSquared);
-					((EstModelXml) estModelXml.get(0)).setAic(aic);					
+					((EstModelXml) estModelXml.get(0)).setAic(aic);
 					((EstModelXml) estModelXml.get(0)).setDof(dof);
 
 					paramMap.put(id, paramXml);
@@ -373,5 +377,23 @@ public class SecondaryEstimationThread implements Runnable {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private String createModelName(KnimeTuple tuple) {
+		AgentXml agent = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT)
+				.get(0);
+		MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+
+		String depVar = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
+				.get(0)).getName();
+		String agentName = agent.getName() != null ? agent.getName() : agent
+				.getDetail();
+		String matrixName = matrix.getName() != null ? matrix.getName()
+				: matrix.getDetail();
+		String modelName = ((CatalogModelXml) tuple.getPmmXml(
+				Model2Schema.ATT_MODELCATALOG).get(0)).getName();
+
+		return depVar + "_" + agentName + "_" + matrixName + "_" + modelName;
 	}
 }

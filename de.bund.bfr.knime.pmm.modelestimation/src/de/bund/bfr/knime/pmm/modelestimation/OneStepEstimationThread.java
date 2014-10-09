@@ -45,10 +45,12 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -216,9 +218,8 @@ public class OneStepEstimationThread implements Runnable {
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
-					List<Double> list = new ArrayList<>(
-							Collections.nCopies(timeList.size(),
-									element.getValue()));
+					List<Double> list = new ArrayList<>(Collections.nCopies(
+							timeList.size(), element.getValue()));
 
 					miscLists.put(element.getName(), list);
 				}
@@ -307,7 +308,7 @@ public class OneStepEstimationThread implements Runnable {
 					Double sse = null;
 					Double rms = null;
 					Double rSquared = null;
-					Double aic = null;					
+					Double aic = null;
 					Integer dof = null;
 					Integer estID = MathUtilities.getRandomNegativeInt();
 					List<Double> minValues = Collections.nCopies(
@@ -337,7 +338,7 @@ public class OneStepEstimationThread implements Runnable {
 						sse = optimizer.getSse();
 						rms = optimizer.getRMS();
 						rSquared = optimizer.getRSquare();
-						aic = optimizer.getAIC();						
+						aic = optimizer.getAIC();
 						dof = targetValues.size() - parameters.size();
 						minValues = new ArrayList<>();
 						maxValues = new ArrayList<>();
@@ -377,7 +378,7 @@ public class OneStepEstimationThread implements Runnable {
 					((EstModelXml) estModelXml.get(0)).setSse(sse);
 					((EstModelXml) estModelXml.get(0)).setRms(rms);
 					((EstModelXml) estModelXml.get(0)).setR2(rSquared);
-					((EstModelXml) estModelXml.get(0)).setAic(aic);					
+					((EstModelXml) estModelXml.get(0)).setAic(aic);
 					((EstModelXml) estModelXml.get(0)).setDof(dof);
 
 					paramMap.put(id, paramXml);
@@ -464,8 +465,8 @@ public class OneStepEstimationThread implements Runnable {
 							Model1Schema.ATT_ESTMODEL).get(0)).getId();
 
 					t.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(
-							new EstModelXml(estID, null, null, null, null,
-									null, null, null)));
+							new EstModelXml(estID, createModelName(tuple),
+									null, null, null, null, null, null)));
 					t.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(
 							new EstModelXml(estID + index, null, null, null,
 									null, null, null, null)));
@@ -505,4 +506,19 @@ public class OneStepEstimationThread implements Runnable {
 		return null;
 	}
 
+	private String createModelName(KnimeTuple tuple) {
+		AgentXml agent = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT)
+				.get(0);
+		MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+
+		String agentName = agent.getName() != null ? agent.getName() : agent
+				.getDetail();
+		String matrixName = matrix.getName() != null ? matrix.getName()
+				: matrix.getDetail();
+		String modelName = ((CatalogModelXml) tuple.getPmmXml(
+				Model1Schema.ATT_MODELCATALOG).get(0)).getName();
+
+		return agentName + "_" + matrixName + "_" + modelName;
+	}
 }

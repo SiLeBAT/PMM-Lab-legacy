@@ -136,6 +136,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 				set.getMatrixMappings(), modelTuple, set.getModelMappings(),
 				set.getModelDepUnit(), set.getModelIndepMin(),
 				set.getModelIndepMax(), set.getModelIndepUnit(),
+				set.getModelRmse(), set.getModelR2(), set.getModelAic(),
 				secModelTuples, set.getSecModelMappings(),
 				set.getSecModelIndepMins(), set.getSecModelIndepMaxs(),
 				set.getSecModelIndepCategories(), set.getSecModelIndepUnits())

@@ -132,6 +132,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> indepMinBox;
 	private JComboBox<String> indepMaxBox;
 	private JComboBox<String> indepUnitBox;
+	private JComboBox<String> rmseBox;
+	private JComboBox<String> r2Box;
+	private JComboBox<String> aicBox;
 
 	private JPanel agentPanel;
 	private JComboBox<String> agentBox;
@@ -184,6 +187,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		indepMinBox = null;
 		indepMaxBox = null;
 		indepUnitBox = null;
+		rmseBox = null;
+		r2Box = null;
+		aicBox = null;
 
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
@@ -322,6 +328,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setModelIndepMin((String) indepMinBox.getSelectedItem());
 		set.setModelIndepMax((String) indepMaxBox.getSelectedItem());
 		set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
+		set.setModelRmse((String) rmseBox.getSelectedItem());
+		set.setModelR2((String) r2Box.getSelectedItem());
+		set.setModelAic((String) aicBox.getSelectedItem());
 
 		Map<String, String> newModelMappings = new LinkedHashMap<>();
 		Map<String, KnimeTuple> newSecModelTuples = new LinkedHashMap<>();
@@ -725,6 +734,12 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			set.setModelIndepMax((String) indepMaxBox.getSelectedItem());
 		} else if (e.getSource() == indepUnitBox) {
 			set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
+		} else if (e.getSource() == rmseBox) {
+			set.setModelRmse((String) rmseBox.getSelectedItem());
+		} else if (e.getSource() == r2Box) {
+			set.setModelR2((String) r2Box.getSelectedItem());
+		} else if (e.getSource() == aicBox) {
+			set.setModelAic((String) aicBox.getSelectedItem());
 		} else {
 			for (String param : modelBoxes.keySet()) {
 				if (e.getSource() == modelBoxes.get(param)) {
@@ -878,10 +893,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		modelBoxes.clear();
 		modelButtons.clear();
-		depUnitBox = null;
-		indepMinBox = null;
-		indepMaxBox = null;
-		indepUnitBox = null;
 
 		if (set.getModelTuple() != null) {
 			modelButton = new JButton(((CatalogModelXml) set.getModelTuple()
@@ -970,6 +981,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			indepUnitBox = new JComboBox<>(Categories
 					.getCategory(indepXml.getCategory()).getAllUnits()
 					.toArray(new String[0]));
+			rmseBox = new JComboBox<>(options.toArray(new String[0]));
+			r2Box = new JComboBox<>(options.toArray(new String[0]));
+			aicBox = new JComboBox<>(options.toArray(new String[0]));
 
 			UI.select(depUnitBox, set.getModelDepUnit(), depXml.getUnit());
 			UI.select(indepMinBox, set.getModelIndepMin(),
@@ -977,11 +991,17 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			UI.select(indepMaxBox, set.getModelIndepMax(),
 					SettingsHelper.DO_NOT_USE);
 			UI.select(indepUnitBox, set.getModelIndepUnit(), indepXml.getUnit());
+			UI.select(rmseBox, set.getModelRmse(), SettingsHelper.DO_NOT_USE);
+			UI.select(r2Box, set.getModelR2(), SettingsHelper.DO_NOT_USE);
+			UI.select(aicBox, set.getModelAic(), SettingsHelper.DO_NOT_USE);
 
 			depUnitBox.addItemListener(this);
 			indepMinBox.addItemListener(this);
 			indepMaxBox.addItemListener(this);
 			indepUnitBox.addItemListener(this);
+			rmseBox.addItemListener(this);
+			r2Box.addItemListener(this);
+			aicBox.addItemListener(this);
 
 			panel.add(new JLabel(depXml.getName() + " Unit:"),
 					createConstraints(0, row));
@@ -998,6 +1018,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			panel.add(new JLabel(indepXml.getName() + " Unit:"),
 					createConstraints(0, row));
 			panel.add(indepUnitBox, createConstraints(1, row));
+			row++;
+			panel.add(new JLabel("RMSE:"), createConstraints(0, row));
+			panel.add(rmseBox, createConstraints(1, row));
+			row++;
+			panel.add(new JLabel("R2:"), createConstraints(0, row));
+			panel.add(r2Box, createConstraints(1, row));
+			row++;
+			panel.add(new JLabel("AIC"), createConstraints(0, row));
+			panel.add(aicBox, createConstraints(1, row));
 			row++;
 		}
 

@@ -63,6 +63,9 @@ public class SettingsHelper {
 	private static final String CFG_MODEL_INDEP_MIN = "ModelIndepMin";
 	private static final String CFG_MODEL_INDEP_MAX = "ModelIndepMax";
 	private static final String CFG_MODEL_INDEP_UNIT = "ModelIndepUnit";
+	private static final String CFG_MODEL_RMSE = "ModelRMSE";
+	private static final String CFG_MODEL_R2 = "ModelR2";
+	private static final String CFG_MODEL_AIC = "ModelAIC";
 	private static final String CFG_SEC_MODEL_MAPPINGS = "SecModelMappings";
 	private static final String CFG_SEC_MODEL_INDEP_MINS = "SecModelIndepMins";
 	private static final String CFG_SEC_MODEL_INDEP_MAXS = "SecModelIndepMaxs";
@@ -86,6 +89,9 @@ public class SettingsHelper {
 	private String modelIndepMin;
 	private String modelIndepMax;
 	private String modelIndepUnit;
+	private String modelRmse;
+	private String modelR2;
+	private String modelAic;
 	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Map<String, String>> secModelIndepMins;
 	private Map<String, Map<String, String>> secModelIndepMaxs;
@@ -112,6 +118,9 @@ public class SettingsHelper {
 		modelIndepMin = null;
 		modelIndepMax = null;
 		modelIndepUnit = null;
+		modelRmse = null;
+		modelR2 = null;
+		modelAic = null;
 		secModelMappings = new LinkedHashMap<>();
 		secModelIndepMins = new LinkedHashMap<>();
 		secModelIndepMaxs = new LinkedHashMap<>();
@@ -174,6 +183,21 @@ public class SettingsHelper {
 
 		try {
 			modelIndepUnit = settings.getString(CFG_MODEL_INDEP_UNIT);
+		} catch (InvalidSettingsException e1) {
+		}
+
+		try {
+			modelRmse = settings.getString(CFG_MODEL_RMSE);
+		} catch (InvalidSettingsException e1) {
+		}
+
+		try {
+			modelR2 = settings.getString(CFG_MODEL_R2);
+		} catch (InvalidSettingsException e1) {
+		}
+
+		try {
+			modelAic = settings.getString(CFG_MODEL_AIC);
 		} catch (InvalidSettingsException e1) {
 		}
 
@@ -275,6 +299,9 @@ public class SettingsHelper {
 		settings.addString(CFG_MODEL_INDEP_MIN, modelIndepMin);
 		settings.addString(CFG_MODEL_INDEP_MAX, modelIndepMax);
 		settings.addString(CFG_MODEL_INDEP_UNIT, modelIndepUnit);
+		settings.addString(CFG_MODEL_RMSE, modelRmse);
+		settings.addString(CFG_MODEL_R2, modelR2);
+		settings.addString(CFG_MODEL_AIC, modelAic);
 		settings.addString(CFG_SEC_MODEL_MAPPINGS,
 				XmlConverter.objectToXml(secModelMappings));
 		settings.addString(CFG_SEC_MODEL_INDEP_MINS,
@@ -352,6 +379,30 @@ public class SettingsHelper {
 
 	public void setModelIndepUnit(String modelIndepUnit) {
 		this.modelIndepUnit = modelIndepUnit;
+	}
+
+	public String getModelRmse() {
+		return modelRmse;
+	}
+
+	public void setModelRmse(String modelRmse) {
+		this.modelRmse = modelRmse;
+	}
+
+	public String getModelR2() {
+		return modelR2;
+	}
+
+	public void setModelR2(String modelR2) {
+		this.modelR2 = modelR2;
+	}
+
+	public String getModelAic() {
+		return modelAic;
+	}
+
+	public void setModelAic(String modelAic) {
+		this.modelAic = modelAic;
 	}
 
 	public Map<String, Map<String, String>> getSecModelMappings() {

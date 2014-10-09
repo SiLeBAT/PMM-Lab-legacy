@@ -386,6 +386,7 @@ public class XLSReader {
 			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
 			Map<String, String> modelMappings, String modelDepUnit,
 			String modelIndepMin, String modelIndepMax, String modelIndepUnit,
+			String modelRmse, String modelR2, String modelAic,
 			Map<String, KnimeTuple> secModelTuples,
 			Map<String, Map<String, String>> secModelMappings,
 			Map<String, Map<String, String>> secModelIndepMins,
@@ -410,26 +411,13 @@ public class XLSReader {
 		Integer commentColumn = null;
 		Integer agentDetailsColumn = null;
 		Integer matrixDetailsColumn = null;
-		Integer agentColumn = null;
-		Integer matrixColumn = null;
-		Integer indepMinColumn = null;
-		Integer indepMaxColumn = null;
-
-		if (agentColumnName != null) {
-			agentColumn = columns.get(agentColumnName);
-		}
-
-		if (matrixColumnName != null) {
-			matrixColumn = columns.get(matrixColumnName);
-		}
-
-		if (modelIndepMin != null) {
-			indepMinColumn = columns.get(modelIndepMin);
-		}
-
-		if (modelIndepMax != null) {
-			indepMaxColumn = columns.get(modelIndepMax);
-		}
+		Integer agentColumn = columns.get(agentColumnName);
+		Integer matrixColumn = columns.get(matrixColumnName);
+		Integer indepMinColumn = columns.get(modelIndepMin);
+		Integer indepMaxColumn = columns.get(modelIndepMax);
+		Integer rmseColumn = columns.get(modelRmse);
+		Integer r2Column = columns.get(modelR2);
+		Integer aicColumn = columns.get(modelAic);
 
 		for (String column : columns.keySet()) {
 			if (columnMappings.containsKey(column)) {
@@ -460,46 +448,17 @@ public class XLSReader {
 			KnimeTuple dataTuple = new KnimeTuple(
 					SchemaFactory.createDataSchema());
 			Row row = s.getRow(rowNumber);
-			Cell idCell = null;
-			Cell commentCell = null;
-			Cell agentDetailsCell = null;
-			Cell matrixDetailsCell = null;
-			Cell agentCell = null;
-			Cell matrixCell = null;
-			Cell indepMinCell = null;
-			Cell indepMaxCell = null;
-
-			if (idColumn != null) {
-				idCell = row.getCell(idColumn);
-			}
-
-			if (commentColumn != null) {
-				commentCell = row.getCell(commentColumn);
-			}
-
-			if (agentDetailsColumn != null) {
-				agentDetailsCell = row.getCell(agentDetailsColumn);
-			}
-
-			if (matrixDetailsColumn != null) {
-				matrixDetailsCell = row.getCell(matrixDetailsColumn);
-			}
-
-			if (agentColumn != null) {
-				agentCell = row.getCell(agentColumn);
-			}
-
-			if (matrixColumn != null) {
-				matrixCell = row.getCell(matrixColumn);
-			}
-
-			if (indepMinColumn != null) {
-				indepMinCell = row.getCell(indepMinColumn);
-			}
-
-			if (indepMaxColumn != null) {
-				indepMaxCell = row.getCell(indepMaxColumn);
-			}
+			Cell idCell = getCell(row, idColumn);
+			Cell commentCell = getCell(row, commentColumn);
+			Cell agentDetailsCell = getCell(row, agentDetailsColumn);
+			Cell matrixDetailsCell = getCell(row, matrixDetailsColumn);
+			Cell agentCell = getCell(row, agentColumn);
+			Cell matrixCell = getCell(row, matrixColumn);
+			Cell indepMinCell = getCell(row, indepMinColumn);
+			Cell indepMaxCell = getCell(row, indepMaxColumn);
+			Cell rmseCell = getCell(row, rmseColumn);
+			Cell r2Cell = getCell(row, r2Column);
+			Cell aicCell = getCell(row, aicColumn);
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_CONDID,
 					MathUtilities.getRandomNegativeInt());
@@ -642,6 +601,36 @@ public class XLSReader {
 			((EstModelXml) estXml.get(0)).setId(MathUtilities
 					.getRandomNegativeInt());
 			((EstModelXml) estXml.get(0)).setComment(getData(commentCell));
+
+			if (hasData(rmseCell)) {
+				try {
+					((EstModelXml) estXml.get(0)).setRms(Double
+							.parseDouble(getData(rmseCell).replace(",", ".")));
+				} catch (NumberFormatException e) {
+					warnings.add(modelRmse + " value in row " + (rowNumber + 1)
+							+ " is not valid (" + getData(rmseCell) + ")");
+				}
+			}
+
+			if (hasData(r2Cell)) {
+				try {
+					((EstModelXml) estXml.get(0)).setRms(Double
+							.parseDouble(getData(r2Cell).replace(",", ".")));
+				} catch (NumberFormatException e) {
+					warnings.add(modelR2 + " value in row " + (rowNumber + 1)
+							+ " is not valid (" + getData(r2Cell) + ")");
+				}
+			}
+
+			if (hasData(aicCell)) {
+				try {
+					((EstModelXml) estXml.get(0)).setAic(Double
+							.parseDouble(getData(aicCell).replace(",", ".")));
+				} catch (NumberFormatException e) {
+					warnings.add(modelAic + " value in row " + (rowNumber + 1)
+							+ " is not valid (" + getData(aicCell) + ")");
+				}
+			}
 
 			if (hasData(idCell)) {
 				((EstModelXml) estXml.get(0)).setName(getData(idCell));
@@ -979,6 +968,14 @@ public class XLSReader {
 		}
 
 		return null;
+	}
+
+	private Cell getCell(Row row, Integer column) {
+		if (column == null) {
+			return null;
+		}
+
+		return row.getCell(column);
 	}
 
 	private boolean hasSameValue(String param, Double value, PmmXmlDoc miscs) {

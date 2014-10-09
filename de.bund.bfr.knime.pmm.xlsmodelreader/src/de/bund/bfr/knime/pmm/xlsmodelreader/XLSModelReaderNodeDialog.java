@@ -893,6 +893,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						new LinkedHashMap<String, String>());
 			}
 
+			if (!set.getSecModelParamErrors().containsKey(param)) {
+				set.getSecModelParamErrors().put(param,
+						new LinkedHashMap<String, String>());
+			}
+
 			if (!set.getSecModelIndepMins().containsKey(param)) {
 				set.getSecModelIndepMins().put(param,
 						new LinkedHashMap<String, String>());

@@ -390,6 +390,7 @@ public class XLSReader {
 			String modelRmse, String modelR2, String modelAic,
 			Map<String, KnimeTuple> secModelTuples,
 			Map<String, Map<String, String>> secModelMappings,
+			Map<String, Map<String, String>> secModelParamErrors,
 			Map<String, Map<String, String>> secModelIndepMins,
 			Map<String, Map<String, String>> secModelIndepMaxs,
 			Map<String, Map<String, String>> secModelIndepCategories,
@@ -720,6 +721,8 @@ public class XLSReader {
 						ParamXml element = (ParamXml) el;
 						String mapping = secModelMappings.get(param).get(
 								element.getName());
+						String error = secModelParamErrors.get(param).get(
+								element.getName());
 
 						if (mapping != null) {
 							Cell cell = row.getCell(columns.get(mapping));
@@ -737,6 +740,26 @@ public class XLSReader {
 								}
 							} else {
 								warnings.add(mapping + " value in row "
+										+ (rowNumber + 1) + " is missing");
+							}
+						}
+
+						if (error != null) {
+							Cell cell = row.getCell(columns.get(error));
+
+							if (hasData(cell)) {
+								try {
+									element.setError(Double
+											.parseDouble(getData(cell).replace(
+													",", ".")));
+								} catch (NumberFormatException e) {
+									warnings.add(error + " value in row "
+											+ (rowNumber + 1)
+											+ " is not valid (" + getData(cell)
+											+ ")");
+								}
+							} else {
+								warnings.add(error + " value in row "
 										+ (rowNumber + 1) + " is missing");
 							}
 						}

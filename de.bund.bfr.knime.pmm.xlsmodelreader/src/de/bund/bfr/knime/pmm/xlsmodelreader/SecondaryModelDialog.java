@@ -74,6 +74,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 
 	private KnimeTuple tuple;
 	private Map<String, String> mappings;
+	private Map<String, String> paramErrors;
 	private Map<String, String> mins;
 	private Map<String, String> maxs;
 	private Map<String, String> categories;
@@ -85,6 +86,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	private JButton modelButton;
 	private JButton reloadButton;
 	private Map<String, JComboBox<String>> modelBoxes;
+	private Map<String, JComboBox<String>> paramErrorBoxes;
 	private Map<String, JComboBox<String>> minBoxes;
 	private Map<String, JComboBox<String>> maxBoxes;
 	private Map<String, JComboBox<String>> categoryBoxes;
@@ -103,6 +105,8 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 
 		tuple = set.getSecModelTuples().get(param);
 		mappings = new LinkedHashMap<>(set.getSecModelMappings().get(param));
+		paramErrors = new LinkedHashMap<>(set.getSecModelParamErrors().get(
+				param));
 		mins = new LinkedHashMap<>(set.getSecModelIndepMins().get(param));
 		maxs = new LinkedHashMap<>(set.getSecModelIndepMaxs().get(param));
 		categories = new LinkedHashMap<>(set.getSecModelIndepCategories().get(
@@ -113,6 +117,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		aic = set.getSecModelAic().get(param);
 
 		replaceNullWithDoNotUse(mappings);
+		replaceNullWithDoNotUse(paramErrors);
 		replaceNullWithDoNotUse(mins);
 		replaceNullWithDoNotUse(maxs);
 
@@ -139,11 +144,13 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			replaceDoNotUseWithNull(mappings);
+			replaceDoNotUseWithNull(paramErrors);
 			replaceDoNotUseWithNull(mins);
 			replaceDoNotUseWithNull(maxs);
 
 			set.getSecModelTuples().put(param, tuple);
 			set.getSecModelMappings().put(param, mappings);
+			set.getSecModelParamErrors().put(param, paramErrors);
 			set.getSecModelIndepMins().put(param, mins);
 			set.getSecModelIndepMaxs().put(param, maxs);
 			set.getSecModelIndepCategories().put(param, categories);
@@ -211,6 +218,14 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				if (e.getSource() == modelBoxes.get(param2)) {
 					mappings.put(param2, (String) modelBoxes.get(param2)
 							.getSelectedItem());
+					return;
+				}
+			}
+
+			for (String param2 : paramErrorBoxes.keySet()) {
+				if (e.getSource() == paramErrorBoxes.get(param2)) {
+					paramErrors.put(param2, (String) paramErrorBoxes
+							.get(param2).getSelectedItem());
 					return;
 				}
 			}
@@ -286,11 +301,12 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		configPanel.add(secButtonPanel, createConstraints(1, row));
 		row++;
 
-		modelBoxes = new LinkedHashMap<String, JComboBox<String>>();
-		minBoxes = new LinkedHashMap<String, JComboBox<String>>();
-		maxBoxes = new LinkedHashMap<String, JComboBox<String>>();
-		categoryBoxes = new LinkedHashMap<String, JComboBox<String>>();
-		unitBoxes = new LinkedHashMap<String, JComboBox<String>>();
+		modelBoxes = new LinkedHashMap<>();
+		paramErrorBoxes = new LinkedHashMap<>();
+		minBoxes = new LinkedHashMap<>();
+		maxBoxes = new LinkedHashMap<>();
+		categoryBoxes = new LinkedHashMap<>();
+		unitBoxes = new LinkedHashMap<>();
 
 		if (tuple != null) {
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
@@ -298,17 +314,28 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				ParamXml secParam = (ParamXml) el;
 				JComboBox<String> box = new JComboBox<>(
 						options.toArray(new String[0]));
+				JComboBox<String> errorBox = new JComboBox<>(
+						options.toArray(new String[0]));
 
 				mappings.put(secParam.getName(), UI.select(box,
 						mappings.get(secParam.getName()),
 						SettingsHelper.DO_NOT_USE));
+				paramErrors.put(secParam.getName(), UI.select(errorBox,
+						paramErrors.get(secParam.getName()),
+						SettingsHelper.DO_NOT_USE));
 
 				box.addItemListener(this);
+				errorBox.addItemListener(this);
 				modelBoxes.put(secParam.getName(), box);
+				paramErrorBoxes.put(secParam.getName(), errorBox);
 
 				configPanel.add(new JLabel(secParam.getName() + ":"),
 						createConstraints(0, row));
 				configPanel.add(box, createConstraints(1, row));
+				row++;
+				configPanel.add(new JLabel(secParam.getName() + " Error:"),
+						createConstraints(0, row));
+				configPanel.add(errorBox, createConstraints(1, row));
 				row++;
 			}
 

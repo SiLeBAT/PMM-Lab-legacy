@@ -68,6 +68,7 @@ public class SettingsHelper {
 	private static final String CFG_MODEL_AIC = "ModelAIC";
 	private static final String CFG_MODEL_PARAM_ERRORS = "ModelParamErrors";
 	private static final String CFG_SEC_MODEL_MAPPINGS = "SecModelMappings";
+	private static final String CFG_SEC_MODEL_PARAM_ERRORS = "SecModelParamErrors";
 	private static final String CFG_SEC_MODEL_INDEP_MINS = "SecModelIndepMins";
 	private static final String CFG_SEC_MODEL_INDEP_MAXS = "SecModelIndepMaxs";
 	private static final String CFG_SEC_MODEL_INDEP_CATEGORIES = "SecModelIndepCategories";
@@ -98,6 +99,7 @@ public class SettingsHelper {
 	private String modelAic;
 	private Map<String, String> modelParamErrors;
 	private Map<String, Map<String, String>> secModelMappings;
+	private Map<String, Map<String, String>> secModelParamErrors;
 	private Map<String, Map<String, String>> secModelIndepMins;
 	private Map<String, Map<String, String>> secModelIndepMaxs;
 	private Map<String, Map<String, String>> secModelIndepCategories;
@@ -131,6 +133,7 @@ public class SettingsHelper {
 		modelAic = null;
 		modelParamErrors = new LinkedHashMap<>();
 		secModelMappings = new LinkedHashMap<>();
+		secModelParamErrors = new LinkedHashMap<>();
 		secModelIndepMins = new LinkedHashMap<>();
 		secModelIndepMaxs = new LinkedHashMap<>();
 		secModelIndepCategories = new LinkedHashMap<>();
@@ -223,6 +226,13 @@ public class SettingsHelper {
 		try {
 			secModelMappings = XmlConverter.xmlToObject(
 					settings.getString(CFG_SEC_MODEL_MAPPINGS),
+					new LinkedHashMap<String, Map<String, String>>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			secModelParamErrors = XmlConverter.xmlToObject(
+					settings.getString(CFG_SEC_MODEL_PARAM_ERRORS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -346,6 +356,8 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(modelParamErrors));
 		settings.addString(CFG_SEC_MODEL_MAPPINGS,
 				XmlConverter.objectToXml(secModelMappings));
+		settings.addString(CFG_SEC_MODEL_PARAM_ERRORS,
+				XmlConverter.objectToXml(secModelParamErrors));
 		settings.addString(CFG_SEC_MODEL_INDEP_MINS,
 				XmlConverter.objectToXml(secModelIndepMins));
 		settings.addString(CFG_SEC_MODEL_INDEP_MAXS,
@@ -468,6 +480,15 @@ public class SettingsHelper {
 	public void setSecModelMappings(
 			Map<String, Map<String, String>> secModelMappings) {
 		this.secModelMappings = secModelMappings;
+	}
+
+	public Map<String, Map<String, String>> getSecModelParamErrors() {
+		return secModelParamErrors;
+	}
+
+	public void setSecModelParamErrors(
+			Map<String, Map<String, String>> secModelParamErrors) {
+		this.secModelParamErrors = secModelParamErrors;
 	}
 
 	public Map<String, Map<String, String>> getSecModelIndepMins() {

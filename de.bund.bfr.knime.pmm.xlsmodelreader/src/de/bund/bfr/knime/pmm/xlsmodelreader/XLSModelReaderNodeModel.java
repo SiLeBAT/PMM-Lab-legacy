@@ -138,10 +138,10 @@ public class XLSModelReaderNodeModel extends NodeModel {
 				set.getModelIndepMin(), set.getModelIndepMax(),
 				set.getModelIndepUnit(), set.getModelRmse(), set.getModelR2(),
 				set.getModelAic(), secModelTuples, set.getSecModelMappings(),
-				set.getSecModelIndepMins(), set.getSecModelIndepMaxs(),
-				set.getSecModelIndepCategories(), set.getSecModelIndepUnits(),
-				set.getSecModelRmse(), set.getSecModelR2(),
-				set.getSecModelAic()).values());
+				set.getSecModelParamErrors(), set.getSecModelIndepMins(),
+				set.getSecModelIndepMaxs(), set.getSecModelIndepCategories(),
+				set.getSecModelIndepUnits(), set.getSecModelRmse(),
+				set.getSecModelR2(), set.getSecModelAic()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);

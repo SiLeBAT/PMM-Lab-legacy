@@ -78,6 +78,9 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	private Map<String, String> maxs;
 	private Map<String, String> categories;
 	private Map<String, String> units;
+	private String rmse;
+	private String r2;
+	private String aic;
 
 	private JButton modelButton;
 	private JButton reloadButton;
@@ -86,6 +89,9 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	private Map<String, JComboBox<String>> maxBoxes;
 	private Map<String, JComboBox<String>> categoryBoxes;
 	private Map<String, JComboBox<String>> unitBoxes;
+	private JComboBox<String> rmseBox;
+	private JComboBox<String> r2Box;
+	private JComboBox<String> aicBox;
 
 	public SecondaryModelDialog(Component parent, List<String> fileColumnList,
 			SettingsHelper set, String param) {
@@ -102,6 +108,9 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		categories = new LinkedHashMap<>(set.getSecModelIndepCategories().get(
 				param));
 		units = new LinkedHashMap<>(set.getSecModelIndepUnits().get(param));
+		rmse = set.getSecModelRmse().get(param);
+		r2 = set.getSecModelR2().get(param);
+		aic = set.getSecModelAic().get(param);
 
 		replaceNullWithDoNotUse(mappings);
 		replaceNullWithDoNotUse(mins);
@@ -139,6 +148,12 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			set.getSecModelIndepMaxs().put(param, maxs);
 			set.getSecModelIndepCategories().put(param, categories);
 			set.getSecModelIndepUnits().put(param, units);
+			set.getSecModelRmse().put(param,
+					rmse.equals(SettingsHelper.DO_NOT_USE) ? null : rmse);
+			set.getSecModelR2().put(param,
+					r2.equals(SettingsHelper.DO_NOT_USE) ? null : r2);
+			set.getSecModelAic().put(param,
+					aic.equals(SettingsHelper.DO_NOT_USE) ? null : aic);
 			dispose();
 		} else if (e.getSource() == cancelButton) {
 			dispose();
@@ -185,43 +200,51 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		for (String param2 : modelBoxes.keySet()) {
-			if (e.getSource() == modelBoxes.get(param2)) {
-				mappings.put(param2, (String) modelBoxes.get(param2)
-						.getSelectedItem());
-				return;
+		if (e.getSource() == rmseBox) {
+			rmse = (String) rmseBox.getSelectedItem();
+		} else if (e.getSource() == r2Box) {
+			r2 = (String) r2Box.getSelectedItem();
+		} else if (e.getSource() == aicBox) {
+			aic = (String) aicBox.getSelectedItem();
+		} else {
+			for (String param2 : modelBoxes.keySet()) {
+				if (e.getSource() == modelBoxes.get(param2)) {
+					mappings.put(param2, (String) modelBoxes.get(param2)
+							.getSelectedItem());
+					return;
+				}
 			}
-		}
 
-		for (String param2 : minBoxes.keySet()) {
-			if (e.getSource() == minBoxes.get(param2)) {
-				mins.put(param2, (String) minBoxes.get(param2)
-						.getSelectedItem());
-				return;
+			for (String param2 : minBoxes.keySet()) {
+				if (e.getSource() == minBoxes.get(param2)) {
+					mins.put(param2, (String) minBoxes.get(param2)
+							.getSelectedItem());
+					return;
+				}
 			}
-		}
 
-		for (String param2 : maxBoxes.keySet()) {
-			if (e.getSource() == maxBoxes.get(param2)) {
-				maxs.put(param2, (String) maxBoxes.get(param2)
-						.getSelectedItem());
-				return;
+			for (String param2 : maxBoxes.keySet()) {
+				if (e.getSource() == maxBoxes.get(param2)) {
+					maxs.put(param2, (String) maxBoxes.get(param2)
+							.getSelectedItem());
+					return;
+				}
 			}
-		}
 
-		for (String param2 : categoryBoxes.keySet()) {
-			if (e.getSource() == categoryBoxes.get(param2)) {
-				categories.put(param2, (String) categoryBoxes.get(param2)
-						.getSelectedItem());
-				return;
+			for (String param2 : categoryBoxes.keySet()) {
+				if (e.getSource() == categoryBoxes.get(param2)) {
+					categories.put(param2, (String) categoryBoxes.get(param2)
+							.getSelectedItem());
+					return;
+				}
 			}
-		}
 
-		for (String param2 : unitBoxes.keySet()) {
-			if (e.getSource() == unitBoxes.get(param2)) {
-				units.put(param2, (String) unitBoxes.get(param2)
-						.getSelectedItem());
-				return;
+			for (String param2 : unitBoxes.keySet()) {
+				if (e.getSource() == unitBoxes.get(param2)) {
+					units.put(param2, (String) unitBoxes.get(param2)
+							.getSelectedItem());
+					return;
+				}
 			}
 		}
 	}
@@ -347,6 +370,28 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				row++;
 			}
 		}
+
+		rmseBox = new JComboBox<>(options.toArray(new String[0]));
+		r2Box = new JComboBox<>(options.toArray(new String[0]));
+		aicBox = new JComboBox<>(options.toArray(new String[0]));
+
+		rmse = UI.select(rmseBox, rmse, SettingsHelper.DO_NOT_USE);
+		r2 = UI.select(r2Box, r2, SettingsHelper.DO_NOT_USE);
+		aic = UI.select(aicBox, aic, SettingsHelper.DO_NOT_USE);
+
+		rmseBox.addItemListener(this);
+		r2Box.addItemListener(this);
+		aicBox.addItemListener(this);
+
+		configPanel.add(new JLabel("RMSE:"), createConstraints(0, row));
+		configPanel.add(rmseBox, createConstraints(1, row));
+		row++;
+		configPanel.add(new JLabel("R2:"), createConstraints(0, row));
+		configPanel.add(r2Box, createConstraints(1, row));
+		row++;
+		configPanel.add(new JLabel("AIC:"), createConstraints(0, row));
+		configPanel.add(aicBox, createConstraints(1, row));
+		row++;
 
 		add(configPanel, BorderLayout.CENTER);
 		pack();

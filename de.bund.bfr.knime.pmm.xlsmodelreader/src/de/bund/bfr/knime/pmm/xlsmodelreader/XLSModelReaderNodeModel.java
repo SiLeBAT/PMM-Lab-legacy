@@ -139,8 +139,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 				set.getModelRmse(), set.getModelR2(), set.getModelAic(),
 				secModelTuples, set.getSecModelMappings(),
 				set.getSecModelIndepMins(), set.getSecModelIndepMaxs(),
-				set.getSecModelIndepCategories(), set.getSecModelIndepUnits())
-				.values());
+				set.getSecModelIndepCategories(), set.getSecModelIndepUnits(),
+				set.getSecModelRmse(), set.getSecModelR2(),
+				set.getSecModelAic()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);

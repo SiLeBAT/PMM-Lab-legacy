@@ -392,8 +392,9 @@ public class XLSReader {
 			Map<String, Map<String, String>> secModelIndepMins,
 			Map<String, Map<String, String>> secModelIndepMaxs,
 			Map<String, Map<String, String>> secModelIndepCategories,
-			Map<String, Map<String, String>> secModelIndepUnits)
-			throws Exception {
+			Map<String, Map<String, String>> secModelIndepUnits,
+			Map<String, String> secModelRmse, Map<String, String> secModelR2,
+			Map<String, String> secModelAic) throws Exception {
 		Workbook wb = getWorkbook(file);
 		Sheet s = wb.getSheet(sheet);
 
@@ -507,17 +508,11 @@ public class XLSReader {
 			if (hasData(agentDetailsCell)) {
 				((AgentXml) agentXml.get(0))
 						.setDetail(getData(agentDetailsCell));
-			} else if (agentDetailsColumn != null) {
-				// warnings.add(AttributeUtilities.AGENT_DETAILS
-				// + " value in row " + (rowNumber + 1) + " is missing");
 			}
 
 			if (hasData(matrixDetailsCell)) {
 				((MatrixXml) matrixXml.get(0))
 						.setDetail(getData(matrixDetailsCell));
-			} else if (matrixDetailsColumn != null) {
-				// warnings.add(AttributeUtilities.MATRIX_DETAILS
-				// + " value in row " + (rowNumber + 1) + " is missing");
 			}
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
@@ -576,6 +571,9 @@ public class XLSReader {
 							+ (rowNumber + 1) + " is not valid ("
 							+ getData(indepMinCell) + ")");
 				}
+			} else if (modelIndepMin != null) {
+				warnings.add(modelIndepMin + " value in row " + (rowNumber + 1)
+						+ " is not missing");
 			}
 
 			if (hasData(indepMaxCell)) {
@@ -588,6 +586,9 @@ public class XLSReader {
 							+ (rowNumber + 1) + " is not valid ("
 							+ getData(indepMaxCell) + ")");
 				}
+			} else if (modelIndepMax != null) {
+				warnings.add(modelIndepMax + " value in row " + (rowNumber + 1)
+						+ " is not missing");
 			}
 
 			if (modelIndepUnit != null
@@ -745,47 +746,108 @@ public class XLSReader {
 									.setId(MathUtilities.getRandomNegativeInt());
 						}
 
-						String minMapping = secModelIndepMins.get(param).get(
+						String minColumn = secModelIndepMins.get(param).get(
 								element.getName());
-						String maxMapping = secModelIndepMaxs.get(param).get(
+						String maxColumn = secModelIndepMaxs.get(param).get(
 								element.getName());
 
-						if (minMapping != null) {
-							Cell minCell = row.getCell(columns.get(minMapping));
+						if (minColumn != null) {
+							Cell minCell = row.getCell(columns.get(minColumn));
 
 							if (hasData(minCell)) {
 								try {
 									element.setMin(Double.parseDouble(getData(
 											minCell).replace(",", ".")));
 								} catch (NumberFormatException e) {
-									warnings.add(minMapping + " value in row "
+									warnings.add(minColumn + " value in row "
 											+ (rowNumber + 1)
 											+ " is not valid ("
 											+ getData(minCell) + ")");
 								}
 							} else {
-								warnings.add(minMapping + " value in row "
+								warnings.add(minColumn + " value in row "
 										+ (rowNumber + 1) + " is missing");
 							}
 						}
 
-						if (maxMapping != null) {
-							Cell maxCell = row.getCell(columns.get(maxMapping));
+						if (maxColumn != null) {
+							Cell maxCell = row.getCell(columns.get(maxColumn));
 
 							if (hasData(maxCell)) {
 								try {
 									element.setMax(Double.parseDouble(getData(
 											maxCell).replace(",", ".")));
 								} catch (NumberFormatException e) {
-									warnings.add(maxMapping + " value in row "
+									warnings.add(maxColumn + " value in row "
 											+ (rowNumber + 1)
 											+ " is not valid ("
 											+ getData(maxCell) + ")");
 								}
 							} else {
-								warnings.add(maxMapping + " value in row "
+								warnings.add(maxColumn + " value in row "
 										+ (rowNumber + 1) + " is missing");
 							}
+						}
+					}
+
+					String rmse = secModelRmse.get(param);
+					String r2 = secModelR2.get(param);
+					String aic = secModelAic.get(param);
+
+					if (rmse != null) {
+						Cell cell = row.getCell(columns.get(rmse));
+
+						if (hasData(cell)) {
+							try {
+								((EstModelXml) secEstXml.get(0)).setRms(Double
+										.parseDouble(getData(cell).replace(",",
+												".")));
+							} catch (NumberFormatException e) {
+								warnings.add(rmse + " value in row "
+										+ (rowNumber + 1) + " is not valid ("
+										+ getData(cell) + ")");
+							}
+						} else {
+							warnings.add(rmse + " value in row "
+									+ (rowNumber + 1) + " is missing");
+						}
+					}
+
+					if (r2 != null) {
+						Cell cell = row.getCell(columns.get(r2));
+
+						if (hasData(cell)) {
+							try {
+								((EstModelXml) secEstXml.get(0)).setR2(Double
+										.parseDouble(getData(cell).replace(",",
+												".")));
+							} catch (NumberFormatException e) {
+								warnings.add(r2 + " value in row "
+										+ (rowNumber + 1) + " is not valid ("
+										+ getData(cell) + ")");
+							}
+						} else {
+							warnings.add(r2 + " value in row "
+									+ (rowNumber + 1) + " is missing");
+						}
+					}
+
+					if (aic != null) {
+						Cell cell = row.getCell(columns.get(aic));
+
+						if (hasData(cell)) {
+							try {
+								((EstModelXml) secEstXml.get(0)).setAic(Double
+										.parseDouble(getData(cell).replace(",",
+												".")));
+							} catch (NumberFormatException e) {
+								warnings.add(aic + " value in row "
+										+ (rowNumber + 1) + " is not valid ("
+										+ getData(cell) + ")");
+							}
+						} else {
+							warnings.add(aic + " value in row "
+									+ (rowNumber + 1) + " is missing");
 						}
 					}
 

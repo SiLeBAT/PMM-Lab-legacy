@@ -71,6 +71,9 @@ public class SettingsHelper {
 	private static final String CFG_SEC_MODEL_INDEP_MAXS = "SecModelIndepMaxs";
 	private static final String CFG_SEC_MODEL_INDEP_CATEGORIES = "SecModelIndepCategories";
 	private static final String CFG_SEC_MODEL_INDEP_UNITS = "SecModelIndepUnits";
+	private static final String CFG_SEC_MODEL_RMSE = "SecModelRMSE";
+	private static final String CFG_SEC_MODEL_R2 = "SecModelR2";
+	private static final String CFG_SEC_MODEL_AIC = "SecModelAIC";
 	private static final String CFG_COLUMN_MAPPINGS = "ColumnMappings";
 	private static final String CFG_AGENT_COLUMN = "AgentColumn";
 	private static final String CFG_AGENT_MAPPINGS = "AgentMappings";
@@ -97,6 +100,9 @@ public class SettingsHelper {
 	private Map<String, Map<String, String>> secModelIndepMaxs;
 	private Map<String, Map<String, String>> secModelIndepCategories;
 	private Map<String, Map<String, String>> secModelIndepUnits;
+	private Map<String, String> secModelRmse;
+	private Map<String, String> secModelR2;
+	private Map<String, String> secModelAic;
 	private Map<String, Object> columnMappings;
 	private String agentColumn;
 	private Map<String, AgentXml> agentMappings;
@@ -126,6 +132,9 @@ public class SettingsHelper {
 		secModelIndepMaxs = new LinkedHashMap<>();
 		secModelIndepCategories = new LinkedHashMap<>();
 		secModelIndepUnits = new LinkedHashMap<>();
+		secModelRmse = new LinkedHashMap<>();
+		secModelR2 = new LinkedHashMap<>();
+		secModelAic = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
@@ -237,6 +246,27 @@ public class SettingsHelper {
 		}
 
 		try {
+			secModelRmse = XmlConverter.xmlToObject(
+					settings.getString(CFG_SEC_MODEL_RMSE),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			secModelR2 = XmlConverter.xmlToObject(
+					settings.getString(CFG_SEC_MODEL_R2),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			secModelAic = XmlConverter.xmlToObject(
+					settings.getString(CFG_SEC_MODEL_AIC),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			columnMappings = XmlConverter.xmlToObject(
 					settings.getString(CFG_COLUMN_MAPPINGS),
 					new LinkedHashMap<String, Object>());
@@ -312,6 +342,12 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(secModelIndepCategories));
 		settings.addString(CFG_SEC_MODEL_INDEP_UNITS,
 				XmlConverter.objectToXml(secModelIndepUnits));
+		settings.addString(CFG_SEC_MODEL_RMSE,
+				XmlConverter.objectToXml(secModelRmse));
+		settings.addString(CFG_SEC_MODEL_R2,
+				XmlConverter.objectToXml(secModelR2));
+		settings.addString(CFG_SEC_MODEL_AIC,
+				XmlConverter.objectToXml(secModelAic));
 		settings.addString(CFG_COLUMN_MAPPINGS,
 				XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFG_AGENT_COLUMN, agentColumn);
@@ -448,6 +484,30 @@ public class SettingsHelper {
 	public void setSecModelIndepUnits(
 			Map<String, Map<String, String>> secModelIndepUnits) {
 		this.secModelIndepUnits = secModelIndepUnits;
+	}
+
+	public Map<String, String> getSecModelRmse() {
+		return secModelRmse;
+	}
+
+	public void setSecModelRmse(Map<String, String> secModelRmse) {
+		this.secModelRmse = secModelRmse;
+	}
+
+	public Map<String, String> getSecModelR2() {
+		return secModelR2;
+	}
+
+	public void setSecModelR2(Map<String, String> secModelR2) {
+		this.secModelR2 = secModelR2;
+	}
+
+	public Map<String, String> getSecModelAic() {
+		return secModelAic;
+	}
+
+	public void setSecModelAic(Map<String, String> secModelAic) {
+		this.secModelAic = secModelAic;
 	}
 
 	public Map<String, Object> getColumnMappings() {

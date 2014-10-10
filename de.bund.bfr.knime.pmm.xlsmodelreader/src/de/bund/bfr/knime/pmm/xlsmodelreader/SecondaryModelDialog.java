@@ -250,6 +250,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				if (e.getSource() == categoryBoxes.get(param2)) {
 					categories.put(param2, (String) categoryBoxes.get(param2)
 							.getSelectedItem());
+					updateConfigPanel();
 					return;
 				}
 			}

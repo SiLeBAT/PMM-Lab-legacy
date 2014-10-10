@@ -986,7 +986,12 @@ public class XLSReader {
 
 		for (int i = 1; i <= s.getLastRowNum(); i++) {
 			if (s.getRow(i) != null && !hasData(s.getRow(i).getCell(columnId))) {
-				missing.add(i + 1);
+				for (int c : columns.values()) {
+					if (hasData(s.getRow(i).getCell(c))) {
+						missing.add(i + 1);
+						break;
+					}
+				}
 			}
 		}
 

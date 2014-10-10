@@ -327,12 +327,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		set.setModelDepUnit((String) depUnitBox.getSelectedItem());
-		set.setModelIndepMin((String) indepMinBox.getSelectedItem());
-		set.setModelIndepMax((String) indepMaxBox.getSelectedItem());
+		set.setModelIndepMin(DoNotUseToNull((String) indepMinBox
+				.getSelectedItem()));
+		set.setModelIndepMax(DoNotUseToNull((String) indepMaxBox
+				.getSelectedItem()));
 		set.setModelIndepUnit((String) indepUnitBox.getSelectedItem());
-		set.setModelRmse((String) rmseBox.getSelectedItem());
-		set.setModelR2((String) r2Box.getSelectedItem());
-		set.setModelAic((String) aicBox.getSelectedItem());
+		set.setModelRmse(DoNotUseToNull((String) rmseBox.getSelectedItem()));
+		set.setModelR2(DoNotUseToNull((String) r2Box.getSelectedItem()));
+		set.setModelAic(DoNotUseToNull((String) aicBox.getSelectedItem()));
 
 		Map<String, String> newModelMappings = new LinkedHashMap<>();
 		Map<String, String> newModelParamErrors = new LinkedHashMap<>();
@@ -1387,5 +1389,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		return s;
+	}
+
+	private String DoNotUseToNull(String value) {
+		if (value.equals(SettingsHelper.DO_NOT_USE)) {
+			return null;
+		}
+
+		return value;
 	}
 }

@@ -575,7 +575,7 @@ public class XLSReader {
 				}
 			} else if (modelIndepMin != null) {
 				warnings.add(modelIndepMin + " value in row " + (rowNumber + 1)
-						+ " is not missing");
+						+ " is missing");
 			}
 
 			if (hasData(indepMaxCell)) {
@@ -590,7 +590,7 @@ public class XLSReader {
 				}
 			} else if (modelIndepMax != null) {
 				warnings.add(modelIndepMax + " value in row " + (rowNumber + 1)
-						+ " is not missing");
+						+ " is missing");
 			}
 
 			if (modelIndepUnit != null

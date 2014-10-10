@@ -116,10 +116,10 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		r2 = set.getSecModelR2().get(param);
 		aic = set.getSecModelAic().get(param);
 
-		replaceNullWithDoNotUse(mappings);
-		replaceNullWithDoNotUse(paramErrors);
-		replaceNullWithDoNotUse(mins);
-		replaceNullWithDoNotUse(maxs);
+		NullToDoNotUse(mappings);
+		NullToDoNotUse(paramErrors);
+		NullToDoNotUse(mins);
+		NullToDoNotUse(maxs);
 
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
@@ -143,10 +143,10 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
-			replaceDoNotUseWithNull(mappings);
-			replaceDoNotUseWithNull(paramErrors);
-			replaceDoNotUseWithNull(mins);
-			replaceDoNotUseWithNull(maxs);
+			DoNotUseToNull(mappings);
+			DoNotUseToNull(paramErrors);
+			DoNotUseToNull(mins);
+			DoNotUseToNull(maxs);
 
 			set.getSecModelTuples().put(param, tuple);
 			set.getSecModelMappings().put(param, mappings);
@@ -431,7 +431,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				new Insets(2, 2, 2, 2), 0, 0);
 	}
 
-	private void replaceDoNotUseWithNull(Map<String, String> map) {
+	private void DoNotUseToNull(Map<String, String> map) {
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			if (entry.getValue().equals(SettingsHelper.DO_NOT_USE)) {
 				entry.setValue(null);
@@ -439,7 +439,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		}
 	}
 
-	private void replaceNullWithDoNotUse(Map<String, String> map) {
+	private void NullToDoNotUse(Map<String, String> map) {
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			if (entry.getValue() == null) {
 				entry.setValue(SettingsHelper.DO_NOT_USE);

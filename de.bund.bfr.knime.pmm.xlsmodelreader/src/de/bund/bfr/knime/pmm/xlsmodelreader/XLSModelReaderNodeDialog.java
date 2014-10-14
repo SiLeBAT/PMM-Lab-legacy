@@ -135,6 +135,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> rmseBox;
 	private JComboBox<String> r2Box;
 	private JComboBox<String> aicBox;
+	private JComboBox<String> dataPointsBox;
 
 	private JPanel agentPanel;
 	private JComboBox<String> agentBox;
@@ -191,6 +192,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		rmseBox = null;
 		r2Box = null;
 		aicBox = null;
+		dataPointsBox = null;
 
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
@@ -335,6 +337,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setModelRmse(DoNotUseToNull((String) rmseBox.getSelectedItem()));
 		set.setModelR2(DoNotUseToNull((String) r2Box.getSelectedItem()));
 		set.setModelAic(DoNotUseToNull((String) aicBox.getSelectedItem()));
+		set.setModelDataPoints(DoNotUseToNull((String) dataPointsBox
+				.getSelectedItem()));
 
 		Map<String, String> newModelMappings = new LinkedHashMap<>();
 		Map<String, String> newModelParamErrors = new LinkedHashMap<>();
@@ -752,6 +756,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			set.setModelR2((String) r2Box.getSelectedItem());
 		} else if (e.getSource() == aicBox) {
 			set.setModelAic((String) aicBox.getSelectedItem());
+		} else if (e.getSource() == dataPointsBox) {
+			set.setModelDataPoints((String) dataPointsBox.getSelectedItem());
 		} else {
 			for (String param : modelBoxes.keySet()) {
 				if (e.getSource() == modelBoxes.get(param)) {
@@ -1026,6 +1032,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			rmseBox = new JComboBox<>(options.toArray(new String[0]));
 			r2Box = new JComboBox<>(options.toArray(new String[0]));
 			aicBox = new JComboBox<>(options.toArray(new String[0]));
+			dataPointsBox = new JComboBox<>(options.toArray(new String[0]));
 
 			UI.select(depUnitBox, set.getModelDepUnit(), depXml.getUnit());
 			UI.select(indepMinBox, set.getModelIndepMin(),
@@ -1036,6 +1043,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			UI.select(rmseBox, set.getModelRmse(), SettingsHelper.DO_NOT_USE);
 			UI.select(r2Box, set.getModelR2(), SettingsHelper.DO_NOT_USE);
 			UI.select(aicBox, set.getModelAic(), SettingsHelper.DO_NOT_USE);
+			UI.select(dataPointsBox, set.getModelDataPoints(),
+					SettingsHelper.DO_NOT_USE);
 
 			depUnitBox.addItemListener(this);
 			indepMinBox.addItemListener(this);
@@ -1044,6 +1053,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			rmseBox.addItemListener(this);
 			r2Box.addItemListener(this);
 			aicBox.addItemListener(this);
+			dataPointsBox.addItemListener(this);
 
 			panel.add(new JLabel(depXml.getName() + " Unit:"),
 					createConstraints(0, row));
@@ -1067,8 +1077,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			panel.add(new JLabel("R2:"), createConstraints(0, row));
 			panel.add(r2Box, createConstraints(1, row));
 			row++;
-			panel.add(new JLabel("AIC"), createConstraints(0, row));
+			panel.add(new JLabel("AIC:"), createConstraints(0, row));
 			panel.add(aicBox, createConstraints(1, row));
+			row++;
+			panel.add(new JLabel("N Data:"), createConstraints(0, row));
+			panel.add(dataPointsBox, createConstraints(1, row));
 			row++;
 		}
 

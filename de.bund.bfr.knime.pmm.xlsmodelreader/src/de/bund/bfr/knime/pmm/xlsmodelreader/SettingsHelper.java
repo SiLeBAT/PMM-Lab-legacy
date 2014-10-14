@@ -66,6 +66,7 @@ public class SettingsHelper {
 	private static final String CFG_MODEL_RMSE = "ModelRMSE";
 	private static final String CFG_MODEL_R2 = "ModelR2";
 	private static final String CFG_MODEL_AIC = "ModelAIC";
+	private static final String CFG_MODEL_DATA_POINTS = "ModelDataPoints";
 	private static final String CFG_MODEL_PARAM_ERRORS = "ModelParamErrors";
 	private static final String CFG_SEC_MODEL_MAPPINGS = "SecModelMappings";
 	private static final String CFG_SEC_MODEL_PARAM_ERRORS = "SecModelParamErrors";
@@ -76,6 +77,7 @@ public class SettingsHelper {
 	private static final String CFG_SEC_MODEL_RMSE = "SecModelRMSE";
 	private static final String CFG_SEC_MODEL_R2 = "SecModelR2";
 	private static final String CFG_SEC_MODEL_AIC = "SecModelAIC";
+	private static final String CFG_SEC_MODEL_DATA_POINTS = "SecModelDataPoints";
 	private static final String CFG_COLUMN_MAPPINGS = "ColumnMappings";
 	private static final String CFG_AGENT_COLUMN = "AgentColumn";
 	private static final String CFG_AGENT_MAPPINGS = "AgentMappings";
@@ -97,6 +99,7 @@ public class SettingsHelper {
 	private String modelRmse;
 	private String modelR2;
 	private String modelAic;
+	private String modelDataPoints;
 	private Map<String, String> modelParamErrors;
 	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Map<String, String>> secModelParamErrors;
@@ -107,6 +110,7 @@ public class SettingsHelper {
 	private Map<String, String> secModelRmse;
 	private Map<String, String> secModelR2;
 	private Map<String, String> secModelAic;
+	private Map<String, String> secModelDataPoints;
 	private Map<String, Object> columnMappings;
 	private String agentColumn;
 	private Map<String, AgentXml> agentMappings;
@@ -131,6 +135,7 @@ public class SettingsHelper {
 		modelRmse = null;
 		modelR2 = null;
 		modelAic = null;
+		modelDataPoints = null;
 		modelParamErrors = new LinkedHashMap<>();
 		secModelMappings = new LinkedHashMap<>();
 		secModelParamErrors = new LinkedHashMap<>();
@@ -141,6 +146,7 @@ public class SettingsHelper {
 		secModelRmse = new LinkedHashMap<>();
 		secModelR2 = new LinkedHashMap<>();
 		secModelAic = new LinkedHashMap<>();
+		secModelDataPoints = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
@@ -217,6 +223,11 @@ public class SettingsHelper {
 		}
 
 		try {
+			modelDataPoints = settings.getString(CFG_MODEL_DATA_POINTS);
+		} catch (InvalidSettingsException e1) {
+		}
+
+		try {
 			modelParamErrors = XmlConverter.xmlToObject(
 					settings.getString(CFG_MODEL_PARAM_ERRORS),
 					new LinkedHashMap<String, String>());
@@ -287,6 +298,13 @@ public class SettingsHelper {
 		}
 
 		try {
+			secModelDataPoints = XmlConverter.xmlToObject(
+					settings.getString(CFG_SEC_MODEL_DATA_POINTS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			columnMappings = XmlConverter.xmlToObject(
 					settings.getString(CFG_COLUMN_MAPPINGS),
 					new LinkedHashMap<String, Object>());
@@ -352,6 +370,7 @@ public class SettingsHelper {
 		settings.addString(CFG_MODEL_RMSE, modelRmse);
 		settings.addString(CFG_MODEL_R2, modelR2);
 		settings.addString(CFG_MODEL_AIC, modelAic);
+		settings.addString(CFG_MODEL_DATA_POINTS, modelDataPoints);
 		settings.addString(CFG_MODEL_PARAM_ERRORS,
 				XmlConverter.objectToXml(modelParamErrors));
 		settings.addString(CFG_SEC_MODEL_MAPPINGS,
@@ -372,6 +391,8 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(secModelR2));
 		settings.addString(CFG_SEC_MODEL_AIC,
 				XmlConverter.objectToXml(secModelAic));
+		settings.addString(CFG_SEC_MODEL_DATA_POINTS,
+				XmlConverter.objectToXml(secModelDataPoints));
 		settings.addString(CFG_COLUMN_MAPPINGS,
 				XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFG_AGENT_COLUMN, agentColumn);
@@ -465,6 +486,14 @@ public class SettingsHelper {
 		this.modelAic = modelAic;
 	}
 
+	public String getModelDataPoints() {
+		return modelDataPoints;
+	}
+
+	public void setModelDataPoints(String modelDataPoints) {
+		this.modelDataPoints = modelDataPoints;
+	}
+
 	public Map<String, String> getModelParamErrors() {
 		return modelParamErrors;
 	}
@@ -549,6 +578,14 @@ public class SettingsHelper {
 
 	public void setSecModelAic(Map<String, String> secModelAic) {
 		this.secModelAic = secModelAic;
+	}
+
+	public Map<String, String> getSecModelDataPoints() {
+		return secModelDataPoints;
+	}
+
+	public void setSecModelDataPoints(Map<String, String> secModelDataPoints) {
+		this.secModelDataPoints = secModelDataPoints;
 	}
 
 	public Map<String, Object> getColumnMappings() {

@@ -82,6 +82,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	private String rmse;
 	private String r2;
 	private String aic;
+	private String dataPoints;
 
 	private JButton modelButton;
 	private JButton reloadButton;
@@ -94,6 +95,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	private JComboBox<String> rmseBox;
 	private JComboBox<String> r2Box;
 	private JComboBox<String> aicBox;
+	private JComboBox<String> dataPointsBox;
 
 	public SecondaryModelDialog(Component parent, List<String> fileColumnList,
 			SettingsHelper set, String param) {
@@ -115,6 +117,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		rmse = set.getSecModelRmse().get(param);
 		r2 = set.getSecModelR2().get(param);
 		aic = set.getSecModelAic().get(param);
+		dataPoints = set.getSecModelDataPoints().get(param);
 
 		NullToDoNotUse(mappings);
 		NullToDoNotUse(paramErrors);
@@ -161,6 +164,10 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 					r2.equals(SettingsHelper.DO_NOT_USE) ? null : r2);
 			set.getSecModelAic().put(param,
 					aic.equals(SettingsHelper.DO_NOT_USE) ? null : aic);
+			set.getSecModelDataPoints().put(
+					param,
+					dataPoints.equals(SettingsHelper.DO_NOT_USE) ? null
+							: dataPoints);
 			dispose();
 		} else if (e.getSource() == cancelButton) {
 			dispose();
@@ -213,6 +220,8 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			r2 = (String) r2Box.getSelectedItem();
 		} else if (e.getSource() == aicBox) {
 			aic = (String) aicBox.getSelectedItem();
+		} else if (e.getSource() == dataPointsBox) {
+			dataPoints = (String) dataPointsBox.getSelectedItem();
 		} else {
 			for (String param2 : modelBoxes.keySet()) {
 				if (e.getSource() == modelBoxes.get(param2)) {
@@ -402,14 +411,18 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		rmseBox = new JComboBox<>(options.toArray(new String[0]));
 		r2Box = new JComboBox<>(options.toArray(new String[0]));
 		aicBox = new JComboBox<>(options.toArray(new String[0]));
+		dataPointsBox = new JComboBox<>(options.toArray(new String[0]));
 
 		rmse = UI.select(rmseBox, rmse, SettingsHelper.DO_NOT_USE);
 		r2 = UI.select(r2Box, r2, SettingsHelper.DO_NOT_USE);
 		aic = UI.select(aicBox, aic, SettingsHelper.DO_NOT_USE);
+		dataPoints = UI.select(dataPointsBox, dataPoints,
+				SettingsHelper.DO_NOT_USE);
 
 		rmseBox.addItemListener(this);
 		r2Box.addItemListener(this);
 		aicBox.addItemListener(this);
+		dataPointsBox.addItemListener(this);
 
 		configPanel.add(new JLabel("RMSE:"), createConstraints(0, row));
 		configPanel.add(rmseBox, createConstraints(1, row));
@@ -419,6 +432,9 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		row++;
 		configPanel.add(new JLabel("AIC:"), createConstraints(0, row));
 		configPanel.add(aicBox, createConstraints(1, row));
+		row++;
+		configPanel.add(new JLabel("N Data:"), createConstraints(0, row));
+		configPanel.add(dataPointsBox, createConstraints(1, row));
 		row++;
 
 		add(configPanel, BorderLayout.CENTER);

@@ -388,7 +388,7 @@ public class XLSReader {
 			Map<String, String> modelParamErrors, String modelDepUnit,
 			String modelIndepMin, String modelIndepMax, String modelIndepUnit,
 			String modelRmse, String modelR2, String modelAic,
-			Map<String, KnimeTuple> secModelTuples,
+			String modelDataPoints, Map<String, KnimeTuple> secModelTuples,
 			Map<String, Map<String, String>> secModelMappings,
 			Map<String, Map<String, String>> secModelParamErrors,
 			Map<String, Map<String, String>> secModelIndepMins,
@@ -396,7 +396,8 @@ public class XLSReader {
 			Map<String, Map<String, String>> secModelIndepCategories,
 			Map<String, Map<String, String>> secModelIndepUnits,
 			Map<String, String> secModelRmse, Map<String, String> secModelR2,
-			Map<String, String> secModelAic) throws Exception {
+			Map<String, String> secModelAic,
+			Map<String, String> secModelDataPoints) throws Exception {
 		Workbook wb = getWorkbook(file);
 		Sheet s = wb.getSheet(sheet);
 
@@ -421,6 +422,7 @@ public class XLSReader {
 		Integer rmseColumn = columns.get(modelRmse);
 		Integer r2Column = columns.get(modelR2);
 		Integer aicColumn = columns.get(modelAic);
+		Integer dataPointsColumn = columns.get(modelDataPoints);
 
 		for (String column : columns.keySet()) {
 			if (columnMappings.containsKey(column)) {
@@ -462,6 +464,7 @@ public class XLSReader {
 			Cell rmseCell = getCell(row, rmseColumn);
 			Cell r2Cell = getCell(row, r2Column);
 			Cell aicCell = getCell(row, aicColumn);
+			Cell dataPointsCell = getCell(row, dataPointsColumn);
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_CONDID,
 					MathUtilities.getRandomNegativeInt());
@@ -632,6 +635,19 @@ public class XLSReader {
 				} catch (NumberFormatException e) {
 					warnings.add(modelAic + " value in row " + (rowNumber + 1)
 							+ " is not valid (" + getData(aicCell) + ")");
+				}
+			}
+
+			if (hasData(dataPointsCell)) {
+				String data = getData(dataPointsCell).replace(".0", "")
+						.replace(",0", "");
+
+				try {
+					((EstModelXml) estXml.get(0)).setDof(Integer.parseInt(data)
+							- paramXml.size());
+				} catch (NumberFormatException e) {
+					warnings.add(modelDataPoints + " value in row "
+							+ (rowNumber + 1) + " is not valid (" + data + ")");
 				}
 			}
 
@@ -836,6 +852,7 @@ public class XLSReader {
 					String rmse = secModelRmse.get(param);
 					String r2 = secModelR2.get(param);
 					String aic = secModelAic.get(param);
+					String dataPoints = secModelDataPoints.get(param);
 
 					if (rmse != null) {
 						Cell cell = row.getCell(columns.get(rmse));
@@ -890,6 +907,27 @@ public class XLSReader {
 							}
 						} else {
 							warnings.add(aic + " value in row "
+									+ (rowNumber + 1) + " is missing");
+						}
+					}
+
+					if (dataPoints != null) {
+						Cell cell = row.getCell(columns.get(dataPoints));
+
+						if (hasData(cell)) {
+							String data = getData(cell).replace(".0", "")
+									.replace(",0", "");
+
+							try {
+								((EstModelXml) secEstXml.get(0)).setDof(Integer
+										.parseInt(data) - secParamXml.size());
+							} catch (NumberFormatException e) {
+								warnings.add(dataPoints + " value in row "
+										+ (rowNumber + 1) + " is not valid ("
+										+ data + ")");
+							}
+						} else {
+							warnings.add(dataPoints + " value in row "
 									+ (rowNumber + 1) + " is missing");
 						}
 					}

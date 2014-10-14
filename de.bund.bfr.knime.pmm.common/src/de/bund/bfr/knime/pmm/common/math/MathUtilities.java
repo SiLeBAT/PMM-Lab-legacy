@@ -298,6 +298,10 @@ public class MathUtilities {
 		return Math.sqrt(sse / (numSample - numParam));
 	}
 
+	public static Double getRMSE(double sse, double numSample) {
+		return Math.sqrt(sse / numSample);
+	}
+
 	public static Double getRSquared(double sse, List<Double> targetValues) {
 		double targetMean = MathUtilities.computeSum(targetValues)
 				/ targetValues.size();

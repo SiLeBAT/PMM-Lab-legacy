@@ -38,7 +38,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -46,13 +48,16 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 
 public class CombaseWriter {
 
 	private LinkedList<PmmTimeSeries> buffer;
 	private String filename;
+	private MiscConversion conversion;
 
 	public CombaseWriter(final String filename) {
+		conversion = new MiscConversion();
 		this.filename = filename;
 		buffer = new LinkedList<>();
 	}
@@ -176,16 +181,23 @@ public class CombaseWriter {
 	}
 
 	private String xml2Combase(PmmXmlDoc misc) {
+		List<Integer> tempPhAwIds = Arrays.asList(
+				AttributeUtilities.ATT_TEMPERATURE_ID,
+				AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_AW_ID);
 		String result = null;
 		if (misc != null) {
 			result = "";
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				if (el instanceof MiscXml) {
 					MiscXml mx = (MiscXml) el;
+
+					if (tempPhAwIds.contains(mx.getId())) {
+						continue;
+					}
+
 					if (!result.isEmpty())
 						result += ", ";
-					result += mx.getDescription() != null ? mx.getDescription()
-							: mx.getName();
+					result += conversion.pmmToCombase(mx);
 					if (mx.getUnit() != null && !mx.getUnit().isEmpty())
 						result += " (" + mx.getUnit() + ")";
 					if (mx.getValue() != null && !Double.isNaN(mx.getValue()))

@@ -77,7 +77,7 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 
 		panel.setLayout(new BorderLayout());
 		panel.add(filePanel, BorderLayout.NORTH);
-		
+
 		overwrite = new JCheckBox("Overwrite OK");
 		overwrite.setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(overwrite);
@@ -91,12 +91,14 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 		String fileName;
 
 		try {
-			fileName = settings.getString(CombaseWriterNodeModel.PARAM_FILENAME);
+			fileName = settings
+					.getString(CombaseWriterNodeModel.PARAM_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = CombaseWriterNodeModel.DEFAULT_FILENAME;
 		}
 		try {
-			overwrite.setSelected(settings.getBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE));
+			overwrite.setSelected(settings
+					.getBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE));
 		} catch (InvalidSettingsException e) {
 			overwrite.setSelected(false);
 		}
@@ -111,7 +113,9 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 			throw new InvalidSettingsException("");
 		}
 
-		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME, filePanel.getFileName());
-		settings.addBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE, overwrite.isSelected());
+		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME,
+				filePanel.getFileName());
+		settings.addBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE,
+				overwrite.isSelected());
 	}
 }

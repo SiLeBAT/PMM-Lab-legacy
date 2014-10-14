@@ -65,9 +65,12 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	private Map<String, Integer> newAgentIDs = new LinkedHashMap<>();
 	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<>();
 	private Map<String, MiscXml> newMiscs = new LinkedHashMap<>();
+	private MiscConversion conversion;
 
 	public CombaseReader(final String filename) throws FileNotFoundException,
 			IOException, Exception {
+		conversion = new MiscConversion();
+
 		InputStreamReader isr = null;
 		File file = new File(filename);
 		if (file.exists()) {
@@ -92,6 +95,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		reader.close();
 	}
 
+	@Override
 	public PmmTimeSeries nextElement() {
 
 		PmmTimeSeries ret;
@@ -107,6 +111,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		return ret;
 	}
 
+	@Override
 	public boolean hasMoreElements() {
 		return next != null;
 	}
@@ -342,7 +347,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 
 	private MiscXml getMiscXml(String description, Double dbl) {
 		if (!newMiscs.containsKey(description)) {
-			MiscXml m = getCombaseName(description);
+			MiscXml m = conversion.combaseToPmm(description);
 			Integer id = (Integer) DBKernel.getValue(null, "SonstigeParameter",
 					"Parameter", m.getName(), "ID");
 
@@ -355,177 +360,6 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		misc.setValue(dbl);
 
 		return misc;
-	}
-
-	private MiscXml getCombaseName(String des) {
-		if (des.equalsIgnoreCase("alta fermentation product in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "ALTA",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des
-				.equalsIgnoreCase("acetic acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"acetic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("anaerobic environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"anaerobic", "", null, Arrays.asList("True/False Value"),
-					"True/False");
-		else if (des
-				.equalsIgnoreCase("ascorbic acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"ascorbic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des
-				.equalsIgnoreCase("benzoic acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"benzoic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des
-				.equalsIgnoreCase("citric acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"citric_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("carbon-dioxide in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "CO_2",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("other species in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"competition", "", null, Arrays.asList("True/False Value"),
-					"True/False");
-		else if (des.equalsIgnoreCase("cut (minced, chopped, ground, etc)"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "cut", "",
-					null, Arrays.asList("True/False Value"), "True/False");
-		else if (des.equalsIgnoreCase("dried food"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "dried",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des
-				.equalsIgnoreCase("ethylenenediaminetetraacetic acid in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "EDTA",
-					"", null, Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("ethanol in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "ethanol",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("fat in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "fat", "",
-					null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("frozen food"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "frozen",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des.equalsIgnoreCase("fructose in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"fructose", "", null, Arrays.asList("Arbitrary Fraction"),
-					"%");
-		else if (des.equalsIgnoreCase("glucose in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "glucose",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("glycerol in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"glycerol", "", null, Arrays.asList("Arbitrary Fraction"),
-					"%");
-		else if (des.equalsIgnoreCase("hydrochloric acid in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "HCl", "",
-					null, Arrays.asList("Mass Concentration"), "g/L");
-		else if (des
-				.equalsIgnoreCase("inoculation in/on previously heated (cooked, baked, pasteurized, etc) but not sterilised food/medium"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "heated",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des
-				.equalsIgnoreCase("in an environment that has been irradiated"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"irradiated", "", null, Arrays.asList("True/False Value"),
-					"True/False");
-		else if (des
-				.equalsIgnoreCase("irradiation at constant rate during the observation time"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"irradiation", "", null, Arrays.asList("Energy Content"),
-					"kGy");
-		else if (des
-				.equalsIgnoreCase("lactic acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"lactic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("modified atmosphere environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"Modified_Atmosphere", "", null,
-					Arrays.asList("True/False Value"), "True/False");
-		else if (des.equalsIgnoreCase("malic acid in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"malic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("moisture in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"moisture", "", null, Arrays.asList("Arbitrary Fraction"),
-					"%");
-		else if (des
-				.equalsIgnoreCase("glycerol monolaurate (emulsifier) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"monolaurin", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("nitrogen in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "N_2", "",
-					null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("sodium chloride in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "NaCl",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("nisin in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "nisin",
-					"", null, null, null);
-		else if (des
-				.equalsIgnoreCase("sodium or potassium nitrite in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "nitrite",
-					"", null, Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des
-				.equalsIgnoreCase("oxygen (aerobic conditions) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "O_2", "",
-					null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des
-				.equalsIgnoreCase("propionic acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"propionic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("raw"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "raw", "",
-					null, Arrays.asList("True/False Value"), "True/False");
-		else if (des.equalsIgnoreCase("shaken (agitated, stirred)"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "shaken",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des.equalsIgnoreCase("smoked food"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "smoked",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des
-				.equalsIgnoreCase("sorbic acid (possibly as salt) in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"sorbic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("sterilised before inoculation"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "sterile",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des.equalsIgnoreCase("sucrose in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "sucrose",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("sugar in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "sugar",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("vacuum-packed"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "vacuum",
-					"", null, Arrays.asList("True/False Value"), "True/False");
-		else if (des
-				.equalsIgnoreCase("oregano essential oil in the environment"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "oregano",
-					"", null, Arrays.asList("Arbitrary Fraction"), "%");
-		else if (des.equalsIgnoreCase("pressure controlled"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"pressure", "", null, Arrays.asList("Pressure"), "MPa");
-		else if (des
-				.equalsIgnoreCase("in presence of diacetic acid (possibly as salt)"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(),
-					"diacetic_acid", "", null,
-					Arrays.asList("Arbitrary Fraction"), "ppm");
-		else if (des.equalsIgnoreCase("in presence of betaine"))
-			return new MiscXml(MathUtilities.getRandomNegativeInt(), "betaine",
-					"", null, Arrays.asList("Arbitrary Fraction"), "ppm");
-
-		throw new RuntimeException("Unknown Condition: " + des);
 	}
 
 	private List<String> condSplit(final String misc) {

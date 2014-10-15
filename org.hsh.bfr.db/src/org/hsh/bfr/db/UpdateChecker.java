@@ -53,6 +53,31 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_180_181() {
+		/*
+		try {
+			ResultSet rs = DBKernel.getResultSet("SELECT MIN(\"Versuchsbedingungen\") AS \"Versuchsbedingung\" FROM \"Messwerte\" WHERE \"Konz_Einheit\" IN (55,56,57,58,64,65,67,69,73) GROUP BY \"Versuchsbedingungen\"", false);
+			int lfd=0;
+			if (rs != null && rs.first())  {
+				do {
+					lfd++;
+					String sql = "SELECT \"KE\".\"object type\" AS \"KE_ot\",\"KE\".\"notation case sensitive\" AS \"KE_ncs\",\"ZE\".\"display in GUI as\" AS \"ZE_D\",\"KE\".\"display in GUI as\" AS \"KE_D\",\"T\".\"Wert\" AS \"T_Wert\",\"K\".\"Wert\" AS \"K_Wert\",\"T\".\"Exponent\" AS \"T_Exponent\",\"K\".\"Exponent\" AS \"K_Exponent\" FROM \"Messwerte\" JOIN \"Einheiten\" AS \"ZE\" ON \"Messwerte\".\"ZeitEinheit\"=\"ZE\".\"ID\" JOIN \"Einheiten\" AS \"KE\" ON \"Messwerte\".\"Konz_Einheit\"=\"KE\".\"ID\" JOIN \"DoubleKennzahlen\" AS \"T\" ON \"Messwerte\".\"Zeit\"=\"T\".\"ID\" JOIN \"DoubleKennzahlen\" AS \"K\" ON \"Messwerte\".\"Konzentration\"=\"K\".\"ID\" WHERE \"Messwerte\".\"Versuchsbedingungen\" = " + rs.getString("Versuchsbedingung");
+					//System.err.println(sql);
+					ResultSet rs2 = DBKernel.getResultSet(sql, false);//"SELECT \"Versuchsbedingung\",\"Zeit\",\"ZeitEinheit\",\"Konzentration\",\"KonzentrationsEinheit\" FROM \"MesswerteEinfach\" WHERE \"Versuchsbedingung\" = " + rs.getString("Versuchsbedingung"), false);
+					if (rs2 != null && rs2.first())  {
+						do {
+							Double tv = rs2.getDouble("T_Wert") * Math.pow(10, rs2.getObject("T_Exponent") == null ? 0 : rs2.getDouble("T_Exponent"));
+							Double kv = rs2.getDouble("K_Wert") * Math.pow(10, rs2.getObject("K_Exponent") == null ? 0 : rs2.getDouble("K_Exponent"));
+							System.err.println(lfd + "\t" + rs.getString("Versuchsbedingung") + "\t" + tv + "\t" + rs2.getString("ZE_D") + "\t" + kv + "\t" + rs2.getString("KE_D") + "\t" + rs2.getString("KE_ncs") + "\t" + rs2.getString("KE_ot"));
+						} while (rs2.next());
+					}
+					//DBKernel.sendRequest("DELETE FROM \"DataSource\" WHERE \"Table\"='" + rs.getString("Table") + "' AND \"TableID\"=" + rs.getInt("TableID") + " AND \"SourceDBUUID\"='" + rs.getString("SourceDBUUID") + "' AND \"SourceID\"=" + rs.getInt("SourceID") + " AND \"ID\" != " + rs.getInt("ID"), false);
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();}		
+		*/
+	}
 	public static void check4Updates_179_180() {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ALTER COLUMN " + DBKernel.delimitL("Formel") + " VARCHAR(1023)", false);
 		

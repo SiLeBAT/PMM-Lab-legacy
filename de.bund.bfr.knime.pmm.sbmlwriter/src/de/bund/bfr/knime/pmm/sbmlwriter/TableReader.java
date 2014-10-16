@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Annotation;
@@ -91,7 +93,7 @@ public class TableReader {
 	public TableReader(List<KnimeTuple> tuples, String varParams,
 			String creatorGivenName, String creatorFamilyName,
 			String creatorContact, Date createdDate, Date modifiedDate,
-			String reference) throws IOException {
+			String reference) throws IOException, XMLStreamException {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<>();

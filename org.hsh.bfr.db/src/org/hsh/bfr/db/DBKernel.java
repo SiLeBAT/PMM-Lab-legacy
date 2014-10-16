@@ -1063,12 +1063,19 @@ public class DBKernel {
 	}
 
 	public static String getDoubleStr(final Object dbl) {
+		String result = null;
 		if (dbl == null) {
 			return null;
 		}
 		NumberFormat f = NumberFormat.getInstance(Locale.US);
 		f.setGroupingUsed(false);
-		return f.format(dbl);
+		try {
+			result = f.format(dbl);
+		}
+		catch (Exception e) {
+			System.err.println(e.getMessage() + " -> " + dbl);
+		}
+		return result;
 	}
 
 	public static boolean kzIsString(final String kennzahl) {

@@ -306,9 +306,11 @@ public class EmReaderUi extends JPanel {
 			    		dialog.add(mainComponent, BorderLayout.CENTER);
 			    		dialog.add(getOkApplyCancelPanel(dialog, pvnd), BorderLayout.SOUTH);
 			    		dialog.pack();
-			    		centerOnScreen(dialog, true);
+			    		centerOnScreen(dialog, true, true);
+			    		dialog.pack();
 			    			
-			    		dialog.setVisible(true);			    		
+			    		dialog.setVisible(true);		
+			    		
 					//}
 		    	}
 		    	else {
@@ -357,9 +359,13 @@ public class EmReaderUi extends JPanel {
 		labelText += "</html>";
 		selectedFilterResults.setText(labelText); // "<html>Hello World!<br>blahblahblah</html>"
 	}
-	private void centerOnScreen(final Component c, final boolean absolute) {
+	private void centerOnScreen(final Component c, final boolean absolute, final boolean reduceSize) {
 	    final int width = c.getWidth();
-	    final int height = c.getHeight();
+	    int height = c.getHeight();
+	    if (reduceSize) {
+	    	height -= 100;
+		    c.setPreferredSize(new Dimension(width, height));	    	
+	    }
 	    final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	    int x = (screenSize.width / 2) - (width / 2);
 	    int y = (screenSize.height / 2) - (height / 2);

@@ -468,7 +468,7 @@ public class Login extends JFrame {
 				mf.getMyList().setSelection(null);
 			}
 
-			this.dispose();
+			if (this.isVisible()) this.dispose();//this.setVisible(false);
 			mf.pack();
 			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
 			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));

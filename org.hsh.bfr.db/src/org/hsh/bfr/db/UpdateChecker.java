@@ -54,6 +54,10 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class UpdateChecker {
 	public static void check4Updates_180_181() {
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Longitude") + " DOUBLE BEFORE " + DBKernel.delimitL("Ansprechpartner"), false);
+		updateChangeLog("Station", 11, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Latitude") + " DOUBLE BEFORE " + DBKernel.delimitL("Ansprechpartner"), false);
+		updateChangeLog("Station", 12, false);	
 		/*
 		try {
 			ResultSet rs = DBKernel.getResultSet("SELECT MIN(\"Versuchsbedingungen\") AS \"Versuchsbedingung\" FROM \"Messwerte\" WHERE \"Konz_Einheit\" IN (55,56,57,58,64,65,67,69,73) GROUP BY \"Versuchsbedingungen\"", false);
@@ -93,6 +97,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE \"DataSource\" ADD CONSTRAINT \"DataSource_uni_0\" UNIQUE (\"Table\",\"TableID\",\"SourceDBUUID\",\"SourceID\");", false);
 		
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("District") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Bundesland"), false);
+		updateChangeLog("Station", 8, false);	
 	}
 	public static void check4Updates_178_179() {
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

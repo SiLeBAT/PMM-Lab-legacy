@@ -154,7 +154,7 @@ public class Login extends JFrame {
 			  true); DBKernel.sendRequest("DROP TABLE " +
 			  DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false,
 			  true); DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
-			 */
+			  */
 			/*
 			 * try { ResultSet rs = DBKernel.getResultSet("SELECT " +
 			 * DBKernel.delimitL("GeschaetzteModelle") + "." +
@@ -445,12 +445,10 @@ public class Login extends JFrame {
 				UpdateChecker.check4Updates_179_180();
 				DBKernel.setDBVersion("1.8.0");
 			}
-			/*
 			if (DBKernel.getDBVersionFromDB().equals("1.8.0")) {
 				UpdateChecker.check4Updates_180_181();
 				DBKernel.setDBVersion("1.8.1");
 			}
-			*/
 
 			DBKernel.closeDBConnections(false);
 		} catch (Exception e) {

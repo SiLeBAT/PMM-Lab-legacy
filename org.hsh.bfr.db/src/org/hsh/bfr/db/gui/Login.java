@@ -285,7 +285,7 @@ public class Login extends JFrame {
 			MyLogger.handleMessage("HSHDB_PATH: " + DBKernel.HSHDB_PATH);
 			// Datenbank erstellen
 			if (noDBThere) {
-			} else if (!DBKernel.isServerConnection && (beInteractive || autoUpdate)) {// UPDATE?
+			} else if ((!DBKernel.isServerConnection) && (beInteractive || autoUpdate)) {// UPDATE? // true || 
 				int dbAlt = isDBVeraltet(beInteractive, null);
 				if (dbAlt == JOptionPane.YES_OPTION) {
 					doUpdates = true;

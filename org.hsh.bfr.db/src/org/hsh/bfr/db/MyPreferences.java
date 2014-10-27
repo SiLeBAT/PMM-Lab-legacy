@@ -32,7 +32,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 /*
- * For Standalone-App compilation
+// For Standalone-App compilation
 package org.hsh.bfr.db;
 
 import org.hsh.bfr.db.gui.Login;
@@ -60,12 +60,13 @@ public class MyPreferences {
 		return prefsReg.getBoolean(key, defaultValue);
 	}
 }
-
+/*
 Außerdem:
+- DBKernel, Zeile 1716 weg "bundle = FrameworkUtil.getBundle(DBKernel.class);"
 - alle DBKernels weg in MyTrigger für Server.jar!!!
 - zum debuggen auf der commandline app starten mit: 'java -Xms512m -Xmx768m -jar "C:\Dokumente und Einstellungen\Weiser\Lokale Einstellungen\Anwendungsdaten\SiLeBAT-DB\SiLeBAT_1.7.9.jar"'
-
 */
+
 package org.hsh.bfr.db;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;

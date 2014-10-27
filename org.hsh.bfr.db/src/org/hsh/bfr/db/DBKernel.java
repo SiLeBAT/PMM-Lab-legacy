@@ -1711,7 +1711,11 @@ public class DBKernel {
 	public static File getCopyOfInternalDB() {
 		File temp = null;
 		try {
-			Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
+			Bundle bundle = null;
+			try {
+				bundle = FrameworkUtil.getBundle(DBKernel.class);
+			}
+			catch (Exception e) {}
 			if (bundle != null) {
 				URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
 				if (incURLfirstDB == null) {

@@ -7,7 +7,7 @@ RequestExecutionLevel user
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 1.7.9
+!define VERSION 1.8.2
 !define COMPANY ""
 !define URL ""
 !define GET_JAVA_URL "http://www.java.com"

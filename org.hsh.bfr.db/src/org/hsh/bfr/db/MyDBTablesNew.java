@@ -61,7 +61,7 @@ public class MyDBTablesNew extends MyDBI {
 	private String saUser = "SA";//"defad"; // SA
 	private String saPass = "";//"de6!§5ddy";
 	private String dbServerPath = "";
-	private String softwareVersion = "1.7.9";
+	private String softwareVersion = "1.8.2";
 	
 	private boolean isPmm = true;
 	private boolean isKrise = true;

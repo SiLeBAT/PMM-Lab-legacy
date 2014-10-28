@@ -659,8 +659,10 @@ public class DBKernel {
 	}
 
 	public static void setCaller4Trigger(String tableName, Callable<Void> caller4Trigger) {
-		MyTable myT = DBKernel.myDBi.getTable(tableName);
-		if (myT != null) myT.setCaller4Trigger(caller4Trigger);
+		if (DBKernel.myDBi != null) {
+			MyTable myT = DBKernel.myDBi.getTable(tableName);
+			if (myT != null) myT.setCaller4Trigger(caller4Trigger);			
+		}
 	}
 
 	// Still to look at... myDBI... newConn...

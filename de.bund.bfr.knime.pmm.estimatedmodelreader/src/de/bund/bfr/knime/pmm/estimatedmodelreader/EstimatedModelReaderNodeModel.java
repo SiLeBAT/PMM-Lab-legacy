@@ -412,7 +412,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				emx.setDbuuid(dbuuid);
 				if (result.getObject("Geprueft2") != null) emx.setChecked(result.getBoolean("Geprueft2"));
 				if (result.getObject("Guetescore2") != null) emx.setQualityScore(result.getInt("Guetescore2"));
-				if (result.getObject("Kommentar2") != null) emx.setQualityScore(result.getInt("Kommentar2"));
+				if (result.getObject("Kommentar2") != null) emx.setComment(result.getString("Kommentar2"));
 				/*
 	    		cmt = DBKernel.getValue(conn,"GeschaetzteModelle", "ID", ""+emid, "Kommentar");
 	    		if (cmt != null) emx.setComment((String) cmt);

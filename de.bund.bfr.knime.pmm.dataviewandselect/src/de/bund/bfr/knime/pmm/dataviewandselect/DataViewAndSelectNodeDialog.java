@@ -58,6 +58,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * <code>NodeDialog</code> for the "DataViewAndSelect" Node.
@@ -81,6 +82,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
 
+	private String lastID;
+
 	/**
 	 * New pane for configuring the DataViewAndSelect node.
 	 */
@@ -97,6 +100,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		set = new SettingsHelper();
 		set.loadSettings(settings);
 		reader = new TableReader(input[0]);
+		lastID = null;
 
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
@@ -218,6 +222,35 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 						AttributeUtilities.CONCENTRATION));
 				configPanel.addConfigListener(this);
 			}
+
+			if (!id.equals(lastID)
+					&& (configPanel.isDisplayFocusedRow() || selectionPanel
+							.getSelectedIDs().size() == 1)) {
+				try {
+					Categories.getTimeCategory().convert(0.0,
+							plotable.getUnits().get(AttributeUtilities.TIME),
+							configPanel.getUnitX());
+				} catch (ConvertException e) {
+					configPanel.removeConfigListener(this);
+					configPanel.setUnitX(plotable.getUnits().get(
+							AttributeUtilities.TIME));
+					configPanel.addConfigListener(this);
+				}
+
+				try {
+					Categories.getCategoryByUnit(configPanel.getUnitY())
+							.convert(
+									0.0,
+									plotable.getUnits().get(
+											AttributeUtilities.CONCENTRATION),
+									configPanel.getUnitY());
+				} catch (ConvertException e) {
+					configPanel.removeConfigListener(this);
+					configPanel.setUnitY(plotable.getUnits().get(
+							AttributeUtilities.CONCENTRATION));
+					configPanel.addConfigListener(this);
+				}
+			}
 		}
 
 		chartCreator.setParamX(configPanel.getParamX());
@@ -242,6 +275,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		} else {
 			chartCreator.createChart(selectionPanel.getSelectedIDs());
 		}
+
+		lastID = id;
 	}
 
 	@Override

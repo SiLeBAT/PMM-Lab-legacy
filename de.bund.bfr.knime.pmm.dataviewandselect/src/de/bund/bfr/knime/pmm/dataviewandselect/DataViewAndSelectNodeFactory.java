@@ -40,52 +40,51 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "DataViewAndSelect" Node.
  * 
- *
+ * 
  * @author Christian Thoens
  */
-public class DataViewAndSelectNodeFactory 
-        extends NodeFactory<DataViewAndSelectNodeModel> {
+public class DataViewAndSelectNodeFactory extends
+		NodeFactory<DataViewAndSelectNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DataViewAndSelectNodeModel createNodeModel() {
-        return new DataViewAndSelectNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataViewAndSelectNodeModel createNodeModel() {
+		return new DataViewAndSelectNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<DataViewAndSelectNodeModel> createNodeView(final int viewIndex,
-            final DataViewAndSelectNodeModel nodeModel) {
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<DataViewAndSelectNodeModel> createNodeView(
+			final int viewIndex, final DataViewAndSelectNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new DataViewAndSelectNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new DataViewAndSelectNodeDialog();
+	}
 
 }
-

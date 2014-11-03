@@ -104,6 +104,11 @@ public class ChartCreator extends ChartPanel {
 	public ChartCreator(Plotable plotable) {
 		super(new JFreeChart(new XYPlot()));
 		zoomListeners = new ArrayList<>();
+		getPopupMenu().remove(10);
+		getPopupMenu().remove(9);
+		getPopupMenu().remove(8);
+		getPopupMenu().remove(7);
+		getPopupMenu().remove(6);
 		getPopupMenu().remove(3);
 		getPopupMenu().add(new DataAndModelChartSaveAsItem(), 3);
 		plotables = new LinkedHashMap<>();
@@ -123,6 +128,11 @@ public class ChartCreator extends ChartPanel {
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
 		super(new JFreeChart(new XYPlot()));
 		zoomListeners = new ArrayList<>();
+		getPopupMenu().remove(10);
+		getPopupMenu().remove(9);
+		getPopupMenu().remove(8);
+		getPopupMenu().remove(7);
+		getPopupMenu().remove(6);
 		getPopupMenu().remove(3);
 		getPopupMenu().add(new DataAndModelChartSaveAsItem(), 3);
 		this.plotables = plotables;

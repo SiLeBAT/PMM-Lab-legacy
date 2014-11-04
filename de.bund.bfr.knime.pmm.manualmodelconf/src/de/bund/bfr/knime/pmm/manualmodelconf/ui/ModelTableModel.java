@@ -55,6 +55,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -169,9 +170,10 @@ public class ModelTableModel extends JTable {
         public Object getValueAt(int rowIndex, int columnIndex) {
         	if (thePM == null) return null;
         	if (rowIndex == 0) {
+        		DepXml dx = thePM.getDepXml();
         		if (columnIndex < 2) return thePM.getDepVar();
-        		else if (columnIndex == 5) return thePM.getDepXml().getMin();
-        		else if (columnIndex == 6) return thePM.getDepXml().getMax();
+        		else if (columnIndex == 5 && dx != null) return dx.getMin();
+        		else if (columnIndex == 6 && dx != null) return dx.getMax();
         		else if (columnIndex > 6) return thePM.getDepDescription();
         		else return null;
         	}
@@ -200,19 +202,20 @@ public class ModelTableModel extends JTable {
         public void setValueAt(Object o, int rowIndex, int columnIndex) {
         	if (thePM == null) return;
         	if (rowIndex == 0) {
+        		DepXml dx = thePM.getDepXml();
         		if (columnIndex == 1) {
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
             		repaintAgain = true;
         		}
-        		else if (columnIndex == 5 && (o == null || o instanceof Double)) {
-            		thePM.getDepXml().setMin((Double) o);
+        		else if (columnIndex == 5 && dx != null && (o == null || o instanceof Double)) {
+        			dx.setMin((Double) o);
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
             		repaintAgain = true;
         		}
-        		else if (columnIndex == 6 && (o == null || o instanceof Double)) {
-            		thePM.getDepXml().setMax((Double) o);
+        		else if (columnIndex == 6 && dx != null && (o == null || o instanceof Double)) {
+        			dx.setMax((Double) o);
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
             		repaintAgain = true;

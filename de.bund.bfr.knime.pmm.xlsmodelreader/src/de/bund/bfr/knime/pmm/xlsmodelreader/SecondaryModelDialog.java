@@ -45,6 +45,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import org.hsh.bfr.db.DBKernel;
@@ -70,7 +71,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 
 	private JButton okButton;
 	private JButton cancelButton;
-	private JPanel configPanel;
+	private JScrollPane configPanel;
 
 	private KnimeTuple tuple;
 	private Map<String, String> mappings;
@@ -139,7 +140,6 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		setLayout(new BorderLayout());
 		add(buttonPanel, BorderLayout.SOUTH);
 		updateConfigPanel();
-		setResizable(false);
 		setLocationRelativeTo(parent);
 	}
 
@@ -279,8 +279,9 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			remove(configPanel);
 		}
 
-		configPanel = new JPanel();
-		configPanel.setLayout(new GridBagLayout());
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new GridBagLayout());
 
 		int row = 0;
 		List<String> options = new ArrayList<>();
@@ -307,8 +308,8 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 
 		modelButton.addActionListener(this);
 		reloadButton.addActionListener(this);
-		configPanel.add(new JLabel(param + ":"), createConstraints(0, row));
-		configPanel.add(secButtonPanel, createConstraints(1, row));
+		panel.add(new JLabel(param + ":"), createConstraints(0, row));
+		panel.add(secButtonPanel, createConstraints(1, row));
 		row++;
 
 		modelBoxes = new LinkedHashMap<>();
@@ -339,13 +340,13 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				modelBoxes.put(secParam.getName(), box);
 				paramErrorBoxes.put(secParam.getName(), errorBox);
 
-				configPanel.add(new JLabel(secParam.getName() + ":"),
+				panel.add(new JLabel(secParam.getName() + ":"),
 						createConstraints(0, row));
-				configPanel.add(box, createConstraints(1, row));
+				panel.add(box, createConstraints(1, row));
 				row++;
-				configPanel.add(new JLabel(secParam.getName() + " Error:"),
+				panel.add(new JLabel(secParam.getName() + " Error:"),
 						createConstraints(0, row));
-				configPanel.add(errorBox, createConstraints(1, row));
+				panel.add(errorBox, createConstraints(1, row));
 				row++;
 			}
 
@@ -389,21 +390,21 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				categoryBoxes.put(indep.getName(), categoryBox);
 				unitBoxes.put(indep.getName(), unitBox);
 
-				configPanel.add(new JLabel("Min " + indep.getName() + ":"),
+				panel.add(new JLabel("Min " + indep.getName() + ":"),
 						createConstraints(0, row));
-				configPanel.add(minBox, createConstraints(1, row));
+				panel.add(minBox, createConstraints(1, row));
 				row++;
-				configPanel.add(new JLabel("Max " + indep.getName() + ":"),
+				panel.add(new JLabel("Max " + indep.getName() + ":"),
 						createConstraints(0, row));
-				configPanel.add(maxBox, createConstraints(1, row));
+				panel.add(maxBox, createConstraints(1, row));
 				row++;
-				configPanel.add(new JLabel(indep.getName() + " Category:"),
+				panel.add(new JLabel(indep.getName() + " Category:"),
 						createConstraints(0, row));
-				configPanel.add(categoryBox, createConstraints(1, row));
+				panel.add(categoryBox, createConstraints(1, row));
 				row++;
-				configPanel.add(new JLabel(indep.getName() + " Unit:"),
+				panel.add(new JLabel(indep.getName() + " Unit:"),
 						createConstraints(0, row));
-				configPanel.add(unitBox, createConstraints(1, row));
+				panel.add(unitBox, createConstraints(1, row));
 				row++;
 			}
 		}
@@ -424,19 +425,30 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		aicBox.addItemListener(this);
 		dataPointsBox.addItemListener(this);
 
-		configPanel.add(new JLabel("RMSE:"), createConstraints(0, row));
-		configPanel.add(rmseBox, createConstraints(1, row));
+		panel.add(new JLabel("RMSE:"), createConstraints(0, row));
+		panel.add(rmseBox, createConstraints(1, row));
 		row++;
-		configPanel.add(new JLabel("R2:"), createConstraints(0, row));
-		configPanel.add(r2Box, createConstraints(1, row));
+		panel.add(new JLabel("R2:"), createConstraints(0, row));
+		panel.add(r2Box, createConstraints(1, row));
 		row++;
-		configPanel.add(new JLabel("AIC:"), createConstraints(0, row));
-		configPanel.add(aicBox, createConstraints(1, row));
+		panel.add(new JLabel("AIC:"), createConstraints(0, row));
+		panel.add(aicBox, createConstraints(1, row));
 		row++;
-		configPanel.add(new JLabel("N Data:"), createConstraints(0, row));
-		configPanel.add(dataPointsBox, createConstraints(1, row));
+		panel.add(new JLabel("N Data:"), createConstraints(0, row));
+		panel.add(dataPointsBox, createConstraints(1, row));
 		row++;
 
+		JPanel westPanel = new JPanel();
+
+		westPanel.setLayout(new BorderLayout());
+		westPanel.add(panel, BorderLayout.WEST);
+
+		JPanel northPanel = new JPanel();
+
+		northPanel.setLayout(new BorderLayout());
+		northPanel.add(westPanel, BorderLayout.NORTH);
+
+		configPanel = new JScrollPane(northPanel);
 		add(configPanel, BorderLayout.CENTER);
 		pack();
 	}

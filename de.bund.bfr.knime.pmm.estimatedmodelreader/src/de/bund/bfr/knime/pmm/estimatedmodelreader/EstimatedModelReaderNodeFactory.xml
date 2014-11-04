@@ -46,7 +46,7 @@
         <option name="Level">Filter for primary or secondary model formulas. Primary model formulas can be further filtered according to the '<u>Type</u>' (e.g. growth models).</option>
         <option name="Model">Check the box 'Filter by formula' and choose one or more models by clicking the listed names. If the above mentioned filter options were used the list is already reduced.</option>
         <option name="Estimation quality">Filter estimated models either by RMS or by R<sup>2</sup> by entering a value into the textbox.</option>
-        <option name="MD Filter">To filter for models estimated for specific organisms (e.g. '<i>E. coli</i> ') or matrices (e.g. 'beef') type an organism or matrix name into one of the text boxes or tick the [...] button to choose entries from the internal database. Now either press 'OK' and execute the node or press 'ApplyAndShowFilterResults'. The latter option allows to view estimated models in a graph as well as in a table. Here, entries can be sorted for quality parameters or environmental conditions. All ticked entries will be in the outport after execution of the node.</option>
+        <option name="MD Filter">To filter for models estimated for specific organisms (e.g. '<i>E. coli</i> ') or matrices (e.g. 'beef') type an organism or matrix name into one of the text boxes or tick the [...] button to choose entries from the internal database. Now either press 'OK' and execute the node or press 'Select Models'. The latter option allows to view estimated models in a graph as well as in a table. Here, entries can be sorted for quality parameters or environmental conditions. All ticked entries will be in the outport after execution of the node.</option>
     </fullDescription>
     
     <ports>

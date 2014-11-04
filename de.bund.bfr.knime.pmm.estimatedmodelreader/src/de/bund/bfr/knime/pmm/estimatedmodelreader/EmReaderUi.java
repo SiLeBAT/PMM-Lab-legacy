@@ -773,7 +773,7 @@ public class EmReaderUi extends JPanel {
 				"default, $lgap, default"));
 
 			//---- doFilter ----
-			doFilter.setText("ApplyAndShowFilterResults");
+			doFilter.setText("Select Models");
 			doFilter.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

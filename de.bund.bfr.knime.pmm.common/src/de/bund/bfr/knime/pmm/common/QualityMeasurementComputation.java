@@ -128,7 +128,7 @@ public class QualityMeasurementComputation {
 		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 
-		for (String id : tupleMap.keySet()) {
+		loop: for (String id : tupleMap.keySet()) {
 			KnimeTuple tuple = tupleMap.get(id);
 			List<Double> targetValues = targetValueMap.get(id);
 			Map<String, List<Double>> variableValues = variableValueMap.get(id);
@@ -149,6 +149,10 @@ public class QualityMeasurementComputation {
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
+
+				if (element.getValue() == null) {
+					continue loop;
+				}
 
 				parser.addVariable(element.getName(), element.getValue());
 			}

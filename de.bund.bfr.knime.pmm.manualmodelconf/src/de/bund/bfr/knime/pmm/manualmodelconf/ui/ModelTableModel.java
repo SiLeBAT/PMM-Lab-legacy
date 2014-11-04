@@ -170,6 +170,8 @@ public class ModelTableModel extends JTable {
         	if (thePM == null) return null;
         	if (rowIndex == 0) {
         		if (columnIndex < 2) return thePM.getDepVar();
+        		else if (columnIndex == 5) return thePM.getDepXml().getMin();
+        		else if (columnIndex == 6) return thePM.getDepXml().getMax();
         		else if (columnIndex > 6) return thePM.getDepDescription();
         		else return null;
         	}
@@ -199,6 +201,18 @@ public class ModelTableModel extends JTable {
         	if (thePM == null) return;
         	if (rowIndex == 0) {
         		if (columnIndex == 1) {
+        			rowHasChanged.put(thePM.getDepVar(), true);
+            		hasChanged = true;
+            		repaintAgain = true;
+        		}
+        		else if (columnIndex == 5 && (o == null || o instanceof Double)) {
+            		thePM.getDepXml().setMin((Double) o);
+        			rowHasChanged.put(thePM.getDepVar(), true);
+            		hasChanged = true;
+            		repaintAgain = true;
+        		}
+        		else if (columnIndex == 6 && (o == null || o instanceof Double)) {
+            		thePM.getDepXml().setMax((Double) o);
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
             		repaintAgain = true;
@@ -276,7 +290,7 @@ public class ModelTableModel extends JTable {
         }
  
 		public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-			if (rowIndex == 0) return (columnIndex == 7);
+			if (rowIndex == 0) return (columnIndex >= 5);
 		    Boolean indep = (Boolean) this.getValueAt(rowIndex, 2);
 		    if (indep == null) indep = false;
 			return columnIndex == 2 || columnIndex > 4 || (!indep && (columnIndex == 4 || columnIndex == 3));
@@ -369,7 +383,8 @@ public class ModelTableModel extends JTable {
 					    if (indep == null) indep = false;
 					    editor.setEnabled(!indep);				    	
 				    }
-				    if (rowIndex == 0) editor.setEnabled(false);
+				    if (columnIndex == 5 || columnIndex == 6) editor.setEnabled(true); // Min, Max
+				    else if (rowIndex == 0) editor.setEnabled(false);
 				    //if (isSelected)
 				    c = editor;
 			  }

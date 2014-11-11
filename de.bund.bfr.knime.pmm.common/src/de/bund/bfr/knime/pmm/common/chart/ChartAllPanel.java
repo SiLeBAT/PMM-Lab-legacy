@@ -87,19 +87,31 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 	}
 
 	public int getVerticalDividerLocation() {
+		if (verticalSplitPane == null) {
+			return -1;
+		}
+
 		return verticalSplitPane.getDividerLocation();
 	}
 
 	public void setVerticalDividerLocation(int location) {
-		verticalSplitPane.setDividerLocation(location);
+		if (verticalSplitPane != null) {
+			verticalSplitPane.setDividerLocation(location);
+		}
 	}
 
 	public int getHorizontalDividerLocation() {
+		if (horizontalSplitPane == null) {
+			return -1;
+		}
+
 		return horizontalSplitPane.getDividerLocation();
 	}
 
 	public void setHorizontalDividerLocation(int location) {
-		horizontalSplitPane.setDividerLocation(location);
+		if (horizontalSplitPane != null) {
+			horizontalSplitPane.setDividerLocation(location);
+		}
 	}
 
 	@Override

@@ -71,6 +71,8 @@ public class Plotable {
 	private Map<String, List<Double>> valueLists;
 	private String function;
 	private String functionValue;
+	private Double minValue;
+	private Double maxValue;
 	private Map<String, List<Double>> functionArguments;
 	private Map<String, Double> functionParameters;
 	private Map<String, Map<String, Double>> covariances;
@@ -121,6 +123,22 @@ public class Plotable {
 
 	public void setFunctionValue(String functionValue) {
 		this.functionValue = functionValue;
+	}
+
+	public Double getMinValue() {
+		return minValue;
+	}
+
+	public void setMinValue(Double minValue) {
+		this.minValue = minValue;
+	}
+
+	public Double getMaxValue() {
+		return maxValue;
+	}
+
+	public void setMaxValue(Double maxValue) {
+		this.maxValue = maxValue;
 	}
 
 	public Map<String, List<Double>> getFunctionArguments() {
@@ -362,7 +380,7 @@ public class Plotable {
 				Object number = parser.evaluate(f);
 				Double y;
 
-				if (number instanceof Double) {
+				if (isInRange(number)) {
 					y = (Double) number;
 					y = convertToUnit(paramY, y, unitY);
 					y = transform(y, transformY);
@@ -603,7 +621,7 @@ public class Plotable {
 				Object number = parser.evaluate(f);
 				Double y;
 
-				if (number instanceof Double) {
+				if (isInRange(number)) {
 					y = (Double) number;
 					y = convertToUnit(paramY, y, unitY);
 					y = transform(y, transformY);
@@ -871,9 +889,9 @@ public class Plotable {
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < samples.size(); i++) {
-			Double y = samples.get(i);			
+			Double y = samples.get(i);
 			Double x = getValueX(paramX, paramY, unitX, unitY, transformX,
-					transformY, y, minX, maxX, null, null, parser, f);			
+					transformY, y, minX, maxX, null, null, parser, f);
 
 			if (MathUtilities.isValid(x) && MathUtilities.isValid(y)) {
 				containsValidPoint = true;
@@ -1134,6 +1152,24 @@ public class Plotable {
 		}
 
 		return null;
+	}
+
+	private boolean isInRange(Object number) {
+		if (!MathUtilities.isValid(number)) {
+			return false;
+		}
+
+		double value = (Double) number;
+
+		if (minValue != null && value < minValue) {
+			return false;
+		}
+
+		if (maxValue != null && value > maxValue) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public static Double transform(Double value, String transform) {

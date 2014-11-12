@@ -14,7 +14,6 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -439,7 +438,7 @@ public class TableReader {
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
 					Model1Schema.ATT_EMLIT).getElementSet()) {
-				literature += "," + (LiteratureItem) el;
+				literature += "," + el;
 			}
 
 			if (!literature.isEmpty()) {
@@ -509,6 +508,8 @@ public class TableReader {
 			plotable.setFunction(modelXml.getFormula());
 			plotable.setFunctionValue(depVar);
 			plotable.setFunctionArguments(variables);
+			plotable.setMinValue(depXml.getMin());
+			plotable.setMaxValue(depXml.getMax());
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionParameters(parameters);

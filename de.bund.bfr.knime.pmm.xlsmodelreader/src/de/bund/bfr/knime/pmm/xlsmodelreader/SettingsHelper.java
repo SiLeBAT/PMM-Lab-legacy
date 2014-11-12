@@ -59,6 +59,8 @@ public class SettingsHelper {
 	private static final String CFG_FILE_NAME = "FileName";
 	private static final String CFG_SHEET_NAME = "SheetName";
 	private static final String CFG_MODEL_MAPPINGS = "ModelMappings";
+	private static final String CFG_MODEL_DEP_MIN = "ModelDepMin";
+	private static final String CFG_MODEL_DEP_MAX = "ModelDepMax";
 	private static final String CFG_MODEL_DEP_UNIT = "ModelDepUnit";
 	private static final String CFG_MODEL_INDEP_MIN = "ModelIndepMin";
 	private static final String CFG_MODEL_INDEP_MAX = "ModelIndepMax";
@@ -92,6 +94,8 @@ public class SettingsHelper {
 	private String fileName;
 	private String sheetName;
 	private Map<String, String> modelMappings;
+	private String modelDepMin;
+	private String modelDepMax;
 	private String modelDepUnit;
 	private String modelIndepMin;
 	private String modelIndepMax;
@@ -128,6 +132,8 @@ public class SettingsHelper {
 		modelTuple = null;
 		secModelTuples = new LinkedHashMap<>();
 		modelMappings = new LinkedHashMap<>();
+		modelDepMin = null;
+		modelDepMax = null;
 		modelDepUnit = null;
 		modelIndepMin = null;
 		modelIndepMax = null;
@@ -185,6 +191,16 @@ public class SettingsHelper {
 					settings.getString(CFG_MODEL_MAPPINGS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			modelDepMin = settings.getString(CFG_MODEL_DEP_MIN);
+		} catch (InvalidSettingsException e1) {
+		}
+
+		try {
+			modelDepMax = settings.getString(CFG_MODEL_DEP_MAX);
+		} catch (InvalidSettingsException e1) {
 		}
 
 		try {
@@ -363,6 +379,8 @@ public class SettingsHelper {
 				XmlConverter.tupleMapToXml(secModelTuples));
 		settings.addString(CFG_MODEL_MAPPINGS,
 				XmlConverter.objectToXml(modelMappings));
+		settings.addString(CFG_MODEL_DEP_MIN, modelDepMin);
+		settings.addString(CFG_MODEL_DEP_MAX, modelDepMax);
 		settings.addString(CFG_MODEL_DEP_UNIT, modelDepUnit);
 		settings.addString(CFG_MODEL_INDEP_MIN, modelIndepMin);
 		settings.addString(CFG_MODEL_INDEP_MAX, modelIndepMax);
@@ -428,6 +446,22 @@ public class SettingsHelper {
 
 	public void setModelMappings(Map<String, String> modelMappings) {
 		this.modelMappings = modelMappings;
+	}
+
+	public String getModelDepMin() {
+		return modelDepMin;
+	}
+
+	public void setModelDepMin(String modelDepMin) {
+		this.modelDepMin = modelDepMin;
+	}
+
+	public String getModelDepMax() {
+		return modelDepMax;
+	}
+
+	public void setModelDepMax(String modelDepMax) {
+		this.modelDepMax = modelDepMax;
 	}
 
 	public String getModelDepUnit() {

@@ -54,11 +54,13 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class ModelReaderUi extends JPanel implements ActionListener {
 	
@@ -356,6 +358,44 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 			modelNameSwitch.doClick();
 	}
 
+	public static boolean passesFilter(final String literatureString, final Integer literatureID, final KnimeTuple tuple, final int level) throws PmmException {
+		if (literatureString == null || literatureString.trim().isEmpty()) return true;
+			PmmXmlDoc litXmlDoc = tuple.getPmmXml(level == 1 ? Model1Schema.ATT_EMLIT : Model2Schema.ATT_EMLIT);
+        	for (PmmXmlElementConvertable el : litXmlDoc.getElementSet()) {
+        		if (el instanceof LiteratureItem) {
+        			LiteratureItem lit = (LiteratureItem) el;
+        			if (literatureID > 0) {
+        				int id = lit.getId();
+        				if (literatureID == id) return true;
+        			}
+        			else {
+            			String s = lit.getAuthor();
+            			String sd = lit.getTitle();
+            			if (s == null) s = ""; else s = s.toLowerCase();
+            			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+            			if (s.equals(literatureString.toLowerCase()) || sd.equals(literatureString.toLowerCase())) return true;
+        			}
+        		}
+        	}
+			litXmlDoc = tuple.getPmmXml(level == 1 ? Model1Schema.ATT_MLIT : Model2Schema.ATT_MLIT);
+        	for (PmmXmlElementConvertable el : litXmlDoc.getElementSet()) {
+        		if (el instanceof LiteratureItem) {
+        			LiteratureItem lit = (LiteratureItem) el;
+        			if (literatureID > 0) {
+        				int id = lit.getId();
+        				if (literatureID == id) return true;
+        			}
+        			else {
+            			String s = lit.getAuthor();
+            			String sd = lit.getTitle();
+            			if (s == null) s = ""; else s = s.toLowerCase();
+            			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+            			if (s.equals(literatureString.toLowerCase()) || sd.equals(literatureString.toLowerCase())) return true;
+        			}
+        		}
+        	}
+        return false;
+	}
 	public static boolean passesFilter(final int[] modelList, final KnimeTuple tuple, final int level) throws PmmException {
 
 		if (modelList == null || modelList.length == 0)

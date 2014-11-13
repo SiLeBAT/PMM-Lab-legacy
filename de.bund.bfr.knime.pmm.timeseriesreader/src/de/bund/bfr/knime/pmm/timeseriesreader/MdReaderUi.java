@@ -269,6 +269,27 @@ public class MdReaderUi extends JPanel {
 		literatureField.setText( str );
 	}
 	
+	public static boolean passesFilter(final String literatureString, final Integer literatureID, final KnimeTuple tuple) throws PmmException {
+		if (literatureString == null || literatureString.trim().isEmpty()) return true;
+			PmmXmlDoc litXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
+        	for (PmmXmlElementConvertable el : litXmlDoc.getElementSet()) {
+        		if (el instanceof LiteratureItem) {
+        			LiteratureItem lit = (LiteratureItem) el;
+        			if (literatureID > 0) {
+        				int id = lit.getId();
+        				if (literatureID == id) return true;
+        			}
+        			else {
+            			String s = lit.getAuthor();
+            			String sd = lit.getTitle();
+            			if (s == null) s = ""; else s = s.toLowerCase();
+            			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+            			if (s.equals(literatureString.toLowerCase()) || sd.equals(literatureString.toLowerCase())) return true;
+        			}
+        		}
+        	}
+        return false;
+	}
 	public static boolean passesFilter(
 		final String matrixString,
 		final String agentString,

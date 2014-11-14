@@ -268,17 +268,17 @@ public class EmReaderUi extends JPanel {
 		    		//LinkedHashMap<String, DoubleTextField[]> params = mdReaderUi.getParameter();
 					//DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_TEMPERATURE);
 		    		for (String s : tr.getTempParam().values()) {
-			    		if (defTemp != null) set.getParamXValues().put(s, defTemp);
+			    		if (defTemp != null && !defTemp.isNaN()) set.getParamXValues().put(s, defTemp);
 						//if (dtf != null) where += getWhereCondition(level, "Temperatur", s, dtf[0].getValue(), dtf[1].getValue());							
 		    		}
 					//dtf = params.get(AttributeUtilities.ATT_AW);
 		    		for (String s : tr.getAwParam().values()) {
-			    		if (defAw != null) set.getParamXValues().put(s, defAw);
+			    		if (defAw != null && !defAw.isNaN()) set.getParamXValues().put(s, defAw);
 						//if (dtf != null) where += getWhereCondition(level, "aw", s, dtf[0].getValue(), dtf[1].getValue());							
 		    		}
 					//dtf = params.get(AttributeUtilities.ATT_PH);
 		    		for (String s : tr.getPhParam().values()) {
-			    		if (defPh != null) set.getParamXValues().put(s, defPh);
+			    		if (defPh != null && !defPh.isNaN()) set.getParamXValues().put(s, defPh);
 						//if (dtf != null) where += getWhereCondition(level, "pH", s, dtf[0].getValue(), dtf[1].getValue());							
 		    		}
 		    		/*

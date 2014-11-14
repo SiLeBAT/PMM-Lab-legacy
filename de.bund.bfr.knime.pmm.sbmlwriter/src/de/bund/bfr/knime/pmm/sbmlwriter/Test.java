@@ -17,8 +17,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
+import org.sbml.jsbml.xml.XMLAttributes;
+import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.XMLTriple;
 
 public class Test extends JFrame implements ActionListener {
 
@@ -27,7 +31,10 @@ public class Test extends JFrame implements ActionListener {
 	private static final int LEVEL = 2;
 	private static final int VERSION = 4;
 
+	private static String[] TRANSFORMATIONS = { null, "log10", "ln" };
+
 	private JTextField idField;
+	private JComboBox<String> transformBox;
 
 	private List<JComboBox<Unit.Kind>> kindBoxes;
 	private List<JTextField> scaleFields;
@@ -44,12 +51,15 @@ public class Test extends JFrame implements ActionListener {
 		super("Units to SBML");
 
 		idField = new JTextField();
+		transformBox = new JComboBox<>(TRANSFORMATIONS);
 
 		JPanel northPanel = new JPanel();
 
-		northPanel.setLayout(new GridLayout(1, 1));
+		northPanel.setLayout(new GridLayout(1, 4));
 		northPanel.add(new JLabel("ID"));
 		northPanel.add(idField);
+		northPanel.add(new JLabel("Transform"));
+		northPanel.add(transformBox);
 
 		kindBoxes = new ArrayList<>();
 		scaleFields = new ArrayList<>();
@@ -154,22 +164,32 @@ public class Test extends JFrame implements ActionListener {
 							.getText().trim());
 				} catch (Exception ex) {
 				}
-				
+
 				Unit u = new Unit(kind, LEVEL, VERSION);
 
 				if (scale != 0) {
 					u.setScale(scale);
 				}
-				
+
 				if (exponent != 1.0) {
 					u.setExponent(exponent);
-				}				
-				
+				}
+
 				if (multiplier != 1.0) {
 					u.setMultiplier(multiplier);
 				}
-				
+
 				unit.addUnit(u);
+			}
+
+			if (transformBox.getSelectedItem() != null) {
+				Annotation annotation = new Annotation();
+				XMLAttributes attributes = new XMLAttributes();
+
+				attributes.add("name", (String) transformBox.getSelectedItem());
+				annotation.setNonRDFAnnotation(new XMLNode(new XMLTriple(
+						"transformation", null, null), attributes));
+				unit.setAnnotation(annotation);
 			}
 
 			stringField.setText(unit.toString());

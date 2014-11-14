@@ -498,7 +498,10 @@ public class EmReaderUi extends JPanel {
     		final KnimeTuple tuple )
     throws PmmException {
 
-		if (!MdReaderUi.passesFilter(matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
+		if (!MdReaderUi.passesFilter(matrixString, agentString, null, matrixID, agentID, 0, parameter, tuple)) {
+			return false;
+		}    	
+		if (!ModelReaderUi.passesFilter(literatureString, literatureID, tuple, level) && !MdReaderUi.passesFilter(literatureString, literatureID, tuple)) {
 			return false;
 		}    	
     	if (modelFilterEnabled && !ModelReaderUi.passesFilter(modelList, tuple, level)) {

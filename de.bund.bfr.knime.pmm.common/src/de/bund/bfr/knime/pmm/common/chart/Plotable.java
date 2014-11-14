@@ -1100,7 +1100,9 @@ public class Plotable {
 							unitX));
 
 			try {
-				minY = (Double) parser.evaluate(f);
+				minY = transform(
+						convertToUnit(paramY, (Double) parser.evaluate(f),
+								unitY), transformY);
 			} catch (ParseException e) {
 			} catch (ClassCastException e) {
 			}
@@ -1113,7 +1115,9 @@ public class Plotable {
 							unitX));
 
 			try {
-				maxY = (Double) parser.evaluate(f);
+				maxY = transform(
+						convertToUnit(paramY, (Double) parser.evaluate(f),
+								unitY), transformY);
 			} catch (ParseException e) {
 			} catch (ClassCastException e) {
 			}
@@ -1136,7 +1140,9 @@ public class Plotable {
 						unitX));
 
 		try {
-			midY = (Double) parser.evaluate(f);
+			midY = transform(
+					convertToUnit(paramY, (Double) parser.evaluate(f), unitY),
+					transformY);
 		} catch (ParseException e) {
 		} catch (ClassCastException e) {
 		}

@@ -400,6 +400,7 @@ public class CellIO {
 								fromToXmlDB.set(i, matxDB);
 							} else if (foreignDbIds.get(key).intValue() != matxDB.getId()) {
 								System.err.println("fillNewIDsIntoForeign ... shouldn't happen...MatrixXml");
+								foreignDbIds.put(key, matxDB.getId());
 							}
 						} else {
 							if (before) {

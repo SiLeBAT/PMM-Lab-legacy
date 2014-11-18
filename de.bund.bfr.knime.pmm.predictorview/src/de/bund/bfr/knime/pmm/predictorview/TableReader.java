@@ -384,9 +384,12 @@ public class TableReader {
 				if (element.getName().equals(initParam)
 						|| element.getName().equals(lagParam)) {
 					variables.put(element.getName(), new ArrayList<Double>());
-					// units.put(element.getName(), element.getUnit());
-					// categories.put(element.getName(),
-					// Arrays.asList(element.getCategory()));
+
+					if (element.getName().equals(initParam)) {
+						categories.put(element.getName(),
+								Arrays.asList(depXml.getCategory()));
+						units.put(element.getName(), depXml.getUnit());
+					}
 
 					if (element.getName().equals(initParam)
 							&& minConcentration != null

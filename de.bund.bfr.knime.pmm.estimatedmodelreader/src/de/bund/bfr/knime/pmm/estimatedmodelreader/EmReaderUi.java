@@ -381,9 +381,15 @@ public class EmReaderUi extends JPanel {
 	}
 
 	private void doFilterActionPerformed(ActionEvent e) {
+		if (getLevel() < 3) {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			getDataTable(db);
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+		else {
+    		Frame parentFrame = JOptionPane.getFrameForComponent(this);
+  		    JOptionPane.showMessageDialog(parentFrame, "Not possible for Secondary Models", "Impossible for Secondary Models", JOptionPane.INFORMATION_MESSAGE);			
+		}
 	}
 	public void addModelPrim(final int id, final String name, final String modelType, boolean visible) throws PmmException {
 		modelReaderUi.addModelPrim(id, name, modelType, visible);

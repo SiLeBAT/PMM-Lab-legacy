@@ -112,7 +112,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 		panel0.add(new JLabel("Level   "));
 
-		if (fitted) levelBox = new JComboBox<>(new String[] { LABEL_PRIM, LABEL_TERT });
+		if (fitted) levelBox = new JComboBox<>(new String[] { LABEL_PRIM, LABEL_TERT, LABEL_SEC });
 		else levelBox = new JComboBox<>(new String[] { LABEL_PRIM, LABEL_SEC });
 		levelBox.addActionListener(this);
 		levelBox.setPreferredSize(new Dimension(50, 25));
@@ -235,7 +235,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public void setLevel(int level) throws PmmException {
 		//if (!(level == 1 || level == 2)) throw new PmmException("Level must be in {1, 2}");
 
-		if (level == 1 || level == 2) levelBox.setSelectedIndex(level - 1);
+		if (level == 1 || level == 2 || level == 3) levelBox.setSelectedIndex(level - 1);
 	}
 	public void setModelClass(String modelClass) throws PmmException {
 		classBox.setSelectedItem(modelClass == null || modelClass.isEmpty() ? "All" : modelClass);

@@ -53,7 +53,7 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
-	public static void check4Updates_182_183() {
+	public static void check4Updates_183_184() {
 		/*
 		try {
 			ResultSet rs = DBKernel.getResultSet(
@@ -82,6 +82,8 @@ public class UpdateChecker {
 			e.printStackTrace();
 		}
 	*/
+	}
+	public static void check4Updates_182_183() {
 	}
 
 	public static void check4Updates_181_182() {

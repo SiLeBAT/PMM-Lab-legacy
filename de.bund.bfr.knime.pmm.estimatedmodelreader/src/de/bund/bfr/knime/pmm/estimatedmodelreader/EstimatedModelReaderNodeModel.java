@@ -195,8 +195,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
      	String dbuuid = db.getDBUUID();
     	ResultSet result = null;
-    	if (where != null)	result = (level == 1 ? db.selectEstModel(1, -1, where, false) : db.selectEstModel(2, -1, where, false));
-    	else result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
+    	if (where != null)	result = (level == 1 ? db.selectEstModel(1, -1, where, false) : level == 2 ? db.selectEstModel(2, -1, where, false) : db.selectEstModel(3, -1, where, false));
+    	else result = (level == 1 ? db.selectEstModel(1) : level == 2 ? db.selectEstModel(2) : db.selectEstModel(3));
     	
     	while (result.next()) {
 			String addWarningMsg = "";
@@ -204,7 +204,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		// initialize row
     		KnimeTuple tuple = new KnimeTuple(schema);
     		    	
-    		if (!withoutMdData) {
+    		if (!withoutMdData && level < 3) {
         		// fill ts
     			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
         		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
@@ -268,91 +268,106 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		}
     		
-    		
-    		// fill m1
-    		String formula = result.getString("Formel");
-    		if (formula != null) formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
-
-    		// Time=t,Log10C=LOG10N
-    		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO));
-    		//varMap.put(AttributeUtilities.TIME, "t"); varMap.put(AttributeUtilities.CONCENTRATION, "LOG10N");
-    		//varMap.put("t", AttributeUtilities.TIME); varMap.put("LOG10N", AttributeUtilities.CONCENTRATION);
-
-    		for (String to : varMap.keySet())	{
-    			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);
-    		}
-			if (!varMap.containsKey(AttributeUtilities.TIME)) formula = MathUtilities.replaceVariable(formula, "t", AttributeUtilities.TIME);
-			if (!varMap.containsKey(AttributeUtilities.CONCENTRATION)) formula = MathUtilities.replaceVariable(formula, "LOG10N", AttributeUtilities.CONCENTRATION);
-    		
-			PmmXmlDoc cmDoc = new PmmXmlDoc();
-			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null, dbuuid); 
-    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
-    		cmx.setModelClass((Integer) cls);
-			cmDoc.add(cmx);
-			tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
-
-    		PmmXmlDoc depDoc = new PmmXmlDoc();
-    		String dep = result.getString(Bfrdb.ATT_DEP);
-			if (!varMap.containsKey(AttributeUtilities.CONCENTRATION) && dep.equals("LOG10N")) dep = AttributeUtilities.CONCENTRATION;
+			PmmXmlDoc cmDoc;
+			CatalogModelXml cmx;
+			Object cls;
     		DepXml dx;
-    		if (varMap.containsKey(dep)) {
-    			dx = new DepXml(varMap.get(dep), result.getString("DepCategory"), result.getString("DepUnit"));
-    			dx.setName(dep);
-    		}
-    		else {
-    			dx = new DepXml(dep, result.getString("DepCategory"), result.getString("DepUnit"));
-    		}
-    		Array a = result.getArray("DepDescription");
-    		Object[] da = (Object[])a.getArray();
-			if (da != null && da[0] != null) dx.setDescription(da[0].toString());
-    		depDoc.add(dx);
-    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getId() + "!";
-    		
-    		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
-			PmmXmlDoc emDoc = new PmmXmlDoc();
-			
+    		PmmXmlDoc depDoc;
+    		Object[] da;
+    		Array a;
+    		String dep;
+    		EstModelXml emx;
 	    	Double rms = null;
-			if (result.getObject(Bfrdb.ATT_RMS) != null) rms = result.getDouble(Bfrdb.ATT_RMS);
 	    	Double r2 = null;
-			if (result.getObject(Bfrdb.ATT_RSQUARED) != null) r2 = result.getDouble(Bfrdb.ATT_RSQUARED);
 	    	Double aic = null;
-			if (result.getObject("AIC") != null) aic = result.getDouble("AIC");
 	    	Double bic = null;
-			if (result.getObject("BIC") != null) bic = result.getDouble("BIC");
-						
-			EstModelXml emx = new EstModelXml(emid, result.getString("FittedModelName"), null, rms, r2, aic, bic, null); // "EM_" + emid
-			emx.setDbuuid(dbuuid);
-			if (result.getObject("Geprueft") != null) emx.setChecked(result.getBoolean("Geprueft"));
-			if (result.getObject("Guetescore") != null) emx.setQualityScore(result.getInt("Guetescore"));
-			if (result.getObject("Kommentar") != null) emx.setComment(result.getString("Kommentar"));
-			/*
-    		Object cmt = DBKernel.getValue(conn,"GeschaetzteModelle", "ID", ""+emid, "Kommentar");
-    		if (cmt != null) emx.setComment((String) cmt);
-*/
-			emDoc.add(emx);
-			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
-
-			PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
-    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"),
-    				result.getArray("IndepUnit"), result.getArray("IndepDescription"), true);
-    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
-			if (emrnm != null && !ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
-
-			tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
-    				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
-    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription"), result.getArray("ParamP"), result.getArray("Paramt"), cmx.getId(), emid));
+	    	PmmXmlDoc emDoc;
+	    	int emid;
+	    	String s;
+	    	String formula;
+	    	LinkedHashMap<String, String> varMap;
+    		if (level < 3) {
     		
-    		String s = result.getString("LitMID");
-    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s, dbuuid));
-    		s = result.getString("LitEmID");
-    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(conn, s, dbuuid));
+	    		// fill m1
+	    		formula = result.getString("Formel");
+	    		if (formula != null) formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+	
+	    		// Time=t,Log10C=LOG10N
+	    		varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO));
+	    		//varMap.put(AttributeUtilities.TIME, "t"); varMap.put(AttributeUtilities.CONCENTRATION, "LOG10N");
+	    		//varMap.put("t", AttributeUtilities.TIME); varMap.put("LOG10N", AttributeUtilities.CONCENTRATION);
+	
+	    		for (String to : varMap.keySet())	{
+	    			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);
+	    		}
+				if (!varMap.containsKey(AttributeUtilities.TIME)) formula = MathUtilities.replaceVariable(formula, "t", AttributeUtilities.TIME);
+				if (!varMap.containsKey(AttributeUtilities.CONCENTRATION)) formula = MathUtilities.replaceVariable(formula, "LOG10N", AttributeUtilities.CONCENTRATION);
     		
-    		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model1Schema.NOTWRITABLE : Model1Schema.WRITABLE);
-    		tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
+				cmDoc = new PmmXmlDoc();
+				cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null, dbuuid); 
+	    		cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
+	    		cmx.setModelClass((Integer) cls);
+				cmDoc.add(cmx);
+				tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
+
+	    		depDoc = new PmmXmlDoc();
+	    		dep = result.getString(Bfrdb.ATT_DEP);
+				if (!varMap.containsKey(AttributeUtilities.CONCENTRATION) && dep.equals("LOG10N")) dep = AttributeUtilities.CONCENTRATION;
+	    		if (varMap.containsKey(dep)) {
+	    			dx = new DepXml(varMap.get(dep), result.getString("DepCategory"), result.getString("DepUnit"));
+	    			dx.setName(dep);
+	    		}
+	    		else {
+	    			dx = new DepXml(dep, result.getString("DepCategory"), result.getString("DepUnit"));
+	    		}
+	    		a = result.getArray("DepDescription");
+	    		da = (Object[])a.getArray();
+				if (da != null && da[0] != null) dx.setDescription(da[0].toString());
+	    		depDoc.add(dx);
+	    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
+				if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getId() + "!";
+	    		
+	    		emid = result.getInt(Bfrdb.ATT_ESTMODELID);
+				emDoc = new PmmXmlDoc();
+				
+				if (result.getObject(Bfrdb.ATT_RMS) != null) rms = result.getDouble(Bfrdb.ATT_RMS);
+				if (result.getObject(Bfrdb.ATT_RSQUARED) != null) r2 = result.getDouble(Bfrdb.ATT_RSQUARED);
+				if (result.getObject("AIC") != null) aic = result.getDouble("AIC");
+				if (result.getObject("BIC") != null) bic = result.getDouble("BIC");
+							
+				emx = new EstModelXml(emid, result.getString("FittedModelName"), null, rms, r2, aic, bic, null); // "EM_" + emid
+				emx.setDbuuid(dbuuid);
+				if (result.getObject("Geprueft") != null) emx.setChecked(result.getBoolean("Geprueft"));
+				if (result.getObject("Guetescore") != null) emx.setQualityScore(result.getInt("Guetescore"));
+				if (result.getObject("Kommentar") != null) emx.setComment(result.getString("Kommentar"));
+				/*
+	    		Object cmt = DBKernel.getValue(conn,"GeschaetzteModelle", "ID", ""+emid, "Kommentar");
+	    		if (cmt != null) emx.setComment((String) cmt);
+	*/
+				emDoc.add(emx);
+				tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
+
+				PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
+	    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"),
+	    				result.getArray("IndepUnit"), result.getArray("IndepDescription"), true);
+	    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
+				if (emrnm != null && !ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
+
+				tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
+	    				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
+	    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription"), result.getArray("ParamP"), result.getArray("Paramt"), cmx.getId(), emid));
+	    		
+	    		s = result.getString("LitMID");
+	    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s, dbuuid));
+	    		s = result.getString("LitEmID");
+	    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(conn, s, dbuuid));
+	    		
+	    		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model1Schema.NOTWRITABLE : Model1Schema.WRITABLE);
+	    		tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
+			}
     		
     		// fill m2
-    		if (level == 2) {
+    		if (level >= 2) {
 	    		formula = result.getString("Formel2");
 	    		if (formula != null) {
 					formula = formula.replaceAll("~", "=").replaceAll("\\s", "");
@@ -420,8 +435,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 				
-    			Object gmid = result.getObject("GlobalModel");
-	    		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, gmid);//gmid == null ? MathUtilities.getRandomNegativeInt() : (Integer) gmid);
+				if (level < 3) {
+	    			Object gmid = result.getObject("GlobalModel");
+		    		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, gmid);//gmid == null ? MathUtilities.getRandomNegativeInt() : (Integer) gmid);
+				}
 
 	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP+"2"),
 	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2"), result.getArray("IndepCategory2"),
@@ -575,6 +592,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     }
 
     public static KnimeSchema createSchema(boolean withoutMdData, int level) throws PmmException {    	
+    	if (level == 3) {
+			return new Model2Schema();
+		}
     	KnimeSchema schema;
     	if (withoutMdData) {
     		schema = new Model1Schema();    		

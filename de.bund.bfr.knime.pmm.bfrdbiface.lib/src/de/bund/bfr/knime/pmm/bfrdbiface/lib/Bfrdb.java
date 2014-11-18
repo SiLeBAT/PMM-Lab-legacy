@@ -215,6 +215,8 @@ public class Bfrdb {
 			+ " LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\"" + "    WHERE \"" + ATT_PARAMTYPE + "\"=2\n" + "    GROUP BY \""
 			+ ATT_MODELID + "\" )AS \"P\"\n" + "ON \"" + REL_MODEL + "\".\"ID\"=\"P\".\"" + ATT_MODELID + "\"\n";
 
+	private static final String querySecOnly = "SELECT " + "*" + "FROM" + "\"EstModelSecView\"\n";
+	
 	private static final String queryPei2 = "SELECT\n" + "\n" + "    \"MicrobialDataView\".\"" + ATT_CONDITIONID + "\",\n" + "    \"MicrobialDataView\".\"CombaseID\",\n"
 			+ "    \"MicrobialDataView\".\"" + ATT_TEMPERATURE + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_PH + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AW + "\",\n"
 			+ "    \"MicrobialDataView\".\"" + ATT_AGENTID + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AGENTNAME + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AGENTDETAIL
@@ -459,11 +461,18 @@ public class Bfrdb {
 				myWhere = " WHERE \"EstModelPrimView\".\"" + ATT_ESTMODELID + "\" = " + estimatedModelID;
 				myWhereCache = " WHERE \"" + ATT_ESTMODELID + "\" = " + estimatedModelID;
 			}
-		} else {
+		} else if (level == 2) {
 			q = querySei2;
 			if (estimatedModelID > 0) {
 				myWhere = " WHERE \"EstModelSecView\".\"" + ATT_ESTMODELID + "2\" = " + estimatedModelID;
 				myWhereCache = " WHERE \"" + ATT_ESTMODELID + "2\" = " + estimatedModelID;
+			}
+		}
+		else { // level = 3
+			q = querySecOnly;
+			if (estimatedModelID > 0) {
+				myWhere = " WHERE \"EstModelSOView\".\"" + ATT_ESTMODELID + "\" = " + estimatedModelID;
+				myWhereCache = " WHERE \"" + ATT_ESTMODELID + "\" = " + estimatedModelID;
 			}
 		}
 		if (where != null && !where.isEmpty()) {

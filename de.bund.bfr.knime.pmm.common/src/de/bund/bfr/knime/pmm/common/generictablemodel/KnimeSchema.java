@@ -245,7 +245,7 @@ public class KnimeSchema {
 	
 	public static String getAttribute(String attribute, int level) {
 		if (level == 1) return attribute;
-		else if (level == 2) return attribute + "Sec";
+		else if (level == 2 || level == 3) return attribute + "Sec";
 		else return null;
 	}
 	

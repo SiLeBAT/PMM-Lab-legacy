@@ -95,6 +95,13 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 	 * private String filename; private String login; private String passwd;
 	 * private boolean override;
 	 */
+	private HashMap<Integer, ParametricModel> alreadyInsertedModel = null;
+	private HashMap<Integer, ParametricModel> alreadyInsertedEModel = null;
+	private Connection conn = null;
+	private String warnings = "";
+	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = null;
+	private Bfrdb db = null;
+	
 	/**
 	 * Constructor for the node model.
 	 */
@@ -112,7 +119,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
 
-		Bfrdb db = null;
+		db = null;
 		/*
 		 * if( override ) { db = new Bfrdb( filename, login, passwd ); } else {
 		 * db = new Bfrdb(DBKernel.getLocalConn(true)); }
@@ -121,7 +128,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		} catch (Exception e1) {
 		}
-		Connection conn = db.getConnection();
+		conn = db.getConnection();
 		conn.setReadOnly(false);
 		/*
 		 * IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot(); for
@@ -136,10 +143,13 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		int n = inData[0].getRowCount();
 
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
+		boolean tsConform = inSchema.conforms(new TimeSeriesSchema());
+		boolean model1Conform = inSchema.conforms(new Model1Schema());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
+		boolean secOnly = model2Conform && !model1Conform && !tsConform;
 		Integer rowEstM2ID = null;
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<>();
+		foreignDbIds = new HashMap<>();
 		String dbuuid = db.getDBUUID();
 
 		HashMap<Integer, List<Integer>> secModels = new HashMap<>();
@@ -147,47 +157,49 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		ParametricModel ppm = null, spm;
 
 		int j = 0;
-		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<>();
-		HashMap<Integer, ParametricModel> alreadyInsertedEModel = new HashMap<>();
+		alreadyInsertedModel = new HashMap<>();
+		alreadyInsertedEModel = new HashMap<>();
 		HashMap<Integer, Integer> alreadyInsertedGModel = new HashMap<>();
 		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<>();
 		boolean M1Writable = false, M2Writable = false;
-		String warnings = "";
+		warnings = "";
 		Integer wfID = saveWF(exec);
 		while (reader.hasMoreElements()) {
 			exec.setProgress((double) j++ / n);
 
 			KnimeTuple row = reader.nextElement();
 
-			// TimeSeries
-			PmmTimeSeries ts = new PmmTimeSeries(row);
-			int rowTsID = ts.getCondId();
 			Integer newTsID = null;
-			if (alreadyInsertedTs.containsKey(rowTsID)) {
-				ts = alreadyInsertedTs.get(rowTsID);
-				newTsID = ts.getCondId();
-			} else {
-				String[] attrs = new String[] { TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-						TimeSeriesSchema.ATT_LITMD };
-				String[] dbTablenames = new String[] { "Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur" };
+			if (!secOnly) {
+				// TimeSeries
+				PmmTimeSeries ts = new PmmTimeSeries(row);
+				int rowTsID = ts.getCondId();
+				if (alreadyInsertedTs.containsKey(rowTsID)) {
+					ts = alreadyInsertedTs.get(rowTsID);
+					newTsID = ts.getCondId();
+				} else {
+					String[] attrs = new String[] { TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+							TimeSeriesSchema.ATT_LITMD };
+					String[] dbTablenames = new String[] { "Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur" };
 
-				boolean checkAnywayDueToNegativeId = (ts.getCondId() < 0);
-				String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
-				if (rowuuid == null) rowuuid = ts.getDbuuid();
-				if (rowuuid == null && ts.getMatrix() != null && ts.getMatrix().size() > 0) {
-					rowuuid = ((MatrixXml) ts.getMatrix().get(0)).getDbuuid();
-				}
-				
-				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-				newTsID = db.insertTs(ts);
-				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-				
-				//ts.setCondId(newTsID);
-				alreadyInsertedTs.put(rowTsID, ts);
+					boolean checkAnywayDueToNegativeId = (ts.getCondId() < 0);
+					String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
+					if (rowuuid == null) rowuuid = ts.getDbuuid();
+					if (rowuuid == null && ts.getMatrix() != null && ts.getMatrix().size() > 0) {
+						rowuuid = ((MatrixXml) ts.getMatrix().get(0)).getDbuuid();
+					}
+					
+					foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
+					newTsID = db.insertTs(ts);
+					foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
+					
+					//ts.setCondId(newTsID);
+					alreadyInsertedTs.put(rowTsID, ts);
 
-				String text = ts.getWarning();
-				if (text != null && !text.trim().isEmpty()) {
-					if (warnings.indexOf(text) < 0) warnings += text + "\n";
+					String text = ts.getWarning();
+					if (text != null && !text.trim().isEmpty()) {
+						if (warnings.indexOf(text) < 0) warnings += text + "\n";
+					}
 				}
 			}
 
@@ -306,6 +318,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							") is not storable due to joining with unassociated kinetic data\n";
 					if (warnings.indexOf(text) < 0) warnings += text;
 				}
+				
 				if (model2Conform && newPrimEstID != null) {
 					dw = row.getInt(Model2Schema.ATT_DATABASEWRITABLE);
 					M2Writable = (dw != null && dw == 1);
@@ -323,94 +336,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					rowEstM2ID = emx.getId();
 					//System.err.println(newPrimEstID + "\t" + rowEstM2ID);
 					if (M2Writable) {
-						CatalogModelXml cmx = null;
-						PmmXmlDoc catModel = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
-						if (catModel != null) {
-							for (PmmXmlElementConvertable el : catModel.getElementSet()) {
-								if (el instanceof CatalogModelXml) {
-									cmx = (CatalogModelXml) el;
-									break;
-								}
-							}
-						}
-						Integer rowMcID = cmx.getId();//row.getInt(Model2Schema.ATT_MODELID);
-						String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
-						String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
-						PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
-						DepXml dx = (DepXml) depXml.getElementSet().get(0);
-
-						PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
-						PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-
-						PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
-						PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
-
-						Double rms = emx.getRms();//row.getDouble(Model2Schema.ATT_RMS);
-						Double r2 = emx.getR2();//row.getDouble(Model2Schema.ATT_RSQUARED);
-						Double aic = emx.getAic();//row.getDouble(Model2Schema.ATT_AIC);
-						Double bic = emx.getBic();//row.getDouble(Model2Schema.ATT_BIC);
-
-						// Modellkatalog secondary
-						if (alreadyInsertedModel.containsKey(rowMcID)) {
-							spm = alreadyInsertedModel.get(rowMcID);
-						} else {
-							spm = new ParametricModel(modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-							spm.setModelClass(cmx.getModelClass());
-							spm.setParameter(paramXml);
-							spm.setIndependent(indepXml);
-							spm.setFormula(spm.revertFormula());
-							spm.setMLit(mLitXmlDoc);
-
-							String[] attrs = new String[] { Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT };
-							String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
-
-							boolean checkAnywayDueToNegativeId = (rowMcID < 0);
-							String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
-							if (rowuuid == null) rowuuid = cmx.getDbuuid();
-							
-							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-							db.insertM(spm);
-							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-
-							alreadyInsertedModel.put(rowMcID, spm);
-							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
-						}
-
-						if (alreadyInsertedEModel.containsKey(rowEstM2ID)) {
-							spm = alreadyInsertedEModel.get(rowEstM2ID);
-						} else {
-							try {
-								spm.setFittedModelName(emx.getName());
-								spm.setRms(rms);
-								spm.setRsquared(r2);
-								spm.setAic(aic);
-								spm.setBic(bic);
-								spm.setQualityScore(emx.getQualityScore());
-								spm.setChecked(emx.getChecked());
-								spm.setComment(emx.getComment());
-							} catch (Exception e) {
-								warnings += e.getMessage() + " -> ID: " + rowEstM2ID;
-								MyLogger.handleException(e);
-							}
-							spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-							spm.setParameter(paramXml);
-							spm.setIndependent(indepXml);
-							spm.setDepXml(dx);
-							spm.setEstLit(emLitXmlDoc);
-
-							String[] attrs = new String[] { Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT };
-							String[] dbTablenames = new String[] { "GeschaetzteModelle", "Literatur" };
-
-							boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
-							String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
-							if (rowuuid == null) rowuuid = emx.getDbuuid();
-							foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-							db.insertEm(spm, wfID, ppm);				
-							foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
-							alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
-							if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
-						}
-
+						spm = writeM2(row, emx, ppm, dbuuid, wfID);
+						
+						
 						if (!secModels.containsKey(spm.getEstModelId())) secModels.put(spm.getEstModelId(), new ArrayList<Integer>());
 						secModels.get(spm.getEstModelId()).add(newPrimEstID);
 						Integer gmSchemaID = row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
@@ -434,8 +362,28 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					//System.err.println("newPrimEstID: " + newPrimEstID);
 				}
 			}
+			else if (secOnly) {
+				Integer dw = row.getInt(Model2Schema.ATT_DATABASEWRITABLE);
+				M2Writable = (dw != null && dw == 1);
+				//rowEstM2ID = row.getInt(Model2Schema.ATT_ESTMODELID);
+				EstModelXml emx = null;
+				PmmXmlDoc estModel = row.getPmmXml(Model2Schema.ATT_ESTMODEL);
+				if (estModel != null) {
+					for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+						if (el instanceof EstModelXml) {
+							emx = (EstModelXml) el;
+							break;
+						}
+					}
+				}
+				rowEstM2ID = emx.getId();
+				//System.err.println(newPrimEstID + "\t" + rowEstM2ID);
+				if (M2Writable) {
+					spm = writeM2(row, emx, ppm, dbuuid, wfID);
+				}
+			}
 		}
-		if (model2Conform) {
+		if (model2Conform && !secOnly) {
 			if (M2Writable) {
 				for (Integer gmId : globalModels.keySet()) {
 					HashSet<Integer> secModelIDs = globalModels.get(gmId);
@@ -455,6 +403,99 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
 		db.close();
 		return null;
+	}
+	private ParametricModel writeM2(KnimeTuple row, EstModelXml emx, ParametricModel ppm, String dbuuid, Integer wfID) {
+		ParametricModel spm = null;
+		Integer rowEstM2ID = emx.getId();
+		CatalogModelXml cmx = null;
+		PmmXmlDoc catModel = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+		if (catModel != null) {
+			for (PmmXmlElementConvertable el : catModel.getElementSet()) {
+				if (el instanceof CatalogModelXml) {
+					cmx = (CatalogModelXml) el;
+					break;
+				}
+			}
+		}
+		Integer rowMcID = cmx.getId();//row.getInt(Model2Schema.ATT_MODELID);
+		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
+		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
+		PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
+		DepXml dx = (DepXml) depXml.getElementSet().get(0);
+
+		PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
+		PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+
+		PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
+		PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
+
+		Double rms = emx.getRms();//row.getDouble(Model2Schema.ATT_RMS);
+		Double r2 = emx.getR2();//row.getDouble(Model2Schema.ATT_RSQUARED);
+		Double aic = emx.getAic();//row.getDouble(Model2Schema.ATT_AIC);
+		Double bic = emx.getBic();//row.getDouble(Model2Schema.ATT_BIC);
+
+		// Modellkatalog secondary
+		if (alreadyInsertedModel.containsKey(rowMcID)) {
+			spm = alreadyInsertedModel.get(rowMcID);
+		} else {
+			spm = new ParametricModel(modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
+			spm.setModelClass(cmx.getModelClass());
+			spm.setParameter(paramXml);
+			spm.setIndependent(indepXml);
+			spm.setFormula(spm.revertFormula());
+			spm.setMLit(mLitXmlDoc);
+
+			String[] attrs = new String[] { Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT };
+			String[] dbTablenames = new String[] { "Modellkatalog", "Literatur" };
+
+			boolean checkAnywayDueToNegativeId = (rowMcID < 0);
+			String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+			if (rowuuid == null) rowuuid = cmx.getDbuuid();
+			
+			foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
+			db.insertM(spm);
+			foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
+
+			alreadyInsertedModel.put(rowMcID, spm);
+			if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
+		}
+
+		if (alreadyInsertedEModel.containsKey(rowEstM2ID)) {
+			spm = alreadyInsertedEModel.get(rowEstM2ID);
+		} else {
+			try {
+				spm.setFittedModelName(emx.getName());
+				spm.setRms(rms);
+				spm.setRsquared(r2);
+				spm.setAic(aic);
+				spm.setBic(bic);
+				spm.setQualityScore(emx.getQualityScore());
+				spm.setChecked(emx.getChecked());
+				spm.setComment(emx.getComment());
+			} catch (Exception e) {
+				warnings += e.getMessage() + " -> ID: " + rowEstM2ID;
+				MyLogger.handleException(e);
+			}
+			spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
+			spm.setParameter(paramXml);
+			spm.setIndependent(indepXml);
+			spm.setDepXml(dx);
+			spm.setEstLit(emLitXmlDoc);
+
+			String[] attrs = new String[] { Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT };
+			String[] dbTablenames = new String[] { "GeschaetzteModelle", "Literatur" };
+
+			boolean checkAnywayDueToNegativeId = (spm.getEstModelId() < 0);
+			String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+			if (rowuuid == null) rowuuid = emx.getDbuuid();
+			foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
+			db.insertEm(spm, wfID, ppm);				
+			foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, rowuuid, checkAnywayDueToNegativeId);
+			alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
+			if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
+		}		
+		
+		return spm;
 	}
 
 	// GlobalModels
@@ -613,14 +654,15 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 	private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
 		KnimeSchema result = null;
 		KnimeSchema inSchema = new TimeSeriesSchema();
+		boolean hasTS = false;
 		try {
 			if (inSchema.conforms(inSpec)) {
 				result = inSchema;
-			} else {
-				throw new InvalidSettingsException("Unexpected format - it is not possible to save fitted models without microbial data information");
+				hasTS = true;
 			}
 		} catch (PmmException e) {
 		}
+		
 		boolean hasM1 = false;
 		inSchema = new Model1Schema();
 		try {
@@ -630,17 +672,22 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			}
 		} catch (PmmException e) {
 		}
+		
+		boolean hasM2 = false;
 		inSchema = new Model2Schema();
 		try {
 			if (inSchema.conforms(inSpec)) {
-				if (hasM1) {
-					result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
-				}
+				result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
+				hasM2 = true;
 			}
 		} catch (PmmException e) {
 		}
-		if (!hasM1) {
-			throw new InvalidSettingsException("Unexpected format - it is not possible to save secondary models without defined primary models");
+		
+		if (hasM2 && !hasM1 && !hasTS) { // ok, save, only secondary model, like z-value
+			;
+		}
+		else if (!hasTS) {
+			throw new InvalidSettingsException("Unexpected format - it is not possible to save fitted models without microbial data information");
 		}
 		return result;
 	}

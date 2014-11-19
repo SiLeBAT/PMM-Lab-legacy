@@ -1033,14 +1033,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			depMinBox = new JComboBox<>(options.toArray(new String[0]));
 			depMaxBox = new JComboBox<>(options.toArray(new String[0]));
-			depUnitBox = new JComboBox<>(Categories
-					.getCategory(depXml.getCategory()).getAllUnits()
-					.toArray(new String[0]));
+			depUnitBox = new JComboBox<>(new String[] { depXml.getUnit() });
 			indepMinBox = new JComboBox<>(options.toArray(new String[0]));
 			indepMaxBox = new JComboBox<>(options.toArray(new String[0]));
-			indepUnitBox = new JComboBox<>(Categories
-					.getCategory(indepXml.getCategory()).getAllUnits()
-					.toArray(new String[0]));
+			indepUnitBox = new JComboBox<>(new String[] { indepXml.getUnit() });
 			rmseBox = new JComboBox<>(options.toArray(new String[0]));
 			r2Box = new JComboBox<>(options.toArray(new String[0]));
 			aicBox = new JComboBox<>(options.toArray(new String[0]));
@@ -1050,12 +1046,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					SettingsHelper.DO_NOT_USE);
 			UI.select(depMaxBox, set.getModelDepMax(),
 					SettingsHelper.DO_NOT_USE);
-			UI.select(depUnitBox, set.getModelDepUnit(), depXml.getUnit());
+			// UI.select(depUnitBox, set.getModelDepUnit(), depXml.getUnit());
 			UI.select(indepMinBox, set.getModelIndepMin(),
 					SettingsHelper.DO_NOT_USE);
 			UI.select(indepMaxBox, set.getModelIndepMax(),
 					SettingsHelper.DO_NOT_USE);
-			UI.select(indepUnitBox, set.getModelIndepUnit(), indepXml.getUnit());
+			// UI.select(indepUnitBox, set.getModelIndepUnit(),
+			// indepXml.getUnit());
 			UI.select(rmseBox, set.getModelRmse(), SettingsHelper.DO_NOT_USE);
 			UI.select(r2Box, set.getModelR2(), SettingsHelper.DO_NOT_USE);
 			UI.select(aicBox, set.getModelAic(), SettingsHelper.DO_NOT_USE);
@@ -1064,10 +1061,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			depMinBox.addItemListener(this);
 			depMaxBox.addItemListener(this);
-			depUnitBox.addItemListener(this);
+			// depUnitBox.addItemListener(this);
 			indepMinBox.addItemListener(this);
 			indepMaxBox.addItemListener(this);
-			indepUnitBox.addItemListener(this);
+			// indepUnitBox.addItemListener(this);
 			rmseBox.addItemListener(this);
 			r2Box.addItemListener(this);
 			aicBox.addItemListener(this);

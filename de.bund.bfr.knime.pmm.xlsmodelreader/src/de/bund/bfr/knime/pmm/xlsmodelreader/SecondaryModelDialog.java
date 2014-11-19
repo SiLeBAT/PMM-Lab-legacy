@@ -58,7 +58,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.ui.UI;
-import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class SecondaryModelDialog extends JDialog implements ActionListener,
 		ItemListener {
@@ -353,38 +352,39 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			for (PmmXmlElementConvertable el2 : tuple.getPmmXml(
 					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
 				IndepXml indep = (IndepXml) el2;
-				String[] categoryChoice = Categories.getAllCategories()
-						.toArray(new String[0]);
-				String defaultCategory = indep.getCategory() != null ? indep
-						.getCategory() : categoryChoice[0];
+				// String[] categoryChoice = Categories.getAllCategories()
+				// .toArray(new String[0]);
+				// String defaultCategory = indep.getCategory() != null ? indep
+				// .getCategory() : categoryChoice[0];
 
 				JComboBox<String> minBox = new JComboBox<>(
 						options.toArray(new String[0]));
 				JComboBox<String> maxBox = new JComboBox<>(
 						options.toArray(new String[0]));
-				JComboBox<String> categoryBox = new JComboBox<>(categoryChoice);
+				JComboBox<String> categoryBox = new JComboBox<>(
+						new String[] { indep.getCategory() });
 
 				mins.put(indep.getName(), UI.select(minBox,
 						mins.get(indep.getName()), SettingsHelper.DO_NOT_USE));
 				maxs.put(indep.getName(), UI.select(maxBox,
 						maxs.get(indep.getName()), SettingsHelper.DO_NOT_USE));
-				categories.put(indep.getName(), UI.select(categoryBox,
-						categories.get(indep.getName()), defaultCategory));
+				categories.put(indep.getName(), indep.getCategory());
 
-				String[] unitChoice = Categories
-						.getCategory(categories.get(indep.getName()))
-						.getAllUnits().toArray(new String[0]);
-				String defaultUnit = indep.getUnit() != null ? indep.getUnit()
-						: unitChoice[0];
-				JComboBox<String> unitBox = new JComboBox<>(unitChoice);
+				// String[] unitChoice = Categories
+				// .getCategory(categories.get(indep.getName()))
+				// .getAllUnits().toArray(new String[0]);
+				// String defaultUnit = indep.getUnit() != null ?
+				// indep.getUnit()
+				// : unitChoice[0];
+				JComboBox<String> unitBox = new JComboBox<>(
+						new String[] { indep.getUnit() });
 
-				units.put(indep.getName(), UI.select(unitBox,
-						units.get(indep.getName()), defaultUnit));
+				units.put(indep.getName(), indep.getUnit());
 
 				minBox.addItemListener(this);
 				maxBox.addItemListener(this);
-				categoryBox.addItemListener(this);
-				unitBox.addItemListener(this);
+				// categoryBox.addItemListener(this);
+				// unitBox.addItemListener(this);
 				minBoxes.put(indep.getName(), minBox);
 				maxBoxes.put(indep.getName(), maxBox);
 				categoryBoxes.put(indep.getName(), categoryBox);

@@ -48,6 +48,7 @@ import javax.xml.stream.XMLStreamException;
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Annotation;
+import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Creator;
 import org.sbml.jsbml.History;
@@ -206,17 +207,9 @@ public class TableReader {
 
 			String formula = modelXml.getFormula().substring(
 					modelXml.getFormula().indexOf("=") + 1);
-			String dep = depXml.getName();
-
-			if (depXml.getUnit().startsWith("log")) {
-				dep = "log10(" + dep + ")";
-			} else if (depXml.getUnit().startsWith("ln")) {
-				dep = "ln(" + dep + ")";
-			}
 
 			try {
-				rules.add(new AlgebraicRule(ASTNode.eq(parse(dep),
-						parse(formula)), 2, 4));
+				rules.add(new AssignmentRule(parse(formula), depParam));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

@@ -122,7 +122,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		for (String name : reader.getDocuments().keySet()) {
 			File file = new File(outPath.getStringValue() + "/" + name
 					+ ".sbml.xml");
-			
+
 			if (!overwrite.getBooleanValue() && file.exists()) {
 				throw new IOException(file.getAbsolutePath()
 						+ " already exists");
@@ -152,11 +152,9 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (SchemaFactory.createM12DataSchema().conforms(
-				(DataTableSpec) inSpecs[0])) {
+		if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
 			schema = SchemaFactory.createM12DataSchema();
-		} else if (SchemaFactory.createM1DataSchema().conforms(
-				(DataTableSpec) inSpecs[0])) {
+		} else if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
 			schema = SchemaFactory.createM1DataSchema();
 		} else if (outPath.getStringValue() == null
 				|| variableParams.getStringValue() == null) {
@@ -175,7 +173,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		overwrite.saveSettingsTo(settings);
 		outPath.saveSettingsTo(settings);
-		variableParams.saveSettingsTo(settings);		
+		variableParams.saveSettingsTo(settings);
 		creatorGivenName.saveSettingsTo(settings);
 		creatorFamilyName.saveSettingsTo(settings);
 		creatorContact.saveSettingsTo(settings);
@@ -192,7 +190,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		overwrite.loadSettingsFrom(settings);
 		outPath.loadSettingsFrom(settings);
-		variableParams.loadSettingsFrom(settings);		
+		variableParams.loadSettingsFrom(settings);
 		creatorGivenName.loadSettingsFrom(settings);
 		creatorFamilyName.loadSettingsFrom(settings);
 		creatorContact.loadSettingsFrom(settings);
@@ -209,7 +207,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		overwrite.validateSettings(settings);
 		outPath.validateSettings(settings);
-		variableParams.validateSettings(settings);		
+		variableParams.validateSettings(settings);
 		creatorGivenName.validateSettings(settings);
 		creatorFamilyName.validateSettings(settings);
 		creatorContact.validateSettings(settings);

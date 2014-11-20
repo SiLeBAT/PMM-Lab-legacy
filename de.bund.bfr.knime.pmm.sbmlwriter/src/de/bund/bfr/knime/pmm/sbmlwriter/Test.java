@@ -17,12 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
-import org.sbml.jsbml.xml.XMLAttributes;
-import org.sbml.jsbml.xml.XMLNode;
-import org.sbml.jsbml.xml.XMLTriple;
 
 public class Test extends JFrame implements ActionListener {
 
@@ -183,13 +179,9 @@ public class Test extends JFrame implements ActionListener {
 			}
 
 			if (transformBox.getSelectedItem() != null) {
-				Annotation annotation = new Annotation();
-				XMLAttributes attributes = new XMLAttributes();
-
-				attributes.add("name", (String) transformBox.getSelectedItem());
-				annotation.setNonRDFAnnotation(new XMLNode(new XMLTriple(
-						"transformation", null, null), attributes));
-				unit.setAnnotation(annotation);
+				unit.setAnnotation(SBMLUtilities
+						.createTransformationAnnotation((String) transformBox
+								.getSelectedItem()));
 			}
 
 			stringField.setText(unit.toString());

@@ -3,9 +3,12 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
@@ -13,6 +16,9 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
+import org.sbml.jsbml.xml.XMLAttributes;
+import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.XMLTriple;
 
 public class SBMLUtilities {
 
@@ -51,8 +57,19 @@ public class SBMLUtilities {
 		String postXml = "</listOfUnitDefinitions>" + "</model>" + "</sbml>";
 
 		try {
-			return SBMLReader.read(preXml + xml + postXml).getModel()
-					.getUnitDefinition(0);
+			UnitDefinition def = SBMLReader.read(preXml + xml + postXml)
+					.getModel().getUnitDefinition(0);
+
+			Matcher m = Pattern.compile("name=\"\\w+\"").matcher(xml);
+
+			if (m.find()) {
+				String transform = m.group().replace("name=", "")
+						.replace("\"", "");
+
+				def.setAnnotation(createTransformationAnnotation(transform));
+			}
+
+			return def;
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
 		}
@@ -66,6 +83,8 @@ public class SBMLUtilities {
 		for (int i = 0; i < unit.getNumUnits(); i++) {
 			u.addUnit(new Unit(unit.getUnit(i)));
 		}
+
+		u.setAnnotation(unit.getAnnotation());
 
 		return u;
 	}
@@ -83,5 +102,16 @@ public class SBMLUtilities {
 		}
 
 		return null;
+	}
+
+	public static Annotation createTransformationAnnotation(String name) {
+		Annotation annotation = new Annotation();
+		XMLAttributes attributes = new XMLAttributes();
+
+		attributes.add("name", name);
+		annotation.setNonRDFAnnotation(new XMLNode(new XMLTriple(
+				"transformation", null, null), attributes));
+
+		return annotation;
 	}
 }

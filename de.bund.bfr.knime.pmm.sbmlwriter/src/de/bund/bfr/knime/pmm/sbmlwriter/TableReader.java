@@ -192,6 +192,7 @@ public class TableReader {
 
 			if (depSbmlUnit != null) {
 				UnitDefinition unit = SBMLUtilities.fromXml(depSbmlUnit);
+				System.out.println(unit.getAnnotationString());
 				Unit.Kind kind = SBMLUtilities.simplify(unit);
 				UnitDefinition modelUnit = model
 						.getUnitDefinition(unit.getId());

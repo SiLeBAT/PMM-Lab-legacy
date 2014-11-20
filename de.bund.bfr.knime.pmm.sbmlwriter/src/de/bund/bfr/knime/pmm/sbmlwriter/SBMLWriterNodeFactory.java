@@ -40,52 +40,50 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "SBMLWriter" Node.
  * 
- *
+ * 
  * @author Christian Thoens
  */
-public class SBMLWriterNodeFactory 
-        extends NodeFactory<SBMLWriterNodeModel> {
+public class SBMLWriterNodeFactory extends NodeFactory<SBMLWriterNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SBMLWriterNodeModel createNodeModel() {
-        return new SBMLWriterNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SBMLWriterNodeModel createNodeModel() {
+		return new SBMLWriterNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<SBMLWriterNodeModel> createNodeView(final int viewIndex,
-            final SBMLWriterNodeModel nodeModel) {
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<SBMLWriterNodeModel> createNodeView(final int viewIndex,
+			final SBMLWriterNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new SBMLWriterNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new SBMLWriterNodeDialog();
+	}
 
 }
-

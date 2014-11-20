@@ -84,6 +84,10 @@ public class UpdateChecker {
 	*/
 	}
 	public static void check4Updates_182_183() {
+		
+	}
+	public static void check4Updates_182_1820() {
+		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_141120.xls", null, false);
 	}
 
 	public static void check4Updates_181_182() {

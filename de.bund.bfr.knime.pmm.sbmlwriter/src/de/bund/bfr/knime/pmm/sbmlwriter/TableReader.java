@@ -46,10 +46,9 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 
 import org.sbml.jsbml.ASTNode;
-import org.sbml.jsbml.AlgebraicRule;
-import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
+import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.Creator;
 import org.sbml.jsbml.History;
 import org.sbml.jsbml.ListOf;
@@ -62,7 +61,6 @@ import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
-import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -160,8 +158,9 @@ public class TableReader {
 			model.setMetaId("Meta_" + modelID);
 			model.setName(modelID);
 			model.setHistory(history);
-			model.setNotes(XMLNode.convertStringToXMLNode("<notes>" + reference
-					+ "</notes>"));
+			// model.setNotes(XMLNode.convertStringToXMLNode("<notes>" +
+			// reference
+			// + "</notes>"));
 
 			Compartment c;
 			Species s;
@@ -183,6 +182,7 @@ public class TableReader {
 			}
 
 			ListOf<Rule> rules = new ListOf<>(2, 4);
+			ListOf<Constraint> constraints = new ListOf<>(2, 4);
 			Parameter depParam = model.createParameter(depXml.getName());
 			String depSbmlUnit = Categories.getCategoryByUnit(depXml.getUnit())
 					.getSBML(depXml.getUnit());
@@ -192,7 +192,6 @@ public class TableReader {
 
 			if (depSbmlUnit != null) {
 				UnitDefinition unit = SBMLUtilities.fromXml(depSbmlUnit);
-				System.out.println(unit.getAnnotationString());
 				Unit.Kind kind = SBMLUtilities.simplify(unit);
 				UnitDefinition modelUnit = model
 						.getUnitDefinition(unit.getId());
@@ -222,7 +221,6 @@ public class TableReader {
 
 				if (paramXml.getName().equals(varParams)) {
 					param.setConstant(false);
-					param.setAnnotation(new Annotation("<start/>"));
 				} else {
 					param.setConstant(true);
 				}
@@ -253,25 +251,19 @@ public class TableReader {
 				Double min = indepXml.getMin();
 				Double max = indepXml.getMax();
 
-				if (MathUtilities.isValid(min) && MathUtilities.isValid(max)) {
+				if (MathUtilities.isValid(min)) {
 					try {
-						rules.add(new AlgebraicRule(and(
-								parse(name + ">=" + min), parse(name + "<="
-										+ max)), 2, 4));
+						constraints.add(new Constraint(
+								parse(name + ">=" + min), 2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-				} else if (MathUtilities.isValid(min)) {
+				}
+
+				if (MathUtilities.isValid(max)) {
 					try {
-						rules.add(new AlgebraicRule(parse(name + ">=" + min),
-								2, 4));
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-				} else if (MathUtilities.isValid(max)) {
-					try {
-						rules.add(new AlgebraicRule(parse(name + "<=" + max),
-								2, 4));
+						constraints.add(new Constraint(
+								parse(name + "<=" + max), 2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
@@ -295,6 +287,7 @@ public class TableReader {
 			}
 
 			model.setListOfRules(rules);
+			model.setListOfConstraints(constraints);
 
 			if (documents.containsKey(modelID)) {
 				throw new IOException("Duplicate model name: " + modelID);
@@ -373,15 +366,5 @@ public class TableReader {
 
 	private static ASTNode parse(String s) throws ParseException {
 		return new FormulaParser(new StringReader(s)).parse();
-	}
-
-	private static ASTNode and(ASTNode left, ASTNode right) {
-		ASTNode relational = new ASTNode(ASTNode.Type.LOGICAL_AND,
-				left.getParentSBMLObject());
-
-		relational.addChild(left);
-		relational.addChild(right);
-
-		return relational;
 	}
 }

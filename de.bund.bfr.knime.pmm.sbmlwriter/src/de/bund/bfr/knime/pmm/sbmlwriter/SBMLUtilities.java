@@ -109,6 +109,9 @@ public class SBMLUtilities {
 		XMLAttributes attributes = new XMLAttributes();
 
 		attributes.add("name", name);
+		attributes
+				.add("xmlns",
+						"http://sourceforge.net/projects/microbialmodelingexchange/files/Units");
 		annotation.setNonRDFAnnotation(new XMLNode(new XMLTriple(
 				"transformation", null, null), attributes));
 

@@ -682,7 +682,7 @@ public class MyDBTablesNew extends MyDBI {
 				"inverse conversion function / factor","object type","display in GUI as","MathML string","Priority for display in GUI"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)"
 				,"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"
-				,"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","BOOLEAN"},
+				,"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(16383)","BOOLEAN"},
 				new String[]{null,null,
 				null,null,null,null,null,
 				null,null,null,null,null},

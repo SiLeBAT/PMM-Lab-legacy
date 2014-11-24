@@ -86,6 +86,10 @@ public class UpdateChecker {
 	public static void check4Updates_182_183() {
 		
 	}
+	public static void check4Updates_1820_18200() {
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ALTER COLUMN " + DBKernel.delimitL("MathML string") + " VARCHAR(16383)", false);
+		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_141124.xls", null, false);
+	}
 	public static void check4Updates_182_1820() {
 		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_141120.xls", null, false);
 	}

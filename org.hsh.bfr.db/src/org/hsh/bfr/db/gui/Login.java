@@ -373,10 +373,12 @@ public class Login extends JFrame {
 						}
 					}
 
-					JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
-					JDialog dialog = pane.createDialog("Internal database created");
-					dialog.setAlwaysOnTop(true);
-					dialog.setVisible(true);
+					if (!System.getProperty("os.name").equals("Mac OS X")) {
+						JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
+						JDialog dialog = pane.createDialog("Internal database created");
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
+					}
 
 					mf = initGui(myDB);
 				}

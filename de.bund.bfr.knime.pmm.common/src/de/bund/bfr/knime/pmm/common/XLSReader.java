@@ -35,7 +35,7 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -1070,19 +1069,22 @@ public class XLSReader {
 		return missing;
 	}
 
-	private Workbook getWorkbook(File file) throws IOException,
-			InvalidFormatException {
+	private Workbook getWorkbook(File file) throws Exception {
 		InputStream inputStream = null;
 
 		if (file.exists()) {
-			try (InputStream in = new FileInputStream(file)) {
-				return WorkbookFactory.create(inputStream);
-			}
+			inputStream = new FileInputStream(file);
 		} else {
-			try (InputStream in = new URL(file.getPath()).openStream()) {
-				return WorkbookFactory.create(inputStream);
+			try {
+				URL url = new URL(file.getPath());
+
+				inputStream = url.openStream();
+			} catch (Exception e) {
+				throw new FileNotFoundException("File not found");
 			}
 		}
+
+		return WorkbookFactory.create(inputStream);
 	}
 
 	private Map<String, Integer> getColumns(Sheet sheet) {

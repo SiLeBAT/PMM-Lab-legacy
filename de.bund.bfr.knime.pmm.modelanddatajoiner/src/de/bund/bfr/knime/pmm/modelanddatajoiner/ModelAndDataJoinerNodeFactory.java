@@ -43,49 +43,48 @@ import org.knime.core.node.NodeView;
  *
  * @author Christian Thoens
  */
-public class ModelAndDataJoinerNodeFactory 
-        extends NodeFactory<ModelAndDataJoinerNodeModel> {
+public class ModelAndDataJoinerNodeFactory extends
+		NodeFactory<ModelAndDataJoinerNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ModelAndDataJoinerNodeModel createNodeModel() {
-        return new ModelAndDataJoinerNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ModelAndDataJoinerNodeModel createNodeModel() {
+		return new ModelAndDataJoinerNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<ModelAndDataJoinerNodeModel> createNodeView(final int viewIndex,
-            final ModelAndDataJoinerNodeModel nodeModel) {
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<ModelAndDataJoinerNodeModel> createNodeView(
+			final int viewIndex, final ModelAndDataJoinerNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new ModelAndDataJoinerNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new ModelAndDataJoinerNodeDialog();
+	}
 
 }
-

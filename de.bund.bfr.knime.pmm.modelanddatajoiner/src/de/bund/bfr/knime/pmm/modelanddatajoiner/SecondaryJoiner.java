@@ -449,6 +449,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		return buf.getTable();
 	}
 
+	@Override
 	public boolean isValid() {
 		return isValid;
 	}

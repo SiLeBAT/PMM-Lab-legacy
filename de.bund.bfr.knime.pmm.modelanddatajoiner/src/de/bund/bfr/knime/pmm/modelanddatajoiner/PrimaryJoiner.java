@@ -121,7 +121,7 @@ public class PrimaryJoiner implements Joiner {
 
 			for (String var : variableCategories.get(id).keySet()) {
 				String category = variableCategories.get(id).get(var);
-				List<String> params = getParamsFromCategory(category); 
+				List<String> params = getParamsFromCategory(category);
 				JComboBox<String> box = new JComboBox<>(
 						params.toArray(new String[0]));
 
@@ -130,7 +130,8 @@ public class PrimaryJoiner implements Joiner {
 				} else {
 					if (params.contains(AttributeUtilities.TIME)) {
 						box.setSelectedItem(AttributeUtilities.TIME);
-					} else if (params.contains(AttributeUtilities.CONCENTRATION)) {
+					} else if (params
+							.contains(AttributeUtilities.CONCENTRATION)) {
 						box.setSelectedItem(AttributeUtilities.CONCENTRATION);
 					} else {
 						box.setSelectedItem(null);
@@ -195,6 +196,14 @@ public class PrimaryJoiner implements Joiner {
 			PmmXmlDoc newIndepVar = new PmmXmlDoc();
 			Map<String, String> assign = assignmentsMap.get(id);
 			List<String> oldVars = new ArrayList<>();
+
+			if (assign == null) {
+				assign = new LinkedHashMap<>();
+			}
+
+			assign.put(depVarName, AttributeUtilities.CONCENTRATION);
+			assign.put(((IndepXml) oldIndepVar.get(0)).getName(),
+					AttributeUtilities.TIME);
 
 			if (!assign.containsKey(depVarName)) {
 				continue;

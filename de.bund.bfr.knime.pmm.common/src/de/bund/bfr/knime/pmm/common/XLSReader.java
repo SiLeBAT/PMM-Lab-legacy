@@ -1072,15 +1072,13 @@ public class XLSReader {
 
 	private Workbook getWorkbook(File file) throws IOException,
 			InvalidFormatException {
-		InputStream inputStream = null;
-
 		if (file.exists()) {
 			try (InputStream in = new FileInputStream(file)) {
-				return WorkbookFactory.create(inputStream);
+				return WorkbookFactory.create(in);
 			}
 		} else {
 			try (InputStream in = new URL(file.getPath()).openStream()) {
-				return WorkbookFactory.create(inputStream);
+				return WorkbookFactory.create(in);
 			}
 		}
 	}

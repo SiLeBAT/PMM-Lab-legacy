@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JabRef
 Bundle-SymbolicName: net.sf.jabref
-Bundle-Version: 2.6
+Bundle-Version: 2.6.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/MyJabRef-2.6.jar
 Export-Package: net.sf.ext,

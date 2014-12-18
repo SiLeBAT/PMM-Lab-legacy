@@ -654,7 +654,7 @@ public class XLSReader {
 
 			if (hasData(r2Cell)) {
 				try {
-					((EstModelXml) estXml.get(0)).setRms(Double
+					((EstModelXml) estXml.get(0)).setR2(Double
 							.parseDouble(getData(r2Cell).replace(",", ".")));
 				} catch (NumberFormatException e) {
 					warnings.add(modelR2 + " value in row " + (rowNumber + 1)

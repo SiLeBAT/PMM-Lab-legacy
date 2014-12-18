@@ -168,8 +168,10 @@ public class BackupMyDBI extends FileFilter {
 				if (doReconnect && !DBKernel.isKNIME) {
 					Connection conn = DBKernel.myDBi.getConn();
 					if (conn != null) {
-						myDB.initConn(conn);
-						myDB.setTable();
+						if (myDB != null) {
+							myDB.initConn(conn);
+							myDB.setTable();
+						}
 					} else {
 						result = false;
 					}

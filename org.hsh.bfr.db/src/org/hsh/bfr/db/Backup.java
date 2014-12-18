@@ -235,8 +235,10 @@ public class Backup extends FileFilter {
 				if (doReconnect && !DBKernel.isKNIME) {
 					Connection conn = getDBConnectionYOrCreateUser();
 					if (conn != null) {
-						myDB.initConn(conn);
-						myDB.setTable();
+						if (myDB != null) {
+							myDB.initConn(conn);
+							myDB.setTable();
+						}
 					} else {
 						result = false;
 					}

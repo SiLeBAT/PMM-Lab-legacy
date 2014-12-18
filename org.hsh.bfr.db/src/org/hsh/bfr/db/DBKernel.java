@@ -466,6 +466,7 @@ public class DBKernel {
 						// System.err.println(rs.getInt("TabellenID") + " wurde bereits gelöscht!");
 					}
 				} while (rs.next());
+				rs.close();
 			}
 		} catch (Exception e) {
 			MyLogger.handleException(e);
@@ -1484,7 +1485,27 @@ public class DBKernel {
 		long crc32Out = crc32.getValue();
 		String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA");
 		String password = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "");
-		new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
+
+		try {
+			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
+		}
+		catch (Exception he) { //HeadlessException
+			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);
+			if (noDBThere) {
+				DBKernel.m_Username = username;
+				DBKernel.m_Password = password;
+				File temp = DBKernel.getCopyOfInternalDB();
+				if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
+					if (BackupMyDBI.doRestore(null, temp, true, false)) {
+						DBKernel.myDBi.addUserInCaseNotThere(username, password);
+					}
+				} else {
+					if (!Backup.doRestore(null, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+					}
+				}
+			}
+		} 
+		
 		/*
 		 * DBKernel.isServerConnection = DBKernel.isHsqlServer(internalPath); if
 		 * (DBKernel.isServerConnection) { HSHDB_PATH = internalPath; try { //

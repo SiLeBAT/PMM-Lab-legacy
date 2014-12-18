@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SBML nodes extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: sbmlreader.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodePlugin
 Bundle-Vendor: Optimum Quality

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SBMLWriter-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbmlwriter; singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: sbmlwriter.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodePlugin
 Bundle-Vendor: Christian Thoens

@@ -22,11 +22,13 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
+import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Species;
+import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
@@ -44,6 +46,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
@@ -199,8 +202,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 			// Create container
 			container = exec.createDataContainer(schema.createSpec());
 			// Parse document
-			List<KnimeTuple> tuples = parseTertiaryModel(doc,
-					documentCompPlugin);
+			List<KnimeTuple> tuples = TertiaryModelParser.parseDocument(doc);
 			for (KnimeTuple tuple : tuples) {
 				container.addRowToTable(tuple);
 			}
@@ -209,7 +211,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 			// Create container
 			container = exec.createDataContainer(schema.createSpec());
 			// Parse document
-			KnimeTuple tuple = parsePrimaryModel(doc);
+			KnimeTuple tuple = PrimaryModelParser.parseDocument(doc);
 			container.addRowToTable(tuple);
 		}
 		container.close();
@@ -218,7 +220,6 @@ public class SBMLReaderNodeModel extends NodeModel {
 		return table;
 	}
 
-	// TODO(malba)
 	private BufferedDataTable[] parseFolder(final ExecutionContext exec) {
 		// Create container with modelType
 		Boolean isTertiary = modelType.getStringValue() == "tertiary";
@@ -259,13 +260,13 @@ public class SBMLReaderNodeModel extends NodeModel {
 			}
 
 			if (isTertiary) {
-				List<KnimeTuple> tuples = parseTertiaryModel(doc,
-						documentPlugin);
+				List<KnimeTuple> tuples = TertiaryModelParser
+						.parseDocument(doc);
 				for (KnimeTuple tuple : tuples) {
 					container.addRowToTable(tuple);
 				}
 			} else {
-				KnimeTuple tuple = parsePrimaryModel(doc);
+				KnimeTuple tuple = PrimaryModelParser.parseDocument(doc);
 				container.addRowToTable(tuple);
 			}
 		}
@@ -274,85 +275,147 @@ public class SBMLReaderNodeModel extends NodeModel {
 		BufferedDataTable[] table = { container.getTable() };
 		return table;
 	}
+}
 
-	public KnimeTuple parsePrimaryModel(SBMLDocument doc) {
+class PrimaryModelParser {
 
-		ListOf<Compartment> listOfCompartments = doc.getModel()
-				.getListOfCompartments();
-		ListOf<Species> listOfSpecies = doc.getModel().getListOfSpecies();
-		ListOf<Parameter> listOfParameters = doc.getModel()
-				.getListOfParameters();
-		ListOf<Rule> listOfRules = doc.getModel().getListOfRules();
+	/**
+	 * Parse an SBML ListOfCompartment and return a PmmXmlDoc.
+	 * 
+	 * @param listOfCompartments
+	 */
+	private static PmmXmlDoc parseCompartments(
+			ListOf<Compartment> listOfCompartments) {
+		PmmXmlDoc compartmentDoc = new PmmXmlDoc();
+		for (Compartment compartment : listOfCompartments) {
+			String name = compartment.getName();
+			MatrixXml matrix = new MatrixXml();
+			matrix.setName(name);
+			compartmentDoc.add(matrix);
+		}
+
+		return compartmentDoc;
+	}
+
+	/**
+	 * Parse an SBML ListOfSpecies and return a PmmXmlDoc.
+	 * 
+	 * @param listOfSpecies
+	 */
+	private static PmmXmlDoc parseSpecies(ListOf<Species> listOfSpecies) {
+		PmmXmlDoc speciesDoc = new PmmXmlDoc();
+		for (Species specie : listOfSpecies) {
+			String name = specie.getName();
+			AgentXml agentXml = new AgentXml();
+			agentXml.setName(name);
+			speciesDoc.add(agentXml);
+		}
+		return speciesDoc;
+	}
+
+	/**
+	 * Parse the SBML specie to produce the dependent variable and return a
+	 * PmmXmlDoc.
+	 * 
+	 * @param specie
+	 */
+	private static PmmXmlDoc parseDependentParameter(Species specie) {
+		String origName = specie.getId();
+		String unit = specie.getUnits();
+
+		DepXml dep = new DepXml("Value", origName, "", unit, "");
+		PmmXmlDoc depDoc = new PmmXmlDoc(dep);
+		return depDoc;
+	}
+
+	/**
+	 * Parse the independent parameters and return a PmmXmlDoc.
+	 * 
+	 * @param listOfParameters
+	 */
+	private static PmmXmlDoc parseIndependentParameters(
+			ListOf<Parameter> listOfParameters) {
+		PmmXmlDoc indepDoc = new PmmXmlDoc();
+		for (Parameter param : listOfParameters) {
+			if (!param.isConstant()) {
+				String id = param.getId();
+				Double min = null, max = null;
+				String unit = param.getUnits();
+
+				IndepXml newCell = new IndepXml(id, min, max);
+				newCell.setUnit(unit);
+				indepDoc.add(newCell);
+			}
+		}
+		return indepDoc;
+	}
+
+	/**
+	 * Parse constant parameters and return a PmmXmlDoc.
+	 * 
+	 * @param listOfParameters
+	 */
+	private static PmmXmlDoc parseConstantParameters(
+			ListOf<Parameter> listOfParameters) {
+		PmmXmlDoc constsDoc = new PmmXmlDoc();
+		for (Parameter param : listOfParameters) {
+			if (param.isConstant()) {
+				String id = param.getId();
+				double value = param.getValue();
+				String unit = param.getUnits();
+
+				ParamXml newCell = new ParamXml(id, value);
+				newCell.setUnit(unit);
+				constsDoc.add(newCell);
+			}
+		}
+		return constsDoc;
+	}
+
+	private static String parseFormula(AssignmentRule assignmentRule) {
+		String leftHand = assignmentRule.getVariable();
+		String rightHand = assignmentRule.getFormula();
+		String formula = leftHand + "=" + rightHand;
+		return formula;
+	}
+
+	public static KnimeTuple parseDocument(SBMLDocument doc) {
+		Model model = doc.getModel();
+		ListOf<Compartment> listOfCompartments = model.getListOfCompartments();
+		ListOf<Species> listOfSpecies = model.getListOfSpecies();
+		ListOf<Parameter> listOfParameters = model.getListOfParameters();
+		ListOf<Rule> listOfRules = model.getListOfRules();
 		AssignmentRule assignmentRule = (AssignmentRule) listOfRules.get(0);
 
 		// time series cells
 		String condID = "-1";
-
-		String combaseID = "?";
-
-		List<AgentXml> organisms = parseSpecies(listOfSpecies);
-		PmmXmlDoc organismCell = new PmmXmlDoc();
-		for (AgentXml agent : organisms) {
-			organismCell.add(agent);
-		}
-
-		List<MatrixXml> matrices = parseCompartments(listOfCompartments);
-		PmmXmlDoc matrixCell = new PmmXmlDoc();
-		for (MatrixXml matrix : matrices) {
-			matrixCell.add(matrix);
-		}
-
-		TimeSeriesXml mdData = new TimeSeriesXml(null, null, null, null, null,
-				null, null, null, null, null);
-		PmmXmlDoc mdDataCell = new PmmXmlDoc(mdData);
-
-		MiscXml misc = new MiscXml(null, null, null, null, null, null);
-		PmmXmlDoc miscCell = new PmmXmlDoc(misc);
-
+		String combaseID = model.getId();
+		PmmXmlDoc organismCell = parseSpecies(listOfSpecies);
+		PmmXmlDoc matrixCell = parseCompartments(listOfCompartments);
+		PmmXmlDoc mdDataCell = new PmmXmlDoc();
+		PmmXmlDoc miscCell = new PmmXmlDoc();
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(mdInfo);
-
-		LiteratureItem mdLiterature = new LiteratureItem(null, null, null,
-				null, null, null, null, null, null, null, null, null, null,
-				null);
-		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc(mdLiterature);
-
+		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc();
 		String mdDBUID = "?";
 
 		// primary model cells
 		String formula = parseFormula(assignmentRule);
 		CatalogModelXml catModel = new CatalogModelXml(1, "", formula, 1, "");
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
-
-		DepXml dep = new DepXml("Value", "Value",
-				"Number Content (count/mass)", "Number content (count/mass)",
-				"response");
-		PmmXmlDoc depCell = new PmmXmlDoc(dep);
-
-		IndepXml indep = new IndepXml("Time", "Time", null, null, "Time", "h",
-				"elapsed time");
-		PmmXmlDoc indepCell = new PmmXmlDoc(indep);
-
-		List<ParamXml> paramXmls = parseParams(listOfParameters);
-		PmmXmlDoc paramCell = new PmmXmlDoc();
-		// Add params
-		for (ParamXml param : paramXmls) {
-			paramCell.add(param);
-		}
-
-		EstModelXml estModel = new EstModelXml(-1942671369, null, null, null,
-				null, null, null, null, null, 0);
+		// Parse dependent parameter (primary models only have one dependent
+		// variable)
+		PmmXmlDoc depCell = parseDependentParameter(listOfSpecies.get(0));
+		// Parse independent parameter
+		PmmXmlDoc indepCell = parseIndependentParameters(listOfParameters);
+		// Parse constant parameter
+		PmmXmlDoc paramCell = parseConstantParameters(listOfParameters);
+		EstModelXml estModel = new EstModelXml(
+				MathUtilities.getRandomNegativeInt(), null, null, null, null,
+				null, null, null, null, 0);
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
-
-		LiteratureItem mLiterature = new LiteratureItem(null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null);
-		PmmXmlDoc mLiteratureCell = new PmmXmlDoc(mLiterature);
-
-		LiteratureItem emLiterature = new LiteratureItem(null, null, null,
-				null, null, null, null, null, null, null, null, null, null,
-				null);
-		PmmXmlDoc emLiteratureCell = new PmmXmlDoc(emLiterature);
-
+		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
+		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
 		int databaseWritable = Model1Schema.NOTWRITABLE;
 		String mDBUID = "?";
 
@@ -383,137 +446,210 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		return row;
 	}
+}
 
-	private List<KnimeTuple> parseTertiaryModel(SBMLDocument doc,
-			CompSBMLDocumentPlugin compDocPlugin) {
+class TertiaryModelParser {
 
-		ListOf<Compartment> listOfCompartments = doc.getModel()
-				.getListOfCompartments();
-		ListOf<Species> listOfSpecies = doc.getModel().getListOfSpecies();
-		ListOf<Parameter> listOfParameters = doc.getModel()
-				.getListOfParameters();
-		ListOf<Rule> listOfRules = doc.getModel().getListOfRules();
+	/**
+	 * Parse an SBML ListOfCompartment and return a PmmXmlDoc.
+	 * 
+	 * @param listOfCompartments
+	 */
+	private static PmmXmlDoc parseCompartments(
+			ListOf<Compartment> listOfCompartments) {
+		PmmXmlDoc compartmentDoc = new PmmXmlDoc();
+		for (Compartment compartment : listOfCompartments) {
+			String name = compartment.getName();
+			MatrixXml matrix = new MatrixXml();
+			matrix.setName(name);
+			compartmentDoc.add(matrix);
+		}
+		return compartmentDoc;
+	}
+
+	/**
+	 * Parse an SBML ListOfSpecies and return a PmmXmlDoc.
+	 * 
+	 * @param listOfSpecies
+	 */
+	private static PmmXmlDoc parseSpecies(ListOf<Species> listOfSpecies) {
+		PmmXmlDoc speciesDoc = new PmmXmlDoc();
+		for (Species species : listOfSpecies) {
+			String name = species.getName();
+			AgentXml agent = new AgentXml();
+			agent.setName(name);
+			speciesDoc.add(agent);
+		}
+		return speciesDoc;
+	}
+
+	/**
+	 * Parse the SBML specie to produce the dependent variable and return a
+	 * PmmXmlDoc.
+	 * 
+	 * @param specie
+	 */
+	private static PmmXmlDoc parseDependentParameter(Species specie) {
+		String origName = specie.getId();
+		String unit = specie.getUnits();
+
+		DepXml dep = new DepXml("Value", origName, "", unit, "");
+		PmmXmlDoc depDoc = new PmmXmlDoc(dep);
+		return depDoc;
+	}
+
+	/**
+	 * Parse the independent parameters and return a PmmXmlDoc.
+	 * 
+	 * @param listOfParameters
+	 */
+	private static PmmXmlDoc parseIndependentParameters(
+			ListOf<Parameter> listOfParameters) {
+		PmmXmlDoc indepDoc = new PmmXmlDoc();
+		for (Parameter param : listOfParameters) {
+			if (!param.isConstant()) {
+				String id = param.getId();
+				Double min = null, max = null;
+				String unit = param.getUnits();
+
+				IndepXml indep = new IndepXml(id, min, max);
+				indep.setUnit(unit);
+				indepDoc.add(indep);
+			}
+		}
+		return indepDoc;
+	}
+
+	/**
+	 * Parse constant parameters and return a PmmXmlDoc.
+	 * 
+	 * @param listOfParameters
+	 */
+	private static PmmXmlDoc parseConstantParameters(
+			ListOf<Parameter> listOfParameters) {
+		PmmXmlDoc constsDoc = new PmmXmlDoc();
+		for (Parameter param : listOfParameters) {
+			if (param.isConstant()) {
+				String id = param.getId();
+				double value = param.getValue();
+				String unit = param.getUnits();
+
+				ParamXml c = new ParamXml(id, value);
+				c.setUnit(unit);
+				constsDoc.add(c);
+			}
+		}
+		return constsDoc;
+	}
+
+	private static String parseFormula(AssignmentRule assignmentRule) {
+		String leftHand = assignmentRule.getVariable();
+		String rightHand = assignmentRule.getFormula();
+		String formula = leftHand + "=" + rightHand;
+		return formula;
+	}
+
+	private static PmmXmlDoc parseSecDependentParameter(
+			ListOf<Parameter> params, String depName, String secModelId) {
+		// Search dependent param
+		Parameter p = null;
+		for (Parameter param : params) {
+			if (param.getId().equals(depName)) {
+				p = param;
+				break;
+			}
+		}
+
+		// TODO:
+		// if (p == null)
+		// throw exc.
+
+		String unit = p.getUnits();
+		DepXml depXml = new DepXml("Value", secModelId, "", unit, "");
+		PmmXmlDoc depDoc = new PmmXmlDoc(depXml);
+		return depDoc;
+	}
+
+	private static PmmXmlDoc parseSecIndependentParameters(
+			ListOf<Parameter> params, String depName) {
+		PmmXmlDoc indepDoc = new PmmXmlDoc();
+		// Search and add independent parameters
+		for (Parameter param : params) {
+			if (!param.getId().equals(depName) && !param.isConstant()) {
+				String id = param.getId();
+				Double min = null, max = null;
+				String unit = param.getUnits();
+
+				IndepXml indepXml = new IndepXml(id, min, max);
+				indepXml.setUnit(unit);
+				indepDoc.add(indepXml);
+			}
+		}
+		return indepDoc;
+	}
+
+	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
+		Model model = doc.getModel();
+		ListOf<Compartment> listOfCompartments = model.getListOfCompartments();
+		ListOf<Species> listOfSpecies = model.getListOfSpecies();
+		ListOf<Parameter> listOfParameters = model.getListOfParameters();
+		ListOf<Rule> listOfRules = model.getListOfRules();
 		AssignmentRule assignmentRule = (AssignmentRule) listOfRules.get(0);
-		ListOf<ModelDefinition> modelDefinitions = compDocPlugin
+
+		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) doc
+				.getPlugin(CompConstants.shortLabel);
+		ListOf<ModelDefinition> modelDefinitions = compPlugin
 				.getListOfModelDefinitions();
 
 		// create n rows for n secondary models
 		List<KnimeTuple> rows = new ArrayList<>();
 
+		// time series cells
+		String condID = "-1";
+		String combaseID = model.getId();
+		PmmXmlDoc organismCell = parseSpecies(listOfSpecies);
+		PmmXmlDoc matrixCell = parseCompartments(listOfCompartments);
+		PmmXmlDoc mdDataCell = new PmmXmlDoc();
+		PmmXmlDoc miscCell = new PmmXmlDoc();
+		PmmXmlDoc mdInfoCell = new PmmXmlDoc();
+		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc();
+		String mdDBUID = "?";
+
+		// primary model cells
+		String formula = parseFormula(assignmentRule);
+		CatalogModelXml catModel = new CatalogModelXml(1, "", formula, 1, "");
+		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
+
+		PmmXmlDoc depCell = parseDependentParameter(listOfSpecies.get(0));
+		PmmXmlDoc indepCell = parseIndependentParameters(listOfParameters);
+		PmmXmlDoc paramCell = parseConstantParameters(listOfParameters);
+		PmmXmlDoc estModelCell = new PmmXmlDoc();
+		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
+		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		int databaseWritable = Model1Schema.NOTWRITABLE;
+		String mDBUID = "?";
+
 		for (ModelDefinition secModel : modelDefinitions) {
 			ListOf<Parameter> secParams = secModel.getListOfParameters();
 			ListOf<Rule> secRules = secModel.getListOfRules();
 			AssignmentRule secAssignmentRule = (AssignmentRule) secRules.get(0);
-
-			// time series columns (1-9)
-			String condID = "-1";
-
-			String combaseID = "?";
-
-			List<AgentXml> organisms = parseSpecies(listOfSpecies);
-			PmmXmlDoc organismCell = new PmmXmlDoc();
-			for (AgentXml agent : organisms) {
-				organismCell.add(agent);
-			}
-
-			List<MatrixXml> matrices = parseCompartments(listOfCompartments);
-			PmmXmlDoc matrixCell = new PmmXmlDoc();
-			for (MatrixXml matrix : matrices) {
-				matrixCell.add(matrix);
-			}
-
-			TimeSeriesXml mdData = new TimeSeriesXml(null, null, null, null,
-					null, null, null, null, null, null);
-			PmmXmlDoc mdDataCell = new PmmXmlDoc(mdData);
-
-			MiscXml misc = new MiscXml(null, null, null, null, null, null);
-			PmmXmlDoc miscCell = new PmmXmlDoc(misc);
-
-			MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-			PmmXmlDoc mdInfoCell = new PmmXmlDoc(mdInfo);
-
-			LiteratureItem mdLiterature = new LiteratureItem(null, null, null,
-					null, null, null, null, null, null, null, null, null, null,
-					null);
-			PmmXmlDoc mdLiteratureCell = new PmmXmlDoc(mdLiterature);
-
-			String mdDBUID = "?";
-
-			// primary model columns (10-18)
-			String formula = parseFormula(assignmentRule);
-			CatalogModelXml catModel = new CatalogModelXml(1, "", formula, 1,
-					"");
-			PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
-
-			DepXml dep = new DepXml("Value", "Value",
-					"Number Content (count/mass)",
-					"Number content (count/mass)", "response");
-			PmmXmlDoc depCell = new PmmXmlDoc(dep);
-
-			IndepXml indep = new IndepXml("Time", "Time", null, null, "Time",
-					"h", "elapsed time");
-			PmmXmlDoc indepCell = new PmmXmlDoc(indep);
-
-			List<ParamXml> paramXmls = parseParams(listOfParameters);
-			PmmXmlDoc paramCell = new PmmXmlDoc();
-			for (ParamXml param : paramXmls) {
-				paramCell.add(param);
-			}
-
-			EstModelXml estModel = new EstModelXml(-1942671369, null, null,
-					null, null, null, null, null, null, 0);
-			PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
-
-			LiteratureItem mLiterature = new LiteratureItem(null, null, null,
-					null, null, null, null, null, null, null, null, null, null,
-					null);
-			PmmXmlDoc mLiteratureCell = new PmmXmlDoc(mLiterature);
-
-			LiteratureItem emLiterature = new LiteratureItem(null, null, null,
-					null, null, null, null, null, null, null, null, null, null,
-					null);
-			PmmXmlDoc emLiteratureCell = new PmmXmlDoc(emLiterature);
-
-			int databaseWritable = Model1Schema.NOTWRITABLE;
-			String mDBUID = "?";
+			String depName = secAssignmentRule.getVariable();
 
 			// secondary model columns (19-27)
 			String secFormula = parseFormula(secAssignmentRule);
 			CatalogModelXml catModelSec = new CatalogModelXml(1, "",
 					secFormula, 1, "");
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
+			PmmXmlDoc dependentSecCell = parseSecDependentParameter(secParams,
+					depName, secModel.getId());
+			PmmXmlDoc independentSecCell = parseSecIndependentParameters(
+					secParams, depName);
+			PmmXmlDoc parameterSecCell = parseConstantParameters(secParams);
 
-			DepXml dependentSec = new DepXml("Value", "Value",
-					"Number Content (count/mass)",
-					"Number content (count/mass)", "response");
-			PmmXmlDoc dependentSecCell = new PmmXmlDoc(dependentSec);
-
-			IndepXml independentSec = new IndepXml("Time", "Time", null, null,
-					"Time", "h", "elapsed time");
-			PmmXmlDoc independentSecCell = new PmmXmlDoc(independentSec);
-
-			List<ParamXml> parameterSec = parseParams(secParams);
-			PmmXmlDoc parameterSecCell = new PmmXmlDoc();
-			for (ParamXml param : parameterSec) {
-				paramCell.add(param);
-			}
-
-			EstModelXml estModelSec = new EstModelXml(-1942671369, null, null,
-					null, null, null, null, null, null, 0);
-			PmmXmlDoc estModelSecCell = new PmmXmlDoc(estModelSec);
-
-			LiteratureItem mLiteratureSec = new LiteratureItem(null, null,
-					null, null, null, null, null, null, null, null, null, null,
-					null, null);
-			PmmXmlDoc mLiteratureSecCell = new PmmXmlDoc(mLiteratureSec);
-
-			LiteratureItem emLiteratureSec = new LiteratureItem(null, null,
-					null, null, null, null, null, null, null, null, null, null,
-					null, null);
-			PmmXmlDoc emLiteratureSecCell = new PmmXmlDoc(emLiteratureSec);
-
+			PmmXmlDoc estModelSecCell = new PmmXmlDoc();
+			PmmXmlDoc mLiteratureSecCell = new PmmXmlDoc();
+			PmmXmlDoc emLiteratureSecCell = new PmmXmlDoc();
 			String mDBUIDSEC = "?";
-
 			String globalModelID = "?";
 
 			// Add cells to the row
@@ -554,56 +690,4 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		return rows;
 	}
-
-	// helper functions
-	private List<MatrixXml> parseCompartments(
-			ListOf<Compartment> listOfCompartments) {
-		List<MatrixXml> matrices = new ArrayList<MatrixXml>();
-		for (Compartment compartment : listOfCompartments) {
-			String matrixName = compartment.getName();
-			MatrixXml xmlMatrix = new MatrixXml();
-			xmlMatrix.setName(matrixName);
-			matrices.add(xmlMatrix);
-		}
-		return matrices;
-	}
-
-	private List<AgentXml> parseSpecies(ListOf<Species> listOfSpecies) {
-		List<AgentXml> agentXmls = new ArrayList<AgentXml>();
-		for (Species species : listOfSpecies) {
-			String speciesName = species.getName();
-			AgentXml agentXml = new AgentXml();
-			agentXml.setName(speciesName);
-			agentXmls.add(agentXml);
-		}
-		return agentXmls;
-	}
-
-	private List<ParamXml> parseParams(ListOf<Parameter> listOfParameters) {
-		List<ParamXml> paramXmls = new ArrayList<ParamXml>();
-		for (Parameter param : listOfParameters) {
-			String name = param.getId();
-			Double value = param.getValue();
-			String unit = param.getUnits();
-
-			// SBMLWriter is adding a Value and time parameters on its own, thus
-			// conflicting
-			// with the Value parameter from the SBML file
-			// TODO: Fix SBMLWriter and remove this if
-			if (!name.equals("Value") && !name.equals("time")) {
-				ParamXml paramXml = new ParamXml(name, value);
-				paramXml.setUnit(unit);
-				paramXmls.add(paramXml);
-			}
-		}
-		return paramXmls;
-	}
-
-	private String parseFormula(AssignmentRule assignmentRule) {
-		String leftHand = assignmentRule.getVariable();
-		String rightHand = assignmentRule.getFormula();
-		String formula = leftHand + "=" + rightHand;
-		return formula;
-	}
-
 }

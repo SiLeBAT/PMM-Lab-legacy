@@ -22,7 +22,59 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * 
  * Author: Miguel de Alba Aparicio (malba@optimumquality.es)
  */
+
+interface SBMLReaderDlgState {
+	void switchState();
+
+	void showUi();
+}
+
+class FileState implements SBMLReaderDlgState {
+	SBMLReaderNodeDialog dlg;
+
+	public FileState(SBMLReaderNodeDialog dlg) {
+		this.dlg = dlg;
+	}
+
+	public void switchState() {
+		this.dlg.setState(this.dlg.getDirState());
+	}
+
+	public void showUi() {
+		dlg.getModelTypePanel().setVisible(false);
+		dlg.getFileChooserPanel().setVisible(true);
+		dlg.getFolderChooserPanel().setVisible(false);
+	}
+}
+
+class DirState implements SBMLReaderDlgState {
+	SBMLReaderNodeDialog dlg;
+
+	public DirState(SBMLReaderNodeDialog dlg) {
+		this.dlg = dlg;
+	}
+
+	public void switchState() {
+		this.dlg.setState(this.dlg.getFileState());
+	}
+
+	public void showUi() {
+		dlg.getModelTypePanel().setVisible(true);
+		dlg.getFileChooserPanel().setVisible(false);
+		dlg.getFolderChooserPanel().setVisible(true);
+	}
+}
+
 public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
+
+	SBMLReaderDlgState fileState;
+	SBMLReaderDlgState dirState;
+
+	SBMLReaderDlgState state; // current state
+
+	DialogComponentStringSelection modelTypeDlg;
+	DialogComponentFileChooser fileChooser;
+	DialogComponentFileChooser folderChooser;
 
 	/**
 	 * New pane for configuring SBMLReader node dialog. This is just a
@@ -31,6 +83,11 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 	protected SBMLReaderNodeDialog() {
 		super();
 
+		// Init states
+		fileState = new FileState(this);
+		dirState = new DirState(this);
+		state = fileState;
+		
 		// Set model strings
 		final SettingsModelString source = new SettingsModelString(
 				SBMLReaderNodeModel.CFGKEY_SOURCE, "file");
@@ -50,40 +107,24 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 				source, false, "Source", sourceOptions);
 		sourceDlg
 				.setToolTipText("Choose whether to load one single file or a whole directory");
-
-		final String[] modelTypeOptions = { "primary", "tertiary" };
-		final DialogComponentStringSelection modelTypeDlg = new DialogComponentStringSelection(
-				modelType, "Model type", modelTypeOptions);
-		modelTypeDlg.setToolTipText("Model type");
-		modelTypeDlg.getComponentPanel().setVisible(false);
-
-		final DialogComponentFileChooser fileChooser = new DialogComponentFileChooser(
-				fileName, "filename-history", JFileChooser.OPEN_DIALOG, false);
-
-		final DialogComponentFileChooser folderChooser = new DialogComponentFileChooser(
-				folderName, "foldername-history", JFileChooser.OPEN_DIALOG,
-				true);
-		folderChooser.getComponentPanel().setVisible(false);
-
 		source.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				JPanel modelTypePanel = modelTypeDlg.getComponentPanel();
-				JPanel fileChooserPanel = fileChooser.getComponentPanel();
-				JPanel folderChooserPanel = folderChooser.getComponentPanel();
-				if (source.getStringValue() == "file") {
-					// hide modelTypeDlg and folderChooser
-					modelTypePanel.setVisible(false);
-					fileChooserPanel.setVisible(true);
-					folderChooserPanel.setVisible(false);
-				} else {
-					// show modelTypeDlg
-					modelTypePanel.setVisible(true);
-					fileChooserPanel.setVisible(false);
-					folderChooserPanel.setVisible(true);
-				}
+				state.switchState();
+				state.showUi();
 			}
 		});
+
+		final String[] modelTypeOptions = { "primary", "tertiary" };
+		modelTypeDlg = new DialogComponentStringSelection(modelType,
+				"Model type", modelTypeOptions);
+		modelTypeDlg.setToolTipText("Model type");
+
+		fileChooser = new DialogComponentFileChooser(fileName,
+				"filename-history", JFileChooser.OPEN_DIALOG, false);
+
+		folderChooser = new DialogComponentFileChooser(folderName,
+				"foldername-history", JFileChooser.OPEN_DIALOG, true);
 
 		// Add widgets
 		createNewGroup("Data Source");
@@ -91,5 +132,33 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(modelTypeDlg);
 		addDialogComponent(fileChooser);
 		addDialogComponent(folderChooser);
+		
+		state.showUi();
+	}
+
+	// Widget related methods
+	public JPanel getModelTypePanel() {
+		return modelTypeDlg.getComponentPanel();
+	}
+
+	public JPanel getFileChooserPanel() {
+		return fileChooser.getComponentPanel();
+	}
+
+	public JPanel getFolderChooserPanel() {
+		return folderChooser.getComponentPanel();
+	}
+
+	// State related methods
+	public SBMLReaderDlgState getFileState() {
+		return fileState;
+	}
+
+	public SBMLReaderDlgState getDirState() {
+		return dirState;
+	}
+
+	public void setState(SBMLReaderDlgState state) {
+		this.state = state;
 	}
 }

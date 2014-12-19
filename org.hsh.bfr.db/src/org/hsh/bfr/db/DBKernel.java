@@ -1504,6 +1504,7 @@ public class DBKernel {
 					}
 				}
 			}
+			DBKernel.myDBi = new MyDBTablesNew();
 		} 
 		
 		/*

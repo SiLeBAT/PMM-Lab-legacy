@@ -179,6 +179,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		    		HashMap<Integer, ParametricModel> m1s = new HashMap<>();
 		    		HashMap<Integer, ParametricModel> m2s = new HashMap<>();
 		    		HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = new HashMap<>();
+		    		HashMap<PmmTimeSeries, ParametricModel> m_prim_ts = new HashMap<>();
 		    		Integer condID = null;
 		    		Integer m1EstID = null, m2EstID;
 		    		while (reader.hasMoreElements()) {
@@ -197,6 +198,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 				    			if (mlist.containsKey(m1EstID)) m1s.put(m1EstID, mlist.get(m1EstID));
 				    			else m1s.put(m1EstID, pm1);			    				
 			    			}
+			    			if (hasTs && tss.containsKey(pm1.getCondId())) m_prim_ts.put(tss.get(pm1.getCondId()), pm1);
 			    			if (hasM2) {
 			    				ParametricModel pm2 = new ParametricModel(row, 2, null);
 			    				m2EstID = pm2.getEstModelId();

@@ -157,7 +157,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
-	    					if (!hasEditFeature && !formulaCreator) tupleM2.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalID);
+	    					if (!hasEditFeature) tupleM2.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalID); //  && !formulaCreator
 	    		    		rowSec.add(tupleM2);					
 	    				//}	    		
 	    			}

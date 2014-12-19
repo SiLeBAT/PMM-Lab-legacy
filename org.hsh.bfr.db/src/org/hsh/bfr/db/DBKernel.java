@@ -1490,10 +1490,10 @@ public class DBKernel {
 			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
 		}
 		catch (Exception he) { //HeadlessException
+			DBKernel.m_Username = username;
+			DBKernel.m_Password = password;
 			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);
 			if (noDBThere) {
-				DBKernel.m_Username = username;
-				DBKernel.m_Password = password;
 				File temp = DBKernel.getCopyOfInternalDB();
 				if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
 					if (BackupMyDBI.doRestore(null, temp, true, false)) {

@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -65,6 +66,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -86,9 +88,11 @@ public class ManualModelConfNodeModel extends NodeModel {
 	
 	protected static final String PARAM_XMLSTRING = "xmlString";
 	protected static final String PARAM_TSXMLSTRING = "tsXmlString";
+	protected static final String PARAM_TSONESTEP = "oneStepFitTss";
 		
 	private PmmXmlDoc doc = null;
 	private PmmXmlDoc docTS = null;
+	private HashMap<Integer, HashSet<Integer>> oneStepFitTs = null;
 	
 	private boolean hasEditFeature;
 	private boolean formulaCreator;
@@ -118,6 +122,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 
         	KnimeTuple tupleM1 = null;
         	List<KnimeTuple> rowSec = new ArrayList<>();
+        	HashSet<PmmTimeSeries> tstuples = new HashSet<PmmTimeSeries>();
         	PmmTimeSeries tstuple = new PmmTimeSeries();
         	int globalID = MathUtilities.getRandomNegativeInt();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {
@@ -125,19 +130,36 @@ public class ManualModelConfNodeModel extends NodeModel {
 	        		ParametricModel model = (ParametricModel) el;	 
 	    			if (model.getLevel() == 1) {
 	    				if (model.getIndependent().size() > 0) {
-	    					if (tupleM1 != null) doBuf(tupleM1, tstuple, rowSec, buf, ks);
+	    					if (tupleM1 != null) {
+	    						if (tstuples != null && tstuples.size() > 1) {
+	    							for (PmmTimeSeries tst : tstuples) {
+		    							doBuf(tupleM1, tst, rowSec, buf, ks);	    								
+	    							}
+	    						}
+	    						else {
+	    							doBuf(tupleM1, tstuple, rowSec, buf, ks);
+	    						}
+	    					}
 	    					tupleM1 = model.getKnimeTuple();
 	    					tupleM1.setValue(Model1Schema.ATT_DATABASEWRITABLE, 1);
 	    					rowSec = new ArrayList<>();
+	    					tstuples = new HashSet<PmmTimeSeries>();
 	    					tstuple = new PmmTimeSeries();
 	    		        	if (!formulaCreator) {
 	    		            	if (docTS != null) {
 	    		                	for (PmmXmlElementConvertable ell : docTS.getElementSet()) {        		
 	    		                		if (ell instanceof PmmTimeSeries) {
 	    		                			PmmTimeSeries ts = (PmmTimeSeries) ell;
-	    		                			if (ts.getCondId().intValue() == model.getCondId()) {
+	    		                			boolean addIt = ts.getCondId().intValue() == model.getCondId();
+	    		                    		if (!addIt && hasEditFeature && oneStepFitTs != null && oneStepFitTs.containsKey(model.getEstModelId())) {
+	    		                    			if (oneStepFitTs.get(model.getEstModelId()).contains(ts.getCondId().intValue())) {
+	    		                    				addIt = true;
+	    		                    			}
+	    		                    		}
+	    		                			if (addIt) {
 	    		                				tstuple = ts;
-	    		                				break;
+	    		                				tstuples.add(ts);
+	    		                				//break;
 	    		                			}
 	    		                		}
 	    		                	}
@@ -163,7 +185,14 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			}
         		}
         	}
-			doBuf(tupleM1, tstuple, rowSec, buf, ks);
+			if (tstuples != null && tstuples.size() > 1) {
+				for (PmmTimeSeries tst : tstuples) {
+					doBuf(tupleM1, tst, rowSec, buf, ks);	    								
+				}
+			}
+			else {
+				doBuf(tupleM1, tstuple, rowSec, buf, ks);
+			}
 
         	buf.close();
             return new BufferedDataTable[]{ buf.getTable()};
@@ -390,6 +419,8 @@ public class ManualModelConfNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
+    	// OneStepFitTss
+		if (oneStepFitTs != null) settings.addString(ManualModelConfNodeModel.PARAM_TSONESTEP, XmlConverter.objectToXml(oneStepFitTs));
     	// Modelle
     	if (doc != null) {
     		String xmlStr = doc.toXmlString();
@@ -411,7 +442,12 @@ public class ManualModelConfNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
-    	// Modelle
+		// OneStepFitTss
+		if (settings.containsKey(PARAM_TSONESTEP)) {
+			oneStepFitTs = XmlConverter.xmlToObject(settings.getString(PARAM_TSONESTEP), new HashMap<Integer, HashSet<Integer>>());
+		}
+
+		// Modelle
     	try {
 			if (settings.containsKey(PARAM_XMLSTRING)) {
 				String xmlStr = settings.getString(PARAM_XMLSTRING);

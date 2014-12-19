@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.manualmodelconf;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
@@ -54,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -78,6 +80,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 	
 	private MMC_M m_mmcm;
 	private MMC_TS m_mmcts;
+	private HashMap<Integer, HashSet<Integer>> oneStepFitTs;
 
 	/**
      * New pane for configuring the ManualModelConf node.
@@ -87,6 +90,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
     		m_mmcts = new MMC_TS();
     		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", false, m_mmcts);
     		m_mmcm.setConnection(DBKernel.getLocalConn(true));
+    		oneStepFitTs = new HashMap<>();
     		this.addTab("Model Definition", m_mmcm);    	    		
         	//this.addTab("Microbial Data", m_mmcts);        			    		
     	}
@@ -104,6 +108,8 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_mmcm.listToXmlString() );
 		String tStr = m_mmcm.tssToXmlString();
 		settings.addString( ManualModelConfNodeModel.PARAM_TSXMLSTRING, tStr );//-1673022417
+		
+		settings.addString(ManualModelConfNodeModel.PARAM_TSONESTEP, XmlConverter.objectToXml(oneStepFitTs));
 	}
 	
 	@Override
@@ -111,6 +117,16 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			BufferedDataTable[] inData) throws NotConfigurableException {
 		String mStr = null;
 		String tsStr = null;
+		
+		// OneStepFitTss
+		try {
+			if (settings.containsKey(ManualModelConfNodeModel.PARAM_TSONESTEP)) {
+				oneStepFitTs = XmlConverter.xmlToObject(settings.getString(ManualModelConfNodeModel.PARAM_TSONESTEP), new HashMap<Integer, HashSet<Integer>>());
+			}
+		}
+		catch( InvalidSettingsException e ) {
+			e.printStackTrace();
+		}
 		// MMC_M
 		try {
 			if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING)) {
@@ -179,7 +195,6 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		    		HashMap<Integer, ParametricModel> m1s = new HashMap<>();
 		    		HashMap<Integer, ParametricModel> m2s = new HashMap<>();
 		    		HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = new HashMap<>();
-		    		HashMap<PmmTimeSeries, ParametricModel> m_prim_ts = new HashMap<>();
 		    		Integer condID = null;
 		    		Integer m1EstID = null, m2EstID;
 		    		while (reader.hasMoreElements()) {
@@ -198,7 +213,9 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 				    			if (mlist.containsKey(m1EstID)) m1s.put(m1EstID, mlist.get(m1EstID));
 				    			else m1s.put(m1EstID, pm1);			    				
 			    			}
-			    			if (hasTs && tss.containsKey(pm1.getCondId())) m_prim_ts.put(tss.get(pm1.getCondId()), pm1);
+			    			if (!oneStepFitTs.containsKey(m1EstID)) oneStepFitTs.put(m1EstID, new HashSet<Integer>());
+			    			HashSet<Integer> hs = oneStepFitTs.get(m1EstID);
+			    			hs.add(pm1.getCondId());
 			    			if (hasM2) {
 			    				ParametricModel pm2 = new ParametricModel(row, 2, null);
 			    				m2EstID = pm2.getEstModelId();

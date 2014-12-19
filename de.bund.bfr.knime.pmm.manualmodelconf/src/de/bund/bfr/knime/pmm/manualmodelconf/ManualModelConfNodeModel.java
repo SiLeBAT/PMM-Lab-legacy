@@ -131,7 +131,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			if (model.getLevel() == 1) {
 	    				if (model.getIndependent().size() > 0) {
 	    					if (tupleM1 != null) {
-	    						if (tstuples != null && tstuples.size() > 1) {
+	    						if (hasEditFeature && tstuples != null && tstuples.size() > 1) {
 	    							for (PmmTimeSeries tst : tstuples) {
 		    							doBuf(tupleM1, tst, rowSec, buf, ks);	    								
 	    							}
@@ -185,7 +185,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			}
         		}
         	}
-			if (tstuples != null && tstuples.size() > 1) {
+			if (hasEditFeature && tstuples != null && tstuples.size() > 1) {
 				for (PmmTimeSeries tst : tstuples) {
 					doBuf(tupleM1, tst, rowSec, buf, ks);	    								
 				}

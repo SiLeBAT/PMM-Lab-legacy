@@ -163,11 +163,11 @@ public class SBMLWriterNodeModel extends NodeModel {
 			documents = reader.getDocuments();
 		}
 
-		for (SBMLDocument doc : documents) {
-			String fileName = outPath.getStringValue() + "/"
-					+ doc.getModel().getId() + ".sbml.xml";
+		for (int i = 0; i < documents.size(); i++) {
+			String fileName = String.format("%s/%s_%d.sbml.xml",
+					outPath.getStringValue(), modelName.getStringValue(), i);
 			File file = new File(fileName);
-			SBMLWriter.write(doc, file, "SBMLWriter Node", "1.0");
+			SBMLWriter.write(documents.get(i), file, "SBMLWriter Node", "1.0");
 		}
 
 		return new BufferedDataTable[] {};

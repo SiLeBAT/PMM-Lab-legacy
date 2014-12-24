@@ -37,13 +37,10 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
-import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -373,7 +370,7 @@ class PrimaryModelParser {
 	}
 
 	private static String parseFormula(AssignmentRule assignmentRule) {
-		String leftHand = assignmentRule.getVariable();
+		String leftHand = "Value";
 		String rightHand = assignmentRule.getFormula();
 		String formula = leftHand + "=" + rightHand;
 		return formula;
@@ -394,6 +391,8 @@ class PrimaryModelParser {
 		PmmXmlDoc matrixCell = parseCompartments(listOfCompartments);
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 		PmmXmlDoc miscCell = new PmmXmlDoc();
+		// TODO: Replace mdInfo with
+		// PmmXmlDoc mdInfoCell = new PmmXmlDoc();
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(mdInfo);
 		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc();
@@ -543,7 +542,7 @@ class TertiaryModelParser {
 	}
 
 	private static String parseFormula(AssignmentRule assignmentRule) {
-		String leftHand = assignmentRule.getVariable();
+		String leftHand = "Value";
 		String rightHand = assignmentRule.getFormula();
 		String formula = leftHand + "=" + rightHand;
 		return formula;

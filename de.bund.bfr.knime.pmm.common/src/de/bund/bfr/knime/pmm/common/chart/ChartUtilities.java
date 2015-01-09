@@ -157,10 +157,10 @@ public class ChartUtilities {
 	public static ImagePortObject getImage(JFreeChart chart, boolean asSvg) {
 		if (asSvg) {
 			return new ImagePortObject(ChartUtilities.convertToSVGImageContent(
-					chart, 640, 480), new ImagePortObjectSpec(SvgCell.TYPE));
+					chart, 1000, 500), new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
 			return new ImagePortObject(ChartUtilities.convertToPNGImageContent(
-					chart, 640, 480), new ImagePortObjectSpec(
+					chart, 1000, 500), new ImagePortObjectSpec(
 					PNGImageContent.TYPE));
 		}
 	}

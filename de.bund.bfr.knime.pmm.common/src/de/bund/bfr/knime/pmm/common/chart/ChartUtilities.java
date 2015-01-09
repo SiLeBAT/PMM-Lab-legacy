@@ -48,6 +48,7 @@ import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.svggen.SVGGraphics2DIOException;
+import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.knime.base.data.xml.SvgCell;
 import org.knime.base.data.xml.SvgImageContent;
@@ -103,7 +104,14 @@ public class ChartUtilities {
 			BufferedImage img;
 
 			if (chart != null) {
-				img = chart.createBufferedImage(width, height);
+				ChartRenderingInfo info = new ChartRenderingInfo();
+
+				img = chart.createBufferedImage(width, 5000, info);
+				img = chart
+						.createBufferedImage(width,
+								(int) (img.getHeight()
+										- info.getPlotInfo().getDataArea()
+												.getHeight() + height));
 			} else {
 				img = new BufferedImage(width, height,
 						BufferedImage.TYPE_INT_RGB);

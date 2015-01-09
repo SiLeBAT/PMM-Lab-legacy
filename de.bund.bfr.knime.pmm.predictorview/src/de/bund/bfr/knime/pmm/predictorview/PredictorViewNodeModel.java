@@ -369,7 +369,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		return dataTuple;
 	}
 
-	protected static List<KnimeTuple> getTuples(DataTable table) {
+	public static List<KnimeTuple> getTuples(DataTable table) {
 		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
 				table);
 		boolean containsData = SchemaFactory.createDataSchema().conforms(table);

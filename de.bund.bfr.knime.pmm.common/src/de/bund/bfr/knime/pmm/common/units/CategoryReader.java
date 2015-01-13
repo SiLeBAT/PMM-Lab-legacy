@@ -75,7 +75,7 @@ public class CategoryReader {
 
 		return instance;
 	}
-	
+
 	public static void killInstance() {
 		instance = null;
 	}
@@ -103,7 +103,7 @@ public class CategoryReader {
 
 			String unitName = unit.getDisplay_in_GUI_as();
 
-			sbmlStrings.put(unitName, unit.getMathML_string());			
+			sbmlStrings.put(unitName, unit.getMathML_string());
 
 			if (unit.getPriority_for_display_in_GUI() != null
 					&& unit.getPriority_for_display_in_GUI().equals("TRUE")) {
@@ -180,8 +180,8 @@ public class CategoryReader {
 		}
 
 		@Override
-		public Double convert(Double value, String fromUnit, String toUnit)
-				throws ConvertException {
+		public synchronized Double convert(Double value, String fromUnit,
+				String toUnit) throws ConvertException {
 			if (fromUnit != null && fromUnit.equals(toUnit)) {
 				return value;
 			}

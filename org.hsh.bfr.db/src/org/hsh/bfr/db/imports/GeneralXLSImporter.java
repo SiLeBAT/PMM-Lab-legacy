@@ -113,7 +113,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		return "";
 	}
 
-	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
+	public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				try {
@@ -457,6 +457,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		} catch (InterruptedException e) {
 			MyLogger.handleException(e);
 		}
+	    return "";
 	}
 
 	/*

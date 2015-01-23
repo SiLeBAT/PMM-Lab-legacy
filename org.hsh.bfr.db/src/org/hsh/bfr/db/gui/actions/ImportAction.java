@@ -33,6 +33,7 @@
  ******************************************************************************/
 package org.hsh.bfr.db.gui.actions;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -44,6 +45,7 @@ import javax.swing.JProgressBar;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
 import org.hsh.bfr.db.imports.MyImporter;
 import org.hsh.bfr.db.imports.custom.LieferkettenImporterEFSA;
@@ -105,7 +107,14 @@ public class ImportAction extends AbstractAction {
 					  		doTheImport(mi, selectedSingleFile, true);
 				  		}
 				  	}
-					if (mi instanceof LieferkettenImporterEFSA) ((LieferkettenImporterEFSA)mi).mergeIDs();
+					if (mi instanceof LieferkettenImporterEFSA) {
+						LieferkettenImporterEFSA efsa = (LieferkettenImporterEFSA) mi;
+						efsa.mergeIDs();
+						String log = efsa.getLogMessages();
+						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), null);
+						ib.setVisible(true);
+						
+					}
 			  	}
 		  }	  
 	  }

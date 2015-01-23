@@ -83,6 +83,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	 */
 	private int maxNodeID = 100000;
 	private HashMap<String, Integer> nodeIds = null;
+	private String logMessages = "";
+
+	public String getLogMessages() {
+		return logMessages;
+	}
 
 	public void mergeIDs() {
 		System.err.println("Merging...");
@@ -456,12 +461,18 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countryRec = getStrVal(busRow.getCell(7)); // 
 					vatRec = getStrVal(busRow.getCell(8)); //
 					if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
-						System.err.println("Id issue on recs...Row: " + (i + 1) + "\t" + nameRec + " <> " + adressRec);
+						String msg = "Id issue on recs...Row: " + (i + 1) + "\t" + nameRec + " <> " + adressRec;
+						System.err.println(msg);
+						logMessages += msg + "\n";
 					}
 				} else if (idRec != null) {
-					System.err.println("business not there??? Row: " + (i + 1) + "\tidReceived: " + idRec);
+					String msg = "business not there??? Row: " + (i + 1) + "\tidReceived: " + idRec;
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				} else {
-					System.err.println("idRec is null??? Row: " + (i + 1) + "\t" + adressRec + (adressRec != null ? "" : " -> Station not defined"));
+					String msg = "idRec is null??? Row: " + (i + 1) + "\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				}
 
 				String prodNameOut = getStrVal(row.getCell(6)); // ProductName
@@ -505,12 +516,18 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countryInsp = getStrVal(busRow.getCell(7)); // 
 					vatInsp = getStrVal(busRow.getCell(8)); //
 					if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
-						System.err.println("Id issue on insps...Row: " + (i + 1) + "\t" + nameInsp + " <> " + adressInsp);
+						String msg = "Id issue on insps...Row: " + (i + 1) + "\t" + nameInsp + " <> " + adressInsp;
+						System.err.println(msg);
+						logMessages += msg + "\n";
 					}
 				} else if (idInsp != null) {
-					System.err.println("business not there??? Row: " + (i + 1) + "\tidInspected: " + idInsp);
+					String msg = "business not there??? Row: " + (i + 1) + "\tidInspected: " + idInsp;
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				} else {
-					System.err.println("idInsp is null??? Row: " + (i + 1) + "\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined"));
+					String msg = "idInsp is null??? Row: " + (i + 1) + "\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				}
 
 				String prodNameIn = getStrVal(row.getCell(24)); // ProductName
@@ -554,12 +571,18 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countrySup = getStrVal(busRow.getCell(7)); // 
 					vatSup = getStrVal(busRow.getCell(8)); //
 					if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
-						System.err.println("Id issue on sups...Row: " + (i + 1) + "\t" + nameSup + " <> " + adressSup);
+						String msg = "Id issue on sups...Row: " + (i + 1) + "\t" + nameSup + " <> " + adressSup;
+						System.err.println(msg);
+						logMessages += msg + "\n";
 					}
 				} else if (idSup != null) {
-					System.err.println("business not there??? Row: " + (i + 1) + "\tidSupplier: " + idSup);
+					String msg = "business not there??? Row: " + (i + 1) + "\tidSupplier: " + idSup;
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				} else {
-					System.err.println("idSup is null??? Row: " + (i + 1) + "\t" + adressSup + (adressSup != null ? "" : " -> Station not defined"));
+					String msg = "idSup is null??? Row: " + (i + 1) + "\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				}
 
 				String ec = getStrVal(row.getCell(42)); // EndChain
@@ -570,8 +593,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1)
-						+ ", KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
+				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
+					String msg = "- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1)
+							+ ", KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
+					System.err.println(msg);
+					logMessages += msg + "\n";
+				}
 
 				Integer c1 = null;
 				Integer c2 = null;
@@ -588,11 +615,15 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, serial, cqr, ec, ece, ft, ms);
 					if (c != null) c2 = c[3];
 				}
-				if (c1 == null) {
-					System.err.println("Fehlerchenchen_1!! Row: " + (i + 1));
+				if (c1 == null) { // Chargen
+					String msg = "Error Type 1 (Batches)!! Row: " + (i + 1); // Fehlerchenchen_1
+					System.err.println(msg);
+					logMessages += msg + "\n";
 					numFails++;
-				} else if (c2 == null) {
-					System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Row: " + (i + 1));
+				} else if (c2 == null) { // Lieferungen
+					String msg = "Error Type 2 (Deliveries)!! E.g. Station not defined? Row: " + (i + 1); // Fehlerchenchen_2
+					System.err.println(msg);
+					logMessages += msg + "\n";
 					/*
 					 * getCharge_Lieferung(nameSup, streetSup, streetNoSup,
 					 * zipSup, citySup, countySup, countrySup, activitySup,
@@ -607,7 +638,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (c2 != null) {
 						Integer cvID = getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null);
 						if (cvID == null) {
-							System.err.println("Fehlerchenchen_4!! Row: " + (i + 1));
+							String msg = "Error Type 4 (Links)!! Row: " + (i + 1); // Fehlerchenchen_4
+							System.err.println(msg);
+							logMessages += msg + "\n";
 							numFails++;
 						} else {
 							numSuccess++;
@@ -1086,10 +1119,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		}
 	}
 
-	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
+	public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				System.err.println("Importing " + filename);
+				logMessages += "Importing " + filename + "\n";
 				try {
 					if (progress != null) {
 						progress.setVisible(true);
@@ -1193,6 +1227,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				} catch (Exception e) {
 					MyLogger.handleException(e);
 				}
+				System.err.println("Importing - Fin");
+				logMessages += "Importing - Fin" + "\n\n";
 			}
 		};
 		Thread thread = new Thread(runnable);
@@ -1202,6 +1238,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		} catch (InterruptedException e) {
 			MyLogger.handleException(e);
 		}
+		return "";
 	}
 
 	private boolean is1SurelyNewer(int deliveryId1, int deliveryId2) {
@@ -1274,8 +1311,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				if (result.equals("#N/A")) {
 					result = null;
 				} else if (result.length() > maxChars) {
-					System.err.println("string too long (" + result.length() + ") - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars)
-							+ "'");
+					String msg = "string too long (" + result.length() + ") - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars)
+							+ "'";
+					System.err.println(msg);
+					logMessages += msg + "\n";
 					result = result.substring(0, maxChars);
 				}
 			}
@@ -1432,8 +1471,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			} catch (Exception e) {
 				if (sql.startsWith("UPDATE") && e.getMessage().startsWith("data exception: string data, right truncation"))
 				;
+				else if (sql.startsWith("INSERT INTO") && e.getMessage().startsWith("integrity constraint violation: unique constraint or index violation")) {
+					System.err.println(sql);
+					logMessages += "SQLException, getID(), INSERT failed: " + sql + "\n";
+				}
 				else {
 					System.err.println(sql);
+					logMessages += "SQLException, getID(): " + sql + "\n";
 					MyLogger.handleException(e);
 				}
 			}

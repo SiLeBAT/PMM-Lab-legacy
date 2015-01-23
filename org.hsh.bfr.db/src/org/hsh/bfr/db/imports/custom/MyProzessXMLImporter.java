@@ -95,7 +95,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 		}
 
 
-		public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
+		public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 			errorMessage = "";
 	  	Runnable runnable = new Runnable() {
 	      public void run() {
@@ -293,6 +293,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 	    catch (InterruptedException e) {
 	    	MyLogger.handleException(e);
 			}
+	    return "";
 	  }
 		
 		private Vector<Integer> getReihenfolge(Vector<Integer[]> org_dst) {

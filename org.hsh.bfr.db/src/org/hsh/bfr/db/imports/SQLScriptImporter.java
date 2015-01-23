@@ -72,7 +72,7 @@ public class SQLScriptImporter implements MyImporter {
 		this.delimiter = delimiter;
 	}
 	
-	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
+	public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 	  	Runnable runnable = new Runnable() {
 	        public void run() {
 	  		    try {
@@ -144,6 +144,7 @@ public class SQLScriptImporter implements MyImporter {
 				MyLogger.handleException(e);
 			}
 
+	    return "";
 	}
 	private final Pattern pattern = Pattern.compile("(\\\\\\\\)|\\\\u([0-9a-fA-F]{4})");  
 	private String process(String input) {

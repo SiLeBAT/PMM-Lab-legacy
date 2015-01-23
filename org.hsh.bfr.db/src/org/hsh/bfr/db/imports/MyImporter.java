@@ -43,5 +43,5 @@ import javax.swing.JProgressBar;
  *
  */
 public interface MyImporter {
-	public void doImport(final String filename, final JProgressBar progress, final boolean showResults);
+	public String doImport(final String filename, final JProgressBar progress, final boolean showResults);
 }

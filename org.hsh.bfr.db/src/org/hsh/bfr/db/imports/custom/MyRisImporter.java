@@ -120,7 +120,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 			catch (Exception e) {MyLogger.handleException(e);}
 	    	return in;
 		}
-	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
+	public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 		//filename = "C:/Users/Armin/Documents/private/freelance/BfR/Data/100711/RIS-ExportReferenceManagerTest.txt";
   	Runnable runnable = new Runnable() {
       public void run() {
@@ -324,6 +324,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
     catch (InterruptedException e) {
     	MyLogger.handleException(e);
 		}
+    return "";
 	}
 	
 	/**

@@ -38,10 +38,14 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -56,15 +60,19 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
+import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.Species;
+import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
@@ -72,6 +80,10 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.ext.comp.Submodel;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
+import org.sbml.jsbml.xml.XMLAttributes;
+import org.sbml.jsbml.xml.XMLNamespaces;
+import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -94,6 +106,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
+import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 
 /**
  * This is the model implementation of SBMLWriter.
@@ -275,101 +289,103 @@ public class SBMLWriterNodeModel extends NodeModel {
 	}
 }
 
-class PrimaryTableReader {
-	private final static int LEVEL = 3;
-	private final static int VERSION = 1;
+abstract class TableReader {
+	protected final static int LEVEL = 3;
+	protected final static int VERSION = 1;
 
-	private List<SBMLDocument> documents = new ArrayList<>();
-
-	public PrimaryTableReader(List<KnimeTuple> tuples) {
-
-		// filter tuples with duplicated ids (from ExtXML)
-		Set<String> idSet = new LinkedHashSet<>();
-		for (Iterator<KnimeTuple> iter = tuples.listIterator(); iter.hasNext();) {
-			iter.hasNext();
-			KnimeTuple tuple = iter.next();
-			String id = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
-			if (!idSet.add(id)) {
-				iter.remove();
-			}
-		}
-
-		for (KnimeTuple tuple : tuples) {
-			SBMLDocument doc = parsePrimaryTuple(tuple);
-			documents.add(doc);
-		}
-	}
+	protected List<SBMLDocument> documents = new ArrayList<>();
 
 	public List<SBMLDocument> getDocuments() {
 		return documents;
 	}
 
-	private SBMLDocument parsePrimaryTuple(KnimeTuple tuple) {
-		replaceCelsiusAndFahrenheit(tuple);
-		renameLog(tuple);
-
-		// retrieve XML cells
-		CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
-				Model1Schema.ATT_MODELCATALOG).get(0);
-		EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
-				Model1Schema.ATT_ESTMODEL).get(0);
-		DepXml depXml = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
-				.get(0);
-		AgentXml organismXml = (AgentXml) tuple.getPmmXml(
-				TimeSeriesSchema.ATT_AGENT).get(0);
-		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
-				TimeSeriesSchema.ATT_MATRIX).get(0);
-		LiteratureItem literatureXml = (LiteratureItem) tuple.getPmmXml(
-				Model1Schema.ATT_MLIT).get(0);
-		String modelId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
-
-		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
-		// Enable Hierarchical Composition package
-		doc.enablePackage(CompConstants.shortLabel);
-
-		Model model = doc.createModel(modelId);
-
-		// TODO(malba): Add annotations
-
-		// Create compartment and add it to the model
-		Compartment c = createCompartment(matrixXml.getName());
-		model.addCompartment(c);
-
-		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), c);
-		model.addSpecies(specie);
-
-		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
-
-		String depName = depXml.getOrigName();
-		String depUnit = depXml.getUnit();
-
-		// Parse independent params
-		List<PmmXmlElementConvertable> indepParams = tuple.getPmmXml(
-				Model1Schema.ATT_INDEPENDENT).getElementSet();
-		List<Parameter> indeps = createIndependentParameter(indepParams);
-		for (Parameter param : indeps) {
-			model.addParameter(param);
+	/*
+	 * Get units from the parameters (dep, indep and consts), get their data
+	 * from DB and add them to the model.
+	 */
+	public ListOf<UnitDefinition> getUnits(DepXml depXml,
+			List<PmmXmlElementConvertable> indepParams,
+			List<PmmXmlElementConvertable> constParams) {
+		// Get unit names
+		HashSet<String> unitNames = new HashSet<>();
+		unitNames.add(depXml.getUnit());
+		for (PmmXmlElementConvertable pmmXmlElem : indepParams) {
+			IndepXml indep = (IndepXml) pmmXmlElem;
+			unitNames.add(indep.getUnit());
+		}
+		for (PmmXmlElementConvertable pmmXmlElem : constParams) {
+			ParamXml constant = (ParamXml) pmmXmlElem;
+			String constantUnit = constant.getUnit();
+			if (constantUnit != null) {
+				unitNames.add(constant.getUnit());
+			}
 		}
 
-		// Parse constant params
-		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
-				Model1Schema.ATT_PARAMETER).getElementSet();
-		List<Parameter> consts = createConstantParameters(constParams);
-		for (Parameter param : consts) {
-			model.addParameter(param);
+		// Get units from DB
+		UnitsFromDB unitDB = new UnitsFromDB();
+		unitDB.askDB();
+		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
+
+		// Create new map with unit names as keys
+		Map<String, UnitsFromDB> map = new HashMap<>();
+		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
+			map.put(entry.getValue().getUnit(), entry.getValue());
 		}
 
-		// Create rule of the model and add it to the rest of rules
-		String modelFormula = modelXml.getFormula();
-		Rule modelRule = createModelRule(modelFormula, depName, depUnit);
-		rules.add(modelRule);
-		model.setListOfRules(rules);
+		ListOf<UnitDefinition> unitDefinitions = new ListOf<>();
+		for (String unitName : unitNames) {
+			UnitsFromDB unit = map.get(unitName);
+			if (unit != null) {
+				UnitDefinition unitDef = fromXml(unit.getMathML_string());
+				unitDefinitions.add(unitDef);
+			}
+		}
 
-		return doc;
+		return unitDefinitions;
 	}
 
-	private static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
+	/*
+	 * TODO: Update PMM Lab DB. JSBML throws some ugly warnings since the units
+	 * retrieved from the PMM Lab DB lacks some fields required to be 100% SBML
+	 * compliant: exponent and scale.
+	 * 
+	 * According to SBML every <unit> should have the attributes multiplier,
+	 * kind, scale and exponent.
+	 */
+	public static UnitDefinition fromXml(String xml) {
+		String preXml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
+				+ "<sbml xmlns=\"http://www.sbml.org/sbml/level3/version1/core\" level=\"3\" version=\"1\">"
+				+ "<model id=\"ID\">" + "<listOfUnitDefinitions>";
+		String postXml = "</listOfUnitDefinitions>" + "</model>" + "</sbml>";
+
+		String totalXml = preXml + xml + postXml;
+
+		try {
+			SBMLDocument sbmlDoc = SBMLReader.read(totalXml);
+			Model model = sbmlDoc.getModel();
+			UnitDefinition unitDef = model.getUnitDefinition(0);
+			return unitDef;
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	protected static void renameLog(KnimeTuple tuple) {
+		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
+
+		model.setFormula(MathUtilities.replaceVariable(model.getFormula(),
+				"log", "log10"));
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+	}
+
+	protected static String createId(String s) {
+		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	}
+
+	protected static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
 		final String CELSIUS = "°C";
 		final String FAHRENHEIT = "°F";
 		final String KELVIN = "K";
@@ -419,17 +435,34 @@ class PrimaryTableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	private static void renameLog(KnimeTuple tuple) {
-		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
-
-		model.setFormula(MathUtilities.replaceVariable(model.getFormula(),
-				"log", "log10"));
-		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+	// Fix independent parameter units
+	void fixIndepUnits(List<PmmXmlElementConvertable> params) {
+		for (PmmXmlElementConvertable item : params) {
+			IndepXml constant = (IndepXml) item;
+			String unit = constant.getUnit();
+			if (unit == null) {
+				constant.setUnit("dimensionless");
+			} else if (unit.equals("°C")) {
+				constant.setUnit("pmf_celsius");
+			}
+		}
 	}
 
-	private static String createId(String s) {
-		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	// fix constant parameter units
+	void fixConstUnits(List<PmmXmlElementConvertable> params) {
+		for (PmmXmlElementConvertable item : params) {
+			ParamXml constant = (ParamXml) item;
+			String unit = constant.getUnit();
+			if (unit == null) {
+				constant.setUnit("dimensionless");
+			} else if (unit.equals("°C")) {
+				constant.setUnit("pmf_celsius");
+			}
+		}
+	}
+
+	protected static ASTNode parse(String s) throws ParseException {
+		return new FormulaParser(new StringReader(s)).parse();
 	}
 
 	/**
@@ -442,7 +475,7 @@ class PrimaryTableReader {
 	 * 
 	 * @return comparment.
 	 */
-	private Compartment createCompartment(String name) {
+	protected Compartment createCompartment(final String name) {
 		final String COMPARTMENT_MISSING = "CompartmentMissing";
 		String compartmentName;
 		String compartmentId;
@@ -470,7 +503,8 @@ class PrimaryTableReader {
 	 * 
 	 * @return: species
 	 */
-	private Species createSpecies(String name, Compartment compartment) {
+	protected Species createSpecies(final String name,
+			final Compartment compartment) {
 		final String SPECIES_MISSING = "SpeciesMissing";
 		String speciesId;
 		String speciesName;
@@ -490,8 +524,8 @@ class PrimaryTableReader {
 		return species;
 	}
 
-	private List<Parameter> createIndependentParameter(
-			List<PmmXmlElementConvertable> params) {
+	protected List<Parameter> createIndependentParameter(
+			final List<PmmXmlElementConvertable> params) {
 		List<Parameter> indeps = new ArrayList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			IndepXml indepXml = (IndepXml) pmmParam;
@@ -508,14 +542,15 @@ class PrimaryTableReader {
 		return indeps;
 	}
 
-	private List<Parameter> createConstantParameters(
-			List<PmmXmlElementConvertable> params) {
+	protected List<Parameter> createConstantParameters(
+			final List<PmmXmlElementConvertable> params) {
 		List<Parameter> consts = new ArrayList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			ParamXml paramXml = (ParamXml) pmmParam;
 
 			String name = paramXml.getName();
 			String unit = paramXml.getUnit();
+
 			Double value = paramXml.getValue();
 			if (value == null) {
 				value = 0.0;
@@ -530,10 +565,6 @@ class PrimaryTableReader {
 		return consts;
 	}
 
-	private static ASTNode parse(String s) throws ParseException {
-		return new FormulaParser(new StringReader(s)).parse();
-	}
-
 	/**
 	 * Create the rule of the model from the formula passed.
 	 * 
@@ -544,11 +575,9 @@ class PrimaryTableReader {
 	 *            : Name of the dependent parameter
 	 * @param depUnit
 	 *            : Unit of the dependent parameter
-	 * 
-	 * @return: algebraic rule
 	 */
-	private AssignmentRule createModelRule(String origFormula, String depName,
-			String depUnit) {
+	protected static AssignmentRule createModelRule(final String origFormula,
+			String depName, final String depUnit) {
 
 		// Get the right hand of the formula (trim value and =)
 		int endIndex = origFormula.indexOf("=") + 1;
@@ -570,18 +599,315 @@ class PrimaryTableReader {
 		}
 		return rule;
 	}
+
+	protected Annotation createAnnotation(String modelId, String modelTitle,
+			String modelClass, Map<String, String> pmfTags) {
+		Annotation annot = new Annotation();
+
+		// pmf container
+		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
+		XMLNamespaces pmfNS = new XMLNamespaces();
+		pmfNS.add("http://purl.org/dc/terms/", "dc");
+		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+
+		// model id annotation
+		if (modelId != null) {
+			XMLTriple modelIDTriple = new XMLTriple("identifer", "", "dc");
+			XMLNode modelIDNode = new XMLNode(modelIDTriple);
+			modelIDNode.addChild(new XMLNode(modelId));
+			pmfNode.addChild(modelIDNode);
+		}
+
+		// model title annotation
+		if (modelTitle != null) {
+			XMLTriple modelTitleTriple = new XMLTriple("title", null, "dc");
+			XMLNode modelTitleNode = new XMLNode(modelTitleTriple);
+			modelTitleNode.addChild(new XMLNode(modelTitle));
+			pmfNode.addChild(modelTitleNode);
+		}
+
+		// model class annotation
+		if (modelClass != null) {
+			XMLTriple modelClassTriple = new XMLTriple("type", null, "dc");
+			XMLNode modelClassNode = new XMLNode(modelClassTriple);
+			modelClassNode.addChild(new XMLNode(modelClass.toString()));
+			pmfNode.addChild(modelClassNode);
+		}
+
+		// model quality annotation
+		if (!pmfTags.isEmpty()) {
+			XMLTriple modelQualityTriple = new XMLTriple("modelquality", null,
+					"pmml");
+			XMLAttributes qualityAttrs = new XMLAttributes();
+			for (Map.Entry<String, String> entry : pmfTags.entrySet()) {
+				qualityAttrs.add(entry.getKey(), entry.getValue());
+			}
+			XMLNode modelQualityNode = new XMLNode(modelQualityTriple,
+					qualityAttrs);
+			pmfNode.addChild(modelQualityNode);
+		}
+
+		// add non-rdf annotation
+		annot.setNonRDFAnnotation(pmfNode);
+		annot.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+
+		return annot;
+	}
+
+	static Constraint createConstraintFromDep(DepXml dep) {
+		String name = dep.getName();
+		Double min = dep.getMin();
+		Double max = dep.getMax();
+		String formula;
+
+		if (min == null && max == null) {
+			return null;
+		} else if (min != null && max == null) {
+			formula = String.format("%s >= %f", name, min);
+		} else if (min == null && max != null) {
+			formula = String.format("%s <= %f", name, max);
+		} else {
+			formula = String.format("(%s >= %f) && (%s <= %f)", name, min,
+					name, max);
+		}
+
+		ASTNode math = null;
+		try {
+			math = ASTNode.parseFormula(formula);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Constraint constraint = new Constraint(math, LEVEL, VERSION);
+		return constraint;
+	}
+
+	static Constraint createConstraintFromIndep(IndepXml indep) {
+		String name = indep.getName();
+		Double min = indep.getMin();
+		Double max = indep.getMax();
+		String formula;
+
+		if (min == null && max == null) {
+			return null;
+		} else if (min != null && max == null) {
+			formula = name + " >= " + min;
+		} else if (min == null && max != null) {
+			formula = name + " <= " + max;
+		} else {
+			formula = name + " >= " + min + " && " + name + " <= " + max;
+		}
+
+		ASTNode math = null;
+		try {
+			math = ASTNode.parseFormula(formula);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Constraint constraint = new Constraint(math, LEVEL, VERSION);
+		return constraint;
+	}
+
+	static Constraint createConstraintFromParam(ParamXml param) {
+		String name = param.getName();
+		Double min = param.getMin();
+		Double max = param.getMax();
+		String formula;
+
+		if (min == null && max == null) {
+			return null;
+		} else if (min != null && max == null) {
+			formula = name + " >= " + min;
+		} else if (min == null && max != null) {
+			formula = name + " <= " + max;
+		} else {
+			formula = name + " >= " + min + " && " + name + " <= " + max;
+		}
+
+		ASTNode math = null;
+		try {
+			math = ASTNode.parseFormula(formula);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Constraint constraint = new Constraint(math, LEVEL, VERSION);
+		return constraint;
+	}
+
+	/**
+	 * Parse model quality tags such as SSE and RMS from the EstModelXml cell.
+	 * 
+	 * @param estModel
+	 * @return
+	 */
+	static Map<String, String> parseQualityTags(EstModelXml estModel) {
+		Map<String, String> qualityTags = new HashMap<>();
+
+		String targetField = estModel.getName();
+		if (targetField != null) {
+			qualityTags.put("targetField", targetField);
+		}
+
+		String dataUsage = estModel.getComment();
+		if (dataUsage != null) {
+			qualityTags.put("dataUsage", dataUsage);
+		}
+
+		Double r2 = estModel.getR2();
+		if (r2 != null) {
+			qualityTags.put("r-squared", r2.toString());
+		}
+
+		Double rms = estModel.getRms();
+		if (rms != null) {
+			qualityTags.put("rootMeanSquaredError", rms.toString());
+		}
+
+		Double sse = estModel.getSse();
+		if (sse != null) {
+			qualityTags.put("sumSquaredError", sse.toString());
+		}
+
+		Integer dof = estModel.getDof();
+		if (dof != null) {
+			qualityTags.put("degreesOfFreedom", dof.toString());
+		}
+
+		return qualityTags;
+	}
 }
 
-class TertiaryTableReader {
-	private final static int LEVEL = 3;
-	private final static int VERSION = 1;
+class PrimaryTableReader extends TableReader {
 
-	private List<SBMLDocument> documents = new ArrayList<>();
+	public PrimaryTableReader(List<KnimeTuple> tuples) {
+		super();
+
+		// filter tuples with duplicated ids (from ExtXML)
+		Set<String> idSet = new HashSet<>();
+		for (Iterator<KnimeTuple> iter = tuples.listIterator(); iter.hasNext();) {
+			iter.hasNext();
+			KnimeTuple tuple = iter.next();
+			String id = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+			if (!idSet.add(id)) {
+				iter.remove();
+			}
+		}
+
+		for (KnimeTuple tuple : tuples) {
+			SBMLDocument doc = parsePrimaryTuple(tuple);
+			documents.add(doc);
+		}
+	}
+
+	private SBMLDocument parsePrimaryTuple(KnimeTuple tuple) {
+		replaceCelsiusAndFahrenheit(tuple);
+		renameLog(tuple);
+
+		// retrieve XML cells
+		CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
+				Model1Schema.ATT_MODELCATALOG).get(0);
+		EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
+				Model1Schema.ATT_ESTMODEL).get(0);
+		DepXml depXml = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
+				.get(0);
+		AgentXml organismXml = (AgentXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_AGENT).get(0);
+		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+		LiteratureItem literatureXml = (LiteratureItem) tuple.getPmmXml(
+				Model1Schema.ATT_MLIT).get(0);
+		String modelId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+
+		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		// Enable Hierarchical Composition package
+		doc.enablePackage(CompConstants.shortLabel);
+
+		Model model = doc.createModel(modelId);
+
+		// Annotation
+		String modelTitle = modelXml.getName();
+		int modelClassNum = modelXml.getModelClass();
+		String modelClass = SBMLUtil.INT_TO_CLASS.get(modelClassNum);
+		Map<String, String> qualityTags = parseQualityTags(estXml);
+
+		Annotation annot = createAnnotation(modelId, modelTitle, modelClass,
+				qualityTags);
+		model.setAnnotation(annot);
+
+		// Create compartment and add it to the model
+		Compartment c = createCompartment(matrixXml.getName());
+		model.addCompartment(c);
+
+		// Create species and add it to the model
+		Species specie = createSpecies(organismXml.getName(), c);
+		model.addSpecies(specie);
+
+		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
+
+		String depName = depXml.getOrigName();
+		String depUnit = depXml.getUnit();
+
+		// Parse independent parameters
+		List<PmmXmlElementConvertable> indepParams = tuple.getPmmXml(
+				Model1Schema.ATT_INDEPENDENT).getElementSet();
+
+		// Add constraints
+		for (PmmXmlElementConvertable item : indepParams) {
+			IndepXml indepXml = (IndepXml) item;
+			Constraint constraint = createConstraintFromIndep(indepXml);
+			if (constraint != null) {
+				model.addConstraint(constraint);
+			}
+		}
+
+		// Add independent parameters
+		List<Parameter> indeps = createIndependentParameter(indepParams);
+		for (Parameter param : indeps) {
+			model.addParameter(param);
+		}
+
+		// Parse constant parameters
+		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
+				Model1Schema.ATT_PARAMETER).getElementSet();
+		// Add constraints
+		for (PmmXmlElementConvertable item : constParams) {
+			ParamXml paramXml = (ParamXml) item;
+			Constraint constraint = createConstraintFromParam(paramXml);
+			if (constraint != null) {
+				model.addConstraint(constraint);
+			}
+		}
+		// Add constant parameters
+		List<Parameter> consts = createConstantParameters(constParams);
+		for (Parameter param : consts) {
+			model.addParameter(param);
+		}
+
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indepParams,
+				constParams);
+		model.setListOfUnitDefinitions(unitDefs);
+
+		// Create rule of the model and add it to the rest of rules
+		String modelFormula = modelXml.getFormula();
+		Rule modelRule = createModelRule(modelFormula, depName, depUnit);
+		rules.add(modelRule);
+		model.setListOfRules(rules);
+
+		return doc;
+	}
+}
+
+class TertiaryTableReader extends TableReader {
 
 	public TertiaryTableReader(List<KnimeTuple> tuples) {
+		super();
+
 		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
-			String id = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+			String id = tuple.getString(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			if (tuplesMap.containsKey(id)) {
 				tuplesMap.get(id).add(tuple);
 			} else {
@@ -595,10 +921,6 @@ class TertiaryTableReader {
 			SBMLDocument doc = parseTertiaryTuple(modelTuples);
 			documents.add(doc);
 		}
-	}
-
-	public List<SBMLDocument> getDocuments() {
-		return documents;
 	}
 
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples) {
@@ -634,7 +956,19 @@ class TertiaryTableReader {
 		CompModelPlugin compModelPlugin = (CompModelPlugin) model
 				.getPlugin(CompConstants.shortLabel);
 
-		// TODO(malba): Add annotations
+		// Annotation
+		String modelTitle = modelXml.getName();
+		// int modelClassNum = modelXml.getModelClass();
+		Integer modelClassNum = modelXml.getModelClass();
+		if (modelClassNum == null) {
+			modelClassNum = SBMLUtil.CLASS_TO_INT.get("unknown");
+		}
+		String modelClass = SBMLUtil.INT_TO_CLASS.get(modelClassNum);
+		Map<String, String> qualityTags = parseQualityTags(estXml);
+
+		Annotation annot = createAnnotation(modelId, modelTitle, modelClass,
+				qualityTags);
+		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model
 		Compartment compartment = createCompartment(matrixXml.getName());
@@ -652,18 +986,43 @@ class TertiaryTableReader {
 		// Parse independent params
 		List<PmmXmlElementConvertable> indepParams = firstTuple.getPmmXml(
 				Model1Schema.ATT_INDEPENDENT).getElementSet();
+		
+		// Add constraints
+		for (PmmXmlElementConvertable item : indepParams) {
+			IndepXml indepXml = (IndepXml) item;
+			Constraint constraint = createConstraintFromIndep(indepXml);
+			if (constraint != null) {
+				model.addConstraint(constraint);
+			}
+		}
+		// Add independent parameters
 		List<Parameter> indeps = createIndependentParameter(indepParams);
 		for (Parameter param : indeps) {
 			model.addParameter(param);
 		}
 
-		// Parse constant params
+		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = firstTuple.getPmmXml(
 				Model1Schema.ATT_PARAMETER).getElementSet();
+		
+		// Add constraints
+		for (PmmXmlElementConvertable item : constParams) {
+			ParamXml paramXml = (ParamXml) item;
+			Constraint constraint = createConstraintFromParam(paramXml);
+			if (constraint != null) {
+				model.addConstraint(constraint);
+			}
+		}
+		// Add constant params
 		List<Parameter> consts = createConstantParameters(constParams);
 		for (Parameter param : consts) {
 			model.addParameter(param);
 		}
+
+		// Add units
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indepParams,
+				constParams);
+		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
 		String modelFormula = modelXml.getFormula();
@@ -680,13 +1039,19 @@ class TertiaryTableReader {
 					Model2Schema.ATT_DEPENDENT).get(0);
 			List<PmmXmlElementConvertable> secIndepsXml = tuple.getPmmXml(
 					Model2Schema.ATT_INDEPENDENT).getElementSet();
+			fixIndepUnits(secIndepsXml);
 			List<PmmXmlElementConvertable> secConstParams = tuple.getPmmXml(
 					Model2Schema.ATT_PARAMETER).getElementSet();
+			fixConstUnits(secConstParams);
 
-			String secId = secDepXml.getOrigName();
+			String modelDefinitionId = "model_" + secDepXml.getName();
+			ModelDefinition modelDefinition = new ModelDefinition(
+					modelDefinitionId, LEVEL, VERSION);
+			modelDefinition.setName(modelDefinitionId);
 
-			ModelDefinition modelDefinition = new ModelDefinition(secId, LEVEL,
-					VERSION);
+			// Add units
+			unitDefs = getUnits(secDepXml, secIndepsXml, secConstParams);
+			modelDefinition.setListOfUnitDefinitions(unitDefs);
 
 			// Add dep from sec
 			Parameter secDep = new Parameter(secDepXml.getName());
@@ -718,211 +1083,10 @@ class TertiaryTableReader {
 
 			Submodel submodel = compModelPlugin.createSubmodel("submodel"
 					+ Integer.toString(i));
-			submodel.setModelRef(secId);
+			submodel.setModelRef(modelDefinitionId);
 
 			i++;
 		}
-
 		return doc;
-	}
-
-	private static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
-		final String CELSIUS = "°C";
-		final String FAHRENHEIT = "°F";
-		final String KELVIN = "K";
-
-		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
-		Category temp = Categories.getTempCategory();
-
-		for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
-			IndepXml indep = (IndepXml) el;
-
-			if (CELSIUS.equals(indep.getUnit())) {
-				try {
-					String replacement = "("
-							+ temp.getConversionString(indep.getName(), KELVIN,
-									CELSIUS) + ")";
-
-					model.setFormula(MathUtilities.replaceVariable(
-							model.getFormula(), indep.getName(), replacement));
-					indep.setUnit(KELVIN);
-					indep.setMin(temp.convert(indep.getMin(), CELSIUS, KELVIN));
-					indep.setMax(temp.convert(indep.getMax(), CELSIUS, KELVIN));
-				} catch (ConvertException e) {
-					e.printStackTrace();
-				}
-			} else if (FAHRENHEIT.equals(indep.getUnit())) {
-				try {
-					String replacement = "("
-							+ temp.getConversionString(indep.getName(), KELVIN,
-									FAHRENHEIT) + ")";
-
-					model.setFormula(MathUtilities.replaceVariable(
-							model.getFormula(), indep.getName(), replacement));
-					indep.setUnit(FAHRENHEIT);
-					indep.setMin(temp.convert(indep.getMin(), FAHRENHEIT,
-							KELVIN));
-					indep.setMax(temp.convert(indep.getMax(), FAHRENHEIT,
-							KELVIN));
-				} catch (ConvertException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
-		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
-	}
-
-	private static void renameLog(KnimeTuple tuple) {
-		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
-
-		model.setFormula(MathUtilities.replaceVariable(model.getFormula(),
-				"log", "log10"));
-		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
-	}
-
-	private static ASTNode parse(String s) throws ParseException {
-		return new FormulaParser(new StringReader(s)).parse();
-	}
-
-	private static String createId(String s) {
-		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
-	}
-
-	/**
-	 * Create a species element with a name and add it to the compartment
-	 * passed. If the name is null then the species will be assigned
-	 * SPECIES_MISSING. This species element will not be assigned to the model.
-	 * 
-	 * @param: name
-	 * @param: comparment
-	 * 
-	 * @return: species
-	 */
-	private Species createSpecies(String name, Compartment compartment) {
-		final String SPECIES_MISSING = "SpeciesMissing";
-		String speciesId;
-		String speciesName;
-
-		if (name == null) {
-			speciesId = SPECIES_MISSING;
-			speciesName = SPECIES_MISSING;
-		} else {
-			speciesId = createId(name);
-			speciesName = name;
-		}
-
-		Species species = new Species(speciesId);
-		species.setName(speciesName);
-		species.setCompartment(compartment);
-
-		return species;
-	}
-
-	/**
-	 * Create the rule of the model from the formula passed.
-	 * 
-	 * @param origFormula
-	 *            : Original formula from the DepXML cell. It has the following
-	 *            format: Value=LOG10N0-Time/D*(((((D>0))))) (Pmm Lab format)
-	 * @param depName
-	 *            : Name of the dependent parameter
-	 * @param depUnit
-	 *            : Unit of the dependent parameter
-	 */
-	private static AssignmentRule createModelRule(String origFormula,
-			String depName, String depUnit) {
-
-		// Get the right hand of the formula (trim value and =)
-		int endIndex = origFormula.indexOf("=") + 1;
-		String formula = origFormula.substring(endIndex);
-
-		if (depUnit.startsWith("log")) {
-			depName = "log10(" + depName + ")";
-		} else if (depUnit.startsWith("ln")) {
-			depName = "ln(" + depName + ")";
-		}
-
-		AssignmentRule rule = null;
-		try {
-			ASTNode math = parse(formula);
-			rule = new AssignmentRule(math, LEVEL, VERSION);
-			rule.setVariable(depName);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return rule;
-	}
-
-	private List<Parameter> createIndependentParameter(
-			List<PmmXmlElementConvertable> params) {
-		List<Parameter> indeps = new ArrayList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			IndepXml indepXml = (IndepXml) pmmParam;
-
-			String name = indepXml.getName();
-			String unit = indepXml.getUnit();
-
-			Parameter p = new Parameter(name);
-			p.setValue(0.0);
-			p.setConstant(false);
-			p.setUnits(unit);
-			indeps.add(p);
-		}
-		return indeps;
-	}
-
-	private List<Parameter> createConstantParameters(
-			List<PmmXmlElementConvertable> params) {
-		List<Parameter> consts = new ArrayList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			ParamXml paramXml = (ParamXml) pmmParam;
-
-			String name = paramXml.getName();
-			String unit = paramXml.getUnit();
-			Double value = paramXml.getValue();
-			if (value == null) {
-				value = 0.0;
-			}
-
-			Parameter p = new Parameter(name);
-			p.setValue(value);
-			p.setConstant(true);
-			p.setUnits(unit);
-			consts.add(p);
-		}
-		return consts;
-	}
-
-	/**
-	 * Create a compartment with the name given. This compartment is not added
-	 * to the model.
-	 * 
-	 * @param name
-	 *            : Name of the compartment. If the name is null then the will
-	 *            be assigned COMPARTMENT_MISSING.
-	 * 
-	 * @return comparment.
-	 */
-	private Compartment createCompartment(String name) {
-		final String COMPARTMENT_MISSING = "CompartmentMissing";
-		String compartmentName;
-		String compartmentId;
-
-		if (name == null) {
-			compartmentId = COMPARTMENT_MISSING;
-			compartmentName = COMPARTMENT_MISSING;
-		} else {
-			compartmentId = createId(name);
-			compartmentName = name;
-		}
-
-		Compartment compartment = new Compartment(compartmentId);
-		compartment.setName(compartmentName);
-		return compartment;
 	}
 }

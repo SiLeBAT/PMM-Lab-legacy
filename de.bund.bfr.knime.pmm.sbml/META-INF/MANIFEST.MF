@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base,
  de.bund.bfr.knime.pmm.common,
- org.sbml.jsbml
+ org.sbml.jsbml,
+ org.hsh.bfr.db
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.sbmlreader,
  de.bund.bfr.knime.pmm.sbmlwriter

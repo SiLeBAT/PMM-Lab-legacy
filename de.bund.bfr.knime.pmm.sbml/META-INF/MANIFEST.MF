@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SBML nodes extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-ClassPath: sbmlreader.jar
+Bundle-ClassPath: sbmlreader.jar,
+ lib/jsbml-1.0-with-dependencies.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodePlugin
 Bundle-Vendor: Optimum Quality
 Require-Bundle: org.eclipse.core.runtime,
@@ -11,8 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base,
  de.bund.bfr.knime.pmm.common,
- org.hsh.bfr.db,
- org.sbml.jsbml;bundle-version="1.0.0"
+ org.hsh.bfr.db
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.sbmlreader,
  de.bund.bfr.knime.pmm.sbmlwriter

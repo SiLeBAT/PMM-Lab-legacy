@@ -4,6 +4,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.sbml.jsbml.Model;
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.UnitDefinition;
+
 public class SBMLUtil {
 	
 	// Dictionary that maps model classes to integers
@@ -52,5 +59,33 @@ public class SBMLUtil {
 		tempMap.put(14, "T/pH/aw");
 		
 		INT_TO_CLASS = Collections.unmodifiableMap(tempMap);
+	}
+
+	/*
+	 * TODO: Update PMM Lab DB. JSBML throws some ugly warnings since the units
+	 * retrieved from the PMM Lab DB lacks some fields required to be 100% SBML
+	 * compliant: exponent and scale.
+	 * 
+	 * According to SBML every <unit> should have the attributes multiplier,
+	 * kind, scale and exponent.
+	 */
+	public static UnitDefinition fromXml(String xml) {
+		String preXml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
+				+ "<sbml xmlns=\"http://www.sbml.org/sbml/level3/version1/core\" level=\"3\" version=\"1\">"
+				+ "<model id=\"ID\">" + "<listOfUnitDefinitions>";
+		String postXml = "</listOfUnitDefinitions>" + "</model>" + "</sbml>";
+
+		String totalXml = preXml + xml + postXml;
+
+		try {
+			SBMLDocument sbmlDoc = SBMLReader.read(totalXml);
+			Model model = sbmlDoc.getModel();
+			UnitDefinition unitDef = model.getUnitDefinition(0);
+			return unitDef;
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 }

@@ -9,7 +9,6 @@ import javax.xml.stream.XMLStreamException;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
@@ -48,22 +47,6 @@ public class SBMLUtilities {
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public static UnitDefinition fromXml(String xml) {
-		String preXml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-				+ "<sbml xmlns=\"http://www.sbml.org/sbml/level3/version1/core\" level=\"3\" version=\"1\">"
-				+ "<model id=\"ID\">" + "<listOfUnitDefinitions>";
-		String postXml = "</listOfUnitDefinitions>" + "</model>" + "</sbml>";
-
-		try {
-			return SBMLReader.read(preXml + xml + postXml).getModel()
-					.getUnitDefinition(0);
-		} catch (XMLStreamException e) {
 			e.printStackTrace();
 		}
 

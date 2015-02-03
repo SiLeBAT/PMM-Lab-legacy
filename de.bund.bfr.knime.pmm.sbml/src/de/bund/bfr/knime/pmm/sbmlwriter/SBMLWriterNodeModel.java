@@ -41,11 +41,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -69,7 +68,6 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
@@ -107,6 +105,8 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 
 /**
@@ -336,40 +336,13 @@ abstract class TableReader {
 		for (String unitName : unitNames) {
 			UnitsFromDB unit = map.get(unitName);
 			if (unit != null) {
-				UnitDefinition unitDef = fromXml(unit.getMathML_string());
+				UnitDefinition unitDef = SBMLUtil.fromXml(unit
+						.getMathML_string());
 				unitDefinitions.add(unitDef);
 			}
 		}
 
 		return unitDefinitions;
-	}
-
-	/*
-	 * TODO: Update PMM Lab DB. JSBML throws some ugly warnings since the units
-	 * retrieved from the PMM Lab DB lacks some fields required to be 100% SBML
-	 * compliant: exponent and scale.
-	 * 
-	 * According to SBML every <unit> should have the attributes multiplier,
-	 * kind, scale and exponent.
-	 */
-	public static UnitDefinition fromXml(String xml) {
-		String preXml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-				+ "<sbml xmlns=\"http://www.sbml.org/sbml/level3/version1/core\" level=\"3\" version=\"1\">"
-				+ "<model id=\"ID\">" + "<listOfUnitDefinitions>";
-		String postXml = "</listOfUnitDefinitions>" + "</model>" + "</sbml>";
-
-		String totalXml = preXml + xml + postXml;
-
-		try {
-			SBMLDocument sbmlDoc = SBMLReader.read(totalXml);
-			Model model = sbmlDoc.getModel();
-			UnitDefinition unitDef = model.getUnitDefinition(0);
-			return unitDef;
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 
 	protected static void renameLog(KnimeTuple tuple) {
@@ -459,10 +432,6 @@ abstract class TableReader {
 				constant.setUnit("pmf_celsius");
 			}
 		}
-	}
-
-	protected static ASTNode parse(String s) throws ParseException {
-		return new FormulaParser(new StringReader(s)).parse();
 	}
 
 	/**
@@ -565,41 +534,6 @@ abstract class TableReader {
 		return consts;
 	}
 
-	/**
-	 * Create the rule of the model from the formula passed.
-	 * 
-	 * @param origFormula
-	 *            : Original formula from the DepXML cell. It has the following
-	 *            format: Value=LOG10N0-Time/D*(((((D>0))))) (Pmm Lab format)
-	 * @param depName
-	 *            : Name of the dependent parameter
-	 * @param depUnit
-	 *            : Unit of the dependent parameter
-	 */
-	protected static AssignmentRule createModelRule(final String origFormula,
-			String depName, final String depUnit) {
-
-		// Get the right hand of the formula (trim value and =)
-		int endIndex = origFormula.indexOf("=") + 1;
-		String formula = origFormula.substring(endIndex);
-
-		if (depUnit.startsWith("log")) {
-			depName = "log10(" + depName + ")";
-		} else if (depUnit.startsWith("ln")) {
-			depName = "ln(" + depName + ")";
-		}
-
-		AssignmentRule rule = null;
-		try {
-			ASTNode math = parse(formula);
-			rule = new AssignmentRule(math, LEVEL, VERSION);
-			rule.setVariable(depName);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return rule;
-	}
-
 	protected Annotation createAnnotation(String modelId, String modelTitle,
 			String modelClass, Map<String, String> pmfTags) {
 		Annotation annot = new Annotation();
@@ -650,80 +584,25 @@ abstract class TableReader {
 
 		// add non-rdf annotation
 		annot.setNonRDFAnnotation(pmfNode);
-		annot.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		annot.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 
 		return annot;
 	}
 
-	static Constraint createConstraintFromDep(DepXml dep) {
-		String name = dep.getName();
-		Double min = dep.getMin();
-		Double max = dep.getMax();
-		String formula;
+	static Constraint createConstraint(String var, Double min, Double max) {
+		String formula = "";
 
-		if (min == null && max == null) {
+		if (min != null)
+			formula += String.format(Locale.ENGLISH, "(%s >= %f)", var, min.doubleValue());
+		if (max != null) {
+			if (min != null)
+				formula += "&&";
+			formula += String.format(Locale.ENGLISH, "(%s <= %f)", var, max.doubleValue());
+		}
+		
+		if (formula.isEmpty()) {
 			return null;
-		} else if (min != null && max == null) {
-			formula = String.format("%s >= %f", name, min);
-		} else if (min == null && max != null) {
-			formula = String.format("%s <= %f", name, max);
-		} else {
-			formula = String.format("(%s >= %f) && (%s <= %f)", name, min,
-					name, max);
-		}
-
-		ASTNode math = null;
-		try {
-			math = ASTNode.parseFormula(formula);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Constraint constraint = new Constraint(math, LEVEL, VERSION);
-		return constraint;
-	}
-
-	static Constraint createConstraintFromIndep(IndepXml indep) {
-		String name = indep.getName();
-		Double min = indep.getMin();
-		Double max = indep.getMax();
-		String formula;
-
-		if (min == null && max == null) {
-			return null;
-		} else if (min != null && max == null) {
-			formula = name + " >= " + min;
-		} else if (min == null && max != null) {
-			formula = name + " <= " + max;
-		} else {
-			formula = name + " >= " + min + " && " + name + " <= " + max;
-		}
-
-		ASTNode math = null;
-		try {
-			math = ASTNode.parseFormula(formula);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Constraint constraint = new Constraint(math, LEVEL, VERSION);
-		return constraint;
-	}
-
-	static Constraint createConstraintFromParam(ParamXml param) {
-		String name = param.getName();
-		Double min = param.getMin();
-		Double max = param.getMax();
-		String formula;
-
-		if (min == null && max == null) {
-			return null;
-		} else if (min != null && max == null) {
-			formula = name + " >= " + min;
-		} else if (min == null && max != null) {
-			formula = name + " <= " + max;
-		} else {
-			formula = name + " >= " + min + " && " + name + " <= " + max;
 		}
 
 		ASTNode math = null;
@@ -856,8 +735,9 @@ class PrimaryTableReader extends TableReader {
 
 		// Add constraints
 		for (PmmXmlElementConvertable item : indepParams) {
-			IndepXml indepXml = (IndepXml) item;
-			Constraint constraint = createConstraintFromIndep(indepXml);
+			IndepXml indep = (IndepXml) item;
+			Constraint constraint = createConstraint(indep.getName(),
+					indep.getMin(), indep.getMax());
 			if (constraint != null) {
 				model.addConstraint(constraint);
 			}
@@ -874,8 +754,9 @@ class PrimaryTableReader extends TableReader {
 				Model1Schema.ATT_PARAMETER).getElementSet();
 		// Add constraints
 		for (PmmXmlElementConvertable item : constParams) {
-			ParamXml paramXml = (ParamXml) item;
-			Constraint constraint = createConstraintFromParam(paramXml);
+			ParamXml param = (ParamXml) item;
+			Constraint constraint = createConstraint(param.getName(),
+					param.getMin(), param.getMax());
 			if (constraint != null) {
 				model.addConstraint(constraint);
 			}
@@ -892,8 +773,9 @@ class PrimaryTableReader extends TableReader {
 
 		// Create rule of the model and add it to the rest of rules
 		String modelFormula = modelXml.getFormula();
-		Rule modelRule = createModelRule(modelFormula, depName, depUnit);
-		rules.add(modelRule);
+		Model1Rule model1Rule = new Model1Rule();
+		model1Rule.parse(modelFormula);
+		rules.add(model1Rule.getRule());
 		model.setListOfRules(rules);
 
 		return doc;
@@ -958,7 +840,6 @@ class TertiaryTableReader extends TableReader {
 
 		// Annotation
 		String modelTitle = modelXml.getName();
-		// int modelClassNum = modelXml.getModelClass();
 		Integer modelClassNum = modelXml.getModelClass();
 		if (modelClassNum == null) {
 			modelClassNum = SBMLUtil.CLASS_TO_INT.get("unknown");
@@ -986,11 +867,12 @@ class TertiaryTableReader extends TableReader {
 		// Parse independent params
 		List<PmmXmlElementConvertable> indepParams = firstTuple.getPmmXml(
 				Model1Schema.ATT_INDEPENDENT).getElementSet();
-		
+
 		// Add constraints
 		for (PmmXmlElementConvertable item : indepParams) {
-			IndepXml indepXml = (IndepXml) item;
-			Constraint constraint = createConstraintFromIndep(indepXml);
+			IndepXml indep = (IndepXml) item;
+			Constraint constraint = createConstraint(indep.getName(),
+					indep.getMin(), indep.getMax());
 			if (constraint != null) {
 				model.addConstraint(constraint);
 			}
@@ -1004,11 +886,12 @@ class TertiaryTableReader extends TableReader {
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = firstTuple.getPmmXml(
 				Model1Schema.ATT_PARAMETER).getElementSet();
-		
+
 		// Add constraints
 		for (PmmXmlElementConvertable item : constParams) {
-			ParamXml paramXml = (ParamXml) item;
-			Constraint constraint = createConstraintFromParam(paramXml);
+			ParamXml param = (ParamXml) item;
+			Constraint constraint = createConstraint(param.getName(),
+					param.getMin(), param.getMax());
 			if (constraint != null) {
 				model.addConstraint(constraint);
 			}
@@ -1026,12 +909,14 @@ class TertiaryTableReader extends TableReader {
 
 		// Create rule of the model and add it to the rest of rules
 		String modelFormula = modelXml.getFormula();
-		Rule modelRule = createModelRule(modelFormula, depName, depUnit);
-		rules.add(modelRule);
+		Model1Rule model1Rule = new Model1Rule();
+		model1Rule.parse(modelFormula);
+		rules.add(model1Rule.getRule());
 		model.setListOfRules(rules);
 
 		// Add submodels and model definitions
 		int i = 0;
+		Model2Rule model2Rule = new Model2Rule();
 		for (KnimeTuple tuple : tuples) {
 			CatalogModelXml secModelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model2Schema.ATT_MODELCATALOG).get(0);
@@ -1074,9 +959,8 @@ class TertiaryTableReader extends TableReader {
 
 			String secFormula = secModelXml.getFormula();
 			ListOf<Rule> secRules = new ListOf<>(LEVEL, VERSION);
-			AssignmentRule secRule = createModelRule(secFormula,
-					secDep.getName(), secDep.getUnits());
-			secRules.add(secRule);
+			model2Rule.parse(secFormula);
+			secRules.add(model2Rule.getRule());
 			modelDefinition.setListOfRules(secRules);
 
 			compDocPlugin.addModelDefinition(modelDefinition);

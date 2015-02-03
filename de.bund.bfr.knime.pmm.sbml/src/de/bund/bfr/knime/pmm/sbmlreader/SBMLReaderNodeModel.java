@@ -27,7 +27,6 @@ import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Constraint;
-import org.sbml.jsbml.FunctionDefinition;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
@@ -35,7 +34,6 @@ import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Species;
-import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
@@ -59,6 +57,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 
 /**
@@ -204,9 +204,9 @@ public class SBMLReaderNodeModel extends NodeModel {
 				.size() > 0;
 
 		// Create schema and parse model
-		KnimeSchema schema;
 		BufferedDataContainer container = null;
 		if (isTertiary) {
+			KnimeSchema schema = SchemaFactory.createM12DataSchema();
 			schema = SchemaFactory.createM12DataSchema();
 			// Create container
 			container = exec.createDataContainer(schema.createSpec());
@@ -216,7 +216,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 				container.addRowToTable(tuple);
 			}
 		} else {
-			schema = SchemaFactory.createM1DataSchema();
+			KnimeSchema schema = SchemaFactory.createM1DataSchema();
 			// Create container
 			container = exec.createDataContainer(schema.createSpec());
 			// Parse document
@@ -286,6 +286,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 	}
 }
 
+
 class ReaderUtilities {
 
 	/**
@@ -343,7 +344,8 @@ class ReaderUtilities {
 	 * @param compartments
 	 *            : List of compartments
 	 */
-	static PmmXmlDoc parseCompartments(final ListOf<Compartment> compartments) {
+	public static PmmXmlDoc parseCompartments(
+			final ListOf<Compartment> compartments) {
 		PmmXmlDoc compartmentDoc = new PmmXmlDoc();
 		for (Compartment compartment : compartments) {
 			// Process annotation
@@ -366,7 +368,7 @@ class ReaderUtilities {
 		return compartmentDoc;
 	}
 
-	private static String parseComparmentAnnotation(XMLNode annot) {
+	public static String parseComparmentAnnotation(XMLNode annot) {
 		// Search metadata container
 		XMLNode metadata = null;
 		for (int nChild = 0; nChild < annot.getChildCount(); nChild++) {
@@ -401,7 +403,7 @@ class ReaderUtilities {
 	 * @param species
 	 *            : List of species.
 	 */
-	static PmmXmlDoc parseSpecies(final ListOf<Species> species) {
+	public static PmmXmlDoc parseSpecies(final ListOf<Species> species) {
 		PmmXmlDoc speciesDoc = new PmmXmlDoc();
 		for (Species specie : species) {
 			String speciesName = "";
@@ -423,7 +425,7 @@ class ReaderUtilities {
 		return speciesDoc;
 	}
 
-	private static String parseSpeciesAnnotation(XMLNode annot) {
+	public static String parseSpeciesAnnotation(XMLNode annot) {
 		// Search metadata container
 		XMLNode metadata = null;
 		for (int nChild = 0; nChild < annot.getChildCount(); nChild++) {
@@ -452,120 +454,151 @@ class ReaderUtilities {
 		return casNumber;
 	}
 
-	/**
-	 * Parse the SBML species to produce the dependent variable and return a
-	 * PmmXmlDoc.
-	 * 
-	 * @param specie
-	 */
-	static PmmXmlDoc parseDependentParameter(final Species specie,
-			final Map<String, String> dbUnits,
+	// Create dependent variable
+	public static PmmXmlDoc parseDep(final Species species,
+			final Map<String, UnitsFromDB> units,
 			final Map<String, Map<String, Double>> limits) {
+		String name = species.getUnits(); // unit name
+		UnitsFromDB dbUnit = units.get(name);
 
-		String depName = specie.getId();
-		String pmfUnit = specie.getUnits();
-		String depUnit = dbUnits.get(pmfUnit);  // unit from db
-		String category = Categories.getCategoryByUnit(depUnit).getName();
-		
-		DepXml dep = new DepXml("Value", "Value", category, depUnit, "");
+		// Retrieve unit data from dbUnit
+		String category = dbUnit.getKind_of_property_quantity();
+		String unit = dbUnit.getDisplay_in_GUI_as();
+		String description = dbUnit.getDescription();
 
-//		if (limits.containsKey(origName)) {
-//			Map<String, Double> depLimits = limits.get(origName);
-//			if (depLimits.containsKey("MAX")) {
-//				dep.setMax(depLimits.get("MAX"));
-//			}
-//			if (depLimits.containsKey("MIN")) {
-//				dep.setMin(depLimits.get("MIN"));
-//			}
-//		}
+		DepXml dep = new DepXml("Value", "Value", category, unit, description);
+		// Get limits
+		if (limits.containsKey(name)) {
+			Map<String, Double> depLimits = limits.get(name);
+			if (depLimits.containsKey("MAX")) {
+				dep.setMax(depLimits.get("MAX"));
+			}
+			if (depLimits.containsKey("MIN")) {
+				dep.setMin(depLimits.get("MIN"));
+			}
+		}
 
 		PmmXmlDoc depDoc = new PmmXmlDoc(dep);
+
 		return depDoc;
 	}
 
-	/**
-	 * Parse the independent parameters and return a PmmXmlDoc.
-	 * 
-	 * @param parameters
-	 *            : List of parameters.
-	 */
-	static PmmXmlDoc parseIndependentParameters(
-			final ListOf<Parameter> parameters,
+	// Create independent variables
+	public static PmmXmlDoc parseIndeps(final ListOf<Parameter> params,
+			final Map<String, UnitsFromDB> units,
 			final Map<String, Map<String, Double>> limits) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
-		for (Parameter param : parameters) {
+
+		for (Parameter param : params) {
 			if (!param.isConstant()) {
-				String id = param.getId();
+				String unitName = param.getUnits(); // unit name
+				UnitsFromDB dbUnit = units.get(unitName);
+
+				String name = "";
+				String category = "";
+				String unit = "";
+				String description = "";
+
+				if (dbUnit != null) {
+					// Retrieve unit data from dbUnit
+					name = dbUnit.getKind_of_property_quantity();
+					category = dbUnit.getKind_of_property_quantity();
+					unit = dbUnit.getDisplay_in_GUI_as();
+					description = dbUnit.getDescription();
+				} else if (unitName.equals("pmf_celsius")) {
+					name = unitName;
+					category = Categories.getTempCategory().getName();
+					unit = "°C";
+					description = "degree Celsius";
+				}
+
+				// other fields
 				Double min = null, max = null;
-				String unit = param.getUnits();
-				String category = Categories.getCategoryByUnit(unit).getName();
 
-				IndepXml newCell = new IndepXml(id, min, max);
-				newCell.setUnit(unit);
-				newCell.setCategory(category);
-
-				if (limits.containsKey(id)) {
-					Map<String, Double> indepLimits = limits.get(id);
+				IndepXml indep = new IndepXml(name, min, max, category, unit);
+				indep.setDescription(description);
+				// Get limits
+				String paramName = param.getId();
+				if (limits.containsKey(paramName)) {
+					Map<String, Double> indepLimits = limits.get(paramName);
 					if (indepLimits.containsKey("MAX")) {
-						newCell.setMax(indepLimits.get("MAX"));
+						indep.setMax(indepLimits.get("MAX"));
 					}
 					if (indepLimits.containsKey("MIN")) {
-						newCell.setMin(indepLimits.get("MIN"));
+						indep.setMin(indepLimits.get("MIN"));
 					}
 				}
 
-				indepDoc.add(newCell);
+				indepDoc.add(indep);
 			}
 		}
+
 		return indepDoc;
+	}
+
+	// Create constant variables
+	public static PmmXmlDoc parseConsts(final ListOf<Parameter> params,
+			final Map<String, UnitsFromDB> units,
+			final Map<String, Map<String, Double>> limits) {
+		PmmXmlDoc constsDoc = new PmmXmlDoc();
+
+		for (Parameter param : params) {
+			if (param.isConstant()) {
+				String unitName = param.getUnits(); // unit name
+				UnitsFromDB dbUnit = units.get(unitName);
+
+				String name = "", category = "", unit = "", description = "";
+
+				// Retrieve unit data from dbUnit
+				if (dbUnit != null) {
+					name = dbUnit.getName();
+					category = dbUnit.getKind_of_property_quantity();
+					unit = dbUnit.getDisplay_in_GUI_as();
+					description = dbUnit.getDescription();
+				} else if (unitName.equals("pmf_celsius")) {
+					name = unitName;
+					category = Categories.getTempCategory().getName();
+					unit = "°C";
+					description = "degree Celsius";
+				}
+
+				// other fields
+				String id = param.getId();
+				double value = param.getValue();
+
+				ParamXml paramXml = new ParamXml(id, value);
+				paramXml.setCategory(category);
+				paramXml.setUnit(unit);
+				paramXml.setDescription(description);
+
+				// Get limits
+				String paramName = param.getId();
+				if (limits.containsKey(paramName)) {
+					Map<String, Double> paramLimits = limits.get(paramName);
+					if (paramLimits.containsKey("MAX")) {
+						paramXml.setMax(paramLimits.get("MAX"));
+					}
+					if (paramLimits.containsKey("MIN")) {
+						paramXml.setMin(paramLimits.get("MIN"));
+					}
+				}
+
+				constsDoc.add(paramXml);
+			}
+		}
+
+		return constsDoc;
 	}
 
 	/**
 	 * Parse the formula of the model (rule) using the PMM Lab format:
 	 * "Value = actual formula"
 	 */
-	static String parseFormula(final AssignmentRule rule) {
-		return "Value = " + rule.getMath().toFormula();
+	public static String parseFormula(final AssignmentRule rule) {
+		return "Value=" + rule.getMath().toFormula();
 	}
 
-
-	/**
-	 * Parse constant parameters and return a PmmXmlDoc.
-	 * 
-	 * @param parameters
-	 *            : List of parameters.
-	 */
-	static PmmXmlDoc parseConstantParameters(
-			final ListOf<Parameter> parameters,
-			final Map<String, Map<String, Double>> secLimits) {
-		PmmXmlDoc constsDoc = new PmmXmlDoc();
-		for (Parameter param : parameters) {
-			if (param.isConstant()) {
-				String id = param.getId();
-				double value = param.getValue();
-				String unit = param.getUnits();
-				String category = Categories.getCategoryByUnit(unit).getName();
-
-				ParamXml newCell = new ParamXml(id, value);
-				newCell.setUnit(unit);
-				newCell.setCategory(category);
-				if (secLimits.containsKey(id)) {
-					Map<String, Double> indepLimits = secLimits.get(id);
-					if (indepLimits.containsKey("MAX")) {
-						newCell.setMax(indepLimits.get("MAX"));
-					}
-					if (indepLimits.containsKey("MIN")) {
-						newCell.setMin(indepLimits.get("MIN"));
-					}
-				}
-
-				constsDoc.add(newCell);
-			}
-		}
-		return constsDoc;
-	}
-
-	static Map<String, Map<String, Double>> parseConstraint(
+	public static Map<String, Map<String, Double>> parseConstraint(
 			final ListOf<Constraint> constraints) {
 		Map<String, Map<String, Double>> limits = new HashMap<>();
 
@@ -618,6 +651,81 @@ class ReaderUtilities {
 
 		return limits;
 	}
+
+	// Create a CatalogModelXml from the model annotations and its formula
+	public static CatalogModelXml createCatModel(
+			final Map<String, String> annotations, final AssignmentRule rule) {
+
+		// Initialize variables
+		Integer id = null; // model id
+		String name = ""; // model name
+		int type = SBMLUtil.CLASS_TO_INT.get("unknown"); // model class
+		String formula = ReaderUtilities.parseFormula(rule); // model formula
+
+		if (annotations != null) {
+			// Get values from annotations
+			if (annotations.containsKey("title")) {
+				name = annotations.get("title");
+			}
+			if (annotations.containsKey("subject")) {
+				String modelClass = annotations.get("subject");
+				type = SBMLUtil.CLASS_TO_INT.get(modelClass);
+			}
+		}
+
+		CatalogModelXml catModel = new CatalogModelXml(id, name, formula, type);
+		return catModel;
+	}
+
+	// create EstModelXml from the model annotations
+	public static EstModelXml createEstModel(
+			final Map<String, String> annotations) {
+		// Initialize variables
+		int id = MathUtilities.getRandomNegativeInt(); // model id
+		String name = null;
+		String comment = null;
+		Double r2 = null;
+		Double rms = null;
+		Double sse = null;
+		Double aic = null;
+		Double bic = null;
+		Integer dof = null;
+
+		// Get values from the annotations
+		if (annotations != null) {
+			if (annotations.containsKey("dataName")) {
+				name = annotations.get("dataName");
+			}
+			if (annotations.containsKey("dataUsage")) {
+				comment = annotations.get("dataUsage");
+			}
+			if (annotations.containsKey("r-squared")) {
+				r2 = Double.parseDouble(annotations.get("r-squared"));
+			}
+			if (annotations.containsKey("rootMeanSquaredError")) {
+				rms = Double.parseDouble(annotations
+						.get("rootMeanSquaredError"));
+			}
+			if (annotations.containsKey("sumSquaredError")) {
+				sse = Double.parseDouble(annotations.get("sumSquaredError"));
+			}
+			if (annotations.containsKey("AIC")) {
+				aic = Double.parseDouble(annotations.get("AIC"));
+			}
+			if (annotations.containsKey("BIC")) {
+				bic = Double.parseDouble(annotations.get("BIC"));
+			}
+			if (annotations.containsKey("degreesOfFreedom")) {
+				dof = Integer.parseInt(annotations.get("degreesOfFreedom"));
+			}
+		}
+
+		EstModelXml estModel = new EstModelXml(id, name, sse, rms, r2, aic,
+				bic, dof);
+		estModel.setQualityScore(0); // unchecked model
+		estModel.setComment(comment);
+		return estModel;
+	}
 }
 
 class PrimaryModelParser {
@@ -630,45 +738,24 @@ class PrimaryModelParser {
 		ListOf<Rule> listOfRules = model.getListOfRules();
 		AssignmentRule assignmentRule = (AssignmentRule) listOfRules.get(0);
 
-		// Get names of units
-		// dict that maps PMF units with DB unit names
-		Map<String, String> dbUnits = new HashMap<>();
-		for (UnitDefinition ud : model.getListOfUnitDefinitions()) {
-			String pmfName = ud.getId();
-			String dbName = ud.getName();
-			dbUnits.put(pmfName, dbName);
-		}
-		
-		// TODO: Parse annotation
-		Annotation annot = model.getAnnotation();
-		XMLNode nonRDFAnnot = annot.getNonRDFannotation();
-		Map<String, String> annotations = ReaderUtilities
-				.parseAnnotation(nonRDFAnnot);
+		DBUnits dbUnits = new DBUnits();
 
-		// Get modelId
-		Integer modelId = null;
-
-		// Get modelName
-		String modelName = "";
-		// check for dc:title tag
-		if (annotations.containsKey("title")) {
-			modelName = annotations.get("title");
+		// Parse model annotations
+		XMLNode modelAnnotation = model.getAnnotation().getNonRDFannotation();
+		Map<String, String> annotations = null;
+		// If the model is annotated then parse the annotations
+		if (modelAnnotation != null) {
+			annotations = ReaderUtilities.parseAnnotation(modelAnnotation);
 		}
 
-		// Get modelClass
-		int modelClass;
-		if (annotations.containsKey("subject")) {
-			String modelType = annotations.get("subject");
-			modelClass = SBMLUtil.CLASS_TO_INT.get(modelType);
-		} else {
-			modelClass = SBMLUtil.CLASS_TO_INT.get("unknown");
-		}
+		CatalogModelXml catModel = ReaderUtilities.createCatModel(annotations,
+				assignmentRule);
 
-		// Get reference
-		String reference = "";
-		if (annotations.containsKey("references")) {
-			reference = annotations.get("references");
-		}
+		// // Get reference
+		// String reference = "";
+		// if (annotations.containsKey("references")) {
+		// reference = annotations.get("references");
+		// }
 
 		// Parse constraints
 		ListOf<Constraint> constraints = model.getListOfConstraints();
@@ -690,44 +777,19 @@ class PrimaryModelParser {
 		String mdDBUID = "?";
 
 		// primary model cells
-		String formula = ReaderUtilities.parseFormula(assignmentRule);
-		CatalogModelXml catModel = new CatalogModelXml(modelId, modelName,
-				formula, modelClass);
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
 		// Parse dependent parameter (primary models only have one dependent
 		// variable)
-		PmmXmlDoc depCell = ReaderUtilities.parseDependentParameter(
-				listOfSpecies.get(0), dbUnits, limits);
-		// Parse independent parameter
-		PmmXmlDoc indepCell = ReaderUtilities.parseIndependentParameters(
-				listOfParameters, limits);
-		// Parse constant parameter
-		PmmXmlDoc paramCell = ReaderUtilities.parseConstantParameters(
-				listOfParameters, limits);
+		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
+				.getListOfUnitDefinitions());
+		PmmXmlDoc depCell = ReaderUtilities.parseDep(listOfSpecies.get(0),
+				units, limits);
+		PmmXmlDoc indepCell = ReaderUtilities.parseIndeps(listOfParameters,
+				units, limits);
+		PmmXmlDoc paramCell = ReaderUtilities.parseConsts(listOfParameters,
+				units, limits);
 
-		int estModelId = MathUtilities.getRandomNegativeInt();
-		String estModelName = annotations.containsKey("dataName") ? annotations
-				.get("dataName") : null;
-		String estModelComment = annotations.containsKey("dataUsage") ? annotations
-				.get("dataUsage") : null;
-		Double estModelR2 = annotations.containsKey("r-squared") ? Double
-				.parseDouble(annotations.get("r-squared")) : null;
-		Double estModelRMS = annotations.containsKey("rootMeanSquaredError") ? Double
-				.parseDouble(annotations.get("rootMeanSquaredError")) : null;
-		Double estModelSSE = annotations.containsKey("sumSquaredError") ? Double
-				.parseDouble(annotations.get("sumSquaredError")) : null;
-		Double estModelAIC = annotations.containsKey("AIC") ? Double
-				.parseDouble(annotations.get("AIC")) : null;
-		Double estModelBIC = annotations.containsKey("BIC") ? Double
-				.parseDouble(annotations.get("BIC")) : null;
-		Integer estModelDOF = annotations.containsKey("degreesOfFreedom") ? Integer
-				.parseInt(annotations.get("degreesOfFreedom")) : null;
-
-		EstModelXml estModel = new EstModelXml(estModelId, estModelName,
-				estModelSSE, estModelRMS, estModelR2, estModelAIC, estModelBIC,
-				estModelDOF);
-		estModel.setQualityScore(0); // unchecked model
-		estModel.setComment(estModelComment);
+		EstModelXml estModel = ReaderUtilities.createEstModel(annotations);
 
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
@@ -771,32 +833,34 @@ class TertiaryModelParser {
 	 * Parse the formula of the secondary model
 	 */
 	private static String parseSecFormula(final AssignmentRule rule) {
-		return String.format("%s = %s", rule.getVariable(), rule.getMath()
+		return String.format("%s=%s", rule.getVariable(), rule.getMath()
 				.toFormula());
 	}
 
-	private static PmmXmlDoc parseSecDependentParameter(
-			final ListOf<Parameter> params, final String depName,
-			final String secModelId,
-			final Map<String, Map<String, Double>> secLimits) {
-		// Search dependent param
-		Parameter p = null;
-		for (Parameter param : params) {
-			if (param.getId().equals(depName)) {
-				p = param;
-				break;
-			}
-		}
+	private static PmmXmlDoc parseSecDep(final AssignmentRule rule,
+			final ListOf<Parameter> params,
+			final Map<String, UnitsFromDB> units,
+			final Map<String, Map<String, Double>> limits) {
+		String depName = rule.getVariable();
+		Parameter depParam = params.get(depName);
 
-		// TODO:
-		// if (p == null)
-		// throw exc.
+		String unitName = depParam.getUnits();
+		UnitsFromDB dbUnit = units.get(unitName);
 
-		String unit = p.getUnits();
-		String category = Categories.getCategoryByUnit(unit).getName();
-		DepXml depXml = new DepXml(p.getId(), p.getId(), category, unit, "");
-		if (secLimits.containsKey(secModelId)) {
-			Map<String, Double> depLimits = secLimits.get(secModelId);
+		// Retrieve unit data from dbUnit
+		String category = dbUnit.getKind_of_property_quantity();
+		String unit = dbUnit.getDisplay_in_GUI_as();
+		String description = dbUnit.getDescription();
+
+		// other data
+		String name = depParam.getId();
+		String origname = depParam.getId();
+
+		DepXml depXml = new DepXml(name, origname, category, unit, description);
+
+		// Get limits
+		if (limits.containsKey(unitName)) {
+			Map<String, Double> depLimits = limits.get(unitName);
 			if (depLimits.containsKey("MAX")) {
 				depXml.setMax(depLimits.get("MAX"));
 			}
@@ -809,33 +873,64 @@ class TertiaryModelParser {
 		return depDoc;
 	}
 
-	private static PmmXmlDoc parseSecIndependentParameters(
-			final ListOf<Parameter> params, final String depName,
-			final Map<String, Map<String, Double>> secLimits) {
+	/**
+	 * Parse independent parameters from a secondary model.
+	 * 
+	 * <ol>
+	 * <li>Search non constant parameters not names as the dep.</li>
+	 * <li>Get unit name from the parameter.</li>
+	 * <li>Get unit from DB</li>
+	 * <li>Get data from the parameter</li>
+	 * <li>Get parameter limits using its unit's name</li>
+	 * </ol>
+	 */
+	private static PmmXmlDoc parseSecIndeps(final String depName,
+			final ListOf<Parameter> params,
+			final Map<String, UnitsFromDB> units,
+			final Map<String, Map<String, Double>> limits) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
+
 		// Search and add independent parameters
 		for (Parameter param : params) {
-			if (!param.getId().equals(depName) && !param.isConstant()) {
-				String id = param.getId();
-				Double min = null, max = null;
-				String unit = param.getUnits();
-				String category = Categories.getCategoryByUnit(unit).getName();
+			String id = param.getId();
+			if (!id.equals(depName) && !param.isConstant()) {
+				String unitName = param.getUnits();
 
-				IndepXml indepXml = new IndepXml(id, min, max);
-				indepXml.setUnit(unit);
-				indepXml.setCategory(category);
-				if (secLimits.containsKey(id)) {
-					Map<String, Double> indepLimits = secLimits.get(id);
+				String category, unit, description;
+
+				if (unitName.equals("pmf_celsius")) {
+					category = Categories.getTempCategory().getName();
+					unit = "°C";
+					description = "degree Celsius";
+				} else {
+					// Retrieve unit data from dbUnit
+					UnitsFromDB dbUnit = units.get(unitName);
+					category = dbUnit.getKind_of_property_quantity();
+					unit = dbUnit.getDisplay_in_GUI_as();
+					description = dbUnit.getDescription();
+				}
+
+				// other data
+				String name = id, origname = id;
+				Double min = null, max = null;
+
+				if (limits.containsKey(id)) {
+					Map<String, Double> indepLimits = limits.get(id);
 					if (indepLimits.containsKey("MAX")) {
-						indepXml.setMax(indepLimits.get("MAX"));
+						max = indepLimits.get("MAX");
 					}
 					if (indepLimits.containsKey("MIN")) {
-						indepXml.setMin(indepLimits.get("MIN"));
+						min = indepLimits.get("MIN");
 					}
 				}
+
+				IndepXml indepXml = new IndepXml(name, origname, min, max,
+						category, unit, description);
+
 				indepDoc.add(indepXml);
 			}
 		}
+
 		return indepDoc;
 	}
 
@@ -847,53 +942,29 @@ class TertiaryModelParser {
 		ListOf<Rule> listOfRules = model.getListOfRules();
 		AssignmentRule assignmentRule = (AssignmentRule) listOfRules.get(0);
 
+		DBUnits dbUnits = new DBUnits();
+
 		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) doc
 				.getPlugin(CompConstants.shortLabel);
 		ListOf<ModelDefinition> modelDefinitions = compPlugin
 				.getListOfModelDefinitions();
-		
-		// Get names of units
-		// dict that maps PMF units with DB unit names
-		Map<String, String> dbUnits = new HashMap<>();
-		for (Parameter param : listOfParameters) {
-			String pmfName = param.getId();
-			String dbName = param.getName();
-			dbUnits.put(pmfName, dbName);
-		}
-		
+
 		// create n rows for n secondary models
 		List<KnimeTuple> rows = new ArrayList<>();
 
 		// parse annotation
-		Annotation annot = model.getAnnotation();
-		XMLNode nonRDFAnnot = annot.getNonRDFannotation();
-		Map<String, String> annotations = ReaderUtilities
-				.parseAnnotation(nonRDFAnnot);
-
-		// Get modelId
-		Integer modelId = null;
-
-		// Get modelName
-		String modelName = "";
-		// check for dc:title tag
-		if (annotations.containsKey("title")) {
-			modelName = annotations.get("title");
+		XMLNode modelAnnotation = model.getAnnotation().getNonRDFannotation();
+		Map<String, String> annotations = null;
+		// If the model is annotated then parse the annotations
+		if (modelAnnotation != null) {
+			annotations = ReaderUtilities.parseAnnotation(modelAnnotation);
 		}
 
-		// Get modelClass
-		int modelClass;
-		if (annotations.containsKey("subject")) {
-			String modelType = annotations.get("subject");
-			modelClass = SBMLUtil.CLASS_TO_INT.get(modelType);
-		} else {
-			modelClass = SBMLUtil.CLASS_TO_INT.get("unknown");
-		}
-
-		// Get reference
-		String reference = "";
-		if (annotations.containsKey("references")) {
-			reference = annotations.get("references");
-		}
+		// // Get reference
+		// String reference = "";
+		// if (annotations.containsKey("references")) {
+		// reference = annotations.get("references");
+		// }
 
 		// Parse constraints
 		ListOf<Constraint> constraints = model.getListOfConstraints();
@@ -913,42 +984,21 @@ class TertiaryModelParser {
 		String mdDBUID = "?";
 
 		// primary model cells
-		String formula = ReaderUtilities.parseFormula(assignmentRule);
-		CatalogModelXml catModel = new CatalogModelXml(modelId, modelName,
-				formula, modelClass);
+		CatalogModelXml catModel = ReaderUtilities.createCatModel(annotations,
+				assignmentRule);
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
 
-		PmmXmlDoc depCell = ReaderUtilities.parseDependentParameter(
-				listOfSpecies.get(0), dbUnits, limits);
-		PmmXmlDoc indepCell = ReaderUtilities.parseIndependentParameters(
-				listOfParameters, limits);
-		PmmXmlDoc paramCell = ReaderUtilities.parseConstantParameters(
-				listOfParameters, limits);
+		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
+				.getListOfUnitDefinitions());
+		PmmXmlDoc depCell = ReaderUtilities.parseDep(listOfSpecies.get(0),
+				units, limits);
+		PmmXmlDoc indepCell = ReaderUtilities.parseIndeps(listOfParameters,
+				units, limits);
+		PmmXmlDoc paramCell = ReaderUtilities.parseConsts(listOfParameters,
+				units, limits);
 
 		// Parse uncertainty measures from the document's annotations
-		int estModelId = MathUtilities.getRandomNegativeInt();
-		String estModelName = annotations.containsKey("dataName") ? annotations
-				.get("dataName") : "";
-		String estModelComment = annotations.containsKey("dataUsage") ? annotations
-				.get("dataUsage") : "";
-		Double estModelR2 = annotations.containsKey("r-squared") ? Double
-				.parseDouble(annotations.get("r-squared")) : null;
-		Double estModelRMS = annotations.containsKey("rootMeanSquaredError") ? Double
-				.parseDouble(annotations.get("rootMeanSquaredError")) : null;
-		Double estModelSSE = annotations.containsKey("sumSquaredError") ? Double
-				.parseDouble(annotations.get("sumSquaredError")) : null;
-		Double estModelAIC = annotations.containsKey("AIC") ? Double
-				.parseDouble(annotations.get("AIC")) : null;
-		Double estModelBIC = annotations.containsKey("BIC") ? Double
-				.parseDouble(annotations.get("BIC")) : null;
-		Integer estModelDOF = annotations.containsKey("degreesOfFreedom") ? Integer
-				.parseInt(annotations.get("degreesOfFreedom")) : null;
-
-		EstModelXml estModel = new EstModelXml(estModelId, estModelName,
-				estModelSSE, estModelRMS, estModelR2, estModelAIC, estModelBIC,
-				estModelDOF);
-		estModel.setComment(estModelComment);
-		estModel.setQualityScore(0); // unchecked model
+		EstModelXml estModel = ReaderUtilities.createEstModel(annotations);
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
@@ -971,15 +1021,21 @@ class TertiaryModelParser {
 
 			// secondary model columns (19-27)
 			String secFormula = parseSecFormula(secAssignmentRule);
-			CatalogModelXml catModelSec = new CatalogModelXml(modelId,
-					modelName, secFormula, modelClass);
+			CatalogModelXml catModelSec = new CatalogModelXml(
+					MathUtilities.getRandomNegativeInt(), "", secFormula, null);
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
-			PmmXmlDoc dependentSecCell = parseSecDependentParameter(secParams,
-					depName, secModel.getId(), secLimits);
-			PmmXmlDoc independentSecCell = parseSecIndependentParameters(
-					secParams, depName, secLimits);
-			PmmXmlDoc parameterSecCell = ReaderUtilities
-					.parseConstantParameters(secParams, secLimits);
+
+			// PmmXmlDoc dependentSecCell =
+			// parseSecDependentParameter(secParams,
+			// depName, secModel.getId(), secLimits);
+			units = dbUnits.getUnits(secModel.getListOfUnitDefinitions());
+
+			PmmXmlDoc dependentSecCell = parseSecDep(secAssignmentRule,
+					secParams, units, secLimits);
+			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams,
+					units, secLimits);
+			PmmXmlDoc parameterSecCell = ReaderUtilities.parseConsts(secParams,
+					units, secLimits);
 
 			PmmXmlDoc estModelSecCell = new PmmXmlDoc();
 			estModelSecCell.add(new EstModelXml(MathUtilities

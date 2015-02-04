@@ -55,36 +55,119 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 public class UpdateChecker {
 	public static void check4Updates_183_184() {
 		/*
+	*/
+	}
+	public static void check4Updates_182_183() {
 		try {
 			ResultSet rs = DBKernel.getResultSet(
-					"SELECT MIN(\"Versuchsbedingungen\") AS \"Versuchsbedingung\" FROM \"Messwerte\" WHERE \"Konz_Einheit\" IN (55,56,57,58,64,65,67,69,73) GROUP BY \"Versuchsbedingungen\"",
+					"SELECT MIN(\"Agenzien\".\"Agensname\") AS \"Agensname\", MIN(\"Versuchsbedingungen\") AS \"Versuchsbedingung\" FROM \"Messwerte\"" +
+							" LEFT JOIN \"Versuchsbedingungen\" ON \"Versuchsbedingungen\".\"ID\" = \"Messwerte\".\"Versuchsbedingungen\"" +
+							" LEFT JOIN \"Agenzien\" ON \"Agenzien\".\"ID\" = \"Versuchsbedingungen\".\"Agens\"" +
+							" WHERE \"Konz_Einheit\" IN (55,56,57,58,64,65,67,69,73) GROUP BY \"Versuchsbedingungen\"",
 					false);
-			int lfd = 0;
 			if (rs != null && rs.first()) {
 				do {
-					lfd++;
-					String sql = "SELECT \"KE\".\"object type\" AS \"KE_ot\",\"KE\".\"notation case sensitive\" AS \"KE_ncs\",\"ZE\".\"display in GUI as\" AS \"ZE_D\",\"KE\".\"display in GUI as\" AS \"KE_D\",\"T\".\"Wert\" AS \"T_Wert\",\"K\".\"Wert\" AS \"K_Wert\",\"T\".\"Exponent\" AS \"T_Exponent\",\"K\".\"Exponent\" AS \"K_Exponent\" FROM \"Messwerte\" JOIN \"Einheiten\" AS \"ZE\" ON \"Messwerte\".\"ZeitEinheit\"=\"ZE\".\"ID\" JOIN \"Einheiten\" AS \"KE\" ON \"Messwerte\".\"Konz_Einheit\"=\"KE\".\"ID\" JOIN \"DoubleKennzahlen\" AS \"T\" ON \"Messwerte\".\"Zeit\"=\"T\".\"ID\" JOIN \"DoubleKennzahlen\" AS \"K\" ON \"Messwerte\".\"Konzentration\"=\"K\".\"ID\" WHERE \"Messwerte\".\"Versuchsbedingungen\" = "
-							+ rs.getString("Versuchsbedingung");
+					String sql = "SELECT \"KE\".\"object type\" AS \"KE_ot\",\"KE\".\"convert to\" AS \"KE_ct\",\"KE\".\"notation case sensitive\" AS \"KE_ncs\",\"ZE\".\"display in GUI as\" AS \"ZE_D\",\"KE\".\"display in GUI as\" AS \"KE_D\",\"T\".\"Wert\" AS \"T_Wert\",\"K\".\"Wert\" AS \"K_Wert\",\"T\".\"Exponent\" AS \"T_Exponent\",\"K\".\"Exponent\" AS \"K_Exponent\",\"K\".\"Minimum\" AS \"K_min\",\"K\".\"Minimum_exp\" AS \"K_min_exp\",\"K\".\"Maximum\" AS \"K_max\",\"K\".\"Maximum_exp\" AS \"K_max_exp\"" +
+							" FROM \"Messwerte\"" +
+							" JOIN \"Einheiten\" AS \"ZE\" ON \"Messwerte\".\"ZeitEinheit\"=\"ZE\".\"ID\"" +
+							" JOIN \"Einheiten\" AS \"KE\" ON \"Messwerte\".\"Konz_Einheit\"=\"KE\".\"ID\"" +
+							" JOIN \"DoubleKennzahlen\" AS \"T\" ON \"Messwerte\".\"Zeit\"=\"T\".\"ID\"" +
+							" JOIN \"DoubleKennzahlen\" AS \"K\" ON \"Messwerte\".\"Konzentration\"=\"K\".\"ID\"" +
+							" WHERE \"Messwerte\".\"Versuchsbedingungen\" = " + rs.getString("Versuchsbedingung");
 					//System.err.println(sql);
-					ResultSet rs2 = DBKernel.getResultSet(sql, false); // "SELECT \"Versuchsbedingung\",\"Zeit\",\"ZeitEinheit\",\"Konzentration\",\"KonzentrationsEinheit\" FROM \"MesswerteEinfach\" WHERE \"Versuchsbedingung\" = " + rs.getString("Versuchsbedingung"), false);
+					String agensname = rs.getString("Agensname");
+					ResultSet rs2 = DBKernel.getResultSet(sql, false);
 					if (rs2 != null && rs2.first()) {
+						boolean hasZeroTime = false;
+						boolean hasInitiC = false;
+						double zeroVal = 0;
+						String zero_ncs = null, zero_ot = null, zero_ct = null;
+						int lfd = 0;
 						do {
+							lfd++;
 							Double tv = rs2.getDouble("T_Wert") * Math.pow(10, rs2.getObject("T_Exponent") == null ? 0 : rs2.getDouble("T_Exponent"));
-							Double kv = rs2.getDouble("K_Wert") * Math.pow(10, rs2.getObject("K_Exponent") == null ? 0 : rs2.getDouble("K_Exponent"));
-							System.err.println(lfd + "\t" + rs.getString("Versuchsbedingung") + "\t" + tv + "\t" + rs2.getString("ZE_D") + "\t" + kv + "\t" + rs2.getString("KE_D")
-									+ "\t" + rs2.getString("KE_ncs") + "\t" + rs2.getString("KE_ot"));
+							Double kv;
+							boolean somehowEstimated = false;
+							if (rs2.getObject("K_Wert") != null) {
+								kv = rs2.getDouble("K_Wert") * Math.pow(10, rs2.getObject("K_Exponent") == null ? 0 : rs2.getDouble("K_Exponent"));
+							}
+							else {
+								Double kvmin = rs2.getDouble("K_min") * Math.pow(10, rs2.getObject("K_min_exp") == null ? 0 : rs2.getDouble("K_min_exp"));								
+								Double kvmax = rs2.getDouble("K_max") * Math.pow(10, rs2.getObject("K_max_exp") == null ? 0 : rs2.getDouble("K_max_exp"));	
+								if (rs2.getObject("K_min") == null) kv = kvmax;
+								else if (rs2.getObject("K_max") == null) kv = kvmin;
+								else kv = (kvmin + kvmax ) / 2;
+								somehowEstimated = true;
+							}
+							if (!hasZeroTime && tv == 0) {
+								hasZeroTime = true;
+								hasInitiC = !rs2.getString("KE_D").startsWith("diff_");
+								if (!hasInitiC) break;
+								zeroVal = kv;
+								zero_ncs = rs2.getString("KE_ncs");
+								zero_ot = rs2.getString("KE_ot");
+								zero_ct = rs2.getString("KE_ct");
+								rs2.beforeFirst();
+								lfd = 0;
+								continue;
+							}
+							String KE_ct = rs2.getString("KE_ct");
+							String KE_ot = rs2.getString("KE_ot");
+							if (KE_ot == null) KE_ot = zero_ot; // assuming zero_ object type...
+							// remaining: min/max values, how to handle that?
+							if (hasZeroTime && zero_ot.equals(KE_ot)) {
+								double calcZeroV = zeroVal;
+								double calcKV = kv;
+								String KE_ncs = rs2.getString("KE_ncs");
+								String keU = rs2.getString("KE_D");
+								String calcUnit = keU;
+								if (!zero_ncs.equals(KE_ncs)) {
+									if (zero_ncs.equals("1/mL") && KE_ncs.equals("log10(1)")) {
+										calcZeroV = Math.log10(zeroVal);
+										calcUnit = "log10(count/ml)";
+									}
+									else if (zero_ncs.equals("1/mL") && KE_ncs.equals("log10(1/mL)")) {
+										calcZeroV = Math.log10(zeroVal);
+										calcUnit = "log10(count/ml)";
+									}
+									else if (zero_ncs.equals("log10(1/mL)") && KE_ncs.equals("log10(1)")) {
+										calcUnit = "log10(count/ml)";
+									}
+									else {
+										System.err.println(rs.getString("Versuchsbedingung") + "." + lfd + " (" + agensname + ")\tnot convertable? Unit " + zero_ncs + " vs. " + KE_ncs);
+										continue;
+									}
+								}
+								if (KE_ncs.equals("log10(1)")) {
+									System.err.print("");
+								}
+								System.out.println(rs.getString("Versuchsbedingung") + "." + lfd + " (" + agensname + ")\t" +
+										tv + "\t" + rs2.getString("ZE_D") + "\t" +
+										kv + "\t" + keU + "\t" +
+										KE_ncs + "\t" + KE_ot + "\t" +
+										"--->>>\t" + (tv == 0 ? zeroVal : calcZeroV+calcKV) + " " + calcUnit + " " + zero_ot +
+										(zero_ct.equals(KE_ct) ? "" : "\t[Attention: rather non-convertable units, assuming initial concentrations unit...]") +
+										(somehowEstimated ? "\t...somehowEstimated (min/max)..." : ""));
+							}
+							else if (hasZeroTime && zero_ot != null && !zero_ot.equals(KE_ot)) {
+								System.err.println("Versuchsbedingung " + rs.getString("Versuchsbedingung") + "." + lfd + " (" + agensname + ") makes no sense to convert - has different object type to initial concentration: " + KE_ot + " <-> " + zero_ot);
+							}
+							else if (hasZeroTime && zero_ct != null && !zero_ct.equals(KE_ct)) {
+								//System.err.println("Versuchsbedingung " + rs.getString("Versuchsbedingung") + "." + lfd + " (" + agensname + ") makes no sense to convert - has non convertable unit to initial concentration: " + KE_ct + " <-> " + zero_ct);
+							}
 						} while (rs2.next());
+						if (!hasZeroTime) {
+							System.err.println("Versuchsbedingung " + rs.getString("Versuchsbedingung") + " (" + agensname + ") has no zero time...");
+						}
+						if (!hasInitiC) {
+							System.err.println("Versuchsbedingung " + rs.getString("Versuchsbedingung") + " (" + agensname + ") has no initial concentration...");
+						}
 					}
-					//DBKernel.sendRequest("DELETE FROM \"DataSource\" WHERE \"Table\"='" + rs.getString("Table") + "' AND \"TableID\"=" + rs.getInt("TableID") + " AND \"SourceDBUUID\"='" + rs.getString("SourceDBUUID") + "' AND \"SourceID\"=" + rs.getInt("SourceID") + " AND \"ID\" != " + rs.getInt("ID"), false);
 				} while (rs.next());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	*/
-	}
-	public static void check4Updates_182_183() {
-		
 	}
 	public static void check4Updates_1820_18200() {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ALTER COLUMN " + DBKernel.delimitL("MathML string") + " VARCHAR(16383)", false);

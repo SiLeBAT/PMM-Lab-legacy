@@ -104,7 +104,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 
 		BufferedDataTable[] table = null;
-		if (source.getStringValue() == "file") {
+		if (source.getStringValue().equals("file")) {
 			table = parseSingleFile(exec);
 		} else {
 			table = parseFolder(exec);

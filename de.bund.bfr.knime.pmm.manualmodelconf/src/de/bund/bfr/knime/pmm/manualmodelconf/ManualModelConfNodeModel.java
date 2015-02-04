@@ -58,6 +58,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -222,6 +223,14 @@ public class ManualModelConfNodeModel extends NodeModel {
     		}
     		
     		((CatalogModelXml) modelXml.get(0)).setFormula(formula);
+    		if (formulaCreator) {
+        		PmmXmlDoc estXml = tupleM1.getPmmXml(Model1Schema.ATT_ESTMODEL);
+        		EstModelXml exl =  (EstModelXml) estXml.get(0);    
+        		((CatalogModelXml) modelXml.get(0)).setComment(exl.getComment());
+        		exl.setComment("");
+        		tupleM1.setValue(Model1Schema.ATT_ESTMODEL, estXml);
+        		
+    		}
     		tupleM1.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
     		tupleM1.setValue(Model1Schema.ATT_DEPENDENT, depVar);
     		tupleM1.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);

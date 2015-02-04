@@ -12,12 +12,14 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 	private static final String ATT_NAME = "name";
 	private static final String ATT_FORMULA = "formula";
 	private static final String ATT_MODEL_CLASS = "modelClass";
+	private static final String ATT_COMMENT = "comment";
 	private static final String ATT_DBUUID = "dbuuid";
 
 	private Integer id;
 	private String name;
 	private String formula;
 	private Integer modelClass;
+	private String comment;
 	private String dbuuid;
 
 	public CatalogModelXml(Integer id, String name, String formula,
@@ -38,6 +40,7 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 		this(XmlHelper.getInt(el, ATT_ID), XmlHelper.getString(el, ATT_NAME),
 				XmlHelper.getString(el, ATT_FORMULA), XmlHelper.getInt(el,
 						ATT_MODEL_CLASS), XmlHelper.getString(el, ATT_DBUUID));
+		this.setComment(XmlHelper.getString(el, ATT_COMMENT));
 	}
 
 	@Override
@@ -49,6 +52,7 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute(ATT_FORMULA, XmlHelper.getNonNull(formula));
 		modelElement.setAttribute(ATT_MODEL_CLASS,
 				XmlHelper.getNonNull(modelClass));
+		modelElement.setAttribute(ATT_COMMENT, XmlHelper.getNonNull(comment));
 		modelElement.setAttribute(ATT_DBUUID, XmlHelper.getNonNull(dbuuid));
 
 		return modelElement;
@@ -84,6 +88,14 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 
 	public void setModelClass(Integer modelClass) {
 		this.modelClass = modelClass;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	public String getDbuuid() {

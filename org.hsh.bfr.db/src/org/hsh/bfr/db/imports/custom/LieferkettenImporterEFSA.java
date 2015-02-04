@@ -83,6 +83,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	 */
 	private int maxNodeID = 100000;
 	private HashMap<String, Integer> nodeIds = null;
+	private HashMap<String, String> serials = new HashMap<String, String>();
 	private String logMessages = "";
 
 	public String getLogMessages() {
@@ -419,7 +420,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		String A0 = getStrVal(row.getCell(0));
 		return A0.equals("Beispieleintrag");
 	}
-	private int[] doImportStandard(HSSFWorkbook wb, JProgressBar progress) {
+	private int[] doImportStandard(HSSFWorkbook wb, JProgressBar progress, String filename) {
 		int numSuccess = 0;
 		int numFails = 0;
 		HSSFSheet transactionSheet = wb.getSheet("Transactions");
@@ -441,6 +442,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				if ((serial == null || serial.trim().isEmpty()) && (adressRec == null || adressRec.trim().isEmpty())) {
 					continue;//break;
 				}
+				if (serials.containsKey(serial)) {
+					String msg = "Row: " + (i + 1) + "\tSerial '" + serial + "' already defined in file '" + serials.get(serial) + "' -> not importing this row!";
+					System.err.println(msg);
+					logMessages += msg + "\n";
+					continue;
+				}
+				serials.put(serial, filename);
 				String activityRec = getStrVal(row.getCell(5)); // Activity				      
 				String nameRec = adressRec;
 				String streetRec = null;
@@ -461,16 +469,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countryRec = getStrVal(busRow.getCell(7)); // 
 					vatRec = getStrVal(busRow.getCell(8)); //
 					if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
-						String msg = "Id issue on recs...Row: " + (i + 1) + "\t" + nameRec + " <> " + adressRec;
+						String msg = "Row: " + (i + 1) + "\tId issue on recs...\t" + nameRec + " <> " + adressRec;
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					}
 				} else if (idRec != null) {
-					String msg = "business not there??? Row: " + (i + 1) + "\tidReceived: " + idRec;
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidReceived: " + idRec;
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				} else {
-					String msg = "idRec is null??? Row: " + (i + 1) + "\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
+					String msg = "Row: " + (i + 1) + "\tidRec is null???\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				}
@@ -516,16 +524,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countryInsp = getStrVal(busRow.getCell(7)); // 
 					vatInsp = getStrVal(busRow.getCell(8)); //
 					if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
-						String msg = "Id issue on insps...Row: " + (i + 1) + "\t" + nameInsp + " <> " + adressInsp;
+						String msg = "Row: " + (i + 1) + "\tId issue on insps...\t" + nameInsp + " <> " + adressInsp;
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					}
 				} else if (idInsp != null) {
-					String msg = "business not there??? Row: " + (i + 1) + "\tidInspected: " + idInsp;
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidInspected: " + idInsp;
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				} else {
-					String msg = "idInsp is null??? Row: " + (i + 1) + "\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
+					String msg = "Row: " + (i + 1) + "\tidInsp is null???\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				}
@@ -571,16 +579,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countrySup = getStrVal(busRow.getCell(7)); // 
 					vatSup = getStrVal(busRow.getCell(8)); //
 					if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
-						String msg = "Id issue on sups...Row: " + (i + 1) + "\t" + nameSup + " <> " + adressSup;
+						String msg = "Row: " + (i + 1) + "\tId issue on sups...\t" + nameSup + " <> " + adressSup;
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					}
 				} else if (idSup != null) {
-					String msg = "business not there??? Row: " + (i + 1) + "\tidSupplier: " + idSup;
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidSupplier: " + idSup;
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				} else {
-					String msg = "idSup is null??? Row: " + (i + 1) + "\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+					String msg = "Row: " + (i + 1) + "\tidSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				}
@@ -594,8 +602,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 				//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
 				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
-					String msg = "- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1)
-							+ ", KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
+					String msg = "Row: " + (i + 1) + "\tDates not in temporal order, dateOut < dateIn!!! , KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				}
@@ -616,12 +623,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (c != null) c2 = c[3];
 				}
 				if (c1 == null) { // Chargen
-					String msg = "Error Type 1 (Batches)!! Row: " + (i + 1); // Fehlerchenchen_1
+					String msg = "Row: " + (i + 1) + "\tError Type 1 (Batches)!!"; // Fehlerchenchen_1
 					System.err.println(msg);
 					logMessages += msg + "\n";
 					numFails++;
 				} else if (c2 == null) { // Lieferungen
-					String msg = "Error Type 2 (Deliveries)!! E.g. Station not defined? Row: " + (i + 1); // Fehlerchenchen_2
+					String msg = "Row: " + (i + 1) + "\tError Type 2 (Deliveries)!! E.g. Station not defined?"; // Fehlerchenchen_2
 					System.err.println(msg);
 					logMessages += msg + "\n";
 					/*
@@ -638,7 +645,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (c2 != null) {
 						Integer cvID = getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null);
 						if (cvID == null) {
-							String msg = "Error Type 4 (Links)!! Row: " + (i + 1); // Fehlerchenchen_4
+							String msg = "Row: " + (i + 1) + "\tError Type 4 (Links)!!"; // Fehlerchenchen_4
 							System.err.println(msg);
 							logMessages += msg + "\n";
 							numFails++;
@@ -1196,7 +1203,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							 * new format established
 							 */
 						} else {
-							nsf = doImportStandard(wb, progress);
+							nsf = doImportStandard(wb, progress, filename);
 							//nsf = doImportNewFormat(wb, progress);
 						}
 					}

@@ -34,6 +34,7 @@
 package org.hsh.bfr.db.gui.actions;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -111,7 +112,8 @@ public class ImportAction extends AbstractAction {
 						LieferkettenImporterEFSA efsa = (LieferkettenImporterEFSA) mi;
 						efsa.mergeIDs();
 						String log = efsa.getLogMessages();
-						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), null);
+						Font f = new Font("Arial", Font.PLAIN, 10);
+						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), f);
 						ib.setVisible(true);
 						
 					}

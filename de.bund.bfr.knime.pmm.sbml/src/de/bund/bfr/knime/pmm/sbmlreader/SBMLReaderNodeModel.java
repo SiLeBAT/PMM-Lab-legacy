@@ -350,7 +350,7 @@ class ReaderUtilities {
 		for (Compartment compartment : compartments) {
 			// Process annotation
 			Annotation annot = compartment.getAnnotation();
-			String compartmentName = "";
+			String compartmentName = compartment.getName();
 
 			// if (annot != null) {
 			// XMLNode nonRDFAnnot = annot.getNonRDFannotation();
@@ -409,9 +409,8 @@ class ReaderUtilities {
 			String speciesName = "";
 			Integer speciesId = null;
 			// Process annotation
-			Annotation annot = specie.getAnnotation();
-			if (annot != null) {
-				XMLNode nonRDFAnnot = annot.getNonRDFannotation();
+			XMLNode nonRDFAnnot = specie.getAnnotation().getNonRDFannotation();
+			if (nonRDFAnnot != null) {
 				String casNumber = ReaderUtilities
 						.parseSpeciesAnnotation(nonRDFAnnot);
 				speciesName = (String) DBKernel.getValue("Agenzien",
@@ -614,7 +613,14 @@ class ReaderUtilities {
 				ASTNode node = nodes.get(0);
 				List<ASTNode> condNodes = node.getListOfNodes();
 				String var = condNodes.get(0).getName();
-				double val = condNodes.get(1).getMantissa();
+				ASTNode valNode = condNodes.get(1);
+				double val = 0;
+				if (valNode.isReal()) {
+					val = valNode.getReal();
+				} else if (valNode.isInteger()) {
+					val = valNode.getInteger();
+				}
+//				double val = condNodes.get(1).getMantissa();
 
 				ASTNode.Type nodeType = node.getType();
 
@@ -636,13 +642,28 @@ class ReaderUtilities {
 				ASTNode leftNode = nodes.get(0);
 				List<ASTNode> leftNodes = leftNode.getListOfNodes();
 				String leftVar = leftNodes.get(0).getName();
-				double min = leftNodes.get(1).getMantissa();
+				ASTNode valNode = leftNodes.get(1);
+				double min = 0;
+				if (valNode.isReal()) {
+					min = valNode.getReal();
+				} else if (valNode.isInteger()) {
+					min = valNode.getInteger();
+				}
+//				double min = leftNodes.get(1).getMantissa();
 				varLimits.put("MIN", min);
 
 				ASTNode rightNode = nodes.get(1);
 				List<ASTNode> rightNodes = rightNode.getListOfNodes();
 				String rightVar = rightNodes.get(0).getName();
-				double max = rightNodes.get(1).getMantissa();
+				valNode = rightNodes.get(1);
+				double max = 0;
+				if (valNode.isReal()) {
+					max = valNode.getReal();
+				} else if (valNode.isInteger()) {
+					max = valNode.getInteger();
+				}
+
+//				double max = rightNodes.get(1).getMantissa();
 				varLimits.put("MAX", max);
 
 				limits.put(leftVar, varLimits);

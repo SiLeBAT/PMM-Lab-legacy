@@ -35,8 +35,8 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -60,7 +60,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.Annotation;
-import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.ListOf;
@@ -76,7 +75,6 @@ import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.ext.comp.Submodel;
-import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
 import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNamespaces;
@@ -105,6 +103,13 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlcommon.CreatedNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.CreatorNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.ModelClassNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.ModelIdNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.ModelTitleNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.ModifiedNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.UncertaintyNode;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
@@ -169,11 +174,36 @@ public class SBMLWriterNodeModel extends NodeModel {
 		List<KnimeTuple> tuples = PmmUtilities.getTuples(inData[0], schema);
 		List<SBMLDocument> documents = null;
 
+		// Retrieve info from dialog
+		Map<String, String> dlgInfo = new HashMap<>(); // dialog info
+		String givenName = creatorGivenName.getStringValue();
+		if (!givenName.isEmpty())
+			dlgInfo.put("GivenName", givenName);
+
+		String familyName = creatorFamilyName.getStringValue();
+		if (!familyName.isEmpty())
+			dlgInfo.put("FamilyName", familyName);
+
+		String contact = creatorContact.getStringValue();
+		if (!contact.isEmpty())
+			dlgInfo.put("Contact", contact);
+
+		Date created = createdDate.getDate();
+		if (created != null) {
+			dlgInfo.put("Created", created.toString());
+		}
+
+		Date modified = modifiedDate.getDate();
+		if (modified != null) {
+			dlgInfo.put("Modified", modified.toString());
+		}
+
 		if (modelType == ModelType.PRIMARY) {
-			PrimaryTableReader reader = new PrimaryTableReader(tuples);
+			PrimaryTableReader reader = new PrimaryTableReader(tuples, dlgInfo);
 			documents = reader.getDocuments();
 		} else if (modelType == ModelType.TERCIARY) {
-			TertiaryTableReader reader = new TertiaryTableReader(tuples);
+			TertiaryTableReader reader = new TertiaryTableReader(tuples,
+					dlgInfo);
 			documents = reader.getDocuments();
 		}
 
@@ -200,7 +230,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		// Terciary model (primary+secondary)
+		// Tertiary model (primary+secondary)
 		if (SchemaFactory.createM12DataSchema().conforms(
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM12DataSchema();
@@ -534,8 +564,21 @@ abstract class TableReader {
 		return consts;
 	}
 
-	protected Annotation createAnnotation(String modelId, String modelTitle,
-			String modelClass, Map<String, String> pmfTags) {
+	/**
+	 * Create a document annotation.
+	 * 
+	 * @param givenName
+	 *            . Creator given name.
+	 * @param familyName
+	 *            : Creator family name.
+	 * @param contact
+	 *            : Creator contact.
+	 * @param created
+	 *            : Created date.
+	 * @param modified
+	 *            : Modified date.
+	 */
+	protected Annotation createDocAnnotation(Map<String, String> docInfo) {
 		Annotation annot = new Annotation();
 
 		// pmf container
@@ -545,41 +588,73 @@ abstract class TableReader {
 		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
 		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
 
-		// model id annotation
+		String givenName = docInfo.get("GivenName");
+		String familyName = docInfo.get("FamilyName");
+		String contact = docInfo.get("Contact");
+		String created = docInfo.get("Created");
+		String modified = docInfo.get("Modified");
+
+		if (givenName != null || familyName != null || contact != null) {
+			CreatorNode creatorNode = new CreatorNode(givenName, familyName,
+					contact);
+			pmfNode.addChild(creatorNode.getNode());
+		}
+
+		// Created date
+		if (created != null) {
+			CreatedNode createdNode = new CreatedNode(created);
+			pmfNode.addChild(createdNode.getNode());
+		}
+
+		// modified date
+		if (modified != null) {
+			ModifiedNode modifiedNode = new ModifiedNode(modified);
+			pmfNode.addChild(modifiedNode.getNode());
+		}
+
+		// add non-rdf annotation
+		annot.setNonRDFAnnotation(pmfNode);
+		annot.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+
+		return annot;
+	}
+
+	protected Annotation createModelAnnotation(String modelId,
+			String modelTitle, String modelClass,
+			Map<String, String> uncertainties) {
+		Annotation annot = new Annotation();
+
+		// pmf container
+		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
+		XMLNamespaces pmfNS = new XMLNamespaces();
+		pmfNS.add("http://purl.org/dc/terms/", "dc");
+		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+
+		// add model id annotation
 		if (modelId != null) {
-			XMLTriple modelIDTriple = new XMLTriple("identifer", "", "dc");
-			XMLNode modelIDNode = new XMLNode(modelIDTriple);
-			modelIDNode.addChild(new XMLNode(modelId));
-			pmfNode.addChild(modelIDNode);
+			ModelIdNode modelIdNode = new ModelIdNode(modelId);
+			pmfNode.addChild(modelIdNode.getNode());
 		}
 
-		// model title annotation
+		// add model title annotation
 		if (modelTitle != null) {
-			XMLTriple modelTitleTriple = new XMLTriple("title", null, "dc");
-			XMLNode modelTitleNode = new XMLNode(modelTitleTriple);
-			modelTitleNode.addChild(new XMLNode(modelTitle));
-			pmfNode.addChild(modelTitleNode);
+			ModelTitleNode modelTitleNode = new ModelTitleNode(modelTitle);
+			pmfNode.addChild(modelTitleNode.getNode());
 		}
 
-		// model class annotation
+		// add model class annotation
 		if (modelClass != null) {
-			XMLTriple modelClassTriple = new XMLTriple("type", null, "dc");
-			XMLNode modelClassNode = new XMLNode(modelClassTriple);
-			modelClassNode.addChild(new XMLNode(modelClass.toString()));
-			pmfNode.addChild(modelClassNode);
+			ModelClassNode modelClassNode = new ModelClassNode(modelClass);
+			pmfNode.addChild(modelClassNode.getNode());
 		}
 
-		// model quality annotation
-		if (!pmfTags.isEmpty()) {
-			XMLTriple modelQualityTriple = new XMLTriple("modelquality", null,
-					"pmml");
-			XMLAttributes qualityAttrs = new XMLAttributes();
-			for (Map.Entry<String, String> entry : pmfTags.entrySet()) {
-				qualityAttrs.add(entry.getKey(), entry.getValue());
-			}
-			XMLNode modelQualityNode = new XMLNode(modelQualityTriple,
-					qualityAttrs);
-			pmfNode.addChild(modelQualityNode);
+		// add model quality annotation
+		if (!uncertainties.isEmpty()) {
+			UncertaintyNode uncertaintiesNode = new UncertaintyNode(
+					uncertainties);
+			pmfNode.addChild(uncertaintiesNode.getNode());
 		}
 
 		// add non-rdf annotation
@@ -594,13 +669,15 @@ abstract class TableReader {
 		String formula = "";
 
 		if (min != null)
-			formula += String.format(Locale.ENGLISH, "(%s >= %f)", var, min.doubleValue());
+			formula += String.format(Locale.ENGLISH, "(%s >= %f)", var,
+					min.doubleValue());
 		if (max != null) {
 			if (min != null)
 				formula += "&&";
-			formula += String.format(Locale.ENGLISH, "(%s <= %f)", var, max.doubleValue());
+			formula += String.format(Locale.ENGLISH, "(%s <= %f)", var,
+					max.doubleValue());
 		}
-		
+
 		if (formula.isEmpty()) {
 			return null;
 		}
@@ -661,7 +738,8 @@ abstract class TableReader {
 
 class PrimaryTableReader extends TableReader {
 
-	public PrimaryTableReader(List<KnimeTuple> tuples) {
+	public PrimaryTableReader(List<KnimeTuple> tuples,
+			Map<String, String> dlgInfo) {
 		super();
 
 		// filter tuples with duplicated ids (from ExtXML)
@@ -676,12 +754,13 @@ class PrimaryTableReader extends TableReader {
 		}
 
 		for (KnimeTuple tuple : tuples) {
-			SBMLDocument doc = parsePrimaryTuple(tuple);
+			SBMLDocument doc = parsePrimaryTuple(tuple, dlgInfo);
 			documents.add(doc);
 		}
 	}
 
-	private SBMLDocument parsePrimaryTuple(KnimeTuple tuple) {
+	private SBMLDocument parsePrimaryTuple(KnimeTuple tuple,
+			Map<String, String> docInfo) {
 		replaceCelsiusAndFahrenheit(tuple);
 		renameLog(tuple);
 
@@ -704,6 +783,10 @@ class PrimaryTableReader extends TableReader {
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 
+		// Document annotation
+		Annotation docAnnot = createDocAnnotation(docInfo);
+		doc.setAnnotation(docAnnot);
+
 		Model model = doc.createModel(modelId);
 
 		// Annotation
@@ -712,8 +795,9 @@ class PrimaryTableReader extends TableReader {
 		String modelClass = SBMLUtil.INT_TO_CLASS.get(modelClassNum);
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
-		Annotation annot = createAnnotation(modelId, modelTitle, modelClass,
-				qualityTags);
+		// Add model annotations
+		Annotation annot = createModelAnnotation(modelId, modelTitle,
+				modelClass, qualityTags);
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
@@ -784,7 +868,8 @@ class PrimaryTableReader extends TableReader {
 
 class TertiaryTableReader extends TableReader {
 
-	public TertiaryTableReader(List<KnimeTuple> tuples) {
+	public TertiaryTableReader(List<KnimeTuple> tuples,
+			Map<String, String> dlgInfo) {
 		super();
 
 		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
@@ -800,12 +885,13 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		for (List<KnimeTuple> modelTuples : tuplesMap.values()) {
-			SBMLDocument doc = parseTertiaryTuple(modelTuples);
+			SBMLDocument doc = parseTertiaryTuple(modelTuples, dlgInfo);
 			documents.add(doc);
 		}
 	}
 
-	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples) {
+	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
+			Map<String, String> docInfo) {
 		// modify formulas
 		for (KnimeTuple tuple : tuples) {
 			replaceCelsiusAndFahrenheit(tuple);
@@ -834,6 +920,10 @@ class TertiaryTableReader extends TableReader {
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) doc
 				.getPlugin(CompConstants.shortLabel);
 
+		// Document annotation
+		Annotation docAnnot = createDocAnnotation(docInfo);
+		doc.setAnnotation(docAnnot);
+
 		Model model = doc.createModel(modelId);
 		CompModelPlugin compModelPlugin = (CompModelPlugin) model
 				.getPlugin(CompConstants.shortLabel);
@@ -847,8 +937,9 @@ class TertiaryTableReader extends TableReader {
 		String modelClass = SBMLUtil.INT_TO_CLASS.get(modelClassNum);
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
-		Annotation annot = createAnnotation(modelId, modelTitle, modelClass,
-				qualityTags);
+		// Add model annotations
+		Annotation annot = createModelAnnotation(modelId, modelTitle,
+				modelClass, qualityTags);
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model

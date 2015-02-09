@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -58,10 +57,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
-import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
@@ -75,8 +72,6 @@ import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.ext.comp.Submodel;
-import org.sbml.jsbml.text.parser.ParseException;
-import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -110,6 +105,7 @@ import de.bund.bfr.knime.pmm.sbmlcommon.ModelIdNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.ModelTitleNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.ModifiedNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.UncertaintyNode;
+import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
@@ -472,7 +468,7 @@ abstract class TableReader {
 	 *            : Name of the compartment. If the name is null then the will
 	 *            be assigned COMPARTMENT_MISSING.
 	 * 
-	 * @return comparment.
+	 * @return compartment.
 	 */
 	protected Compartment createCompartment(final String name) {
 		final String COMPARTMENT_MISSING = "CompartmentMissing";
@@ -502,7 +498,7 @@ abstract class TableReader {
 	 * 
 	 * @return: species
 	 */
-	protected Species createSpecies(final String name,
+	protected Species createSpecies(final String name, final String unit,
 			final Compartment compartment) {
 		final String SPECIES_MISSING = "SpeciesMissing";
 		String speciesId;
@@ -519,6 +515,7 @@ abstract class TableReader {
 		Species species = new Species(speciesId);
 		species.setName(speciesName);
 		species.setCompartment(compartment);
+		species.setUnits(unit);
 
 		return species;
 	}
@@ -665,34 +662,6 @@ abstract class TableReader {
 		return annot;
 	}
 
-	static Constraint createConstraint(String var, Double min, Double max) {
-		String formula = "";
-
-		if (min != null)
-			formula += String.format(Locale.ENGLISH, "(%s >= %f)", var,
-					min.doubleValue());
-		if (max != null) {
-			if (min != null)
-				formula += "&&";
-			formula += String.format(Locale.ENGLISH, "(%s <= %f)", var,
-					max.doubleValue());
-		}
-
-		if (formula.isEmpty()) {
-			return null;
-		}
-
-		ASTNode math = null;
-		try {
-			math = ASTNode.parseFormula(formula);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Constraint constraint = new Constraint(math, LEVEL, VERSION);
-		return constraint;
-	}
-
 	/**
 	 * Parse model quality tags such as SSE and RMS from the EstModelXml cell.
 	 * 
@@ -805,7 +774,7 @@ class PrimaryTableReader extends TableReader {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), c);
+		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(), c);
 		model.addSpecies(specie);
 
 		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
@@ -820,10 +789,14 @@ class PrimaryTableReader extends TableReader {
 		// Add constraints
 		for (PmmXmlElementConvertable item : indepParams) {
 			IndepXml indep = (IndepXml) item;
-			Constraint constraint = createConstraint(indep.getName(),
-					indep.getMin(), indep.getMax());
-			if (constraint != null) {
-				model.addConstraint(constraint);
+			String name = indep.getName();
+			if (!name.isEmpty()) {
+				Double min = indep.getMin();
+				Double max = indep.getMax();
+				LimitsConstraint lc = new LimitsConstraint(name, min, max);
+				if (lc.getConstraint() != null) {
+					model.addConstraint(lc.getConstraint());
+				}
 			}
 		}
 
@@ -839,10 +812,14 @@ class PrimaryTableReader extends TableReader {
 		// Add constraints
 		for (PmmXmlElementConvertable item : constParams) {
 			ParamXml param = (ParamXml) item;
-			Constraint constraint = createConstraint(param.getName(),
-					param.getMin(), param.getMax());
-			if (constraint != null) {
-				model.addConstraint(constraint);
+			String name = param.getName();
+			if (!name.isEmpty()) {
+				Double min = param.getMin();
+				Double max = param.getMax();
+				LimitsConstraint lc = new LimitsConstraint(name, min, max);
+				if (lc.getConstraint() != null) {
+					model.addConstraint(lc.getConstraint());
+				}
 			}
 		}
 		// Add constant parameters
@@ -947,7 +924,7 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), compartment);
+		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(), compartment);
 		model.addSpecies(specie);
 
 		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
@@ -962,10 +939,14 @@ class TertiaryTableReader extends TableReader {
 		// Add constraints
 		for (PmmXmlElementConvertable item : indepParams) {
 			IndepXml indep = (IndepXml) item;
-			Constraint constraint = createConstraint(indep.getName(),
-					indep.getMin(), indep.getMax());
-			if (constraint != null) {
-				model.addConstraint(constraint);
+			String name = indep.getName();
+			if (!name.isEmpty()) {
+				Double min = indep.getMin();
+				Double max = indep.getMax();
+				LimitsConstraint lc = new LimitsConstraint(name, min, max);
+				if (lc.getConstraint() != null) {
+					model.addConstraint(lc.getConstraint());
+				}
 			}
 		}
 		// Add independent parameters
@@ -981,10 +962,14 @@ class TertiaryTableReader extends TableReader {
 		// Add constraints
 		for (PmmXmlElementConvertable item : constParams) {
 			ParamXml param = (ParamXml) item;
-			Constraint constraint = createConstraint(param.getName(),
-					param.getMin(), param.getMax());
-			if (constraint != null) {
-				model.addConstraint(constraint);
+			String name = param.getName();
+			if (!name.isEmpty()) {
+				Double min = param.getMin();
+				Double max = param.getMax();
+				LimitsConstraint lc = new LimitsConstraint(name, min, max);
+				if (lc.getConstraint() != null) {
+					model.addConstraint(lc.getConstraint());
+				}
 			}
 		}
 		// Add constant params

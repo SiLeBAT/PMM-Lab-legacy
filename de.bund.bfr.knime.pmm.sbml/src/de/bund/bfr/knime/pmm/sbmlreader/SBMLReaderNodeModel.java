@@ -460,18 +460,18 @@ class ReaderUtils {
 	public static PmmXmlDoc parseDep(final Species species,
 			final Map<String, UnitsFromDB> units,
 			final Map<String, Limits> limits) {
-		String name = species.getUnits(); // unit name
-		UnitsFromDB dbUnit = units.get(name);
+		String origUnit = species.getUnits(); // unit name
+		UnitsFromDB dbUnit = units.get(origUnit);
 
 		// Retrieve unit data from dbUnit
 		String category = dbUnit.getKind_of_property_quantity();
 		String unit = dbUnit.getDisplay_in_GUI_as();
 		String description = dbUnit.getDescription();
 
-		DepXml dep = new DepXml("Value", "Value", category, unit, description);
+		DepXml dep = new DepXml("Value", origUnit, category, unit, description);
 		// Get limits
-		if (limits.containsKey(name)) {
-			Limits depLimits = limits.get(name);
+		if (limits.containsKey(origUnit)) {
+			Limits depLimits = limits.get(origUnit);
 			dep.setMax(depLimits.getMax());
 			dep.setMin(depLimits.getMin());
 		}
@@ -489,8 +489,8 @@ class ReaderUtils {
 
 		for (Parameter param : params) {
 			if (!param.isConstant()) {
-				String unitName = param.getUnits(); // unit name
-				UnitsFromDB dbUnit = units.get(unitName);
+				String origUnit = param.getUnits(); // unit name
+				UnitsFromDB dbUnit = units.get(origUnit);
 
 				String name = "";
 				String category = "";
@@ -503,8 +503,8 @@ class ReaderUtils {
 					category = dbUnit.getKind_of_property_quantity();
 					unit = dbUnit.getDisplay_in_GUI_as();
 					description = dbUnit.getDescription();
-				} else if (unitName.equals("pmf_celsius")) {
-					name = unitName;
+				} else if (origUnit.equals("pmf_celsius")) {
+					name = origUnit;
 					category = Categories.getTempCategory().getName();
 					unit = "°C";
 					description = "degree Celsius";
@@ -514,6 +514,7 @@ class ReaderUtils {
 				Double min = null, max = null;
 
 				IndepXml indep = new IndepXml(name, min, max, category, unit);
+				indep.setOrigName(origUnit);
 				indep.setDescription(description);
 				// Get limits
 				String paramName = param.getId();
@@ -538,8 +539,8 @@ class ReaderUtils {
 
 		for (Parameter param : params) {
 			if (param.isConstant()) {
-				String unitName = param.getUnits(); // unit name
-				UnitsFromDB dbUnit = units.get(unitName);
+				String origUnit = param.getUnits(); // unit name
+				UnitsFromDB dbUnit = units.get(origUnit);
 
 				String name = "", category = "", unit = "", description = "";
 
@@ -549,8 +550,8 @@ class ReaderUtils {
 					category = dbUnit.getKind_of_property_quantity();
 					unit = dbUnit.getDisplay_in_GUI_as();
 					description = dbUnit.getDescription();
-				} else if (unitName.equals("pmf_celsius")) {
-					name = unitName;
+				} else if (origUnit.equals("pmf_celsius")) {
+					name = origUnit;
 					category = Categories.getTempCategory().getName();
 					unit = "°C";
 					description = "degree Celsius";
@@ -563,6 +564,7 @@ class ReaderUtils {
 				ParamXml paramXml = new ParamXml(id, value);
 				paramXml.setCategory(category);
 				paramXml.setUnit(unit);
+				paramXml.setOrigName(origUnit);
 				paramXml.setDescription(description);
 
 				// Get limits
@@ -794,8 +796,8 @@ class TertiaryModelParser {
 		String depName = rule.getVariable();
 		Parameter depParam = params.get(depName);
 
-		String unitName = depParam.getUnits();
-		UnitsFromDB dbUnit = units.get(unitName);
+		String origUnit = depParam.getUnits();
+		UnitsFromDB dbUnit = units.get(origUnit);
 
 		// Retrieve unit data from dbUnit
 		String category = dbUnit.getKind_of_property_quantity();
@@ -807,10 +809,11 @@ class TertiaryModelParser {
 		String origname = depParam.getId();
 
 		DepXml depXml = new DepXml(name, origname, category, unit, description);
+		depXml.setOrigName(origUnit);
 
 		// Get limits
-		if (limits.containsKey(unitName)) {
-			Limits depLimits = limits.get(unitName);
+		if (limits.containsKey(origUnit)) {
+			Limits depLimits = limits.get(origUnit);
 			depXml.setMin(depLimits.getMin());
 			depXml.setMax(depLimits.getMax());
 		}
@@ -830,51 +833,99 @@ class TertiaryModelParser {
 	 * <li>Get parameter limits using its unit's name</li>
 	 * </ol>
 	 */
+	
 	private static PmmXmlDoc parseSecIndeps(final String depName,
 			final ListOf<Parameter> params,
 			final Map<String, UnitsFromDB> units,
 			final Map<String, Limits> limits) {
+		
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
-
-		// Search and add independent parameters
+		
 		for (Parameter param : params) {
-			String id = param.getId();
-			if (!id.equals(depName) && !param.isConstant()) {
-				String unitName = param.getUnits();
-
-				String category, unit, description;
-
-				if (unitName.equals("pmf_celsius")) {
-					category = Categories.getTempCategory().getName();
-					unit = "°C";
-					description = "degree Celsius";
-				} else {
-					// Retrieve unit data from dbUnit
-					UnitsFromDB dbUnit = units.get(unitName);
+			if (!param.getId().equals(depName) && !param.isConstant()) {
+				String origUnit = param.getUnits();
+				String name = "", category = "", unit = "", desc = "";
+				
+				UnitsFromDB dbUnit = units.get(origUnit);
+				
+				if (dbUnit != null) {
+					// retrieve unit data from dbUnit
+					name = dbUnit.getName();
 					category = dbUnit.getKind_of_property_quantity();
 					unit = dbUnit.getDisplay_in_GUI_as();
-					description = dbUnit.getDescription();
+					desc = dbUnit.getDescription();
+				} else if (origUnit.equals("pmf_celsius")) {
+					name = Categories.getTempCategory().getName();
+					category = Categories.getTempCategory().getName();
+					unit = "°C";
+					desc = "degree Celsius";
 				}
-
-				// other data
-				String name = id, origname = id;
+				
+				// other fields
 				Double min = null, max = null;
-
-				if (limits.containsKey(id)) {
-					Limits indepLimits = limits.get(id);
-					min = indepLimits.getMin();
-					max = indepLimits.getMax();
+				
+				IndepXml indep = new IndepXml(name, min, max, category, unit);
+				indep.setOrigName(origUnit);
+				indep.setDescription(desc);
+				// Get limits
+				String paramName = param.getId();
+				if (limits.containsKey(paramName)) {
+					Limits indepLimits = limits.get(paramName);
+					indep.setMax(indepLimits.getMax());
+					indep.setMin(indepLimits.getMin());
 				}
-
-				IndepXml indepXml = new IndepXml(name, origname, min, max,
-						category, unit, description);
-
-				indepDoc.add(indepXml);
+				
+				indepDoc.add(indep);
 			}
 		}
-
+		
 		return indepDoc;
 	}
+//	private static PmmXmlDoc parseSecIndeps(final String depName,
+//			final ListOf<Parameter> params,
+//			final Map<String, UnitsFromDB> units,
+//			final Map<String, Limits> limits) {
+//		PmmXmlDoc indepDoc = new PmmXmlDoc();
+//
+//		// Search and add independent parameters
+//		for (Parameter param : params) {
+//			String id = param.getId();
+//			if (!id.equals(depName) && !param.isConstant()) {
+//				String origUnit = param.getUnits();
+//
+//				String category, unit, description;
+//
+//				if (origUnit.equals("pmf_celsius")) {
+//					category = Categories.getTempCategory().getName();
+//					unit = "°C";
+//					description = "degree Celsius";
+//				} else {
+//					// Retrieve unit data from dbUnit
+//					UnitsFromDB dbUnit = units.get(origUnit);
+//					category = dbUnit.getKind_of_property_quantity();
+//					unit = dbUnit.getDisplay_in_GUI_as();
+//					description = dbUnit.getDescription();
+//				}
+//
+//				// other data
+//				String name = id;
+//				Double min = null, max = null;
+//
+//				if (limits.containsKey(id)) {
+//					Limits indepLimits = limits.get(id);
+//					min = indepLimits.getMin();
+//					max = indepLimits.getMax();
+//				}
+//
+//				IndepXml indepXml = new IndepXml(name, origUnit, min, max,
+//						category, unit, description);
+//
+//				indepDoc.add(indepXml);
+//			}
+//		}
+//
+//		return indepDoc;
+//	}
 
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();

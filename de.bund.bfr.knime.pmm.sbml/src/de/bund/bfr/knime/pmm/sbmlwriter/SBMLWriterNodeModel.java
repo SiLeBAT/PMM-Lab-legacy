@@ -332,18 +332,23 @@ abstract class TableReader {
 	public ListOf<UnitDefinition> getUnits(DepXml depXml,
 			List<PmmXmlElementConvertable> indepParams,
 			List<PmmXmlElementConvertable> constParams) {
-		// Get unit names
+		// Get unit names and orig units
 		HashSet<String> unitNames = new HashSet<>();
-		unitNames.add(depXml.getUnit());
+		// Maps every unit name with its original unit
+		HashMap<String, String> origUnits = new HashMap<>();
+		
+		origUnits.put(depXml.getUnit(), depXml.getOrigName());
+		
 		for (PmmXmlElementConvertable pmmXmlElem : indepParams) {
 			IndepXml indep = (IndepXml) pmmXmlElem;
-			unitNames.add(indep.getUnit());
+			origUnits.put(indep.getUnit(), indep.getOrigName());
 		}
+		
 		for (PmmXmlElementConvertable pmmXmlElem : constParams) {
 			ParamXml constant = (ParamXml) pmmXmlElem;
 			String constantUnit = constant.getUnit();
 			if (constantUnit != null) {
-				unitNames.add(constant.getUnit());
+				origUnits.put(constant.getUnit(), constant.getOrigName());
 			}
 		}
 
@@ -352,18 +357,21 @@ abstract class TableReader {
 		unitDB.askDB();
 		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
 
-		// Create new map with unit names as keys
+		// Create new map with unit display as keys
 		Map<String, UnitsFromDB> map = new HashMap<>();
 		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
-			map.put(entry.getValue().getUnit(), entry.getValue());
+			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
 		}
 
 		ListOf<UnitDefinition> unitDefinitions = new ListOf<>();
-		for (String unitName : unitNames) {
-			UnitsFromDB unit = map.get(unitName);
-			if (unit != null) {
-				UnitDefinition unitDef = SBMLUtil.fromXml(unit
-						.getMathML_string());
+		
+		for (Entry<String, String> entry : origUnits.entrySet()) {
+			String dbUnitName = entry.getKey();
+			String origUnitName = entry.getValue();
+			UnitsFromDB dbUnit = map.get(dbUnitName);
+			if (dbUnit != null) {
+				UnitDefinition unitDef = SBMLUtil.fromXml(dbUnit.getMathML_string());
+				unitDef.setId(origUnitName);
 				unitDefinitions.add(unitDef);
 			}
 		}
@@ -434,32 +442,6 @@ abstract class TableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	// Fix independent parameter units
-	void fixIndepUnits(List<PmmXmlElementConvertable> params) {
-		for (PmmXmlElementConvertable item : params) {
-			IndepXml constant = (IndepXml) item;
-			String unit = constant.getUnit();
-			if (unit == null) {
-				constant.setUnit("dimensionless");
-			} else if (unit.equals("°C")) {
-				constant.setUnit("pmf_celsius");
-			}
-		}
-	}
-
-	// fix constant parameter units
-	void fixConstUnits(List<PmmXmlElementConvertable> params) {
-		for (PmmXmlElementConvertable item : params) {
-			ParamXml constant = (ParamXml) item;
-			String unit = constant.getUnit();
-			if (unit == null) {
-				constant.setUnit("dimensionless");
-			} else if (unit.equals("°C")) {
-				constant.setUnit("pmf_celsius");
-			}
-		}
-	}
-
 	/**
 	 * Create a compartment with the name given. This compartment is not added
 	 * to the model.
@@ -527,7 +509,7 @@ abstract class TableReader {
 			IndepXml indepXml = (IndepXml) pmmParam;
 
 			String name = indepXml.getName();
-			String unit = indepXml.getUnit();
+			String unit = indepXml.getOrigName();
 
 			Parameter p = new Parameter(name);
 			p.setValue(0.0);
@@ -545,7 +527,7 @@ abstract class TableReader {
 			ParamXml paramXml = (ParamXml) pmmParam;
 
 			String name = paramXml.getName();
-			String unit = paramXml.getUnit();
+			String unit = paramXml.getOrigName();
 
 			Double value = paramXml.getValue();
 			if (value == null) {
@@ -747,6 +729,7 @@ class PrimaryTableReader extends TableReader {
 		LiteratureItem literatureXml = (LiteratureItem) tuple.getPmmXml(
 				Model1Schema.ATT_MLIT).get(0);
 		String modelId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		PmmXmlDoc units = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
 		// Enable Hierarchical Composition package
@@ -1000,10 +983,8 @@ class TertiaryTableReader extends TableReader {
 					Model2Schema.ATT_DEPENDENT).get(0);
 			List<PmmXmlElementConvertable> secIndepsXml = tuple.getPmmXml(
 					Model2Schema.ATT_INDEPENDENT).getElementSet();
-			fixIndepUnits(secIndepsXml);
 			List<PmmXmlElementConvertable> secConstParams = tuple.getPmmXml(
 					Model2Schema.ATT_PARAMETER).getElementSet();
-			fixConstUnits(secConstParams);
 
 			String modelDefinitionId = "model_" + secDepXml.getName();
 			ModelDefinition modelDefinition = new ModelDefinition(
@@ -1018,7 +999,7 @@ class TertiaryTableReader extends TableReader {
 			Parameter secDep = new Parameter(secDepXml.getName());
 			secDep.setConstant(false);
 			secDep.setValue(0.0);
-			secDep.setUnits(secDepXml.getUnit());
+			secDep.setUnits(secDepXml.getOrigName());
 			modelDefinition.addParameter(secDep);
 
 			// Add indeps

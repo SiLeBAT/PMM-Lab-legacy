@@ -740,6 +740,7 @@ class PrimaryTableReader extends TableReader {
 		doc.setAnnotation(docAnnot);
 
 		Model model = doc.createModel(modelId);
+		model.setName(modelXml.getName());
 
 		// Annotation
 		String modelTitle = modelXml.getName();
@@ -885,6 +886,7 @@ class TertiaryTableReader extends TableReader {
 		doc.setAnnotation(docAnnot);
 
 		Model model = doc.createModel(modelId);
+		model.setName(modelXml.getName());
 		CompModelPlugin compModelPlugin = (CompModelPlugin) model
 				.getPlugin(CompConstants.shortLabel);
 
@@ -989,7 +991,7 @@ class TertiaryTableReader extends TableReader {
 			String modelDefinitionId = "model_" + secDepXml.getName();
 			ModelDefinition modelDefinition = new ModelDefinition(
 					modelDefinitionId, LEVEL, VERSION);
-			modelDefinition.setName(modelDefinitionId);
+			modelDefinition.setName(secModelXml.getName());
 
 			// Add units
 			unitDefs = getUnits(secDepXml, secIndepsXml, secConstParams);

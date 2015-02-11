@@ -3,23 +3,59 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 import java.io.StringReader;
 
 import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
+import org.sbml.jsbml.xml.XMLNamespaces;
+import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.XMLTriple;
+
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.sbmlcommon.ModelClassNode;
+import de.bund.bfr.knime.pmm.sbmlcommon.ModelNameNode;
 
 public abstract class ModelRule {
 	protected final static int LEVEL = 3;
 	protected final static int VERSION = 1;
 
 	protected AssignmentRule rule;
-
-	protected ASTNode parseMath(String math) throws ParseException {
-		return new FormulaParser(new StringReader(math)).parse();
-	}
-
+	
 	public AssignmentRule getRule() {
 		return rule;
 	}
+	
+	protected static ASTNode parseMath(String math) throws ParseException {
+		return new FormulaParser(new StringReader(math)).parse();
+	}
+	
+	/**
+	 * Add annotation to the rule.
+	 * @param name: Model name. Mandatory.
+	 * @param type: Model class.
+	 */
+	protected void addAnnotation(String name, String type) {
+		// pmf container
+		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
+		XMLNamespaces pmfNS = new XMLNamespaces();
+		pmfNS.add("http://purl.org/dc/terms/", "dc");
+		pmfNS.add("http://www.dmg.org/PMML-4.2", "pmml");
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+		
+		ModelNameNode nameNode = new ModelNameNode(name);
+		pmfNode.addChild(nameNode.getNode());
+		
+		ModelClassNode typeNode = new ModelClassNode(type);
+		pmfNode.addChild(typeNode.getNode());
+		
+		// add non rdf annotation
+		Annotation annot = new Annotation();
+		annot.setNonRDFAnnotation(pmfNode);
+		annot.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 
-	public abstract void parse(String formula);
+		rule.setAnnotation(annot);
+	}
+	
+	public abstract CatalogModelXml toCatModel();
 }

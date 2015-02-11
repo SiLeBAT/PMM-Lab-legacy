@@ -63,6 +63,8 @@ import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
+import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 
 /**
@@ -304,24 +306,21 @@ class ReaderUtils {
 
 		// Search metadata container
 		XMLNode metadata = null;
-		for (int nChild = 0; nChild < annot.getChildCount(); nChild++) {
-			XMLNode currNode = annot.getChildAt(nChild);
-			String nodeName = currNode.getName();
-			if (nodeName.equals("metadata")) {
-				metadata = currNode;
+		for (XMLNode node : annot.getChildElements("", "")) {
+			if (node.getName().equals("metadata")) {
+				metadata = node;
 				break;
 			}
 		}
 
 		// Parse metadata container
 		if (metadata != null) {
-			for (int nTag = 0; nTag < metadata.getChildCount(); nTag++) {
-				XMLNode currNode = metadata.getChildAt(nTag);
-				String nodeName = currNode.getName();
+			for (XMLNode node : metadata.getChildElements("", "")) {
+				String nodeName = node.getName();
 				if (!nodeName.isEmpty()) {
 					// Process uncertainty annotations
 					if (nodeName.equals("modelquality")) {
-						XMLAttributes qualityAtts = currNode.getAttributes();
+						XMLAttributes qualityAtts = node.getAttributes();
 						for (int nattr = 0; nattr < qualityAtts.getLength(); nattr++) {
 							String attName = qualityAtts.getName(nattr);
 							String attValue = qualityAtts.getValue(nattr);
@@ -330,8 +329,7 @@ class ReaderUtils {
 					}
 					// Process other annotations
 					else {
-						String nodeValue = currNode.getChildAt(0)
-								.getCharacters();
+						String nodeValue = node.getChildAt(0).getCharacters();
 						annotations.put(nodeName, nodeValue);
 					}
 				}
@@ -431,11 +429,9 @@ class ReaderUtils {
 	public static String parseSpeciesAnnotation(XMLNode annot) {
 		// Search metadata container
 		XMLNode metadata = null;
-		for (int nChild = 0; nChild < annot.getChildCount(); nChild++) {
-			XMLNode currNode = annot.getChildAt(nChild);
-			String nodeName = currNode.getName();
-			if (nodeName.equals("metadata")) {
-				metadata = currNode;
+		for (XMLNode node : annot.getChildElements("", "")) {
+			if (node.getName().equals("metadata")) {
+				metadata = node;
 				break;
 			}
 		}
@@ -443,11 +439,9 @@ class ReaderUtils {
 		String casNumber = null;
 		// Parse metadata container
 		if (metadata != null) {
-			for (int nTag = 0; nTag < metadata.getChildCount(); nTag++) {
-				XMLNode currNode = metadata.getChildAt(nTag);
-				String nodeName = currNode.getName();
-				if (nodeName.equals("source")) {
-					casNumber = currNode.getChildAt(0).getCharacters();
+			for (XMLNode node : metadata.getChildElements("", "")) {
+				if (node.getName().equals("source")) {
+					casNumber = node.getChildAt(0).getCharacters();
 					int pos = casNumber.lastIndexOf("/");
 					casNumber = casNumber.substring(pos + 1);
 				}
@@ -468,7 +462,7 @@ class ReaderUtils {
 		// Retrieve unit data from dbUnit
 		String category = dbUnit.getKind_of_property_quantity();
 		String unit = dbUnit.getDisplay_in_GUI_as();
-		String description = dbUnit.getDescription();
+		String description = "";
 
 		DepXml dep = new DepXml("Value", origUnit, category, unit, description);
 		// Get limits
@@ -504,12 +498,10 @@ class ReaderUtils {
 					name = dbUnit.getKind_of_property_quantity();
 					category = dbUnit.getKind_of_property_quantity();
 					unit = dbUnit.getDisplay_in_GUI_as();
-					description = dbUnit.getDescription();
 				} else if (origUnit.equals("pmf_celsius")) {
 					name = origUnit;
 					category = Categories.getTempCategory().getName();
 					unit = "°C";
-					description = "degree Celsius";
 				}
 
 				// other fields
@@ -551,12 +543,10 @@ class ReaderUtils {
 					name = dbUnit.getName();
 					category = dbUnit.getKind_of_property_quantity();
 					unit = dbUnit.getDisplay_in_GUI_as();
-					description = dbUnit.getDescription();
 				} else if (origUnit.equals("pmf_celsius")) {
 					name = origUnit;
 					category = Categories.getTempCategory().getName();
 					unit = "°C";
-					description = "degree Celsius";
 				}
 
 				// other fields
@@ -585,14 +575,6 @@ class ReaderUtils {
 	}
 
 	/**
-	 * Parse the formula of the model (rule) using the PMM Lab format:
-	 * "Value = actual formula"
-	 */
-	public static String parseFormula(final AssignmentRule rule) {
-		return "Value=" + rule.getMath().toFormula();
-	}
-
-	/**
 	 * Parse a list of constraints and return a dictionary that maps variables
 	 * and their limit values.
 	 * 
@@ -609,28 +591,6 @@ class ReaderUtils {
 		}
 
 		return paramLimits;
-	}
-
-	// Create a CatalogModelXml from the model annotations and its formula
-	public static CatalogModelXml createCatModel(
-			final String modelName,
-			final Map<String, String> annotations, final AssignmentRule rule) {
-
-		// Initialize variables
-		Integer id = null; // model id
-		int type = SBMLUtil.CLASS_TO_INT.get("unknown"); // model class
-		String formula = ReaderUtils.parseFormula(rule); // model formula
-
-		if (annotations != null) {
-			// Get subject from annotations
-			if (annotations.containsKey("subject")) {
-				String modelClass = annotations.get("subject");
-				type = SBMLUtil.CLASS_TO_INT.get(modelClass);
-			}
-		}
-
-		CatalogModelXml catModel = new CatalogModelXml(id, modelName, formula, type);
-		return catModel;
 	}
 
 	// create EstModelXml from the model annotations
@@ -706,8 +666,8 @@ class PrimaryModelParser {
 			annotations = ReaderUtils.parseAnnotation(modelAnnotation);
 		}
 
-		CatalogModelXml catModel = ReaderUtils.createCatModel(model.getName(),
-				annotations, assignmentRule);
+		Model1Rule rule = new Model1Rule(assignmentRule);
+		CatalogModelXml catModel = rule.toCatModel();
 
 		// // Get reference
 		// String reference = "";
@@ -786,14 +746,6 @@ class PrimaryModelParser {
 
 class TertiaryModelParser {
 
-	/**
-	 * Parse the formula of the secondary model
-	 */
-	private static String parseSecFormula(final AssignmentRule rule) {
-		return String.format("%s=%s", rule.getVariable(), rule.getMath()
-				.toFormula());
-	}
-
 	private static PmmXmlDoc parseSecDep(final AssignmentRule rule,
 			final ListOf<Parameter> params,
 			final Map<String, UnitsFromDB> units,
@@ -807,7 +759,7 @@ class TertiaryModelParser {
 		// Retrieve unit data from dbUnit
 		String category = dbUnit.getKind_of_property_quantity();
 		String unit = dbUnit.getDisplay_in_GUI_as();
-		String description = dbUnit.getDescription();
+		String description = "";
 
 		// other data
 		String name = depParam.getId();
@@ -860,13 +812,10 @@ class TertiaryModelParser {
 					name = dbUnit.getName();
 					category = dbUnit.getKind_of_property_quantity();
 					unit = dbUnit.getDisplay_in_GUI_as();
-					desc = dbUnit.getDescription();
-				}
-				else if (origUnit.equals("pmf_celsius")) {
+				} else if (origUnit.equals("pmf_celsius")) {
 					name = Categories.getTempCategory().getName();
 					category = Categories.getTempCategory().getName();
 					unit = "°C";
-					desc = "degree Celsius";
 				}
 
 				// Get limits
@@ -887,7 +836,7 @@ class TertiaryModelParser {
 
 		return indepDoc;
 	}
-
+	
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Compartment> listOfCompartments = model.getListOfCompartments();
@@ -937,8 +886,8 @@ class TertiaryModelParser {
 		String mdDBUID = "?";
 
 		// primary model cells
-		CatalogModelXml catModel = ReaderUtils.createCatModel(model.getName(),
-				annotations, assignmentRule);
+		Model1Rule rule1 = new Model1Rule(assignmentRule);
+		CatalogModelXml catModel = rule1.toCatModel();
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
 
 		Set<UnitDefinition> unitDefs = new HashSet<>(
@@ -965,7 +914,6 @@ class TertiaryModelParser {
 		final int globalModelID = MathUtilities.getRandomNegativeInt();
 
 		for (ModelDefinition secModel : modelDefinitions) {
-			String secModelName = secModel.getName();
 			ListOf<Parameter> secParams = secModel.getListOfParameters();
 			ListOf<Rule> secRules = secModel.getListOfRules();
 			AssignmentRule secAssignmentRule = (AssignmentRule) secRules.get(0);
@@ -977,10 +925,8 @@ class TertiaryModelParser {
 					.parseConstraints(secConstraints);
 
 			// secondary model columns (19-27)
-			String secFormula = parseSecFormula(secAssignmentRule);
-			CatalogModelXml catModelSec = new CatalogModelXml(
-					MathUtilities.getRandomNegativeInt(), secModelName,
-					secFormula, null);
+			Model2Rule rule2 = new Model2Rule(secAssignmentRule);
+			CatalogModelXml catModelSec = rule2.toCatModel();
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
 
 			// PmmXmlDoc dependentSecCell =

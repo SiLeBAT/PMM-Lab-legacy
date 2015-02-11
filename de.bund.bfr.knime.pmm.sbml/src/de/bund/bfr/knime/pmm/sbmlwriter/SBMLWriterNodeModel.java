@@ -100,7 +100,6 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlcommon.CreatedNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.CreatorNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.ModelClassNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.ModelIdNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.ModelTitleNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.ModifiedNode;
@@ -336,14 +335,14 @@ abstract class TableReader {
 		HashSet<String> unitNames = new HashSet<>();
 		// Maps every unit name with its original unit
 		HashMap<String, String> origUnits = new HashMap<>();
-		
+
 		origUnits.put(depXml.getUnit(), depXml.getOrigName());
-		
+
 		for (PmmXmlElementConvertable pmmXmlElem : indepParams) {
 			IndepXml indep = (IndepXml) pmmXmlElem;
 			origUnits.put(indep.getUnit(), indep.getOrigName());
 		}
-		
+
 		for (PmmXmlElementConvertable pmmXmlElem : constParams) {
 			ParamXml constant = (ParamXml) pmmXmlElem;
 			String constantUnit = constant.getUnit();
@@ -364,13 +363,14 @@ abstract class TableReader {
 		}
 
 		ListOf<UnitDefinition> unitDefinitions = new ListOf<>();
-		
+
 		for (Entry<String, String> entry : origUnits.entrySet()) {
 			String dbUnitName = entry.getKey();
 			String origUnitName = entry.getValue();
 			UnitsFromDB dbUnit = map.get(dbUnitName);
 			if (dbUnit != null) {
-				UnitDefinition unitDef = SBMLUtil.fromXml(dbUnit.getMathML_string());
+				UnitDefinition unitDef = SBMLUtil.fromXml(dbUnit
+						.getMathML_string());
 				unitDef.setId(origUnitName);
 				unitDefinitions.add(unitDef);
 			}
@@ -565,6 +565,7 @@ abstract class TableReader {
 		XMLNamespaces pmfNS = new XMLNamespaces();
 		pmfNS.add("http://purl.org/dc/terms/", "dc");
 		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
+		pmfNS.add("http://www.dmg.org/PMML-4.2", "pmml");
 		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
 
 		String givenName = docInfo.get("GivenName");
@@ -600,8 +601,7 @@ abstract class TableReader {
 	}
 
 	protected Annotation createModelAnnotation(String modelId,
-			String modelTitle, String modelClass,
-			Map<String, String> uncertainties) {
+			String modelTitle, Map<String, String> uncertainties) {
 		Annotation annot = new Annotation();
 
 		// pmf container
@@ -609,6 +609,7 @@ abstract class TableReader {
 		XMLNamespaces pmfNS = new XMLNamespaces();
 		pmfNS.add("http://purl.org/dc/terms/", "dc");
 		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
+		pmfNS.add("http://www.dmg.org/PMML-4.2", "pmml");
 		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
 
 		// add model id annotation
@@ -621,12 +622,6 @@ abstract class TableReader {
 		if (modelTitle != null) {
 			ModelTitleNode modelTitleNode = new ModelTitleNode(modelTitle);
 			pmfNode.addChild(modelTitleNode.getNode());
-		}
-
-		// add model class annotation
-		if (modelClass != null) {
-			ModelClassNode modelClassNode = new ModelClassNode(modelClass);
-			pmfNode.addChild(modelClassNode.getNode());
 		}
 
 		// add model quality annotation
@@ -745,12 +740,10 @@ class PrimaryTableReader extends TableReader {
 		// Annotation
 		String modelTitle = modelXml.getName();
 		int modelClassNum = modelXml.getModelClass();
-		String modelClass = SBMLUtil.INT_TO_CLASS.get(modelClassNum);
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Add model annotations
-		Annotation annot = createModelAnnotation(modelId, modelTitle,
-				modelClass, qualityTags);
+		Annotation annot = createModelAnnotation(modelId, modelTitle, qualityTags);
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
@@ -758,7 +751,8 @@ class PrimaryTableReader extends TableReader {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(), c);
+		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(),
+				c);
 		model.addSpecies(specie);
 
 		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
@@ -817,9 +811,8 @@ class PrimaryTableReader extends TableReader {
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
-		String modelFormula = modelXml.getFormula();
-		Model1Rule model1Rule = new Model1Rule();
-		model1Rule.parse(modelFormula);
+		Model1Rule model1Rule = Model1Rule
+				.convertCatalogModelXmlToModel1Rule(modelXml);
 		rules.add(model1Rule.getRule());
 		model.setListOfRules(rules);
 
@@ -896,12 +889,10 @@ class TertiaryTableReader extends TableReader {
 		if (modelClassNum == null) {
 			modelClassNum = SBMLUtil.CLASS_TO_INT.get("unknown");
 		}
-		String modelClass = SBMLUtil.INT_TO_CLASS.get(modelClassNum);
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Add model annotations
-		Annotation annot = createModelAnnotation(modelId, modelTitle,
-				modelClass, qualityTags);
+		Annotation annot = createModelAnnotation(modelId, modelTitle, qualityTags);
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model
@@ -909,7 +900,8 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(), compartment);
+		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(),
+				compartment);
 		model.addSpecies(specie);
 
 		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
@@ -969,15 +961,13 @@ class TertiaryTableReader extends TableReader {
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
-		String modelFormula = modelXml.getFormula();
-		Model1Rule model1Rule = new Model1Rule();
-		model1Rule.parse(modelFormula);
+		Model1Rule model1Rule = Model1Rule
+				.convertCatalogModelXmlToModel1Rule(modelXml);
 		rules.add(model1Rule.getRule());
 		model.setListOfRules(rules);
 
 		// Add submodels and model definitions
 		int i = 0;
-		Model2Rule model2Rule = new Model2Rule();
 		for (KnimeTuple tuple : tuples) {
 			CatalogModelXml secModelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model2Schema.ATT_MODELCATALOG).get(0);
@@ -1016,9 +1006,9 @@ class TertiaryTableReader extends TableReader {
 				modelDefinition.addParameter(param);
 			}
 
-			String secFormula = secModelXml.getFormula();
 			ListOf<Rule> secRules = new ListOf<>(LEVEL, VERSION);
-			model2Rule.parse(secFormula);
+			Model2Rule model2Rule = Model2Rule
+					.convertCatalogModelXmlToModel2Rule(secModelXml);
 			secRules.add(model2Rule.getRule());
 			modelDefinition.setListOfRules(secRules);
 

@@ -39,11 +39,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -660,17 +658,6 @@ class PrimaryTableReader extends TableReader {
 	public PrimaryTableReader(List<KnimeTuple> tuples,
 			Map<String, String> dlgInfo) {
 		super();
-
-		// filter tuples with duplicated ids (from ExtXML)
-		Set<String> idSet = new HashSet<>();
-		for (Iterator<KnimeTuple> iter = tuples.listIterator(); iter.hasNext();) {
-			iter.hasNext();
-			KnimeTuple tuple = iter.next();
-			String id = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
-			if (!idSet.add(id)) {
-				iter.remove();
-			}
-		}
 
 		for (KnimeTuple tuple : tuples) {
 			SBMLDocument doc = parsePrimaryTuple(tuple, dlgInfo);

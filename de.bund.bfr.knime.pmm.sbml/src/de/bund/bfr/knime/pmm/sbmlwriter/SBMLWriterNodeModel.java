@@ -105,6 +105,7 @@ import de.bund.bfr.knime.pmm.sbmlcommon.ModelTitleNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.ModifiedNode;
 import de.bund.bfr.knime.pmm.sbmlcommon.UncertaintyNode;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
+import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
@@ -443,34 +444,6 @@ abstract class TableReader {
 	}
 
 	/**
-	 * Create a compartment with the name given. This compartment is not added
-	 * to the model.
-	 * 
-	 * @param name
-	 *            : Name of the compartment. If the name is null then the will
-	 *            be assigned COMPARTMENT_MISSING.
-	 * 
-	 * @return compartment.
-	 */
-	protected Compartment createCompartment(final String name) {
-		final String COMPARTMENT_MISSING = "CompartmentMissing";
-		String compartmentName;
-		String compartmentId;
-
-		if (name == null) {
-			compartmentId = COMPARTMENT_MISSING;
-			compartmentName = COMPARTMENT_MISSING;
-		} else {
-			compartmentId = createId(name);
-			compartmentName = name;
-		}
-
-		Compartment compartment = new Compartment(compartmentId);
-		compartment.setName(compartmentName);
-		return compartment;
-	}
-
-	/**
 	 * Create a species element with a name and add it to the compartment
 	 * passed. If the name is null then the species will be assigned
 	 * SPECIES_MISSING. This species element will not be assigned to the model.
@@ -747,7 +720,8 @@ class PrimaryTableReader extends TableReader {
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
-		Compartment c = createCompartment(matrixXml.getName());
+		Matrix matrix = Matrix.convertMatrixXmlToMatrix(matrixXml);
+		Compartment c = matrix.getCompartment();
 		model.addCompartment(c);
 
 		// Create species and add it to the model
@@ -896,7 +870,8 @@ class TertiaryTableReader extends TableReader {
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model
-		Compartment compartment = createCompartment(matrixXml.getName());
+		Matrix matrix = Matrix.convertMatrixXmlToMatrix(matrixXml);
+		Compartment compartment = matrix.getCompartment();
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model

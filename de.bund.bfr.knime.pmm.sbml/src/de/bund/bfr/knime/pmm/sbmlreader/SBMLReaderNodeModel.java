@@ -24,7 +24,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Constraint;
@@ -47,7 +46,6 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -63,9 +61,9 @@ import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
+import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -337,65 +335,6 @@ class ReaderUtils {
 		}
 
 		return annotations;
-	}
-
-	/**
-	 * Parse an SBML ListOfCompartment and return a PmmXmlDoc.
-	 * 
-	 * @param compartments
-	 *            : List of compartments
-	 */
-	public static PmmXmlDoc parseCompartments(
-			final ListOf<Compartment> compartments) {
-		PmmXmlDoc compartmentDoc = new PmmXmlDoc();
-		for (Compartment compartment : compartments) {
-			// Process annotation
-			Annotation annot = compartment.getAnnotation();
-			String compartmentName = compartment.getName();
-
-			// if (annot != null) {
-			// XMLNode nonRDFAnnot = annot.getNonRDFannotation();
-			// // PMF compartment id obtained from the DB
-			// String casNumber =
-			// ReaderUtils.parseComparmentAnnotation(nonRDFAnnot);
-			// compartmentName = (String) DBKernel.getValue("Matrices",
-			// "CAS_Nummer", casNumber, "Matrixname");
-			// }
-			MatrixXml matrix = new MatrixXml();
-			matrix.setName(compartmentName);
-			compartmentDoc.add(matrix);
-		}
-
-		return compartmentDoc;
-	}
-
-	public static String parseComparmentAnnotation(XMLNode annot) {
-		// Search metadata container
-		XMLNode metadata = null;
-		for (int nChild = 0; nChild < annot.getChildCount(); nChild++) {
-			XMLNode currNode = annot.getChildAt(nChild);
-			String nodeName = currNode.getName();
-			if (nodeName.equals("metadata")) {
-				metadata = currNode;
-				break;
-			}
-		}
-
-		String casNumber = null;
-		// Parse metadata container
-		if (metadata != null) {
-			for (int nTag = 0; nTag < metadata.getChildCount(); nTag++) {
-				XMLNode currNode = metadata.getChildAt(nTag);
-				String nodeName = currNode.getName();
-				if (nodeName.equals("source")) {
-					casNumber = currNode.getChildAt(0).getCharacters();
-					int pos = casNumber.lastIndexOf("/");
-					casNumber = casNumber.substring(pos + 1);
-				}
-			}
-		}
-
-		return casNumber;
 	}
 
 	/**
@@ -682,8 +621,8 @@ class PrimaryModelParser {
 		// time series cells
 		String combaseID = model.getId();
 		PmmXmlDoc organismCell = ReaderUtils.parseSpecies(listOfSpecies);
-		PmmXmlDoc matrixCell = ReaderUtils
-				.parseCompartments(listOfCompartments);
+		Matrix matrix = new Matrix(listOfCompartments.get(0));
+		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 		PmmXmlDoc miscCell = new PmmXmlDoc();
 
@@ -876,8 +815,8 @@ class TertiaryModelParser {
 		// time series cells
 		String combaseID = model.getId();
 		PmmXmlDoc organismCell = ReaderUtils.parseSpecies(listOfSpecies);
-		PmmXmlDoc matrixCell = ReaderUtils
-				.parseCompartments(listOfCompartments);
+		Matrix matrix = new Matrix(listOfCompartments.get(0));
+		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 		PmmXmlDoc miscCell = new PmmXmlDoc();
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,

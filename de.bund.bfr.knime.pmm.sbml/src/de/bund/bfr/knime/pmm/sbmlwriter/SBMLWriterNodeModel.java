@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -327,25 +328,17 @@ abstract class TableReader {
 	 * Get units from the parameters (dep, indep and consts), get their data
 	 * from DB and return them.
 	 */
-
-	public ListOf<UnitDefinition> getUnits(DepXml depXml,
-			List<PmmXmlElementConvertable> indepParams,
+	public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
 			List<PmmXmlElementConvertable> constParams) {
-		// Maps every unit name with its original unit
-		HashMap<String, String> origUnits = new HashMap<>();
 
-		origUnits.put(depXml.getUnit(), depXml.getOrigName());
-
-		for (PmmXmlElementConvertable pmmXmlElem : indepParams) {
-			IndepXml indep = (IndepXml) pmmXmlElem;
-			origUnits.put(indep.getUnit(), indep.getOrigName());
-		}
-
-		for (PmmXmlElementConvertable pmmXmlElem : constParams) {
-			ParamXml constant = (ParamXml) pmmXmlElem;
-			String constantUnit = constant.getUnit();
-			if (constantUnit != null) {
-				origUnits.put(constant.getUnit(), constant.getOrigName());
+		// get unit names
+		HashSet<String> units = new HashSet<>();
+		units.add(dep.getUnit());
+		units.add(indep.getUnit());
+		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
+			ParamXml param = (ParamXml) pmmXmlElement;
+			if (param.getUnit() != null) {
+				units.add(param.getUnit());
 			}
 		}
 
@@ -361,15 +354,14 @@ abstract class TableReader {
 		}
 
 		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
-		for (Entry<String, String> entry : origUnits.entrySet()) {
-			String dbUnitName = entry.getKey();
-			String origUnitName = entry.getValue();
-			UnitsFromDB dbUnit = map.get(dbUnitName);
+		for (String unit : units) {
+			UnitsFromDB dbUnit = map.get(unit);
 			if (dbUnit != null) {
 				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
 						.xmlToUnitDefinition(dbUnit.getMathML_string());
 				UnitDefinition ud = wrapper.getUnitDefinition();
-				ud.setId(origUnitName);
+				ud.setId(createId(unit));
+				ud.setName(unit);
 				unitDefs.add(ud);
 			}
 		}
@@ -469,39 +461,34 @@ abstract class TableReader {
 		species.setCompartment(compartment); // compartment
 		species.setBoundaryCondition(false); // boundaryCondition
 		species.setConstant(false); // constant
-		species.setUnits(unit); // substanceUnits
+		species.setUnits(createId(unit)); // substanceUnits
 
 		return species;
 	}
 
-	protected List<Parameter> createIndependentParameter(
-			final List<PmmXmlElementConvertable> params) {
-		List<Parameter> indeps = new ArrayList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			IndepXml indepXml = (IndepXml) pmmParam;
+	protected Parameter createIndependentParameter(final IndepXml indep) {
+		String name = indep.getName();
+		String unit = indep.getUnit();
 
-			String name = indepXml.getName();
-			String unit = indepXml.getOrigName();
+		Parameter param = new Parameter(name);
+		param.setValue(0.0);
+		param.setConstant(false);
+		param.setUnits(createId(unit));
 
-			Parameter p = new Parameter(name);
-			p.setValue(0.0);
-			p.setConstant(false);
-			p.setUnits(unit);
-			indeps.add(p);
-		}
-		return indeps;
+		return param;
 	}
 
 	protected List<Parameter> createConstantParameters(
 			final List<PmmXmlElementConvertable> params) {
 		List<Parameter> consts = new ArrayList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
-			ParamXml paramXml = (ParamXml) pmmParam;
+			ParamXml xml = (ParamXml) pmmParam;
 
-			String name = paramXml.getName();
-			String unit = paramXml.getOrigName();
+			String name = xml.getName();
+			String unit = (xml.getUnit() == null) ? "dimensionless" : xml
+					.getUnit();
 
-			Double value = paramXml.getValue();
+			Double value = xml.getValue();
 			if (value == null) {
 				value = 0.0;
 			}
@@ -509,7 +496,7 @@ abstract class TableReader {
 			Parameter p = new Parameter(name);
 			p.setValue(value);
 			p.setConstant(true);
-			p.setUnits(unit);
+			p.setUnits(createId(unit));
 			consts.add(p);
 		}
 		return consts;
@@ -678,6 +665,8 @@ class PrimaryTableReader extends TableReader {
 				Model1Schema.ATT_ESTMODEL).get(0);
 		DepXml depXml = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
 				.get(0);
+		IndepXml indep = (IndepXml) tuple.getPmmXml(
+				Model1Schema.ATT_INDEPENDENT).get(0);
 		AgentXml organismXml = (AgentXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
@@ -700,7 +689,12 @@ class PrimaryTableReader extends TableReader {
 
 		// Annotation
 		String modelTitle = modelXml.getName();
-		int modelClassNum = modelXml.getModelClass();
+		int modelClassNum;
+		if (modelXml.getModelClass() == null) {
+			modelClassNum = SBMLUtil.CLASS_TO_INT.get("unknown");
+		} else {
+			modelClassNum = modelXml.getModelClass();
+		}
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Add model annotations
@@ -723,29 +717,19 @@ class PrimaryTableReader extends TableReader {
 		String depName = depXml.getOrigName();
 		String depUnit = depXml.getUnit();
 
-		// Parse independent parameters
-		List<PmmXmlElementConvertable> indepParams = tuple.getPmmXml(
-				Model1Schema.ATT_INDEPENDENT).getElementSet();
-
-		// Add constraints
-		for (PmmXmlElementConvertable item : indepParams) {
-			IndepXml indep = (IndepXml) item;
-			String name = indep.getName();
-			if (!name.isEmpty()) {
-				Double min = indep.getMin();
-				Double max = indep.getMax();
-				LimitsConstraint lc = new LimitsConstraint(name, min, max);
-				if (lc.getConstraint() != null) {
-					model.addConstraint(lc.getConstraint());
-				}
+		// Add indep constraint
+		if (!indep.getName().isEmpty()) {
+			Double min = indep.getMin();
+			Double max = indep.getMax();
+			LimitsConstraint lc = new LimitsConstraint(indep.getName(), min,
+					max);
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
 			}
 		}
 
-		// Add independent parameters
-		List<Parameter> indeps = createIndependentParameter(indepParams);
-		for (Parameter param : indeps) {
-			model.addParameter(param);
-		}
+		// Add independent parameter
+		model.addParameter(createIndependentParameter(indep));
 
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
@@ -769,8 +753,7 @@ class PrimaryTableReader extends TableReader {
 			model.addParameter(param);
 		}
 
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indepParams,
-				constParams);
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
@@ -823,6 +806,8 @@ class TertiaryTableReader extends TableReader {
 				Model1Schema.ATT_ESTMODEL).get(0);
 		DepXml depXml = (DepXml) firstTuple.getPmmXml(
 				Model1Schema.ATT_DEPENDENT).get(0);
+		IndepXml indep = (IndepXml) firstTuple.getPmmXml(
+				Model1Schema.ATT_INDEPENDENT).get(0);
 		AgentXml organismXml = (AgentXml) firstTuple.getPmmXml(
 				TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) firstTuple.getPmmXml(
@@ -874,28 +859,19 @@ class TertiaryTableReader extends TableReader {
 		String depName = depXml.getOrigName();
 		String depUnit = depXml.getUnit();
 
-		// Parse independent params
-		List<PmmXmlElementConvertable> indepParams = firstTuple.getPmmXml(
-				Model1Schema.ATT_INDEPENDENT).getElementSet();
-
-		// Add constraints
-		for (PmmXmlElementConvertable item : indepParams) {
-			IndepXml indep = (IndepXml) item;
-			String name = indep.getName();
-			if (!name.isEmpty()) {
-				Double min = indep.getMin();
-				Double max = indep.getMax();
-				LimitsConstraint lc = new LimitsConstraint(name, min, max);
-				if (lc.getConstraint() != null) {
-					model.addConstraint(lc.getConstraint());
-				}
+		// Add indep constraint
+		if (!indep.getName().isEmpty()) {
+			Double min = indep.getMin();
+			Double max = indep.getMax();
+			LimitsConstraint lc = new LimitsConstraint(indep.getName(), min,
+					max);
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
 			}
 		}
-		// Add independent parameters
-		List<Parameter> indeps = createIndependentParameter(indepParams);
-		for (Parameter param : indeps) {
-			model.addParameter(param);
-		}
+
+		// Add independent parameter
+		model.addParameter(createIndependentParameter(indep));
 
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = firstTuple.getPmmXml(
@@ -921,8 +897,7 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		// Add units
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indepParams,
-				constParams);
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
@@ -938,8 +913,9 @@ class TertiaryTableReader extends TableReader {
 					Model2Schema.ATT_MODELCATALOG).get(0);
 			DepXml secDepXml = (DepXml) firstTuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0);
-			List<PmmXmlElementConvertable> secIndepsXml = tuple.getPmmXml(
-					Model2Schema.ATT_INDEPENDENT).getElementSet();
+			// Remove list of indeps above
+			IndepXml secIndep = (IndepXml) tuple.getPmmXml(
+					Model2Schema.ATT_INDEPENDENT).get(0);
 			List<PmmXmlElementConvertable> secConstParams = tuple.getPmmXml(
 					Model2Schema.ATT_PARAMETER).getElementSet();
 
@@ -949,7 +925,7 @@ class TertiaryTableReader extends TableReader {
 			modelDefinition.setName(secModelXml.getName());
 
 			// Add units
-			unitDefs = getUnits(secDepXml, secIndepsXml, secConstParams);
+			unitDefs = getUnits(secDepXml, secIndep, secConstParams);
 			modelDefinition.setListOfUnitDefinitions(unitDefs);
 
 			// Add dep from sec
@@ -959,11 +935,8 @@ class TertiaryTableReader extends TableReader {
 			secDep.setUnits(secDepXml.getOrigName());
 			modelDefinition.addParameter(secDep);
 
-			// Add indeps
-			List<Parameter> secIndeps = createIndependentParameter(secIndepsXml);
-			for (Parameter param : secIndeps) {
-				modelDefinition.addParameter(param);
-			}
+			// Add indep from sec
+			modelDefinition.addParameter(createIndependentParameter(secIndep));
 
 			// Add constant parameters
 			List<Parameter> secConsts = createConstantParameters(secConstParams);

@@ -395,17 +395,18 @@ class ReaderUtils {
 			final Map<String, UnitsFromDB> units,
 			final Map<String, Limits> limits) {
 		String origUnit = species.getUnits(); // unit name
+		String description = ""; // param description
+
 		// original unit used in SBML doc
 		UnitsFromDB dbUnit = units.get(origUnit);
 
 		// Retrieve unit data from dbUnit
 		String category = dbUnit.getKind_of_property_quantity();
 		String unit = dbUnit.getDisplay_in_GUI_as();
-		String description = "";
 
 		DepXml dep = new DepXml("Value", origUnit, category, unit, description);
 		// Get limits
-		if (limits.containsKey(origUnit)) {
+		if (limits.containsKey("Value")) {
 			Limits depLimits = limits.get(origUnit);
 			dep.setMax(depLimits.getMax());
 			dep.setMin(depLimits.getMin());
@@ -447,7 +448,6 @@ class ReaderUtils {
 				Double min = null, max = null;
 
 				IndepXml indep = new IndepXml(name, min, max, category, unit);
-				indep.setOrigName(origUnit);
 				indep.setDescription(description);
 				// Get limits
 				String paramName = param.getId();
@@ -495,7 +495,6 @@ class ReaderUtils {
 				ParamXml paramXml = new ParamXml(id, value);
 				paramXml.setCategory(category);
 				paramXml.setUnit(unit);
-				paramXml.setOrigName(origUnit);
 				paramXml.setDescription(description);
 
 				// Get limits

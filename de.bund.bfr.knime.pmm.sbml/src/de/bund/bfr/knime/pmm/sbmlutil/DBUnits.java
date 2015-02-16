@@ -26,8 +26,8 @@ public class DBUnits {
 			Integer id = entry.getKey();
 			String math = entry.getValue().getMathML_string();
 			if (!math.isEmpty()) {
-				UnitDefinition ud = SBMLUtil.fromXml(math);
-				unitDefs.put(id, ud);
+				UnitDefinitionWrapper ud = UnitDefinitionWrapper.xmlToUnitDefinition(math);
+				unitDefs.put(id, ud.getUnitDefinition());
 			}
 		}
 	}

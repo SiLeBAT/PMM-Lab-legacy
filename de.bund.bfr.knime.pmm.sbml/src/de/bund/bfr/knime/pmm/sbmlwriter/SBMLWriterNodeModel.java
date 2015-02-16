@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -107,6 +106,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
+import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 
 /**
  * This is the model implementation of SBMLWriter.
@@ -325,13 +325,12 @@ abstract class TableReader {
 
 	/*
 	 * Get units from the parameters (dep, indep and consts), get their data
-	 * from DB and add them to the model.
+	 * from DB and return them.
 	 */
+
 	public ListOf<UnitDefinition> getUnits(DepXml depXml,
 			List<PmmXmlElementConvertable> indepParams,
 			List<PmmXmlElementConvertable> constParams) {
-		// Get unit names and orig units
-		HashSet<String> unitNames = new HashSet<>();
 		// Maps every unit name with its original unit
 		HashMap<String, String> origUnits = new HashMap<>();
 
@@ -361,21 +360,21 @@ abstract class TableReader {
 			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
 		}
 
-		ListOf<UnitDefinition> unitDefinitions = new ListOf<>();
-
+		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
 		for (Entry<String, String> entry : origUnits.entrySet()) {
 			String dbUnitName = entry.getKey();
 			String origUnitName = entry.getValue();
 			UnitsFromDB dbUnit = map.get(dbUnitName);
 			if (dbUnit != null) {
-				UnitDefinition unitDef = SBMLUtil.fromXml(dbUnit
-						.getMathML_string());
-				unitDef.setId(origUnitName);
-				unitDefinitions.add(unitDef);
+				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
+						.xmlToUnitDefinition(dbUnit.getMathML_string());
+				UnitDefinition ud = wrapper.getUnitDefinition();
+				ud.setId(origUnitName);
+				unitDefs.add(ud);
 			}
 		}
 
-		return unitDefinitions;
+		return unitDefs;
 	}
 
 	protected static void renameLog(KnimeTuple tuple) {
@@ -466,9 +465,11 @@ abstract class TableReader {
 		}
 
 		Species species = new Species(speciesId);
-		species.setName(speciesName);
-		species.setCompartment(compartment);
-		species.setUnits(unit);
+		species.setName(speciesName); // name
+		species.setCompartment(compartment); // compartment
+		species.setBoundaryCondition(false); // boundaryCondition
+		species.setConstant(false); // constant
+		species.setUnits(unit); // substanceUnits
 
 		return species;
 	}
@@ -703,7 +704,8 @@ class PrimaryTableReader extends TableReader {
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Add model annotations
-		Annotation annot = createModelAnnotation(modelId, modelTitle, qualityTags);
+		Annotation annot = createModelAnnotation(modelId, modelTitle,
+				qualityTags);
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
@@ -853,7 +855,8 @@ class TertiaryTableReader extends TableReader {
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Add model annotations
-		Annotation annot = createModelAnnotation(modelId, modelTitle, qualityTags);
+		Annotation annot = createModelAnnotation(modelId, modelTitle,
+				qualityTags);
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model

@@ -48,6 +48,7 @@ public class Matrix {
 		
 		Compartment compartment = new Compartment(id);
 		compartment.setName(name);
+		compartment.setConstant(true);
 		Matrix matrix = new Matrix(compartment);
 		return matrix;
 	}

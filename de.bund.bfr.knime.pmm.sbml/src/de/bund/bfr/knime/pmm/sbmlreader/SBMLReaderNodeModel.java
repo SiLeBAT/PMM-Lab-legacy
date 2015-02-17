@@ -12,7 +12,6 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -25,12 +24,10 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.AssignmentRule;
-import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
-import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Species;
@@ -41,7 +38,6 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -64,6 +60,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.Organism;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -303,13 +300,7 @@ class ReaderUtils {
 		Map<String, String> annotations = new HashMap<>();
 
 		// Search metadata container
-		XMLNode metadata = null;
-		for (XMLNode node : annot.getChildElements("", "")) {
-			if (node.getName().equals("metadata")) {
-				metadata = node;
-				break;
-			}
-		}
+		XMLNode metadata = annot.getChildElement("metadata", "");
 
 		// Parse metadata container
 		if (metadata != null) {
@@ -335,59 +326,6 @@ class ReaderUtils {
 		}
 
 		return annotations;
-	}
-
-	/**
-	 * Parse an SBML ListOfSpecies and return a PmmXmlDoc.
-	 * 
-	 * @param species
-	 *            : List of species.
-	 */
-	public static PmmXmlDoc parseSpecies(final ListOf<Species> species) {
-		PmmXmlDoc speciesDoc = new PmmXmlDoc();
-		for (Species specie : species) {
-			Integer speciesId = null;
-			String speciesName = "";
-
-			// Process annotation
-			XMLNode nonRDFAnnot = specie.getAnnotation().getNonRDFannotation();
-			if (nonRDFAnnot != null) {
-				String casNumber = ReaderUtils
-						.parseSpeciesAnnotation(nonRDFAnnot);
-				speciesId = (Integer) DBKernel.getValue("Agenzien",
-						"CAS_Nummer", casNumber, "ID");
-				speciesName = (String) DBKernel.getValue("Agenzien",
-						"CAS_Nummer", casNumber, "Agensname");
-			}
-			AgentXml agentXml = new AgentXml(speciesId, speciesName, "");
-			speciesDoc.add(agentXml);
-		}
-		return speciesDoc;
-	}
-
-	public static String parseSpeciesAnnotation(XMLNode annot) {
-		// Search metadata container
-		XMLNode metadata = null;
-		for (XMLNode node : annot.getChildElements("", "")) {
-			if (node.getName().equals("metadata")) {
-				metadata = node;
-				break;
-			}
-		}
-
-		String casNumber = null;
-		// Parse metadata container
-		if (metadata != null) {
-			for (XMLNode node : metadata.getChildElements("", "")) {
-				if (node.getName().equals("source")) {
-					casNumber = node.getChildAt(0).getCharacters();
-					int pos = casNumber.lastIndexOf("/");
-					casNumber = casNumber.substring(pos + 1);
-				}
-			}
-		}
-
-		return casNumber;
 	}
 
 	// Create dependent variable
@@ -586,11 +524,7 @@ class PrimaryModelParser {
 
 	public static KnimeTuple parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
-		ListOf<Compartment> listOfCompartments = model.getListOfCompartments();
-		ListOf<Species> listOfSpecies = model.getListOfSpecies();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
-		ListOf<Rule> listOfRules = model.getListOfRules();
-		AssignmentRule assignmentRule = (AssignmentRule) listOfRules.get(0);
 		Set<UnitDefinition> unitDefs = new HashSet<>(
 				model.getListOfUnitDefinitions());
 
@@ -604,7 +538,7 @@ class PrimaryModelParser {
 			annotations = ReaderUtils.parseAnnotation(modelAnnotation);
 		}
 
-		Model1Rule rule = new Model1Rule(assignmentRule);
+		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
 
 		// // Get reference
@@ -619,8 +553,9 @@ class PrimaryModelParser {
 
 		// time series cells
 		String combaseID = model.getId();
-		PmmXmlDoc organismCell = ReaderUtils.parseSpecies(listOfSpecies);
-		Matrix matrix = new Matrix(listOfCompartments.get(0));
+		Organism organism = new Organism(model.getSpecies(0));
+		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
+		Matrix matrix = new Matrix(model.getCompartment(0));
 		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 		PmmXmlDoc miscCell = new PmmXmlDoc();
@@ -637,7 +572,7 @@ class PrimaryModelParser {
 		// variable)
 		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
 				.getListOfUnitDefinitions());
-		PmmXmlDoc depCell = ReaderUtils.parseDep(listOfSpecies.get(0), units,
+		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
 		PmmXmlDoc indepCell = ReaderUtils.parseIndeps(listOfParameters, units,
 				limits);
@@ -777,12 +712,7 @@ class TertiaryModelParser {
 	
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
-		ListOf<Compartment> listOfCompartments = model.getListOfCompartments();
-		ListOf<Species> listOfSpecies = model.getListOfSpecies();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
-		ListOf<Rule> listOfRules = model.getListOfRules();
-		AssignmentRule assignmentRule = (AssignmentRule) listOfRules.get(0);
-
 		DBUnits dbUnits = new DBUnits();
 
 		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) doc
@@ -813,8 +743,10 @@ class TertiaryModelParser {
 
 		// time series cells
 		String combaseID = model.getId();
-		PmmXmlDoc organismCell = ReaderUtils.parseSpecies(listOfSpecies);
-		Matrix matrix = new Matrix(listOfCompartments.get(0));
+		Organism organism = new Organism(model.getSpecies(0));
+		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
+		
+		Matrix matrix = new Matrix(model.getCompartment(0));
 		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 		PmmXmlDoc miscCell = new PmmXmlDoc();
@@ -824,7 +756,7 @@ class TertiaryModelParser {
 		String mdDBUID = "?";
 
 		// primary model cells
-		Model1Rule rule1 = new Model1Rule(assignmentRule);
+		Model1Rule rule1 = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule1.toCatModel();
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
 
@@ -833,7 +765,7 @@ class TertiaryModelParser {
 
 		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
 				.getListOfUnitDefinitions());
-		PmmXmlDoc depCell = ReaderUtils.parseDep(listOfSpecies.get(0), units,
+		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
 		PmmXmlDoc indepCell = ReaderUtils.parseIndeps(listOfParameters, units,
 				limits);
@@ -853,17 +785,14 @@ class TertiaryModelParser {
 
 		for (ModelDefinition secModel : modelDefinitions) {
 			ListOf<Parameter> secParams = secModel.getListOfParameters();
-			ListOf<Rule> secRules = secModel.getListOfRules();
-			AssignmentRule secAssignmentRule = (AssignmentRule) secRules.get(0);
-			String depName = secAssignmentRule.getVariable();
-
+			
 			// Parse constraints
 			ListOf<Constraint> secConstraints = secModel.getListOfConstraints();
 			Map<String, Limits> secLimits = ReaderUtils
 					.parseConstraints(secConstraints);
 
 			// secondary model columns (19-27)
-			Model2Rule rule2 = new Model2Rule(secAssignmentRule);
+			Model2Rule rule2 = new Model2Rule((AssignmentRule) secModel.getRule(0));
 			CatalogModelXml catModelSec = rule2.toCatModel();
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
 
@@ -877,8 +806,9 @@ class TertiaryModelParser {
 				unitDefs.add(ud);
 			}
 
-			PmmXmlDoc dependentSecCell = parseSecDep(secAssignmentRule,
+			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule(),
 					secParams, units, secLimits);
+			String depName = rule2.getRule().getVariable();
 			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams,
 					units, secLimits);
 			PmmXmlDoc parameterSecCell = ReaderUtils.parseConsts(secParams,

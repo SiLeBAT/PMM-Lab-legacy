@@ -106,6 +106,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.Organism;
 import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 
@@ -432,40 +433,6 @@ abstract class TableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	/**
-	 * Create a species element with a name and add it to the compartment
-	 * passed. If the name is null then the species will be assigned
-	 * SPECIES_MISSING. This species element will not be assigned to the model.
-	 * 
-	 * @param: name
-	 * @param: comparment
-	 * 
-	 * @return: species
-	 */
-	protected Species createSpecies(final String name, final String unit,
-			final Compartment compartment) {
-		final String SPECIES_MISSING = "SpeciesMissing";
-		String speciesId;
-		String speciesName;
-
-		if (name == null) {
-			speciesId = SPECIES_MISSING;
-			speciesName = SPECIES_MISSING;
-		} else {
-			speciesId = createId(name);
-			speciesName = name;
-		}
-
-		Species species = new Species(speciesId);
-		species.setName(speciesName); // name
-		species.setCompartment(compartment); // compartment
-		species.setBoundaryCondition(false); // boundaryCondition
-		species.setConstant(false); // constant
-		species.setUnits(createId(unit)); // substanceUnits
-
-		return species;
-	}
-
 	protected Parameter createIndependentParameter(final IndepXml indep) {
 		String name = indep.getName();
 		String unit = indep.getUnit();
@@ -607,14 +574,16 @@ abstract class TableReader {
 	static Map<String, String> parseQualityTags(EstModelXml estModel) {
 		Map<String, String> qualityTags = new HashMap<>();
 
-		String targetField = estModel.getName();
-		if (targetField != null) {
-			qualityTags.put("targetField", targetField);
-		}
-
 		String dataUsage = estModel.getComment();
 		if (dataUsage != null) {
 			qualityTags.put("dataUsage", dataUsage);
+		}
+		
+		String dataName = estModel.getName();
+		if (dataUsage != null) {
+			qualityTags.put("dataName", dataName );
+		} else {
+			qualityTags.put("dataName", "Missing data name");
 		}
 
 		Double r2 = estModel.getR2();
@@ -630,6 +599,16 @@ abstract class TableReader {
 		Double sse = estModel.getSse();
 		if (sse != null) {
 			qualityTags.put("sumSquaredError", sse.toString());
+		}
+		
+		Double aic = estModel.getAic();
+		if (aic != null) {
+			qualityTags.put("AIC", aic.toString());
+		}
+		
+		Double bic = estModel.getBic();
+		if (bic != null) {
+			qualityTags.put("BIC", bic.toString());
 		}
 
 		Integer dof = estModel.getDof();
@@ -689,12 +668,6 @@ class PrimaryTableReader extends TableReader {
 
 		// Annotation
 		String modelTitle = modelXml.getName();
-		int modelClassNum;
-		if (modelXml.getModelClass() == null) {
-			modelClassNum = SBMLUtil.CLASS_TO_INT.get("unknown");
-		} else {
-			modelClassNum = modelXml.getModelClass();
-		}
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Add model annotations
@@ -708,9 +681,8 @@ class PrimaryTableReader extends TableReader {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(),
-				c);
-		model.addSpecies(specie);
+		Organism organims = Organism.convertAgentXmlToOrganism(organismXml, depXml.getUnit(), c);
+		model.addSpecies(organims.getSpecies());
 
 		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
 
@@ -850,9 +822,8 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Species specie = createSpecies(organismXml.getName(), depXml.getUnit(),
-				compartment);
-		model.addSpecies(specie);
+		Organism organism = Organism.convertAgentXmlToOrganism(organismXml, depXml.getUnit(), compartment);
+		model.addSpecies(organism.getSpecies());
 
 		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
 

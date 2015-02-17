@@ -12,7 +12,7 @@ public class ModelNameNode {
 	private XMLNode node;
 
 	public ModelNameNode(String modelClass) {
-		XMLTriple triple = new XMLTriple("modelName", null, "pmml");
+		XMLTriple triple = new XMLTriple("formulaName", null, "pmml");
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(modelClass));
 	}

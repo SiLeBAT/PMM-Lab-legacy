@@ -50,21 +50,16 @@ public class Model1Rule extends ModelRule {
 		String formulaName = null;
 		int type = SBMLUtil.CLASS_TO_INT.get("unknown"); // model class
 		XMLNode nonRDFAnnot = rule.getAnnotation().getNonRDFannotation();
-		XMLNode metadata = null;
-		for (XMLNode node : nonRDFAnnot.getChildElements("", "")) {
-			if (node.getName().equals("metadata")) {
-				metadata = node;
-				break;
-			}
-		}
+		XMLNode metadata = nonRDFAnnot.getChildElement("metadata", "");
 
-		for (XMLNode node : metadata.getChildElements("", "")) {
-			if (node.getName().equals("formulaName")) {
-				formulaName = node.getChildAt(0).getCharacters();
-			} else if (node.getName().equals("subject")) {
-				String classString = node.getChildAt(0).getCharacters();
-				type = SBMLUtil.CLASS_TO_INT.get(classString);
-			}
+		// the formula name node is mandatory
+		XMLNode formulaNameNode = metadata.getChildElement("formulaName", "");
+		formulaName = formulaNameNode.getChildAt(0).getCharacters();
+		
+		XMLNode subjectNode = metadata.getChildElement("subject", "");
+		if (subjectNode != null) {
+			String classString = subjectNode.getChildAt(0).getCharacters();
+			type = SBMLUtil.CLASS_TO_INT.get(classString);
 		}
 
 		CatalogModelXml catModel = new CatalogModelXml(null, formulaName,

@@ -70,7 +70,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
-      <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.xml"/>
       <import plugin="org.knime.ext.poi"/>
    </requires>
@@ -269,6 +268,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="net.sf.jabref"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.math3"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

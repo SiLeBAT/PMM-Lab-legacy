@@ -22,9 +22,9 @@ import org.knime.core.node.NodeSettingsWO;
 public class PdfKeeperNodeModel extends NodeModel {
     
 	static final String PDF_FILE = "pdffile";
-	static final String PDF_BYTES = "pdfbytes";
+	static final String PDF_BYTES = "pdfbytes2";
     private String fileName = null;
-    private byte[] fileBytes = null;
+    private String fileBytes = null;
 
 	/**
      * Constructor for the node model.
@@ -64,7 +64,7 @@ public class PdfKeeperNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
     	settings.addString(PDF_FILE, fileName);
-    	settings.addByteArray(PDF_BYTES, fileBytes);
+    	settings.addString(PDF_BYTES, fileBytes);
     }
 
     /**
@@ -74,7 +74,7 @@ public class PdfKeeperNodeModel extends NodeModel {
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
     	if (settings.containsKey(PdfKeeperNodeModel.PDF_FILE)) fileName = settings.getString(PDF_FILE);
-    	if (settings.containsKey(PdfKeeperNodeModel.PDF_BYTES)) fileBytes = settings.getByteArray(PDF_BYTES);
+    	if (settings.containsKey(PdfKeeperNodeModel.PDF_BYTES)) fileBytes = settings.getString(PDF_BYTES);
     }
 
     /**

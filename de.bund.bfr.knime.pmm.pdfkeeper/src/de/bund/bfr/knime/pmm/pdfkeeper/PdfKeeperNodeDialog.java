@@ -24,6 +24,9 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 /**
  * <code>NodeDialog</code> for the "PdfKeeper" Node.
@@ -38,7 +41,7 @@ import org.knime.core.node.NotConfigurableException;
 public class PdfKeeperNodeDialog extends NodeDialogPane {
 
     private String fileName = null;
-    private byte[] fileBytes = null;
+    private String fileBytes = null;
     private JLabel tFileName;
 
 	/**
@@ -65,7 +68,7 @@ public class PdfKeeperNodeDialog extends NodeDialogPane {
 			    	fileBytes = null;
 			    	Path path = Paths.get(f.getAbsolutePath());
 					try {
-						fileBytes = Files.readAllBytes(path);
+						fileBytes = Base64.encode(Files.readAllBytes(path));
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}			
@@ -110,7 +113,7 @@ public class PdfKeeperNodeDialog extends NodeDialogPane {
 									}
 									pathname = tmpFolder + fileName;
 									out = new FileOutputStream(pathname);
-									out.write(fileBytes);
+									out.write(Base64.decode(fileBytes));
 								} finally {
 									if (out != null) {
 										out.close();
@@ -138,7 +141,7 @@ public class PdfKeeperNodeDialog extends NodeDialogPane {
     	try {
     		if (settings.containsKey(PdfKeeperNodeModel.PDF_FILE)) fileName = settings.getString(PdfKeeperNodeModel.PDF_FILE);
     		tFileName.setText(fileName);
-	    	if (settings.containsKey(PdfKeeperNodeModel.PDF_BYTES)) fileBytes = settings.getByteArray(PdfKeeperNodeModel.PDF_BYTES);
+	    	if (settings.containsKey(PdfKeeperNodeModel.PDF_BYTES)) fileBytes = settings.getString(PdfKeeperNodeModel.PDF_BYTES);
 		} catch (InvalidSettingsException e) {
 			e.printStackTrace();
 		}
@@ -146,6 +149,6 @@ public class PdfKeeperNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		settings.addString(PdfKeeperNodeModel.PDF_FILE, fileName);
-		settings.addByteArray(PdfKeeperNodeModel.PDF_BYTES, fileBytes);
+		settings.addString(PdfKeeperNodeModel.PDF_BYTES, fileBytes);		
 	}
 }

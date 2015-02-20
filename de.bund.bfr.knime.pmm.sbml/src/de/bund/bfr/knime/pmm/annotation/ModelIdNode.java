@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlcommon;
+package de.bund.bfr.knime.pmm.annotation;
 
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;

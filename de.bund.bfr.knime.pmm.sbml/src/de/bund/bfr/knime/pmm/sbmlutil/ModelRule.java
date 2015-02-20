@@ -11,9 +11,9 @@ import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
+import de.bund.bfr.knime.pmm.annotation.ModelNameNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-import de.bund.bfr.knime.pmm.sbmlcommon.ModelClassNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.ModelNameNode;
 
 public abstract class ModelRule {
 	protected final static int LEVEL = 3;

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,10 +39,15 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 
+import com.sun.org.apache.xalan.internal.xsltc.dom.SAXImpl.NamespaceWildcardIterator;
+
+import sun.net.www.content.audio.wav;
+import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -303,9 +309,10 @@ class ReaderUtils {
 		XMLNode metadata = annot.getChildElement("metadata", "");
 
 		// Parse metadata container
-		if (metadata != null) {
+		if (metadata != null) {			
 			for (XMLNode node : metadata.getChildElements("", "")) {
 				String nodeName = node.getName();
+				System.out.println(nodeName);
 				if (!nodeName.isEmpty()) {
 					// Process uncertainty annotations
 					if (nodeName.equals("modelquality")) {
@@ -326,6 +333,28 @@ class ReaderUtils {
 		}
 
 		return annotations;
+	}
+	
+	/**
+	 * Parse references in a model annotation.
+	 * @param annot
+	 * @return
+	 */
+	public static List<LiteratureItem> parseLit(final XMLNode annot) {
+		List<LiteratureItem> lits = new LinkedList<>();
+		
+		// search metadata container
+		XMLNode metadata = annot.getChildElement("metadata", "");
+		
+		if (metadata != null) {
+			// Parse references
+			for (XMLNode ref : metadata.getChildElements("reference", "")) {
+				ReferenceNode node = new ReferenceNode(ref);
+				lits.add(node.toLiteratureItem());
+			}
+		}
+		
+		return lits;
 	}
 
 	// Create dependent variable
@@ -525,8 +554,6 @@ class PrimaryModelParser {
 	public static KnimeTuple parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
-		Set<UnitDefinition> unitDefs = new HashSet<>(
-				model.getListOfUnitDefinitions());
 
 		DBUnits dbUnits = new DBUnits();
 
@@ -540,12 +567,6 @@ class PrimaryModelParser {
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
-
-		// // Get reference
-		// String reference = "";
-		// if (annotations.containsKey("references")) {
-		// reference = annotations.get("references");
-		// }
 
 		// Parse constraints
 		ListOf<Constraint> constraints = model.getListOfConstraints();
@@ -584,7 +605,13 @@ class PrimaryModelParser {
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
+		
+		List<LiteratureItem> lits = ReaderUtils.parseLit(modelAnnotation);
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		for (LiteratureItem lit : lits) {
+			emLiteratureCell.add(lit);
+		}
+		
 		String mDBUID = "?";
 
 		// Add cells to the row
@@ -731,12 +758,6 @@ class TertiaryModelParser {
 			annotations = ReaderUtils.parseAnnotation(modelAnnotation);
 		}
 
-		// // Get reference
-		// String reference = "";
-		// if (annotations.containsKey("references")) {
-		// reference = annotations.get("references");
-		// }
-
 		// Parse constraints
 		ListOf<Constraint> constraints = model.getListOfConstraints();
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
@@ -777,7 +798,13 @@ class TertiaryModelParser {
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
+		
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		List<LiteratureItem> lits = ReaderUtils.parseLit(modelAnnotation);
+		for (LiteratureItem lit : lits) {
+			emLiteratureCell.add(lit);
+		}
+		
 		String mDBUID = "?";
 
 		final int condID = MathUtilities.getRandomNegativeInt();
@@ -820,7 +847,14 @@ class TertiaryModelParser {
 					null, 0));
 
 			PmmXmlDoc mLiteratureSecCell = new PmmXmlDoc();
+			
 			PmmXmlDoc emLiteratureSecCell = new PmmXmlDoc();
+			XMLNode secModelAnnotation = model.getAnnotation().getNonRDFannotation();
+			lits = ReaderUtils.parseLit(secModelAnnotation);
+			for (LiteratureItem lit : lits) {
+				emLiteratureSecCell.add(lit);
+			}
+			
 			String mDBUIDSEC = "?";
 
 			// Add cells to the row

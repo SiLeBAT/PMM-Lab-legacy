@@ -9,8 +9,8 @@ import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import de.bund.bfr.knime.pmm.annotation.OrganismNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.sbmlcommon.OrganismNode;
 
 public class Organism {
 	private Species species;

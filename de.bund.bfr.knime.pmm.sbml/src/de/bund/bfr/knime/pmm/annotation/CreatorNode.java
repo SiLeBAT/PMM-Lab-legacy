@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlcommon;
+package de.bund.bfr.knime.pmm.annotation;
 
 import java.util.Locale;
 

@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,10 +61,8 @@ import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
-import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLWriter;
-import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
@@ -74,6 +73,13 @@ import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import de.bund.bfr.knime.pmm.annotation.CreatedNode;
+import de.bund.bfr.knime.pmm.annotation.CreatorNode;
+import de.bund.bfr.knime.pmm.annotation.ModelIdNode;
+import de.bund.bfr.knime.pmm.annotation.ModelTitleNode;
+import de.bund.bfr.knime.pmm.annotation.ModifiedNode;
+import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
+import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -96,12 +102,6 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
-import de.bund.bfr.knime.pmm.sbmlcommon.CreatedNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.CreatorNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.ModelIdNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.ModelTitleNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.ModifiedNode;
-import de.bund.bfr.knime.pmm.sbmlcommon.UncertaintyNode;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
@@ -334,8 +334,10 @@ abstract class TableReader {
 
 		// get unit names
 		HashSet<String> units = new HashSet<>();
-		units.add(dep.getUnit());
-		units.add(indep.getUnit());
+		if (dep.getUnit() != null)
+			units.add(dep.getUnit());
+		if (indep.getUnit() != null)
+			units.add(indep.getUnit());
 		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
 			ParamXml param = (ParamXml) pmmXmlElement;
 			if (param.getUnit() != null) {
@@ -527,7 +529,8 @@ abstract class TableReader {
 	}
 
 	protected Annotation createModelAnnotation(String modelId,
-			String modelTitle, Map<String, String> uncertainties) {
+			String modelTitle, Map<String, String> uncertainties,
+			List<LiteratureItem> lits) {
 		Annotation annot = new Annotation();
 
 		// pmf container
@@ -557,6 +560,12 @@ abstract class TableReader {
 			pmfNode.addChild(uncertaintiesNode.getNode());
 		}
 
+		// add reference
+		for (LiteratureItem lit : lits) {
+			ReferenceNode ref = new ReferenceNode(lit);
+			pmfNode.addChild(ref.getNode());
+		}
+
 		// add non-rdf annotation
 		annot.setNonRDFAnnotation(pmfNode);
 		annot.addDeclaredNamespace("xmlns:pmf",
@@ -578,10 +587,10 @@ abstract class TableReader {
 		if (dataUsage != null) {
 			qualityTags.put("dataUsage", dataUsage);
 		}
-		
+
 		String dataName = estModel.getName();
 		if (dataUsage != null) {
-			qualityTags.put("dataName", dataName );
+			qualityTags.put("dataName", dataName);
 		} else {
 			qualityTags.put("dataName", "Missing data name");
 		}
@@ -600,12 +609,12 @@ abstract class TableReader {
 		if (sse != null) {
 			qualityTags.put("sumSquaredError", sse.toString());
 		}
-		
+
 		Double aic = estModel.getAic();
 		if (aic != null) {
 			qualityTags.put("AIC", aic.toString());
 		}
-		
+
 		Double bic = estModel.getBic();
 		if (bic != null) {
 			qualityTags.put("BIC", bic.toString());
@@ -650,10 +659,7 @@ class PrimaryTableReader extends TableReader {
 				TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_MATRIX).get(0);
-		LiteratureItem literatureXml = (LiteratureItem) tuple.getPmmXml(
-				Model1Schema.ATT_MLIT).get(0);
 		String modelId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
-		PmmXmlDoc units = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
 		// Enable Hierarchical Composition package
@@ -670,9 +676,18 @@ class PrimaryTableReader extends TableReader {
 		String modelTitle = modelXml.getName();
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
+		// Get literature references
+		List<PmmXmlElementConvertable> litItems = tuple.getPmmXml(
+				Model1Schema.ATT_EMLIT).getElementSet();
+		List<LiteratureItem> lits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : litItems) {
+			LiteratureItem lit = (LiteratureItem) item;
+			lits.add(lit);
+		}
+
 		// Add model annotations
 		Annotation annot = createModelAnnotation(modelId, modelTitle,
-				qualityTags);
+				qualityTags, lits);
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
@@ -681,10 +696,9 @@ class PrimaryTableReader extends TableReader {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Organism organims = Organism.convertAgentXmlToOrganism(organismXml, depXml.getUnit(), c);
+		Organism organims = Organism.convertAgentXmlToOrganism(organismXml,
+				depXml.getUnit(), c);
 		model.addSpecies(organims.getSpecies());
-
-		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
 
 		String depName = depXml.getOrigName();
 		String depUnit = depXml.getUnit();
@@ -731,9 +745,7 @@ class PrimaryTableReader extends TableReader {
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule
 				.convertCatalogModelXmlToModel1Rule(modelXml);
-		rules.add(model1Rule.getRule());
-		model.setListOfRules(rules);
-
+		model.addRule(model1Rule.getRule());
 		return doc;
 	}
 }
@@ -762,6 +774,29 @@ class TertiaryTableReader extends TableReader {
 		}
 	}
 
+	private Annotation createSecAnnotation(List<LiteratureItem> lits) {
+		Annotation annot = new Annotation();
+
+		// pmf container
+		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
+		XMLNamespaces pmfNS = new XMLNamespaces();
+		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+
+		// add reference
+		for (LiteratureItem lit : lits) {
+			ReferenceNode ref = new ReferenceNode(lit);
+			pmfNode.addChild(ref.getNode());
+		}
+
+		// add non-rdf annotation
+		annot.setNonRDFAnnotation(pmfNode);
+		annot.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+
+		return annot;
+	}
+
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
 			Map<String, String> docInfo) {
 		// modify formulas
@@ -784,8 +819,6 @@ class TertiaryTableReader extends TableReader {
 				TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) firstTuple.getPmmXml(
 				TimeSeriesSchema.ATT_MATRIX).get(0);
-		LiteratureItem literatureXml = (LiteratureItem) firstTuple.getPmmXml(
-				Model1Schema.ATT_MLIT).get(0);
 		String modelId = firstTuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
@@ -811,9 +844,18 @@ class TertiaryTableReader extends TableReader {
 		}
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
+		// Get literature references
+		List<PmmXmlElementConvertable> litItems = firstTuple.getPmmXml(
+				Model1Schema.ATT_EMLIT).getElementSet();
+		List<LiteratureItem> lits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : litItems) {
+			LiteratureItem lit = (LiteratureItem) item;
+			lits.add(lit);
+		}
+
 		// Add model annotations
 		Annotation annot = createModelAnnotation(modelId, modelTitle,
-				qualityTags);
+				qualityTags, lits);
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model
@@ -822,10 +864,9 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Organism organism = Organism.convertAgentXmlToOrganism(organismXml, depXml.getUnit(), compartment);
+		Organism organism = Organism.convertAgentXmlToOrganism(organismXml,
+				depXml.getUnit(), compartment);
 		model.addSpecies(organism.getSpecies());
-
-		ListOf<Rule> rules = new ListOf<>(LEVEL, VERSION);
 
 		String depName = depXml.getOrigName();
 		String depUnit = depXml.getUnit();
@@ -874,8 +915,7 @@ class TertiaryTableReader extends TableReader {
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule
 				.convertCatalogModelXmlToModel1Rule(modelXml);
-		rules.add(model1Rule.getRule());
-		model.setListOfRules(rules);
+		model.addRule(model1Rule.getRule());
 
 		// Add submodels and model definitions
 		int i = 0;
@@ -915,11 +955,20 @@ class TertiaryTableReader extends TableReader {
 				modelDefinition.addParameter(param);
 			}
 
-			ListOf<Rule> secRules = new ListOf<>(LEVEL, VERSION);
-			Model2Rule model2Rule = Model2Rule
+			// Get literature references
+			litItems = tuple.getPmmXml(Model2Schema.ATT_EMLIT).getElementSet();
+			lits = new LinkedList<>();
+			for (PmmXmlElementConvertable item : litItems) {
+				LiteratureItem lit = (LiteratureItem) item;
+				lits.add(lit);
+			}
+
+			// TODO: Add sec literature references
+			modelDefinition.setAnnotation(createSecAnnotation(lits));
+
+			Model2Rule rule2 = Model2Rule
 					.convertCatalogModelXmlToModel2Rule(secModelXml);
-			secRules.add(model2Rule.getRule());
-			modelDefinition.setListOfRules(secRules);
+			modelDefinition.addRule(rule2.getRule());
 
 			compDocPlugin.addModelDefinition(modelDefinition);
 

@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlcommon;
+package de.bund.bfr.knime.pmm.annotation;
 
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -8,11 +8,11 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author malba
  */
-public class ModelClassNode {
+public class ModelNameNode {
 	private XMLNode node;
 
-	public ModelClassNode(String modelClass) {
-		XMLTriple triple = new XMLTriple("type", null, "dc");
+	public ModelNameNode(String modelClass) {
+		XMLTriple triple = new XMLTriple("formulaName", null, "pmml");
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(modelClass));
 	}

@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +44,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -203,11 +206,37 @@ public class SBMLWriterNodeModel extends NodeModel {
 			documents = reader.getDocuments();
 		}
 
-		for (int i = 0; i < documents.size(); i++) {
-			String fileName = String.format("%s/%s_%d.sbml.xml",
-					outPath.getStringValue(), modelName.getStringValue(), i);
+		// If only one document then write a single file
+		if (documents.size() == 1) {
+			String fileName = String.format("%s/%s.sbml.xml",
+					outPath.getStringValue(), modelName.getStringValue());
 			File file = new File(fileName);
-			SBMLWriter.write(documents.get(i), file, "SBMLWriter Node", "1.0");
+			SBMLWriter.write(documents.get(0), file, "SBML Writer node", "1.0");
+		}
+
+		// If many documents then write them into a zip file
+		else if (documents.size() > 1) {
+			String zipName = String.format("%s/%s.zip",
+					outPath.getStringValue(), modelName.getStringValue());
+			ZipOutputStream os = new ZipOutputStream(new FileOutputStream(
+					zipName));
+
+			SBMLWriter writer = new SBMLWriter();
+			writer.setProgramName("SBML Writer node");
+			writer.setProgramVersion("1.0");
+
+			for (int i = 0; i < documents.size(); i++) {
+				String entryName = String.format("%s_%d.sbml.xml",
+						modelName.getStringValue(), i);
+				ZipEntry entry = new ZipEntry((entryName));
+				os.putNextEntry(entry);
+
+				String doc = writer.writeSBMLToString(documents.get(i));
+				os.write(doc.getBytes());
+				os.closeEntry();
+			}
+
+			os.close();
 		}
 
 		return new BufferedDataTable[] {};
@@ -743,8 +772,8 @@ class PrimaryTableReader extends TableReader {
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
-		Model1Rule model1Rule = Model1Rule
-				.convertCatalogModelXmlToModel1Rule(modelXml);
+		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
+				modelXml, organims.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
 		return doc;
 	}
@@ -914,7 +943,7 @@ class TertiaryTableReader extends TableReader {
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule
-				.convertCatalogModelXmlToModel1Rule(modelXml);
+				.convertCatalogModelXmlToModel1Rule(modelXml, organism.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
 
 		// Add submodels and model definitions

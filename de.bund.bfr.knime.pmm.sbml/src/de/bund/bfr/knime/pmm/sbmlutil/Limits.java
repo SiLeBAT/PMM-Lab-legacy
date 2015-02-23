@@ -20,11 +20,11 @@ public class Limits {
 		return var;
 	}
 
-	public double getMin() {
+	public Double getMin() {
 		return min;
 	}
 	
-	public double getMax() {
+	public Double getMax() {
 		return max;
 	}
 }

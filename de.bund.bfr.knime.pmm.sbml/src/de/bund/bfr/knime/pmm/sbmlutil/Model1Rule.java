@@ -14,7 +14,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
  */
 public class Model1Rule extends ModelRule {
 
-	public static Model1Rule convertCatalogModelXmlToModel1Rule(CatalogModelXml catModel) {
+	public static Model1Rule convertCatalogModelXmlToModel1Rule(CatalogModelXml catModel, final String var) {
 		int pos = catModel.getFormula().indexOf("=") + 1;
 		final String formula = catModel.getFormula().substring(pos);
 
@@ -22,7 +22,7 @@ public class Model1Rule extends ModelRule {
 		try {
 			ASTNode math = parseMath(formula);
 			assignmentRule = new AssignmentRule(math, LEVEL, VERSION);
-			assignmentRule.setVariable("Value");
+			assignmentRule.setVariable(var);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

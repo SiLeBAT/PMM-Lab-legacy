@@ -2,6 +2,8 @@ package de.bund.bfr.knime.pmm.sbmlreader;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -39,9 +43,6 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 
-import com.sun.org.apache.xalan.internal.xsltc.dom.SAXImpl.NamespaceWildcardIterator;
-
-import sun.net.www.content.audio.wav;
 import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -78,18 +79,23 @@ public class SBMLReaderNodeModel extends NodeModel {
 	// configuration keys
 	public static final String CFGKEY_FILE = "filename";
 	public static final String CFGKEY_FOLDER = "foldername";
+	public static final String CFGKEY_ZIP = "zipname";
+	
 	public static final String CFGKEY_SOURCE = "source";
 	public static final String CFGKEY_MODEL_TYPE = "modeltype";
 
 	// defaults for persistent state
 	private static final String DEFAULT_FILE = "c:/temp/foo.xml";
 	private static final String DEFAULT_FOLDER = "c:/temp";
+	private static final String DEFAULT_ZIP = "c:/temp/foo.zip";
+
 
 	// persistent state
 	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE,
 			DEFAULT_FILE);
 	private SettingsModelString folder = new SettingsModelString(CFGKEY_FOLDER,
 			DEFAULT_FOLDER);
+	private SettingsModelString zip = new SettingsModelString(CFGKEY_ZIP, DEFAULT_ZIP);
 	private SettingsModelString source = new SettingsModelString(CFGKEY_SOURCE,
 			"file");
 	private SettingsModelString modelType = new SettingsModelString(
@@ -113,8 +119,10 @@ public class SBMLReaderNodeModel extends NodeModel {
 		BufferedDataTable[] table = null;
 		if (source.getStringValue().equals("file")) {
 			table = parseSingleFile(exec);
-		} else {
+		} else if (source.getStringValue().equals("folder")) {
 			table = parseFolder(exec);
+		} else {
+			table = loadZip(exec);
 		}
 		return table;
 	}
@@ -142,6 +150,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		filename.saveSettingsTo(settings);
 		folder.saveSettingsTo(settings);
+		zip.saveSettingsTo(settings);
 		source.saveSettingsTo(settings);
 		modelType.saveSettingsTo(settings);
 	}
@@ -154,6 +163,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		filename.loadSettingsFrom(settings);
 		folder.loadSettingsFrom(settings);
+		zip.loadSettingsFrom(settings);
 		source.loadSettingsFrom(settings);
 		modelType.loadSettingsFrom(settings);
 	}
@@ -171,6 +181,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// Do not actually set any values of any member variables.
 		filename.validateSettings(settings);
 		folder.validateSettings(settings);
+		zip.validateSettings(settings);
 		source.validateSettings(settings);
 		modelType.validateSettings(settings);
 	}
@@ -289,6 +300,72 @@ public class SBMLReaderNodeModel extends NodeModel {
 		container.close();
 
 		BufferedDataTable[] table = { container.getTable() };
+		return table;
+	}
+	
+	private BufferedDataTable[] loadZip(final ExecutionContext exec) {
+		// create container with modelType
+		Boolean isTertiary = modelType.getStringValue().equals("tertiary");
+		KnimeSchema schema = isTertiary ? SchemaFactory.createM12DataSchema() : SchemaFactory.createM1DataSchema();
+		BufferedDataContainer container = exec.createDataContainer(schema.createSpec());
+		
+		// open zip
+		ZipInputStream zipFile = null;
+		try {
+			zipFile = new ZipInputStream(new FileInputStream(zip.getStringValue()));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		SBMLReader reader = new SBMLReader();
+
+		// add every entry
+		ZipEntry entry;
+		try {
+			while ((entry = zipFile.getNextEntry()) != null) {
+				// skip non xml files
+				if (!entry.getName().endsWith("xml"))
+					continue;
+				
+				StringBuilder s = new StringBuilder();
+				byte[] buffer = new byte[1024];
+				int read = 0;
+				while ((read = zipFile.read(buffer, 0, 1024)) >= 0) {
+					s.append(new String(buffer, 0, read));
+				}
+				
+				SBMLDocument doc = reader.readSBMLFromString(s.toString());
+				
+				CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc.getPlugin("comp");
+				Boolean isDocTertiary = plugin.getListOfModelDefinitions().size() > 0;
+				
+				if (isTertiary != isDocTertiary)
+					continue;
+				
+				if (isTertiary) {
+					List<KnimeTuple> tuples = TertiaryModelParser.parseDocument(doc);
+					for (KnimeTuple tuple : tuples) {
+						container.addRowToTable(tuple);
+					}
+				} else {
+					KnimeTuple tuple = PrimaryModelParser.parseDocument(doc);
+					container.addRowToTable(tuple);
+				}
+			}
+		} catch (IOException | XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			zipFile.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		container.close();
+		BufferedDataTable[] table = {container.getTable()};
 		return table;
 	}
 }

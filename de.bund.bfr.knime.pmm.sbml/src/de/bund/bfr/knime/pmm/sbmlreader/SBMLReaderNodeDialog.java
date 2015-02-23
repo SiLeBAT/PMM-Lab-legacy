@@ -1,7 +1,6 @@
 package de.bund.bfr.knime.pmm.sbmlreader;
 
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -23,58 +22,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * Author: Miguel de Alba Aparicio (malba@optimumquality.es)
  */
 
-interface SBMLReaderDlgState {
-	void switchState();
-
-	void showUi();
-}
-
-class FileState implements SBMLReaderDlgState {
-	SBMLReaderNodeDialog dlg;
-
-	public FileState(SBMLReaderNodeDialog dlg) {
-		this.dlg = dlg;
-	}
-
-	public void switchState() {
-		this.dlg.setState(this.dlg.getDirState());
-	}
-
-	public void showUi() {
-		dlg.getModelTypePanel().setVisible(false);
-		dlg.getFileChooserPanel().setVisible(true);
-		dlg.getFolderChooserPanel().setVisible(false);
-	}
-}
-
-class DirState implements SBMLReaderDlgState {
-	SBMLReaderNodeDialog dlg;
-
-	public DirState(SBMLReaderNodeDialog dlg) {
-		this.dlg = dlg;
-	}
-
-	public void switchState() {
-		this.dlg.setState(this.dlg.getFileState());
-	}
-
-	public void showUi() {
-		dlg.getModelTypePanel().setVisible(true);
-		dlg.getFileChooserPanel().setVisible(false);
-		dlg.getFolderChooserPanel().setVisible(true);
-	}
-}
-
 public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
-
-	SBMLReaderDlgState fileState;
-	SBMLReaderDlgState dirState;
-
-	SBMLReaderDlgState state; // current state
 
 	DialogComponentStringSelection modelTypeDlg;
 	DialogComponentFileChooser fileChooser;
 	DialogComponentFileChooser folderChooser;
+	DialogComponentFileChooser zipChooser;
 
 	/**
 	 * New pane for configuring SBMLReader node dialog. This is just a
@@ -83,11 +36,6 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 	protected SBMLReaderNodeDialog() {
 		super();
 
-		// Init states
-		fileState = new FileState(this);
-		dirState = new DirState(this);
-		state = fileState;
-		
 		// Set model strings
 		final SettingsModelString source = new SettingsModelString(
 				SBMLReaderNodeModel.CFGKEY_SOURCE, "file");
@@ -101,17 +49,37 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 				SBMLReaderNodeModel.CFGKEY_FOLDER, "");
 		folderName.setEnabled(true);
 
+		final SettingsModelString zipName = new SettingsModelString(
+				SBMLReaderNodeModel.CFGKEY_ZIP, "");
+		zipName.setEnabled(true);
+
 		// Create UI widgets
-		final String[] sourceOptions = { "file", "folder" };
+		final String[] sourceOptions = { "file", "folder", "zip" };
 		final DialogComponentButtonGroup sourceDlg = new DialogComponentButtonGroup(
 				source, false, "Source", sourceOptions);
 		sourceDlg
-				.setToolTipText("Choose whether to load one single file or a whole directory");
+				.setToolTipText("Choose whether to load one file, a directory or a zip file");
 		source.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				state.switchState();
-				state.showUi();
+				
+				String sourceVal = source.getStringValue();
+				if (sourceVal.equals("file")) {
+					modelTypeDlg.getComponentPanel().setVisible(false);
+					fileChooser.getComponentPanel().setVisible(true);
+					folderChooser.getComponentPanel().setVisible(false);
+					zipChooser.getComponentPanel().setVisible(false);
+				} else if (sourceVal.equals("folder")) {
+					modelTypeDlg.getComponentPanel().setVisible(true);
+					fileChooser.getComponentPanel().setVisible(false);
+					folderChooser.getComponentPanel().setVisible(true);
+					zipChooser.getComponentPanel().setVisible(false);
+				} else {
+					modelTypeDlg.getComponentPanel().setVisible(true);
+					fileChooser.getComponentPanel().setVisible(false);
+					folderChooser.getComponentPanel().setVisible(false);
+					zipChooser.getComponentPanel().setVisible(true);
+				}
 			}
 		});
 
@@ -126,39 +94,21 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 		folderChooser = new DialogComponentFileChooser(folderName,
 				"foldername-history", JFileChooser.OPEN_DIALOG, true);
 
+		zipChooser = new DialogComponentFileChooser(zipName, "zipname-history",
+				JFileChooser.OPEN_DIALOG, false);
+
 		// Add widgets
 		createNewGroup("Data Source");
 		addDialogComponent(sourceDlg);
 		addDialogComponent(modelTypeDlg);
 		addDialogComponent(fileChooser);
 		addDialogComponent(folderChooser);
+		addDialogComponent(zipChooser);
 		
-		state.showUi();
-	}
-
-	// Widget related methods
-	public JPanel getModelTypePanel() {
-		return modelTypeDlg.getComponentPanel();
-	}
-
-	public JPanel getFileChooserPanel() {
-		return fileChooser.getComponentPanel();
-	}
-
-	public JPanel getFolderChooserPanel() {
-		return folderChooser.getComponentPanel();
-	}
-
-	// State related methods
-	public SBMLReaderDlgState getFileState() {
-		return fileState;
-	}
-
-	public SBMLReaderDlgState getDirState() {
-		return dirState;
-	}
-
-	public void setState(SBMLReaderDlgState state) {
-		this.state = state;
+		// start showing fileChooser
+		modelTypeDlg.getComponentPanel().setVisible(false);
+		fileChooser.getComponentPanel().setVisible(true);
+		folderChooser.getComponentPanel().setVisible(false);
+		zipChooser.getComponentPanel().setVisible(false);
 	}
 }

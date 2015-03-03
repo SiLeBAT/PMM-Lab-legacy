@@ -311,6 +311,9 @@ public class XLSReader {
 								+ (i + 1) + " is not valid ("
 								+ getData(timeCell) + ")");
 					}
+				} else if (timeColumn != null) {
+					warnings.add(timeColumnName + " value in row " + (i + 1)
+							+ " is missing");
 				}
 
 				if (hasData(logcCell)) {
@@ -322,6 +325,9 @@ public class XLSReader {
 								+ (i + 1) + " is not valid ("
 								+ getData(logcCell) + ")");
 					}
+				} else if (logcColumn != null) {
+					warnings.add(logcColumnName + " value in row " + (i + 1)
+							+ " is missing");
 				}
 
 				if (hasData(stdDevCell)) {
@@ -333,6 +339,9 @@ public class XLSReader {
 								+ (i + 1) + " is not valid ("
 								+ getData(stdDevCell) + ")");
 					}
+				} else if (stdDevColumn != null) {
+					warnings.add(stdDevColumnName + " value in row " + (i + 1)
+							+ " is missing");
 				}
 
 				if (hasData(nMeasureCell)) {
@@ -349,6 +358,9 @@ public class XLSReader {
 								+ (i + 1) + " is not valid ("
 								+ getData(nMeasureCell) + ")");
 					}
+				} else if (nMeasureColumn != null) {
+					warnings.add(nMeasureColumnName + " value in row "
+							+ (i + 1) + " is missing");
 				}
 
 				for (String column : miscColumns.keySet()) {

@@ -350,6 +350,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		List<String> validIds = new ArrayList<>(selectedIDs);
+		Set<String> usedParams = new LinkedHashSet<>();
 
 		warnings = new ArrayList<>();
 
@@ -357,10 +358,16 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			Plotable plotable = chartCreator.getPlotables().get(id);
 
 			if (plotable != null) {
+				usedParams.addAll(plotable.getFunctionArguments().keySet());
 				plotable.setSamples(samplePanel.getTimeValues());
-				plotable.setFunctionArguments(PredictorViewNodeModel
+
+				Map<String, List<Double>> converted = PredictorViewNodeModel
 						.convertToUnits(configPanel.getParamsX(),
-								plotable.getUnits()));
+								plotable.getUnits());
+
+				converted.keySet().retainAll(
+						plotable.getFunctionArguments().keySet());
+				plotable.setFunctionArguments(converted);
 			}
 		}
 
@@ -374,6 +381,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			warnings.addAll(getInvalidIds(selectedIDs).values());
 		}
 
+		configPanel.setVisibleParameters(usedParams);
 		selectionPanel.repaint();
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());

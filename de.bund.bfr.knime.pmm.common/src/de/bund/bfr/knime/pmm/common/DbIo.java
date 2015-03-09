@@ -60,6 +60,7 @@ public class DbIo {
 				Object[] toksLot = (lot == null) ? null : (Object[])lot.getArray();
 				Object[] toksSd = (stddevs == null) ? null : (Object[])stddevs.getArray();
 				Object[] toksWdh = (wdhs == null) ? null : (Object[])wdhs.getArray();
+				checkUnits(toksT, toksLu);
 				if (toksT.length > 0) {
 					Category modelUnitCat = modelUnit == null ? null : Categories.getCategoryByUnit(modelUnit);
 					Category timeUnitCat = timeUnit == null ? null : Categories.getCategoryByUnit(timeUnit);
@@ -93,6 +94,32 @@ public class DbIo {
 			}
 		}
 		return tsDoc;    	
+    }
+    private static void checkUnits(Object[] toksT, Object[] toksLu) {
+    	try {
+        	if (toksLu != null && toksLu.length > 0) {
+        		String unit = toksLu[0].toString();
+        		int i=1;
+        		for (;i<toksLu.length;i++) {
+        			if (!toksLu[i].toString().equals(unit)) break;
+        		}
+        		if (i < toksLu.length) {
+        			String theUnit = "";
+        			for (i=0;i<toksLu.length;i++) {
+        				if (Double.parseDouble(toksT[i].toString()) == 0.0) {
+        					theUnit = toksLu[i].toString();
+        					break;
+        				}
+        			}
+        			if (i < toksLu.length) {
+        				for (int j=0;j<toksLu.length;j++) {
+        					toksLu[j] = theUnit;
+            			}
+        			}
+        		}
+        	}
+    	}
+    	catch (Exception e) {e.printStackTrace();}
     }
     private static double convert(double value, String unit, String newUnit, Category newUnitCat) {
 		if (newUnit != null && unit != null && !newUnit.equals(unit)) {

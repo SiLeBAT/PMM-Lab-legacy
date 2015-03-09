@@ -150,7 +150,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		showLegendBox = new JCheckBox("Show Legend");
 		showLegendBox.setSelected(true);
 		showLegendBox.addActionListener(this);
-		addInfoInLegendBox = new JCheckBox("Add Info in Lengend");
+		addInfoInLegendBox = new JCheckBox("Add Info in Legend");
 		addInfoInLegendBox.setSelected(false);
 		addInfoInLegendBox.addActionListener(this);
 		displayFocusedRowBox = new JCheckBox("Display Highlighted Row");

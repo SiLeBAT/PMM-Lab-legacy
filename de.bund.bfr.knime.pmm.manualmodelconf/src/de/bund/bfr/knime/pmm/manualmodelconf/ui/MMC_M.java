@@ -984,6 +984,8 @@ public class MMC_M extends JPanel {
 			setPM(pm1);
 
 			m_mmcts.setTS(tss.get(pm1.getCondId()));
+			
+			table.repaint();
 		}
 	}
 

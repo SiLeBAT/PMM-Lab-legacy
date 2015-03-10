@@ -21,5 +21,16 @@
             factory-class="de.bund.bfr.knime.pmm.xlstimeseriesreader.XLSTimeSeriesReaderNodeFactory"
             id="de.bund.bfr.knime.pmm.xlstimeseriesreader.XLSTimeSeriesReaderNodeFactory"/>
    </extension>
+   <extension
+         point="org.knime.workbench.repository.metanode">
+      <PersistedMetaNode
+            category-path="/pmmlab/reader"
+            expert-flag="false"
+            icon="metanode_templates/Variable Data Reader.png"
+            id="de.bund.bfr.knime.pmm.xlstimeseriesreader.variabledatareader"
+            name="Variable Data Reader"
+            workflowDir="metanode_templates/Variable Data Reader/">
+      </PersistedMetaNode>
+   </extension>
    
 </plugin>

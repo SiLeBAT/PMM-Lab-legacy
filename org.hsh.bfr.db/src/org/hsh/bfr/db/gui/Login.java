@@ -43,6 +43,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -489,10 +490,18 @@ public class Login extends JFrame {
 			if (this.isVisible()) this.dispose();//this.setVisible(false);
 			mf.pack();
 			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
-			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
-			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+
+	        // Determine the new location of the window
+			int defaultW = 1000;
+			int defaultH = 600;
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			int defaultX = (dim.width-defaultW)/2;
+			int defaultY = (dim.height-defaultH)/2;
+			
+	        int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "" + defaultW));
+			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "" + defaultH));
+			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "" + defaultX));
+			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "" + defaultY));
 			mf.setPreferredSize(new Dimension(w, h));
 			mf.setBounds(x, y, w, h);
 			if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);

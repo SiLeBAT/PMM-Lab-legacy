@@ -1472,7 +1472,7 @@ public class DBKernel {
 
 	public static String getInternalDefaultDBPath() {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().replace("/", System.getProperty("file.separator")) + System.getProperty("file.separator")
-				+ ".pmmlabDB" + System.getProperty("file.separator");
+				+ (DBKernel.isKrise ? ".fclabDB" : ".pmmlabDB") + System.getProperty("file.separator");
 	}
 
 	// Still to look at... myDBI...KNIME...

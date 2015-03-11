@@ -420,6 +420,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		String A0 = getStrVal(row.getCell(0));
 		return A0.equals("Beispieleintrag");
 	}
+	private boolean isSimple(HSSFRow row) {
+		if (row != null) {
+			System.err.println(getStrVal(row.getCell(23)));
+			String Y0 = getStrVal(row.getCell(24));
+			if (Y0 == null || Y0.isEmpty()) return true;
+		}
+		return false;
+	}
 	private int[] doImportStandard(HSSFWorkbook wb, JProgressBar progress, String filename) {
 		int numSuccess = 0;
 		int numFails = 0;
@@ -429,6 +437,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		progress.setMaximum(numRows);
 		progress.setValue(0);
 
+		boolean isSimpleFormat = isSimple(transactionSheet.getRow(0));
 		boolean isBvl = isBVL(transactionSheet.getRow(0));
 		for (int i = isBvl ? 6 : 1; i < numRows; i++) {
 			HSSFRow row = transactionSheet.getRow(i);
@@ -538,77 +547,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					logMessages += msg + "\n";
 				}
 
-				String prodNameIn = getStrVal(row.getCell(24)); // ProductName
-				String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
-				String dayIn = getStrVal(row.getCell(26)); // Day
-				String monthIn = getStrVal(row.getCell(27)); // Month
-				String yearIn = getStrVal(row.getCell(28)); // Year
-				String amountKG_In = getStrVal(row.getCell(29)); // amountKG
-				String typePUIn = getStrVal(row.getCell(30)); // typePU
-				String numPUIn = getStrVal(row.getCell(31)); // numPU
-				String lotNo_In = getStrVal(row.getCell(32)); // 
-				String dayMHDIn = getStrVal(row.getCell(33));
-				String monthMHDIn = getStrVal(row.getCell(34));
-				String yearMHDIn = getStrVal(row.getCell(35)); // 
-				String dayPDIn = getStrVal(row.getCell(36));
-				String monthPDIn = getStrVal(row.getCell(37));
-				String yearPDIn = getStrVal(row.getCell(38));
-				//Date dateIn = getDate(dayIn, monthIn, yearIn);
-				//Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
-				//Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
-
-				String idSup = getStrVal(row.getCell(39)); // ID_Address
-				String adressSup = getStrVal(row.getCell(40)); // Address
-				String activitySup = getStrVal(row.getCell(41)); // Activity
-				String nameSup = adressSup;
-				String streetSup = null;
-				String streetNoSup = null;
-				String zipSup = null;
-				String citySup = null;
-				String countySup = null;
-				String countrySup = null;
-				String vatSup = null;
-				busRow = getRow(businessSheet, idSup, 0);
-				if (busRow != null) {
-					nameSup = getStrVal(busRow.getCell(1)); //
-					streetSup = getStrVal(busRow.getCell(2)); //
-					streetNoSup = getStrVal(busRow.getCell(3), 10); //
-					zipSup = getStrVal(busRow.getCell(4), 10); //
-					citySup = getStrVal(busRow.getCell(5)); //
-					countySup = getStrVal(busRow.getCell(6), 30);
-					countrySup = getStrVal(busRow.getCell(7)); // 
-					vatSup = getStrVal(busRow.getCell(8)); //
-					if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
-						String msg = "Row: " + (i + 1) + "\tId issue on sups...\t" + nameSup + " <> " + adressSup;
-						System.err.println(msg);
-						logMessages += msg + "\n";
-					}
-				} else if (idSup != null) {
-					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidSupplier: " + idSup;
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				} else {
-					String msg = "Row: " + (i + 1) + "\tidSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
-					System.err.println(msg);
-					logMessages += msg + "\n";
+				String oc = "";
+				String cqr = "";
+				if (!isSimpleFormat) {
+					oc = getStrVal(row.getCell(44)); // OriginCountry
+					cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks					
 				}
-
-				String ec = getStrVal(row.getCell(42)); // EndChain
-				String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
-				String oc = getStrVal(row.getCell(44)); // OriginCountry
-				String cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
-				String ft = getStrVal(row.getCell(46)); // Further_Traceback
-				String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
-
-				//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
-					String msg = "Row: " + (i + 1) + "\tDates not in temporal order, dateOut < dateIn!!! , KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				}
-
 				Integer c1 = null;
-				Integer c2 = null;
 				if (nameInsp != null && !nameInsp.trim().isEmpty()) {
 					Integer[] c = getCharge_Lieferung(idInsp, nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, prodNameOut,
 							prodNumOut, null, lotNo_Out, dayMHDOut, monthMHDOut, yearMHDOut, dayPDOut, monthPDOut, yearPDOut, oc, dayOut, monthOut, yearOut, amountKG_Out,
@@ -616,6 +561,78 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							null, null);
 					if (c != null) c1 = c[2];
 				}
+
+				if (isSimpleFormat) continue;
+				
+					String prodNameIn = getStrVal(row.getCell(24)); // ProductName
+					String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
+					String dayIn = getStrVal(row.getCell(26)); // Day
+					String monthIn = getStrVal(row.getCell(27)); // Month
+					String yearIn = getStrVal(row.getCell(28)); // Year
+					String amountKG_In = getStrVal(row.getCell(29)); // amountKG
+					String typePUIn = getStrVal(row.getCell(30)); // typePU
+					String numPUIn = getStrVal(row.getCell(31)); // numPU
+					String lotNo_In = getStrVal(row.getCell(32)); // 
+					String dayMHDIn = getStrVal(row.getCell(33));
+					String monthMHDIn = getStrVal(row.getCell(34));
+					String yearMHDIn = getStrVal(row.getCell(35)); // 
+					String dayPDIn = getStrVal(row.getCell(36));
+					String monthPDIn = getStrVal(row.getCell(37));
+					String yearPDIn = getStrVal(row.getCell(38));
+					//Date dateIn = getDate(dayIn, monthIn, yearIn);
+					//Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
+					//Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
+
+					String idSup = getStrVal(row.getCell(39)); // ID_Address
+					String adressSup = getStrVal(row.getCell(40)); // Address
+					String activitySup = getStrVal(row.getCell(41)); // Activity
+					String nameSup = adressSup;
+					String streetSup = null;
+					String streetNoSup = null;
+					String zipSup = null;
+					String citySup = null;
+					String countySup = null;
+					String countrySup = null;
+					String vatSup = null;
+					busRow = getRow(businessSheet, idSup, 0);
+					if (busRow != null) {
+						nameSup = getStrVal(busRow.getCell(1)); //
+						streetSup = getStrVal(busRow.getCell(2)); //
+						streetNoSup = getStrVal(busRow.getCell(3), 10); //
+						zipSup = getStrVal(busRow.getCell(4), 10); //
+						citySup = getStrVal(busRow.getCell(5)); //
+						countySup = getStrVal(busRow.getCell(6), 30);
+						countrySup = getStrVal(busRow.getCell(7)); // 
+						vatSup = getStrVal(busRow.getCell(8)); //
+						if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
+							String msg = "Row: " + (i + 1) + "\tId issue on sups...\t" + nameSup + " <> " + adressSup;
+							System.err.println(msg);
+							logMessages += msg + "\n";
+						}
+					} else if (idSup != null) {
+						String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidSupplier: " + idSup;
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					} else {
+						String msg = "Row: " + (i + 1) + "\tidSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					}
+
+					String ec = getStrVal(row.getCell(42)); // EndChain
+					String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
+					String ft = getStrVal(row.getCell(46)); // Further_Traceback
+					String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
+
+					//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
+					if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
+						String msg = "Row: " + (i + 1) + "\tDates not in temporal order, dateOut < dateIn!!! , KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					}
+				
+
+				Integer c2 = null;
 				if (nameSup != null && !nameSup.trim().isEmpty()) {
 					Integer[] c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup, prodNameIn, prodNumIn,
 							null, lotNo_In, dayMHDIn, monthMHDIn, yearMHDIn, dayPDIn, monthPDIn, yearPDIn, oc, dayIn, monthIn, yearIn, amountKG_In, typePUIn, numPUIn, idInsp,

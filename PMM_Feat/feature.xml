@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.pmm.base"
       label="PMM Nodes"
-      version="1.0.6.qualifier"
+      version="1.0.7.qualifier"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">
@@ -268,6 +268,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="org.apache.commons.math3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.pdfkeeper"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

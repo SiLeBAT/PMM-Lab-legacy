@@ -109,6 +109,7 @@ public class Bfrdb {
 	public static final String ATT_PARAMNAME = "Parametername";
 	public static final String ATT_PARAMTYPE = "Parametertyp";
 	public static final String ATT_PH = "pH";
+	public static final String ATT_PRESSURE = "Druck";
 	public static final String ATT_RMS = "RMS";
 	public static final String ATT_RSQUARED = "Rsquared";
 	public static final String ATT_RSS = "RSS";
@@ -138,7 +139,7 @@ public class Bfrdb {
 
 	private static final String queryTimeSeries9SinDataView = "SELECT\n" + "\n" + "    \"VersuchsbedingungenEinfach\".\"ID\" AS \"" + ATT_CONDITIONID + "\",\n" + "    \""
 			+ REL_COMBASE + "\".\"CombaseID\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_TEMPERATURE + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_PH
-			+ "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AW + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AGENTID + "\",\n" + "    \"" + REL_AGENT
+			+ "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AW + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_PRESSURE + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AGENTID + "\",\n" + "    \"" + REL_AGENT
 			+ "\".\"" + ATT_AGENTNAME + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AGENTDETAIL + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_MATRIXID
 			+ "\",\n" + "    \"" + REL_MATRIX + "\".\"" + ATT_MATRIXNAME + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_MATRIXDETAIL + "\",\n"
 			+ "    \"VersuchsbedingungenEinfach\".\"Kommentar\",\n" + "    \"VersuchsbedingungenEinfach\".\"Guetescore\",\n" + "    \"VersuchsbedingungenEinfach\".\"Geprueft\",\n"
@@ -153,7 +154,7 @@ public class Bfrdb {
 
 	private static final String queryTimeSeries9 = "SELECT\n" + "\n" + "    \"VersuchsbedingungenEinfach\".\"ID\" AS \"" + ATT_CONDITIONID + "\",\n" + "    \"" + REL_COMBASE
 			+ "\".\"CombaseID\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_TEMPERATURE + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_PH + "\",\n"
-			+ "    \"VersuchsbedingungenEinfach\".\"" + ATT_AW + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AGENTID + "\",\n" + "    \"" + REL_AGENT + "\".\""
+			+ "    \"VersuchsbedingungenEinfach\".\"" + ATT_AW + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_PRESSURE + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AGENTID + "\",\n" + "    \"" + REL_AGENT + "\".\""
 			+ ATT_AGENTNAME + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_AGENTDETAIL + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_MATRIXID + "\",\n"
 			+ "    \"" + REL_MATRIX + "\".\"" + ATT_MATRIXNAME + "\",\n" + "    \"VersuchsbedingungenEinfach\".\"" + ATT_MATRIXDETAIL + "\",\n" + "    \"DataView\".\"Zeit\",\n"
 			+ "    \"DataView\".\"ZeitEinheit\",\n" + "    \"DataView\".\"Konzentration\",\n" + "    \"DataView\".\"KonzentrationsEinheit\",\n"
@@ -218,7 +219,7 @@ public class Bfrdb {
 	private static final String querySecOnly = "SELECT " + "*" + "FROM" + "\"EstModelSecView\"\n";
 	
 	private static final String queryPei2 = "SELECT\n" + "\n" + "    \"MicrobialDataView\".\"" + ATT_CONDITIONID + "\",\n" + "    \"MicrobialDataView\".\"CombaseID\",\n"
-			+ "    \"MicrobialDataView\".\"" + ATT_TEMPERATURE + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_PH + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AW + "\",\n"
+			+ "    \"MicrobialDataView\".\"" + ATT_TEMPERATURE + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_PH + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AW + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_PRESSURE + "\",\n"
 			+ "    \"MicrobialDataView\".\"" + ATT_AGENTID + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AGENTNAME + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_AGENTDETAIL
 			+ "\",\n" + "    \"MicrobialDataView\".\"" + ATT_MATRIXID + "\",\n" + "    \"MicrobialDataView\".\"" + ATT_MATRIXNAME + "\",\n" + "    \"MicrobialDataView\".\""
 			+ ATT_MATRIXDETAIL + "\",    \n" + "    \"DataView\".\"Zeit\",\n" + "    \"DataView\".\"ZeitEinheit\" AS \"ZeitEinheitDV\",\n"

@@ -14,7 +14,9 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
  */
 public class Model1Rule extends ModelRule {
 
-	public static Model1Rule convertCatalogModelXmlToModel1Rule(CatalogModelXml catModel, final String var) {
+	public static Model1Rule convertCatalogModelXmlToModel1Rule(
+			CatalogModelXml catModel, final String var) {
+		// Trims out the "Value=" from the formula
 		int pos = catModel.getFormula().indexOf("=") + 1;
 		final String formula = catModel.getFormula().substring(pos);
 
@@ -33,13 +35,13 @@ public class Model1Rule extends ModelRule {
 		if (catModel.getModelClass() == null)
 			modelClass = "unknown";
 		else
-			modelClass = SBMLUtil.INT_TO_CLASS.get(catModel.getModelClass());
+			modelClass = Util.MODELCLASS_STRS.get(catModel.getModelClass());
 		rule.addAnnotation(catModel.getName(), modelClass);
-		
+
 		return rule;
-		
+
 	}
-	
+
 	public Model1Rule(AssignmentRule rule) {
 		this.rule = rule;
 	}
@@ -48,18 +50,18 @@ public class Model1Rule extends ModelRule {
 		String formula = "Value=" + rule.getMath().toFormula();
 
 		String formulaName = null;
-		int type = SBMLUtil.CLASS_TO_INT.get("unknown"); // model class
+		int type = Util.MODELCLASS_NUMS.get("unknown"); // model class
 		XMLNode nonRDFAnnot = rule.getAnnotation().getNonRDFannotation();
 		XMLNode metadata = nonRDFAnnot.getChildElement("metadata", "");
 
 		// the formula name node is mandatory
 		XMLNode formulaNameNode = metadata.getChildElement("formulaName", "");
 		formulaName = formulaNameNode.getChildAt(0).getCharacters();
-		
+
 		XMLNode subjectNode = metadata.getChildElement("subject", "");
 		if (subjectNode != null) {
 			String classString = subjectNode.getChildAt(0).getCharacters();
-			type = SBMLUtil.CLASS_TO_INT.get(classString);
+			type = Util.MODELCLASS_NUMS.get(classString);
 		}
 
 		CatalogModelXml catModel = new CatalogModelXml(null, formulaName,

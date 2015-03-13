@@ -1,21 +1,18 @@
 package de.bund.bfr.knime.pmm.sbmlreader;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.xml.stream.XMLStreamException;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -40,18 +37,20 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
-import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
+import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -62,12 +61,17 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
+import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Organism;
+import de.bund.bfr.numl.NuMLDocument;
+import de.bund.bfr.numl.NuMLReader;
+import de.unirostock.sems.cbarchive.ArchiveEntry;
+import de.unirostock.sems.cbarchive.CombineArchive;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -78,28 +82,12 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 	// configuration keys
 	public static final String CFGKEY_FILE = "filename";
-	public static final String CFGKEY_FOLDER = "foldername";
-	public static final String CFGKEY_ZIP = "zipname";
-	
-	public static final String CFGKEY_SOURCE = "source";
-	public static final String CFGKEY_MODEL_TYPE = "modeltype";
-
 	// defaults for persistent state
 	private static final String DEFAULT_FILE = "c:/temp/foo.xml";
-	private static final String DEFAULT_FOLDER = "c:/temp";
-	private static final String DEFAULT_ZIP = "c:/temp/foo.zip";
-
 
 	// persistent state
 	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE,
 			DEFAULT_FILE);
-	private SettingsModelString folder = new SettingsModelString(CFGKEY_FOLDER,
-			DEFAULT_FOLDER);
-	private SettingsModelString zip = new SettingsModelString(CFGKEY_ZIP, DEFAULT_ZIP);
-	private SettingsModelString source = new SettingsModelString(CFGKEY_SOURCE,
-			"file");
-	private SettingsModelString modelType = new SettingsModelString(
-			CFGKEY_MODEL_TYPE, "primary");
 
 	/**
 	 * Constructor for the node model.
@@ -117,13 +105,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 
 		BufferedDataTable[] table = null;
-		if (source.getStringValue().equals("file")) {
-			table = parseSingleFile(exec);
-		} else if (source.getStringValue().equals("folder")) {
-			table = parseFolder(exec);
-		} else {
-			table = loadZip(exec);
-		}
+		table = loadPMF(exec);
 		return table;
 	}
 
@@ -149,10 +131,6 @@ public class SBMLReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		filename.saveSettingsTo(settings);
-		folder.saveSettingsTo(settings);
-		zip.saveSettingsTo(settings);
-		source.saveSettingsTo(settings);
-		modelType.saveSettingsTo(settings);
 	}
 
 	/**
@@ -162,10 +140,6 @@ public class SBMLReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		filename.loadSettingsFrom(settings);
-		folder.loadSettingsFrom(settings);
-		zip.loadSettingsFrom(settings);
-		source.loadSettingsFrom(settings);
-		modelType.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -180,10 +154,6 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// SettingsModel).
 		// Do not actually set any values of any member variables.
 		filename.validateSettings(settings);
-		folder.validateSettings(settings);
-		zip.validateSettings(settings);
-		source.validateSettings(settings);
-		modelType.validateSettings(settings);
 	}
 
 	/**
@@ -204,168 +174,129 @@ public class SBMLReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private BufferedDataTable[] parseSingleFile(final ExecutionContext exec) {
-		String filePath = filename.getStringValue();
-		File sbmlFile = new File(filePath);
-		SBMLDocument doc = null;
-		try {
-			doc = SBMLReader.read(sbmlFile);
-		} catch (XMLStreamException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	// Get data source name from a SBML document
+	private String getDataName(SBMLDocument doc) {
+		XMLNode modelAnnotation = doc.getModel().getAnnotation()
+				.getNonRDFannotation();
+		if (modelAnnotation == null) {
+			return null;
 		}
 
-		// Check model type from the model
-		CompSBMLDocumentPlugin documentCompPlugin = (CompSBMLDocumentPlugin) doc
-				.getPlugin("comp");
-		Boolean isTertiary = documentCompPlugin.getListOfModelDefinitions()
-				.size() > 0;
-
-		// Create schema and parse model
-		BufferedDataContainer container = null;
-		if (isTertiary) {
-			KnimeSchema schema = SchemaFactory.createM12DataSchema();
-			schema = SchemaFactory.createM12DataSchema();
-			// Create container
-			container = exec.createDataContainer(schema.createSpec());
-			// Parse document
-			List<KnimeTuple> tuples = TertiaryModelParser.parseDocument(doc);
-			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
-			}
-		} else {
-			KnimeSchema schema = SchemaFactory.createM1DataSchema();
-			// Create container
-			container = exec.createDataContainer(schema.createSpec());
-			// Parse document
-			KnimeTuple tuple = PrimaryModelParser.parseDocument(doc);
-			container.addRowToTable(tuple);
+		XMLNode dataSource = modelAnnotation.getChildElement("dataSource", "");
+		if (dataSource == null) {
+			return null;
 		}
-		container.close();
 
-		BufferedDataTable[] table = { container.getTable() };
-		return table;
+		String dataName = dataSource.getAttrValue("href");
+		return dataName;
 	}
 
-	private BufferedDataTable[] parseFolder(final ExecutionContext exec) {
-		// Create container with modelType
-		Boolean isTertiary = modelType.getStringValue() == "tertiary";
-		KnimeSchema schema = isTertiary ? SchemaFactory.createM12DataSchema()
-				: SchemaFactory.createM1DataSchema();
+	// Load PMF file
+	private BufferedDataTable[] loadPMF(final ExecutionContext exec)
+			throws Exception {
+
+		// Create list for models and data
+		List<SBMLDocument> models = new ArrayList<>();
+		Map<String, NuMLDocument> data = new HashMap<>();
+
+		CombineArchive ca = new CombineArchive(new File(
+				filename.getStringValue()));
+
+		SBMLReader sbmlReader = new SBMLReader();
+		NuMLReader numlReader = new NuMLReader();
+
+		for (ArchiveEntry entry : ca.getEntries()) {
+			// Parse model
+			if (entry.getFileName().endsWith(".sbml")) {
+				InputStream stream = Files.newInputStream(entry.getPath(),
+						StandardOpenOption.READ);
+				SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
+				stream.close();
+				models.add(doc);
+			}
+
+			// Parse data
+			else if (entry.getFileName().endsWith(".numl")) {
+				InputStream stream = Files.newInputStream(entry.getPath(),
+						StandardOpenOption.READ);
+				data.put(entry.getFileName(), numlReader.read(stream));
+				stream.close();
+			}
+		}
+
+		ca.close();
+
+		// Get model type from the first model in the list
+		SBMLDocument firstDoc = models.get(0);
+		CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) firstDoc
+				.getPlugin("comp");
+		Boolean isTertiary = plugin.getListOfModelDefinitions().size() > 0;
+
+		// Create schema and container
+		KnimeSchema schema;
+		if (isTertiary) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else {
+			schema = SchemaFactory.createM1DataSchema();
+		}
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 
-		// Parse models and ignore the ones with wrong type
-		String folderName = folder.getStringValue();
-		File folder = new File(folderName);
-		File[] files;
-		files = folder.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File arg0) {
-				return (arg0.isFile() && arg0.getAbsolutePath().toLowerCase()
-						.endsWith("xml"));
-			}
-		});
+		// Parse models
 
-		for (File f : files) {
-			SBMLDocument doc = null;
-			try {
-				doc = SBMLReader.read(f);
-			} catch (XMLStreamException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			CompSBMLDocumentPlugin documentPlugin = (CompSBMLDocumentPlugin) doc
-					.getPlugin("comp");
-			// Check model type
-			Boolean isDocTertiary = documentPlugin.getListOfModelDefinitions()
-					.size() > 0;
-			// If the model type of the doc and the type specified on the dialog
-			// don't match then skip this file
-			if (isTertiary != isDocTertiary) {
-				continue;
-			}
-
-			if (isTertiary) {
-				List<KnimeTuple> tuples = TertiaryModelParser
-						.parseDocument(doc);
-				for (KnimeTuple tuple : tuples) {
-					container.addRowToTable(tuple);
+		if (isTertiary) {
+			for (SBMLDocument model : models) {
+				String dataName = getDataName(model);
+				
+						PmmXmlDoc mdData = new PmmXmlDoc();
+				if (dataName != null) {
+					if (data.containsKey(dataName)) {
+						DataFile df = new DataFile(data.get(dataName));
+						List<TimeSeriesXml> timeSeries = df.getData();
+						
+						for (TimeSeriesXml ts : timeSeries) {
+							mdData.add(ts);
+						}
+					}
 				}
-			} else {
-				KnimeTuple tuple = PrimaryModelParser.parseDocument(doc);
+				
+				for (KnimeTuple tuple : TertiaryModelParser.parseDocument(model)) {
+					if (dataName == null) {
+						tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+						container.addRowToTable(tuple);
+					} else {
+						container.addRowToTable(tuple);
+					}
+				}
+					
+			}
+		} else {
+			for (SBMLDocument model : models) {
+				KnimeTuple tuple = PrimaryModelParser.parseDocument(model);
+				
+				String dataName = getDataName(model);
+				
+				if (dataName != null) {
+					if (data.containsKey(dataName)) {
+						DataFile df = new DataFile(data.get(dataName));
+						List<TimeSeriesXml> timeSeries = df.getData();
+						
+						PmmXmlDoc mdData = new PmmXmlDoc();
+						for (TimeSeriesXml ts : timeSeries) {
+							mdData.add(ts);
+						}
+
+						tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+					}
+				}
+				
 				container.addRowToTable(tuple);
 			}
 		}
-		container.close();
 
+		// close container and return its table
+		container.close();
 		BufferedDataTable[] table = { container.getTable() };
-		return table;
-	}
-	
-	private BufferedDataTable[] loadZip(final ExecutionContext exec) {
-		// create container with modelType
-		Boolean isTertiary = modelType.getStringValue().equals("tertiary");
-		KnimeSchema schema = isTertiary ? SchemaFactory.createM12DataSchema() : SchemaFactory.createM1DataSchema();
-		BufferedDataContainer container = exec.createDataContainer(schema.createSpec());
-		
-		// open zip
-		ZipInputStream zipFile = null;
-		try {
-			zipFile = new ZipInputStream(new FileInputStream(zip.getStringValue()));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		SBMLReader reader = new SBMLReader();
-
-		// add every entry
-		ZipEntry entry;
-		try {
-			while ((entry = zipFile.getNextEntry()) != null) {
-				// skip non xml files
-				if (!entry.getName().endsWith("xml"))
-					continue;
-				
-				StringBuilder s = new StringBuilder();
-				byte[] buffer = new byte[1024];
-				int read = 0;
-				while ((read = zipFile.read(buffer, 0, 1024)) >= 0) {
-					s.append(new String(buffer, 0, read));
-				}
-				
-				SBMLDocument doc = reader.readSBMLFromString(s.toString());
-				
-				CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc.getPlugin("comp");
-				Boolean isDocTertiary = plugin.getListOfModelDefinitions().size() > 0;
-				
-				if (isTertiary != isDocTertiary)
-					continue;
-				
-				if (isTertiary) {
-					List<KnimeTuple> tuples = TertiaryModelParser.parseDocument(doc);
-					for (KnimeTuple tuple : tuples) {
-						container.addRowToTable(tuple);
-					}
-				} else {
-					KnimeTuple tuple = PrimaryModelParser.parseDocument(doc);
-					container.addRowToTable(tuple);
-				}
-			}
-		} catch (IOException | XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			zipFile.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		container.close();
-		BufferedDataTable[] table = {container.getTable()};
 		return table;
 	}
 }
@@ -386,19 +317,15 @@ class ReaderUtils {
 		XMLNode metadata = annot.getChildElement("metadata", "");
 
 		// Parse metadata container
-		if (metadata != null) {			
+		if (metadata != null) {
 			for (XMLNode node : metadata.getChildElements("", "")) {
 				String nodeName = node.getName();
 				System.out.println(nodeName);
 				if (!nodeName.isEmpty()) {
 					// Process uncertainty annotations
 					if (nodeName.equals("modelquality")) {
-						XMLAttributes qualityAtts = node.getAttributes();
-						for (int nattr = 0; nattr < qualityAtts.getLength(); nattr++) {
-							String attName = qualityAtts.getName(nattr);
-							String attValue = qualityAtts.getValue(nattr);
-							annotations.put(attName, attValue);
-						}
+						UncertaintyNode unode = new UncertaintyNode(node);
+						annotations.putAll(unode.getMeasures());
 					}
 					// Process other annotations
 					else {
@@ -411,18 +338,19 @@ class ReaderUtils {
 
 		return annotations;
 	}
-	
+
 	/**
 	 * Parse references in a model annotation.
+	 * 
 	 * @param annot
 	 * @return
 	 */
 	public static List<LiteratureItem> parseLit(final XMLNode annot) {
 		List<LiteratureItem> lits = new LinkedList<>();
-		
+
 		// search metadata container
 		XMLNode metadata = annot.getChildElement("metadata", "");
-		
+
 		if (metadata != null) {
 			// Parse references
 			for (XMLNode ref : metadata.getChildElements("reference", "")) {
@@ -430,7 +358,7 @@ class ReaderUtils {
 				lits.add(node.toLiteratureItem());
 			}
 		}
-		
+
 		return lits;
 	}
 
@@ -456,9 +384,7 @@ class ReaderUtils {
 			dep.setMin(depLimits.getMin());
 		}
 
-		PmmXmlDoc depDoc = new PmmXmlDoc(dep);
-
-		return depDoc;
+		return new PmmXmlDoc(dep);
 	}
 
 	// Create independent variables
@@ -655,8 +581,48 @@ class PrimaryModelParser {
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
 		Matrix matrix = new Matrix(model.getCompartment(0));
 		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
+
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
+
 		PmmXmlDoc miscCell = new PmmXmlDoc();
+
+		// TODO: Parse model variables: Temperature, pH and water activity
+		if (model.containsParameter("Temperature")) {
+			Parameter param = model.getParameter("Temperature");
+
+			int id = MathUtilities.getRandomNegativeInt();
+			String name = "Temperature";
+			String description = "Temperature";
+			double value = param.getValue();
+			List<String> categories = Arrays.asList("Temperature");
+			String unit = "";
+			if (param.getUnits().equals("pmf_celsius")) {
+				unit = "°C";
+			} else if (param.getUnits().equals("pmf_fahrenheit")) {
+				unit = "°F";
+			}
+
+			MiscXml item = new MiscXml(id, name, description, value,
+					categories, unit);
+			item.setOrigUnit(unit);
+			miscCell.add(item);
+		}
+
+		if (model.containsParameter("pH")) {
+			Parameter param = model.getParameter("pH");
+
+			int id = MathUtilities.getRandomNegativeInt();
+			String name = "pH";
+			String description = "pH";
+			double value = param.getValue();
+			List<String> categories = Arrays.asList("Dimensionless quantity");
+			String unit = "[pH]";
+
+			MiscXml item = new MiscXml(id, name, description, value,
+					categories, unit);
+			item.setOrigUnit(unit);
+			miscCell.add(item);
+		}
 
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
 				null, null));
@@ -682,13 +648,13 @@ class PrimaryModelParser {
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
-		
+
 		List<LiteratureItem> lits = ReaderUtils.parseLit(modelAnnotation);
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
 		for (LiteratureItem lit : lits) {
 			emLiteratureCell.add(lit);
 		}
-		
+
 		String mDBUID = "?";
 
 		// Add cells to the row
@@ -813,7 +779,7 @@ class TertiaryModelParser {
 
 		return indepDoc;
 	}
-	
+
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
@@ -843,11 +809,52 @@ class TertiaryModelParser {
 		String combaseID = model.getId();
 		Organism organism = new Organism(model.getSpecies(0));
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
-		
+
 		Matrix matrix = new Matrix(model.getCompartment(0));
 		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
+
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
+
 		PmmXmlDoc miscCell = new PmmXmlDoc();
+
+		// TODO: Parse model variables: Temperature, pH and water activity
+		if (model.containsParameter("Temperature")) {
+			Parameter param = model.getParameter("Temperature");
+
+			int id = MathUtilities.getRandomNegativeInt();
+			String name = "Temperature";
+			String description = "Temperature";
+			double value = param.getValue();
+			List<String> categories = Arrays.asList("Temperature");
+			String unit = "";
+			if (param.getUnits().equals("pmf_celsius")) {
+				unit = "°C";
+			} else if (param.getUnits().equals("pmf_fahrenheit")) {
+				unit = "°F";
+			}
+
+			MiscXml item = new MiscXml(id, name, description, value,
+					categories, unit);
+			item.setOrigUnit(unit);
+			miscCell.add(item);
+		}
+
+		if (model.containsParameter("pH")) {
+			Parameter param = model.getParameter("pH");
+
+			int id = MathUtilities.getRandomNegativeInt();
+			String name = "pH";
+			String description = "pH";
+			double value = param.getValue();
+			List<String> categories = Arrays.asList("Dimensionless quantity");
+			String unit = "[pH]";
+
+			MiscXml item = new MiscXml(id, name, description, value,
+					categories, unit);
+			item.setOrigUnit(unit);
+			miscCell.add(item);
+		}
+
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
 				null, null));
 		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc();
@@ -875,13 +882,13 @@ class TertiaryModelParser {
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
-		
+
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
 		List<LiteratureItem> lits = ReaderUtils.parseLit(modelAnnotation);
 		for (LiteratureItem lit : lits) {
 			emLiteratureCell.add(lit);
 		}
-		
+
 		String mDBUID = "?";
 
 		final int condID = MathUtilities.getRandomNegativeInt();
@@ -889,14 +896,15 @@ class TertiaryModelParser {
 
 		for (ModelDefinition secModel : modelDefinitions) {
 			ListOf<Parameter> secParams = secModel.getListOfParameters();
-			
+
 			// Parse constraints
 			ListOf<Constraint> secConstraints = secModel.getListOfConstraints();
 			Map<String, Limits> secLimits = ReaderUtils
 					.parseConstraints(secConstraints);
 
 			// secondary model columns (19-27)
-			Model2Rule rule2 = new Model2Rule((AssignmentRule) secModel.getRule(0));
+			Model2Rule rule2 = new Model2Rule(
+					(AssignmentRule) secModel.getRule(0));
 			CatalogModelXml catModelSec = rule2.toCatModel();
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
 
@@ -924,14 +932,15 @@ class TertiaryModelParser {
 					null, 0));
 
 			PmmXmlDoc mLiteratureSecCell = new PmmXmlDoc();
-			
+
 			PmmXmlDoc emLiteratureSecCell = new PmmXmlDoc();
-			XMLNode secModelAnnotation = model.getAnnotation().getNonRDFannotation();
+			XMLNode secModelAnnotation = model.getAnnotation()
+					.getNonRDFannotation();
 			lits = ReaderUtils.parseLit(secModelAnnotation);
 			for (LiteratureItem lit : lits) {
 				emLiteratureSecCell.add(lit);
 			}
-			
+
 			String mDBUIDSEC = "?";
 
 			// Add cells to the row

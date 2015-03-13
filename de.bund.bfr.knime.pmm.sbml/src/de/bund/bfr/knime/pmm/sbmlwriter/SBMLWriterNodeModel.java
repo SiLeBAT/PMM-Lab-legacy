@@ -34,8 +34,9 @@
 package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,8 +45,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -66,12 +65,14 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLWriter;
+import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.ext.comp.Submodel;
+import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -90,9 +91,11 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -105,13 +108,17 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Organism;
-import de.bund.bfr.knime.pmm.sbmlutil.SBMLUtil;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
+import de.bund.bfr.knime.pmm.sbmlutil.Util;
+import de.bund.bfr.numl.NuMLDocument;
+import de.bund.bfr.numl.NuMLWriter;
+import de.unirostock.sems.cbarchive.CombineArchive;
 
 /**
  * This is the model implementation of SBMLWriter.
@@ -120,7 +127,6 @@ import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
  * @author Christian Thoens
  */
 public class SBMLWriterNodeModel extends NodeModel {
-
 	protected static final String CFG_OUT_PATH = "outPath";
 	protected static final String CFG_VARIABLE_PARAM = "variableParams";
 	protected static final String CFG_MODEL_NAME = "modelName";
@@ -171,7 +177,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 
 		List<KnimeTuple> tuples = PmmUtilities.getTuples(inData[0], schema);
-		List<SBMLDocument> documents = null;
+		List<Experiment> experiments = null;
 
 		// Retrieve info from dialog
 		Map<String, String> dlgInfo = new HashMap<>(); // dialog info
@@ -199,45 +205,61 @@ public class SBMLWriterNodeModel extends NodeModel {
 
 		if (modelType == ModelType.PRIMARY) {
 			PrimaryTableReader reader = new PrimaryTableReader(tuples, dlgInfo);
-			documents = reader.getDocuments();
+			experiments = reader.getExperiments();
 		} else if (modelType == ModelType.TERCIARY) {
 			TertiaryTableReader reader = new TertiaryTableReader(tuples,
 					dlgInfo);
-			documents = reader.getDocuments();
+			experiments = reader.getExperiments();
 		}
 
-		// If only one document then write a single file
-		if (documents.size() == 1) {
-			String fileName = String.format("%s/%s.sbml.xml",
-					outPath.getStringValue(), modelName.getStringValue());
-			File file = new File(fileName);
-			SBMLWriter.write(documents.get(0), file, "SBML Writer node", "1.0");
-		}
+		String caName = String.format("%s/%s.pmf", outPath.getStringValue(),
+				modelName.getStringValue());
+		CombineArchive ca = new CombineArchive(new File(caName));
 
-		// If many documents then write them into a zip file
-		else if (documents.size() > 1) {
-			String zipName = String.format("%s/%s.zip",
-					outPath.getStringValue(), modelName.getStringValue());
-			ZipOutputStream os = new ZipOutputStream(new FileOutputStream(
-					zipName));
+		SBMLWriter sbmlWriter = new SBMLWriter();
+		sbmlWriter.setProgramName("SBML Writer node");
+		sbmlWriter.setProgramVersion("1.0");
 
-			SBMLWriter writer = new SBMLWriter();
-			writer.setProgramName("SBML Writer node");
-			writer.setProgramVersion("1.0");
+		NuMLWriter numlWriter = new NuMLWriter();
 
-			for (int i = 0; i < documents.size(); i++) {
-				String entryName = String.format("%s_%d.sbml.xml",
-						modelName.getStringValue(), i);
-				ZipEntry entry = new ZipEntry((entryName));
-				os.putNextEntry(entry);
+		URI sbmlURI = new URI(
+				"http://identifiers.org/combine.specifications/sbml");
+		URI numlURI = new URI(
+				"http://numl.googlecode.com/svn/trunk/NUMLSchema.xsd");
 
-				String doc = writer.writeSBMLToString(documents.get(i));
-				os.write(doc.getBytes());
-				os.closeEntry();
+		short counter = 0;
+		for (Experiment exp : experiments) {
+			// Create temp file
+			File sbmlTemp = File.createTempFile("temp1", "");
+			sbmlTemp.deleteOnExit();
+			// Add model
+			String mdName = String.format("%s_%d.sbml",
+					modelName.getStringValue(), counter);
+
+			// Add data set
+			if (exp.getData() != null) {
+				File numlTemp = File.createTempFile("temp2", "");
+				numlTemp.deleteOnExit();
+				String dataName = String.format("%s_%d.numl",
+						modelName.getStringValue(), counter);
+				numlWriter.write(exp.getData(), numlTemp);
+				ca.addEntry(numlTemp, dataName, numlURI);
+				
+				// data source annotation
+				XMLTriple dataSourceTriple = new XMLTriple("dataSource", null, "pmf");
+				XMLAttributes attrs = new XMLAttributes();
+				attrs.add("id", "source1");
+				attrs.add("href", dataName);
+				XMLNode dataSourceNode = new XMLNode(dataSourceTriple, attrs);
+				exp.getModel().getModel().getAnnotation().getNonRDFannotation().addChild(dataSourceNode);
 			}
 
-			os.close();
+			sbmlWriter.write(exp.getModel(), sbmlTemp);
+			ca.addEntry(sbmlTemp, mdName, sbmlURI);
 		}
+
+		ca.pack();
+		ca.close();
 
 		return new BufferedDataTable[] {};
 	}
@@ -344,14 +366,45 @@ public class SBMLWriterNodeModel extends NodeModel {
 	}
 }
 
+// Holder class for related models and datasets
+class Experiment {
+	private SBMLDocument model;
+	private NuMLDocument data;
+
+	public Experiment(SBMLDocument model) {
+		this.model = model;
+	}
+
+	public Experiment(SBMLDocument model, NuMLDocument data) {
+		this.model = model;
+		this.data = data;
+	}
+
+	public SBMLDocument getModel() {
+		return model;
+	}
+
+	public void setModel(SBMLDocument model) {
+		this.model = model;
+	}
+
+	public NuMLDocument getData() {
+		return data;
+	}
+
+	public void setData(NuMLDocument data) {
+		this.data = data;
+	}
+}
+
 abstract class TableReader {
 	protected final static int LEVEL = 3;
 	protected final static int VERSION = 1;
 
-	protected List<SBMLDocument> documents = new ArrayList<>();
+	protected List<Experiment> experiments = new LinkedList<>();
 
-	public List<SBMLDocument> getDocuments() {
-		return documents;
+	public List<Experiment> getExperiments() {
+		return experiments;
 	}
 
 	/*
@@ -394,6 +447,73 @@ abstract class TableReader {
 				UnitDefinition ud = wrapper.getUnitDefinition();
 				ud.setId(createId(unit));
 				ud.setName(unit);
+				unitDefs.add(ud);
+			}
+		}
+
+		return unitDefs;
+	}
+
+	// TODO: getUnits from dep, indep, const and variables (temp, pH)
+	/*
+	 * Get units from the parameters (dep, indep and consts), get their data
+	 * from DB and return them.
+	 */
+	public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
+			List<PmmXmlElementConvertable> constParams,
+			List<PmmXmlElementConvertable> variables) {
+
+		// get unit names
+		HashSet<String> units = new HashSet<>();
+		if (dep.getUnit() != null)
+			units.add(dep.getUnit());
+		if (indep.getUnit() != null)
+			units.add(indep.getUnit());
+		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
+			ParamXml param = (ParamXml) pmmXmlElement;
+			if (param.getUnit() != null) {
+				units.add(param.getUnit());
+			}
+		}
+
+		// Get units from DB
+		UnitsFromDB unitDB = new UnitsFromDB();
+		unitDB.askDB();
+		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
+
+		// Create new map with unit display as keys
+		Map<String, UnitsFromDB> map = new HashMap<>();
+		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
+			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
+		}
+
+		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
+		for (String unit : units) {
+			UnitsFromDB dbUnit = map.get(unit);
+			if (dbUnit != null) {
+				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
+						.xmlToUnitDefinition(dbUnit.getMathML_string());
+				UnitDefinition ud = wrapper.getUnitDefinition();
+				ud.setId(createId(unit));
+				ud.setName(unit);
+				unitDefs.add(ud);
+			}
+		}
+
+		// Add unit definitions for units from variables
+		for (PmmXmlElementConvertable item : variables) {
+			MiscXml misc = (MiscXml) item;
+			if (misc.getUnit().equals("°C")) {
+				UnitDefinition ud = new UnitDefinition("pmf_celsius", LEVEL,
+						VERSION);
+				ud.setName("°C");
+				ud.addUnit(new Unit(1, 1, Unit.Kind.KELVIN, 1, LEVEL, VERSION));
+				unitDefs.add(ud);
+			} else if (misc.getUnit().equals("°F")) {
+				UnitDefinition ud = new UnitDefinition("pmf_fahrenheit", LEVEL,
+						VERSION);
+				ud.setName("°F");
+				ud.addUnit(new Unit(1, 1, Unit.Kind.KELVIN, 1, LEVEL, VERSION));
 				unitDefs.add(ud);
 			}
 		}
@@ -661,12 +781,47 @@ abstract class TableReader {
 class PrimaryTableReader extends TableReader {
 
 	public PrimaryTableReader(List<KnimeTuple> tuples,
-			Map<String, String> dlgInfo) {
+			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
 
 		for (KnimeTuple tuple : tuples) {
-			SBMLDocument doc = parsePrimaryTuple(tuple, dlgInfo);
-			documents.add(doc);
+			SBMLDocument model = parsePrimaryTuple(tuple, dlgInfo);
+
+			// Add NuML doc
+			// TODO: Empty time series use case
+
+			// * Get data points
+			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+
+			// No data for this model
+			if (mdData.size() == 0) {
+				experiments.add(new Experiment(model));
+			} else {
+				// XML time series
+				List<TimeSeriesXml> timeSeries = new LinkedList<>();
+				for (PmmXmlElementConvertable point : mdData.getElementSet()) {
+					timeSeries.add((TimeSeriesXml) point);
+				}
+				Map<Double, Double> dim = new HashMap<>(); // dimension
+				for (TimeSeriesXml point : timeSeries) {
+					dim.put(point.getTime(), point.getConcentration());
+				}
+
+				// * Create NuML document with this time series
+				String unit = ((TimeSeriesXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_TIMESERIES).get(0))
+						.getConcentrationUnit();
+				String matrix = ((MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
+				String organism = ((AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
+				DataFile dataFile = new DataFile(dim, unit, matrix, organism);
+
+				// * Get and add dataset
+				NuMLDocument data = dataFile.getDocument();
+
+				experiments.add(new Experiment(model, data));
+			}
 		}
 	}
 
@@ -715,6 +870,7 @@ class PrimaryTableReader extends TableReader {
 		}
 
 		// Add model annotations
+
 		Annotation annot = createModelAnnotation(modelId, modelTitle,
 				qualityTags, lits);
 		model.setAnnotation(annot);
@@ -749,6 +905,7 @@ class PrimaryTableReader extends TableReader {
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
 				Model1Schema.ATT_PARAMETER).getElementSet();
+
 		// Add constraints
 		for (PmmXmlElementConvertable item : constParams) {
 			ParamXml param = (ParamXml) item;
@@ -768,7 +925,27 @@ class PrimaryTableReader extends TableReader {
 			model.addParameter(param);
 		}
 
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
+		// TODO: Add model variables like pH, temperature or water activity
+		List<PmmXmlElementConvertable> variables = tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MISC).getElementSet();
+		for (PmmXmlElementConvertable item : variables) {
+			MiscXml miscItem = (MiscXml) item;
+			Parameter param = new Parameter();
+			param.setId(miscItem.getName());
+			param.setConstant(true);
+			param.setValue(miscItem.getValue());
+			if (miscItem.getUnit().equals("[pH]")) {
+				param.setUnits("dimensionless");
+			} else if (miscItem.getUnit().equals("°C")) {
+				param.setUnits("pmf_celsius");
+			} else if (miscItem.getUnit().equals("°F")) {
+				param.setUnits("pmf_fahrenheit");
+			}
+			model.addParameter(param);
+		}
+
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams,
+				variables);
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
@@ -782,7 +959,7 @@ class PrimaryTableReader extends TableReader {
 class TertiaryTableReader extends TableReader {
 
 	public TertiaryTableReader(List<KnimeTuple> tuples,
-			Map<String, String> dlgInfo) {
+			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
 
 		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
@@ -798,8 +975,43 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		for (List<KnimeTuple> modelTuples : tuplesMap.values()) {
-			SBMLDocument doc = parseTertiaryTuple(modelTuples, dlgInfo);
-			documents.add(doc);
+			SBMLDocument model = parseTertiaryTuple(modelTuples, dlgInfo);
+
+			// Add NuML doc
+			KnimeTuple tuple = modelTuples.get(0);
+
+			// * Get data points
+			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+
+			// No data for this model
+			if (mdData.size() == 0) {
+				experiments.add(new Experiment(model));
+			} else {
+				// XML time series
+				List<TimeSeriesXml> timeSeries = new LinkedList<>();
+				for (PmmXmlElementConvertable point : mdData.getElementSet()) {
+					timeSeries.add((TimeSeriesXml) point);
+				}
+				Map<Double, Double> dim = new HashMap<>(); // dimension
+				for (TimeSeriesXml point : timeSeries) {
+					dim.put(point.getTime(), point.getConcentration());
+				}
+
+				// * Create NuML document with this time series
+				String unit = ((TimeSeriesXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_TIMESERIES).get(0))
+						.getConcentrationUnit();
+				String matrix = ((MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
+				String organism = ((AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
+				DataFile dataFile = new DataFile(dim, unit, matrix, organism);
+
+				// * Get and add data set
+				NuMLDocument data = dataFile.getDocument();
+
+				experiments.add(new Experiment(model, data));
+			}
 		}
 	}
 
@@ -869,7 +1081,7 @@ class TertiaryTableReader extends TableReader {
 		String modelTitle = modelXml.getName();
 		Integer modelClassNum = modelXml.getModelClass();
 		if (modelClassNum == null) {
-			modelClassNum = SBMLUtil.CLASS_TO_INT.get("unknown");
+			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
 		}
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
@@ -937,13 +1149,33 @@ class TertiaryTableReader extends TableReader {
 			model.addParameter(param);
 		}
 
+		// TODO: Add model variables like pH, temperature or water activity
+		List<PmmXmlElementConvertable> variables = firstTuple.getPmmXml(
+				TimeSeriesSchema.ATT_MISC).getElementSet();
+		for (PmmXmlElementConvertable item : variables) {
+			MiscXml miscItem = (MiscXml) item;
+			Parameter param = new Parameter();
+			param.setId(miscItem.getName());
+			param.setConstant(true);
+			param.setValue(miscItem.getValue());
+			if (miscItem.getUnit().equals("[pH]")) {
+				param.setUnits("dimensionless");
+			} else if (miscItem.getUnit().equals("°C")) {
+				param.setUnits("pmf_celsius");
+			} else if (miscItem.getUnit().equals("°F")) {
+				param.setUnits("pmf_fahrenheit");
+			}
+			model.addParameter(param);
+		}
+
 		// Add units
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams,
+				variables);
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
-		Model1Rule model1Rule = Model1Rule
-				.convertCatalogModelXmlToModel1Rule(modelXml, organism.getSpecies().getId());
+		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
+				modelXml, organism.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
 
 		// Add submodels and model definitions
@@ -992,7 +1224,7 @@ class TertiaryTableReader extends TableReader {
 				lits.add(lit);
 			}
 
-			// TODO: Add sec literature references
+			// Add sec literature references
 			modelDefinition.setAnnotation(createSecAnnotation(lits));
 
 			Model2Rule rule2 = Model2Rule

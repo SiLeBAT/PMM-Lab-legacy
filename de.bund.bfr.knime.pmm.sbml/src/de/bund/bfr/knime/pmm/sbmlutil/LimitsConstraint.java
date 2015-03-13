@@ -73,27 +73,34 @@ public class LimitsConstraint {
 			var = nodes.get(0).getName();
 			double val = Double.parseDouble(nodes.get(1).toString());
 
+			// Figure out whether val is a min or max, according to the math's
+			// type
 			ASTNode.Type type = constraint.getMath().getType();
+
+			// var <= val --> Val is a maximum
 			if (type == ASTNode.Type.RELATIONAL_LEQ
 					|| type == ASTNode.Type.RELATIONAL_LT) {
 				max = val;
 			}
 
+			// else: var >= val --> Val is a minimum
 			else {
 				min = val;
 			}
 		}
 
-		// Constraint with two conditions
+		// Constraint with two conditions. E.g. [mu_max >= 0, mu_max <= 5]
 		else {
+			// Get minimum from the left node (mu_max >= 0)
 			ASTNode leftNode = nodes.get(0);
 			List<ASTNode> leftNodes = leftNode.getListOfNodes();
-			var = leftNodes.get(0).getName();
-			min = Double.parseDouble(leftNodes.get(1).toString());
+			var = leftNodes.get(0).getName(); // variable (mu_max)
+			min = Double.parseDouble(leftNodes.get(1).toString()); // min (0)
 
+			// Get maximum from the right node (mu_max <= 5)
 			ASTNode rightNode = nodes.get(1);
 			List<ASTNode> rightNodes = rightNode.getListOfNodes();
-			max = Double.parseDouble(rightNodes.get(1).toString());
+			max = Double.parseDouble(rightNodes.get(1).toString()); // max (5)
 
 		}
 		Limits limits = new Limits(var, min, max);

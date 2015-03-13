@@ -82,6 +82,7 @@ public class NuMLWriterTest {
 
 		NuMLWriter writer = new NuMLWriter();
 
-		writer.write(doc, new FileWriter(new File("test.xml")));
+//		writer.write(doc, new FileWriter(new File("test.xml")));
+		writer.write(doc, new FileWriter(new File("C:/Users/Malba/Desktop/test.xml")));
 	}
 }

@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.annotation;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.sbml.jsbml.xml.XMLAttributes;
@@ -14,6 +15,10 @@ import org.sbml.jsbml.xml.XMLTriple;
  */
 public class UncertaintyNode {
 	private XMLNode node;
+	
+	public UncertaintyNode(XMLNode node) {
+		this.node = node;
+	}
 
 	public UncertaintyNode(Map<String, String> uncertainties) {
 		XMLTriple triple = new XMLTriple("modelquality", null, "pmml");
@@ -26,5 +31,14 @@ public class UncertaintyNode {
 
 	public XMLNode getNode() {
 		return node;
+	}
+
+	public Map<String, String> getMeasures() {
+		Map<String, String> measures = new HashMap<String, String>();
+		XMLAttributes attributes = node.getAttributes();
+		for (int nattr = 0; nattr < attributes.getLength(); nattr++) {
+			measures.put(attributes.getName(nattr), attributes.getValue(nattr));
+		}
+		return measures;
 	}
 }

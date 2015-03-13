@@ -4,10 +4,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SBMLUtil {
+public class Util {
 	
 	// Dictionary that maps model classes to integers
-	public static final Map<String, Integer> CLASS_TO_INT;
+	public static final Map<String, Integer> MODELCLASS_NUMS;
 
 	static {
 		Map<String, Integer> tempMap = new HashMap<>();
@@ -27,11 +27,11 @@ public class SBMLUtil {
 		tempMap.put("pH/aw", 13);
 		tempMap.put("T/pH/aw", 14);
 
-		CLASS_TO_INT = Collections.unmodifiableMap(tempMap);
+		MODELCLASS_NUMS = Collections.unmodifiableMap(tempMap);
 	}
 	
 	// Dictionary that maps integers to model classes
-	public static final Map<Integer, String> INT_TO_CLASS;
+	public static final Map<Integer, String> MODELCLASS_STRS;
 	
 	static {
 		Map<Integer, String> tempMap = new HashMap<>();
@@ -51,6 +51,6 @@ public class SBMLUtil {
 		tempMap.put(13, "pH/aw");
 		tempMap.put(14, "T/pH/aw");
 		
-		INT_TO_CLASS = Collections.unmodifiableMap(tempMap);
+		MODELCLASS_STRS = Collections.unmodifiableMap(tempMap);
 	}
 }

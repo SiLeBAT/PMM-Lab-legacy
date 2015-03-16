@@ -65,6 +65,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.BackupMyDBI;
 import org.hsh.bfr.db.DBKernel;
@@ -372,15 +375,19 @@ public class Login extends JFrame {
 							passwordField1.requestFocus();
 							return mf;
 						}
-					}
+					}					
 
-					if (!System.getProperty("os.name").equals("Mac OS X")) {
+					IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					
+					if (eclipseWindow != null) {						
+						MessageDialog.openInformation(eclipseWindow.getShell(), "Internal database created", "Internal database created in folder '" + DBKernel.HSHDB_PATH + "'");
+					} else {
 						JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
 						JDialog dialog = pane.createDialog("Internal database created");
 						dialog.setAlwaysOnTop(true);
 						dialog.setVisible(true);
 					}
-
+										
 					mf = initGui(myDB);
 				}
 			} else {

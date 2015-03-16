@@ -5,8 +5,9 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 /**
  * Model class xml node. Uses the dc:type tag.
+ * E.g. <dc:type>Primary</dc:type>
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class ModelClassNode {
 	private XMLNode node;

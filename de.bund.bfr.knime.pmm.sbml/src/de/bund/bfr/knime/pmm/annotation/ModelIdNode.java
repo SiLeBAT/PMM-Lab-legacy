@@ -5,8 +5,9 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 /**
  * Model id xml node. Uses the dc:identifier tag.
+ * E.g. <dc:identifier>Meta_Salmonellaspp_GroundBeef...</dc:identifier>
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class ModelIdNode {
 

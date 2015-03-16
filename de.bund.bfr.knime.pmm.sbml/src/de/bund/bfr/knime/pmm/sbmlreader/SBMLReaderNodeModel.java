@@ -39,6 +39,7 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
+import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -182,13 +183,13 @@ public class SBMLReaderNodeModel extends NodeModel {
 			return null;
 		}
 
-		XMLNode dataSource = modelAnnotation.getChildElement("dataSource", "");
-		if (dataSource == null) {
+		XMLNode node = modelAnnotation.getChildElement("dataSource", "");
+		if (node == null) {
 			return null;
 		}
 
-		String dataName = dataSource.getAttrValue("href");
-		return dataName;
+		DataSourceNode dataSourceNode = new DataSourceNode(node);
+		return dataSourceNode.getFile();
 	}
 
 	// Load PMF file
@@ -246,48 +247,37 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		if (isTertiary) {
 			for (SBMLDocument model : models) {
-				String dataName = getDataName(model);
-				
-						PmmXmlDoc mdData = new PmmXmlDoc();
-				if (dataName != null) {
-					if (data.containsKey(dataName)) {
-						DataFile df = new DataFile(data.get(dataName));
-						List<TimeSeriesXml> timeSeries = df.getData();
-						
-						for (TimeSeriesXml ts : timeSeries) {
-							mdData.add(ts);
-						}
+				PmmXmlDoc mdData = new PmmXmlDoc();
+
+				String dataFileName = getDataName(model);
+				if (dataFileName != null && data.containsKey(dataFileName)) {
+					DataFile df = new DataFile(data.get(dataFileName));
+					for (TimeSeriesXml ts : df.getData()) {
+						mdData.add(ts);
 					}
 				}
-				
-				for (KnimeTuple tuple : TertiaryModelParser.parseDocument(model)) {
-					if (dataName == null) {
+
+				for (KnimeTuple tuple : TertiaryModelParser
+						.parseDocument(model)) {
+					if (dataFileName == null) {
 						tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-						container.addRowToTable(tuple);
-					} else {
-						container.addRowToTable(tuple);
 					}
+					container.addRowToTable(tuple);
 				}
-					
+
 			}
 		} else {
 			for (SBMLDocument model : models) {
 				KnimeTuple tuple = PrimaryModelParser.parseDocument(model);
-				
-				String dataName = getDataName(model);
-				
-				if (dataName != null) {
-					if (data.containsKey(dataName)) {
-						DataFile df = new DataFile(data.get(dataName));
-						List<TimeSeriesXml> timeSeries = df.getData();
-						
-						PmmXmlDoc mdData = new PmmXmlDoc();
-						for (TimeSeriesXml ts : timeSeries) {
-							mdData.add(ts);
-						}
 
-						tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+				String dataFileName = getDataName(model);
+				if (dataFileName != null && data.containsKey(dataFileName)) {
+					DataFile df = new DataFile(data.get(dataFileName));
+					PmmXmlDoc mdData = new PmmXmlDoc();
+					for (TimeSeriesXml ts : df.getData()) {
+						mdData.add(ts);
 					}
+					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 				}
 				
 				container.addRowToTable(tuple);

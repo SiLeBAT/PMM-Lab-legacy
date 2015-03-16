@@ -72,13 +72,14 @@ import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.ext.comp.Submodel;
-import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.CreatedNode;
 import de.bund.bfr.knime.pmm.annotation.CreatorNode;
+import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
 import de.bund.bfr.knime.pmm.annotation.ModelIdNode;
 import de.bund.bfr.knime.pmm.annotation.ModelTitleNode;
 import de.bund.bfr.knime.pmm.annotation.ModifiedNode;
@@ -232,7 +233,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			// Create temp file
 			File sbmlTemp = File.createTempFile("temp1", "");
 			sbmlTemp.deleteOnExit();
-			// Add model
+
 			String mdName = String.format("%s_%d.sbml",
 					modelName.getStringValue(), counter);
 
@@ -244,16 +245,13 @@ public class SBMLWriterNodeModel extends NodeModel {
 						modelName.getStringValue(), counter);
 				numlWriter.write(exp.getData(), numlTemp);
 				ca.addEntry(numlTemp, dataName, numlURI);
-				
-				// data source annotation
-				XMLTriple dataSourceTriple = new XMLTriple("dataSource", null, "pmf");
-				XMLAttributes attrs = new XMLAttributes();
-				attrs.add("id", "source1");
-				attrs.add("href", dataName);
-				XMLNode dataSourceNode = new XMLNode(dataSourceTriple, attrs);
-				exp.getModel().getModel().getAnnotation().getNonRDFannotation().addChild(dataSourceNode);
+
+				DataSourceNode node = new DataSourceNode(dataName);
+				exp.getModel().getModel().getAnnotation().getNonRDFannotation()
+						.addChild(node.getNode());
 			}
 
+			// Add model
 			sbmlWriter.write(exp.getModel(), sbmlTemp);
 			ca.addEntry(sbmlTemp, mdName, sbmlURI);
 		}
@@ -648,8 +646,6 @@ abstract class TableReader {
 		String givenName = docInfo.get("GivenName");
 		String familyName = docInfo.get("FamilyName");
 		String contact = docInfo.get("Contact");
-		String created = docInfo.get("Created");
-		String modified = docInfo.get("Modified");
 
 		if (givenName != null || familyName != null || contact != null) {
 			CreatorNode creatorNode = new CreatorNode(givenName, familyName,
@@ -658,15 +654,21 @@ abstract class TableReader {
 		}
 
 		// Created date
-		if (created != null) {
-			CreatedNode createdNode = new CreatedNode(created);
+		if (docInfo.containsKey("Created")) {
+			CreatedNode createdNode = new CreatedNode(docInfo.get("Created"));
 			pmfNode.addChild(createdNode.getNode());
 		}
 
 		// modified date
-		if (modified != null) {
-			ModifiedNode modifiedNode = new ModifiedNode(modified);
+		if (docInfo.containsKey("Modified")) {
+			ModifiedNode modifiedNode = new ModifiedNode(docInfo.get("Modified"));
 			pmfNode.addChild(modifiedNode.getNode());
+		}
+		
+		// model type
+		if (docInfo.containsKey("type")) {
+			ModelClassNode typeNode = new ModelClassNode(docInfo.get("type"));
+			pmfNode.addChild(typeNode.getNode());
 		}
 
 		// add non-rdf annotation
@@ -783,6 +785,8 @@ class PrimaryTableReader extends TableReader {
 	public PrimaryTableReader(List<KnimeTuple> tuples,
 			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
+		
+		dlgInfo.put("type", "Primary");
 
 		for (KnimeTuple tuple : tuples) {
 			SBMLDocument model = parsePrimaryTuple(tuple, dlgInfo);
@@ -815,7 +819,8 @@ class PrimaryTableReader extends TableReader {
 						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
 				String organism = ((AgentXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
-				DataFile dataFile = new DataFile(dim, unit, matrix, organism);
+				DataFile dataFile = new DataFile(dim, unit, matrix, organism,
+						dlgInfo);
 
 				// * Get and add dataset
 				NuMLDocument data = dataFile.getDocument();
@@ -829,7 +834,7 @@ class PrimaryTableReader extends TableReader {
 			Map<String, String> docInfo) {
 		replaceCelsiusAndFahrenheit(tuple);
 		renameLog(tuple);
-
+		
 		// retrieve XML cells
 		CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 				Model1Schema.ATT_MODELCATALOG).get(0);
@@ -961,6 +966,8 @@ class TertiaryTableReader extends TableReader {
 	public TertiaryTableReader(List<KnimeTuple> tuples,
 			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
+		
+		dlgInfo.put("type", "Tertiary");
 
 		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
@@ -1005,7 +1012,8 @@ class TertiaryTableReader extends TableReader {
 						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
 				String organism = ((AgentXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
-				DataFile dataFile = new DataFile(dim, unit, matrix, organism);
+				DataFile dataFile = new DataFile(dim, unit, matrix, organism,
+						dlgInfo);
 
 				// * Get and add data set
 				NuMLDocument data = dataFile.getDocument();

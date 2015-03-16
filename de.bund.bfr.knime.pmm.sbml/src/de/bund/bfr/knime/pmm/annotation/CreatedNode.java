@@ -4,9 +4,10 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 /**
- * Created date xml node. Uses the dcterms:created tag.
+ * Created date xml node. Uses the dcterms:created tag. Example:
+ * <dcterms:created>Thu Jan 01 01:00:00 CET 1970</dcterms:created>
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class CreatedNode {
 	private XMLNode node;

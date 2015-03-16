@@ -4,9 +4,10 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 /**
- * Model class xml node. Uses the dc:type tag.
+ * Model class xml node. Uses the pmml:formulaName tag.
+ * E.g. <pmml:formulaName>Log10mumax formula</pmml:formulaName>
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class ModelNameNode {
 	private XMLNode node;

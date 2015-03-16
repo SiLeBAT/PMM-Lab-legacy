@@ -8,14 +8,15 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 /**
- * Uncertainty xml node. Uses the pmml:modelquality tag.
+ * Uncertainty xml node. Uses the pmml:modelquality tag. E.g. <pmml:modelquality
+ * r-squared="0.996" rootMeanSquaredError="0.345" dataName="Missing data name"
+ * AIC="-32.977" BIC="-34.994"/>
  * 
- * @author malba
- *
+ * @author Miguel Alba
  */
 public class UncertaintyNode {
 	private XMLNode node;
-	
+
 	public UncertaintyNode(XMLNode node) {
 		this.node = node;
 	}

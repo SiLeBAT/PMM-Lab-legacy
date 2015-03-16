@@ -34,7 +34,7 @@ public class DataFile {
 	}
 
 	public DataFile(Map<Double, Double> dimension, String unit, String matrix,
-			String organism) throws URISyntaxException {
+			String organism, Map<String, String> dlgInfo) throws URISyntaxException {
 		OntologyTerm time = createTimeOntology();
 		OntologyTerm concentration = createConcentrationOntology(unit, matrix,
 				organism);
@@ -69,6 +69,24 @@ public class DataFile {
 		dcNS.put("xmlns:dcterms", "http://purl.org/dc/terms/");
 		Node pmfNode = new Node(resultComponentNode, "pmf:metadata", dcNS);
 
+		// Add creator
+		if (dlgInfo.containsKey("GivenName")) {
+			Node creatorNode = new Node(pmfNode, "dc:creator", "");
+			creatorNode.setValue(dlgInfo.get("GivenName"));
+		}
+		
+		// Add created
+		if (dlgInfo.containsKey("Created")) {
+			Node createdNode = new Node(pmfNode, "dcterms:created", "");
+			createdNode.setValue(dlgInfo.get("Created"));
+		}
+		
+		// Add model type
+		if (dlgInfo.containsKey("type")) {
+			Node typeNode = new Node(pmfNode, "dc:type", "");
+			typeNode.setValue(dlgInfo.get("type"));
+		}
+		
 		doc = new NuMLDocument();
 		doc.setResultComponents(Arrays.asList(resultComponent));
 	}

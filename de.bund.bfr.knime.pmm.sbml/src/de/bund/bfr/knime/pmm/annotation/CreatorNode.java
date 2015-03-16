@@ -6,9 +6,10 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 /**
- * Creator xml node. Uses the dc:creator tag.
+ * Creator xml node. Uses the dc:creator tag. E.g.:
+ * <dc:creator>Mr Foo Bar</dc:creator>
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class CreatorNode {
 	private XMLNode node;

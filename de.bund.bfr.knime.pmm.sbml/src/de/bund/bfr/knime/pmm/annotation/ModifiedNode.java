@@ -5,8 +5,8 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 /**
  * Modified date xml node. Uses the dcterms:modified tag.
- * 
- * @author malba
+ * E.g. <dcterms:modified>2014-08-19T00:00:00Z</dcterms:modified>
+ * @author Miguel Alba
  */
 public class ModifiedNode {
 	private XMLNode node;

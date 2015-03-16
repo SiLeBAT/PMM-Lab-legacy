@@ -4,9 +4,10 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 /**
- * Model title xml node. Uses the dc:title tag.
+ * Model title xml node. Uses the dc:title tag. E.g.
+ * <dc:title>Salmonellaspp GroundBeef Temp GrowthModel...</dc:title>
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class ModelTitleNode {
 	private XMLNode node;

@@ -12,6 +12,10 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
+/**
+ * XML node with literature data.
+ * @author Miguel Alba
+ */
 public class ReferenceNode {
 	private XMLNode node;
 

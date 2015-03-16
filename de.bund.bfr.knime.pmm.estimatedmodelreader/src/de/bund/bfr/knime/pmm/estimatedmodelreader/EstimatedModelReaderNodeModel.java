@@ -229,6 +229,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAwCategory().getName()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1], dbuuid);
         			miscDoc.add(mx);
         		}
+				if (result.getObject(Bfrdb.ATT_PRESSURE) != null) {
+					double dbl = result.getDouble(Bfrdb.ATT_PRESSURE);
+					MiscXml mx = new MiscXml(AttributeUtilities.ATT_PRESSURE_ID, AttributeUtilities.ATT_PRESSURE, AttributeUtilities.ATT_PRESSURE, dbl,
+							null, "bar", dbuuid);
+					miscDoc.add(mx);
+				}
         		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 
         		PmmXmlDoc matDoc = new PmmXmlDoc(); 

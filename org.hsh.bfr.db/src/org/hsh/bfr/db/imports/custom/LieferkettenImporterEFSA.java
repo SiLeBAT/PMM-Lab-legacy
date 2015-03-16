@@ -851,12 +851,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						System.err.println("serial is seriously null... " + (i + 1));
 					}
 				} else {
+					/*
 					int index = serial.lastIndexOf("_");
 					if (index <= 0) {
 						System.err.println("index error ... no '_' there... " + (i + 1));
 					}
 					serial = serial.substring(0, index) + "_" + (i + 1);
-
+					 */
+					
 					HSSFRow busRow = getRow(businessSheet, adressRec, 9);
 					if (busRow == null) {
 						System.err.println("Id issue on recs...Row: " + (i + 1) + "\t" + adressRec);

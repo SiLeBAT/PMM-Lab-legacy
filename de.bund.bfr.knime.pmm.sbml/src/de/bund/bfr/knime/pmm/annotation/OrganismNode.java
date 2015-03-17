@@ -8,16 +8,10 @@ import org.sbml.jsbml.xml.XMLTriple;
  * E.g. <dc:source>http://identifiers.org/ncim/C0452849</dc:source>
  * @author Miguel Alba
  */
-public class OrganismNode {
-	private XMLNode node;
-	
+public class OrganismNode extends SBMLNodeBase {
 	public OrganismNode(String casNumber) {
 		XMLTriple triple = new XMLTriple("source", null, "dc");
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(casNumber));
-	}
-	
-	public XMLNode getNode() {
-		return node;
 	}
 }

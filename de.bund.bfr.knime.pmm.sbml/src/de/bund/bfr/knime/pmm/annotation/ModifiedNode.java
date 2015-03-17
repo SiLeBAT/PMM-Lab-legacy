@@ -8,16 +8,10 @@ import org.sbml.jsbml.xml.XMLTriple;
  * E.g. <dcterms:modified>2014-08-19T00:00:00Z</dcterms:modified>
  * @author Miguel Alba
  */
-public class ModifiedNode {
-	private XMLNode node;
-
+public class ModifiedNode extends SBMLNodeBase {
 	public ModifiedNode(String modified) {
 		XMLTriple triple = new XMLTriple("modified", null, "dcterms");
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(modified));
-	}
-
-	public XMLNode getNode() {
-		return node;
 	}
 }

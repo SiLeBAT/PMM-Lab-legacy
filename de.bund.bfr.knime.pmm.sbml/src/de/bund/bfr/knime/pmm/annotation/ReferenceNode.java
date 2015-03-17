@@ -16,9 +16,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
  * XML node with literature data.
  * @author Miguel Alba
  */
-public class ReferenceNode {
-	private XMLNode node;
-
+public class ReferenceNode extends SBMLNodeBase {
 	// RIS tag set
 	private static final Map<String, String> TAGSET = new HashMap<>();
 
@@ -220,9 +218,5 @@ public class ReferenceNode {
 				abstractText, journal, volume, issue, page, approvalMode,
 				website, type, comment);
 		return lit;
-	}
-
-	public XMLNode getNode() {
-		return node;
 	}
 }

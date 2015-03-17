@@ -10,9 +10,7 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel Alba
  */
-public class DataSourceNode {
-	
-	private XMLNode node;
+public class DataSourceNode extends SBMLNodeBase {
 	
 	public DataSourceNode(XMLNode node) {
 		this.node = node;
@@ -24,10 +22,6 @@ public class DataSourceNode {
 		attrs.add("id", "source1");
 		attrs.add("href", dataName);
 		node = new XMLNode(triple, attrs);
-	}
-	
-	public XMLNode getNode() {
-		return node;
 	}
 	
 	// Return data file name

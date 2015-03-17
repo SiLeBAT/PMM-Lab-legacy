@@ -14,9 +14,7 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel Alba
  */
-public class UncertaintyNode {
-	private XMLNode node;
-
+public class UncertaintyNode extends SBMLNodeBase {
 	public UncertaintyNode(XMLNode node) {
 		this.node = node;
 	}
@@ -28,10 +26,6 @@ public class UncertaintyNode {
 			attrs.add(entry.getKey(), entry.getValue());
 		}
 		node = new XMLNode(triple, attrs);
-	}
-
-	public XMLNode getNode() {
-		return node;
 	}
 
 	public Map<String, String> getMeasures() {

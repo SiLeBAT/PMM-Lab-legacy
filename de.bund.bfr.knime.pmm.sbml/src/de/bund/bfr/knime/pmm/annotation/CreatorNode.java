@@ -11,8 +11,7 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel Alba
  */
-public class CreatorNode {
-	private XMLNode node;
+public class CreatorNode extends SBMLNodeBase {
 
 	public CreatorNode(String givenName, String familyName, String contact) {
 		XMLTriple triple = new XMLTriple("creator", null, "dc");
@@ -20,9 +19,5 @@ public class CreatorNode {
 				familyName, contact);
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(creator));
-	}
-
-	public XMLNode getNode() {
-		return node;
 	}
 }

@@ -9,17 +9,11 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel Alba
  */
-public class ModelIdNode {
-
-	private XMLNode node;
+public class ModelIdNode extends SBMLNodeBase {
 
 	public ModelIdNode(String modelId) {
 		XMLTriple triple = new XMLTriple("identifier", null, "dc");
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(modelId));
-	}
-
-	public XMLNode getNode() {
-		return node;
 	}
 }

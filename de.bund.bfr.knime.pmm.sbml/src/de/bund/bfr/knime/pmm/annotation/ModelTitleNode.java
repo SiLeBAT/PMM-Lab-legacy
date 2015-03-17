@@ -9,16 +9,10 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel Alba
  */
-public class ModelTitleNode {
-	private XMLNode node;
-
+public class ModelTitleNode extends SBMLNodeBase {
 	public ModelTitleNode(String modelTitle) {
 		XMLTriple triple = new XMLTriple("title", null, "dc");
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(modelTitle));
-	}
-
-	public XMLNode getNode() {
-		return node;
 	}
 }

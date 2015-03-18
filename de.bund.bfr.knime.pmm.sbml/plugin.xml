@@ -16,6 +16,7 @@
    <extension point="org.knime.workbench.repository.nodes">
    	<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory" id="sbmlreader.SBMLReaderNodeFactory"/>
    	<node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory" id="sbmlwriter.SBMLWriterNodeFactory"/>
+<node category-path="/" factory-class="de.bund.bfr.knime.pmm.json.JSONEncoderNodeFactory" id="de.bund.bfr.knime.pmm.jsonencoder.JSONEncoderNodeFactory"/>
 </extension>
    
 </plugin>

@@ -175,7 +175,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, int level, boolean withoutMdData, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
     	return getKnimeTuples(db, conn, schema, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, null, where, emrnm);
     }
-    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema,
+    @SuppressWarnings("resource")
+	public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
     		boolean modelFilterEnabled, int[] modelList, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
@@ -228,6 +229,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAwCategory().getName()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1], dbuuid);
         			miscDoc.add(mx);
         		}
+				if (result.getObject(Bfrdb.ATT_PRESSURE) != null) {
+					double dbl = result.getDouble(Bfrdb.ATT_PRESSURE);
+					MiscXml mx = new MiscXml(AttributeUtilities.ATT_PRESSURE_ID, AttributeUtilities.ATT_PRESSURE, AttributeUtilities.ATT_PRESSURE, dbl,
+							null, "bar", dbuuid);
+					miscDoc.add(mx);
+				}
         		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 
         		PmmXmlDoc matDoc = new PmmXmlDoc(); 

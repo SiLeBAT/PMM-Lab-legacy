@@ -49,8 +49,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -148,7 +150,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		showLegendBox = new JCheckBox("Show Legend");
 		showLegendBox.setSelected(true);
 		showLegendBox.addActionListener(this);
-		addInfoInLegendBox = new JCheckBox("Add Info in Lengend");
+		addInfoInLegendBox = new JCheckBox("Add Info in Legend");
 		addInfoInLegendBox.setSelected(false);
 		addInfoInLegendBox.addActionListener(this);
 		displayFocusedRowBox = new JCheckBox("Display Highlighted Row");
@@ -486,6 +488,55 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		xTransBox.setSelectedItem(transformX);
 	}
 
+	public void setVisibleParameters(Set<String> visible) {
+		parameterValuesPanel.removeAll();
+
+		int row = 0;
+
+		for (int i = 0; i < parameterNames.size(); i++) {
+			String param = parameterNames.get(i);
+
+			if (!visible.contains(param)) {
+				continue;
+			}
+
+			if (type == PARAMETER_FIELDS) {
+				JLabel label = parameterLabels.get(i);
+				DoubleTextField input = parameterFields.get(i);
+				JSlider slider = parameterSliders.get(i);
+
+				parameterValuesPanel
+						.add(label, createConstraints(0, row, 1, 1));
+				parameterValuesPanel
+						.add(input, createConstraints(2, row, 1, 1));
+
+				if (slider != null) {
+					parameterValuesPanel.add(slider,
+							createConstraints(1, row, 1, 1));
+				}
+
+				row++;
+			} else if (type == PARAMETER_BOXES) {
+				JButton selectButton = parameterButtons.get(i);
+
+				parameterValuesPanel.add(selectButton,
+						createConstraints(0, row, 3, 1));
+				row++;
+			}
+		}
+
+		Container container = getParent();
+
+		while (container != null) {
+			if (container instanceof JPanel) {
+				((JPanel) container).revalidate();
+				break;
+			}
+
+			container = container.getParent();
+		}
+	}
+
 	public void setParameters(String paramY,
 			Map<String, List<Double>> parametersX,
 			Map<String, Double> minParamXValues,
@@ -606,15 +657,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		if (type == PARAMETER_FIELDS) {
 			for (int i = 0; i < parameterFields.size(); i++) {
-				DoubleTextField field = (DoubleTextField) parameterFields
+				DoubleTextField field = parameterFields
 						.get(i);
 				String paramName = parameterNames.get(i);
 
 				if (field.getValue() != null) {
-					valueLists.put(
-							paramName,
-							new ArrayList<>(Arrays.asList(field
-									.getValue())));
+					valueLists.put(paramName,
+							new ArrayList<>(Arrays.asList(field.getValue())));
 				} else {
 					valueLists.put(paramName,
 							new ArrayList<>(Arrays.asList(0.0)));
@@ -640,8 +689,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		valueLists.put((String) xBox.getSelectedItem(), new ArrayList<>(
-				Arrays.asList(0.0)));
+		valueLists.put((String) xBox.getSelectedItem(),
+				new ArrayList<>(Arrays.asList(0.0)));
 
 		return valueLists;
 	}
@@ -661,7 +710,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setParamXValues(Map<String, Double> paramXValues) {
 		for (int i = 0; i < parameterFields.size(); i++) {
-			DoubleTextField field = (DoubleTextField) parameterFields.get(i);
+			DoubleTextField field = parameterFields.get(i);
 			String paramName = parameterNames.get(i);
 
 			field.setValue(paramXValues.get(paramName));
@@ -711,14 +760,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			return;
 		}
 
-		parameterValuesPanel.removeAll();
 		parameterNames.clear();
 		parameterFields.clear();
 		parameterButtons.clear();
 		parameterLabels.clear();
 		parameterSliders.clear();
-
-		int row = 0;
 
 		for (String param : parametersX.keySet()) {
 			if (param.equals(xBox.getSelectedItem())) {
@@ -784,38 +830,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				parameterFields.add(input);
 				parameterLabels.add(label);
 				parameterSliders.add(slider);
-				parameterValuesPanel
-						.add(label, createConstraints(0, row, 1, 1));
-				parameterValuesPanel
-						.add(input, createConstraints(2, row, 1, 1));
-
-				if (slider != null) {
-					parameterValuesPanel.add(slider,
-							createConstraints(1, row, 1, 1));
-				}
-
-				row++;
 			} else if (type == PARAMETER_BOXES) {
 				JButton selectButton = new JButton(param + " Values");
 
 				selectButton.addActionListener(this);
 				parameterButtons.add(selectButton);
-				parameterValuesPanel.add(selectButton,
-						createConstraints(0, row, 3, 1));
-				row++;
 			}
 		}
 
-		Container container = getParent();
-
-		while (container != null) {
-			if (container instanceof JPanel) {
-				((JPanel) container).revalidate();
-				break;
-			}
-
-			container = container.getParent();
-		}
+		setVisibleParameters(new LinkedHashSet<>(parameterNames));
 	}
 
 	private void fireConfigChanged() {
@@ -831,7 +854,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	private int doubleToInt(double d, double min, double max) {
-		return (int) ((d - min) / (max - min) * (double) SLIDER_MAX);
+		return (int) ((d - min) / (max - min) * SLIDER_MAX);
 	}
 
 	private double intToDouble(int i, double min, double max) {

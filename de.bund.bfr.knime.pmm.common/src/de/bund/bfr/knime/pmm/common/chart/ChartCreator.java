@@ -1090,7 +1090,8 @@ public class ChartCreator extends ChartPanel {
 			if (showConfidenceInterval) {
 				modelErrors = plotable.getFunctionErrors(paramX, paramY, unitX,
 						unitY, transformX, transformY, minX, maxX,
-						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+						choiceMap);
 			}
 
 			int i;

@@ -117,7 +117,7 @@ public class DBKernel {
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 
-	public static String softwareVersion = "1.8.2.0.0";
+	public static String softwareVersion = "1.8.2.0.0";//"1.8.3";//
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 
@@ -1472,7 +1472,7 @@ public class DBKernel {
 
 	public static String getInternalDefaultDBPath() {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().replace("/", System.getProperty("file.separator")) + System.getProperty("file.separator")
-				+ ".pmmlabDB" + System.getProperty("file.separator");
+				+ (DBKernel.isKrise ? ".fclabDB" : ".pmmlabDB") + System.getProperty("file.separator");
 	}
 
 	// Still to look at... myDBI...KNIME...

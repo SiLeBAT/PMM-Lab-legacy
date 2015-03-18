@@ -151,6 +151,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 					ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, cmx.getId());
 					pm.setModelClass(cmx.getModelClass());
+					pm.setComment(cmx.getComment());
 					pm.setParameter(paramXml);
 					pm.setIndependent(indepXml);
 					pm.setFormula(pm.revertFormula());
@@ -196,6 +197,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 					ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, cmx.getId());
 					pm.setModelClass(cmx.getModelClass());
+					pm.setComment(cmx.getComment());
 					pm.setParameter(paramXml);
 					pm.setIndependent(indepXml);
 					pm.setFormula(pm.revertFormula());

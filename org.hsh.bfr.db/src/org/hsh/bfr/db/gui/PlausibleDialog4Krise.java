@@ -56,6 +56,8 @@ public class PlausibleDialog4Krise extends JDialog {
 		super(owner);
 		okPressed = false;
 		initComponents();
+		selS.setVisible(false);
+		label20.setVisible(false);
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {

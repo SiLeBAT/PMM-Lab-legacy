@@ -83,6 +83,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	 */
 	private int maxNodeID = 100000;
 	private HashMap<String, Integer> nodeIds = null;
+	private HashMap<String, String> serials = new HashMap<String, String>();
 	private String logMessages = "";
 
 	public String getLogMessages() {
@@ -419,7 +420,15 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		String A0 = getStrVal(row.getCell(0));
 		return A0.equals("Beispieleintrag");
 	}
-	private int[] doImportStandard(HSSFWorkbook wb, JProgressBar progress) {
+	private boolean isSimple(HSSFRow row) {
+		if (row != null) {
+			System.err.println(getStrVal(row.getCell(23)));
+			String Y0 = getStrVal(row.getCell(24));
+			if (Y0 == null || Y0.isEmpty()) return true;
+		}
+		return false;
+	}
+	private int[] doImportStandard(HSSFWorkbook wb, JProgressBar progress, String filename) {
 		int numSuccess = 0;
 		int numFails = 0;
 		HSSFSheet transactionSheet = wb.getSheet("Transactions");
@@ -428,6 +437,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		progress.setMaximum(numRows);
 		progress.setValue(0);
 
+		boolean isSimpleFormat = isSimple(transactionSheet.getRow(0));
 		boolean isBvl = isBVL(transactionSheet.getRow(0));
 		for (int i = isBvl ? 6 : 1; i < numRows; i++) {
 			HSSFRow row = transactionSheet.getRow(i);
@@ -441,6 +451,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				if ((serial == null || serial.trim().isEmpty()) && (adressRec == null || adressRec.trim().isEmpty())) {
 					continue;//break;
 				}
+				if (serials.containsKey(serial)) {
+					String msg = "Row: " + (i + 1) + "\tSerial '" + serial + "' already defined in file '" + serials.get(serial) + "' -> not importing this row!";
+					System.err.println(msg);
+					logMessages += msg + "\n";
+					continue;
+				}
+				serials.put(serial, filename);
 				String activityRec = getStrVal(row.getCell(5)); // Activity				      
 				String nameRec = adressRec;
 				String streetRec = null;
@@ -461,16 +478,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countryRec = getStrVal(busRow.getCell(7)); // 
 					vatRec = getStrVal(busRow.getCell(8)); //
 					if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
-						String msg = "Id issue on recs...Row: " + (i + 1) + "\t" + nameRec + " <> " + adressRec;
+						String msg = "Row: " + (i + 1) + "\tId issue on recs...\t" + nameRec + " <> " + adressRec;
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					}
 				} else if (idRec != null) {
-					String msg = "business not there??? Row: " + (i + 1) + "\tidReceived: " + idRec;
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidReceived: " + idRec;
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				} else {
-					String msg = "idRec is null??? Row: " + (i + 1) + "\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
+					String msg = "Row: " + (i + 1) + "\tidRec is null???\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				}
@@ -516,92 +533,27 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countryInsp = getStrVal(busRow.getCell(7)); // 
 					vatInsp = getStrVal(busRow.getCell(8)); //
 					if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
-						String msg = "Id issue on insps...Row: " + (i + 1) + "\t" + nameInsp + " <> " + adressInsp;
+						String msg = "Row: " + (i + 1) + "\tId issue on insps...\t" + nameInsp + " <> " + adressInsp;
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					}
 				} else if (idInsp != null) {
-					String msg = "business not there??? Row: " + (i + 1) + "\tidInspected: " + idInsp;
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidInspected: " + idInsp;
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				} else {
-					String msg = "idInsp is null??? Row: " + (i + 1) + "\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
+					String msg = "Row: " + (i + 1) + "\tidInsp is null???\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
 					System.err.println(msg);
 					logMessages += msg + "\n";
 				}
 
-				String prodNameIn = getStrVal(row.getCell(24)); // ProductName
-				String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
-				String dayIn = getStrVal(row.getCell(26)); // Day
-				String monthIn = getStrVal(row.getCell(27)); // Month
-				String yearIn = getStrVal(row.getCell(28)); // Year
-				String amountKG_In = getStrVal(row.getCell(29)); // amountKG
-				String typePUIn = getStrVal(row.getCell(30)); // typePU
-				String numPUIn = getStrVal(row.getCell(31)); // numPU
-				String lotNo_In = getStrVal(row.getCell(32)); // 
-				String dayMHDIn = getStrVal(row.getCell(33));
-				String monthMHDIn = getStrVal(row.getCell(34));
-				String yearMHDIn = getStrVal(row.getCell(35)); // 
-				String dayPDIn = getStrVal(row.getCell(36));
-				String monthPDIn = getStrVal(row.getCell(37));
-				String yearPDIn = getStrVal(row.getCell(38));
-				//Date dateIn = getDate(dayIn, monthIn, yearIn);
-				//Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
-				//Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
-
-				String idSup = getStrVal(row.getCell(39)); // ID_Address
-				String adressSup = getStrVal(row.getCell(40)); // Address
-				String activitySup = getStrVal(row.getCell(41)); // Activity
-				String nameSup = adressSup;
-				String streetSup = null;
-				String streetNoSup = null;
-				String zipSup = null;
-				String citySup = null;
-				String countySup = null;
-				String countrySup = null;
-				String vatSup = null;
-				busRow = getRow(businessSheet, idSup, 0);
-				if (busRow != null) {
-					nameSup = getStrVal(busRow.getCell(1)); //
-					streetSup = getStrVal(busRow.getCell(2)); //
-					streetNoSup = getStrVal(busRow.getCell(3), 10); //
-					zipSup = getStrVal(busRow.getCell(4), 10); //
-					citySup = getStrVal(busRow.getCell(5)); //
-					countySup = getStrVal(busRow.getCell(6), 30);
-					countrySup = getStrVal(busRow.getCell(7)); // 
-					vatSup = getStrVal(busRow.getCell(8)); //
-					if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
-						String msg = "Id issue on sups...Row: " + (i + 1) + "\t" + nameSup + " <> " + adressSup;
-						System.err.println(msg);
-						logMessages += msg + "\n";
-					}
-				} else if (idSup != null) {
-					String msg = "business not there??? Row: " + (i + 1) + "\tidSupplier: " + idSup;
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				} else {
-					String msg = "idSup is null??? Row: " + (i + 1) + "\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
-					System.err.println(msg);
-					logMessages += msg + "\n";
+				String oc = "";
+				String cqr = "";
+				if (!isSimpleFormat) {
+					oc = getStrVal(row.getCell(44)); // OriginCountry
+					cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks					
 				}
-
-				String ec = getStrVal(row.getCell(42)); // EndChain
-				String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
-				String oc = getStrVal(row.getCell(44)); // OriginCountry
-				String cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
-				String ft = getStrVal(row.getCell(46)); // Further_Traceback
-				String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
-
-				//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
-					String msg = "- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i + 1)
-							+ ", KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				}
-
 				Integer c1 = null;
-				Integer c2 = null;
 				if (nameInsp != null && !nameInsp.trim().isEmpty()) {
 					Integer[] c = getCharge_Lieferung(idInsp, nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, prodNameOut,
 							prodNumOut, null, lotNo_Out, dayMHDOut, monthMHDOut, yearMHDOut, dayPDOut, monthPDOut, yearPDOut, oc, dayOut, monthOut, yearOut, amountKG_Out,
@@ -609,6 +561,78 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							null, null);
 					if (c != null) c1 = c[2];
 				}
+
+				if (isSimpleFormat) continue;
+				
+					String prodNameIn = getStrVal(row.getCell(24)); // ProductName
+					String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
+					String dayIn = getStrVal(row.getCell(26)); // Day
+					String monthIn = getStrVal(row.getCell(27)); // Month
+					String yearIn = getStrVal(row.getCell(28)); // Year
+					String amountKG_In = getStrVal(row.getCell(29)); // amountKG
+					String typePUIn = getStrVal(row.getCell(30)); // typePU
+					String numPUIn = getStrVal(row.getCell(31)); // numPU
+					String lotNo_In = getStrVal(row.getCell(32)); // 
+					String dayMHDIn = getStrVal(row.getCell(33));
+					String monthMHDIn = getStrVal(row.getCell(34));
+					String yearMHDIn = getStrVal(row.getCell(35)); // 
+					String dayPDIn = getStrVal(row.getCell(36));
+					String monthPDIn = getStrVal(row.getCell(37));
+					String yearPDIn = getStrVal(row.getCell(38));
+					//Date dateIn = getDate(dayIn, monthIn, yearIn);
+					//Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
+					//Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
+
+					String idSup = getStrVal(row.getCell(39)); // ID_Address
+					String adressSup = getStrVal(row.getCell(40)); // Address
+					String activitySup = getStrVal(row.getCell(41)); // Activity
+					String nameSup = adressSup;
+					String streetSup = null;
+					String streetNoSup = null;
+					String zipSup = null;
+					String citySup = null;
+					String countySup = null;
+					String countrySup = null;
+					String vatSup = null;
+					busRow = getRow(businessSheet, idSup, 0);
+					if (busRow != null) {
+						nameSup = getStrVal(busRow.getCell(1)); //
+						streetSup = getStrVal(busRow.getCell(2)); //
+						streetNoSup = getStrVal(busRow.getCell(3), 10); //
+						zipSup = getStrVal(busRow.getCell(4), 10); //
+						citySup = getStrVal(busRow.getCell(5)); //
+						countySup = getStrVal(busRow.getCell(6), 30);
+						countrySup = getStrVal(busRow.getCell(7)); // 
+						vatSup = getStrVal(busRow.getCell(8)); //
+						if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
+							String msg = "Row: " + (i + 1) + "\tId issue on sups...\t" + nameSup + " <> " + adressSup;
+							System.err.println(msg);
+							logMessages += msg + "\n";
+						}
+					} else if (idSup != null) {
+						String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidSupplier: " + idSup;
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					} else {
+						String msg = "Row: " + (i + 1) + "\tidSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					}
+
+					String ec = getStrVal(row.getCell(42)); // EndChain
+					String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
+					String ft = getStrVal(row.getCell(46)); // Further_Traceback
+					String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
+
+					//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
+					if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
+						String msg = "Row: " + (i + 1) + "\tDates not in temporal order, dateOut < dateIn!!! , KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					}
+				
+
+				Integer c2 = null;
 				if (nameSup != null && !nameSup.trim().isEmpty()) {
 					Integer[] c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup, prodNameIn, prodNumIn,
 							null, lotNo_In, dayMHDIn, monthMHDIn, yearMHDIn, dayPDIn, monthPDIn, yearPDIn, oc, dayIn, monthIn, yearIn, amountKG_In, typePUIn, numPUIn, idInsp,
@@ -616,12 +640,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (c != null) c2 = c[3];
 				}
 				if (c1 == null) { // Chargen
-					String msg = "Error Type 1 (Batches)!! Row: " + (i + 1); // Fehlerchenchen_1
+					String msg = "Row: " + (i + 1) + "\tError Type 1 (Batches)!!"; // Fehlerchenchen_1
 					System.err.println(msg);
 					logMessages += msg + "\n";
 					numFails++;
 				} else if (c2 == null) { // Lieferungen
-					String msg = "Error Type 2 (Deliveries)!! E.g. Station not defined? Row: " + (i + 1); // Fehlerchenchen_2
+					String msg = "Row: " + (i + 1) + "\tError Type 2 (Deliveries)!! E.g. Station not defined?"; // Fehlerchenchen_2
 					System.err.println(msg);
 					logMessages += msg + "\n";
 					/*
@@ -638,7 +662,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (c2 != null) {
 						Integer cvID = getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null);
 						if (cvID == null) {
-							String msg = "Error Type 4 (Links)!! Row: " + (i + 1); // Fehlerchenchen_4
+							String msg = "Row: " + (i + 1) + "\tError Type 4 (Links)!!"; // Fehlerchenchen_4
 							System.err.println(msg);
 							logMessages += msg + "\n";
 							numFails++;
@@ -827,12 +851,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						System.err.println("serial is seriously null... " + (i + 1));
 					}
 				} else {
+					/*
 					int index = serial.lastIndexOf("_");
 					if (index <= 0) {
 						System.err.println("index error ... no '_' there... " + (i + 1));
 					}
 					serial = serial.substring(0, index) + "_" + (i + 1);
-
+					 */
+					
 					HSSFRow busRow = getRow(businessSheet, adressRec, 9);
 					if (busRow == null) {
 						System.err.println("Id issue on recs...Row: " + (i + 1) + "\t" + adressRec);
@@ -1196,7 +1222,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							 * new format established
 							 */
 						} else {
-							nsf = doImportStandard(wb, progress);
+							nsf = doImportStandard(wb, progress, filename);
 							//nsf = doImportNewFormat(wb, progress);
 						}
 					}

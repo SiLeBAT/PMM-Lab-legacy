@@ -984,6 +984,8 @@ public class MMC_M extends JPanel {
 			setPM(pm1);
 
 			m_mmcts.setTS(tss.get(pm1.getCondId()));
+			
+			table.repaint();
 		}
 	}
 
@@ -1088,9 +1090,10 @@ public class MMC_M extends JPanel {
 		}
 	}
 
-	@SuppressWarnings({ "deprecation", "serial" })
+	@SuppressWarnings({ "serial" })
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+		// Generated using JFormDesigner non-commercial license
 		depVarLabel = new JLabel();
 		scrollPane3 = new JScrollPane();
 		list1 = new JList<>();
@@ -1133,50 +1136,58 @@ public class MMC_M extends JPanel {
 		button2 = new JButton();
 		label10 = new JLabel();
 		label11 = new JLabel();
-		qScoreBox = new JComboBox<>(new Color[] { Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED });
+		qScoreBox = new JComboBox<Color>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
 		qScoreBox.setRenderer(new DefaultListCellRenderer() {
-			private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = 1L;
 
-			private Color color = Color.WHITE;
-			private boolean isSelected = false;
+					private Color color = Color.WHITE;
+					private boolean isSelected = false;
 
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				color = (Color) value;
-				this.isSelected = isSelected;
+					@Override
+					public Component getListCellRendererComponent(JList<?> list,
+							Object value, int index, boolean isSelected,
+							boolean cellHasFocus) {
+						color = (Color) value;
+						this.isSelected = isSelected;
 
-				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			}
-
-			@Override
-			protected void paintComponent(Graphics g) {
-				Rectangle rect = g.getClipBounds();
-
-				if (rect != null) {
-					g.setColor(color);
-					g.fillRect(rect.x, rect.y, rect.width, rect.height);
-
-					if (isSelected) {
-						g.setColor(UIManager.getDefaults().getColor("List.selectionBackground"));
-					} else {
-						g.setColor(UIManager.getDefaults().getColor("List.background"));
+						return super.getListCellRendererComponent(list, value, index,
+								isSelected, cellHasFocus);
 					}
 
-					((Graphics2D) g).setStroke(new BasicStroke(5));
-					g.drawRect(rect.x, rect.y, rect.width, rect.height);
-				}
-			}
+					@Override
+					protected void paintComponent(Graphics g) {
+						Rectangle rect = g.getClipBounds();
+
+						if (rect != null) {
+							g.setColor(color);
+							g.fillRect(rect.x, rect.y, rect.width, rect.height);
+
+							if (isSelected) {
+								g.setColor(UIManager.getDefaults().getColor(
+										"List.selectionBackground"));
+							} else {
+								g.setColor(UIManager.getDefaults().getColor(
+										"List.background"));
+							}
+
+							((Graphics2D) g).setStroke(new BasicStroke(5));
+							g.drawRect(rect.x, rect.y, rect.width, rect.height);
+						}
+					}
 		});
 		checkBox1 = new JCheckBox();
 		label14 = new JLabel();
-		textField1 = new JTextField();
+		scrollPane4 = new JScrollPane();
+		textField1 = new JTextArea();
 
 		//======== this ========
-		setBorder(new CompoundBorder(new TitledBorder("Model Properties"), Borders.DLU2_BORDER));
+		setBorder(new CompoundBorder(
+			new TitledBorder("Model Properties"),
+			Borders.DLU2));
 		setLayout(new FormLayout(
-				"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-				"default, $rgap, default, $ugap, 2*(default, $pgap), default, $lgap, 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
-		((FormLayout) getLayout()).setColumnGroups(new int[][] { { 5, 11, 17 }, { 7, 13, 19 }, { 9, 15, 21 } });
+			"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
+			"default, $rgap, default, $ugap, 2*(default, $pgap), default, $lgap, 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, 35dlu"));
+		((FormLayout)getLayout()).setColumnGroups(new int[][] {{5, 11, 17}, {7, 13, 19}, {9, 15, 21}});
 
 		//---- depVarLabel ----
 		depVarLabel.setText("Parameter");
@@ -1463,9 +1474,16 @@ public class MMC_M extends JPanel {
 			scrollPane2.setPreferredSize(new Dimension(452, 120));
 
 			//---- referencesTable ----
-			referencesTable.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Reference" }) {
-				boolean[] columnEditable = new boolean[] { false };
-
+			referencesTable.setModel(new DefaultTableModel(
+				new Object[][] {
+				},
+				new String[] {
+					"Reference"
+				}
+			) {
+				boolean[] columnEditable = new boolean[] {
+					false
+				};
 				@Override
 				public boolean isCellEditable(int rowIndex, int columnIndex) {
 					return columnEditable[columnIndex];
@@ -1543,20 +1561,25 @@ public class MMC_M extends JPanel {
 		label14.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(label14, CC.xywh(15, 25, 3, 1));
 
-		//---- textField1 ----
-		textField1.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				textField1FocusLost(e);
-			}
-		});
-		textField1.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				textField1KeyReleased(e);
-			}
-		});
-		add(textField1, CC.xywh(19, 25, 3, 1));
+		//======== scrollPane4 ========
+		{
+
+			//---- textField1 ----
+			textField1.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					textField1FocusLost(e);
+				}
+			});
+			textField1.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					textField1KeyReleased(e);
+				}
+			});
+			scrollPane4.setViewportView(textField1);
+		}
+		add(scrollPane4, CC.xywh(19, 25, 3, 1, CC.DEFAULT, CC.FILL));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -1567,6 +1590,7 @@ public class MMC_M extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+	// Generated using JFormDesigner non-commercial license
 	private JLabel depVarLabel;
 	private JScrollPane scrollPane3;
 	private JList<ParametricModel> list1;
@@ -1612,6 +1636,7 @@ public class MMC_M extends JPanel {
 	private JComboBox<Color> qScoreBox;
 	private JCheckBox checkBox1;
 	private JLabel label14;
-	private JTextField textField1;
+	private JScrollPane scrollPane4;
+	private JTextArea textField1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

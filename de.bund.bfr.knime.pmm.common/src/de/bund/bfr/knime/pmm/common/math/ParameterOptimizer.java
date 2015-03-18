@@ -43,14 +43,9 @@ import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointVectorValuePair;
-import org.apache.commons.math3.optim.nonlinear.vector.ModelFunction;
-import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
-import org.apache.commons.math3.optim.nonlinear.vector.Target;
-import org.apache.commons.math3.optim.nonlinear.vector.Weight;
-import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -72,15 +67,14 @@ public class ParameterOptimizer {
 
 	private DJep parser;
 
-	private LevenbergMarquardtOptimizer optimizer;
-	private PointVectorValuePair optimizerValues;
+	private LeastSquaresOptimizer.Optimum optimizerValues;
 
 	private boolean successful;
 	private List<Double> parameterValues;
 	private Double sse;
 	private Double rms;
 	private Double rSquare;
-	private Double aic;	
+	private Double aic;
 	private List<Double> parameterStandardErrors;
 	private List<Double> parameterTValues;
 	private List<Double> parameterPValues;
@@ -276,7 +270,9 @@ public class ParameterOptimizer {
 			try {
 				optimize(startValues);
 
-				if (!successful || optimizer.getChiSquare() < sse) {
+				double cost = optimizerValues.getCost();
+
+				if (!successful || cost * cost < sse) {
 					useCurrentResults(startValues);
 
 					if (rSquare != 0.0) {
@@ -318,7 +314,7 @@ public class ParameterOptimizer {
 
 	public Double getAIC() {
 		return aic;
-	}	
+	}
 
 	public List<Double> getParameterStandardErrors() {
 		return parameterStandardErrors;
@@ -338,12 +334,10 @@ public class ParameterOptimizer {
 
 	private void optimize(List<Double> startValues) throws Exception {
 		double[] targets = new double[targetValues.size()];
-		double[] weights = new double[targetValues.size()];
 		double[] startValueArray = new double[startValues.size()];
 
 		for (int i = 0; i < targetValues.size(); i++) {
 			targets[i] = targetValues.get(i);
-			weights[i] = 1.0;
 		}
 
 		for (int i = 0; i < startValues.size(); i++) {
@@ -356,26 +350,28 @@ public class ParameterOptimizer {
 				parser, function, parameters, derivatives, arguments,
 				argumentValues, targetValues);
 
-		optimizer = new LevenbergMarquardtOptimizer();
-		optimizerValues = optimizer.optimize(new ModelFunction(
-				optimizerFunction), new ModelFunctionJacobian(
-				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
-				targets), new Weight(weights),
-				new InitialGuess(startValueArray));
+		LeastSquaresBuilder builder = new LeastSquaresBuilder()
+				.model(optimizerFunction, optimizerFunctionJacobian)
+				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL)
+				.target(targets).start(startValueArray);
+
+		optimizerValues = new LevenbergMarquardtOptimizer().optimize(builder
+				.build());
 	}
 
 	private void useCurrentResults(List<Double> startValues) {
+		double cost = optimizerValues.getCost();
+
 		parameterValues = new ArrayList<>(parameters.size());
-		sse = optimizer.getChiSquare();
+		sse = cost * cost;
 		rms = MathUtilities
 				.getRMSE(sse, parameters.size(), targetValues.size());
-		rSquare = MathUtilities.getRSquared(optimizer.getChiSquare(),
-				targetValues);
+		rSquare = MathUtilities.getRSquared(sse, targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
-				targetValues.size(), optimizer.getChiSquare());		
+				targetValues.size(), sse);
 
 		for (int i = 0; i < parameters.size(); i++) {
-			parameterValues.add(optimizerValues.getPoint()[i]);
+			parameterValues.add(optimizerValues.getPoint().getEntry(i));
 		}
 
 		try {
@@ -383,10 +379,9 @@ public class ParameterOptimizer {
 				throw new RuntimeException();
 			}
 
-			double[] params = optimizerValues.getPoint();
-			double[][] covMatrix = optimizer.computeCovariances(params, 1e-14);
-			double factor = optimizer.getChiSquare()
-					/ (targetValues.size() - parameters.size());
+			double[][] covMatrix = optimizerValues.getCovariances(1e-14)
+					.getData();
+			double factor = sse / (targetValues.size() - parameters.size());
 
 			parameterStandardErrors = new ArrayList<>(parameters.size());
 			parameterTValues = new ArrayList<>(parameters.size());
@@ -398,7 +393,7 @@ public class ParameterOptimizer {
 
 				parameterStandardErrors.add(error);
 
-				double tValue = optimizerValues.getPoint()[i] / error;
+				double tValue = optimizerValues.getPoint().getEntry(i) / error;
 				int degreesOfFreedom = targetValues.size() - parameters.size();
 
 				parameterTValues.add(tValue);

@@ -217,6 +217,12 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 							Arrays.asList(Categories.getAwCategory().getName()), Categories.getAwCategory().getAllUnits().toArray(new String[0])[1], dbuuid);
 					miscDoc.add(mx);
 				}
+				if (result.getObject(Bfrdb.ATT_PRESSURE) != null) {
+					double dbl = result.getDouble(Bfrdb.ATT_PRESSURE);
+					MiscXml mx = new MiscXml(AttributeUtilities.ATT_PRESSURE_ID, AttributeUtilities.ATT_PRESSURE, AttributeUtilities.ATT_PRESSURE, dbl,
+							null, "bar", dbuuid);
+					miscDoc.add(mx);
+				}
 				tuple.addMiscs(miscDoc);
 
 				PmmXmlDoc mdInfoDoc = new PmmXmlDoc();

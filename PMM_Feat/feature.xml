@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.pmm.base"
       label="PMM Nodes"
-      version="1.0.6.qualifier"
+      version="1.0.7.qualifier"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">
@@ -70,9 +70,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
-      <import plugin="org.apache.commons.math3"/>
       <import plugin="org.knime.xml"/>
       <import plugin="org.knime.ext.poi"/>
+      <import plugin="org.knime.quickform.nodes"/>
    </requires>
 
    <plugin
@@ -226,12 +226,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.sbmlwriter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.jgoodies"
          download-size="0"
          install-size="0"
@@ -239,12 +233,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="com.thoughtworks.xstream"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.sbml.jsbml"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -275,6 +263,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="net.sf.jabref"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.math3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.pdfkeeper"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

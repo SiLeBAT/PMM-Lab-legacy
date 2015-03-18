@@ -44,9 +44,11 @@ public class AttributeUtilities {
 	public static final String ATT_TEMPERATURE = "Temperature";
 	public static final String ATT_PH = "pH";
 	public static final String ATT_AW = "aw";
+	public static final String ATT_PRESSURE = "pressure";
 	public static final int ATT_TEMPERATURE_ID = -1;
 	public static final int ATT_PH_ID = -2;
 	public static final int ATT_AW_ID = -3;
+	public static final int ATT_PRESSURE_ID = -4;
 
 	public static final String AGENT_DETAILS = TimeSeriesSchema.ATT_AGENT
 			+ " Details";

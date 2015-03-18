@@ -74,7 +74,8 @@ public class SQLScriptImporter implements MyImporter {
 	
 	public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 	  	Runnable runnable = new Runnable() {
-	        public void run() {
+	        @SuppressWarnings("resource")
+			public void run() {
 	  		    try {
 	        		if (progress != null) {
 	        			progress.setVisible(true);

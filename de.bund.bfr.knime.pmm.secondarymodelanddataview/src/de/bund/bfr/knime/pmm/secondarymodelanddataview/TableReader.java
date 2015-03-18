@@ -51,7 +51,6 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -92,7 +91,7 @@ public class TableReader {
 		Set<String> idSet = new LinkedHashSet<>();
 		Map<String, String> formulaMap = new LinkedHashMap<>();
 		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
-		Map<String, String> depVarMap = new LinkedHashMap<>();
+		Map<String, DepXml> depVarMap = new LinkedHashMap<>();
 		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
@@ -206,8 +205,8 @@ public class TableReader {
 				String modelNameSec = modelXmlSec.getName();
 				String formulaSec = MathUtilities
 						.getAllButBoundaryCondition(modelXmlSec.getFormula());
-				String depVarSec = ((DepXml) tuple.getPmmXml(
-						Model2Schema.ATT_DEPENDENT).get(0)).getName();
+				DepXml depVarSec = (DepXml) tuple.getPmmXml(
+						Model2Schema.ATT_DEPENDENT).get(0);
 				PmmXmlDoc paramXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 				Map<String, Double> paramData = new LinkedHashMap<>();
@@ -223,7 +222,7 @@ public class TableReader {
 							element.getP());
 				}
 
-				String depVarSecDesc = depVarSec;
+				String depVarSecDesc = depVarSec.getName();
 
 				if (schemaContainsData) {
 					CatalogModelXml primModelXml = (CatalogModelXml) tuple
@@ -236,7 +235,7 @@ public class TableReader {
 
 				for (PmmXmlElementConvertable el : tuple.getPmmXml(
 						Model2Schema.ATT_EMLIT).getElementSet()) {
-					literature += "," + (LiteratureItem) el;
+					literature += "," + el;
 				}
 
 				if (!literature.isEmpty()) {
@@ -254,8 +253,9 @@ public class TableReader {
 				stringColumns.get(Model2Schema.ATT_EMLIT).add(literature);
 				formulas.add(formulaSec);
 				parameterData.add(paramData);
-				shortLegend.put(id, depVarSec);
-				longLegend.put(id, depVarSec + " (" + modelNameSec + ")");
+				shortLegend.put(id, depVarSec.getName());
+				longLegend.put(id, depVarSec.getName() + " (" + modelNameSec
+						+ ")");
 
 				formulaMap.put(id, modelXmlSec.getFormula());
 				depVarMap.put(id, depVarSec);
@@ -287,8 +287,9 @@ public class TableReader {
 			if (schemaContainsData) {
 				PmmXmlDoc paramXml = tuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
-				String depVar = depVarMap.get(id);
-				int depVarIndex = CellIO.getNameList(paramXml).indexOf(depVar);
+				DepXml depVar = depVarMap.get(id);
+				int depVarIndex = CellIO.getNameList(paramXml).indexOf(
+						depVar.getName());
 				Double depVarValue = ((ParamXml) paramXml.get(depVarIndex))
 						.getValue();
 
@@ -329,6 +330,7 @@ public class TableReader {
 
 		for (String id : ids) {
 			Plotable plotable = null;
+			DepXml depVar = depVarMap.get(id);
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 			Map<String, Double> minArg = new LinkedHashMap<>();
 			Map<String, Double> maxArg = new LinkedHashMap<>();
@@ -344,6 +346,10 @@ public class TableReader {
 			} else {
 				plotable = new Plotable(Plotable.FUNCTION);
 			}
+
+			categories.put(depVar.getName(),
+					Arrays.asList(depVar.getCategory()));
+			units.put(depVar.getName(), depVar.getUnit());
 
 			for (PmmXmlElementConvertable el : indepVarMap.get(id)
 					.getElementSet()) {
@@ -375,7 +381,7 @@ public class TableReader {
 			}
 
 			plotable.setFunction(formulaMap.get(id));
-			plotable.setFunctionValue(depVarMap.get(id));
+			plotable.setFunctionValue(depVar.getName());
 			plotable.setFunctionArguments(arguments);
 			plotable.setMinArguments(minArg);
 			plotable.setMaxArguments(maxArg);
@@ -409,7 +415,7 @@ public class TableReader {
 					}
 				}
 
-				plotable.addValueList(depVarMap.get(id), depVarData);
+				plotable.addValueList(depVar.getName(), depVarData);
 
 				for (String param : miscParams) {
 					plotable.addValueList(param, miscs.get(param));

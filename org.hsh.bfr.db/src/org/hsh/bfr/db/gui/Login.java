@@ -43,6 +43,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -64,6 +65,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.BackupMyDBI;
 import org.hsh.bfr.db.DBKernel;
@@ -371,15 +375,19 @@ public class Login extends JFrame {
 							passwordField1.requestFocus();
 							return mf;
 						}
-					}
+					}					
 
-					if (!System.getProperty("os.name").equals("Mac OS X")) {
+					IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					
+					if (eclipseWindow != null && DBKernel.isKrise) {						
+						MessageDialog.openInformation(eclipseWindow.getShell(), "Internal database created", "Internal database created in folder '" + DBKernel.HSHDB_PATH + "'");
+					} else {
 						JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
 						JDialog dialog = pane.createDialog("Internal database created");
 						dialog.setAlwaysOnTop(true);
 						dialog.setVisible(true);
 					}
-
+										
 					mf = initGui(myDB);
 				}
 			} else {
@@ -463,6 +471,12 @@ public class Login extends JFrame {
 				UpdateChecker.check4Updates_1820_18200();
 				DBKernel.setDBVersion("1.8.2.0.0");
 			}
+			/*
+			if (DBKernel.getDBVersionFromDB().equals("1.8.2.0.0")) {
+				UpdateChecker.check4Updates_182_183();
+				DBKernel.setDBVersion("1.8.3");
+			}
+			*/
 
 			DBKernel.closeDBConnections(false);
 		} catch (Exception e) {
@@ -483,10 +497,18 @@ public class Login extends JFrame {
 			if (this.isVisible()) this.dispose();//this.setVisible(false);
 			mf.pack();
 			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
-			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
-			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+
+	        // Determine the new location of the window
+			int defaultW = 1000;
+			int defaultH = 600;
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			int defaultX = (dim.width-defaultW)/2;
+			int defaultY = (dim.height-defaultH)/2;
+			
+	        int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "" + defaultW));
+			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "" + defaultH));
+			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "" + defaultX));
+			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "" + defaultY));
 			mf.setPreferredSize(new Dimension(w, h));
 			mf.setBounds(x, y, w, h);
 			if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);

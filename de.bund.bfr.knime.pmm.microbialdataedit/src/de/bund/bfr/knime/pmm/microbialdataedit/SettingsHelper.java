@@ -50,6 +50,7 @@ import de.bund.bfr.knime.pmm.common.XmlConverter;
 
 public class SettingsHelper {
 
+	
 	protected static final String CFGKEY_ADDEDCONDITIONS = "AddedConditions";
 	protected static final String CFGKEY_ADDEDCONDITIONVALUES = "AddedConditionValues";
 	protected static final String CFGKEY_ADDEDCONDITIONUNITS = "AddedConditionUnits";

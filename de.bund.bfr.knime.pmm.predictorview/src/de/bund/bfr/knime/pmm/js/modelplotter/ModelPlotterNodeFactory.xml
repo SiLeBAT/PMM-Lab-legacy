@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<knimeNode icon="./PredictorView.png" type="Visualizer" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+    <name>Model Plotter</name>
+    
+    <shortDescription>
+        The model plotter plots the first PMM model available in the input data table in a
+        JavaScript view.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro> 
+        The model plotter plots the first PMM model available in the input data table in a
+        JavaScript view. If more plotable functions are provided in the input table only the
+        first will be plottet and a warning will be shown. 
+        
+        All arguments of the plotable function can be adjusted in the view by
+        sliders. Values of constants will be taken from the PMM input.
+        </intro>
+        <option name="Chart title">
+            The chart title will be shown as headline right above the plot. 
+        </option>
+        <option name="Y0 (log10(count/g))">
+            Value of constant Y0 with unit log10(count/g).  
+        </option>
+    </fullDescription>
+    
+    <interactiveView name="Model Plotter">
+        The view plots the function of the forst model.
+    </interactiveView>
+    
+    <ports>
+        <inPort index="0" name="Fitted models">
+            Fitted primary or secondary models and parameters (e.g. from the nodes Model Fitting, 
+            Model Reader, XLS Model Reader, Model Creator)
+        </inPort>
+    </ports>    
+
+</knimeNode>

@@ -20,6 +20,84 @@
             category-path="/pmmlab/views"
             factory-class="de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeFactory"
             id="de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeFactory"/>
+      <node
+            category-path="/pmmlab/views"
+            expert-flag="false"
+            factory-class="de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterNodeFactory"
+            id="de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterNodeFactory">
+      </node>
+   </extension>
+   <extension
+         point="org.knime.js.core.javascriptComponents">
+      <javascriptComponent
+            getComponentValue-method-name="getComponentValue"
+            implementationBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle"
+            init-method-name="init"
+            javascriptComponentID="org.bund.bfr.knime.pmm.js.modelplotter"
+            name="Model Plotter"
+            namespace="bfr_model_plotter"
+            setValidationError-method-name="setValidationError"
+            validate-method-name="validate">
+      </javascriptComponent>
+   </extension>
+   <extension
+         point="org.knime.js.core.webResources">
+      <webResourceBundle
+            debug="true"
+            name="Model Plotter"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">
+         </webResource>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
+         </webDependency>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      <webResourceBundle
+            debug="true"
+            name="Math JS"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/math.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/math.js">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/math.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      <webResourceBundle
+            debug="true"
+            name="JSX Graph"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js"
+               type="JAVASCRIPT">
+         </importResource>
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
+               type="CSS">
+         </importResource>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
+         </webDependency>
+      </webResourceBundle>
    </extension>
    
 </plugin>

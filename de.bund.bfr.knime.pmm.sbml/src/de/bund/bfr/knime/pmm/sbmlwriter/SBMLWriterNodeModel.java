@@ -212,9 +212,16 @@ public class SBMLWriterNodeModel extends NodeModel {
 					dlgInfo);
 			experiments = reader.getExperiments();
 		}
-
+		
 		String caName = String.format("%s/%s.pmf", outPath.getStringValue(),
 				modelName.getStringValue());
+		
+		// Remove previous Combine archive if it exists
+		File fileTemp = new File(caName);
+		if (fileTemp.exists()) {
+			fileTemp.delete();
+		}
+		
 		CombineArchive ca = new CombineArchive(new File(caName));
 
 		SBMLWriter sbmlWriter = new SBMLWriter();
@@ -881,13 +888,12 @@ class PrimaryTableReader extends TableReader {
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
-		Matrix matrix = Matrix.convertMatrixXmlToMatrix(matrixXml);
+		Matrix matrix = new Matrix(matrixXml);
 		Compartment c = matrix.getCompartment();
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Organism organims = Organism.convertAgentXmlToOrganism(organismXml,
-				depXml.getUnit(), c);
+		Organism organims = new Organism(organismXml, depXml.getUnit(), c);
 		model.addSpecies(organims.getSpecies());
 
 		String depName = depXml.getOrigName();
@@ -1108,13 +1114,12 @@ class TertiaryTableReader extends TableReader {
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model
-		Matrix matrix = Matrix.convertMatrixXmlToMatrix(matrixXml);
+		Matrix matrix = new Matrix(matrixXml);
 		Compartment compartment = matrix.getCompartment();
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Organism organism = Organism.convertAgentXmlToOrganism(organismXml,
-				depXml.getUnit(), compartment);
+		Organism organism = new Organism(organismXml, depXml.getUnit(), compartment);
 		model.addSpecies(organism.getSpecies());
 
 		String depName = depXml.getOrigName();

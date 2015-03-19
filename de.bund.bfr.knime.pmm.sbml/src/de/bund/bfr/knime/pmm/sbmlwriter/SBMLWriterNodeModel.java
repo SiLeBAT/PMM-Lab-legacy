@@ -229,7 +229,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		sbmlWriter.setProgramVersion("1.0");
 
 		NuMLWriter numlWriter = new NuMLWriter();
-
+		
 		URI sbmlURI = new URI(
 				"http://identifiers.org/combine.specifications/sbml");
 		URI numlURI = new URI(
@@ -644,11 +644,7 @@ abstract class TableReader {
 
 		// pmf container
 		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNamespaces pmfNS = new XMLNamespaces();
-		pmfNS.add("http://purl.org/dc/terms/", "dc");
-		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
-		pmfNS.add("http://www.dmg.org/PMML-4.2", "pmml");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, null);
 
 		String givenName = docInfo.get("GivenName");
 		String familyName = docInfo.get("FamilyName");
@@ -680,8 +676,6 @@ abstract class TableReader {
 
 		// add non-rdf annotation
 		annot.setNonRDFAnnotation(pmfNode);
-		annot.addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 
 		return annot;
 	}
@@ -693,11 +687,7 @@ abstract class TableReader {
 
 		// pmf container
 		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNamespaces pmfNS = new XMLNamespaces();
-		pmfNS.add("http://purl.org/dc/terms/", "dc");
-		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
-		pmfNS.add("http://www.dmg.org/PMML-4.2", "pmml");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, null);
 
 		// add model id annotation
 		if (modelId != null) {
@@ -726,8 +716,6 @@ abstract class TableReader {
 
 		// add non-rdf annotation
 		annot.setNonRDFAnnotation(pmfNode);
-		annot.addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 
 		return annot;
 	}
@@ -860,6 +848,14 @@ class PrimaryTableReader extends TableReader {
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
+		
+		// Add namespaces
+		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
+		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
+		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 
 		// Document annotation
 		Annotation docAnnot = createDocAnnotation(docInfo);
@@ -1085,6 +1081,14 @@ class TertiaryTableReader extends TableReader {
 		// Document annotation
 		Annotation docAnnot = createDocAnnotation(docInfo);
 		doc.setAnnotation(docAnnot);
+		
+		// Add namespaces
+		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
+		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
+		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 
 		Model model = doc.createModel(modelId);
 		model.setName(modelXml.getName());

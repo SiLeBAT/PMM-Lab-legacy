@@ -4,7 +4,6 @@ import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Species;
-import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
@@ -113,16 +112,11 @@ class OrganismAnnotation extends Annotation {
 		source.addChild(new XMLNode("http://identifiers.org/ncim/" + casNumber));
 
 		// Build PMF container
-		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNamespaces pmfNS = new XMLNamespaces();
-		pmfNS.add("http://purl.org/dc/terms", "dc");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+		XMLNode pmfNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
 		pmfNode.addChild(source);
 
 		// Add non Rdf annotation
 		setNonRDFAnnotation(pmfNode);
-		addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 	}
 
 	public String getCasNumber() {

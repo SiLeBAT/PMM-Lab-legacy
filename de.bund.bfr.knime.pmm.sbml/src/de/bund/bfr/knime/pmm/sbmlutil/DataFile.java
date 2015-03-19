@@ -91,11 +91,6 @@ public class DataFile {
 		doc.setResultComponents(Arrays.asList(resultComponent));
 	}
 
-	public String toString() {
-		NuMLWriter writer = new NuMLWriter();
-		return writer.toString(doc);
-	}
-
 	private OntologyTerm createTimeOntology() throws URISyntaxException {
 		OntologyTerm time = new OntologyTerm();
 		time.setTerm("time");

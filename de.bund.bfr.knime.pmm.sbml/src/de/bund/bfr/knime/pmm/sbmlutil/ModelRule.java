@@ -7,7 +7,6 @@ import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
-import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
@@ -45,10 +44,7 @@ public abstract class ModelRule {
 	protected void addAnnotation(String name, String type) {
 		// pmf container
 		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNamespaces pmfNS = new XMLNamespaces();
-		pmfNS.add("http://purl.org/dc/terms/", "dc");
-		pmfNS.add("http://www.dmg.org/PMML-4.2", "pmml");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
+		XMLNode pmfNode = new XMLNode(pmfTriple, null, null);
 
 		// Add model name to pmfNode
 		ModelNameNode nameNode = new ModelNameNode(name);
@@ -61,8 +57,6 @@ public abstract class ModelRule {
 		// add non rdf annotation
 		Annotation annot = new Annotation();
 		annot.setNonRDFAnnotation(pmfNode);
-		annot.addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 
 		rule.setAnnotation(annot);
 	}

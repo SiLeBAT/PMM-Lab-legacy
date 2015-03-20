@@ -22,22 +22,22 @@ import de.bund.bfr.numl.AtomicDescription;
 import de.bund.bfr.numl.CompositeDescription;
 import de.bund.bfr.numl.DataType;
 import de.bund.bfr.numl.NuMLDocument;
-import de.bund.bfr.numl.NuMLWriter;
 import de.bund.bfr.numl.OntologyTerm;
 import de.bund.bfr.numl.ResultComponent;
 
 public class DataFile {
 	private NuMLDocument doc;
-	
+
 	public DataFile(NuMLDocument doc) {
 		this.doc = doc;
 	}
 
-	public DataFile(Map<Double, Double> dimension, String unit, String matrix,
-			String organism, Map<String, String> dlgInfo) throws URISyntaxException {
+	public DataFile(Map<Double, Double> dimension, String concentrationUnit,
+			String matrix, String organism, Map<String, String> dlgInfo)
+			throws URISyntaxException {
 		OntologyTerm time = createTimeOntology();
-		OntologyTerm concentration = createConcentrationOntology(unit, matrix,
-				organism);
+		OntologyTerm concentration = createConcentrationOntology(
+				concentrationUnit, matrix, organism);
 
 		// * create descriptions for the ontologies
 		AtomicDescription concentrationDesc = new AtomicDescription();
@@ -74,19 +74,19 @@ public class DataFile {
 			Node creatorNode = new Node(pmfNode, "dc:creator", "");
 			creatorNode.setValue(dlgInfo.get("GivenName"));
 		}
-		
+
 		// Add created
 		if (dlgInfo.containsKey("Created")) {
 			Node createdNode = new Node(pmfNode, "dcterms:created", "");
 			createdNode.setValue(dlgInfo.get("Created"));
 		}
-		
+
 		// Add model type
 		if (dlgInfo.containsKey("type")) {
 			Node typeNode = new Node(pmfNode, "dc:type", "");
 			typeNode.setValue(dlgInfo.get("type"));
 		}
-		
+
 		doc = new NuMLDocument();
 		doc.setResultComponents(Arrays.asList(resultComponent));
 	}
@@ -124,7 +124,7 @@ public class DataFile {
 		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
 	}
 
-	private OntologyTerm createConcentrationOntology(String unit,
+	private OntologyTerm createConcentrationOntology(String concentrationUnit,
 			String matrix, String organism) throws URISyntaxException {
 		organism = (organism == null || organism.isEmpty()) ? "MissingSpecies"
 				: organism;
@@ -148,12 +148,12 @@ public class DataFile {
 			map.put(ufdb.getDisplay_in_GUI_as(), ufdb);
 
 		// * Get unit definition from db
-		UnitsFromDB dbUnit = map.get(unit);
+		UnitsFromDB dbUnit = map.get(concentrationUnit);
 		UnitDefinitionWrapper udwrapper = UnitDefinitionWrapper
 				.xmlToUnitDefinition(dbUnit.getMathML_string());
 		UnitDefinition ud = udwrapper.getUnitDefinition();
-		ud.setId(createId(unit));
-		ud.setName(unit);
+		ud.setId(createId(concentrationUnit));
+		ud.setName(concentrationUnit);
 
 		// Add PMF namespace to annotation
 		Map<String, String> pmfNS = new HashMap<>();
@@ -169,10 +169,7 @@ public class DataFile {
 				sbmlNS);
 
 		// Add unit definition
-		Node udNode = new Node(pmfNode, "sbml:unitDefinition",
-				ud.writeXMLAttributes());
-		for (Unit u : ud.getListOfUnits())
-			udNode.appendNode("sbml:unit", u.writeXMLAttributes());
+		pmfNode.append(udwrapper.toGroovyNode());
 
 		// compartment annotation
 		Compartment compartment = new Compartment(createId(matrix), matrix, 3,
@@ -186,7 +183,7 @@ public class DataFile {
 		species.setCompartment(createId(matrix));
 		species.setConstant(false);
 		species.setBoundaryCondition(true);
-		species.setSubstanceUnits(unit); // TODO: concentration
+		species.setSubstanceUnits(concentrationUnit); // TODO: concentration
 											// unit
 		species.setHasOnlySubstanceUnits(false);
 
@@ -206,18 +203,18 @@ public class DataFile {
 		Map<Double, Double> dim = (Map<Double, Double>) doc
 				.getResultComponents().get(0).getDimension();
 
+		// Common fields
+		String timeUnit = "h";
+		String concentrationUnit = "log10(count/g)";
+		String concentrationUnitObjectType = "CFU";
+		Double concentrationStdDev = null;
+		Integer numberOfMeasurements = null;
+
 		int counter = 0;
 		for (Entry<Double, Double> entry : dim.entrySet()) {
 			String name = String.format("t%d", counter);
 			double time = entry.getKey();
-			String timeUnit = "h";
 			double concentration = entry.getValue();
-			String concentrationUnit = "log10(count/g)"; // TODO: parse
-															// concentrationUnit
-			String concentrationUnitObjectType = "CFU"; // TODO: this needs to
-														// be parsed too
-			Double concentrationStdDev = null;
-			Integer numberOfMeasurements = null;
 
 			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit,
 					concentration, concentrationUnit, concentrationStdDev,

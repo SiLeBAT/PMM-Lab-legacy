@@ -854,6 +854,7 @@ class PrimaryTableReader extends TableReader {
 		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
 		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
+		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
 		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
 		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 
@@ -1087,6 +1088,7 @@ class TertiaryTableReader extends TableReader {
 		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
 		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
+		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
 		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
 		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 

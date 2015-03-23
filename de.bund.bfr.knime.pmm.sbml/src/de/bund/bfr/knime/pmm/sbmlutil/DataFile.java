@@ -174,7 +174,7 @@ public class DataFile {
 		// compartment annotation
 		Compartment compartment = new Compartment(createId(matrix), matrix, 3,
 				1);
-		pmfNode.appendNode("sbml:compartment", compartment.writeXMLAttributes());
+		pmfNode.append(new Matrix(compartment).toGroovyNode());
 
 		// species annotation
 		Species species = new Species(3, 1);
@@ -186,8 +186,7 @@ public class DataFile {
 		species.setSubstanceUnits(concentrationUnit); // TODO: concentration
 											// unit
 		species.setHasOnlySubstanceUnits(false);
-
-		pmfNode.appendNode("sbml:species", species.writeXMLAttributes());
+		pmfNode.append(new Organism(species).toGroovyNode());
 
 		return concentration;
 	}

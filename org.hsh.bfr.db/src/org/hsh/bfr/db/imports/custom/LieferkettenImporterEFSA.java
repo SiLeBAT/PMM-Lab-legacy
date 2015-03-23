@@ -416,6 +416,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		return new int[] { numSuccess, numFails };
 	}
 
+	private boolean isNew(HSSFRow row) {
+		if (row != null) {
+			System.err.println(getStrVal(row.getCell(26)));
+			String Y0 = getStrVal(row.getCell(27));
+			if (Y0 == null || Y0.isEmpty()) return true;
+			String A0 = getStrVal(row.getCell(0));
+			return A0.equals("BackwardSerial");
+		}
+		return false;
+	}
 	private boolean isBVL(HSSFRow row) {
 		String A0 = getStrVal(row.getCell(0));
 		return A0.equals("Beispieleintrag");
@@ -432,242 +442,249 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		int numSuccess = 0;
 		int numFails = 0;
 		HSSFSheet transactionSheet = wb.getSheet("Transactions");
-		HSSFSheet businessSheet = wb.getSheet("Business_List");
-		int numRows = transactionSheet.getLastRowNum() + 1;
-		progress.setMaximum(numRows);
-		progress.setValue(0);
 
-		boolean isSimpleFormat = isSimple(transactionSheet.getRow(0));
-		boolean isBvl = isBVL(transactionSheet.getRow(0));
-		for (int i = isBvl ? 6 : 1; i < numRows; i++) {
-			HSSFRow row = transactionSheet.getRow(i);
-			if (row != null) {
-				String serial = getStrVal(row.getCell(0)); // Serial_number
-				String BL0 = getStrVal(row.getCell(1)); // Contact_Region
-				String KP = getStrVal(row.getCell(2)); // Contact_person
+		boolean isSimpleFormat = transactionSheet != null && isSimple(transactionSheet.getRow(0));
+		boolean isNewFormat = transactionSheet == null && wb.getSheet("NewTransactions") != null || isNew(transactionSheet.getRow(0));
+		
+		if (isNewFormat && !isSimpleFormat) {
+			doImportNewFormat(wb, progress);
+		}
+		else {
+			boolean isBvl = isBVL(transactionSheet.getRow(0));
+			HSSFSheet businessSheet = wb.getSheet("Business_List");
+			int numRows = transactionSheet.getLastRowNum() + 1;
+			progress.setMaximum(numRows);
+			progress.setValue(0);
+			for (int i = isBvl ? 6 : 1; i < numRows; i++) {
+				HSSFRow row = transactionSheet.getRow(i);
+				if (row != null) {
+					String serial = getStrVal(row.getCell(0)); // Serial_number
+					String BL0 = getStrVal(row.getCell(1)); // Contact_Region
+					String KP = getStrVal(row.getCell(2)); // Contact_person
 
-				String idRec = getStrVal(row.getCell(3)); // ID_Address
-				String adressRec = getStrVal(row.getCell(4)); // Address
-				if ((serial == null || serial.trim().isEmpty()) && (adressRec == null || adressRec.trim().isEmpty())) {
-					continue;//break;
-				}
-				if (serials.containsKey(serial)) {
-					String msg = "Row: " + (i + 1) + "\tSerial '" + serial + "' already defined in file '" + serials.get(serial) + "' -> not importing this row!";
-					System.err.println(msg);
-					logMessages += msg + "\n";
-					continue;
-				}
-				serials.put(serial, filename);
-				String activityRec = getStrVal(row.getCell(5)); // Activity				      
-				String nameRec = adressRec;
-				String streetRec = null;
-				String streetNoRec = null;
-				String zipRec = null;
-				String cityRec = null;
-				String countyRec = null;
-				String countryRec = null;
-				String vatRec = null;
-				HSSFRow busRow = getRow(businessSheet, idRec, 0);
-				if (busRow != null) {
-					nameRec = getStrVal(busRow.getCell(1)); //
-					streetRec = getStrVal(busRow.getCell(2)); //
-					streetNoRec = getStrVal(busRow.getCell(3), 10); //
-					zipRec = getStrVal(busRow.getCell(4), 10); //
-					cityRec = getStrVal(busRow.getCell(5)); //
-					countyRec = getStrVal(busRow.getCell(6), 30);
-					countryRec = getStrVal(busRow.getCell(7)); // 
-					vatRec = getStrVal(busRow.getCell(8)); //
-					if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
-						String msg = "Row: " + (i + 1) + "\tId issue on recs...\t" + nameRec + " <> " + adressRec;
+					String idRec = getStrVal(row.getCell(3)); // ID_Address
+					String adressRec = getStrVal(row.getCell(4)); // Address
+					if ((serial == null || serial.trim().isEmpty()) && (adressRec == null || adressRec.trim().isEmpty())) {
+						continue;//break;
+					}
+					if (serials.containsKey(serial)) {
+						String msg = "Row: " + (i + 1) + "\tSerial '" + serial + "' already defined in file '" + serials.get(serial) + "' -> not importing this row!";
 						System.err.println(msg);
 						logMessages += msg + "\n";
+						continue;
 					}
-				} else if (idRec != null) {
-					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidReceived: " + idRec;
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				} else {
-					String msg = "Row: " + (i + 1) + "\tidRec is null???\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				}
-
-				String prodNameOut = getStrVal(row.getCell(6)); // ProductName
-				String prodNumOut = getStrVal(row.getCell(7)); // ProductNo
-				String dayOut = getStrVal(row.getCell(8)); // Day
-				String monthOut = getStrVal(row.getCell(9)); // Month
-				String yearOut = getStrVal(row.getCell(10)); // Year
-				String amountKG_Out = getStrVal(row.getCell(11)); // amountKG
-				String typePUOut = getStrVal(row.getCell(12)); // typePU
-				String numPUOut = getStrVal(row.getCell(13)); // numPU
-				String lotNo_Out = getStrVal(row.getCell(14)); // 
-				String dayMHDOut = getStrVal(row.getCell(15));
-				String monthMHDOut = getStrVal(row.getCell(16));
-				String yearMHDOut = getStrVal(row.getCell(17)); // 
-				String dayPDOut = getStrVal(row.getCell(18));
-				String monthPDOut = getStrVal(row.getCell(19));
-				String yearPDOut = getStrVal(row.getCell(20));
-				//Date dateOut = getDate(dayOut, monthOut, yearOut);
-				//Date dateMHDOut = getDate(dayMHDOut, monthMHDOut, yearMHDOut);
-				//Date datePDOut = getDate(dayPDOut, monthPDOut, yearPDOut);
-
-				String idInsp = getStrVal(row.getCell(21)); // ID_Address
-				String adressInsp = getStrVal(row.getCell(22)); // Address
-				String activityInsp = getStrVal(row.getCell(23)); // Activity
-				String nameInsp = adressInsp;
-				String streetInsp = null;
-				String streetNoInsp = null;
-				String zipInsp = null;
-				String cityInsp = null;
-				String countyInsp = null;
-				String countryInsp = null;
-				String vatInsp = null;
-				busRow = getRow(businessSheet, idInsp, 0);
-				if (busRow != null) {
-					nameInsp = getStrVal(busRow.getCell(1)); //
-					streetInsp = getStrVal(busRow.getCell(2)); //
-					streetNoInsp = getStrVal(busRow.getCell(3), 10); //
-					zipInsp = getStrVal(busRow.getCell(4), 10); //
-					cityInsp = getStrVal(busRow.getCell(5)); //
-					countyInsp = getStrVal(busRow.getCell(6), 30);
-					countryInsp = getStrVal(busRow.getCell(7)); // 
-					vatInsp = getStrVal(busRow.getCell(8)); //
-					if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
-						String msg = "Row: " + (i + 1) + "\tId issue on insps...\t" + nameInsp + " <> " + adressInsp;
-						System.err.println(msg);
-						logMessages += msg + "\n";
-					}
-				} else if (idInsp != null) {
-					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidInspected: " + idInsp;
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				} else {
-					String msg = "Row: " + (i + 1) + "\tidInsp is null???\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
-					System.err.println(msg);
-					logMessages += msg + "\n";
-				}
-
-				String oc = "";
-				String cqr = "";
-				if (!isSimpleFormat) {
-					oc = getStrVal(row.getCell(44)); // OriginCountry
-					cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks					
-				}
-				Integer c1 = null;
-				if (nameInsp != null && !nameInsp.trim().isEmpty()) {
-					Integer[] c = getCharge_Lieferung(idInsp, nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, prodNameOut,
-							prodNumOut, null, lotNo_Out, dayMHDOut, monthMHDOut, yearMHDOut, dayPDOut, monthPDOut, yearPDOut, oc, dayOut, monthOut, yearOut, amountKG_Out,
-							typePUOut, numPUOut, idRec, nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec, countryRec, activityRec, vatRec, serial, cqr, null, null,
-							null, null);
-					if (c != null) c1 = c[2];
-				}
-
-				if (isSimpleFormat) continue;
-				
-					String prodNameIn = getStrVal(row.getCell(24)); // ProductName
-					String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
-					String dayIn = getStrVal(row.getCell(26)); // Day
-					String monthIn = getStrVal(row.getCell(27)); // Month
-					String yearIn = getStrVal(row.getCell(28)); // Year
-					String amountKG_In = getStrVal(row.getCell(29)); // amountKG
-					String typePUIn = getStrVal(row.getCell(30)); // typePU
-					String numPUIn = getStrVal(row.getCell(31)); // numPU
-					String lotNo_In = getStrVal(row.getCell(32)); // 
-					String dayMHDIn = getStrVal(row.getCell(33));
-					String monthMHDIn = getStrVal(row.getCell(34));
-					String yearMHDIn = getStrVal(row.getCell(35)); // 
-					String dayPDIn = getStrVal(row.getCell(36));
-					String monthPDIn = getStrVal(row.getCell(37));
-					String yearPDIn = getStrVal(row.getCell(38));
-					//Date dateIn = getDate(dayIn, monthIn, yearIn);
-					//Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
-					//Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
-
-					String idSup = getStrVal(row.getCell(39)); // ID_Address
-					String adressSup = getStrVal(row.getCell(40)); // Address
-					String activitySup = getStrVal(row.getCell(41)); // Activity
-					String nameSup = adressSup;
-					String streetSup = null;
-					String streetNoSup = null;
-					String zipSup = null;
-					String citySup = null;
-					String countySup = null;
-					String countrySup = null;
-					String vatSup = null;
-					busRow = getRow(businessSheet, idSup, 0);
+					serials.put(serial, filename);
+					String activityRec = getStrVal(row.getCell(5)); // Activity				      
+					String nameRec = adressRec;
+					String streetRec = null;
+					String streetNoRec = null;
+					String zipRec = null;
+					String cityRec = null;
+					String countyRec = null;
+					String countryRec = null;
+					String vatRec = null;
+					HSSFRow busRow = getRow(businessSheet, idRec, 0);
 					if (busRow != null) {
-						nameSup = getStrVal(busRow.getCell(1)); //
-						streetSup = getStrVal(busRow.getCell(2)); //
-						streetNoSup = getStrVal(busRow.getCell(3), 10); //
-						zipSup = getStrVal(busRow.getCell(4), 10); //
-						citySup = getStrVal(busRow.getCell(5)); //
-						countySup = getStrVal(busRow.getCell(6), 30);
-						countrySup = getStrVal(busRow.getCell(7)); // 
-						vatSup = getStrVal(busRow.getCell(8)); //
-						if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
-							String msg = "Row: " + (i + 1) + "\tId issue on sups...\t" + nameSup + " <> " + adressSup;
+						nameRec = getStrVal(busRow.getCell(1)); //
+						streetRec = getStrVal(busRow.getCell(2)); //
+						streetNoRec = getStrVal(busRow.getCell(3), 10); //
+						zipRec = getStrVal(busRow.getCell(4), 10); //
+						cityRec = getStrVal(busRow.getCell(5)); //
+						countyRec = getStrVal(busRow.getCell(6), 30);
+						countryRec = getStrVal(busRow.getCell(7)); // 
+						vatRec = getStrVal(busRow.getCell(8)); //
+						if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
+							String msg = "Row: " + (i + 1) + "\tId issue on recs...\t" + nameRec + " <> " + adressRec;
 							System.err.println(msg);
 							logMessages += msg + "\n";
 						}
-					} else if (idSup != null) {
-						String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidSupplier: " + idSup;
+					} else if (idRec != null) {
+						String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidReceived: " + idRec;
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					} else {
-						String msg = "Row: " + (i + 1) + "\tidSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+						String msg = "Row: " + (i + 1) + "\tidRec is null???\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
 						System.err.println(msg);
 						logMessages += msg + "\n";
 					}
 
-					String ec = getStrVal(row.getCell(42)); // EndChain
-					String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
-					String ft = getStrVal(row.getCell(46)); // Further_Traceback
-					String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
+					String prodNameOut = getStrVal(row.getCell(6)); // ProductName
+					String prodNumOut = getStrVal(row.getCell(7)); // ProductNo
+					String dayOut = getStrVal(row.getCell(8)); // Day
+					String monthOut = getStrVal(row.getCell(9)); // Month
+					String yearOut = getStrVal(row.getCell(10)); // Year
+					String amountKG_Out = getStrVal(row.getCell(11)); // amountKG
+					String typePUOut = getStrVal(row.getCell(12)); // typePU
+					String numPUOut = getStrVal(row.getCell(13)); // numPU
+					String lotNo_Out = getStrVal(row.getCell(14)); // 
+					String dayMHDOut = getStrVal(row.getCell(15));
+					String monthMHDOut = getStrVal(row.getCell(16));
+					String yearMHDOut = getStrVal(row.getCell(17)); // 
+					String dayPDOut = getStrVal(row.getCell(18));
+					String monthPDOut = getStrVal(row.getCell(19));
+					String yearPDOut = getStrVal(row.getCell(20));
+					//Date dateOut = getDate(dayOut, monthOut, yearOut);
+					//Date dateMHDOut = getDate(dayMHDOut, monthMHDOut, yearMHDOut);
+					//Date datePDOut = getDate(dayPDOut, monthPDOut, yearPDOut);
 
-					//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-					if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
-						String msg = "Row: " + (i + 1) + "\tDates not in temporal order, dateOut < dateIn!!! , KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
-						System.err.println(msg);
-						logMessages += msg + "\n";
-					}
-				
-
-				Integer c2 = null;
-				if (nameSup != null && !nameSup.trim().isEmpty()) {
-					Integer[] c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup, prodNameIn, prodNumIn,
-							null, lotNo_In, dayMHDIn, monthMHDIn, yearMHDIn, dayPDIn, monthPDIn, yearPDIn, oc, dayIn, monthIn, yearIn, amountKG_In, typePUIn, numPUIn, idInsp,
-							nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, serial, cqr, ec, ece, ft, ms);
-					if (c != null) c2 = c[3];
-				}
-				if (c1 == null) { // Chargen
-					String msg = "Row: " + (i + 1) + "\tError Type 1 (Batches)!!"; // Fehlerchenchen_1
-					System.err.println(msg);
-					logMessages += msg + "\n";
-					numFails++;
-				} else if (c2 == null) { // Lieferungen
-					String msg = "Row: " + (i + 1) + "\tError Type 2 (Deliveries)!! E.g. Station not defined?"; // Fehlerchenchen_2
-					System.err.println(msg);
-					logMessages += msg + "\n";
-					/*
-					 * getCharge_Lieferung(nameSup, streetSup, streetNoSup,
-					 * zipSup, citySup, countySup, countrySup, activitySup,
-					 * vatSup, prodNameIn, prodNumIn, lotNo_In, dateMHDIn,
-					 * datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
-					 * nameSup, streetSup, streetNoSup, zipSup, citySup,
-					 * countySup, countrySup, activityInsp, vatInsp, comment,
-					 * false);
-					 */
-					numFails++;
-				} else {
-					if (c2 != null) {
-						Integer cvID = getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null);
-						if (cvID == null) {
-							String msg = "Row: " + (i + 1) + "\tError Type 4 (Links)!!"; // Fehlerchenchen_4
+					String idInsp = getStrVal(row.getCell(21)); // ID_Address
+					String adressInsp = getStrVal(row.getCell(22)); // Address
+					String activityInsp = getStrVal(row.getCell(23)); // Activity
+					String nameInsp = adressInsp;
+					String streetInsp = null;
+					String streetNoInsp = null;
+					String zipInsp = null;
+					String cityInsp = null;
+					String countyInsp = null;
+					String countryInsp = null;
+					String vatInsp = null;
+					busRow = getRow(businessSheet, idInsp, 0);
+					if (busRow != null) {
+						nameInsp = getStrVal(busRow.getCell(1)); //
+						streetInsp = getStrVal(busRow.getCell(2)); //
+						streetNoInsp = getStrVal(busRow.getCell(3), 10); //
+						zipInsp = getStrVal(busRow.getCell(4), 10); //
+						cityInsp = getStrVal(busRow.getCell(5)); //
+						countyInsp = getStrVal(busRow.getCell(6), 30);
+						countryInsp = getStrVal(busRow.getCell(7)); // 
+						vatInsp = getStrVal(busRow.getCell(8)); //
+						if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
+							String msg = "Row: " + (i + 1) + "\tId issue on insps...\t" + nameInsp + " <> " + adressInsp;
 							System.err.println(msg);
 							logMessages += msg + "\n";
-							numFails++;
+						}
+					} else if (idInsp != null) {
+						String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidInspected: " + idInsp;
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					} else {
+						String msg = "Row: " + (i + 1) + "\tidInsp is null???\t" + adressInsp + (adressInsp != null ? "" : " -> Station not defined");
+						System.err.println(msg);
+						logMessages += msg + "\n";
+					}
+
+					String oc = "";
+					String cqr = "";
+					if (!isSimpleFormat) {
+						oc = getStrVal(row.getCell(44)); // OriginCountry
+						cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks					
+					}
+					Integer c1 = null;
+					if (nameInsp != null && !nameInsp.trim().isEmpty()) {
+						Integer[] c = getCharge_Lieferung(idInsp, nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, prodNameOut,
+								prodNumOut, null, lotNo_Out, dayMHDOut, monthMHDOut, yearMHDOut, dayPDOut, monthPDOut, yearPDOut, oc, dayOut, monthOut, yearOut, amountKG_Out,
+								typePUOut, numPUOut, idRec, nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec, countryRec, activityRec, vatRec, serial, cqr, null, null,
+								null, null);
+						if (c != null) c1 = c[2];
+					}
+
+					if (isSimpleFormat) continue;
+					
+						String prodNameIn = getStrVal(row.getCell(24)); // ProductName
+						String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
+						String dayIn = getStrVal(row.getCell(26)); // Day
+						String monthIn = getStrVal(row.getCell(27)); // Month
+						String yearIn = getStrVal(row.getCell(28)); // Year
+						String amountKG_In = getStrVal(row.getCell(29)); // amountKG
+						String typePUIn = getStrVal(row.getCell(30)); // typePU
+						String numPUIn = getStrVal(row.getCell(31)); // numPU
+						String lotNo_In = getStrVal(row.getCell(32)); // 
+						String dayMHDIn = getStrVal(row.getCell(33));
+						String monthMHDIn = getStrVal(row.getCell(34));
+						String yearMHDIn = getStrVal(row.getCell(35)); // 
+						String dayPDIn = getStrVal(row.getCell(36));
+						String monthPDIn = getStrVal(row.getCell(37));
+						String yearPDIn = getStrVal(row.getCell(38));
+						//Date dateIn = getDate(dayIn, monthIn, yearIn);
+						//Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
+						//Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
+
+						String idSup = getStrVal(row.getCell(39)); // ID_Address
+						String adressSup = getStrVal(row.getCell(40)); // Address
+						String activitySup = getStrVal(row.getCell(41)); // Activity
+						String nameSup = adressSup;
+						String streetSup = null;
+						String streetNoSup = null;
+						String zipSup = null;
+						String citySup = null;
+						String countySup = null;
+						String countrySup = null;
+						String vatSup = null;
+						busRow = getRow(businessSheet, idSup, 0);
+						if (busRow != null) {
+							nameSup = getStrVal(busRow.getCell(1)); //
+							streetSup = getStrVal(busRow.getCell(2)); //
+							streetNoSup = getStrVal(busRow.getCell(3), 10); //
+							zipSup = getStrVal(busRow.getCell(4), 10); //
+							citySup = getStrVal(busRow.getCell(5)); //
+							countySup = getStrVal(busRow.getCell(6), 30);
+							countrySup = getStrVal(busRow.getCell(7)); // 
+							vatSup = getStrVal(busRow.getCell(8)); //
+							if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
+								String msg = "Row: " + (i + 1) + "\tId issue on sups...\t" + nameSup + " <> " + adressSup;
+								System.err.println(msg);
+								logMessages += msg + "\n";
+							}
+						} else if (idSup != null) {
+							String msg = "Row: " + (i + 1) + "\tbusiness not there???\tidSupplier: " + idSup;
+							System.err.println(msg);
+							logMessages += msg + "\n";
 						} else {
-							numSuccess++;
+							String msg = "Row: " + (i + 1) + "\tidSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+							System.err.println(msg);
+							logMessages += msg + "\n";
+						}
+
+						String ec = getStrVal(row.getCell(42)); // EndChain
+						String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
+						String ft = getStrVal(row.getCell(46)); // Further_Traceback
+						String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
+
+						//if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
+						if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) {
+							String msg = "Row: " + (i + 1) + "\tDates not in temporal order, dateOut < dateIn!!! , KP: " + KP + ", BL0: " + BL0 + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn);
+							System.err.println(msg);
+							logMessages += msg + "\n";
+						}
+					
+
+					Integer c2 = null;
+					if (nameSup != null && !nameSup.trim().isEmpty()) {
+						Integer[] c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup, prodNameIn, prodNumIn,
+								null, lotNo_In, dayMHDIn, monthMHDIn, yearMHDIn, dayPDIn, monthPDIn, yearPDIn, oc, dayIn, monthIn, yearIn, amountKG_In, typePUIn, numPUIn, idInsp,
+								nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp, serial, cqr, ec, ece, ft, ms);
+						if (c != null) c2 = c[3];
+					}
+					if (c1 == null) { // Chargen
+						String msg = "Row: " + (i + 1) + "\tError Type 1 (Batches)!!"; // Fehlerchenchen_1
+						System.err.println(msg);
+						logMessages += msg + "\n";
+						numFails++;
+					} else if (c2 == null) { // Lieferungen
+						String msg = "Row: " + (i + 1) + "\tError Type 2 (Deliveries)!! E.g. Station not defined?"; // Fehlerchenchen_2
+						System.err.println(msg);
+						logMessages += msg + "\n";
+						/*
+						 * getCharge_Lieferung(nameSup, streetSup, streetNoSup,
+						 * zipSup, citySup, countySup, countrySup, activitySup,
+						 * vatSup, prodNameIn, prodNumIn, lotNo_In, dateMHDIn,
+						 * datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
+						 * nameSup, streetSup, streetNoSup, zipSup, citySup,
+						 * countySup, countrySup, activityInsp, vatInsp, comment,
+						 * false);
+						 */
+						numFails++;
+					} else {
+						if (c2 != null) {
+							Integer cvID = getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { c2.toString(), c1.toString() }, null, null);
+							if (cvID == null) {
+								String msg = "Row: " + (i + 1) + "\tError Type 4 (Links)!!"; // Fehlerchenchen_4
+								System.err.println(msg);
+								logMessages += msg + "\n";
+								numFails++;
+							} else {
+								numSuccess++;
+							}
 						}
 					}
 				}
@@ -707,6 +724,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				String countySup = null;
 				String countrySup = null;
 				String vatSup = null;
+				String tobSup = null;
 				HSSFRow busRow = getRow(businessSheet, adressSup, 9);
 				if (busRow != null) {
 					idSup = getStrVal(busRow.getCell(0));
@@ -718,12 +736,19 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countySup = getStrVal(busRow.getCell(6), 30);
 					countrySup = getStrVal(busRow.getCell(7));
 					vatSup = getStrVal(busRow.getCell(8));
+					tobSup = getStrVal(busRow.getCell(10));
 				} else if (adressSup != null) {
-					System.err.println("business not there??? Row: " + (i + 1) + "\tadressSup: " + adressSup);
+					//System.err.println("business not there??? Row: " + (i + 1) + "\tadressSup: " + adressSup);
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tadressSup: " + adressSup;
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				} else {
-					System.err.println("adressSup is null??? Row: " + (i + 1) + "\t" + adressSup + (adressSup != null ? "" : " -> Station not defined"));
+					//System.err.println("adressSup is null??? Row: " + (i + 1) + "\t" + adressSup + (adressSup != null ? "" : " -> Station not defined"));
+					String msg = "Row: " + (i + 1) + "\tadressSup is null???\t" + adressSup + (adressSup != null ? "" : " -> Station not defined");
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				}
-
+				
 				String prodName = getStrVal(row.getCell(3));
 				String prodNum = getStrVal(row.getCell(4));
 				String prodTreatment = getStrVal(row.getCell(5));
@@ -753,6 +778,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				String countyRec = null;
 				String countryRec = null;
 				String vatRec = null;
+				String tobRec = null;
 				busRow = getRow(businessSheet, adressRec, 9);
 				if (busRow != null) {
 					idRec = getStrVal(busRow.getCell(0));
@@ -764,10 +790,17 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					countyRec = getStrVal(busRow.getCell(6), 30);
 					countryRec = getStrVal(busRow.getCell(7));
 					vatRec = getStrVal(busRow.getCell(8));
+					tobRec = getStrVal(busRow.getCell(10));
 				} else if (adressRec != null) {
-					System.err.println("business not there??? Row: " + (i + 1) + "\tadressRec: " + adressRec);
+					//System.err.println("business not there??? Row: " + (i + 1) + "\tadressRec: " + adressRec);
+					String msg = "Row: " + (i + 1) + "\tbusiness not there???\tadressRec: " + adressRec;
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				} else {
-					System.err.println("adressRec is null??? Row: " + (i + 1) + "\t" + adressRec + (adressRec != null ? "" : " -> Station not defined"));
+					//System.err.println("adressRec is null??? Row: " + (i + 1) + "\t" + adressRec + (adressRec != null ? "" : " -> Station not defined"));
+					String msg = "Row: " + (i + 1) + "\tadressRec is null???\t" + adressRec + (adressRec != null ? "" : " -> Station not defined");
+					System.err.println(msg);
+					logMessages += msg + "\n";
 				}
 
 				String ec = getStrVal(row.getCell(21)); // EndChain
@@ -779,9 +812,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 				Integer[] c = null;
 				if (nameSup != null && !nameSup.trim().isEmpty()) {
-					c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, null, vatSup, prodName, prodNum, prodTreatment, lotNo_,
+					c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, tobSup, vatSup, prodName, prodNum, prodTreatment, lotNo_,
 							dayMHD, monthMHD, yearMHD, dayPD, monthPD, yearPD, oc, day, month, year, amountKG_, typePU, numPU, idRec, nameRec, streetRec, streetNoRec, zipRec,
-							cityRec, countyRec, countryRec, null, vatRec, serial, cqr, ec, ece, ft, ms);
+							cityRec, countyRec, countryRec, tobRec, vatRec, serial, cqr, ec, ece, ft, ms);
 					storedIDs.put(serial, c);
 					storedBackS.put(serial, backSerial);
 				}
@@ -797,26 +830,44 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (storedIDs.containsKey(backS)) {
 						Integer[] cBack = storedIDs.get(backS);
 						if (is1SurelyNewer(cBack[3], c[3])) {
-							System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Serial: " + serial + "; PreviousSerial: " + backS);
+							//System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Serial: " + serial + "; PreviousSerial: " + backS);
+							String msg = "Dates not in temporal order, dateOut < dateIn!!! Serial: " + serial + "; PreviousSerial: " + backS;
+							System.err.println(msg);
+							logMessages += msg + "\n";
 						}
 						if (c[2] == null) {
-							System.err.println("Fehlerchenchen_1!! Serial: " + backS);
+							//System.err.println("Fehlerchenchen_1!! Serial: " + backS);
+							String msg = "Error Type 1 (Batches)!! Serial: " + backS; // Fehlerchenchen_1
+							System.err.println(msg);
+							logMessages += msg + "\n";
 							numFails++;
 						} else if (cBack[3] == null) {
-							System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Serial: " + serial);
+							//System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Serial: " + serial);
+							String msg = "Error Type 2 (Deliveries)!! E.g. Station not defined? Serial: " + backS; // Fehlerchenchen_1
+							System.err.println(msg);
+							logMessages += msg + "\n";
 							numFails++;
 						} else if (cBack[4].intValue() != c[0].intValue()) {
-							System.err.println("Fehlerchenchen_3!! Recipient and Supplier different... Serial: " + serial);
+							//System.err.println("Fehlerchenchen_3!! Recipient and Supplier different... Serial: " + serial);
+							String msg = "Error Type 3!! Recipient and Supplier different... Serial: " + serial;
+							System.err.println(msg);
+							logMessages += msg + "\n";
 						} else {
 							if (getID("ChargenVerbindungen", new String[] { "Zutat", "Produkt" }, new String[] { cBack[3].toString(), c[2].toString() }, null, null) == null) {
-								System.err.println("Fehlerchenchen_4!! Serial/PreviousSerial: " + serial + " / " + backS);
+								//System.err.println("Fehlerchenchen_4!! Serial/PreviousSerial: " + serial + " / " + backS);
+								String msg = "Error Type 4 (Links)!! Serial/PreviousSerial: " + serial + " / " + backS;
+								System.err.println(msg);
+								logMessages += msg + "\n";
 								numFails++;
 							} else {
 								numSuccess++;
 							}
 						}
 					} else {
-						System.err.println("backSerial not there..." + backS);
+						//System.err.println("backSerial not there..." + backS);
+						String msg = "backSerial not there..." + backS;
+						System.err.println(msg);
+						logMessages += msg + "\n";
 					}
 				}
 			}

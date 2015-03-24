@@ -36,7 +36,7 @@
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="de.bund.bfr.knime.pmm.ui.menus.masterdata"
-               label="Food-Lab"
+               label="PMM-Lab"
                mnemonic="M">
             <command
                   commandId="de.bund.bfr.knime.pmm.ui.commands.openDBGUI"

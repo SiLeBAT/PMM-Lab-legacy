@@ -319,9 +319,7 @@ public class TableReader {
 				stringColumns.get(AttributeUtilities.MATRIX_DETAILS).add(
 						matrix.getDetail());
 				stringColumns.get(MdInfoXml.ATT_COMMENT).add(
-						((MdInfoXml) tuple.getPmmXml(
-								TimeSeriesSchema.ATT_MDINFO).get(0))
-								.getComment());
+						((EstModelXml) estModelXml.get(0)).getComment());
 				doubleColumns.get(Model1Schema.SSE).add(
 						((EstModelXml) estModelXml.get(0)).getSse());
 				doubleColumns.get(Model1Schema.MSE).add(

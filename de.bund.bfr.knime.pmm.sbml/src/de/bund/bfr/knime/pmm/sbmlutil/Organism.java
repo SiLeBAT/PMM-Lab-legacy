@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import groovy.util.Node;
+
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
@@ -73,6 +75,10 @@ public class Organism {
 
 	private static String createId(String s) {
 		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	}
+	
+	public Node toGroovyNode() {
+		return new Node(null, "sbml:species", species.writeXMLAttributes());
 	}
 }
 

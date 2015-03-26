@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import groovy.util.Node;
+
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
@@ -19,7 +21,9 @@ public class Matrix {
 
 	public Matrix(Compartment compartment) {
 		this.compartment = compartment;
-		annotation = new MatrixAnnotation(compartment.getAnnotation());
+		if (compartment.getAnnotation().getNonRDFannotation() != null) {
+			annotation = new MatrixAnnotation(compartment.getAnnotation());
+		}
 	}
 
 	/** Build a PMM Lab Matrix from a MatrixXml */
@@ -85,6 +89,10 @@ public class Matrix {
 
 	private static String createId(String s) {
 		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	}
+	
+	public Node toGroovyNode() {
+		return new Node(null, "sbml:compartment", compartment.writeXMLAttributes());
 	}
 }
 

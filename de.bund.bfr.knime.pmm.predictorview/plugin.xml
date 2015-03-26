@@ -44,23 +44,6 @@
          point="org.knime.js.core.webResources">
       <webResourceBundle
             debug="true"
-            name="Model Plotter"
-            version="1.0.0"
-            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
-         <webResource
-               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
-               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">
-         </webResource>
-         <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
-         </webDependency>
-         <importResource
-               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
-               type="JAVASCRIPT">
-         </importResource>
-      </webResourceBundle>
-      <webResourceBundle
-            debug="true"
             name="Math JS"
             version="1.0.0"
             webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
@@ -97,6 +80,23 @@
          <webDependency
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
          </webDependency>
+      </webResourceBundle>
+      <webResourceBundle
+            debug="true"
+            name="Model Plotter"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">
+         </webResource>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
+         </webDependency>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
+               type="JAVASCRIPT">
+         </importResource>
       </webResourceBundle>
    </extension>
    

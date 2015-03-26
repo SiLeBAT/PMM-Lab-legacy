@@ -18,6 +18,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 *
 * @author Kilian Thiel, KNIME.com GmbH, Berlin, Germany
 */
+/**
+ * @author Kilian
+ *
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public final class ModelPlotterViewRepresentation extends JSONViewContent {
@@ -32,6 +36,39 @@ public final class ModelPlotterViewRepresentation extends JSONViewContent {
 
 	private List<Variable> variables;
 	
+	private String xUnit;
+	
+	private String yUnit;
+
+	
+	/**
+	 * @return the unit of the x axis.
+	 */
+	public String getxUnit() {
+		return xUnit;
+	}
+
+	/**
+	 * @param xUnit the unit of the x axis to set
+	 */
+	public void setxUnit(String xUnit) {
+		this.xUnit = xUnit;
+	}
+
+	/**
+	 * @return the unit of the y axis.
+	 */
+	public String getyUnit() {
+		return yUnit;
+	}
+
+	/**
+	 * @param yUnit the unit of the y axis to set.
+	 */
+	public void setyUnit(String yUnit) {
+		this.yUnit = yUnit;
+	}
+
 	/**
 	 * @return the value of Y0.
 	 */

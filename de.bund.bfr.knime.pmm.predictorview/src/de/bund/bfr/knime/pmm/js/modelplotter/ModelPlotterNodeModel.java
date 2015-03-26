@@ -150,6 +150,9 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 		// CONFIG of JavaScript view
 		vR.setChartTitle(m_config.getChartTitle());
 		vR.setY0(m_config.getY0());
+		// set units
+		vR.setxUnit(p.getUnits().get("Time"));
+		vR.setyUnit(p.getUnits().get("Value"));
 		
 		// DATA: specify function (substring after '=')
 		vR.setFunc(p.getFunction().substring(p.getFunction().indexOf("=") + 1));

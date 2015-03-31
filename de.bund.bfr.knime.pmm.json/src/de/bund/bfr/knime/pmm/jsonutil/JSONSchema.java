@@ -4,10 +4,12 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 
 public class JSONSchema extends KnimeSchema {
+	
+	public static final String ATT_MODEL = "Model";
 
 	public JSONSchema() {
 		try {
-			addStringAttribute("Model");
+			addStringAttribute(ATT_MODEL);
 		} catch (PmmException ex) {
 			ex.printStackTrace();
 		}

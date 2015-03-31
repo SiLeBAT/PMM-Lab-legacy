@@ -8,6 +8,12 @@ public class JSONAgent {
 
 	JSONObject obj; // Json object
 
+	// attribute keys
+	private static final String ATT_ID = "id";
+	private static final String ATT_NAME = "name";
+	private static final String ATT_DETAIL = "detail";
+	private static final String ATT_DBUUID = "dbuuid";
+
 	public JSONAgent(JSONObject obj) {
 		this.obj = obj;
 	}
@@ -16,10 +22,10 @@ public class JSONAgent {
 	public JSONAgent(AgentXml agent) {
 		obj = new JSONObject();
 
-		obj.put("id", agent.getId());
-		obj.put("name", agent.getName());
-		obj.put("detail", agent.getDetail());
-		obj.put("dbuuid", agent.getDbuuid());
+		obj.put(ATT_ID, agent.getId());
+		obj.put(ATT_NAME, agent.getName());
+		obj.put(ATT_DETAIL, agent.getDetail());
+		obj.put(ATT_DBUUID, agent.getDbuuid());
 	}
 
 	public JSONObject getObj() {
@@ -27,10 +33,10 @@ public class JSONAgent {
 	}
 	
 	public AgentXml toAgentXml() {
-		int id = ((Long) obj.get("id")).intValue();
-		String name = (String) obj.get("name");
-		String detail = (String) obj.get("detail");
-		String dbuuid = (String) obj.get("dbuuid");
+		int id = ((Long) obj.get(ATT_ID)).intValue();
+		String name = (String) obj.get(ATT_NAME);
+		String detail = (String) obj.get(ATT_DETAIL);
+		String dbuuid = (String) obj.get(ATT_DBUUID);
 		return new AgentXml(id, name, detail, dbuuid);
 	}
 }

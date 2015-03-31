@@ -47,15 +47,16 @@ public class JSONModel2 {
 		emLitCoder = new JSONLiteratureList(emLits);
 
 		obj = new JSONObject();
-		obj.put("CatModelSec", catModelCoder.getObj());
-		obj.put("DependentSec", depCoder.getObj());
-		obj.put("IndependentSec", indepCoder.getObj());
-		obj.put("EstModelSec", estModelCoder.getObj());
-		obj.put("M_LiteratureSec", mLitCoder.getObj());
-		obj.put("EM_LiteratureSec", emLitCoder.getObj());
-		obj.put("DatabaseWritable", databaseWritable);
-		obj.put("dbuuid", mDBUID);
-		obj.put("GlobalModelID", globalModelID);
+		obj.put(Model2Schema.ATT_MODELCATALOG, catModelCoder.getObj());
+		obj.put(Model2Schema.ATT_ESTMODEL, estModelCoder.getObj());
+		obj.put(Model2Schema.ATT_DEPENDENT, depCoder.getObj());
+		obj.put(Model2Schema.ATT_PARAMETER, paramsCoder.getObj());
+		obj.put(Model2Schema.ATT_INDEPENDENT, indepCoder.getObj());
+		obj.put(Model2Schema.ATT_MLIT, mLitCoder.getObj());
+		obj.put(Model2Schema.ATT_EMLIT, emLitCoder.getObj());
+		obj.put(Model2Schema.ATT_DATABASEWRITABLE, databaseWritable);
+		obj.put(Model2Schema.ATT_DBUUID, mDBUID);
+		obj.put(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
 	}
 
 	public JSONObject getObj() {
@@ -66,15 +67,15 @@ public class JSONModel2 {
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM2Schema());
 		
 		tuple.setValue(Model2Schema.ATT_MODELCATALOG, catModelCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_DEPENDENT, depCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_PARAMETER, paramsCoder.getObj());
 		tuple.setValue(Model2Schema.ATT_ESTMODEL, estModelCoder.getObj());
+		tuple.setValue(Model2Schema.ATT_DEPENDENT, depCoder.getObj());
+		tuple.setValue(Model2Schema.ATT_PARAMETER, paramsCoder.getObj());
+		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepCoder.getObj());
 		tuple.setValue(Model2Schema.ATT_MLIT, mLitCoder.getObj());
 		tuple.setValue(Model2Schema.ATT_EMLIT, emLitCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, obj.get("DatabaseWritable"));
-		tuple.setValue(Model2Schema.ATT_DBUUID, obj.get("dbuuid"));
-		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, obj.get("GlobalModelID"));
+		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, obj.get(Model2Schema.ATT_DATABASEWRITABLE));
+		tuple.setValue(Model2Schema.ATT_DBUUID, obj.get(Model2Schema.ATT_DBUUID));
+		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, obj.get(Model2Schema.ATT_GLOBAL_MODEL_ID));
 		
 		return tuple;
 	}

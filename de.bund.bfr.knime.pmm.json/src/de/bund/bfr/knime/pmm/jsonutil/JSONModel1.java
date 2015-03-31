@@ -47,15 +47,15 @@ public class JSONModel1 {
 		emLitCoder = new JSONLiteratureList(emLits);
 
 		obj = new JSONObject();
-		obj.put("CatModel", catModelCoder.getObj());
-		obj.put("Dependent", depCoder.getObj());
-		obj.put("Independent", indepCoder.getObj());
-		obj.put("Parameter", paramsCoder.getObj());
-		obj.put("EstModel", estModelCoder.getObj());
-		obj.put("M_Literatur", mLitCoder.getObj());
-		obj.put("EM_Literatur", emLitCoder.getObj());
-		obj.put("DatabaseWritable", databaseWritable);
-		obj.put("dbuuid", mDBUID);
+		obj.put(Model1Schema.ATT_MODELCATALOG, catModelCoder.getObj());
+		obj.put(Model1Schema.ATT_ESTMODEL, estModelCoder.getObj());
+		obj.put(Model1Schema.ATT_DEPENDENT, depCoder.getObj());
+		obj.put(Model1Schema.ATT_PARAMETER, paramsCoder.getObj());
+		obj.put(Model1Schema.ATT_INDEPENDENT, indepCoder.getObj());
+		obj.put(Model1Schema.ATT_MLIT, mLitCoder.getObj());
+		obj.put(Model1Schema.ATT_EMLIT, emLitCoder.getObj());
+		obj.put(Model1Schema.ATT_DATABASEWRITABLE, databaseWritable);
+		obj.put(Model1Schema.ATT_DBUUID, mDBUID);
 	}
 
 	public JSONObject getObj() {
@@ -66,14 +66,14 @@ public class JSONModel1 {
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1Schema());
 		
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, catModelCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_DEPENDENT, depCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_PARAMETER, paramsCoder.getObj());
 		tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelCoder.getObj());
+		tuple.setValue(Model1Schema.ATT_DEPENDENT, depCoder.getObj());
+		tuple.setValue(Model1Schema.ATT_PARAMETER, paramsCoder.getObj());
+		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepCoder.getObj());
 		tuple.setValue(Model1Schema.ATT_MLIT, mLitCoder.getObj());
 		tuple.setValue(Model1Schema.ATT_EMLIT, emLitCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, obj.get("DatabaseWritable"));
-		tuple.setValue(Model1Schema.ATT_DBUUID, obj.get("dbuuid"));
+		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, obj.get(Model1Schema.ATT_DATABASEWRITABLE));
+		tuple.setValue(Model1Schema.ATT_DBUUID, obj.get(Model1Schema.ATT_DBUUID));
 		
 		return tuple;
 	}

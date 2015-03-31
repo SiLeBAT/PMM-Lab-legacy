@@ -8,6 +8,12 @@ public class JSONMatrix {
 
 	JSONObject obj; // Json object
 	
+	// attribute keys
+	private static final String ATT_ID = "id";
+	private static final String ATT_NAME = "name";
+	private static final String ATT_DETAIL = "detail";
+	private static final String ATT_DBUUID = "dbuuid";
+	
 	public JSONMatrix(JSONObject obj) {
 		this.obj = obj;
 	}
@@ -16,10 +22,10 @@ public class JSONMatrix {
 	public JSONMatrix(MatrixXml matrix) {
 		obj = new JSONObject();
 
-		obj.put("id", matrix.getId());
-		obj.put("name", matrix.getName());
-		obj.put("detail", matrix.getDetail());
-		obj.put("dbuuid", matrix.getDbuuid());
+		obj.put(ATT_ID, matrix.getId());
+		obj.put(ATT_NAME, matrix.getName());
+		obj.put(ATT_DETAIL, matrix.getDetail());
+		obj.put(ATT_DBUUID, matrix.getDbuuid());
 	}
 
 	public JSONObject getObj() {
@@ -27,10 +33,10 @@ public class JSONMatrix {
 	}
 	
 	public MatrixXml toMatrixXml() {
-		int id = ((Long) obj.get("id")).intValue();
-		String name = (String) obj.get("name");
-		String detail = (String) obj.get("detail");
-		String dbuuid = (String) obj.get("dbuuid");
+		int id = ((Long) obj.get(ATT_ID)).intValue();
+		String name = (String) obj.get(ATT_NAME);
+		String detail = (String) obj.get(ATT_DETAIL);
+		String dbuuid = (String) obj.get(ATT_DBUUID);
 		
 		return new MatrixXml(id, name, detail, dbuuid);
 	}

@@ -7,6 +7,15 @@ import de.bund.bfr.knime.pmm.common.DepXml;
 public class JSONDep {
 	JSONObject obj; // Json object
 
+	// attribute keys
+	private static final String ATT_NAME = "name";
+	private static final String ATT_ORIGNAME = "origname";
+	private static final String ATT_MIN = "min";
+	private static final String ATT_MAX = "max";
+	private static final String ATT_CATEGORY = "category";
+	private static final String ATT_UNIT = "unit";
+	private static final String ATT_DESCRIPTION = "description";
+
 	public JSONDep(JSONObject obj) {
 		this.obj = obj;
 	}
@@ -15,13 +24,13 @@ public class JSONDep {
 	public JSONDep(DepXml dep) {
 		obj = new JSONObject();
 
-		obj.put("name", dep.getName());
-		obj.put("origName", dep.getOrigName());
-		obj.put("min", dep.getMin());
-		obj.put("max", dep.getMax());
-		obj.put("category", dep.getCategory());
-		obj.put("unit", dep.getUnit());
-		obj.put("description", dep.getDescription());
+		obj.put(ATT_NAME, dep.getName());
+		obj.put(ATT_ORIGNAME, dep.getOrigName());
+		obj.put(ATT_MIN, dep.getMin());
+		obj.put(ATT_MAX, dep.getMax());
+		obj.put(ATT_CATEGORY, dep.getCategory());
+		obj.put(ATT_UNIT, dep.getUnit());
+		obj.put(ATT_DESCRIPTION, dep.getDescription());
 	}
 
 	public JSONObject getObj() {
@@ -29,13 +38,13 @@ public class JSONDep {
 	}
 
 	public DepXml toDepXml() {
-		String name = (String) obj.get("name");
-		String origName = (String) obj.get("origName");
-		double min = (double) obj.get("min");
-		double max = (double) obj.get("max");
-		String category = (String) obj.get("category");
-		String unit = (String) obj.get("unit");
-		String description = (String) obj.get("description");
+		String name = (String) obj.get(ATT_NAME);
+		String origName = (String) obj.get(ATT_ORIGNAME);
+		double min = (double) obj.get(ATT_MIN);
+		double max = (double) obj.get(ATT_MAX);
+		String category = (String) obj.get(ATT_CATEGORY);
+		String unit = (String) obj.get(ATT_UNIT);
+		String description = (String) obj.get(ATT_DESCRIPTION);
 
 		DepXml dep = new DepXml(name, origName, category, unit, description);
 		dep.setMin(min);

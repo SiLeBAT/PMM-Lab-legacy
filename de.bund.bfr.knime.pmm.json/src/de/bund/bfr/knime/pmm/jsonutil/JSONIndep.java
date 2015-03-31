@@ -7,6 +7,15 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 public class JSONIndep {
 	JSONObject obj; // json object
 
+	// attribute keys
+	private static final String ATT_NAME = "name";
+	private static final String ATT_ORIGNAME = "origname";
+	private static final String ATT_MIN = "min";
+	private static final String ATT_MAX = "max";
+	private static final String ATT_CATEGORY = "category";
+	private static final String ATT_UNIT = "unit";
+	private static final String ATT_DESCRIPTION = "description";
+
 	public JSONIndep(JSONObject obj) {
 		this.obj = obj;
 	}
@@ -15,13 +24,13 @@ public class JSONIndep {
 	public JSONIndep(IndepXml indep) {
 		obj = new JSONObject();
 
-		obj.put("name", indep.getName());
-		obj.put("origName", indep.getOrigName());
-		obj.put("min", indep.getMin());
-		obj.put("max", indep.getMax());
-		obj.put("category", indep.getCategory());
-		obj.put("unit", indep.getUnit());
-		obj.put("description", indep.getDescription());
+		obj.put(ATT_NAME, indep.getName());
+		obj.put(ATT_ORIGNAME, indep.getOrigName());
+		obj.put(ATT_MIN, indep.getMin());
+		obj.put(ATT_MAX, indep.getMax());
+		obj.put(ATT_CATEGORY, indep.getCategory());
+		obj.put(ATT_UNIT, indep.getUnit());
+		obj.put(ATT_DESCRIPTION, indep.getDescription());
 	}
 
 	public JSONObject getObj() {
@@ -29,13 +38,13 @@ public class JSONIndep {
 	}
 	
 	public IndepXml toIndepXml() {
-		String name = (String) obj.get("name");
-		String origName = (String) obj.get("origName");
-		double min = (double) obj.get("min");
-		double max = (double) obj.get("max");
-		String category = (String) obj.get("category");
-		String unit = (String) obj.get("unit");
-		String description = (String) obj.get("description");
+		String name = (String) obj.get(ATT_NAME);
+		String origName = (String) obj.get(ATT_ORIGNAME);
+		double min = (double) obj.get(ATT_MIN);
+		double max = (double) obj.get(ATT_MAX);
+		String category = (String) obj.get(ATT_CATEGORY);
+		String unit = (String) obj.get(ATT_UNIT);
+		String description = (String) obj.get(ATT_DESCRIPTION);
 		
 		return new IndepXml(name, origName, min, max, category, unit, description);
 	}

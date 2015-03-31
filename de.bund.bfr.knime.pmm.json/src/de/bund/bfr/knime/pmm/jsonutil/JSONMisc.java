@@ -8,6 +8,17 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 
 public class JSONMisc {
 	JSONObject obj; // Json object
+	
+	// attribute keys
+	private static final String ATT_ID = "id";
+	private static final String ATT_NAME = "name";
+	private static final String ATT_DESCRIPTION = "description";
+	private static final String ATT_VALUE = "value";
+	private static final String ATT_CATEGORY = "category";
+	private static final String ATT_UNIT = "unit";
+	private static final String ATT_ORIGUNIT = "origUnit";
+	private static final String ATT_DBUUID = "dbuuid";
+
 
 	public JSONMisc(JSONObject obj) {
 		this.obj = obj;
@@ -17,14 +28,14 @@ public class JSONMisc {
 	public JSONMisc(MiscXml misc) {
 		obj = new JSONObject();
 
-		obj.put("id", misc.getId());
-		obj.put("name", misc.getName());
-		obj.put("description", misc.getDescription());
-		obj.put("value", misc.getValue());
-		obj.put("category", misc.getCategories());
-		obj.put("unit", misc.getUnit());
-		obj.put("origUnit", misc.getOrigUnit());
-		obj.put("dbuuid", misc.getDbuuid());
+		obj.put(ATT_ID, misc.getId());
+		obj.put(ATT_NAME, misc.getName());
+		obj.put(ATT_DESCRIPTION, misc.getDescription());
+		obj.put(ATT_VALUE, misc.getValue());
+		obj.put(ATT_CATEGORY, misc.getCategories());
+		obj.put(ATT_UNIT, misc.getUnit());
+		obj.put(ATT_ORIGUNIT, misc.getOrigUnit());
+		obj.put(ATT_DBUUID, misc.getDbuuid());
 	}
 
 	public JSONObject getObj() {
@@ -32,14 +43,14 @@ public class JSONMisc {
 	}
 
 	public MiscXml toMiscXml() {
-		Integer id = (Integer) obj.get("id");
-		String name = (String) obj.get("name");
-		String description = (String) obj.get("description");
-		Double value = (Double) obj.get("value");
-		List<String> categories = (List<String>) obj.get("category");
-		String unit = (String) obj.get("unit");
-		String origUnit = (String) obj.get("origUnit");
-		String dbuuid = (String) obj.get("dbuuid");
+		Integer id = (Integer) obj.get(ATT_ID);
+		String name = (String) obj.get(ATT_NAME);
+		String description = (String) obj.get(ATT_DESCRIPTION);
+		Double value = (Double) obj.get(ATT_VALUE);
+		List<String> categories = (List<String>) obj.get(ATT_CATEGORY);
+		String unit = (String) obj.get(ATT_UNIT);
+		String origUnit = (String) obj.get(ATT_ORIGUNIT);
+		String dbuuid = (String) obj.get(ATT_DBUUID);
 
 		return new MiscXml(id, name, description, value, categories, unit,
 				origUnit, dbuuid);

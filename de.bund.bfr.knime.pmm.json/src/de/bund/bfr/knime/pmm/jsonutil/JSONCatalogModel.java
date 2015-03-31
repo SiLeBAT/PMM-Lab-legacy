@@ -6,6 +6,14 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
 public class JSONCatalogModel {
 	JSONObject obj; // Json object
+	
+	// attribute keys
+	private static final String ATT_ID = "id";
+	private static final String ATT_NAME = "name";
+	private static final String ATT_FORMULA = "formula";
+	private static final String ATT_MODEL_CLASS = "modelClass";
+	private static final String ATT_COMMENT = "comment";
+	private static final String ATT_DBUUID = "dbuuid";
 
 	public JSONCatalogModel(JSONObject obj) {
 		this.obj = obj;
@@ -15,12 +23,12 @@ public class JSONCatalogModel {
 	public JSONCatalogModel(CatalogModelXml model) {
 		obj = new JSONObject();
 
-		obj.put("id", model.getId());
-		obj.put("name", model.getName());
-		obj.put("formula", model.getFormula());
-		obj.put("modelClass", model.getModelClass());
-		obj.put("comment", model.getComment());
-		obj.put("dbuuid", model.getDbuuid());
+		obj.put(ATT_ID, model.getId());
+		obj.put(ATT_NAME, model.getName());
+		obj.put(ATT_FORMULA, model.getFormula());
+		obj.put(ATT_MODEL_CLASS, model.getModelClass());
+		obj.put(ATT_COMMENT, model.getComment());
+		obj.put(ATT_DBUUID, model.getDbuuid());
 	}
 
 	public JSONObject getObj() {
@@ -28,12 +36,12 @@ public class JSONCatalogModel {
 	}
 
 	public CatalogModelXml toCatalogModelXml() {
-		int id = (int) obj.get("id");
-		String name = (String) obj.get("name");
-		String formula = (String) obj.get("formula");
-		int modelClass = (int) obj.get("modelClass");
-		String comment = (String) obj.get("comment");
-		String dbuuid = (String) obj.get("dbuuid");
+		int id = (int) obj.get(ATT_ID);
+		String name = (String) obj.get(ATT_NAME);
+		String formula = (String) obj.get(ATT_FORMULA);
+		int modelClass = (int) obj.get(ATT_MODEL_CLASS);
+		String comment = (String) obj.get(ATT_COMMENT);
+		String dbuuid = (String) obj.get(ATT_DBUUID);
 
 		CatalogModelXml catModel = new CatalogModelXml(id, name, formula,
 				modelClass, dbuuid);

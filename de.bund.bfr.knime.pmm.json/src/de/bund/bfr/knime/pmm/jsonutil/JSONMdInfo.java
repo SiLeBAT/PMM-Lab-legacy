@@ -7,6 +7,13 @@ import de.bund.bfr.knime.pmm.common.MdInfoXml;
 public class JSONMdInfo {
 
 	JSONObject obj; // JSON object
+	
+	// attribute keys
+	public static final String ATT_ID = "ID";
+	public static final String ATT_NAME = "Name";
+	public static final String ATT_COMMENT = "Comment";
+	public static final String ATT_QUALITYSCORE = "QualityScore";
+	public static final String ATT_CHECKED = "Checked";
 
 	public JSONMdInfo(JSONObject obj) {
 		this.obj = obj;
@@ -16,11 +23,11 @@ public class JSONMdInfo {
 	public JSONMdInfo(MdInfoXml info) {
 		obj = new JSONObject();
 
-		obj.put("id", info.getId());
-		obj.put("name", info.getName());
-		obj.put("comment", info.getComment());
-		obj.put("qualityScore", info.getQualityScore());
-		obj.put("checked", info.getChecked());
+		obj.put(ATT_ID, info.getId());
+		obj.put(ATT_NAME, info.getName());
+		obj.put(ATT_COMMENT, info.getComment());
+		obj.put(ATT_QUALITYSCORE, info.getQualityScore());
+		obj.put(ATT_CHECKED, info.getChecked());
 	}
 
 	public JSONObject getObj() {
@@ -29,16 +36,11 @@ public class JSONMdInfo {
 	
 	public MdInfoXml toMdInfoXml() {
 		Long lid = (Long) obj.get("id");
-		Integer id;
-		if (lid == null) {
-			id = null;
-		} else {
-			id = lid.intValue();
-		}
-		String name = (String) obj.get("name");
-		String comment = (String) obj.get("comment");
-		Integer qualityScore = (Integer) obj.get("qualityScore");
-		Boolean checked = (Boolean) obj.get("checked");
+		Integer id = (lid == null) ? null : lid.intValue();
+		String name = (String) obj.get(ATT_NAME);
+		String comment = (String) obj.get(ATT_COMMENT);
+		Integer qualityScore = (Integer) obj.get(ATT_QUALITYSCORE);
+		Boolean checked = (Boolean) obj.get(ATT_CHECKED);
 		
 		return new MdInfoXml(id, name, comment, qualityScore, checked);
 	}

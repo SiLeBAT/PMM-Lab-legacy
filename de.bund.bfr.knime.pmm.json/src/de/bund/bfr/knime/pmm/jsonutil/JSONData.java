@@ -10,6 +10,18 @@ import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 
 public class JSONData {
 	private JSONArray obj;
+	
+	// attribute keys
+	private static final String ATT_NAME = "name";
+	private static final String ATT_TIME = "time";
+	private static final String ATT_TIME_UNIT = "timeUnit";
+	private static final String ATT_ORIG_TIME_UNIT = "origTimeUnit";
+	private static final String ATT_CONCENTRATION = "concentration";
+	private static final String ATT_CONCENTRATION_UNIT = "concentrationUnit";
+	private static final String ATT_CONCENTRATION_UNIT_OBJECT_TYPE = "concentrationUnitObjectType";
+	private static final String ATT_ORIG_CONCENTRATION_UNIT = "origConcentrationUnit";
+	private static final String ATT_CONCENTRATION_STDDEV = "concentrationStdDev";
+	private static final String ATT_NUMBER_OF_MEASUREMENTS = "numberOfMeasurements";
 
 	public JSONData(JSONArray obj) {
 		this.obj = obj;
@@ -22,16 +34,16 @@ public class JSONData {
 		for (TimeSeriesXml point : timeSeries) {
 			JSONObject jp = new JSONObject();
 
-			jp.put("concentration", point.getConcentration());
-			jp.put("concentrationStdDev", point.getConcentrationStdDev());
-			jp.put("concentrationUnitObjectType",
-					point.getConcentrationUnitObjectType());
-			jp.put("name", point.getName());
-			jp.put("numberOfMeasurements", point.getNumberOfMeasurements());
-			jp.put("origConcentrationUnit", point.getOrigConcentrationUnit());
-			jp.put("origTimeUnit", point.getOrigTimeUnit());
-			jp.put("time", point.getTime());
-			jp.put("timeUnit", point.getTimeUnit());
+			jp.put(ATT_NAME, point.getName());
+			jp.put(ATT_TIME, point.getTime());
+			jp.put(ATT_TIME_UNIT, point.getTimeUnit());
+			jp.put(ATT_ORIG_TIME_UNIT, point.getOrigTimeUnit());
+			jp.put(ATT_CONCENTRATION, point.getConcentration());
+			jp.put(ATT_CONCENTRATION_UNIT, point.getConcentrationUnit());
+			jp.put(ATT_CONCENTRATION_UNIT_OBJECT_TYPE, point.getConcentrationUnitObjectType());
+			jp.put(ATT_ORIG_CONCENTRATION_UNIT, point.getOrigConcentrationUnit());
+			jp.put(ATT_CONCENTRATION_STDDEV, point.getConcentrationStdDev());
+			jp.put(ATT_NUMBER_OF_MEASUREMENTS, point.getNumberOfMeasurements());
 
 			obj.add(jp);
 		}
@@ -47,18 +59,19 @@ public class JSONData {
 		for (int i = 0; i < obj.size(); i++) {
 			JSONObject jp = (JSONObject) obj.get(i);
 
-			String name = (String) jp.get("name");
-			double time = (double) jp.get("time");
-			String timeUnit = (String) jp.get("timeUnit");
-			String origTimeUnit = (String) jp.get("origTimeUnit");
-			double concentration = (double) jp.get("concentration");
-			String concentrationUnit = (String) jp.get("concentrationUnit");
+			String name = (String) jp.get(ATT_NAME);
+			double time = (double) jp.get(ATT_TIME);
+			String timeUnit = (String) jp.get(ATT_TIME_UNIT);
+			String origTimeUnit = (String) jp.get(ATT_ORIG_TIME_UNIT);
+			double concentration = (double) jp.get(ATT_CONCENTRATION);
+			String concentrationUnit = (String) jp.get(ATT_CONCENTRATION_UNIT);
 			String concentrationUnitObjectType = (String) jp
-					.get("concentrationUnitObjectType");
+					.get(ATT_CONCENTRATION_UNIT_OBJECT_TYPE);
 			String origConcentrationUnit = (String) jp
-					.get("origConcentrationUnit");
-			Double concentrationStdDev = (Double) jp.get("concentrationStdDev");
-			Integer numberOfMeasurements = (Integer) jp.get("numberOfMeasurements");
+					.get(ATT_ORIG_CONCENTRATION_UNIT);
+			Double concentrationStdDev = (Double) jp.get(ATT_CONCENTRATION_STDDEV);
+			Integer numberOfMeasurements = (Integer) jp
+					.get(ATT_NUMBER_OF_MEASUREMENTS);
 
 			TimeSeriesXml point = new TimeSeriesXml(name, time, timeUnit,
 					origTimeUnit, concentration, concentrationUnit,

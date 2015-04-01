@@ -1,3 +1,7 @@
+/**
+ * Code and decode a KnimeTuple with Model2Schema into/from JSON.
+ * @author Miguel Alba
+ */
 package de.bund.bfr.knime.pmm.jsonutil;
 
 import java.util.ArrayList;

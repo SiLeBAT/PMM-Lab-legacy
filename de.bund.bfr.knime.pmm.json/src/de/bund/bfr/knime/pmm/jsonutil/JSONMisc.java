@@ -1,3 +1,7 @@
+/**
+ * Code and decode a MiscXml into/from JSON.
+ * @author Miguel Alba
+ */
 package de.bund.bfr.knime.pmm.jsonutil;
 
 import java.util.List;

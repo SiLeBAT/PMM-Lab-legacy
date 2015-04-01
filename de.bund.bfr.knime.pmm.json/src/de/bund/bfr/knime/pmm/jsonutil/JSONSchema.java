@@ -1,3 +1,7 @@
+/**
+ * JSON table schema with one single JSON string.
+ * @author Miguel Alba
+ */
 package de.bund.bfr.knime.pmm.jsonutil;
 
 import de.bund.bfr.knime.pmm.common.PmmException;

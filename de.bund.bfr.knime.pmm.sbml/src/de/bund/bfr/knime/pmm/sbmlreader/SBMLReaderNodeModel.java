@@ -246,6 +246,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// Parse models
 
 		if (isTertiary) {
+			short counter = 0;
 			for (SBMLDocument model : models) {
 				PmmXmlDoc mdData = new PmmXmlDoc();
 
@@ -265,8 +266,12 @@ public class SBMLReaderNodeModel extends NodeModel {
 					container.addRowToTable(tuple);
 				}
 
+				counter++; // Increment counter
+				// update progress bar
+				exec.setProgress((float)counter / models.size());
 			}
 		} else {
+			short counter = 0;
 			for (SBMLDocument model : models) {
 				KnimeTuple tuple = PrimaryModelParser.parseDocument(model);
 
@@ -281,6 +286,10 @@ public class SBMLReaderNodeModel extends NodeModel {
 				}
 				
 				container.addRowToTable(tuple);
+				
+				counter++; // Increment counter
+				// Update progress bar
+				exec.setProgress((float)counter/models.size());
 			}
 		}
 

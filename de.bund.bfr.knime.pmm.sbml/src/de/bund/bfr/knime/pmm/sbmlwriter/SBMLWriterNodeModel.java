@@ -212,16 +212,16 @@ public class SBMLWriterNodeModel extends NodeModel {
 					dlgInfo);
 			experiments = reader.getExperiments();
 		}
-		
+
 		String caName = String.format("%s/%s.pmf", outPath.getStringValue(),
 				modelName.getStringValue());
-		
+
 		// Remove previous Combine archive if it exists
 		File fileTemp = new File(caName);
 		if (fileTemp.exists()) {
 			fileTemp.delete();
 		}
-		
+
 		CombineArchive ca = new CombineArchive(new File(caName));
 
 		SBMLWriter sbmlWriter = new SBMLWriter();
@@ -229,7 +229,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		sbmlWriter.setProgramVersion("1.0");
 
 		NuMLWriter numlWriter = new NuMLWriter();
-		
+
 		URI sbmlURI = new URI(
 				"http://identifiers.org/combine.specifications/sbml");
 		URI numlURI = new URI(
@@ -256,6 +256,10 @@ public class SBMLWriterNodeModel extends NodeModel {
 				DataSourceNode node = new DataSourceNode(dataName);
 				exp.getModel().getModel().getAnnotation().getNonRDFannotation()
 						.addChild(node.getNode());
+
+				counter++; // Increment counter
+				// update progress bar
+				exec.setProgress((float)counter / experiments.size());
 			}
 
 			// Add model
@@ -664,10 +668,11 @@ abstract class TableReader {
 
 		// modified date
 		if (docInfo.containsKey("Modified")) {
-			ModifiedNode modifiedNode = new ModifiedNode(docInfo.get("Modified"));
+			ModifiedNode modifiedNode = new ModifiedNode(
+					docInfo.get("Modified"));
 			pmfNode.addChild(modifiedNode.getNode());
 		}
-		
+
 		// model type
 		if (docInfo.containsKey("type")) {
 			ModelClassNode typeNode = new ModelClassNode(docInfo.get("type"));
@@ -780,7 +785,7 @@ class PrimaryTableReader extends TableReader {
 	public PrimaryTableReader(List<KnimeTuple> tuples,
 			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
-		
+
 		dlgInfo.put("type", "Primary");
 
 		for (KnimeTuple tuple : tuples) {
@@ -829,7 +834,7 @@ class PrimaryTableReader extends TableReader {
 			Map<String, String> docInfo) {
 		replaceCelsiusAndFahrenheit(tuple);
 		renameLog(tuple);
-		
+
 		// retrieve XML cells
 		CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 				Model1Schema.ATT_MODELCATALOG).get(0);
@@ -848,14 +853,17 @@ class PrimaryTableReader extends TableReader {
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
-		
+
 		// Add namespaces
-		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		doc.addDeclaredNamespace("xmlns:xsi",
+				"http://www.w3.org/2001/XMLSchema-instance");
 		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
-		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
 		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
-		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
+		doc.addDeclaredNamespace("xmlns:numl",
+				"http://www.numl.org/numl/level1/version1");
 		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 
 		// Document annotation
@@ -969,7 +977,7 @@ class TertiaryTableReader extends TableReader {
 	public TertiaryTableReader(List<KnimeTuple> tuples,
 			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
-		
+
 		dlgInfo.put("type", "Tertiary");
 
 		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
@@ -1082,14 +1090,17 @@ class TertiaryTableReader extends TableReader {
 		// Document annotation
 		Annotation docAnnot = createDocAnnotation(docInfo);
 		doc.setAnnotation(docAnnot);
-		
+
 		// Add namespaces
-		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		doc.addDeclaredNamespace("xmlns:xsi",
+				"http://www.w3.org/2001/XMLSchema-instance");
 		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
-		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
 		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
-		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
+		doc.addDeclaredNamespace("xmlns:numl",
+				"http://www.numl.org/numl/level1/version1");
 		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 
 		Model model = doc.createModel(modelId);
@@ -1125,7 +1136,8 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Organism organism = new Organism(organismXml, depXml.getUnit(), compartment);
+		Organism organism = new Organism(organismXml, depXml.getUnit(),
+				compartment);
 		model.addSpecies(organism.getSpecies());
 
 		String depName = depXml.getOrigName();

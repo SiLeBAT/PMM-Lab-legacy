@@ -247,9 +247,10 @@ public class JSONEncoderNodeModel extends NodeModel {
 					DataRow row = new DefaultRow(Integer.toString(counter),
 							cells);
 					container.addRowToTable(row);
-
-					counter++;
 				}
+				counter++; // Increment counter
+				// Update progress bar
+				exec.setProgress((float) counter / modelTuples.size());
 			}
 		}
 
@@ -359,7 +360,9 @@ public class JSONEncoderNodeModel extends NodeModel {
 				DataRow row = new DefaultRow(Integer.toString(counter), cells);
 				container.addRowToTable(row);
 
-				counter++;
+				counter++; // Increment counter
+				// Update progress bar
+				exec.setProgress((float)counter / tuples.size());
 			}
 		}
 

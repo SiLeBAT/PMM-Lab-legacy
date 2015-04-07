@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -16,19 +17,12 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 public class JSONModel1 {
-
-	JSONCatalogModel catModelCoder;
-	JSONDep depCoder;
-	JSONIndep indepCoder;
-	JSONParamList paramsCoder;
-	JSONEstModel estModelCoder;
-	JSONLiteratureList mLitCoder;
-	JSONLiteratureList emLitCoder;
 
 	private JSONObject obj;
 	
@@ -42,22 +36,14 @@ public class JSONModel1 {
 			List<LiteratureItem> mLits, List<LiteratureItem> emLits,
 			Integer databaseWritable, String mDBUID) {
 
-		catModelCoder = new JSONCatalogModel(catModel);
-		depCoder = new JSONDep(dep);
-		indepCoder = new JSONIndep(indep);
-		paramsCoder = new JSONParamList(params);
-		estModelCoder = new JSONEstModel(modelXml);
-		mLitCoder = new JSONLiteratureList(mLits);
-		emLitCoder = new JSONLiteratureList(emLits);
-
 		obj = new JSONObject();
-		obj.put(Model1Schema.ATT_MODELCATALOG, catModelCoder.getObj());
-		obj.put(Model1Schema.ATT_ESTMODEL, estModelCoder.getObj());
-		obj.put(Model1Schema.ATT_DEPENDENT, depCoder.getObj());
-		obj.put(Model1Schema.ATT_PARAMETER, paramsCoder.getObj());
-		obj.put(Model1Schema.ATT_INDEPENDENT, indepCoder.getObj());
-		obj.put(Model1Schema.ATT_MLIT, mLitCoder.getObj());
-		obj.put(Model1Schema.ATT_EMLIT, emLitCoder.getObj());
+		obj.put(Model1Schema.ATT_MODELCATALOG, new JSONCatalogModel(catModel).getObj());
+		obj.put(Model1Schema.ATT_ESTMODEL, new JSONEstModel(modelXml).getObj());
+		obj.put(Model1Schema.ATT_DEPENDENT, new JSONDep(dep).getObj());
+		obj.put(Model1Schema.ATT_PARAMETER, new JSONParamList(params).getObj());
+		obj.put(Model1Schema.ATT_INDEPENDENT, new JSONIndep(indep).getObj());
+		obj.put(Model1Schema.ATT_MLIT, new JSONLiteratureList(mLits).getObj());
+		obj.put(Model1Schema.ATT_EMLIT, new JSONLiteratureList(emLits).getObj());
 		obj.put(Model1Schema.ATT_DATABASEWRITABLE, databaseWritable);
 		obj.put(Model1Schema.ATT_DBUUID, mDBUID);
 	}
@@ -69,15 +55,78 @@ public class JSONModel1 {
 	public KnimeTuple toKnimeTuple() {
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1Schema());
 		
-		tuple.setValue(Model1Schema.ATT_MODELCATALOG, catModelCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_DEPENDENT, depCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_PARAMETER, paramsCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_MLIT, mLitCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_EMLIT, emLitCoder.getObj());
-		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, obj.get(Model1Schema.ATT_DATABASEWRITABLE));
-		tuple.setValue(Model1Schema.ATT_DBUUID, obj.get(Model1Schema.ATT_DBUUID));
+		// Set catalog model
+		if (obj.containsKey(Model1Schema.ATT_MODELCATALOG)) {
+			JSONObject jo = (JSONObject) obj.get(Model1Schema.ATT_MODELCATALOG);
+			CatalogModelXml xml = new JSONCatalogModel(jo).toCatalogModelXml();
+			tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(xml));
+		}
+		
+		// Set estimated model
+		if (obj.containsKey(Model1Schema.ATT_ESTMODEL)) {
+			JSONObject jo = (JSONObject) obj.get(Model1Schema.ATT_ESTMODEL);
+			EstModelXml xml = new JSONEstModel(jo).toEstModelXml();
+			tuple.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(xml));
+		}
+		
+		// Set dep
+		if (obj.containsKey(Model1Schema.ATT_DEPENDENT)) {
+			JSONObject jo = (JSONObject) obj.get(Model1Schema.ATT_DEPENDENT);
+			DepXml xml = new JSONDep(jo).toDepXml();
+			tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(xml));
+		}
+		
+		// Set params
+		if (obj.containsKey(Model1Schema.ATT_PARAMETER)) {
+			JSONArray jo = (JSONArray) obj.get(Model1Schema.ATT_PARAMETER);
+			List<ParamXml> xmlList = new JSONParamList(jo).toParamXml();
+			PmmXmlDoc paramCell = new PmmXmlDoc();
+			for (ParamXml xml : xmlList) {
+				paramCell.add(xml);
+			}
+			tuple.setValue(Model1Schema.ATT_PARAMETER, paramCell);
+		}
+		
+		// Set indep
+		if (obj.containsKey(Model1Schema.ATT_INDEPENDENT)) {
+			JSONObject jo = (JSONObject) obj.get(Model1Schema.ATT_INDEPENDENT);
+			IndepXml xml = new JSONIndep(jo).toIndepXml();
+			tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(xml));
+		}
+		
+		// Set model literature
+		if (obj.containsKey(Model1Schema.ATT_MLIT)) {
+			JSONArray ja = (JSONArray) obj.get(Model1Schema.ATT_MLIT);
+			List<LiteratureItem> xmlList = new JSONLiteratureList(ja).toLiteratureItem();
+			PmmXmlDoc mlitCell = new PmmXmlDoc();
+			for (LiteratureItem xml : xmlList) {
+				mlitCell.add(xml);
+			}
+			tuple.setValue(Model1Schema.ATT_MLIT, mlitCell);
+		}
+		
+		// Set estimated model literature
+		if (obj.containsKey(Model1Schema.ATT_EMLIT)) {
+			JSONArray ja = (JSONArray) obj.get(Model1Schema.ATT_EMLIT);
+			List<LiteratureItem> xmlList = new JSONLiteratureList(ja).toLiteratureItem();
+			PmmXmlDoc emlitCell = new PmmXmlDoc();
+			for (LiteratureItem xml : xmlList) {
+				emlitCell.add(xml);
+			}
+			tuple.setValue(Model1Schema.ATT_EMLIT, emlitCell);
+		}
+		
+		// Set databasewritable flag
+		if (obj.containsKey(Model1Schema.ATT_DATABASEWRITABLE)) {
+			int dw = ((Long) obj.get(Model1Schema.ATT_DATABASEWRITABLE)).intValue();
+			tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, dw);
+		}
+		
+		// Set dbuuid
+		if (obj.containsKey(Model1Schema.ATT_DBUUID)) {
+			String dbuuid = (String) obj.get(Model1Schema.ATT_DBUUID);
+			tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
+		}
 		
 		return tuple;
 	}

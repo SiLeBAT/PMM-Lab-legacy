@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
@@ -51,7 +52,7 @@ import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
  * This is the model implementation of JSONEncoder. Turns a PMM Lab table into
  * JSON
  * 
- * @author JSON Encoder
+ * @author Miguel Alba
  */
 public class JSONEncoderNodeModel extends NodeModel {
 
@@ -188,6 +189,7 @@ public class JSONEncoderNodeModel extends NodeModel {
 				JSONModel1 m1 = new JSONModel1(catModel, dep, indep, params,
 						modelXml, mLits, emLits, databaseWritable, dbuuid);
 
+				JSONArray secModels = new JSONArray();
 				for (KnimeTuple secTuple : modelTuples) {
 					// Get Model2 columns from secTuple
 					catModel = (CatalogModelXml) secTuple.getPmmXml(
@@ -235,19 +237,19 @@ public class JSONEncoderNodeModel extends NodeModel {
 					JSONModel2 m2 = new JSONModel2(catModel, dep, indep,
 							params, modelXml, mLits, emLits, databaseWritable,
 							dbuuid, globalModelID);
-
-					JSONObject obj = new JSONObject();
-					obj.put("TimeSeries", ts.getObj());
-					obj.put("Model1Schema", m1.getObj());
-					obj.put("Model2Schema", m2.getObj());
-
-					DataCell[] cells = new DataCell[1];
-					cells[0] = new StringCell(obj.toJSONString());
-
-					DataRow row = new DefaultRow(Integer.toString(counter),
-							cells);
-					container.addRowToTable(row);
+					secModels.add(m2.getObj());
 				}
+				JSONObject obj = new JSONObject();
+				obj.put("TimeSeries", ts.getObj());
+				obj.put("Model1Schema", m1.getObj());
+				obj.put("Model2Schema", secModels);
+				
+				DataCell[] cells = new DataCell[1];
+				cells[0] = new StringCell(obj.toJSONString());
+				
+				DataRow row = new DefaultRow(Integer.toString(counter), cells);
+				container.addRowToTable(row);
+
 				counter++; // Increment counter
 				// Update progress bar
 				exec.setProgress((float) counter / modelTuples.size());
@@ -362,7 +364,7 @@ public class JSONEncoderNodeModel extends NodeModel {
 
 				counter++; // Increment counter
 				// Update progress bar
-				exec.setProgress((float)counter / tuples.size());
+				exec.setProgress((float) counter / tuples.size());
 			}
 		}
 

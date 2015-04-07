@@ -52,16 +52,17 @@ public class JSONEstModel {
 	}
 	
 	public EstModelXml toEstModelXml() {
-		int id = (int) obj.get(ATT_ID);
+		int id = ((Long) obj.get(ATT_ID)).intValue();
 		String name = (String) obj.get(ATT_NAME);
-		double sse = (double) obj.get(ATT_SSE);
-		double rms = (double) obj.get(ATT_RMS);
-		double r2 = (double) obj.get(ATT_R2);
-		double aic = (double) obj.get(ATT_AIC);
-		double bic = (double) obj.get(ATT_BIC);
-		int dof = (int) obj.get(ATT_DOF);
-		int qualityScore = (int) obj.get(ATT_QUALITYSCORE);
-		boolean checked = (boolean) obj.get(ATT_CHECKED);
+		Double sse = (Double) obj.get(ATT_SSE);
+		Double rms = (Double) obj.get(ATT_RMS);
+		Double r2 = (Double) obj.get(ATT_R2);
+		Double aic = (Double) obj.get(ATT_AIC);
+		Double bic = (Double) obj.get(ATT_BIC);
+		Integer dof = (Integer) obj.get(ATT_DOF);
+		Long lQualityScore = (Long) obj.get(ATT_QUALITYSCORE);
+		Integer qualityScore = (lQualityScore == null) ? null : lQualityScore.intValue();
+		Boolean checked = (Boolean) obj.get(ATT_CHECKED);
 		String comment = (String) obj.get(ATT_COMMENT);
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 		

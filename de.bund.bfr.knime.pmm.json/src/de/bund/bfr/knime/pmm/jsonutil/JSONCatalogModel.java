@@ -40,10 +40,10 @@ public class JSONCatalogModel {
 	}
 
 	public CatalogModelXml toCatalogModelXml() {
-		int id = (int) obj.get(ATT_ID);
+		int id = ((Long) obj.get(ATT_ID)).intValue();
 		String name = (String) obj.get(ATT_NAME);
 		String formula = (String) obj.get(ATT_FORMULA);
-		int modelClass = (int) obj.get(ATT_MODEL_CLASS);
+		int modelClass = ((Long) obj.get(ATT_MODEL_CLASS)).intValue();
 		String comment = (String) obj.get(ATT_COMMENT);
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 

@@ -37,7 +37,7 @@ public class JSONAgent {
 	}
 	
 	public AgentXml toAgentXml() {
-		int id = ((Long) obj.get(ATT_ID)).intValue();
+		int id = ((Long)obj.get(ATT_ID)).intValue();
 		String name = (String) obj.get(ATT_NAME);
 		String detail = (String) obj.get(ATT_DETAIL);
 		String dbuuid = (String) obj.get(ATT_DBUUID);

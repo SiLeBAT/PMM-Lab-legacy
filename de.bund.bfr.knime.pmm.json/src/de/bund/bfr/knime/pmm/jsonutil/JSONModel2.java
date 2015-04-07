@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -16,19 +17,12 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 public class JSONModel2 {
-
-	JSONCatalogModel catModelCoder;
-	JSONDep depCoder;
-	JSONIndep indepCoder;
-	JSONParamList paramsCoder;
-	JSONEstModel estModelCoder;
-	JSONLiteratureList mLitCoder;
-	JSONLiteratureList emLitCoder;
 
 	private JSONObject obj;
 	
@@ -42,22 +36,14 @@ public class JSONModel2 {
 			List<LiteratureItem> mLits, List<LiteratureItem> emLits,
 			Integer databaseWritable, String mDBUID, Integer globalModelID) {
 
-		catModelCoder = new JSONCatalogModel(catModel);
-		depCoder = new JSONDep(dep);
-		indepCoder = new JSONIndep(indep);
-		paramsCoder = new JSONParamList(params);
-		estModelCoder = new JSONEstModel(estModel);
-		mLitCoder = new JSONLiteratureList(mLits);
-		emLitCoder = new JSONLiteratureList(emLits);
-
 		obj = new JSONObject();
-		obj.put(Model2Schema.ATT_MODELCATALOG, catModelCoder.getObj());
-		obj.put(Model2Schema.ATT_ESTMODEL, estModelCoder.getObj());
-		obj.put(Model2Schema.ATT_DEPENDENT, depCoder.getObj());
-		obj.put(Model2Schema.ATT_PARAMETER, paramsCoder.getObj());
-		obj.put(Model2Schema.ATT_INDEPENDENT, indepCoder.getObj());
-		obj.put(Model2Schema.ATT_MLIT, mLitCoder.getObj());
-		obj.put(Model2Schema.ATT_EMLIT, emLitCoder.getObj());
+		obj.put(Model2Schema.ATT_MODELCATALOG, new JSONCatalogModel(catModel).getObj());
+		obj.put(Model2Schema.ATT_ESTMODEL, new JSONEstModel(estModel).getObj());
+		obj.put(Model2Schema.ATT_DEPENDENT, new JSONDep(dep).getObj());
+		obj.put(Model2Schema.ATT_PARAMETER, new JSONParamList(params).getObj());
+		obj.put(Model2Schema.ATT_INDEPENDENT, new JSONIndep(indep).getObj());
+		obj.put(Model2Schema.ATT_MLIT, new JSONLiteratureList(mLits).getObj());
+		obj.put(Model2Schema.ATT_EMLIT, new JSONLiteratureList(emLits).getObj());
 		obj.put(Model2Schema.ATT_DATABASEWRITABLE, databaseWritable);
 		obj.put(Model2Schema.ATT_DBUUID, mDBUID);
 		obj.put(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
@@ -70,17 +56,82 @@ public class JSONModel2 {
 	public KnimeTuple toKnimeTuple() {
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM2Schema());
 		
-		tuple.setValue(Model2Schema.ATT_MODELCATALOG, catModelCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_ESTMODEL, estModelCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_DEPENDENT, depCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_PARAMETER, paramsCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_MLIT, mLitCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_EMLIT, emLitCoder.getObj());
-		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, obj.get(Model2Schema.ATT_DATABASEWRITABLE));
-		tuple.setValue(Model2Schema.ATT_DBUUID, obj.get(Model2Schema.ATT_DBUUID));
-		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, obj.get(Model2Schema.ATT_GLOBAL_MODEL_ID));
+		// Set catalog model
+		if (obj.containsKey(Model2Schema.ATT_MODELCATALOG)) {
+			JSONObject jo = (JSONObject) obj.get(Model2Schema.ATT_MODELCATALOG);
+			CatalogModelXml xml = new JSONCatalogModel(jo).toCatalogModelXml();
+			tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(xml));
+		}
 		
+		// Set estimated model
+		if (obj.containsKey(Model2Schema.ATT_ESTMODEL)) {
+			JSONObject jo = (JSONObject) obj.get(Model2Schema.ATT_ESTMODEL);
+			EstModelXml xml = new JSONEstModel(jo).toEstModelXml();
+			tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(xml));
+		}
+		
+		// Set dependent
+		if (obj.containsKey(Model2Schema.ATT_DEPENDENT)) {
+			JSONObject jo = (JSONObject) obj.get(Model2Schema.ATT_DEPENDENT);
+			DepXml xml = new JSONDep(jo).toDepXml();
+			tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(xml));
+		}
+		
+		// Set parameters
+		if (obj.containsKey(Model2Schema.ATT_PARAMETER)) {
+			JSONArray ja = (JSONArray) obj.get(Model2Schema.ATT_PARAMETER);
+			PmmXmlDoc paramCell = new PmmXmlDoc();
+			for (ParamXml xml : new JSONParamList(ja).toParamXml()) {
+				paramCell.add(xml);
+			}
+			tuple.setValue(Model2Schema.ATT_PARAMETER, paramCell);
+		}
+		
+		// Set independent
+		if (obj.containsKey(Model2Schema.ATT_INDEPENDENT)) {
+			JSONObject jo = (JSONObject) obj.get(Model2Schema.ATT_INDEPENDENT);
+			IndepXml xml = new JSONIndep(jo).toIndepXml();
+			tuple.setValue(Model2Schema.ATT_INDEPENDENT, new PmmXmlDoc(xml));
+		}
+		
+		// Set model literature
+		if (obj.containsKey(Model2Schema.ATT_MLIT)) {
+			JSONArray ja = (JSONArray) obj.get(Model2Schema.ATT_MLIT);
+			PmmXmlDoc mlitCell = new PmmXmlDoc();
+			for (LiteratureItem xml : new JSONLiteratureList(ja).toLiteratureItem()) {
+				mlitCell.add(xml);
+			}
+			tuple.setValue(Model2Schema.ATT_MLIT, mlitCell);
+		}
+		
+		// Set estimated model literature
+		if (obj.containsKey(Model2Schema.ATT_EMLIT)) {
+			JSONArray ja = (JSONArray) obj.get(Model2Schema.ATT_EMLIT);
+			PmmXmlDoc mlitCell = new PmmXmlDoc();
+			for (LiteratureItem xml : new JSONLiteratureList(ja).toLiteratureItem()) {
+				mlitCell.add(xml);
+			}
+			tuple.setValue(Model2Schema.ATT_EMLIT, mlitCell);
+		}
+		
+		// Set databasewritable flag
+		if (obj.containsKey(Model2Schema.ATT_DATABASEWRITABLE)) {
+			int dw = ((Long) obj.get(Model2Schema.ATT_DATABASEWRITABLE)).intValue();
+			tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, dw);
+		}
+		
+		// Set dbuuid
+		if (obj.containsKey(Model2Schema.ATT_DBUUID)) {
+			String dbuuid = (String) obj.get(Model2Schema.ATT_DBUUID);
+			tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
+		}
+		
+		// Set global model id
+		if (obj.containsKey(Model2Schema.ATT_GLOBAL_MODEL_ID)) {
+			int gid = ((Long) obj.get(Model2Schema.ATT_GLOBAL_MODEL_ID)).intValue();
+			tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, gid);
+		}
+
 		return tuple;
 	}
 

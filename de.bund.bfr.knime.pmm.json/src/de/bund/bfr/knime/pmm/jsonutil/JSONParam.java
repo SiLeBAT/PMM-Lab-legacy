@@ -62,14 +62,14 @@ public class JSONParam {
 	public ParamXml toParamXml() {
 		String name = (String) obj.get(ATT_NAME);
 		String origName = (String) obj.get(ATT_ORIGNAME);
-		double value = (double) obj.get(ATT_VALUE);
-		double error = (double) obj.get(ATT_ERROR);
-		double min = (double) obj.get(ATT_MIN);
-		double max = (double) obj.get(ATT_MAX);
-		double P = (double) obj.get(ATT_P);
-		double t = (double) obj.get(ATT_T);
-		double minGuess = (double) obj.get(ATT_MINGUESS);
-		double maxGuess = (double) obj.get(ATT_MAXGUESS);
+		Double value = (Double) obj.get(ATT_VALUE);
+		Double error = (Double) obj.get(ATT_ERROR);
+		Double min = (Double) obj.get(ATT_MIN);
+		Double max = (Double) obj.get(ATT_MAX);
+		Double P = (Double) obj.get(ATT_P);
+		Double t = (Double) obj.get(ATT_T);
+		Double minGuess = (Double) obj.get(ATT_MINGUESS);
+		Double maxGuess = (Double) obj.get(ATT_MAXGUESS);
 		String category = (String) obj.get(ATT_CATEGORY);
 		String unit = (String) obj.get(ATT_UNIT);
 		String description = (String) obj.get(ATT_DESCRIPTION);

@@ -24,13 +24,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class JSONTimeSeries {
 
-	JSONAgent organismCoder;
-	JSONMatrix matrixCoder;
-	JSONMdInfo mdInfoCoder;
-	JSONData dataCoder;
-	JSONMiscList miscCoder;
-	JSONLiteratureList litsCoder;
-
 	private JSONObject obj;
 
 	public JSONTimeSeries(JSONObject obj) {
@@ -42,22 +35,15 @@ public class JSONTimeSeries {
 			MatrixXml matrix, List<TimeSeriesXml> data, List<MiscXml> miscList,
 			MdInfoXml mdInfo, List<LiteratureItem> lits, String mDBUID) {
 
-		organismCoder = new JSONAgent(organism);
-		matrixCoder = new JSONMatrix(matrix);
-		mdInfoCoder = new JSONMdInfo(mdInfo);
-		litsCoder = new JSONLiteratureList(lits);
-		dataCoder = new JSONData(data);
-		miscCoder = new JSONMiscList(miscList);
-
 		obj = new JSONObject();
 		obj.put(TimeSeriesSchema.ATT_CONDID, condId);
 		obj.put(TimeSeriesSchema.ATT_COMBASEID, combaseId);
-		obj.put(TimeSeriesSchema.ATT_MISC, organismCoder.getObj());
-		obj.put(TimeSeriesSchema.ATT_MATRIX, matrixCoder.getObj());
-		obj.put(TimeSeriesSchema.ATT_TIMESERIES, dataCoder.getObj());
-		obj.put(TimeSeriesSchema.ATT_MISC, miscCoder.getObj());
-		obj.put(TimeSeriesSchema.ATT_MDINFO, mdInfoCoder.getObj());
-		obj.put(TimeSeriesSchema.ATT_LITMD, litsCoder.getObj());
+		obj.put(TimeSeriesSchema.ATT_MISC, new JSONAgent(organism).getObj());
+		obj.put(TimeSeriesSchema.ATT_MATRIX, new JSONMatrix(matrix).getObj());
+		obj.put(TimeSeriesSchema.ATT_TIMESERIES, new JSONData(data).getObj());
+		obj.put(TimeSeriesSchema.ATT_MISC, new JSONMiscList(miscList).getObj());
+		obj.put(TimeSeriesSchema.ATT_MDINFO, new JSONMdInfo(mdInfo).getObj());
+		obj.put(TimeSeriesSchema.ATT_LITMD, new JSONLiteratureList(lits).getObj());
 		obj.put(TimeSeriesSchema.ATT_DBUUID, mDBUID);
 	}
 
@@ -68,51 +54,74 @@ public class JSONTimeSeries {
 	public KnimeTuple toKnimeTuple() {
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 
-		Integer condID = ((Long) obj.get(TimeSeriesSchema.ATT_CONDID))
-				.intValue();
-
-		String combaseID = (String) obj.get(TimeSeriesSchema.ATT_COMBASEID);
-
-		JSONMiscList jm = new JSONMiscList(
-				(JSONArray) obj.get(TimeSeriesSchema.ATT_MISC));
-		PmmXmlDoc misc = new PmmXmlDoc();
-		for (MiscXml item : jm.toMiscXml()) {
-			misc.add(item);
+		// Set CondID
+		if (obj.containsKey(TimeSeriesSchema.ATT_CONDID)) {
+			int condID = ((Long)obj.get(TimeSeriesSchema.ATT_CONDID)).intValue();
+			tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
 		}
 
-		JSONAgent ja = new JSONAgent((JSONObject) obj.get(TimeSeriesSchema.ATT_AGENT));
-		PmmXmlDoc agent = new PmmXmlDoc(ja.toAgentXml());
-
-		JSONMatrix mc = new JSONMatrix((JSONObject) obj.get(TimeSeriesSchema.ATT_MATRIX));
-		PmmXmlDoc matrix = new PmmXmlDoc(mc.toMatrixXml());
-
-		JSONData jd = new JSONData((JSONArray) obj.get(TimeSeriesSchema.ATT_TIMESERIES));
-		PmmXmlDoc data = new PmmXmlDoc();
-		for (TimeSeriesXml ts : jd.toTimeSeriesXml()) {
-			data.add(ts);
+		// Set CombaseID
+		if (obj.containsKey(TimeSeriesSchema.ATT_COMBASEID)) {
+			String combaseID = (String) obj.get(TimeSeriesSchema.ATT_COMBASEID);
+			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
 		}
 
-		JSONMdInfo jmi = new JSONMdInfo((JSONObject) obj.get(TimeSeriesSchema.ATT_MDINFO));
-		PmmXmlDoc mdInfo = new PmmXmlDoc(jmi.toMdInfoXml());
-
-		JSONLiteratureList jlits = new JSONLiteratureList(
-				(JSONArray) obj.get(TimeSeriesSchema.ATT_LITMD));
-		PmmXmlDoc lits = new PmmXmlDoc();
-		for (LiteratureItem lit : jlits.toLiteratureItem()) {
-			lits.add(lit);
+		// Set misc
+		if (obj.containsKey(TimeSeriesSchema.ATT_MISC)) {
+			JSONArray ja = (JSONArray) obj.get(TimeSeriesSchema.ATT_MISC);
+			PmmXmlDoc miscCell = new PmmXmlDoc();
+			for (MiscXml xml : new JSONMiscList(ja).toMiscXml()) {
+				miscCell.add(xml);
+			}
+			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
 		}
 
-		String dbuuid = (String) obj.get(TimeSeriesSchema.ATT_DBUUID);
+		// Set agent
+		if (obj.containsKey(TimeSeriesSchema.ATT_AGENT)) {
+			JSONObject jo = (JSONObject)obj.get(TimeSeriesSchema.ATT_AGENT);
+			AgentXml xml = new JSONAgent(jo).toAgentXml();
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, xml);
+		}
 
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agent);
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrix);
-		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, data);
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, misc);
-		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfo);
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, jlits);
-		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dbuuid);
+		// Set matrix
+		if (obj.containsKey(TimeSeriesSchema.ATT_MATRIX)) {
+			JSONObject jo = (JSONObject) obj.get(TimeSeriesSchema.ATT_MATRIX);
+			MatrixXml xml = new JSONMatrix(jo).toMatrixXml();
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(xml));
+		}
+
+		// Set model data
+		if (obj.containsKey(TimeSeriesSchema.ATT_TIMESERIES)) {
+			JSONArray ja = (JSONArray) obj.get(TimeSeriesSchema.ATT_TIMESERIES);
+			PmmXmlDoc data = new PmmXmlDoc();
+			for (TimeSeriesXml xml : new JSONData(ja).toTimeSeriesXml()) {
+				data.add(xml);
+			}
+			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, data);
+		}
+
+		// Set model info
+		if (obj.containsKey(TimeSeriesSchema.ATT_MDINFO)) {
+			JSONObject jo = (JSONObject) obj.get(TimeSeriesSchema.ATT_MDINFO);
+			MdInfoXml mdInfo = new JSONMdInfo(jo).toMdInfoXml();
+			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
+		}
+
+		// Set model literature
+		if (obj.containsKey(TimeSeriesSchema.ATT_LITMD)) {
+			JSONArray ja = (JSONArray) obj.get(TimeSeriesSchema.ATT_LITMD);
+			PmmXmlDoc litCell = new PmmXmlDoc();
+			for (LiteratureItem lit : new JSONLiteratureList(ja).toLiteratureItem()) {
+				litCell.add(lit);
+			}
+			tuple.setValue(TimeSeriesSchema.ATT_LITMD, litCell);
+		}
+
+		// Set dbuuid
+		if (obj.containsKey(TimeSeriesSchema.ATT_DBUUID)) {
+			String dbuuid = (String) obj.get(TimeSeriesSchema.ATT_DBUUID);
+			tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dbuuid);
+		}
 
 		return tuple;
 	}

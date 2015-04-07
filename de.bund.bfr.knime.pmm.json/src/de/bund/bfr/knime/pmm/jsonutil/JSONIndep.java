@@ -44,8 +44,8 @@ public class JSONIndep {
 	public IndepXml toIndepXml() {
 		String name = (String) obj.get(ATT_NAME);
 		String origName = (String) obj.get(ATT_ORIGNAME);
-		double min = (double) obj.get(ATT_MIN);
-		double max = (double) obj.get(ATT_MAX);
+		Double min = (Double) obj.get(ATT_MIN);
+		Double max = (Double) obj.get(ATT_MAX);
 		String category = (String) obj.get(ATT_CATEGORY);
 		String unit = (String) obj.get(ATT_UNIT);
 		String description = (String) obj.get(ATT_DESCRIPTION);

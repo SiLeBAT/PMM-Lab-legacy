@@ -51,6 +51,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
@@ -141,6 +142,19 @@ public class Login extends JFrame {
 			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null);
 		}
 		if (mf != null) {
+			// check if the cache is ok
+			try {
+				ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Druck") + " FROM " + DBKernel.delimitL("CACHE_TS"), true);
+				if (rs == null || !rs.first()) {
+					DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
+				}
+				rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Druck") + " FROM " + DBKernel.delimitL("CACHE_selectEstModel1"), true);
+				if (rs == null || !rs.first()) {
+					DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", false, true);
+				}
+			}
+			catch (Exception e) {}
+			
 			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 			/*
 			  DBKernel.sendRequest("DELETE FROM " +
@@ -377,7 +391,12 @@ public class Login extends JFrame {
 						}
 					}					
 
-					IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					IWorkbenchWindow eclipseWindow = null;
+					
+					try{
+						eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					}
+					catch (Exception e) {}
 					
 					if (eclipseWindow != null && DBKernel.isKrise) {						
 						MessageDialog.openInformation(eclipseWindow.getShell(), "Internal database created", "Internal database created in folder '" + DBKernel.HSHDB_PATH + "'");

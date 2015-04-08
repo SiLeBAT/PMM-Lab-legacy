@@ -9,12 +9,7 @@ import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -23,6 +18,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -45,7 +43,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel1;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel2;
-import de.bund.bfr.knime.pmm.jsonutil.JSONSchema;
 import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
 
 /**
@@ -59,28 +56,25 @@ public class JSONEncoderNodeModel extends NodeModel {
 	/**
 	 * Constructor for the node model.
 	 */
+	protected static final PortType[] inPortTypes = { BufferedDataTable.TYPE };
+	protected static final PortType[] outPortTypes = { FlowVariablePortObject.TYPE };
+
 	protected JSONEncoderNodeModel() {
-		super(1, 1);
+		super(inPortTypes, outPortTypes);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+	protected PortObject[] execute(final PortObject[] inData,
 			final ExecutionContext exec) throws Exception {
-
-		// Create output container
-		BufferedDataContainer container = exec
-				.createDataContainer(new JSONSchema().createSpec());
-
+		
 		// Get input table spec
-		DataTableSpec inTableSpec = inData[0].getDataTableSpec();
-
+		BufferedDataTable inTable = (BufferedDataTable)inData[0];
+		DataTableSpec inTableSpec = inTable.getDataTableSpec();
+		
 		if (SchemaFactory.createM12DataSchema().conforms(inTableSpec)) {
 			// Retrieve input tuples
-			List<KnimeTuple> tuples = PmmUtilities.getTuples(inData[0],
+			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable,
 					SchemaFactory.createM12DataSchema());
 
 			// Get secondary models for every tertiary model
@@ -243,12 +237,9 @@ public class JSONEncoderNodeModel extends NodeModel {
 				obj.put("TimeSeries", ts.getObj());
 				obj.put("Model1Schema", m1.getObj());
 				obj.put("Model2Schema", secModels);
-				
-				DataCell[] cells = new DataCell[1];
-				cells[0] = new StringCell(obj.toJSONString());
-				
-				DataRow row = new DefaultRow(Integer.toString(counter), cells);
-				container.addRowToTable(row);
+
+				// Add flow variable with model
+				pushFlowVariableString(Integer.toString(counter), obj.toJSONString());
 
 				counter++; // Increment counter
 				// Update progress bar
@@ -258,7 +249,7 @@ public class JSONEncoderNodeModel extends NodeModel {
 
 		else if (SchemaFactory.createM1DataSchema().conforms(inTableSpec)) {
 			// Retrieve input tuples
-			List<KnimeTuple> tuples = PmmUtilities.getTuples(inData[0],
+			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable,
 					SchemaFactory.createM1DataSchema());
 
 			// Each KNIME tuple is a primary model
@@ -356,11 +347,9 @@ public class JSONEncoderNodeModel extends NodeModel {
 				obj.put("TimeSeries", ts.getObj());
 				obj.put("Model1Schema", m1.getObj());
 
-				DataCell[] cells = new DataCell[1];
-				cells[0] = new StringCell(obj.toJSONString());
-
-				DataRow row = new DefaultRow(Integer.toString(counter), cells);
-				container.addRowToTable(row);
+				// Add flow variable with model
+				pushFlowVariableString(Integer.toString(counter),
+						obj.toJSONString());
 
 				counter++; // Increment counter
 				// Update progress bar
@@ -368,9 +357,7 @@ public class JSONEncoderNodeModel extends NodeModel {
 			}
 		}
 
-		// Close container and return table
-		container.close();
-		return new BufferedDataTable[] { container.getTable() };
+		return new PortObject[]{FlowVariablePortObject.INSTANCE};
 	}
 
 	/**

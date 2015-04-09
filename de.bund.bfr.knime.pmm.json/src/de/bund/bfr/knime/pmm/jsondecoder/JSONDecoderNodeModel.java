@@ -24,7 +24,6 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
 import org.knime.core.node.workflow.FlowVariable;
 
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -59,6 +58,8 @@ public class JSONDecoderNodeModel extends NodeModel {
 
 		// Get input models
 		Map<String, FlowVariable> vars = getAvailableInputFlowVariables();
+
+		// Get model strings and skip the one named "knime.workspace"
 		List<String> modelStrings = new LinkedList<>();
 		for (FlowVariable var : vars.values()) {
 			if (!var.getName().equals("knime.workspace")) {
@@ -80,158 +81,41 @@ public class JSONDecoderNodeModel extends NodeModel {
 			container = exec.createDataContainer(schema.createSpec());
 		}
 
+		// Create threads for each tuple
+		List<Thread> threads = new LinkedList<>();
+		// Parse tertiary models
 		if (isTertiary) {
-			// parse tertiary models
-			int counter = 0;
 			for (String modelString : modelStrings) {
-				obj = (JSONObject) JSONValue.parse(modelString);
-
-				// Time Series columns
-				JSONTimeSeries jTS = new JSONTimeSeries(
-						(JSONObject) obj.get("TimeSeries"));
-				KnimeTuple tsTuple = jTS.toKnimeTuple();
-
-				// Model 1 columns
-				JSONModel1 jM1 = new JSONModel1(
-						(JSONObject) obj.get("Model1Schema"));
-				KnimeTuple m1Tuple = jM1.toKnimeTuple();
-
-				JSONArray secModels = (JSONArray) obj.get("Model2Schema");
-				for (int i = 0; i < secModels.size(); i++) {
-					JSONModel2 jM2 = new JSONModel2(
-							(JSONObject) secModels.get(i));
-					KnimeTuple m2Tuple = jM2.toKnimeTuple();
-
-					KnimeTuple outTuple = new KnimeTuple(
-							SchemaFactory.createM12DataSchema());
-					// Add time series columns
-					outTuple.setValue(TimeSeriesSchema.ATT_CONDID,
-							tsTuple.getInt(TimeSeriesSchema.ATT_CONDID));
-					outTuple.setValue(TimeSeriesSchema.ATT_AGENT,
-							tsTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
-					outTuple.setValue(TimeSeriesSchema.ATT_MATRIX,
-							tsTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
-					outTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
-							tsTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
-					outTuple.setValue(TimeSeriesSchema.ATT_MISC,
-							tsTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
-					outTuple.setValue(TimeSeriesSchema.ATT_MDINFO,
-							tsTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
-					outTuple.setValue(TimeSeriesSchema.ATT_LITMD,
-							tsTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
-					outTuple.setValue(TimeSeriesSchema.ATT_DBUUID,
-							tsTuple.getString(TimeSeriesSchema.ATT_DBUUID));
-
-					// Add model1 columns
-					outTuple.setValue(Model1Schema.ATT_MODELCATALOG,
-							m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
-					outTuple.setValue(Model1Schema.ATT_DEPENDENT,
-							m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
-					outTuple.setValue(Model1Schema.ATT_INDEPENDENT,
-							m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
-					outTuple.setValue(Model1Schema.ATT_PARAMETER,
-							m1Tuple.getPmmXml(Model1Schema.ATT_PARAMETER));
-					outTuple.setValue(Model1Schema.ATT_ESTMODEL,
-							m1Tuple.getPmmXml(Model1Schema.ATT_ESTMODEL));
-					outTuple.setValue(Model1Schema.ATT_MLIT,
-							m1Tuple.getPmmXml(Model1Schema.ATT_MLIT));
-					outTuple.setValue(Model1Schema.ATT_EMLIT,
-							m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
-					outTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
-							m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
-					outTuple.setValue(Model1Schema.ATT_DBUUID,
-							m1Tuple.getString(Model1Schema.ATT_DBUUID));
-
-					// Add model2 columns
-					outTuple.setValue(Model2Schema.ATT_MODELCATALOG,
-							m2Tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG));
-					outTuple.setValue(Model2Schema.ATT_DEPENDENT,
-							m2Tuple.getPmmXml(Model2Schema.ATT_DEPENDENT));
-					outTuple.setValue(Model2Schema.ATT_INDEPENDENT,
-							m2Tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));
-					outTuple.setValue(Model2Schema.ATT_PARAMETER,
-							m2Tuple.getPmmXml(Model2Schema.ATT_PARAMETER));
-					outTuple.setValue(Model2Schema.ATT_MLIT,
-							m2Tuple.getPmmXml(Model2Schema.ATT_MLIT));
-					outTuple.setValue(Model2Schema.ATT_EMLIT,
-							m2Tuple.getPmmXml(Model2Schema.ATT_EMLIT));
-					outTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
-							m2Tuple.getInt(Model2Schema.ATT_DATABASEWRITABLE));
-					outTuple.setValue(Model2Schema.ATT_DBUUID,
-							m2Tuple.getString(Model2Schema.ATT_DBUUID));
-					outTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
-							m2Tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
-
-					container.addRowToTable(outTuple);
-					counter++; // Increment counter
-					// Update progress bar
-					exec.setProgress((float) counter / modelStrings.size());
-				}
-			}
-		} else {
-			// parse primary models
-			int counter = 0;
-			
-			for (String modelString : modelStrings) {
-				
-				obj = (JSONObject) JSONValue.parse(modelString);
-
-				JSONTimeSeries jTS = new JSONTimeSeries(
-						(JSONObject) obj.get("TimeSeries"));
-				JSONModel1 jM1 = new JSONModel1(
-						(JSONObject) obj.get("Model1Schema"));
-
-				KnimeTuple tsTuple = jTS.toKnimeTuple();
-				KnimeTuple m1Tuple = jM1.toKnimeTuple();
-
-				KnimeTuple outTuple = new KnimeTuple(
-						SchemaFactory.createM1DataSchema());
-
-				// Add time series columns
-				outTuple.setValue(TimeSeriesSchema.ATT_CONDID,
-						tsTuple.getInt(TimeSeriesSchema.ATT_CONDID));
-				outTuple.setValue(TimeSeriesSchema.ATT_AGENT,
-						tsTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
-				outTuple.setValue(TimeSeriesSchema.ATT_MATRIX,
-						tsTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
-				outTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
-						tsTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
-				outTuple.setValue(TimeSeriesSchema.ATT_MISC,
-						tsTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
-				outTuple.setValue(TimeSeriesSchema.ATT_MDINFO,
-						tsTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
-				outTuple.setValue(TimeSeriesSchema.ATT_LITMD,
-						tsTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
-				outTuple.setValue(TimeSeriesSchema.ATT_DBUUID,
-						tsTuple.getString(TimeSeriesSchema.ATT_DBUUID));
-
-				// Add model1 columns
-				outTuple.setValue(Model1Schema.ATT_MODELCATALOG,
-						m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
-				outTuple.setValue(Model1Schema.ATT_DEPENDENT,
-						m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
-				outTuple.setValue(Model1Schema.ATT_INDEPENDENT,
-						m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
-				outTuple.setValue(Model1Schema.ATT_PARAMETER,
-						m1Tuple.getPmmXml(Model1Schema.ATT_PARAMETER));
-				outTuple.setValue(Model1Schema.ATT_ESTMODEL,
-						m1Tuple.getPmmXml(Model1Schema.ATT_ESTMODEL));
-				outTuple.setValue(Model1Schema.ATT_MLIT,
-						m1Tuple.getPmmXml(Model1Schema.ATT_MLIT));
-				outTuple.setValue(Model1Schema.ATT_EMLIT,
-						m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
-				outTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
-						m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
-				outTuple.setValue(Model1Schema.ATT_DBUUID,
-						m1Tuple.getString(Model1Schema.ATT_DBUUID));
-
-				container.addRowToTable(outTuple);
-
-				counter++; // Increment counter
-				// Update progress bar
-				exec.setProgress((float) counter / modelStrings.size());
+				threads.add(new Thread(new TertiaryModelParser(modelString)));
 			}
 		}
+		// Parse primary models
+		else {
+			for (String modelString : modelStrings) {
+				threads.add(new Thread(new PrimaryModelParser(modelString)));
+			}
+		}
+
+		// Start threads
+		for (Thread thread : threads) {
+			thread.start();
+		}
+
+		// Join threads
+		int counter = 0;
+		for (Thread thread : threads) {
+			thread.join();
+			counter++;
+			exec.setProgress((float) counter / threads.size());
+		}
+		
+		// Add tuples to table
+		for (KnimeTuple tuple : ModelTuples.getModelTuples().getTuples()) {
+			container.addRowToTable(tuple);
+		}
+		
+		// clear model tuples (otherwise they'll be kept on the next run)
+		ModelTuples.getModelTuples().clear();
 
 		// close container and return its table
 		container.close();
@@ -294,5 +178,211 @@ public class JSONDecoderNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+}
+
+class ModelTuples {
+	private static ModelTuples m = new ModelTuples();
+	private List<KnimeTuple> tuples = new LinkedList<>();
+
+	private ModelTuples() {
+	}
+
+	public static ModelTuples getModelTuples() {
+		return m;
+	}
+
+	public synchronized void addTuple(KnimeTuple tuple) {
+		tuples.add(tuple);
+	}
+
+	public List<KnimeTuple> getTuples() {
+		return tuples;
+	}
+
+	public void clear() {
+		tuples.clear();
+	}
+}
+
+class PrimaryModelParser implements Runnable {
+	String modelString;
+
+	public PrimaryModelParser(String modelString) {
+		this.modelString = modelString;
+	}
+
+	public void run() {
+		// Parse model string
+		KnimeTuple tuple = parse(modelString);
+
+		// Add tuple
+		ModelTuples mt = ModelTuples.getModelTuples();
+		mt.addTuple(tuple);
+	}
+
+	private KnimeTuple parse(String modelString) {
+		JSONObject obj = (JSONObject) JSONValue.parse(modelString);
+
+		// Parse JSONTimeSeries from json object
+		JSONTimeSeries jTS = new JSONTimeSeries(
+				(JSONObject) obj.get("TimeSeries"));
+		KnimeTuple tsTuple = jTS.toKnimeTuple();
+
+		// Parse JSONModel1 from json object
+		JSONModel1 jM1 = new JSONModel1((JSONObject) obj.get("Model1Schema"));
+		KnimeTuple m1Tuple = jM1.toKnimeTuple();
+
+		// Build new tuple called outTuple
+		KnimeTuple outTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
+
+		// Add time series columns to outTuple
+		outTuple.setValue(TimeSeriesSchema.ATT_CONDID,
+				tsTuple.getInt(TimeSeriesSchema.ATT_CONDID));
+		outTuple.setValue(TimeSeriesSchema.ATT_AGENT,
+				tsTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+		outTuple.setValue(TimeSeriesSchema.ATT_MATRIX,
+				tsTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+		outTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
+				tsTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+		outTuple.setValue(TimeSeriesSchema.ATT_MISC,
+				tsTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+		outTuple.setValue(TimeSeriesSchema.ATT_MDINFO,
+				tsTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+		outTuple.setValue(TimeSeriesSchema.ATT_LITMD,
+				tsTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+		outTuple.setValue(TimeSeriesSchema.ATT_DBUUID,
+				tsTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+
+		// Add model1 columns to outTuple
+		outTuple.setValue(Model1Schema.ATT_MODELCATALOG,
+				m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
+		outTuple.setValue(Model1Schema.ATT_DEPENDENT,
+				m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
+		outTuple.setValue(Model1Schema.ATT_INDEPENDENT,
+				m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
+		outTuple.setValue(Model1Schema.ATT_PARAMETER,
+				m1Tuple.getPmmXml(Model1Schema.ATT_PARAMETER));
+		outTuple.setValue(Model1Schema.ATT_ESTMODEL,
+				m1Tuple.getPmmXml(Model1Schema.ATT_ESTMODEL));
+		outTuple.setValue(Model1Schema.ATT_MLIT,
+				m1Tuple.getPmmXml(Model1Schema.ATT_MLIT));
+		outTuple.setValue(Model1Schema.ATT_EMLIT,
+				m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
+		outTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
+				m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
+		outTuple.setValue(Model1Schema.ATT_DBUUID,
+				m1Tuple.getString(Model1Schema.ATT_DBUUID));
+
+		return outTuple;
+	}
+}
+
+class TertiaryModelParser implements Runnable {
+	String modelString;
+
+	public TertiaryModelParser(String modelString) {
+		this.modelString = modelString;
+	}
+
+	public void run() {
+		// Parse model string
+		List<KnimeTuple> tuples = parse(modelString);
+
+		// Add tuples
+		ModelTuples mt = ModelTuples.getModelTuples();
+		for (KnimeTuple tuple : tuples) {
+			mt.addTuple(tuple);
+		}
+	}
+
+	private List<KnimeTuple> parse(String modelString) {
+
+		List<KnimeTuple> modelTuples = new LinkedList<>();
+		JSONObject obj = (JSONObject) JSONValue.parse(modelString);
+
+		// Parse JSONTimeSeries from modelString
+		JSONTimeSeries jTS = new JSONTimeSeries(
+				(JSONObject) obj.get("TimeSeries"));
+		KnimeTuple tsTuple = jTS.toKnimeTuple();
+
+		// Parse JSONModel1 from modelString
+		JSONModel1 jM1 = new JSONModel1((JSONObject) obj.get("Model1Schema"));
+		KnimeTuple m1Tuple = jM1.toKnimeTuple();
+
+		// Get secondary models from modelString
+		JSONArray secModels = (JSONArray) obj.get("Model2Schema");
+		for (int i = 0; i < secModels.size(); i++) {
+			// Parse JSONModel from secModel
+			JSONModel2 jM2 = new JSONModel2((JSONObject) secModels.get(i));
+			KnimeTuple m2Tuple = jM2.toKnimeTuple();
+
+			// Build new tuple called outTuple
+			KnimeTuple outTuple = new KnimeTuple(
+					SchemaFactory.createM12DataSchema());
+
+			// Add time series columns to outTuple
+			outTuple.setValue(TimeSeriesSchema.ATT_CONDID,
+					tsTuple.getInt(TimeSeriesSchema.ATT_CONDID));
+			outTuple.setValue(TimeSeriesSchema.ATT_AGENT,
+					tsTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+			outTuple.setValue(TimeSeriesSchema.ATT_MATRIX,
+					tsTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+			outTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
+					tsTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+			outTuple.setValue(TimeSeriesSchema.ATT_MISC,
+					tsTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+			outTuple.setValue(TimeSeriesSchema.ATT_MDINFO,
+					tsTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+			outTuple.setValue(TimeSeriesSchema.ATT_LITMD,
+					tsTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+			outTuple.setValue(TimeSeriesSchema.ATT_DBUUID,
+					tsTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+
+			// Add model1 columns to outTuple
+			outTuple.setValue(Model1Schema.ATT_MODELCATALOG,
+					m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
+			outTuple.setValue(Model1Schema.ATT_DEPENDENT,
+					m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
+			outTuple.setValue(Model1Schema.ATT_INDEPENDENT,
+					m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
+			outTuple.setValue(Model1Schema.ATT_PARAMETER,
+					m1Tuple.getPmmXml(Model1Schema.ATT_PARAMETER));
+			outTuple.setValue(Model1Schema.ATT_ESTMODEL,
+					m1Tuple.getPmmXml(Model1Schema.ATT_ESTMODEL));
+			outTuple.setValue(Model1Schema.ATT_MLIT,
+					m1Tuple.getPmmXml(Model1Schema.ATT_MLIT));
+			outTuple.setValue(Model1Schema.ATT_EMLIT,
+					m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
+			outTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
+					m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
+			outTuple.setValue(Model1Schema.ATT_DBUUID,
+					m1Tuple.getString(Model1Schema.ATT_DBUUID));
+
+			// Add model2 columns to outTuple
+			outTuple.setValue(Model2Schema.ATT_MODELCATALOG,
+					m2Tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG));
+			outTuple.setValue(Model2Schema.ATT_DEPENDENT,
+					m2Tuple.getPmmXml(Model2Schema.ATT_DEPENDENT));
+			outTuple.setValue(Model2Schema.ATT_INDEPENDENT,
+					m2Tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));
+			outTuple.setValue(Model2Schema.ATT_PARAMETER,
+					m2Tuple.getPmmXml(Model2Schema.ATT_PARAMETER));
+			outTuple.setValue(Model2Schema.ATT_MLIT,
+					m2Tuple.getPmmXml(Model2Schema.ATT_MLIT));
+			outTuple.setValue(Model2Schema.ATT_EMLIT,
+					m2Tuple.getPmmXml(Model2Schema.ATT_EMLIT));
+			outTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
+					m2Tuple.getInt(Model2Schema.ATT_DATABASEWRITABLE));
+			outTuple.setValue(Model2Schema.ATT_DBUUID,
+					m2Tuple.getString(Model2Schema.ATT_DBUUID));
+			outTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
+					m2Tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
+
+			// Add outTuple
+			modelTuples.add(outTuple);
+		}
+
+		return modelTuples;
 	}
 }

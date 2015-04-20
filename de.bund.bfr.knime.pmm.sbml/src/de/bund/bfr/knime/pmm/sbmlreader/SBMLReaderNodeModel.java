@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.knime.core.data.DataTableSpec;
@@ -268,7 +269,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 				counter++; // Increment counter
 				// update progress bar
-				exec.setProgress((float)counter / models.size());
+				exec.setProgress((float) counter / models.size());
 			}
 		} else {
 			short counter = 0;
@@ -284,12 +285,12 @@ public class SBMLReaderNodeModel extends NodeModel {
 					}
 					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 				}
-				
+
 				container.addRowToTable(tuple);
-				
+
 				counter++; // Increment counter
 				// Update progress bar
-				exec.setProgress((float)counter/models.size());
+				exec.setProgress((float) counter / models.size());
 			}
 		}
 
@@ -386,51 +387,23 @@ class ReaderUtils {
 		return new PmmXmlDoc(dep);
 	}
 
-	// Create independent variables
-	public static PmmXmlDoc parseIndeps(final ListOf<Parameter> params,
-			final Map<String, UnitsFromDB> units,
-			final Map<String, Limits> limits) {
-		PmmXmlDoc indepDoc = new PmmXmlDoc();
-
-		for (Parameter param : params) {
-			if (!param.isConstant()) {
-				String origUnit = param.getUnits(); // unit name
-				UnitsFromDB dbUnit = units.get(origUnit);
-
-				String name = "";
-				String category = "";
-				String unit = "";
-				String description = "";
-
-				if (dbUnit != null) {
-					// Retrieve unit data from dbUnit
-					name = dbUnit.getKind_of_property_quantity();
-					category = dbUnit.getKind_of_property_quantity();
-					unit = dbUnit.getDisplay_in_GUI_as();
-				} else if (origUnit.equals("pmf_celsius")) {
-					name = origUnit;
-					category = Categories.getTempCategory().getName();
-					unit = "°C";
-				}
-
-				// other fields
-				Double min = null, max = null;
-
-				IndepXml indep = new IndepXml(name, min, max, category, unit);
-				indep.setDescription(description);
-				// Get limits
-				String paramName = param.getId();
-				if (limits.containsKey(paramName)) {
-					Limits indepLimits = limits.get(paramName);
-					indep.setMax(indepLimits.getMax());
-					indep.setMin(indepLimits.getMin());
-				}
-
-				indepDoc.add(indep);
-			}
+	// Create independent variable
+	public static PmmXmlDoc createIndep(final Map<String, Limits> limits) {
+		String category = Categories.getTimeCategory().getName();
+		String name = Categories.getTime();
+		String origname = Categories.getTime();
+		String unit = Categories.getTimeCategory().getStandardUnit();
+		Double min = null, max = null;
+		if (limits.containsKey(name)) {
+			Limits indepLimits = limits.get(name);
+			min = indepLimits.getMin();
+			max = indepLimits.getMax();
 		}
+		IndepXml indep = new IndepXml(name, min, max, category, unit);
+		indep.setDescription("time");
+		indep.setOrigName(origname);
 
-		return indepDoc;
+		return new PmmXmlDoc(indep);
 	}
 
 	// Create constant variables
@@ -583,45 +556,8 @@ class PrimaryModelParser {
 
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 
-		PmmXmlDoc miscCell = new PmmXmlDoc();
-
 		// TODO: Parse model variables: Temperature, pH and water activity
-		if (model.containsParameter("Temperature")) {
-			Parameter param = model.getParameter("Temperature");
-
-			int id = MathUtilities.getRandomNegativeInt();
-			String name = "Temperature";
-			String description = "Temperature";
-			double value = param.getValue();
-			List<String> categories = Arrays.asList("Temperature");
-			String unit = "";
-			if (param.getUnits().equals("pmf_celsius")) {
-				unit = "°C";
-			} else if (param.getUnits().equals("pmf_fahrenheit")) {
-				unit = "°F";
-			}
-
-			MiscXml item = new MiscXml(id, name, description, value,
-					categories, unit);
-			item.setOrigUnit(unit);
-			miscCell.add(item);
-		}
-
-		if (model.containsParameter("pH")) {
-			Parameter param = model.getParameter("pH");
-
-			int id = MathUtilities.getRandomNegativeInt();
-			String name = "pH";
-			String description = "pH";
-			double value = param.getValue();
-			List<String> categories = Arrays.asList("Dimensionless quantity");
-			String unit = "[pH]";
-
-			MiscXml item = new MiscXml(id, name, description, value,
-					categories, unit);
-			item.setOrigUnit(unit);
-			miscCell.add(item);
-		}
+		PmmXmlDoc miscCell = new PmmXmlDoc();
 
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
 				null, null));
@@ -637,8 +573,7 @@ class PrimaryModelParser {
 				.getListOfUnitDefinitions());
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
-		PmmXmlDoc indepCell = ReaderUtils.parseIndeps(listOfParameters, units,
-				limits);
+		PmmXmlDoc indepCell = ReaderUtils.createIndep(limits);
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters, units,
 				limits);
 
@@ -688,37 +623,8 @@ class PrimaryModelParser {
 
 class TertiaryModelParser {
 
-	private static PmmXmlDoc parseSecDep(final AssignmentRule rule,
-			final ListOf<Parameter> params,
-			final Map<String, UnitsFromDB> units,
-			final Map<String, Limits> limits) {
-		String depName = rule.getVariable();
-		Parameter depParam = params.get(depName);
-
-		String origUnit = depParam.getUnits();
-		UnitsFromDB dbUnit = units.get(origUnit);
-
-		// Retrieve unit data from dbUnit
-		String category = dbUnit.getKind_of_property_quantity();
-		String unit = dbUnit.getDisplay_in_GUI_as();
-		String description = "";
-
-		// other data
-		String name = depParam.getId();
-		String origname = depParam.getId();
-
-		DepXml depXml = new DepXml(name, origname, category, unit, description);
-		depXml.setOrigName(origUnit);
-
-		// Get limits
-		if (limits.containsKey(origUnit)) {
-			Limits depLimits = limits.get(origUnit);
-			depXml.setMin(depLimits.getMin());
-			depXml.setMax(depLimits.getMax());
-		}
-
-		PmmXmlDoc depDoc = new PmmXmlDoc(depXml);
-		return depDoc;
+	private static PmmXmlDoc parseSecDep(final AssignmentRule rule) {
+		return new PmmXmlDoc(new DepXml(rule.getVariable(), "P", "", "", ""));
 	}
 
 	/**
@@ -732,51 +638,95 @@ class TertiaryModelParser {
 	 * <li>Get parameter limits using its unit's name</li>
 	 * </ol>
 	 */
-
 	private static PmmXmlDoc parseSecIndeps(final String depName,
 			final ListOf<Parameter> params,
 			final Map<String, UnitsFromDB> units,
 			final Map<String, Limits> limits) {
-
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
-
-		// Search non constant parameters not named as the dep.
 		for (Parameter param : params) {
 			if (!param.getId().equals(depName) && !param.isConstant()) {
-				// Get unit name from the parameter
-				String origUnit = param.getUnits();
-				String name = "", category = "", unit = "", desc = "";
+				if (param.getId().equals("Temperature")) {
+					String name = "Temperature";
+					String category = "";
+					String unit = "";
 
-				// Get unit from DB
-				UnitsFromDB dbUnit = units.get(origUnit);
-				if (dbUnit != null) {
-					// retrieve unit data from dbUnit
-					name = dbUnit.getName();
-					category = dbUnit.getKind_of_property_quantity();
-					unit = dbUnit.getDisplay_in_GUI_as();
-				} else if (origUnit.equals("pmf_celsius")) {
-					name = Categories.getTempCategory().getName();
-					category = Categories.getTempCategory().getName();
-					unit = "°C";
+					// Get limits
+					Double min = null, max = null;
+					if (limits.containsKey(param.getId())) {
+						Limits indepLimits = limits.get(param.getId());
+						min = indepLimits.getMin();
+						max = indepLimits.getMax();
+					}
+
+					IndepXml indepXml = new IndepXml(name, min, max, category,
+							unit);
+					indepXml.setDescription("variable");
+					indepDoc.add(indepXml);
+
+				} else if (param.getId().equals("pH")) {
+					String name = "pH";
+					String category = "";
+					String unit = "";
+
+					// Get limits
+					Double min = null, max = null;
+					if (limits.containsKey(param.getId())) {
+						Limits indepLimits = limits.get(param.getId());
+						min = indepLimits.getMin();
+						max = indepLimits.getMax();
+					}
+
+					IndepXml indepXml = new IndepXml(name, min, max, category,
+							unit);
+					indepXml.setDescription("variable");
+					indepDoc.add(indepXml);
 				}
-
-				// Get limits
-				Double min = null, max = null;
-				if (limits.containsKey(param.getId())) {
-					Limits indepLimits = limits.get(param.getId());
-					min = indepLimits.getMin();
-					max = indepLimits.getMax();
-				}
-
-				IndepXml indep = new IndepXml(name, min, max, category, unit);
-				indep.setOrigName(origUnit);
-				indep.setDescription(desc);
-
-				indepDoc.add(indep);
 			}
 		}
-
 		return indepDoc;
+	}
+
+	public static PmmXmlDoc parseConstsSec(final ListOf<Parameter> params,
+			final Map<String, Limits> limits) {
+
+		PmmXmlDoc constsDoc = new PmmXmlDoc();
+
+		for (Parameter param : params) {
+			if (param.isConstant()) {
+				ParamXml paramXml = new ParamXml(param.getId(),
+						param.getValue());
+
+				paramXml.setDescription("coefficient");
+				paramXml.setOrigName(param.getId());
+
+				// Add limits
+				if (limits.containsKey(param.getId())) {
+					Limits paramLimits = limits.get(param.getId());
+					paramXml.setMax(paramLimits.getMax());
+					paramXml.setMin(paramLimits.getMin());
+				}
+
+				XMLNode metadata = param.getAnnotation().getNonRDFannotation()
+						.getChildElement("metadata", "");
+
+				// Add P
+				double p = Double.parseDouble(metadata.getChildElement("P", "")
+						.getChildAt(0).getCharacters());
+				paramXml.setP(p);
+
+				// Add error
+				double error = Double.parseDouble(metadata.getChildElement("error", "").getChildAt(0).getCharacters());
+				paramXml.setError(error);
+
+				// Add T
+				double t = Double.parseDouble(metadata.getChildElement("t", "").getChildAt(0).getCharacters());
+				paramXml.setT(t);
+				
+				constsDoc.add(paramXml);
+			}
+		}
+		
+		return constsDoc;
 	}
 
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
@@ -814,44 +764,41 @@ class TertiaryModelParser {
 
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 
+		Map<String, Double> miscs = matrix.getMiscs();
 		PmmXmlDoc miscCell = new PmmXmlDoc();
+		int counter = -1;
+		for (Entry<String, Double> entry : miscs.entrySet()) {
+			String name = entry.getKey();
+			Double value = entry.getValue();
 
-		// TODO: Parse model variables: Temperature, pH and water activity
-		if (model.containsParameter("Temperature")) {
-			Parameter param = model.getParameter("Temperature");
+			if (name.equals("Temperature")) {
+				List<String> categories = Arrays.asList(Categories
+						.getTempCategory().getName());
+				String description = name;
+				String unit = Categories.getTempCategory().getStandardUnit();
+				String origunit = Categories.getTempCategory()
+						.getStandardUnit();
 
-			int id = MathUtilities.getRandomNegativeInt();
-			String name = "Temperature";
-			String description = "Temperature";
-			double value = param.getValue();
-			List<String> categories = Arrays.asList("Temperature");
-			String unit = "";
-			if (param.getUnits().equals("pmf_celsius")) {
-				unit = "°C";
-			} else if (param.getUnits().equals("pmf_fahrenheit")) {
-				unit = "°F";
+				MiscXml misc = new MiscXml(counter, name, description, value,
+						categories, origunit);
+				misc.setUnit(unit);
+				miscCell.add(misc);
+
+				counter -= 1;
+			} else if (name.equals("pH")) {
+				List<String> categories = Arrays.asList(Categories
+						.getPhCategory().getName());
+				String description = name;
+				String unit = Categories.getPhUnit();
+				String origunit = Categories.getPhUnit();
+
+				MiscXml misc = new MiscXml(counter, name, description, value,
+						categories, origunit);
+				misc.setUnit(unit);
+				miscCell.add(misc);
+
+				counter -= 1;
 			}
-
-			MiscXml item = new MiscXml(id, name, description, value,
-					categories, unit);
-			item.setOrigUnit(unit);
-			miscCell.add(item);
-		}
-
-		if (model.containsParameter("pH")) {
-			Parameter param = model.getParameter("pH");
-
-			int id = MathUtilities.getRandomNegativeInt();
-			String name = "pH";
-			String description = "pH";
-			double value = param.getValue();
-			List<String> categories = Arrays.asList("Dimensionless quantity");
-			String unit = "[pH]";
-
-			MiscXml item = new MiscXml(id, name, description, value,
-					categories, unit);
-			item.setOrigUnit(unit);
-			miscCell.add(item);
 		}
 
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
@@ -871,8 +818,7 @@ class TertiaryModelParser {
 				.getListOfUnitDefinitions());
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
-		PmmXmlDoc indepCell = ReaderUtils.parseIndeps(listOfParameters, units,
-				limits);
+		PmmXmlDoc indepCell = ReaderUtils.createIndep(limits);
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters, units,
 				limits);
 
@@ -907,9 +853,6 @@ class TertiaryModelParser {
 			CatalogModelXml catModelSec = rule2.toCatModel();
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
 
-			// PmmXmlDoc dependentSecCell =
-			// parseSecDependentParameter(secParams,
-			// depName, secModel.getId(), secLimits);
 			units = dbUnits.getUnits(secModel.getListOfUnitDefinitions());
 
 			// Add sec unit definitions
@@ -917,13 +860,11 @@ class TertiaryModelParser {
 				unitDefs.add(ud);
 			}
 
-			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule(),
-					secParams, units, secLimits);
+			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule());
 			String depName = rule2.getRule().getVariable();
 			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams,
 					units, secLimits);
-			PmmXmlDoc parameterSecCell = ReaderUtils.parseConsts(secParams,
-					units, secLimits);
+			PmmXmlDoc parameterSecCell = parseConstsSec(secParams, secLimits);
 
 			PmmXmlDoc estModelSecCell = new PmmXmlDoc();
 			estModelSecCell.add(new EstModelXml(MathUtilities

@@ -65,7 +65,6 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLWriter;
-import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
@@ -259,7 +258,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 
 				counter++; // Increment counter
 				// update progress bar
-				exec.setProgress((float)counter / experiments.size());
+				exec.setProgress((float) counter / experiments.size());
 			}
 
 			// Add model
@@ -420,6 +419,54 @@ abstract class TableReader {
 	 * Get units from the parameters (dep, indep and consts), get their data
 	 * from DB and return them.
 	 */
+	// public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
+	// List<PmmXmlElementConvertable> constParams) {
+	//
+	// // get unit names
+	// HashSet<String> units = new HashSet<>();
+	// if (dep.getUnit() != null)
+	// units.add(dep.getUnit());
+	// if (indep.getUnit() != null)
+	// units.add(indep.getUnit());
+	// for (PmmXmlElementConvertable pmmXmlElement : constParams) {
+	// ParamXml param = (ParamXml) pmmXmlElement;
+	// if (param.getUnit() != null) {
+	// units.add(param.getUnit());
+	// }
+	// }
+	//
+	// // Get units from DB
+	// UnitsFromDB unitDB = new UnitsFromDB();
+	// unitDB.askDB();
+	// Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
+	//
+	// // Create new map with unit display as keys
+	// Map<String, UnitsFromDB> map = new HashMap<>();
+	// for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
+	// map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
+	// }
+	//
+	// ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
+	// for (String unit : units) {
+	// UnitsFromDB dbUnit = map.get(unit);
+	// if (dbUnit != null) {
+	// UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
+	// .xmlToUnitDefinition(dbUnit.getMathML_string());
+	// UnitDefinition ud = wrapper.getUnitDefinition();
+	// ud.setId(createId(unit));
+	// ud.setName(unit);
+	// unitDefs.add(ud);
+	// }
+	// }
+	//
+	// return unitDefs;
+	// }
+
+	// TODO: getUnits from dep, indep, const and variables (temp, pH)
+	/*
+	 * Get units from the parameters (dep, indep and consts), get their data
+	 * from DB and return them.
+	 */
 	public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
 			List<PmmXmlElementConvertable> constParams) {
 
@@ -456,73 +503,6 @@ abstract class TableReader {
 				UnitDefinition ud = wrapper.getUnitDefinition();
 				ud.setId(createId(unit));
 				ud.setName(unit);
-				unitDefs.add(ud);
-			}
-		}
-
-		return unitDefs;
-	}
-
-	// TODO: getUnits from dep, indep, const and variables (temp, pH)
-	/*
-	 * Get units from the parameters (dep, indep and consts), get their data
-	 * from DB and return them.
-	 */
-	public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
-			List<PmmXmlElementConvertable> constParams,
-			List<PmmXmlElementConvertable> variables) {
-
-		// get unit names
-		HashSet<String> units = new HashSet<>();
-		if (dep.getUnit() != null)
-			units.add(dep.getUnit());
-		if (indep.getUnit() != null)
-			units.add(indep.getUnit());
-		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
-			ParamXml param = (ParamXml) pmmXmlElement;
-			if (param.getUnit() != null) {
-				units.add(param.getUnit());
-			}
-		}
-
-		// Get units from DB
-		UnitsFromDB unitDB = new UnitsFromDB();
-		unitDB.askDB();
-		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
-
-		// Create new map with unit display as keys
-		Map<String, UnitsFromDB> map = new HashMap<>();
-		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
-			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
-		}
-
-		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
-		for (String unit : units) {
-			UnitsFromDB dbUnit = map.get(unit);
-			if (dbUnit != null) {
-				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
-						.xmlToUnitDefinition(dbUnit.getMathML_string());
-				UnitDefinition ud = wrapper.getUnitDefinition();
-				ud.setId(createId(unit));
-				ud.setName(unit);
-				unitDefs.add(ud);
-			}
-		}
-
-		// Add unit definitions for units from variables
-		for (PmmXmlElementConvertable item : variables) {
-			MiscXml misc = (MiscXml) item;
-			if (misc.getUnit().equals("°C")) {
-				UnitDefinition ud = new UnitDefinition("pmf_celsius", LEVEL,
-						VERSION);
-				ud.setName("°C");
-				ud.addUnit(new Unit(1, 1, Unit.Kind.KELVIN, 1, LEVEL, VERSION));
-				unitDefs.add(ud);
-			} else if (misc.getUnit().equals("°F")) {
-				UnitDefinition ud = new UnitDefinition("pmf_fahrenheit", LEVEL,
-						VERSION);
-				ud.setName("°F");
-				ud.addUnit(new Unit(1, 1, Unit.Kind.KELVIN, 1, LEVEL, VERSION));
 				unitDefs.add(ud);
 			}
 		}
@@ -593,15 +573,20 @@ abstract class TableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	protected Parameter createIndependentParameter(final IndepXml indep) {
-		String name = indep.getName();
-		String unit = indep.getUnit();
-
-		Parameter param = new Parameter(name);
+	protected Parameter createIndep() {
+		Parameter param = new Parameter(Categories.getTime());
 		param.setValue(0.0);
 		param.setConstant(false);
-		param.setUnits(createId(unit));
+		param.setUnits(Categories.getTimeCategory().getStandardUnit());
+		return param;
+	}
 
+	protected Parameter createIndepSec() {
+		Category tempCategory = Categories.getTempCategory();
+		Parameter param = new Parameter(tempCategory.getName());
+		param.setValue(0.0);
+		param.setConstant(false);
+		param.setUnits(tempCategory.getStandardUnit());
 		return param;
 	}
 
@@ -626,6 +611,43 @@ abstract class TableReader {
 			p.setUnits(createId(unit));
 			consts.add(p);
 		}
+		return consts;
+	}
+	
+	protected List<Parameter> createConstsSec(final List<PmmXmlElementConvertable> params) {
+		List<Parameter> consts = new LinkedList<>();
+		for (PmmXmlElementConvertable pmmParam : params) {
+			ParamXml xml = (ParamXml) pmmParam;
+			
+			Parameter param = new Parameter(xml.getName());
+			param.setValue(xml.getValue());
+			String unit = (xml.getUnit() == null) ? "dimensionless" : xml.getUnit();
+			param.setUnits(unit);
+			param.setConstant(true);
+			
+			XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
+			XMLNode pmfNode = new XMLNode(pmfTriple);
+			
+			XMLTriple pTriple = new XMLTriple("P", null, "pmml");
+			XMLNode pNode = new XMLNode(pTriple);
+			pNode.addChild(new XMLNode(xml.getP().toString()));
+			pmfNode.addChild(pNode);
+			
+			XMLTriple errorTriple = new XMLTriple("error", null, "pmml");
+			XMLNode errorNode = new XMLNode(errorTriple);
+			errorNode.addChild(new XMLNode(xml.getError().toString()));
+			pmfNode.addChild(errorNode);
+			
+			XMLTriple tTriple = new XMLTriple("t", null, "pmml");
+			XMLNode tNode = new XMLNode(tTriple);
+			tNode.addChild(new XMLNode(xml.getT().toString()));
+			pmfNode.addChild(tNode);
+			
+			param.getAnnotation().setNonRDFAnnotation(pmfNode);
+			
+			consts.add(param);
+		}
+		
 		return consts;
 	}
 
@@ -893,7 +915,12 @@ class PrimaryTableReader extends TableReader {
 		model.setAnnotation(annot);
 
 		// Create compartment and add it to the model
-		Matrix matrix = new Matrix(matrixXml);
+		List<MiscXml> miscs = new LinkedList<>();
+		for (PmmXmlElementConvertable misc : tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MISC).getElementSet()) {
+			miscs.add((MiscXml) misc);
+		}
+		Matrix matrix = new Matrix(matrixXml, miscs);
 		Compartment c = matrix.getCompartment();
 		model.addCompartment(c);
 
@@ -916,7 +943,7 @@ class PrimaryTableReader extends TableReader {
 		}
 
 		// Add independent parameter
-		model.addParameter(createIndependentParameter(indep));
+		model.addParameter(createIndep());
 
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
@@ -941,27 +968,7 @@ class PrimaryTableReader extends TableReader {
 			model.addParameter(param);
 		}
 
-		// TODO: Add model variables like pH, temperature or water activity
-		List<PmmXmlElementConvertable> variables = tuple.getPmmXml(
-				TimeSeriesSchema.ATT_MISC).getElementSet();
-		for (PmmXmlElementConvertable item : variables) {
-			MiscXml miscItem = (MiscXml) item;
-			Parameter param = new Parameter();
-			param.setId(miscItem.getName());
-			param.setConstant(true);
-			param.setValue(miscItem.getValue());
-			if (miscItem.getUnit().equals("[pH]")) {
-				param.setUnits("dimensionless");
-			} else if (miscItem.getUnit().equals("°C")) {
-				param.setUnits("pmf_celsius");
-			} else if (miscItem.getUnit().equals("°F")) {
-				param.setUnits("pmf_fahrenheit");
-			}
-			model.addParameter(param);
-		}
-
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams,
-				variables);
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
@@ -1057,6 +1064,68 @@ class TertiaryTableReader extends TableReader {
 		return annot;
 	}
 
+	private List<Parameter> createIndependentSecParameters(
+			final List<PmmXmlElementConvertable> params) {
+		List<Parameter> indeps = new LinkedList<>();
+		for (PmmXmlElementConvertable pmmParam : params) {
+			IndepXml xml = (IndepXml) pmmParam;
+
+			if (xml.getName().equals("Temperature")) {
+				Parameter p = new Parameter("Temperature");
+				p.setUnits(Categories.getTempCategory().getStandardUnit());
+				p.setConstant(false);
+				indeps.add(p);
+			} else if (xml.getName().equals("pH")) {
+				Parameter p = new Parameter("pH");
+				p.setUnits(Categories.getPhUnit());
+				p.setConstant(false);
+				indeps.add(p);
+			}
+		}
+		return indeps;
+	}
+
+	public ListOf<UnitDefinition> getUnits(DepXml dep,
+			List<PmmXmlElementConvertable> constParams) {
+
+		// get unit names
+		HashSet<String> units = new HashSet<>();
+		if (dep.getUnit() != null)
+			units.add(dep.getUnit());
+		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
+			ParamXml param = (ParamXml) pmmXmlElement;
+			if (param.getUnit() != null) {
+				units.add(param.getUnit());
+			}
+		}
+
+		// Get units from DB
+		UnitsFromDB unitDB = new UnitsFromDB();
+		unitDB.askDB();
+		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
+
+		// Create new map with unit display as keys
+		Map<String, UnitsFromDB> map = new HashMap<>();
+		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
+			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
+		}
+
+		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
+		for (String unit : units) {
+			UnitsFromDB dbUnit = map.get(unit);
+			if (dbUnit != null) {
+				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
+						.xmlToUnitDefinition(dbUnit.getMathML_string());
+				UnitDefinition ud = wrapper.getUnitDefinition();
+				ud.setId(createId(unit));
+				ud.setName(unit);
+				unitDefs.add(ud);
+			}
+		}
+
+		return unitDefs;
+	}
+
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
 			Map<String, String> docInfo) {
 		// modify formulas
@@ -1131,7 +1200,12 @@ class TertiaryTableReader extends TableReader {
 		model.setAnnotation(annot);
 
 		// Create a compartment and add it to the model
-		Matrix matrix = new Matrix(matrixXml);
+		List<MiscXml> miscs = new LinkedList<>();
+		for (PmmXmlElementConvertable misc : firstTuple.getPmmXml(
+				TimeSeriesSchema.ATT_MISC).getElementSet()) {
+			miscs.add((MiscXml) misc);
+		}
+		Matrix matrix = new Matrix(matrixXml, miscs);
 		Compartment compartment = matrix.getCompartment();
 		model.addCompartment(compartment);
 
@@ -1155,7 +1229,7 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		// Add independent parameter
-		model.addParameter(createIndependentParameter(indep));
+		model.addParameter(createIndep());
 
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = firstTuple.getPmmXml(
@@ -1180,28 +1254,8 @@ class TertiaryTableReader extends TableReader {
 			model.addParameter(param);
 		}
 
-		// TODO: Add model variables like pH, temperature or water activity
-		List<PmmXmlElementConvertable> variables = firstTuple.getPmmXml(
-				TimeSeriesSchema.ATT_MISC).getElementSet();
-		for (PmmXmlElementConvertable item : variables) {
-			MiscXml miscItem = (MiscXml) item;
-			Parameter param = new Parameter();
-			param.setId(miscItem.getName());
-			param.setConstant(true);
-			param.setValue(miscItem.getValue());
-			if (miscItem.getUnit().equals("[pH]")) {
-				param.setUnits("dimensionless");
-			} else if (miscItem.getUnit().equals("°C")) {
-				param.setUnits("pmf_celsius");
-			} else if (miscItem.getUnit().equals("°F")) {
-				param.setUnits("pmf_fahrenheit");
-			}
-			model.addParameter(param);
-		}
-
 		// Add units
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams,
-				variables);
+		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
 		model.setListOfUnitDefinitions(unitDefs);
 
 		// Create rule of the model and add it to the rest of rules
@@ -1214,11 +1268,10 @@ class TertiaryTableReader extends TableReader {
 		for (KnimeTuple tuple : tuples) {
 			CatalogModelXml secModelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model2Schema.ATT_MODELCATALOG).get(0);
-			DepXml secDepXml = (DepXml) firstTuple.getPmmXml(
+			DepXml secDepXml = (DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0);
-			// Remove list of indeps above
-			IndepXml secIndep = (IndepXml) tuple.getPmmXml(
-					Model2Schema.ATT_INDEPENDENT).get(0);
+			List<PmmXmlElementConvertable> secIndepParams = tuple.getPmmXml(
+					Model2Schema.ATT_INDEPENDENT).getElementSet();
 			List<PmmXmlElementConvertable> secConstParams = tuple.getPmmXml(
 					Model2Schema.ATT_PARAMETER).getElementSet();
 
@@ -1228,7 +1281,7 @@ class TertiaryTableReader extends TableReader {
 			modelDefinition.setName(secModelXml.getName());
 
 			// Add units
-			unitDefs = getUnits(secDepXml, secIndep, secConstParams);
+			unitDefs = getUnits(secDepXml, secConstParams);
 			modelDefinition.setListOfUnitDefinitions(unitDefs);
 
 			// Add dep from sec
@@ -1238,13 +1291,38 @@ class TertiaryTableReader extends TableReader {
 			secDep.setUnits(secDepXml.getOrigName());
 			modelDefinition.addParameter(secDep);
 
-			// Add indep from sec
-			modelDefinition.addParameter(createIndependentParameter(secIndep));
+			// Add independent parameters
+			List<Parameter> secIndeps = createIndependentSecParameters(secIndepParams);
+			for (Parameter param : secIndeps) {
+				modelDefinition.addParameter(param);
+			}
+
+			// Add constraints of independent parameters
+			for (PmmXmlElementConvertable item : secIndepParams) {
+				IndepXml xml = (IndepXml) item;
+				Double min = xml.getMin(), max = xml.getMax();
+				LimitsConstraint lc = new LimitsConstraint(xml.getName(), min,
+						max);
+				if (lc.getConstraint() != null) {
+					modelDefinition.addConstraint(lc.getConstraint());
+				}
+			}
 
 			// Add constant parameters
-			List<Parameter> secConsts = createConstantParameters(secConstParams);
+			List<Parameter> secConsts = createConstsSec(secConstParams);
 			for (Parameter param : secConsts) {
 				modelDefinition.addParameter(param);
+			}
+
+			// Add constraint of constant parameters
+			for (PmmXmlElementConvertable item : secConstParams) {
+				ParamXml xml = (ParamXml) item;
+				Double min = xml.getMin(), max = xml.getMax();
+				LimitsConstraint lc = new LimitsConstraint(xml.getName(), min,
+						max);
+				if (lc.getConstraint() != null) {
+					modelDefinition.addConstraint(lc.getConstraint());
+				}
 			}
 
 			// Get literature references

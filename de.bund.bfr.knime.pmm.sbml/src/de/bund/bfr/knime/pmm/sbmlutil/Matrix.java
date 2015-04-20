@@ -1,14 +1,21 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import groovy.util.Node;
 
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
+import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 
 /**
  * Pmm Lab matrix.
@@ -27,7 +34,7 @@ public class Matrix {
 	}
 
 	/** Build a PMM Lab Matrix from a MatrixXml */
-	public Matrix(MatrixXml matrixXml) {
+	public Matrix(MatrixXml matrixXml, List<MiscXml> miscs) {
 		compartment = new Compartment(createId(matrixXml.getName()));
 		compartment.setConstant(true);
 		
@@ -45,11 +52,16 @@ public class Matrix {
 			String pmfCode = (String) DBKernel.getValue(null, "Codes_Matrices",
 					colNames, colVals, "Code");
 			
+			// Create dictionary with model variables values
+			Map<String, Double> miscMap = new HashMap<>();
+			for (MiscXml misc : miscs) {
+				miscMap.put(misc.getName(), misc.getValue());
+			}
+			
 			// Create and add an annotation with the PMF code
-			annotation = new MatrixAnnotation(pmfCode);
+			annotation = new MatrixAnnotation(pmfCode, miscMap);
 			compartment.setAnnotation(annotation);
 		}
-
 	}
 
 	public Compartment getCompartment() {
@@ -94,12 +106,17 @@ public class Matrix {
 	public Node toGroovyNode() {
 		return new Node(null, "sbml:compartment", compartment.writeXMLAttributes());
 	}
+	
+	public Map<String, Double> getMiscs() {
+		return annotation.getMiscs();
+	}
 }
 
 class MatrixAnnotation extends Annotation {
 
 	private static final long serialVersionUID = -8640288945266345113L;
 	private String pmfCode;
+	private Map<String, Double> miscs;
 
 	/**
 	 * Creates new MatrixAnnotation cloning an annotation and gets its PMF code.
@@ -116,6 +133,12 @@ class MatrixAnnotation extends Annotation {
 		if (metadata != null) {
 			XMLNode source = metadata.getChildElement("source", "");
 			pmfCode = source.getChild(0).getCharacters();
+			
+			miscs = new HashMap<>();
+			for (XMLNode variableNode : metadata.getChildElements("modelvariable", "")) {
+				XMLAttributes attrs = variableNode.getAttributes();
+				miscs.put(attrs.getValue("name"), Double.parseDouble(attrs.getValue("value")));
+			}
 		}
 	}
 
@@ -125,10 +148,11 @@ class MatrixAnnotation extends Annotation {
 	 * 
 	 * @param pmfCode
 	 */
-	public MatrixAnnotation(String pmfCode) {
+	public MatrixAnnotation(String pmfCode, Map<String, Double> miscs) {
 		super();
 
 		this.pmfCode = pmfCode;
+		this.miscs = miscs;
 
 		// Build dc:source tag
 		XMLNode source = new XMLNode(new XMLTriple("source", null, "dc"));
@@ -137,6 +161,14 @@ class MatrixAnnotation extends Annotation {
 		// Build PMF container
 		XMLNode pmfNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
 		pmfNode.addChild(source);
+		
+		for (Entry<String, Double> entry : miscs.entrySet()) {
+			XMLTriple triple = new XMLTriple("modelvariable", null, "pmml");
+			XMLAttributes attrs = new XMLAttributes();
+			attrs.add("name", entry.getKey());
+			attrs.add("value", entry.getValue().toString());
+			pmfNode.addChild(new XMLNode(triple, attrs));
+		}
 
 		// Add non Rdf annotation
 		setNonRDFAnnotation(pmfNode);
@@ -144,5 +176,9 @@ class MatrixAnnotation extends Annotation {
 
 	public String getPMFCode() {
 		return pmfCode;
+	}
+	
+	public Map<String, Double> getMiscs() {
+		return miscs;
 	}
 }

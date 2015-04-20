@@ -17,7 +17,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 /**
  * Base class for model rules.
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public abstract class ModelRule {
 	protected final static int LEVEL = 3;
@@ -28,11 +28,7 @@ public abstract class ModelRule {
 	public AssignmentRule getRule() {
 		return rule;
 	}
-
-	protected static ASTNode parseMath(String math) throws ParseException {
-		return new FormulaParser(new StringReader(math)).parse();
-	}
-
+	
 	/**
 	 * Add annotation to the rule.
 	 * 
@@ -53,7 +49,7 @@ public abstract class ModelRule {
 		// Add model class to pmfNode
 		ModelClassNode typeNode = new ModelClassNode(type);
 		pmfNode.addChild(typeNode.getNode());
-
+		
 		// add non rdf annotation
 		Annotation annot = new Annotation();
 		annot.setNonRDFAnnotation(pmfNode);
@@ -62,5 +58,114 @@ public abstract class ModelRule {
 	}
 
 	/** Get CatalogModelXml from ModelRule */
-	public abstract CatalogModelXml toCatModel();
+	public CatalogModelXml toCatModel() {
+		// Get metadata annotation
+		XMLNode nonRDFAnnot = rule.getAnnotation().getNonRDFannotation();
+		
+		XMLNode metadata = nonRDFAnnot.getChildElement("metadata", "");
+		
+		// Get formula name (which is mandatory)
+		XMLNode formulaNameNode = metadata.getChildElement("formulaName", "");
+		String formulaName = formulaNameNode.getChildAt(0).getCharacters();
+
+		// Get type. If missing it will be assigned UNKNOWN
+		XMLNode subjectNode = metadata.getChildElement("subject", "");
+		int type;
+		if (subjectNode == null) {
+			type = Util.MODELCLASS_NUMS.get("unknown");
+		} else {
+			String classString = subjectNode.getChildAt(0).getCharacters();
+			type = Util.MODELCLASS_NUMS.get(classString);
+		}
+		
+		String formula = String.format("%s=", createVariable());
+		ASTNode modelMath = rule.getMath();
+
+		// Parse model
+		// if piecewise-defined function
+		if (modelMath.isPiecewise()) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < modelMath.getChildCount(); i += 2) {
+				ASTNode val = modelMath.getChild(i); // Value node
+				ASTNode cond = modelMath.getChild(i + 1); // Condition node
+
+				String valString;
+				// Value node is a literal value. No need to surround it with
+				// parentheses
+				if (val.getChildCount() == 0) {
+					valString = val.toFormula();
+				}
+				// Value node is an expression that must be surrounded with
+				// parentheses
+				else {
+					valString = String.format("(%s)", val.toFormula());
+				}
+
+				String condString;
+				// Multiple conditions must be concatenated with an asterisk
+				// instead of '&&'
+				if (cond.getType() == ASTNode.Type.LOGICAL_AND) {
+					ASTNode lchild = cond.getLeftChild();
+					ASTNode rchild = cond.getRightChild();
+					
+					String lchildString;
+					// If left child is a variable
+					if (lchild.getChildCount() == 0) {
+						lchildString = lchild.toFormula();
+					}
+					// If left child is an expression
+					else {
+						lchildString = String.format("(%s)", lchild.toFormula());
+					}
+					
+					String rchildString;
+					// If right child is a variable
+					if (rchild.getChildCount() == 0) {
+						rchildString = rchild.toFormula();
+					}
+					// If right child is an expression
+					else {
+						rchildString = String.format("(%s)", rchild.toFormula());
+					}
+					
+					// Concatenate these two conditions with an asterisk
+					condString = String.format("%s*%s", lchildString, rchildString);
+				}
+
+				// If only one condition, this one needs to be surrounded with
+				// parentheses
+				else {
+					condString = String.format("(%s)", cond.toFormula());
+				}
+
+				if (i > 0) {
+					sb.append("+");
+				}
+				String piece = valString + "*" + condString;
+				sb.append(piece);
+			}
+			formula += sb.toString();
+		} else {
+			formula += modelMath.toFormula().replaceAll("log", "ln");
+		}
+
+		CatalogModelXml catModel = new CatalogModelXml(null, formulaName,
+				formula, type);
+		return catModel;
+	}
+	
+	protected abstract String createVariable();
+	
+	public static AssignmentRule convertFormulaToAssignmentRule(String var, String formula) {
+		AssignmentRule assignmentRule = null;
+		try {
+//			ASTNode math = new FormulaParser(new StringReader(formula)).parse();
+			ASTNode math = ASTNode.parseFormula(formula);
+			assignmentRule = new AssignmentRule(math, LEVEL, VERSION);
+			assignmentRule.setVariable(var);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return assignmentRule;
+	}
 }

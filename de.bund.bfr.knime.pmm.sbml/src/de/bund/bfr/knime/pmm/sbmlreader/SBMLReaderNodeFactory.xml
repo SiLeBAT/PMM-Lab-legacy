@@ -24,8 +24,7 @@
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Out-Port name">Description of first output port...
-		</outPort>
+		<outPort index="0" name="Models">Read models</outPort>
 	</ports>
 	<views>
 		<view index="0" name="name of first view">Description of first view...</view>

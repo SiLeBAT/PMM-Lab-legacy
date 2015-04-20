@@ -146,11 +146,11 @@ public class Login extends JFrame {
 			try {
 				ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Druck") + " FROM " + DBKernel.delimitL("CACHE_TS"), true);
 				if (rs == null || !rs.first()) {
-					DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
+					DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", true, true);
 				}
 				rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Druck") + " FROM " + DBKernel.delimitL("CACHE_selectEstModel1"), true);
 				if (rs == null || !rs.first()) {
-					DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", false, true);
+					DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", true, true);
 				}
 			}
 			catch (Exception e) {}

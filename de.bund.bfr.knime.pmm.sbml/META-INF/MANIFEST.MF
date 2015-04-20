@@ -22,14 +22,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base,
  org.apache.log4j,
  org.codehaus.groovy;bundle-version="2.3.7",
- de.bund.bfr.knime.pmm.common;bundle-version="1.0.0"
+ de.bund.bfr.knime.pmm.common;bundle-version="1.0.0",
+ org.hsh.bfr.db;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.sbmlreader,
  de.bund.bfr.knime.pmm.sbmlwriter
-Import-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
- de.bund.bfr.knime.pmm.common,
- de.bund.bfr.knime.pmm.common.generictablemodel,
- de.bund.bfr.knime.pmm.common.pmmtablemodel,
- org.hsh.bfr.db
+Import-Package: de.bund.bfr.knime.pmm.common.generictablemodel,
+ de.bund.bfr.knime.pmm.common.pmmtablemodel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

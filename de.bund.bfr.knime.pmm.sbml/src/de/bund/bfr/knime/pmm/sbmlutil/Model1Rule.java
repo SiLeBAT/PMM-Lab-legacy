@@ -3,7 +3,6 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 import org.sbml.jsbml.AssignmentRule;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 /**
  * Parse the rule of a primary model

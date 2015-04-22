@@ -62,6 +62,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
@@ -69,7 +70,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Organism;
+import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
@@ -549,7 +550,7 @@ class PrimaryModelParser {
 
 		// time series cells
 		String combaseID = model.getId();
-		Organism organism = new Organism(model.getSpecies(0));
+		Agent organism = new Agent(model.getSpecies(0));
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
 		Matrix matrix = new Matrix(model.getCompartment(0));
 		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
@@ -639,94 +640,105 @@ class TertiaryModelParser {
 	 * </ol>
 	 */
 	private static PmmXmlDoc parseSecIndeps(final String depName,
-			final ListOf<Parameter> params,
-			final Map<String, UnitsFromDB> units,
-			final Map<String, Limits> limits) {
+			final ListOf<Parameter> params, final Map<String, Limits> limits) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
+
 		for (Parameter param : params) {
 			if (!param.getId().equals(depName) && !param.isConstant()) {
-				if (param.getId().equals("Temperature")) {
-					String name = "Temperature";
-					String category = "";
-					String unit = "";
-
-					// Get limits
-					Double min = null, max = null;
-					if (limits.containsKey(param.getId())) {
-						Limits indepLimits = limits.get(param.getId());
-						min = indepLimits.getMin();
-						max = indepLimits.getMax();
-					}
-
-					IndepXml indepXml = new IndepXml(name, min, max, category,
-							unit);
-					indepXml.setDescription("variable");
-					indepDoc.add(indepXml);
-
-				} else if (param.getId().equals("pH")) {
-					String name = "pH";
-					String category = "";
-					String unit = "";
-
-					// Get limits
-					Double min = null, max = null;
-					if (limits.containsKey(param.getId())) {
-						Limits indepLimits = limits.get(param.getId());
-						min = indepLimits.getMin();
-						max = indepLimits.getMax();
-					}
-
-					IndepXml indepXml = new IndepXml(name, min, max, category,
-							unit);
-					indepXml.setDescription("variable");
-					indepDoc.add(indepXml);
+				// Get limits
+				Double min = null, max = null;
+				if (limits.containsKey(param.getId())) {
+					Limits indepLimits = limits.get(param.getId());
+					min = indepLimits.getMin();
+					max = indepLimits.getMax();
 				}
+
+				// Seconday model indeps lacks units and categories
+				IndepXml indepXml = new IndepXml(param.getId(), min, max, "",
+						"");
+				indepXml.setDescription("variable");
+
+				indepDoc.add(indepXml);
 			}
 		}
+
 		return indepDoc;
 	}
 
-	public static PmmXmlDoc parseConstsSec(final ListOf<Parameter> params,
-			final Map<String, Limits> limits) {
+	/**
+	 * Create PmmXmlDoc with ParamXmls for every constant parameter from the
+	 * SBML document.
+	 * 
+	 * @param params
+	 * @param limits
+	 * @return
+	 */
+	private static PmmXmlDoc parseConstsSec(final ListOf<Parameter> params) {
 
-		PmmXmlDoc constsDoc = new PmmXmlDoc();
-
+		// Get coefficients
+		LinkedList<SecCoefficient> coefficients = new LinkedList<>();
 		for (Parameter param : params) {
 			if (param.isConstant()) {
-				ParamXml paramXml = new ParamXml(param.getId(),
-						param.getValue());
-
-				paramXml.setDescription("coefficient");
-				paramXml.setOrigName(param.getId());
-
-				// Add limits
-				if (limits.containsKey(param.getId())) {
-					Limits paramLimits = limits.get(param.getId());
-					paramXml.setMax(paramLimits.getMax());
-					paramXml.setMin(paramLimits.getMin());
-				}
-
-				XMLNode metadata = param.getAnnotation().getNonRDFannotation()
-						.getChildElement("metadata", "");
-
-				// Add P
-				double p = Double.parseDouble(metadata.getChildElement("P", "")
-						.getChildAt(0).getCharacters());
-				paramXml.setP(p);
-
-				// Add error
-				double error = Double.parseDouble(metadata.getChildElement("error", "").getChildAt(0).getCharacters());
-				paramXml.setError(error);
-
-				// Add T
-				double t = Double.parseDouble(metadata.getChildElement("t", "").getChildAt(0).getCharacters());
-				paramXml.setT(t);
-				
-				constsDoc.add(paramXml);
+				coefficients.add(new SecCoefficient(param));
 			}
 		}
-		
-		return constsDoc;
+
+		PmmXmlDoc coefficientsXml = new PmmXmlDoc();
+		for (SecCoefficient coefficient : coefficients) {
+			coefficientsXml.add(coefficient.toParamXml());
+		}
+
+		return coefficientsXml;
+	}
+
+	/**
+	 * Parse misc items.
+	 * 
+	 * @param miscs
+	 *            . Dictionary that maps miscs names and their values.
+	 * @return
+	 */
+	private static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
+		PmmXmlDoc cell = new PmmXmlDoc();
+
+		// First misc item has id -1 and the rest of items have negative ints
+		int counter = -1;
+
+		for (Entry<String, Double> entry : miscs.entrySet()) {
+			String name = entry.getKey();
+			Double value = entry.getValue();
+
+			List<String> categories;
+			String description, unit;
+
+			switch (name) {
+			case "Temperature":
+				categories = Arrays.asList(Categories.getTempCategory()
+						.getName());
+				description = name;
+				unit = Categories.getTempCategory().getStandardUnit();
+
+				cell.add(new MiscXml(counter, name, description, value,
+						categories, unit));
+
+				counter -= 1;
+				break;
+
+			case "pH":
+				categories = Arrays
+						.asList(Categories.getPhCategory().getName());
+				description = name;
+				unit = Categories.getPhUnit();
+
+				cell.add(new MiscXml(counter, name, description, value,
+						categories, unit));
+
+				counter -= 1;
+				break;
+			}
+		}
+
+		return cell;
 	}
 
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
@@ -756,7 +768,7 @@ class TertiaryModelParser {
 
 		// time series cells
 		String combaseID = model.getId();
-		Organism organism = new Organism(model.getSpecies(0));
+		Agent organism = new Agent(model.getSpecies(0));
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
 
 		Matrix matrix = new Matrix(model.getCompartment(0));
@@ -765,41 +777,7 @@ class TertiaryModelParser {
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 
 		Map<String, Double> miscs = matrix.getMiscs();
-		PmmXmlDoc miscCell = new PmmXmlDoc();
-		int counter = -1;
-		for (Entry<String, Double> entry : miscs.entrySet()) {
-			String name = entry.getKey();
-			Double value = entry.getValue();
-
-			if (name.equals("Temperature")) {
-				List<String> categories = Arrays.asList(Categories
-						.getTempCategory().getName());
-				String description = name;
-				String unit = Categories.getTempCategory().getStandardUnit();
-				String origunit = Categories.getTempCategory()
-						.getStandardUnit();
-
-				MiscXml misc = new MiscXml(counter, name, description, value,
-						categories, origunit);
-				misc.setUnit(unit);
-				miscCell.add(misc);
-
-				counter -= 1;
-			} else if (name.equals("pH")) {
-				List<String> categories = Arrays.asList(Categories
-						.getPhCategory().getName());
-				String description = name;
-				String unit = Categories.getPhUnit();
-				String origunit = Categories.getPhUnit();
-
-				MiscXml misc = new MiscXml(counter, name, description, value,
-						categories, origunit);
-				misc.setUnit(unit);
-				miscCell.add(misc);
-
-				counter -= 1;
-			}
-		}
+		PmmXmlDoc miscCell = parseMiscs(miscs);
 
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
 				null, null));
@@ -853,8 +831,6 @@ class TertiaryModelParser {
 			CatalogModelXml catModelSec = rule2.toCatModel();
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
 
-			units = dbUnits.getUnits(secModel.getListOfUnitDefinitions());
-
 			// Add sec unit definitions
 			for (UnitDefinition ud : secModel.getListOfUnitDefinitions()) {
 				unitDefs.add(ud);
@@ -862,9 +838,8 @@ class TertiaryModelParser {
 
 			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule());
 			String depName = rule2.getRule().getVariable();
-			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams,
-					units, secLimits);
-			PmmXmlDoc parameterSecCell = parseConstsSec(secParams, secLimits);
+			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams, secLimits);
+			PmmXmlDoc parameterSecCell = parseConstsSec(secParams);
 
 			PmmXmlDoc estModelSecCell = new PmmXmlDoc();
 			estModelSecCell.add(new EstModelXml(MathUtilities

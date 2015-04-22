@@ -1,24 +1,22 @@
+/**
+ * Base class for model rules.
+ * 
+ * @author Miguel Alba
+ */
 package de.bund.bfr.knime.pmm.sbmlutil;
-
-import java.io.StringReader;
 
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
-import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
 import de.bund.bfr.knime.pmm.annotation.ModelNameNode;
+import de.bund.bfr.knime.pmm.sbmlutil.PiecewiseFormula;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
-/**
- * Base class for model rules.
- * 
- * @author Miguel Alba
- */
 public abstract class ModelRule {
 	protected final static int LEVEL = 3;
 	protected final static int VERSION = 1;
@@ -28,7 +26,7 @@ public abstract class ModelRule {
 	public AssignmentRule getRule() {
 		return rule;
 	}
-	
+
 	/**
 	 * Add annotation to the rule.
 	 * 
@@ -49,7 +47,7 @@ public abstract class ModelRule {
 		// Add model class to pmfNode
 		ModelClassNode typeNode = new ModelClassNode(type);
 		pmfNode.addChild(typeNode.getNode());
-		
+
 		// add non rdf annotation
 		Annotation annot = new Annotation();
 		annot.setNonRDFAnnotation(pmfNode);
@@ -61,9 +59,9 @@ public abstract class ModelRule {
 	public CatalogModelXml toCatModel() {
 		// Get metadata annotation
 		XMLNode nonRDFAnnot = rule.getAnnotation().getNonRDFannotation();
-		
+
 		XMLNode metadata = nonRDFAnnot.getChildElement("metadata", "");
-		
+
 		// Get formula name (which is mandatory)
 		XMLNode formulaNameNode = metadata.getChildElement("formulaName", "");
 		String formulaName = formulaNameNode.getChildAt(0).getCharacters();
@@ -77,7 +75,7 @@ public abstract class ModelRule {
 			String classString = subjectNode.getChildAt(0).getCharacters();
 			type = Util.MODELCLASS_NUMS.get(classString);
 		}
-		
+
 		String formula = String.format("%s=", createVariable());
 		ASTNode modelMath = rule.getMath();
 
@@ -103,33 +101,10 @@ public abstract class ModelRule {
 
 				String condString;
 				// Multiple conditions must be concatenated with an asterisk
-				// instead of '&&'
-				if (cond.getType() == ASTNode.Type.LOGICAL_AND) {
+				if (cond.getType() == ASTNode.Type.TIMES) {
 					ASTNode lchild = cond.getLeftChild();
 					ASTNode rchild = cond.getRightChild();
-					
-					String lchildString;
-					// If left child is a variable
-					if (lchild.getChildCount() == 0) {
-						lchildString = lchild.toFormula();
-					}
-					// If left child is an expression
-					else {
-						lchildString = String.format("(%s)", lchild.toFormula());
-					}
-					
-					String rchildString;
-					// If right child is a variable
-					if (rchild.getChildCount() == 0) {
-						rchildString = rchild.toFormula();
-					}
-					// If right child is an expression
-					else {
-						rchildString = String.format("(%s)", rchild.toFormula());
-					}
-					
-					// Concatenate these two conditions with an asterisk
-					condString = String.format("%s*%s", lchildString, rchildString);
+					condString = String.format("(%s)*(%s)", lchild.toFormula(), rchild.toFormula());
 				}
 
 				// If only one condition, this one needs to be surrounded with
@@ -153,19 +128,37 @@ public abstract class ModelRule {
 				formula, type);
 		return catModel;
 	}
-	
+
 	protected abstract String createVariable();
-	
-	public static AssignmentRule convertFormulaToAssignmentRule(String var, String formula) {
+
+	public static AssignmentRule convertFormulaToAssignmentRule(String var,
+			String formula) {
 		AssignmentRule assignmentRule = null;
-		try {
-//			ASTNode math = new FormulaParser(new StringReader(formula)).parse();
-			ASTNode math = ASTNode.parseFormula(formula);
-			assignmentRule = new AssignmentRule(math, LEVEL, VERSION);
-			assignmentRule.setVariable(var);
-		} catch (ParseException e) {
-			e.printStackTrace();
+		if ((formula.indexOf('<') != -1) || (formula.indexOf("<=") != -1)
+				|| (formula.indexOf(">") != -1)
+				|| (formula.indexOf(">=") != -1)
+				|| (formula.indexOf("==") != -1)
+				|| (formula.indexOf("!=") != -1)) {
+
+			try {
+				ASTNode[] nodes = PiecewiseFormula
+						.parsePiecewiseFormula(formula);
+				ASTNode math = ASTNode.piecewise(new ASTNode(), nodes);
+				assignmentRule = new AssignmentRule(math, LEVEL, VERSION);
+				assignmentRule.setVariable(var);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				ASTNode math = ASTNode.parseFormula(formula);
+				assignmentRule = new AssignmentRule(math, LEVEL, VERSION);
+				assignmentRule.setVariable(var);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
+
 		return assignmentRule;
 	}
 }

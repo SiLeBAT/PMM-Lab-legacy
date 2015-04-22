@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.sbml.jsbml.Compartment;
-import org.sbml.jsbml.Species;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.numl.AtomicDescription;
@@ -33,11 +33,11 @@ public class DataFile {
 	}
 
 	public DataFile(Map<Double, Double> dimension, String concentrationUnit,
-			String matrix, String organism, Map<String, String> dlgInfo)
-			throws URISyntaxException {
+			MatrixXml matrixXml, AgentXml agentXml, String depUnit,
+			Map<String, String> dlgInfo) throws URISyntaxException {
 		OntologyTerm time = createTimeOntology();
 		OntologyTerm concentration = createConcentrationOntology(
-				concentrationUnit, matrix, organism);
+				concentrationUnit, matrixXml, agentXml, depUnit);
 
 		// * create descriptions for the ontologies
 		AtomicDescription concentrationDesc = new AtomicDescription();
@@ -125,11 +125,8 @@ public class DataFile {
 	}
 
 	private OntologyTerm createConcentrationOntology(String concentrationUnit,
-			String matrix, String organism) throws URISyntaxException {
-		organism = (organism == null || organism.isEmpty()) ? "MissingSpecies"
-				: organism;
-		matrix = (matrix == null || matrix.isEmpty()) ? "MissingCompartment"
-				: matrix;
+			MatrixXml matrixXml, AgentXml agentXml, String depUnit)
+			throws URISyntaxException {
 
 		OntologyTerm concentration = new OntologyTerm();
 		concentration.setTerm("concentration");
@@ -172,21 +169,11 @@ public class DataFile {
 		pmfNode.append(udwrapper.toGroovyNode());
 
 		// compartment annotation
-		Compartment compartment = new Compartment(createId(matrix), matrix, 3,
-				1);
-		pmfNode.append(new Matrix(compartment).toGroovyNode());
+		Matrix matrix = new Matrix(matrixXml, new HashMap<String, Double>());
+		pmfNode.append(matrix.toGroovyNode());
 
 		// species annotation
-		Species species = new Species(3, 1);
-		species.setId(createId(organism));
-		species.setName(organism);
-		species.setCompartment(createId(matrix));
-		species.setConstant(false);
-		species.setBoundaryCondition(true);
-		species.setSubstanceUnits(concentrationUnit); // TODO: concentration
-											// unit
-		species.setHasOnlySubstanceUnits(false);
-		pmfNode.append(new Organism(species).toGroovyNode());
+		pmfNode.append(new Agent(agentXml, depUnit).toGroovyNode());
 
 		return concentration;
 	}

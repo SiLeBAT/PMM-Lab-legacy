@@ -113,7 +113,8 @@ import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Organism;
+import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
@@ -581,15 +582,6 @@ abstract class TableReader {
 		return param;
 	}
 
-	protected Parameter createIndepSec() {
-		Category tempCategory = Categories.getTempCategory();
-		Parameter param = new Parameter(tempCategory.getName());
-		param.setValue(0.0);
-		param.setConstant(false);
-		param.setUnits(tempCategory.getStandardUnit());
-		return param;
-	}
-
 	protected List<Parameter> createConstantParameters(
 			final List<PmmXmlElementConvertable> params) {
 		List<Parameter> consts = new ArrayList<>();
@@ -613,43 +605,18 @@ abstract class TableReader {
 		}
 		return consts;
 	}
-	
-	protected List<Parameter> createConstsSec(final List<PmmXmlElementConvertable> params) {
+
+	protected List<Parameter> createConstsSec(
+			final List<PmmXmlElementConvertable> params) {
 		List<Parameter> consts = new LinkedList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			ParamXml xml = (ParamXml) pmmParam;
-			
-			Parameter param = new Parameter(xml.getName());
-			param.setValue(xml.getValue());
-			String unit = (xml.getUnit() == null) ? "dimensionless" : xml.getUnit();
-			param.setUnits(unit);
-			param.setConstant(true);
-			
-			XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-			XMLNode pmfNode = new XMLNode(pmfTriple);
-			
-			XMLTriple pTriple = new XMLTriple("P", null, "pmml");
-			XMLNode pNode = new XMLNode(pTriple);
-			pNode.addChild(new XMLNode(xml.getP().toString()));
-			pmfNode.addChild(pNode);
-			
-			XMLTriple errorTriple = new XMLTriple("error", null, "pmml");
-			XMLNode errorNode = new XMLNode(errorTriple);
-			errorNode.addChild(new XMLNode(xml.getError().toString()));
-			pmfNode.addChild(errorNode);
-			
-			XMLTriple tTriple = new XMLTriple("t", null, "pmml");
-			XMLNode tNode = new XMLNode(tTriple);
-			tNode.addChild(new XMLNode(xml.getT().toString()));
-			pmfNode.addChild(tNode);
-			
-			param.getAnnotation().setNonRDFAnnotation(pmfNode);
-			
-			consts.add(param);
+			consts.add(new SecCoefficient(xml).getParameter());
 		}
-		
+
 		return consts;
 	}
+	
 
 	/**
 	 * Create a document annotation.
@@ -837,12 +804,14 @@ class PrimaryTableReader extends TableReader {
 				String unit = ((TimeSeriesXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_TIMESERIES).get(0))
 						.getConcentrationUnit();
-				String matrix = ((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
-				String organism = ((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
-				DataFile dataFile = new DataFile(dim, unit, matrix, organism,
-						dlgInfo);
+				MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0);
+				AgentXml agentXml = (AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0);
+				String depUnit = (String) ((DepXml) tuple.getPmmXml(
+						Model1Schema.ATT_DEPENDENT).get(0)).getUnit();
+				DataFile dataFile = new DataFile(dim, unit, matrixXml,
+						agentXml, depUnit, dlgInfo);
 
 				// * Get and add dataset
 				NuMLDocument data = dataFile.getDocument();
@@ -920,12 +889,18 @@ class PrimaryTableReader extends TableReader {
 				TimeSeriesSchema.ATT_MISC).getElementSet()) {
 			miscs.add((MiscXml) misc);
 		}
-		Matrix matrix = new Matrix(matrixXml, miscs);
+
+		Map<String, Double> miscsMap = new HashMap<>();
+		for (MiscXml misc : miscs) {
+			miscsMap.put(misc.getName(), misc.getValue());
+		}
+
+		Matrix matrix = new Matrix(matrixXml, miscsMap);
 		Compartment c = matrix.getCompartment();
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Organism organims = new Organism(organismXml, depXml.getUnit(), c);
+		Agent organims = new Agent(organismXml, depXml.getUnit());
 		model.addSpecies(organims.getSpecies());
 
 		String depName = depXml.getOrigName();
@@ -1026,12 +1001,14 @@ class TertiaryTableReader extends TableReader {
 				String unit = ((TimeSeriesXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_TIMESERIES).get(0))
 						.getConcentrationUnit();
-				String matrix = ((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
-				String organism = ((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
-				DataFile dataFile = new DataFile(dim, unit, matrix, organism,
-						dlgInfo);
+				MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0);
+				AgentXml agentXml = (AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0);
+				String depUnit = (String) ((DepXml) tuple.getPmmXml(
+						Model1Schema.ATT_DEPENDENT).get(0)).getUnit();
+				DataFile dataFile = new DataFile(dim, unit, matrixXml,
+						agentXml, depUnit, dlgInfo);
 
 				// * Get and add data set
 				NuMLDocument data = dataFile.getDocument();
@@ -1064,23 +1041,13 @@ class TertiaryTableReader extends TableReader {
 		return annot;
 	}
 
-	private List<Parameter> createIndependentSecParameters(
-			final List<PmmXmlElementConvertable> params) {
+	private List<Parameter> createSecIndeps(final List<PmmXmlElementConvertable> params) {
 		List<Parameter> indeps = new LinkedList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			IndepXml xml = (IndepXml) pmmParam;
-
-			if (xml.getName().equals("Temperature")) {
-				Parameter p = new Parameter("Temperature");
-				p.setUnits(Categories.getTempCategory().getStandardUnit());
-				p.setConstant(false);
-				indeps.add(p);
-			} else if (xml.getName().equals("pH")) {
-				Parameter p = new Parameter("pH");
-				p.setUnits(Categories.getPhUnit());
-				p.setConstant(false);
-				indeps.add(p);
-			}
+			Parameter p = new Parameter(xml.getName());
+			p.setConstant(false);
+			indeps.add(p);
 		}
 		return indeps;
 	}
@@ -1205,13 +1172,21 @@ class TertiaryTableReader extends TableReader {
 				TimeSeriesSchema.ATT_MISC).getElementSet()) {
 			miscs.add((MiscXml) misc);
 		}
-		Matrix matrix = new Matrix(matrixXml, miscs);
+
+		Map<String, Double> miscsMap = new HashMap<>();
+		for (MiscXml misc : miscs) {
+			miscsMap.put(misc.getName(), misc.getValue());
+		}
+
+		Matrix matrix = new Matrix(matrixXml, miscsMap);
 		Compartment compartment = matrix.getCompartment();
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Organism organism = new Organism(organismXml, depXml.getUnit(),
-				compartment);
+		// TODO: Check organism
+		// Organism organism = new Organism(organismXml, depXml.getUnit(),
+		// compartment);
+		Agent organism = new Agent(organismXml, depXml.getUnit());
 		model.addSpecies(organism.getSpecies());
 
 		String depName = depXml.getOrigName();
@@ -1292,7 +1267,7 @@ class TertiaryTableReader extends TableReader {
 			modelDefinition.addParameter(secDep);
 
 			// Add independent parameters
-			List<Parameter> secIndeps = createIndependentSecParameters(secIndepParams);
+			List<Parameter> secIndeps = createSecIndeps(secIndepParams);
 			for (Parameter param : secIndeps) {
 				modelDefinition.addParameter(param);
 			}

@@ -114,6 +114,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
@@ -420,54 +421,6 @@ abstract class TableReader {
 	 * Get units from the parameters (dep, indep and consts), get their data
 	 * from DB and return them.
 	 */
-	// public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
-	// List<PmmXmlElementConvertable> constParams) {
-	//
-	// // get unit names
-	// HashSet<String> units = new HashSet<>();
-	// if (dep.getUnit() != null)
-	// units.add(dep.getUnit());
-	// if (indep.getUnit() != null)
-	// units.add(indep.getUnit());
-	// for (PmmXmlElementConvertable pmmXmlElement : constParams) {
-	// ParamXml param = (ParamXml) pmmXmlElement;
-	// if (param.getUnit() != null) {
-	// units.add(param.getUnit());
-	// }
-	// }
-	//
-	// // Get units from DB
-	// UnitsFromDB unitDB = new UnitsFromDB();
-	// unitDB.askDB();
-	// Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
-	//
-	// // Create new map with unit display as keys
-	// Map<String, UnitsFromDB> map = new HashMap<>();
-	// for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
-	// map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
-	// }
-	//
-	// ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
-	// for (String unit : units) {
-	// UnitsFromDB dbUnit = map.get(unit);
-	// if (dbUnit != null) {
-	// UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
-	// .xmlToUnitDefinition(dbUnit.getMathML_string());
-	// UnitDefinition ud = wrapper.getUnitDefinition();
-	// ud.setId(createId(unit));
-	// ud.setName(unit);
-	// unitDefs.add(ud);
-	// }
-	// }
-	//
-	// return unitDefs;
-	// }
-
-	// TODO: getUnits from dep, indep, const and variables (temp, pH)
-	/*
-	 * Get units from the parameters (dep, indep and consts), get their data
-	 * from DB and return them.
-	 */
 	public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
 			List<PmmXmlElementConvertable> constParams) {
 
@@ -584,39 +537,14 @@ abstract class TableReader {
 
 	protected List<Parameter> createConstantParameters(
 			final List<PmmXmlElementConvertable> params) {
-		List<Parameter> consts = new ArrayList<>();
+		List<Parameter> coefficients = new LinkedList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
-			ParamXml xml = (ParamXml) pmmParam;
-
-			String name = xml.getName();
-			String unit = (xml.getUnit() == null) ? "dimensionless" : xml
-					.getUnit();
-
-			Double value = xml.getValue();
-			if (value == null) {
-				value = 0.0;
-			}
-
-			Parameter p = new Parameter(name);
-			p.setValue(value);
-			p.setConstant(true);
-			p.setUnits(createId(unit));
-			consts.add(p);
+			ParamXml paramXml = (ParamXml) pmmParam;
+			coefficients.add(new PrimCoefficient(paramXml).getParameter());
 		}
-		return consts;
+		return coefficients;
 	}
 
-	protected List<Parameter> createConstsSec(
-			final List<PmmXmlElementConvertable> params) {
-		List<Parameter> consts = new LinkedList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			ParamXml xml = (ParamXml) pmmParam;
-			consts.add(new SecCoefficient(xml).getParameter());
-		}
-
-		return consts;
-	}
-	
 
 	/**
 	 * Create a document annotation.
@@ -938,8 +866,7 @@ class PrimaryTableReader extends TableReader {
 			}
 		}
 		// Add constant parameters
-		List<Parameter> consts = createConstantParameters(constParams);
-		for (Parameter param : consts) {
+		for (Parameter param : createConstantParameters(constParams)) {
 			model.addParameter(param);
 		}
 
@@ -1041,7 +968,19 @@ class TertiaryTableReader extends TableReader {
 		return annot;
 	}
 
-	private List<Parameter> createSecIndeps(final List<PmmXmlElementConvertable> params) {
+	private List<Parameter> createConstsSec(
+			final List<PmmXmlElementConvertable> params) {
+		List<Parameter> consts = new LinkedList<>();
+		for (PmmXmlElementConvertable pmmParam : params) {
+			ParamXml xml = (ParamXml) pmmParam;
+			consts.add(new SecCoefficient(xml).getParameter());
+		}
+
+		return consts;
+	}
+
+	private List<Parameter> createSecIndeps(
+			final List<PmmXmlElementConvertable> params) {
 		List<Parameter> indeps = new LinkedList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			IndepXml xml = (IndepXml) pmmParam;
@@ -1183,9 +1122,6 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		// TODO: Check organism
-		// Organism organism = new Organism(organismXml, depXml.getUnit(),
-		// compartment);
 		Agent organism = new Agent(organismXml, depXml.getUnit());
 		model.addSpecies(organism.getSpecies());
 
@@ -1224,8 +1160,7 @@ class TertiaryTableReader extends TableReader {
 			}
 		}
 		// Add constant params
-		List<Parameter> consts = createConstantParameters(constParams);
-		for (Parameter param : consts) {
+		for (Parameter param : createConstantParameters(constParams)) {
 			model.addParameter(param);
 		}
 

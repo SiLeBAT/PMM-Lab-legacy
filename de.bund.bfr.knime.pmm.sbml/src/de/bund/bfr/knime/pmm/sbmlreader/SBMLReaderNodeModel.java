@@ -70,7 +70,9 @@ import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
+import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
@@ -409,50 +411,58 @@ class ReaderUtils {
 
 	// Create constant variables
 	public static PmmXmlDoc parseConsts(final ListOf<Parameter> params,
-			final Map<String, UnitsFromDB> units,
+			final ListOf<UnitDefinition> unitDefinitions,
 			final Map<String, Limits> limits) {
-		PmmXmlDoc constsDoc = new PmmXmlDoc();
 
+		// Get constant parameters
+		LinkedList<Parameter> constParams = new LinkedList<>();
 		for (Parameter param : params) {
 			if (param.isConstant()) {
-				String origUnit = param.getUnits(); // unit name
-				UnitsFromDB dbUnit = units.get(origUnit);
-
-				String name = "", category = "", unit = "", description = "";
-
-				// Retrieve unit data from dbUnit
-				if (dbUnit != null) {
-					name = dbUnit.getName();
-					category = dbUnit.getKind_of_property_quantity();
-					unit = dbUnit.getDisplay_in_GUI_as();
-				} else if (origUnit.equals("pmf_celsius")) {
-					name = origUnit;
-					category = Categories.getTempCategory().getName();
-					unit = "°C";
-				}
-
-				// other fields
-				String id = param.getId();
-				double value = param.getValue();
-
-				ParamXml paramXml = new ParamXml(id, value);
-				paramXml.setCategory(category);
-				paramXml.setUnit(unit);
-				paramXml.setDescription(description);
-
-				// Get limits
-				String paramName = param.getId();
-				if (limits.containsKey(paramName)) {
-					Limits paramLimits = limits.get(paramName);
-					paramXml.setMax(paramLimits.getMax());
-					paramXml.setMin(paramLimits.getMin());
-				}
-
-				constsDoc.add(paramXml);
+				constParams.add(param);
 			}
 		}
 
-		return constsDoc;
+		// Get unit data from DB
+		UnitsFromDB ufdb = new UnitsFromDB();
+		ufdb.askDB();
+		Map<String, UnitsFromDB> unitsMap = new HashMap<>();
+		for (UnitsFromDB dbUnit : ufdb.getMap().values()) {
+			unitsMap.put(dbUnit.getDisplay_in_GUI_as(), dbUnit);
+		}
+
+		PmmXmlDoc constDoc = new PmmXmlDoc();
+		for (Parameter param : constParams) {
+			ParamXml paramXml = new PrimCoefficient(param).toParamXml();
+
+			if (param.getUnits().equals("dimensionless")) {
+				paramXml.setUnit("");
+			} else {
+				String unitId = Util.createId(param.getUnits());
+
+				// Get description and category from DB
+				String unit = unitDefinitions.get(unitId).getName();
+				if (unit != null) {
+					paramXml.setUnit(unit);
+					if (unitsMap.containsKey(unit)) {
+						UnitsFromDB dbUnit = unitsMap.get(unit);
+						paramXml.setDescription(dbUnit.getDescription());
+						paramXml.setCategory(dbUnit
+								.getKind_of_property_quantity());
+					}
+				}
+			}
+
+			// Get limits
+			if (limits.containsKey(param.getId())) {
+				Limits paramLimits = limits.get(param.getId());
+				paramXml.setMax(paramLimits.getMax());
+				paramXml.setMin(paramLimits.getMin());
+			}
+
+			constDoc.add(paramXml);
+		}
+
+		return constDoc;
 	}
 
 	/**
@@ -575,8 +585,8 @@ class PrimaryModelParser {
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
 		PmmXmlDoc indepCell = ReaderUtils.createIndep(limits);
-		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters, units,
-				limits);
+		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
+				model.getListOfUnitDefinitions(), limits);
 
 		EstModelXml estModel = ReaderUtils.createEstModel(annotations);
 
@@ -797,8 +807,8 @@ class TertiaryModelParser {
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
 		PmmXmlDoc indepCell = ReaderUtils.createIndep(limits);
-		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters, units,
-				limits);
+		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
+				model.getListOfUnitDefinitions(), limits);
 
 		// Parse uncertainty measures from the document's annotations
 		EstModelXml estModel = ReaderUtils.createEstModel(annotations);
@@ -838,7 +848,8 @@ class TertiaryModelParser {
 
 			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule());
 			String depName = rule2.getRule().getVariable();
-			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams, secLimits);
+			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams,
+					secLimits);
 			PmmXmlDoc parameterSecCell = parseConstsSec(secParams);
 
 			PmmXmlDoc estModelSecCell = new PmmXmlDoc();

@@ -53,4 +53,8 @@ public class Util {
 		
 		MODELCLASS_STRS = Collections.unmodifiableMap(tempMap);
 	}
+
+	public static String createId(String s) {
+		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	}
 }

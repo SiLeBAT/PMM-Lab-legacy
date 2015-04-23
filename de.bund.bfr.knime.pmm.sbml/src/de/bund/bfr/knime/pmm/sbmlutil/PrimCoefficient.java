@@ -1,5 +1,5 @@
 /**
- * Pmm Lab secondary model coefficient
+ * Pmm Lab primary model coefficient.
  * @author Miguel Alba
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
@@ -10,22 +10,23 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.common.ParamXml;
 
-public class SecCoefficient {
+public class PrimCoefficient {
+
 	private Parameter param;
 
 	private double P;
 	private double error;
 	private double t;
 
-	/** Builds a SecCoefficient from a SBML parameter */
-	public SecCoefficient(Parameter param) {
+	/** Builds a PrimCoefficient from a SBML parameter */
+	public PrimCoefficient(Parameter param) {
 		// Get non RDF annotation
 		XMLNode metadata = param.getAnnotation().getNonRDFannotation()
 				.getChildElement("metadata", "");
 
 		// Get P, error, and T
-		P = Double.parseDouble(metadata.getChildElement("P", "")
-				.getChild(0).getCharacters());
+		P = Double.parseDouble(metadata.getChildElement("P", "").getChild(0)
+				.getCharacters());
 		error = Double.parseDouble(metadata.getChildElement("error", "")
 				.getChild(0).getCharacters());
 		t = Double.parseDouble(metadata.getChildElement("t", "").getChild(0)
@@ -34,11 +35,16 @@ public class SecCoefficient {
 		this.param = param;
 	}
 
-	/** Builds a SecCoefficient from a PmmLab ParamXml */
-	public SecCoefficient(ParamXml paramXml) {
+	/** Builds a PrimCoefficient from a PmmLab ParamXml */
+	public PrimCoefficient(ParamXml paramXml) {
 		param = new Parameter(paramXml.getName());
 		param.setValue(paramXml.getValue());
-		param.setUnits("dimensionless");
+
+		if (paramXml.getUnit() == null) {
+			param.setUnits("dimensionless");
+		} else {
+			param.setUnits(Util.createId(paramXml.getUnit()));
+		}
 		param.setConstant(true);
 
 		// Save P, error, and t
@@ -91,7 +97,6 @@ public class SecCoefficient {
 	public ParamXml toParamXml() {
 		ParamXml paramXml = new ParamXml(param.getId(), param.getValue(),
 				error, null, null, P, t);
-		paramXml.setDescription("coefficient");
 		return paramXml;
 	}
 }

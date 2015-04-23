@@ -391,11 +391,12 @@ class ReaderUtils {
 	}
 
 	// Create independent variable
-	public static PmmXmlDoc createIndep(final Map<String, Limits> limits) {
+	public static PmmXmlDoc createIndep(final Parameter indepParam,
+			final Map<String, Limits> limits) {
 		String category = Categories.getTimeCategory().getName();
 		String name = Categories.getTime();
 		String origname = Categories.getTime();
-		String unit = Categories.getTimeCategory().getStandardUnit();
+		String unit = indepParam.getUnits();
 		Double min = null, max = null;
 		if (limits.containsKey(name)) {
 			Limits indepLimits = limits.get(name);
@@ -584,7 +585,8 @@ class PrimaryModelParser {
 				.getListOfUnitDefinitions());
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
-		PmmXmlDoc indepCell = ReaderUtils.createIndep(limits);
+		Parameter indepParam = listOfParameters.get("Time");
+		PmmXmlDoc indepCell = ReaderUtils.createIndep(indepParam, limits);
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
 				model.getListOfUnitDefinitions(), limits);
 
@@ -806,7 +808,8 @@ class TertiaryModelParser {
 				.getListOfUnitDefinitions());
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
 				limits);
-		PmmXmlDoc indepCell = ReaderUtils.createIndep(limits);
+		Parameter indepParam = listOfParameters.get("Time");
+		PmmXmlDoc indepCell = ReaderUtils.createIndep(indepParam, limits);
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
 				model.getListOfUnitDefinitions(), limits);
 

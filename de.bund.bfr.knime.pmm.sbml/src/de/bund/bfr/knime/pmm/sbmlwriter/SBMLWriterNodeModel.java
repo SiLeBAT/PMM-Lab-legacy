@@ -455,7 +455,7 @@ abstract class TableReader {
 				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
 						.xmlToUnitDefinition(dbUnit.getMathML_string());
 				UnitDefinition ud = wrapper.getUnitDefinition();
-				ud.setId(createId(unit));
+				ud.setId(Util.createId(unit));
 				ud.setName(unit);
 				unitDefs.add(ud);
 			}
@@ -471,10 +471,6 @@ abstract class TableReader {
 		model.setFormula(MathUtilities.replaceVariable(model.getFormula(),
 				"log", "log10"));
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
-	}
-
-	protected static String createId(String s) {
-		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
 	}
 
 	protected static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
@@ -527,11 +523,11 @@ abstract class TableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	protected Parameter createIndep() {
+	protected Parameter createIndep(IndepXml indepXml) {
 		Parameter param = new Parameter(Categories.getTime());
 		param.setValue(0.0);
 		param.setConstant(false);
-		param.setUnits(Categories.getTimeCategory().getStandardUnit());
+		param.setUnits(indepXml.getUnit());
 		return param;
 	}
 
@@ -846,7 +842,7 @@ class PrimaryTableReader extends TableReader {
 		}
 
 		// Add independent parameter
-		model.addParameter(createIndep());
+		model.addParameter(createIndep(indep));
 
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
@@ -1023,7 +1019,7 @@ class TertiaryTableReader extends TableReader {
 				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
 						.xmlToUnitDefinition(dbUnit.getMathML_string());
 				UnitDefinition ud = wrapper.getUnitDefinition();
-				ud.setId(createId(unit));
+				ud.setId(Util.createId(unit));
 				ud.setName(unit);
 				unitDefs.add(ud);
 			}
@@ -1140,7 +1136,7 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		// Add independent parameter
-		model.addParameter(createIndep());
+		model.addParameter(createIndep(indep));
 
 		// Parse constant parameters
 		List<PmmXmlElementConvertable> constParams = firstTuple.getPmmXml(

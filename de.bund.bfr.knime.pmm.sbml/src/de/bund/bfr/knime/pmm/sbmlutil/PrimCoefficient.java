@@ -14,9 +14,9 @@ public class PrimCoefficient {
 
 	private Parameter param;
 
-	private double P;
-	private double error;
-	private double t;
+	private Double P;
+	private Double error;
+	private Double t;
 
 	/** Builds a PrimCoefficient from a SBML parameter */
 	public PrimCoefficient(Parameter param) {
@@ -25,12 +25,20 @@ public class PrimCoefficient {
 				.getChildElement("metadata", "");
 
 		// Get P, error, and T
-		P = Double.parseDouble(metadata.getChildElement("P", "").getChild(0)
-				.getCharacters());
-		error = Double.parseDouble(metadata.getChildElement("error", "")
-				.getChild(0).getCharacters());
-		t = Double.parseDouble(metadata.getChildElement("t", "").getChild(0)
-				.getCharacters());
+		XMLNode pNode = metadata.getChildElement("P", "");
+		if (pNode != null) {
+			P = Double.parseDouble(pNode.getChild(0).getCharacters());
+		}
+
+		XMLNode errorNode = metadata.getChildElement("error", "");
+		if (errorNode != null) {
+			error = Double.parseDouble(errorNode.getChild(0).getCharacters());
+		}
+
+		XMLNode tNode = metadata.getChildElement("t", "");
+		if (tNode != null) {
+			t = Double.parseDouble(tNode.getChild(0).getCharacters());
+		}
 
 		this.param = param;
 	}
@@ -38,7 +46,12 @@ public class PrimCoefficient {
 	/** Builds a PrimCoefficient from a PmmLab ParamXml */
 	public PrimCoefficient(ParamXml paramXml) {
 		param = new Parameter(paramXml.getName());
-		param.setValue(paramXml.getValue());
+
+		// If parameter is not a secondary model's variable then it should have
+		// a value
+		if (paramXml.getValue() != null) {
+			param.setValue(paramXml.getValue());
+		}
 
 		if (paramXml.getUnit() == null) {
 			param.setUnits("dimensionless");
@@ -59,19 +72,25 @@ public class PrimCoefficient {
 		XMLNode pmfNode = new XMLNode(pmfTriple);
 
 		// * Create annotation for P
-		XMLNode pNode = new XMLNode(new XMLTriple("P", null, "pmf"));
-		pNode.addChild(new XMLNode(paramXml.getP().toString()));
-		pmfNode.addChild(pNode);
+		if (P != null) {
+			XMLNode pNode = new XMLNode(new XMLTriple("P", null, "pmf"));
+			pNode.addChild(new XMLNode(paramXml.getP().toString()));
+			pmfNode.addChild(pNode);
+		}
 
 		// * Create annotation for error
-		XMLNode errorNode = new XMLNode(new XMLTriple("error", null, "pmf"));
-		errorNode.addChild(new XMLNode(paramXml.getError().toString()));
-		pmfNode.addChild(errorNode);
+		if (error != null) {
+			XMLNode errorNode = new XMLNode(new XMLTriple("error", null, "pmf"));
+			errorNode.addChild(new XMLNode(paramXml.getError().toString()));
+			pmfNode.addChild(errorNode);
+		}
 
 		// * Create annotation for t
-		XMLNode tNode = new XMLNode(new XMLTriple("t", null, "pmf"));
-		tNode.addChild(new XMLNode(paramXml.getT().toString()));
-		pmfNode.addChild(tNode);
+		if (t != null) {
+			XMLNode tNode = new XMLNode(new XMLTriple("t", null, "pmf"));
+			tNode.addChild(new XMLNode(paramXml.getT().toString()));
+			pmfNode.addChild(tNode);
+		}
 
 		// * Set non RDF annotation
 		param.getAnnotation().setNonRDFAnnotation(pmfNode);

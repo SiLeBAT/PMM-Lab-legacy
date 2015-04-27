@@ -5,6 +5,9 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
@@ -121,7 +124,8 @@ public abstract class ModelRule {
 			}
 			formula += sb.toString();
 		} else {
-			formula += modelMath.toFormula().replaceAll("log", "ln");
+			// Replace MathML's log with Pmm Lab's ln
+			formula += modelMath.toFormula().replaceAll("log\\(", "ln(");
 		}
 
 		CatalogModelXml catModel = new CatalogModelXml(null, formulaName,

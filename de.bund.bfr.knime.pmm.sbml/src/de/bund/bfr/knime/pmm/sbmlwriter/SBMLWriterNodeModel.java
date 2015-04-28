@@ -887,7 +887,7 @@ class TertiaryTableReader extends TableReader {
 
 		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
-			String id = tuple.getString(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			String id = tuple.getString(TimeSeriesSchema.ATT_CONDID);
 			if (tuplesMap.containsKey(id)) {
 				tuplesMap.get(id).add(tuple);
 			} else {

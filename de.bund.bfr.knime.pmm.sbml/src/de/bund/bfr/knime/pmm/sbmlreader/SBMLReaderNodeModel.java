@@ -264,7 +264,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 				for (KnimeTuple tuple : TertiaryModelParser
 						.parseDocument(model)) {
-					if (dataFileName == null) {
+					if (dataFileName != null) {
 						tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 					}
 					container.addRowToTable(tuple);

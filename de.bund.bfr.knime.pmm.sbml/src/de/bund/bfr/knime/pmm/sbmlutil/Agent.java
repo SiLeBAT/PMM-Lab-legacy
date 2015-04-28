@@ -22,15 +22,9 @@ public class Agent {
 
 	public Agent(Species species) {
 		// Get CAS number from annotation
-		XMLNode annotation = species.getAnnotation().getNonRDFannotation();
-		XMLNode metadata = annotation.getChildElement("metadata", "");
-
-		if (metadata != null) {
-			XMLNode source = metadata.getChildElement("source", "");
-			String ref = source.getChild(0).getCharacters(); // whole reference
-			casNumber = ref.substring(ref.lastIndexOf("/") + 1);
-		}
-
+		XMLNode nonRDFannotation = species.getAnnotation()
+				.getNonRDFannotation();
+		casNumber = new AgentAnnotation(nonRDFannotation).getRef();
 		this.species = species;
 	}
 
@@ -38,7 +32,7 @@ public class Agent {
 		species = new Species("species" + agent.getId());
 		species.setBoundaryCondition(false);
 		species.setConstant(false);
-		species.setUnits(createId(unit));
+		species.setUnits(Util.createId(unit));
 
 		// Search species in DB
 		String name = (String) DBKernel.getValue("Agenzien", "ID", agent
@@ -52,19 +46,8 @@ public class Agent {
 			casNumber = (String) DBKernel.getValue("Agenzien", "ID", agent
 					.getId().toString(), "CAS_Nummer");
 
-			// Create and add an annotation with the CAS number
-
-			// * Build dc:source tag
-			XMLNode source = new XMLNode(new XMLTriple("source", null, "dc"));
-			source.addChild(new XMLNode("http://identifiers.org/ncim/"
-					+ casNumber));
-
-			// * Build PMF container
-			XMLNode pmfNode = new XMLNode(
-					new XMLTriple("metadata", null, "pmf"));
-			pmfNode.addChild(source);
-
-			// Add non RDF annotation
+			// Create and set a non RDF annotation with the CAS number
+			XMLNode pmfNode = new AgentAnnotation(casNumber).getNode();
 			species.getAnnotation().setNonRDFAnnotation(pmfNode);
 		}
 	}
@@ -103,11 +86,55 @@ public class Agent {
 		return agent;
 	}
 
-	private static String createId(String s) {
-		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
-	}
-
 	public Node toGroovyNode() {
 		return new Node(null, "sbml:species", species.writeXMLAttributes());
+	}
+}
+
+// Agent non RDF annotation. Holds an agent's CAS number
+class AgentAnnotation {
+	private static String METADATA_TAG = "metadata";
+	private static String PMF_TAG = "pmf";
+	private static String REF_TAG = "source";
+	private static String REF_NS = "dc";
+
+	private XMLNode node;
+	private String ref; // CAS number
+
+	// Get CAS number from an existing agent annotation
+	public AgentAnnotation(XMLNode node) {
+		this.node = node;
+		XMLNode metadata = node.getChildElement(METADATA_TAG, "");
+
+		if (metadata != null) {
+			XMLNode source = metadata.getChildElement(REF_TAG, "");
+			ref = source.getChild(0).getCharacters(); // whole reference
+			ref = ref.substring(ref.lastIndexOf("/") + 1);
+		}
+	}
+
+	/**
+	 * Build new Agent annotation for a CAS number
+	 * 
+	 * @param code
+	 *            : CAS number
+	 */
+	public AgentAnnotation(String code) {
+		// Build reference tag
+		XMLNode refNode = new XMLNode(new XMLTriple(REF_TAG, null, REF_NS));
+		refNode.addChild(new XMLNode("http://identifiers.org/ncim/" + code));
+
+		// Build PMF container
+		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
+		node.addChild(refNode);
+	}
+
+	// Getters
+	public XMLNode getNode() {
+		return node;
+	}
+
+	public String getRef() {
+		return ref;
 	}
 }

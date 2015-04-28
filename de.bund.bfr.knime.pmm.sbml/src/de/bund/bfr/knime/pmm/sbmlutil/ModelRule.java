@@ -5,9 +5,6 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
@@ -17,7 +14,6 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
 import de.bund.bfr.knime.pmm.annotation.ModelNameNode;
-import de.bund.bfr.knime.pmm.sbmlutil.PiecewiseFormula;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
 public abstract class ModelRule {

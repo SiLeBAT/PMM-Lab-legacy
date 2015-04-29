@@ -46,12 +46,12 @@ public class UnitDefinitionWrapper {
 		if (xml.indexOf("<transformation") != -1) {
 			xml = xml.replaceFirst("<transformation", "<pmf:transformation");
 		}
-		// TODO: Remove namespace
+
+		// Remove namespace
 		xml = xml
 				.replaceAll(
 						"xmlns=\"http://sourceforge.net/projects/microbialmodelingexchange/files/Units\"",
 						"");
-		System.out.println(xml);
 
 		String totalXml = preXml + xml + postXml;
 

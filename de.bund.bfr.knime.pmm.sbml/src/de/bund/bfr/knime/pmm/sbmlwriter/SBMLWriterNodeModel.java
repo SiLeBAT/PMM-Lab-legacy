@@ -541,7 +541,6 @@ abstract class TableReader {
 		return coefficients;
 	}
 
-
 	/**
 	 * Create a document annotation.
 	 * 
@@ -1028,6 +1027,52 @@ class TertiaryTableReader extends TableReader {
 		return unitDefs;
 	}
 
+	// TODO: ...
+	public ListOf<UnitDefinition> getUnits(
+			List<PmmXmlElementConvertable> constParams) {
+
+		// get unit names
+		HashSet<String> units = new HashSet<>();
+		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
+			ParamXml param = (ParamXml) pmmXmlElement;
+			if (param.getUnit() != null) {
+				units.add(param.getUnit());
+			}
+		}
+
+		// Get units from DB
+		UnitsFromDB unitDB = new UnitsFromDB();
+		unitDB.askDB();
+		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
+
+		// Create new map with unit display as keys
+		Map<String, UnitsFromDB> map = new HashMap<>();
+		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
+			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
+		}
+
+		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
+		for (String unit : units) {
+			UnitsFromDB dbUnit = map.get(unit);
+			if (dbUnit != null) {
+				UnitDefinition ud;
+
+				// DB unit has not MathML string
+				if (dbUnit.getMathML_string().isEmpty()) {
+					ud = new UnitDefinition();
+				} else {
+					ud = UnitDefinitionWrapper.xmlToUnitDefinition(
+							dbUnit.getMathML_string()).getUnitDefinition();
+				}
+				ud.setId(Util.createId(unit));
+				ud.setName(unit);
+				unitDefs.add(ud);
+			}
+		}
+
+		return unitDefs;
+	}
+
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
 			Map<String, String> docInfo) {
 		// modify formulas
@@ -1187,7 +1232,7 @@ class TertiaryTableReader extends TableReader {
 			modelDefinition.setName(secModelXml.getName());
 
 			// Add units
-			unitDefs = getUnits(secDepXml, secConstParams);
+			unitDefs = getUnits(secConstParams);
 			modelDefinition.setListOfUnitDefinitions(unitDefs);
 
 			// Add dep from sec

@@ -36,8 +36,7 @@ public class Matrix {
 	/** Build a PMM Lab Matrix from a MatrixXml */
 	public Matrix(MatrixXml matrixXml, Map<String, Double> miscs) {
 		// Build compartment
-		compartment = new Compartment(matrixXml.getName()
-				.replaceAll("\\W+", " ").trim().replace(" ", "_"));
+		compartment = new Compartment(Util.createId(matrixXml.getName()));
 		compartment.setConstant(true);
 		compartment.setName(matrixXml.getName());
 
@@ -48,7 +47,7 @@ public class Matrix {
 				colVals, "Code");
 
 		this.miscs = miscs;
-
+		
 		// Build and set non RDF annotation
 		XMLNode annot = new MatrixAnnotation(code, miscs).getNode();
 		compartment.getAnnotation().setNonRDFAnnotation(annot);
@@ -118,7 +117,15 @@ class MatrixAnnotation {
 		for (XMLNode varNode : metadata.getChildElements(VARIABLE_TAG, "")) {
 			XMLAttributes attrs = varNode.getAttributes();
 			String varName = attrs.getValue(VARIABLE_NAME);
-			Double varValue = Double.parseDouble(attrs.getValue(VARIABLE_VALUE));
+			Double varValue;
+			// If varNode has a value then parse it
+			if (attrs.hasAttribute(VARIABLE_VALUE)) {
+				varValue = Double.parseDouble(attrs.getValue(VARIABLE_VALUE));
+			}
+			// Otherwise, if empty string assign a null value
+			else {
+				varValue = null;
+			}
 			miscs.put(varName, varValue);
 		}
 	}
@@ -141,7 +148,10 @@ class MatrixAnnotation {
 			XMLTriple triple = new XMLTriple(VARIABLE_TAG, null, VARIABLE_NS);
 			XMLAttributes attrs = new XMLAttributes();
 			attrs.add(VARIABLE_NAME, entry.getKey());
-			attrs.add(VARIABLE_VALUE, entry.getValue().toString());
+			if (entry.getValue() != null) {
+				attrs.add(VARIABLE_VALUE, entry.getValue().toString());
+			}
+
 			node.addChild(new XMLNode(triple, attrs));
 		}
 	}

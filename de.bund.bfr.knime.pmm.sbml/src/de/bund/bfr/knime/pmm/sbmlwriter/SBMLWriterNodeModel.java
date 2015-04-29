@@ -986,48 +986,6 @@ class TertiaryTableReader extends TableReader {
 		return indeps;
 	}
 
-	public ListOf<UnitDefinition> getUnits(DepXml dep,
-			List<PmmXmlElementConvertable> constParams) {
-
-		// get unit names
-		HashSet<String> units = new HashSet<>();
-		if (dep.getUnit() != null)
-			units.add(dep.getUnit());
-		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
-			ParamXml param = (ParamXml) pmmXmlElement;
-			if (param.getUnit() != null) {
-				units.add(param.getUnit());
-			}
-		}
-
-		// Get units from DB
-		UnitsFromDB unitDB = new UnitsFromDB();
-		unitDB.askDB();
-		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
-
-		// Create new map with unit display as keys
-		Map<String, UnitsFromDB> map = new HashMap<>();
-		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
-			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
-		}
-
-		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
-		for (String unit : units) {
-			UnitsFromDB dbUnit = map.get(unit);
-			if (dbUnit != null) {
-				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
-						.xmlToUnitDefinition(dbUnit.getMathML_string());
-				UnitDefinition ud = wrapper.getUnitDefinition();
-				ud.setId(Util.createId(unit));
-				ud.setName(unit);
-				unitDefs.add(ud);
-			}
-		}
-
-		return unitDefs;
-	}
-
-	// TODO: ...
 	public ListOf<UnitDefinition> getUnits(
 			List<PmmXmlElementConvertable> constParams) {
 

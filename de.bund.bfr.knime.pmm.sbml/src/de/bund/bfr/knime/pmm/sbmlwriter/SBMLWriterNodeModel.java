@@ -1194,7 +1194,6 @@ class TertiaryTableReader extends TableReader {
 			Parameter secDep = new Parameter(secDepXml.getName());
 			secDep.setConstant(false);
 			secDep.setValue(0.0);
-			secDep.setUnits(secDepXml.getOrigName());
 			modelDefinition.addParameter(secDep);
 
 			// Add independent parameters

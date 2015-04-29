@@ -46,6 +46,12 @@ public class UnitDefinitionWrapper {
 		if (xml.indexOf("<transformation") != -1) {
 			xml = xml.replaceFirst("<transformation", "<pmf:transformation");
 		}
+		// TODO: Remove namespace
+		xml = xml
+				.replaceAll(
+						"xmlns=\"http://sourceforge.net/projects/microbialmodelingexchange/files/Units\"",
+						"");
+		System.out.println(xml);
 
 		String totalXml = preXml + xml + postXml;
 
@@ -97,7 +103,7 @@ public class UnitDefinitionWrapper {
 		for (Unit u : unitDefinition.getListOfUnits()) {
 			node.appendNode("sbml:unit", u.writeXMLAttributes());
 		}
-		
+
 		return node;
 	}
 }

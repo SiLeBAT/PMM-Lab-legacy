@@ -35,7 +35,6 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,7 +63,6 @@ import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
@@ -77,7 +75,6 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.CreatedNode;
 import de.bund.bfr.knime.pmm.annotation.CreatorNode;
-import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
 import de.bund.bfr.knime.pmm.annotation.ModelIdNode;
 import de.bund.bfr.knime.pmm.annotation.ModelTitleNode;
@@ -108,19 +105,19 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
+import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
 import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
-import de.bund.bfr.numl.NuMLWriter;
-import de.unirostock.sems.cbarchive.CombineArchive;
 
 /**
  * This is the model implementation of SBMLWriter.
@@ -214,62 +211,71 @@ public class SBMLWriterNodeModel extends NodeModel {
 			experiments = reader.getExperiments();
 		}
 
-		String caName = String.format("%s/%s.pmf", outPath.getStringValue(),
-				modelName.getStringValue());
-
-		// Remove previous Combine archive if it exists
-		File fileTemp = new File(caName);
-		if (fileTemp.exists()) {
-			fileTemp.delete();
-		}
-
-		CombineArchive ca = new CombineArchive(new File(caName));
-
-		SBMLWriter sbmlWriter = new SBMLWriter();
-		sbmlWriter.setProgramName("SBML Writer node");
-		sbmlWriter.setProgramVersion("1.0");
-
-		NuMLWriter numlWriter = new NuMLWriter();
-
-		URI sbmlURI = new URI(
-				"http://identifiers.org/combine.specifications/sbml");
-		URI numlURI = new URI(
-				"http://numl.googlecode.com/svn/trunk/NUMLSchema.xsd");
-
-		short counter = 0;
-		for (Experiment exp : experiments) {
-			// Create temp file
-			File sbmlTemp = File.createTempFile("temp1", "");
-			sbmlTemp.deleteOnExit();
-
-			String mdName = String.format("%s_%d.sbml",
-					modelName.getStringValue(), counter);
-
-			// Add data set
-			if (exp.getData() != null) {
-				File numlTemp = File.createTempFile("temp2", "");
-				numlTemp.deleteOnExit();
-				String dataName = String.format("%s_%d.numl",
-						modelName.getStringValue(), counter);
-				numlWriter.write(exp.getData(), numlTemp);
-				ca.addEntry(numlTemp, dataName, numlURI);
-
-				DataSourceNode node = new DataSourceNode(dataName);
-				exp.getModel().getModel().getAnnotation().getNonRDFannotation()
-						.addChild(node.getNode());
-
-				counter++; // Increment counter
-				// update progress bar
-				exec.setProgress((float) counter / experiments.size());
-			}
-
-			// Add model
-			sbmlWriter.write(exp.getModel(), sbmlTemp);
-			ca.addEntry(sbmlTemp, mdName, sbmlURI);
-		}
-
-		ca.pack();
-		ca.close();
+//		String caName = String.format("%s/%s.pmf", outPath.getStringValue(),
+//				modelName.getStringValue());
+//
+//		// Remove previous Combine archive if it exists
+//		File fileTemp = new File(caName);
+//		if (fileTemp.exists()) {
+//			fileTemp.delete();
+//		}
+//
+//		CombineArchive ca = new CombineArchive(new File(caName));
+//
+//		SBMLWriter sbmlWriter = new SBMLWriter();
+//		sbmlWriter.setProgramName("SBML Writer node");
+//		sbmlWriter.setProgramVersion("1.0");
+//
+//		NuMLWriter numlWriter = new NuMLWriter();
+//
+//		URI sbmlURI = new URI(
+//				"http://identifiers.org/combine.specifications/sbml");
+//		URI numlURI = new URI(
+//				"http://numl.googlecode.com/svn/trunk/NUMLSchema.xsd");
+//
+//		short counter = 0;
+//		for (Experiment exp : experiments) {
+//			// Add data set
+//			if (exp.getData() != null) {
+//				// Create temp file for the model
+//				File numlTemp = File.createTempFile("temp2", "");
+//				numlTemp.deleteOnExit();
+//				
+//				// Create data file name
+//				String dataName = String.format("%s_%d.numl",
+//						modelName.getStringValue(), counter);
+//				
+//				// Write data to temp file and add it to the PMF file
+//				numlWriter.write(exp.getData(), numlTemp);
+//				ca.addEntry(numlTemp, dataName, numlURI);
+//
+//				// Add data source node to the model
+//				DataSourceNode node = new DataSourceNode(dataName);
+//				exp.getModel().getModel().getAnnotation().getNonRDFannotation()
+//						.addChild(node.getNode());
+//			}
+//
+//			// Create temp file for the model
+//			File sbmlTemp = File.createTempFile("temp1", "");
+//			sbmlTemp.deleteOnExit();
+//
+//			// Create model file name
+//			String mdName = String.format("%s_%d.sbml",
+//					modelName.getStringValue(), counter);
+//			
+//			// Write model to temp file and add it to the PMF file
+//			sbmlWriter.write(exp.getModel(), sbmlTemp);
+//			ca.addEntry(sbmlTemp, mdName, sbmlURI);
+//			
+//			// Increment counter and update progress bar
+//			counter++;
+//			exec.setProgress((float) counter / experiments.size());
+//
+//		}
+//
+//		ca.pack();
+//		ca.close();
+		PMFFile.write(outPath.getStringValue(), modelName.getStringValue(), experiments, exec);
 
 		return new BufferedDataTable[] {};
 	}
@@ -376,36 +382,36 @@ public class SBMLWriterNodeModel extends NodeModel {
 	}
 }
 
-// Holder class for related models and datasets
-class Experiment {
-	private SBMLDocument model;
-	private NuMLDocument data;
-
-	public Experiment(SBMLDocument model) {
-		this.model = model;
-	}
-
-	public Experiment(SBMLDocument model, NuMLDocument data) {
-		this.model = model;
-		this.data = data;
-	}
-
-	public SBMLDocument getModel() {
-		return model;
-	}
-
-	public void setModel(SBMLDocument model) {
-		this.model = model;
-	}
-
-	public NuMLDocument getData() {
-		return data;
-	}
-
-	public void setData(NuMLDocument data) {
-		this.data = data;
-	}
-}
+//// Holder class for related models and datasets
+//class Experiment {
+//	private SBMLDocument model;
+//	private NuMLDocument data;
+//
+//	public Experiment(SBMLDocument model) {
+//		this.model = model;
+//	}
+//
+//	public Experiment(SBMLDocument model, NuMLDocument data) {
+//		this.model = model;
+//		this.data = data;
+//	}
+//
+//	public SBMLDocument getModel() {
+//		return model;
+//	}
+//
+//	public void setModel(SBMLDocument model) {
+//		this.model = model;
+//	}
+//
+//	public NuMLDocument getData() {
+//		return data;
+//	}
+//
+//	public void setData(NuMLDocument data) {
+//		this.data = data;
+//	}
+//}
 
 abstract class TableReader {
 	protected final static int LEVEL = 3;

@@ -2,9 +2,6 @@ package de.bund.bfr.knime.pmm.sbmlreader;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +29,6 @@ import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
@@ -40,7 +36,6 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
-import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -65,18 +60,16 @@ import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
+import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
 import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
-import de.bund.bfr.numl.NuMLDocument;
-import de.bund.bfr.numl.NuMLReader;
-import de.unirostock.sems.cbarchive.ArchiveEntry;
-import de.unirostock.sems.cbarchive.CombineArchive;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -179,63 +172,16 @@ public class SBMLReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	// Get data source name from a SBML document
-	private String getDataName(SBMLDocument doc) {
-		XMLNode modelAnnotation = doc.getModel().getAnnotation()
-				.getNonRDFannotation();
-		if (modelAnnotation == null) {
-			return null;
-		}
-
-		XMLNode node = modelAnnotation.getChildElement("dataSource", "");
-		if (node == null) {
-			return null;
-		}
-
-		DataSourceNode dataSourceNode = new DataSourceNode(node);
-		return dataSourceNode.getFile();
-	}
-
 	// Load PMF file
 	private BufferedDataTable[] loadPMF(final ExecutionContext exec)
 			throws Exception {
+		List<Experiment> exps = PMFFile.read(filename.getStringValue());
 
-		// Create list for models and data
-		List<SBMLDocument> models = new ArrayList<>();
-		Map<String, NuMLDocument> data = new HashMap<>();
-
-		CombineArchive ca = new CombineArchive(new File(
-				filename.getStringValue()));
-
-		SBMLReader sbmlReader = new SBMLReader();
-		NuMLReader numlReader = new NuMLReader();
-
-		for (ArchiveEntry entry : ca.getEntries()) {
-			// Parse model
-			if (entry.getFileName().endsWith(".sbml")) {
-				InputStream stream = Files.newInputStream(entry.getPath(),
-						StandardOpenOption.READ);
-				SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
-				stream.close();
-				models.add(doc);
-			}
-
-			// Parse data
-			else if (entry.getFileName().endsWith(".numl")) {
-				InputStream stream = Files.newInputStream(entry.getPath(),
-						StandardOpenOption.READ);
-				data.put(entry.getFileName(), numlReader.read(stream));
-				stream.close();
-			}
-		}
-
-		ca.close();
-
-		// Get model type from the first model in the list
-		SBMLDocument firstDoc = models.get(0);
+		// Get model typefrom the first model in the list of experiments
+		SBMLDocument firstDoc = exps.get(0).getModel();
 		CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) firstDoc
 				.getPlugin("comp");
-		Boolean isTertiary = plugin.getListOfModelDefinitions().size() > 0;
+		boolean isTertiary = plugin.getListOfModelDefinitions().size() > 0;
 
 		// Create schema and container
 		KnimeSchema schema;
@@ -248,56 +194,56 @@ public class SBMLReaderNodeModel extends NodeModel {
 				.createSpec());
 
 		// Parse models
-
 		if (isTertiary) {
 			short counter = 0;
-			for (SBMLDocument model : models) {
+			for (Experiment exp : exps) {
+				// Parse model data
 				PmmXmlDoc mdData = new PmmXmlDoc();
-
-				String dataFileName = getDataName(model);
-				if (dataFileName != null && data.containsKey(dataFileName)) {
-					DataFile df = new DataFile(data.get(dataFileName));
+				if (exp.getData() != null) {
+					DataFile df = new DataFile(exp.getData());
 					for (TimeSeriesXml ts : df.getData()) {
 						mdData.add(ts);
 					}
 				}
 
-				for (KnimeTuple tuple : TertiaryModelParser
-						.parseDocument(model)) {
-					if (dataFileName != null) {
-						tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-					}
+				// Parse model
+				for (KnimeTuple tuple : TertiaryModelParser.parseDocument(exp
+						.getModel())) {
+					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 					container.addRowToTable(tuple);
 				}
 
-				counter++; // Increment counter
-				// update progress bar
-				exec.setProgress((float) counter / models.size());
-			}
-		} else {
-			short counter = 0;
-			for (SBMLDocument model : models) {
-				KnimeTuple tuple = PrimaryModelParser.parseDocument(model);
-
-				String dataFileName = getDataName(model);
-				if (dataFileName != null && data.containsKey(dataFileName)) {
-					DataFile df = new DataFile(data.get(dataFileName));
-					PmmXmlDoc mdData = new PmmXmlDoc();
-					for (TimeSeriesXml ts : df.getData()) {
-						mdData.add(ts);
-					}
-					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-				}
-
-				container.addRowToTable(tuple);
-
-				counter++; // Increment counter
-				// Update progress bar
-				exec.setProgress((float) counter / models.size());
+				// Increment counter and update progress bar
+				counter++;
+				exec.setProgress((float) counter / exps.size());
 			}
 		}
 
-		// close container and return its table
+		else {
+			short counter = 0;
+			for (Experiment exp : exps) {
+				// Parse model data
+				PmmXmlDoc mdData = new PmmXmlDoc();
+				if (exp.getData() != null) {
+					DataFile df = new DataFile(exp.getData());
+					for (TimeSeriesXml ts : df.getData()) {
+						mdData.add(ts);
+					}
+				}
+
+				// Parse model
+				KnimeTuple tuple = PrimaryModelParser.parseDocument(exp
+						.getModel());
+				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+				container.addRowToTable(tuple);
+
+				// Increment counter and update progress bar
+				counter++;
+				exec.setProgress((float) counter / exps.size());
+			}
+		}
+
+		// Close container and return its table
 		container.close();
 		BufferedDataTable[] table = { container.getTable() };
 		return table;
@@ -368,26 +314,14 @@ class ReaderUtils {
 	// Create dependent variable
 	public static PmmXmlDoc parseDep(final Species species,
 			final Map<String, UnitsFromDB> units,
-			final Map<String, Limits> limits) {
-		String origUnit = species.getUnits(); // unit name
-		String description = ""; // param description
+			final ListOf<UnitDefinition> unitDefinitions) {
+		String depUnitId = species.getUnits();
+		String depUnit = unitDefinitions.get(depUnitId).getName();
 
-		// original unit used in SBML doc
-		UnitsFromDB dbUnit = units.get(origUnit);
-
-		// Retrieve unit data from dbUnit
+		UnitsFromDB dbUnit = units.get(depUnitId);
 		String category = dbUnit.getKind_of_property_quantity();
-		String unit = dbUnit.getDisplay_in_GUI_as();
 
-		DepXml dep = new DepXml("Value", origUnit, category, unit, description);
-		// Get limits
-		if (limits.containsKey("Value")) {
-			Limits depLimits = limits.get(origUnit);
-			dep.setMax(depLimits.getMax());
-			dep.setMin(depLimits.getMin());
-		}
-
-		return new PmmXmlDoc(dep);
+		return new PmmXmlDoc(new DepXml("Value", category, depUnit));
 	}
 
 	// Create independent variable
@@ -534,6 +468,56 @@ class ReaderUtils {
 		estModel.setComment(comment);
 		return estModel;
 	}
+
+	/**
+	 * Parse misc items.
+	 * 
+	 * @param miscs
+	 *            . Dictionary that maps miscs names and their values.
+	 * @return
+	 */
+	public static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
+		PmmXmlDoc cell = new PmmXmlDoc();
+
+		// First misc item has id -1 and the rest of items have negative ints
+		int counter = -1;
+
+		for (Entry<String, Double> entry : miscs.entrySet()) {
+			String name = entry.getKey();
+			Double value = entry.getValue();
+
+			List<String> categories;
+			String description, unit;
+
+			switch (name) {
+			case "Temperature":
+				categories = Arrays.asList(Categories.getTempCategory()
+						.getName());
+				description = name;
+				unit = Categories.getTempCategory().getStandardUnit();
+
+				cell.add(new MiscXml(counter, name, description, value,
+						categories, unit));
+
+				counter -= 1;
+				break;
+
+			case "pH":
+				categories = Arrays
+						.asList(Categories.getPhCategory().getName());
+				description = name;
+				unit = Categories.getPhUnit();
+
+				cell.add(new MiscXml(counter, name, description, value,
+						categories, unit));
+
+				counter -= 1;
+				break;
+			}
+		}
+
+		return cell;
+	}
 }
 
 class PrimaryModelParser {
@@ -568,8 +552,8 @@ class PrimaryModelParser {
 
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 
-		// TODO: Parse model variables: Temperature, pH and water activity
-		PmmXmlDoc miscCell = new PmmXmlDoc();
+		// Parse model variables: Temperature, pH and water activity
+		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
 
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
 				null, null));
@@ -584,7 +568,7 @@ class PrimaryModelParser {
 		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
 				.getListOfUnitDefinitions());
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
-				limits);
+				model.getListOfUnitDefinitions());
 		Parameter indepParam = listOfParameters.get("Time");
 		PmmXmlDoc indepCell = ReaderUtils.createIndep(indepParam, limits);
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
@@ -703,56 +687,6 @@ class TertiaryModelParser {
 		return coefficientsXml;
 	}
 
-	/**
-	 * Parse misc items.
-	 * 
-	 * @param miscs
-	 *            . Dictionary that maps miscs names and their values.
-	 * @return
-	 */
-	private static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
-		PmmXmlDoc cell = new PmmXmlDoc();
-
-		// First misc item has id -1 and the rest of items have negative ints
-		int counter = -1;
-
-		for (Entry<String, Double> entry : miscs.entrySet()) {
-			String name = entry.getKey();
-			Double value = entry.getValue();
-
-			List<String> categories;
-			String description, unit;
-
-			switch (name) {
-			case "Temperature":
-				categories = Arrays.asList(Categories.getTempCategory()
-						.getName());
-				description = name;
-				unit = Categories.getTempCategory().getStandardUnit();
-
-				cell.add(new MiscXml(counter, name, description, value,
-						categories, unit));
-
-				counter -= 1;
-				break;
-
-			case "pH":
-				categories = Arrays
-						.asList(Categories.getPhCategory().getName());
-				description = name;
-				unit = Categories.getPhUnit();
-
-				cell.add(new MiscXml(counter, name, description, value,
-						categories, unit));
-
-				counter -= 1;
-				break;
-			}
-		}
-
-		return cell;
-	}
-
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
@@ -789,7 +723,7 @@ class TertiaryModelParser {
 		PmmXmlDoc mdDataCell = new PmmXmlDoc();
 
 		Map<String, Double> miscs = matrix.getMiscs();
-		PmmXmlDoc miscCell = parseMiscs(miscs);
+		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(miscs);
 
 		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
 				null, null));
@@ -807,7 +741,7 @@ class TertiaryModelParser {
 		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
 				.getListOfUnitDefinitions());
 		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
-				limits);
+				model.getListOfUnitDefinitions());
 		Parameter indepParam = listOfParameters.get("Time");
 		PmmXmlDoc indepCell = ReaderUtils.createIndep(indepParam, limits);
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
@@ -912,5 +846,4 @@ class TertiaryModelParser {
 
 		return rows;
 	}
-
 }

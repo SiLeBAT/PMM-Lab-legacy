@@ -211,72 +211,8 @@ public class SBMLWriterNodeModel extends NodeModel {
 			experiments = reader.getExperiments();
 		}
 
-//		String caName = String.format("%s/%s.pmf", outPath.getStringValue(),
-//				modelName.getStringValue());
-//
-//		// Remove previous Combine archive if it exists
-//		File fileTemp = new File(caName);
-//		if (fileTemp.exists()) {
-//			fileTemp.delete();
-//		}
-//
-//		CombineArchive ca = new CombineArchive(new File(caName));
-//
-//		SBMLWriter sbmlWriter = new SBMLWriter();
-//		sbmlWriter.setProgramName("SBML Writer node");
-//		sbmlWriter.setProgramVersion("1.0");
-//
-//		NuMLWriter numlWriter = new NuMLWriter();
-//
-//		URI sbmlURI = new URI(
-//				"http://identifiers.org/combine.specifications/sbml");
-//		URI numlURI = new URI(
-//				"http://numl.googlecode.com/svn/trunk/NUMLSchema.xsd");
-//
-//		short counter = 0;
-//		for (Experiment exp : experiments) {
-//			// Add data set
-//			if (exp.getData() != null) {
-//				// Create temp file for the model
-//				File numlTemp = File.createTempFile("temp2", "");
-//				numlTemp.deleteOnExit();
-//				
-//				// Create data file name
-//				String dataName = String.format("%s_%d.numl",
-//						modelName.getStringValue(), counter);
-//				
-//				// Write data to temp file and add it to the PMF file
-//				numlWriter.write(exp.getData(), numlTemp);
-//				ca.addEntry(numlTemp, dataName, numlURI);
-//
-//				// Add data source node to the model
-//				DataSourceNode node = new DataSourceNode(dataName);
-//				exp.getModel().getModel().getAnnotation().getNonRDFannotation()
-//						.addChild(node.getNode());
-//			}
-//
-//			// Create temp file for the model
-//			File sbmlTemp = File.createTempFile("temp1", "");
-//			sbmlTemp.deleteOnExit();
-//
-//			// Create model file name
-//			String mdName = String.format("%s_%d.sbml",
-//					modelName.getStringValue(), counter);
-//			
-//			// Write model to temp file and add it to the PMF file
-//			sbmlWriter.write(exp.getModel(), sbmlTemp);
-//			ca.addEntry(sbmlTemp, mdName, sbmlURI);
-//			
-//			// Increment counter and update progress bar
-//			counter++;
-//			exec.setProgress((float) counter / experiments.size());
-//
-//		}
-//
-//		ca.pack();
-//		ca.close();
-		PMFFile.write(outPath.getStringValue(), modelName.getStringValue(), experiments, exec);
-
+		PMFFile.write(outPath.getStringValue(), modelName.getStringValue(),
+				experiments, exec);
 		return new BufferedDataTable[] {};
 	}
 
@@ -382,36 +318,36 @@ public class SBMLWriterNodeModel extends NodeModel {
 	}
 }
 
-//// Holder class for related models and datasets
-//class Experiment {
-//	private SBMLDocument model;
-//	private NuMLDocument data;
+// // Holder class for related models and datasets
+// class Experiment {
+// private SBMLDocument model;
+// private NuMLDocument data;
 //
-//	public Experiment(SBMLDocument model) {
-//		this.model = model;
-//	}
+// public Experiment(SBMLDocument model) {
+// this.model = model;
+// }
 //
-//	public Experiment(SBMLDocument model, NuMLDocument data) {
-//		this.model = model;
-//		this.data = data;
-//	}
+// public Experiment(SBMLDocument model, NuMLDocument data) {
+// this.model = model;
+// this.data = data;
+// }
 //
-//	public SBMLDocument getModel() {
-//		return model;
-//	}
+// public SBMLDocument getModel() {
+// return model;
+// }
 //
-//	public void setModel(SBMLDocument model) {
-//		this.model = model;
-//	}
+// public void setModel(SBMLDocument model) {
+// this.model = model;
+// }
 //
-//	public NuMLDocument getData() {
-//		return data;
-//	}
+// public NuMLDocument getData() {
+// return data;
+// }
 //
-//	public void setData(NuMLDocument data) {
-//		this.data = data;
-//	}
-//}
+// public void setData(NuMLDocument data) {
+// this.data = data;
+// }
+// }
 
 abstract class TableReader {
 	protected final static int LEVEL = 3;

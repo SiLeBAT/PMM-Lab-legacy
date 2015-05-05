@@ -704,7 +704,7 @@ class PrimaryTableReader extends TableReader {
 				TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_MATRIX).get(0);
-		String modelId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		String modelId = "model";
 
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
 		// Enable Hierarchical Composition package
@@ -995,7 +995,7 @@ class TertiaryTableReader extends TableReader {
 				TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) firstTuple.getPmmXml(
 				TimeSeriesSchema.ATT_MATRIX).get(0);
-		String modelId = firstTuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		String modelId = "model";
 
 		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
 		// Enable Hierarchical Composition package

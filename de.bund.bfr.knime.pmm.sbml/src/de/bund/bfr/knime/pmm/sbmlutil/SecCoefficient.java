@@ -4,6 +4,8 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.Map.Entry;
+
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.xml.XMLNode;
 
@@ -16,12 +18,14 @@ public class SecCoefficient extends Coefficient {
 	public SecCoefficient(Parameter param) {
 		// Get non RDF annotation
 		XMLNode nonRDFAnnotation = param.getAnnotation().getNonRDFannotation();
-		CoefficientAnnotation annot = new CoefficientAnnotation(nonRDFAnnotation);
-		
+		CoefficientAnnotation annot = new CoefficientAnnotation(
+				nonRDFAnnotation);
+
 		P = annot.getP();
 		error = annot.getError();
 		t = annot.getT();
-		
+		correlations = annot.getCorrelations();
+
 		this.param = param;
 	}
 
@@ -32,13 +36,15 @@ public class SecCoefficient extends Coefficient {
 		param.setUnits("dimensionless");
 		param.setConstant(true);
 
-		// Save P, error, and t
+		// Save P, error, t, and correlations
 		P = paramXml.getP();
 		error = paramXml.getError();
 		t = paramXml.getT();
+		correlations = paramXml.getAllCorrelations();
 
 		// Build and set non RDF annotation
-		CoefficientAnnotation annot = new CoefficientAnnotation(P, error, t);
+		CoefficientAnnotation annot = new CoefficientAnnotation(P, error, t,
+				correlations);
 		param.getAnnotation().setNonRDFAnnotation(annot.getNode());
 	}
 
@@ -46,6 +52,9 @@ public class SecCoefficient extends Coefficient {
 		ParamXml paramXml = new ParamXml(param.getId(), param.getValue(),
 				error, null, null, P, t);
 		paramXml.setDescription("coefficient");
+		for (Entry<String, Double> entry : correlations.entrySet()) {
+			paramXml.addCorrelation(entry.getKey(), entry.getValue());
+		}
 		return paramXml;
 	}
 }

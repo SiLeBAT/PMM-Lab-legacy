@@ -4,6 +4,8 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.Map.Entry;
+
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.xml.XMLNode;
 
@@ -16,15 +18,17 @@ public class PrimCoefficient extends Coefficient {
 	public PrimCoefficient(Parameter param) {
 		// Get non RDF annotation
 		XMLNode nonRDFAnnotation = param.getAnnotation().getNonRDFannotation();
-		CoefficientAnnotation annot = new CoefficientAnnotation(nonRDFAnnotation);
-		
+		CoefficientAnnotation annot = new CoefficientAnnotation(
+				nonRDFAnnotation);
+
 		P = annot.getP();
 		error = annot.getError();
 		t = annot.getT();
-		
+		correlations = annot.getCorrelations();
+
 		this.param = param;
 	}
-	
+
 	/** Builds a PrimCoefficient from a PmmLab ParamXml */
 	public PrimCoefficient(ParamXml paramXml) {
 		param = new Parameter(paramXml.getName());
@@ -42,19 +46,24 @@ public class PrimCoefficient extends Coefficient {
 		}
 		param.setConstant(true);
 
-		// Save P, error, and t
+		// Save P, error, t, and correlations
 		P = paramXml.getP();
 		error = paramXml.getError();
 		t = paramXml.getT();
+		correlations = paramXml.getAllCorrelations();
 
 		// Build and set non RDF annotation
-		CoefficientAnnotation annot = new CoefficientAnnotation(P, error, t);
+		CoefficientAnnotation annot = new CoefficientAnnotation(P, error, t,
+				correlations);
 		param.getAnnotation().setNonRDFAnnotation(annot.getNode());
 	}
 
 	public ParamXml toParamXml() {
 		ParamXml paramXml = new ParamXml(param.getId(), param.getValue(),
 				error, null, null, P, t);
+		for (Entry<String, Double> entry : correlations.entrySet()) {
+			paramXml.addCorrelation(entry.getKey(), entry.getValue());
+		}
 		return paramXml;
 	}
 }

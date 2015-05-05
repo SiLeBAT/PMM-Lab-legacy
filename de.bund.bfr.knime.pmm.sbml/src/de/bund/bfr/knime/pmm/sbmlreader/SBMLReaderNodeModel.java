@@ -269,7 +269,6 @@ class ReaderUtils {
 		if (metadata != null) {
 			for (XMLNode node : metadata.getChildElements("", "")) {
 				String nodeName = node.getName();
-				System.out.println(nodeName);
 				if (!nodeName.isEmpty()) {
 					// Process uncertainty annotations
 					if (nodeName.equals("modelquality")) {

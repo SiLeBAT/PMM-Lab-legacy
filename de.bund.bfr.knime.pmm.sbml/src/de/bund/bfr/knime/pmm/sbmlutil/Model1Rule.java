@@ -26,12 +26,8 @@ public class Model1Rule extends ModelRule {
 				formula);
 		Model1Rule rule = new Model1Rule(assignmentRule);
 
-		if (catModel.getModelClass() == null) {
-			rule.addAnnotation(catModel.getName(), "unknown");
-		} else {
-			rule.addAnnotation(catModel.getName(),
-					Util.MODELCLASS_STRS.get(catModel.getModelClass()));
-		}
+		rule.addAnnotation(catModel.getName(), catModel.getModelClass(),
+				catModel.getId());
 
 		return rule;
 	}

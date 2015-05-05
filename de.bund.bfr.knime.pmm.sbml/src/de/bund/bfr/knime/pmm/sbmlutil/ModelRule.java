@@ -6,14 +6,9 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
 import org.sbml.jsbml.ASTNode;
-import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.text.parser.ParseException;
-import org.sbml.jsbml.xml.XMLNode;
-import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
-import de.bund.bfr.knime.pmm.annotation.ModelNameNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
 public abstract class ModelRule {
@@ -28,52 +23,25 @@ public abstract class ModelRule {
 
 	/**
 	 * Add annotation to the rule.
-	 * 
-	 * @param name
-	 *            : Model name. Mandatory.
-	 * @param type
-	 *            : Model class.
 	 */
-	protected void addAnnotation(String name, String type) {
-		// pmf container
-		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, null);
-
-		// Add model name to pmfNode
-		ModelNameNode nameNode = new ModelNameNode(name);
-		pmfNode.addChild(nameNode.getNode());
-
-		// Add model class to pmfNode
-		ModelClassNode typeNode = new ModelClassNode(type);
-		pmfNode.addChild(typeNode.getNode());
-
-		// add non rdf annotation
-		Annotation annot = new Annotation();
-		annot.setNonRDFAnnotation(pmfNode);
-
-		rule.setAnnotation(annot);
+	protected void addAnnotation(String name, Integer type, int id) {
+		String subject;
+		if (type == null) {
+			subject = "unknown";
+		} else {
+			subject = Util.MODELCLASS_STRS.get(type);
+		}
+		ModelRuleAnnotation annot = new ModelRuleAnnotation(name, subject, id);
+		rule.getAnnotation().setNonRDFAnnotation(annot.getNode());
 	}
 
 	/** Get CatalogModelXml from ModelRule */
 	public CatalogModelXml toCatModel() {
-		// Get metadata annotation
-		XMLNode nonRDFAnnot = rule.getAnnotation().getNonRDFannotation();
-
-		XMLNode metadata = nonRDFAnnot.getChildElement("metadata", "");
-
-		// Get formula name (which is mandatory)
-		XMLNode formulaNameNode = metadata.getChildElement("formulaName", "");
-		String formulaName = formulaNameNode.getChildAt(0).getCharacters();
-
-		// Get type. If missing it will be assigned UNKNOWN
-		XMLNode subjectNode = metadata.getChildElement("subject", "");
-		int type;
-		if (subjectNode == null) {
-			type = Util.MODELCLASS_NUMS.get("unknown");
-		} else {
-			String classString = subjectNode.getChildAt(0).getCharacters();
-			type = Util.MODELCLASS_NUMS.get(classString);
-		}
+		ModelRuleAnnotation annot = new ModelRuleAnnotation(rule
+				.getAnnotation().getNonRDFannotation());
+		String formulaName = annot.getName();
+		int type = Util.MODELCLASS_NUMS.get(annot.getSubject());
+		int pmmlabID = annot.getID();
 
 		String formula = String.format("%s=", createVariable());
 		ASTNode modelMath = rule.getMath();
@@ -103,7 +71,8 @@ public abstract class ModelRule {
 				if (cond.getType() == ASTNode.Type.TIMES) {
 					ASTNode lchild = cond.getLeftChild();
 					ASTNode rchild = cond.getRightChild();
-					condString = String.format("(%s)*(%s)", lchild.toFormula(), rchild.toFormula());
+					condString = String.format("(%s)*(%s)", lchild.toFormula(),
+							rchild.toFormula());
 				}
 
 				// If only one condition, this one needs to be surrounded with
@@ -124,7 +93,7 @@ public abstract class ModelRule {
 			formula += modelMath.toFormula().replaceAll("log\\(", "ln(");
 		}
 
-		CatalogModelXml catModel = new CatalogModelXml(null, formulaName,
+		CatalogModelXml catModel = new CatalogModelXml(pmmlabID, formulaName,
 				formula, type);
 		return catModel;
 	}

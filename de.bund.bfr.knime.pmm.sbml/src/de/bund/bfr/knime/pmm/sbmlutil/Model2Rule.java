@@ -18,16 +18,13 @@ public class Model2Rule extends ModelRule {
 		final String var = catModel.getFormula().substring(0, pos);
 		// The remaining chunk contains the actual formula
 		String formula = catModel.getFormula().substring(pos + 1);
-		
-		AssignmentRule assignmentRule = convertFormulaToAssignmentRule(var, formula);
+
+		AssignmentRule assignmentRule = convertFormulaToAssignmentRule(var,
+				formula);
 		Model2Rule rule = new Model2Rule(assignmentRule);
 
-		if (catModel.getModelClass() == null) {
-			rule.addAnnotation(catModel.getName(), "unknown");
-		} else {
-			rule.addAnnotation(catModel.getName(),
-					Util.MODELCLASS_STRS.get(catModel.getModelClass()));
-		}
+		rule.addAnnotation(catModel.getName(), catModel.getModelClass(),
+				catModel.getId());
 
 		return rule;
 	}
@@ -35,7 +32,7 @@ public class Model2Rule extends ModelRule {
 	public Model2Rule(AssignmentRule rule) {
 		this.rule = rule;
 	}
-	
+
 	protected String createVariable() {
 		return rule.getVariable();
 	}

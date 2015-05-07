@@ -6,6 +6,7 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
 import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.ASTNode.Type;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.text.parser.ParseException;
 
@@ -90,12 +91,52 @@ public abstract class ModelRule {
 			formula += sb.toString();
 		} else {
 			// Replace MathML's log with Pmm Lab's ln
-			formula += modelMath.toFormula().replaceAll("log\\(", "ln(");
+			String formulaStr;
+			if (modelMath.toFormula().indexOf("^") != -1) {
+				formulaStr = postorder(modelMath);
+			} else {
+				formulaStr = modelMath.toFormula();
+			}
+			formulaStr = formulaStr.replaceAll("log\\(", "ln(");
+			formula += formulaStr;
 		}
 
 		CatalogModelXml catModel = new CatalogModelXml(pmmlabID, formulaName,
 				formula, type);
 		return catModel;
+	}
+
+	private String postorder(ASTNode node) {
+		String lStr = "", rStr = "";
+		if (!node.isLeaf()) {
+			lStr = postorder(node.getLeftChild());
+			rStr = postorder(node.getRightChild());
+
+			if (node.getType() == ASTNode.Type.FUNCTION_POWER) {
+				return String.format("(%s^%s)", lStr, rStr);
+			} else {
+				String operator;
+				switch (node.getType()) {
+				case PLUS:
+					operator = "+";
+					break;
+				case TIMES:
+					operator = "*";
+					break;
+				case FUNCTION_POWER:
+					operator = "^";
+					break;
+				default:
+					operator = "";
+					break;
+				}
+				return lStr + operator + rStr;
+			}
+
+		} else {
+			return node.toFormula();
+		}
+
 	}
 
 	protected abstract String createVariable();
@@ -120,6 +161,8 @@ public abstract class ModelRule {
 			}
 		} else {
 			try {
+				// TODO: ASTNode.parseFormula skips parentheses with powers
+				// (pH^2) -> pH^2
 				ASTNode math = ASTNode.parseFormula(formula);
 				assignmentRule = new AssignmentRule(math, LEVEL, VERSION);
 				assignmentRule.setVariable(var);

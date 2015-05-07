@@ -29,7 +29,7 @@ public class UncertaintyNode extends SBMLNodeBase {
 	}
 
 	public Map<String, String> getMeasures() {
-		Map<String, String> measures = new HashMap<String, String>();
+		Map<String, String> measures = new HashMap<>();
 		XMLAttributes attributes = node.getAttributes();
 		for (int nattr = 0; nattr < attributes.getLength(); nattr++) {
 			measures.put(attributes.getName(nattr), attributes.getValue(nattr));

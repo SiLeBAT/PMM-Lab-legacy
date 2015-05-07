@@ -1,3 +1,7 @@
+/**
+ * Coefficient non RDF annotation. Holds P, error, and t.
+ * @author Miguel Alba (malba@optimumquality.es)
+ */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
 import java.util.HashMap;

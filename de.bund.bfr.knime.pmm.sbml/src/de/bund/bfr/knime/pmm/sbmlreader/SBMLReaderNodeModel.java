@@ -34,10 +34,7 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
-import org.sbml.jsbml.xml.XMLNode;
 
-import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
-import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -64,7 +61,9 @@ import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
+import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
 import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
@@ -251,64 +250,6 @@ public class SBMLReaderNodeModel extends NodeModel {
 }
 
 class ReaderUtils {
-
-	/**
-	 * Parse nonRdfAnnotation
-	 * 
-	 * @param annot
-	 * @return Dictionary with keys and values of annotations. E.g. {'title':
-	 *         'Salmonella ...', ...}
-	 */
-	public static Map<String, String> parseAnnotation(final XMLNode annot) {
-		Map<String, String> annotations = new HashMap<>();
-
-		// Search metadata container
-		XMLNode metadata = annot.getChildElement("metadata", "");
-
-		// Parse metadata container
-		if (metadata != null) {
-			for (XMLNode node : metadata.getChildElements("", "")) {
-				String nodeName = node.getName();
-				if (!nodeName.isEmpty()) {
-					// Process uncertainty annotations
-					if (nodeName.equals("modelquality")) {
-						UncertaintyNode unode = new UncertaintyNode(node);
-						annotations.putAll(unode.getMeasures());
-					}
-					// Process other annotations
-					else {
-						String nodeValue = node.getChildAt(0).getCharacters();
-						annotations.put(nodeName, nodeValue);
-					}
-				}
-			}
-		}
-
-		return annotations;
-	}
-
-	/**
-	 * Parse references in a model annotation.
-	 * 
-	 * @param annot
-	 * @return
-	 */
-	public static List<LiteratureItem> parseLit(final XMLNode annot) {
-		List<LiteratureItem> lits = new LinkedList<>();
-
-		// search metadata container
-		XMLNode metadata = annot.getChildElement("metadata", "");
-
-		if (metadata != null) {
-			// Parse references
-			for (XMLNode ref : metadata.getChildElements("reference", "")) {
-				ReferenceNode node = new ReferenceNode(ref);
-				lits.add(node.toLiteratureItem());
-			}
-		}
-
-		return lits;
-	}
 
 	// Create dependent variable
 	public static PmmXmlDoc parseDep(final Species species,
@@ -528,12 +469,8 @@ class PrimaryModelParser {
 		DBUnits dbUnits = new DBUnits();
 
 		// Parse model annotations
-		XMLNode modelAnnotation = model.getAnnotation().getNonRDFannotation();
-		Map<String, String> annotations = null;
-		// If the model is annotated then parse the annotations
-		if (modelAnnotation != null) {
-			annotations = ReaderUtils.parseAnnotation(modelAnnotation);
-		}
+		Model1Annotation primModelAnnotation = new Model1Annotation(model
+				.getAnnotation().getNonRDFannotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -543,7 +480,8 @@ class PrimaryModelParser {
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
 
 		// time series cells
-		String combaseID = model.getId();
+		final int condID = primModelAnnotation.getCondID();
+		final String combaseID = primModelAnnotation.getCombaseID();
 		Agent organism = new Agent(model.getSpecies(0));
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
 		Matrix matrix = new Matrix(model.getCompartment(0));
@@ -573,15 +511,15 @@ class PrimaryModelParser {
 		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
 				model.getListOfUnitDefinitions(), limits);
 
-		EstModelXml estModel = ReaderUtils.createEstModel(annotations);
+		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
+				.getUncertainties());
 
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
 
-		List<LiteratureItem> lits = ReaderUtils.parseLit(modelAnnotation);
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
-		for (LiteratureItem lit : lits) {
+		for (LiteratureItem lit : primModelAnnotation.getLits()) {
 			emLiteratureCell.add(lit);
 		}
 
@@ -591,8 +529,7 @@ class PrimaryModelParser {
 		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
 		// time series cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID,
-				MathUtilities.getRandomNegativeInt());
+		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
 		row.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
 		row.setValue(TimeSeriesSchema.ATT_AGENT, organismCell);
 		row.setValue(TimeSeriesSchema.ATT_MATRIX, matrixCell);
@@ -700,19 +637,16 @@ class TertiaryModelParser {
 		List<KnimeTuple> rows = new ArrayList<>();
 
 		// parse annotation
-		XMLNode modelAnnotation = model.getAnnotation().getNonRDFannotation();
-		Map<String, String> annotations = null;
-		// If the model is annotated then parse the annotations
-		if (modelAnnotation != null) {
-			annotations = ReaderUtils.parseAnnotation(modelAnnotation);
-		}
+		Model1Annotation primModelAnnotation = new Model1Annotation(model
+				.getAnnotation().getNonRDFannotation());
 
 		// Parse constraints
 		ListOf<Constraint> constraints = model.getListOfConstraints();
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
 
 		// time series cells
-		String combaseID = model.getId();
+		final int condID = primModelAnnotation.getCondID();
+		final String combaseID = primModelAnnotation.getCombaseID();
 		Agent organism = new Agent(model.getSpecies(0));
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
 
@@ -747,21 +681,17 @@ class TertiaryModelParser {
 				model.getListOfUnitDefinitions(), limits);
 
 		// Parse uncertainty measures from the document's annotations
-		EstModelXml estModel = ReaderUtils.createEstModel(annotations);
+		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation.getUncertainties());
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
 
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
-		List<LiteratureItem> lits = ReaderUtils.parseLit(modelAnnotation);
-		for (LiteratureItem lit : lits) {
+		for (LiteratureItem lit : primModelAnnotation.getLits()) {
 			emLiteratureCell.add(lit);
 		}
 
 		String mDBUID = "?";
-
-		final int condID = MathUtilities.getRandomNegativeInt();
-		final int globalModelID = MathUtilities.getRandomNegativeInt();
 
 		for (ModelDefinition secModel : modelDefinitions) {
 			ListOf<Parameter> secParams = secModel.getListOfParameters();
@@ -795,12 +725,14 @@ class TertiaryModelParser {
 
 			PmmXmlDoc mLiteratureSecCell = new PmmXmlDoc();
 
+			Model2Annotation secModelAnnotation = new Model2Annotation(
+					secModel.getAnnotation().getNonRDFannotation());
+			final int globalModelID = secModelAnnotation.getGlobalModelID();
+
+			// Add references to PMM Lab table
 			PmmXmlDoc emLiteratureSecCell = new PmmXmlDoc();
-			XMLNode secModelAnnotation = model.getAnnotation()
-					.getNonRDFannotation();
-			lits = ReaderUtils.parseLit(secModelAnnotation);
-			for (LiteratureItem lit : lits) {
-				emLiteratureSecCell.add(lit);
+			for (LiteratureItem lit : secModelAnnotation.getLiteratureItems()) {
+				emLiteratureCell.add(lit);
 			}
 
 			String mDBUIDSEC = "?";
@@ -809,6 +741,7 @@ class TertiaryModelParser {
 			KnimeTuple row = new KnimeTuple(SchemaFactory.createM12DataSchema());
 
 			row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
+			row.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
 			row.setValue(TimeSeriesSchema.ATT_AGENT, organismCell);
 			row.setValue(TimeSeriesSchema.ATT_MATRIX, matrixCell);
 			row.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);

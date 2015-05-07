@@ -69,18 +69,13 @@ import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.ext.comp.Submodel;
-import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.CreatedNode;
 import de.bund.bfr.knime.pmm.annotation.CreatorNode;
 import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
-import de.bund.bfr.knime.pmm.annotation.ModelIdNode;
-import de.bund.bfr.knime.pmm.annotation.ModelTitleNode;
 import de.bund.bfr.knime.pmm.annotation.ModifiedNode;
-import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
-import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -110,7 +105,9 @@ import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
+import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
 import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
@@ -539,46 +536,6 @@ abstract class TableReader {
 		return annot;
 	}
 
-	protected Annotation createModelAnnotation(String modelId,
-			String modelTitle, Map<String, String> uncertainties,
-			List<LiteratureItem> lits) {
-		Annotation annot = new Annotation();
-
-		// pmf container
-		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, null);
-
-		// add model id annotation
-		if (modelId != null) {
-			ModelIdNode modelIdNode = new ModelIdNode(modelId);
-			pmfNode.addChild(modelIdNode.getNode());
-		}
-
-		// add model title annotation
-		if (modelTitle != null) {
-			ModelTitleNode modelTitleNode = new ModelTitleNode(modelTitle);
-			pmfNode.addChild(modelTitleNode.getNode());
-		}
-
-		// add model quality annotation
-		if (!uncertainties.isEmpty()) {
-			UncertaintyNode uncertaintiesNode = new UncertaintyNode(
-					uncertainties);
-			pmfNode.addChild(uncertaintiesNode.getNode());
-		}
-
-		// add reference
-		for (LiteratureItem lit : lits) {
-			ReferenceNode ref = new ReferenceNode(lit);
-			pmfNode.addChild(ref.getNode());
-		}
-
-		// add non-rdf annotation
-		annot.setNonRDFAnnotation(pmfNode);
-
-		return annot;
-	}
-
 	/**
 	 * Parse model quality tags such as SSE and RMS from the EstModelXml cell.
 	 * 
@@ -743,10 +700,12 @@ class PrimaryTableReader extends TableReader {
 		}
 
 		// Add model annotations
-
-		Annotation annot = createModelAnnotation(modelId, modelTitle,
-				qualityTags, lits);
-		model.setAnnotation(annot);
+		int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+		String combaseID = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		Model1Annotation primModelAnnotation = new Model1Annotation(
+				modelId, modelTitle, qualityTags, lits, combaseID, condID);
+		model.getAnnotation()
+				.setNonRDFAnnotation(primModelAnnotation.getNode());
 
 		// Create compartment and add it to the model
 		List<MiscXml> miscs = new LinkedList<>();
@@ -880,29 +839,6 @@ class TertiaryTableReader extends TableReader {
 				experiments.add(new Experiment(model, data));
 			}
 		}
-	}
-
-	private Annotation createSecAnnotation(List<LiteratureItem> lits) {
-		Annotation annot = new Annotation();
-
-		// pmf container
-		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNamespaces pmfNS = new XMLNamespaces();
-		pmfNS.add("http://purl.org/dc/terms/", "dcterms");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, pmfNS);
-
-		// add reference
-		for (LiteratureItem lit : lits) {
-			ReferenceNode ref = new ReferenceNode(lit);
-			pmfNode.addChild(ref.getNode());
-		}
-
-		// add non-rdf annotation
-		annot.setNonRDFAnnotation(pmfNode);
-		annot.addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-
-		return annot;
 	}
 
 	private List<Parameter> createConstsSec(
@@ -1042,9 +978,12 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		// Add model annotations
-		Annotation annot = createModelAnnotation(modelId, modelTitle,
-				qualityTags, lits);
-		model.setAnnotation(annot);
+		int condID = firstTuple.getInt(TimeSeriesSchema.ATT_CONDID);
+		String combaseID = firstTuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		Model1Annotation primModelAnnotation = new Model1Annotation(
+				modelId, modelTitle, qualityTags, lits, combaseID, condID);
+		model.getAnnotation()
+				.setNonRDFAnnotation(primModelAnnotation.getNode());
 
 		// Create a compartment and add it to the model
 		List<MiscXml> miscs = new LinkedList<>();
@@ -1184,7 +1123,11 @@ class TertiaryTableReader extends TableReader {
 			}
 
 			// Add sec literature references
-			modelDefinition.setAnnotation(createSecAnnotation(lits));
+			int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			Model2Annotation secModelAnnotation = new Model2Annotation(
+					globalModelID, lits);
+			modelDefinition.getAnnotation().setNonRDFAnnotation(
+					secModelAnnotation.getNode());
 
 			Model2Rule rule2 = Model2Rule
 					.convertCatalogModelXmlToModel2Rule(secModelXml);

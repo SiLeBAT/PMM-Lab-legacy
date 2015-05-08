@@ -315,37 +315,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 	}
 }
 
-// // Holder class for related models and datasets
-// class Experiment {
-// private SBMLDocument model;
-// private NuMLDocument data;
-//
-// public Experiment(SBMLDocument model) {
-// this.model = model;
-// }
-//
-// public Experiment(SBMLDocument model, NuMLDocument data) {
-// this.model = model;
-// this.data = data;
-// }
-//
-// public SBMLDocument getModel() {
-// return model;
-// }
-//
-// public void setModel(SBMLDocument model) {
-// this.model = model;
-// }
-//
-// public NuMLDocument getData() {
-// return data;
-// }
-//
-// public void setData(NuMLDocument data) {
-// this.data = data;
-// }
-// }
-
 abstract class TableReader {
 	protected final static int LEVEL = 3;
 	protected final static int VERSION = 1;
@@ -702,8 +671,8 @@ class PrimaryTableReader extends TableReader {
 		// Add model annotations
 		int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 		String combaseID = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
-		Model1Annotation primModelAnnotation = new Model1Annotation(
-				modelId, modelTitle, qualityTags, lits, combaseID, condID);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId,
+				modelTitle, qualityTags, lits, combaseID, condID);
 		model.getAnnotation()
 				.setNonRDFAnnotation(primModelAnnotation.getNode());
 
@@ -980,8 +949,8 @@ class TertiaryTableReader extends TableReader {
 		// Add model annotations
 		int condID = firstTuple.getInt(TimeSeriesSchema.ATT_CONDID);
 		String combaseID = firstTuple.getString(TimeSeriesSchema.ATT_COMBASEID);
-		Model1Annotation primModelAnnotation = new Model1Annotation(
-				modelId, modelTitle, qualityTags, lits, combaseID, condID);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId,
+				modelTitle, qualityTags, lits, combaseID, condID);
 		model.getAnnotation()
 				.setNonRDFAnnotation(primModelAnnotation.getNode());
 

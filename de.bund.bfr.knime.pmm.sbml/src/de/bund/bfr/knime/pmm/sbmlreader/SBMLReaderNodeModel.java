@@ -513,6 +513,7 @@ class PrimaryModelParser {
 
 		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
 				.getUncertainties());
+		estModel.setName(primModelAnnotation.getModelTitle());
 
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
@@ -585,7 +586,7 @@ class TertiaryModelParser {
 					max = indepLimits.getMax();
 				}
 
-				// Seconday model indeps lacks units and categories
+				// Secondary model indeps lacks units and categories
 				IndepXml indepXml = new IndepXml(param.getId(), min, max, "",
 						"");
 				indepXml.setDescription("variable");
@@ -682,6 +683,7 @@ class TertiaryModelParser {
 
 		// Parse uncertainty measures from the document's annotations
 		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation.getUncertainties());
+		estModel.setName(primModelAnnotation.getModelTitle());
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();

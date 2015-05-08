@@ -6,7 +6,6 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
 import org.sbml.jsbml.ASTNode;
-import org.sbml.jsbml.ASTNode.Type;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.text.parser.ParseException;
 
@@ -112,27 +111,22 @@ public abstract class ModelRule {
 			lStr = postorder(node.getLeftChild());
 			rStr = postorder(node.getRightChild());
 
-			if (node.getType() == ASTNode.Type.FUNCTION_POWER) {
-				return String.format("(%s^%s)", lStr, rStr);
-			} else {
-				String operator;
-				switch (node.getType()) {
-				case PLUS:
-					operator = "+";
-					break;
-				case TIMES:
-					operator = "*";
-					break;
-				case FUNCTION_POWER:
-					operator = "^";
-					break;
-				default:
-					operator = "";
-					break;
-				}
-				return lStr + operator + rStr;
+			switch (node.getType()) {
+			case PLUS:
+				return "(" + lStr + "+" + rStr + ")";
+			case MINUS:
+				return "(" + lStr + "-" + rStr + ")";
+			case TIMES:
+				return "(" + lStr + "*" + rStr + ")";
+			case DIVIDE:
+				return "(" + lStr + "/" + rStr + ")";
+			case FUNCTION_POWER:
+				return "(" + lStr + "^" + rStr + ")";
+			case FUNCTION_EXP:
+				return "exp" + lStr;
+			default:
+				return "";
 			}
-
 		} else {
 			return node.toFormula();
 		}

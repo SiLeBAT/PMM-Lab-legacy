@@ -23,13 +23,17 @@ public class Matrix {
 	private Compartment compartment;
 
 	private String code; // PMF code
+	private String details; // Matrix details
 	private Map<String, Double> miscs;
 
 	public Matrix(Compartment compartment) {
-		XMLNode nonRDFAnnotation = compartment.getAnnotation().getNonRDFannotation();
-		MatrixAnnotation matrixAnnotation = new MatrixAnnotation(nonRDFAnnotation);
+		XMLNode nonRDFAnnotation = compartment.getAnnotation()
+				.getNonRDFannotation();
+		MatrixAnnotation matrixAnnotation = new MatrixAnnotation(
+				nonRDFAnnotation);
 		code = matrixAnnotation.getCode();
 		miscs = matrixAnnotation.getVars();
+		details = matrixAnnotation.getDetails();
 		this.compartment = compartment;
 	}
 
@@ -47,9 +51,10 @@ public class Matrix {
 				colVals, "Code");
 
 		this.miscs = miscs;
-		
+		details = matrixXml.getDetail();
+
 		// Build and set non RDF annotation
-		XMLNode annot = new MatrixAnnotation(code, miscs).getNode();
+		XMLNode annot = new MatrixAnnotation(code, miscs, details).getNode();
 		compartment.getAnnotation().setNonRDFAnnotation(annot);
 	}
 
@@ -77,7 +82,7 @@ public class Matrix {
 		// Get matrix dbuuid
 		String dbuuid = DBKernel.getLocalDBUUID();
 
-		return new MatrixXml(id, compartment.getName(), "", dbuuid);
+		return new MatrixXml(id, compartment.getName(), details, dbuuid);
 	}
 
 	public Node toGroovyNode() {
@@ -92,6 +97,8 @@ class MatrixAnnotation {
 	private static String PMF_TAG = "pmf";
 	private static String CODE_TAG = "source";
 	private static String CODE_NS = "dc";
+	private static String DETAILS_TAG = "details";
+	private static String DETAILS_NS = "pmf";
 	private static String VARIABLE_TAG = "modelvariable";
 	private static String VARIABLE_NS = "pmml";
 
@@ -101,6 +108,7 @@ class MatrixAnnotation {
 
 	private XMLNode node;
 	private String code; // PMF code
+	private String details; // Matrix details
 	private Map<String, Double> miscs; // model variables
 
 	// Get PMF code and model variable from an matrix annotation
@@ -111,7 +119,13 @@ class MatrixAnnotation {
 		// Get PMF code
 		code = metadata.getChildElement(CODE_TAG, "").getChild(0)
 				.getCharacters();
-		
+
+		// Get matrix details
+		XMLNode detailsNode = metadata.getChildElement(DETAILS_TAG, "");
+		if (detailsNode != null) {
+			details = detailsNode.getChild(0).getCharacters();
+		}
+
 		// Get model variables
 		miscs = new HashMap<>();
 		for (XMLNode varNode : metadata.getChildElements(VARIABLE_TAG, "")) {
@@ -129,20 +143,22 @@ class MatrixAnnotation {
 			miscs.put(varName, varValue);
 		}
 	}
-	
+
 	// Build new matrix annotation
-	public MatrixAnnotation(String code, Map<String, Double> vars) {
+	public MatrixAnnotation(String code, Map<String, Double> vars,
+			String details) {
 		this.code = code;
 		miscs = vars;
-		
+		this.details = details;
+
 		// Build metadata node
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
-		
+
 		// Create annotation for PMF code
 		XMLNode codeNode = new XMLNode(new XMLTriple(CODE_TAG, null, CODE_NS));
 		codeNode.addChild(new XMLNode(code));
 		node.addChild(codeNode);
-		
+
 		// Create annotations for model variables (Temperature, pH, aW)
 		for (Entry<String, Double> entry : miscs.entrySet()) {
 			XMLTriple triple = new XMLTriple(VARIABLE_TAG, null, VARIABLE_NS);
@@ -154,18 +170,30 @@ class MatrixAnnotation {
 
 			node.addChild(new XMLNode(triple, attrs));
 		}
+
+		// Create annotation for matrix details
+		if (details != null) {
+			XMLNode detailsNode = new XMLNode(new XMLTriple(DETAILS_TAG, null,
+					DETAILS_NS));
+			detailsNode.addChild(new XMLNode(details));
+			node.addChild(detailsNode);
+		}
 	}
-	
+
 	// Getters
 	public XMLNode getNode() {
 		return node;
 	}
-	
+
 	public String getCode() {
 		return code;
 	}
-	
+
 	public Map<String, Double> getVars() {
 		return miscs;
+	}
+
+	public String getDetails() {
+		return details;
 	}
 }

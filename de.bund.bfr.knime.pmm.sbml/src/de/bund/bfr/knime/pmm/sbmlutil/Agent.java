@@ -19,12 +19,16 @@ public class Agent {
 	private Species species;
 
 	private String casNumber;
+	private String detail;
 
 	public Agent(Species species) {
 		// Get CAS number from annotation
 		XMLNode nonRDFannotation = species.getAnnotation()
 				.getNonRDFannotation();
-		casNumber = new AgentAnnotation(nonRDFannotation).getRef();
+		AgentAnnotation agentAnnotation = new AgentAnnotation(nonRDFannotation);
+		casNumber = agentAnnotation.getRef();
+		detail = agentAnnotation.getDetail();
+
 		this.species = species;
 	}
 
@@ -45,20 +49,13 @@ public class Agent {
 			// Get CAS number from DB
 			casNumber = (String) DBKernel.getValue("Agenzien", "ID", agent
 					.getId().toString(), "CAS_Nummer");
-
-			// Create and set a non RDF annotation with the CAS number
-			XMLNode pmfNode = new AgentAnnotation(casNumber).getNode();
-			species.getAnnotation().setNonRDFAnnotation(pmfNode);
 		}
-	}
-
-	// Getters
-	public Species getSpecies() {
-		return species;
-	}
-
-	public String getCasNumber() {
-		return casNumber;
+		
+		detail = agent.getDetail();
+		
+		// Build and set non RDF annotation
+		XMLNode annot = new AgentAnnotation(casNumber, detail).getNode();
+		species.getAnnotation().setNonRDFAnnotation(annot);
 	}
 
 	public AgentXml toAgentXml() {
@@ -82,8 +79,23 @@ public class Agent {
 		} else {
 			agent.setName(species.getName());
 		}
+		
+		agent.setDetail(detail);
 
 		return agent;
+	}
+
+	// Getters
+	public Species getSpecies() {
+		return species;
+	}
+
+	public String getCasNumber() {
+		return casNumber;
+	}
+
+	public String getDetail() {
+		return detail;
 	}
 
 	public Node toGroovyNode() {
@@ -97,9 +109,12 @@ class AgentAnnotation {
 	private static String PMF_TAG = "pmf";
 	private static String REF_TAG = "source";
 	private static String REF_NS = "dc";
+	private static String DETAIL_TAG = "detail";
+	private static String DETAIL_NS = "pmf";
 
 	private XMLNode node;
 	private String ref; // CAS number
+	private String detail; // Agent detail
 
 	// Get CAS number from an existing agent annotation
 	public AgentAnnotation(XMLNode node) {
@@ -110,6 +125,11 @@ class AgentAnnotation {
 			XMLNode source = metadata.getChildElement(REF_TAG, "");
 			ref = source.getChild(0).getCharacters(); // whole reference
 			ref = ref.substring(ref.lastIndexOf("/") + 1);
+
+			XMLNode detailNode = metadata.getChildElement(DETAIL_TAG, "");
+			if (detailNode != null) {
+				detail = detailNode.getChild(0).getCharacters();
+			}
 		}
 	}
 
@@ -119,14 +139,25 @@ class AgentAnnotation {
 	 * @param code
 	 *            : CAS number
 	 */
-	public AgentAnnotation(String code) {
+	public AgentAnnotation(String code, String detail) {
+		// Build PMF container
+		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
+
 		// Build reference tag
 		XMLNode refNode = new XMLNode(new XMLTriple(REF_TAG, null, REF_NS));
 		refNode.addChild(new XMLNode("http://identifiers.org/ncim/" + code));
-
-		// Build PMF container
-		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 		node.addChild(refNode);
+
+		// Build detail tag
+		if (detail != null) {
+			XMLTriple detailTriple = new XMLTriple(DETAIL_TAG, null, DETAIL_NS);
+			XMLNode detailNode = new XMLNode(detailTriple);
+			detailNode.addChild(new XMLNode(detail));
+			node.addChild(detailNode);
+		}
+
+		this.ref = code;
+		this.detail = detail;
 	}
 
 	// Getters
@@ -136,5 +167,9 @@ class AgentAnnotation {
 
 	public String getRef() {
 		return ref;
+	}
+
+	public String getDetail() {
+		return detail;
 	}
 }

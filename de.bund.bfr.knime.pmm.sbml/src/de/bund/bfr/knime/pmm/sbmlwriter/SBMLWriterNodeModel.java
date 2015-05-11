@@ -101,6 +101,7 @@ import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
@@ -110,8 +111,6 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
-import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
-import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
@@ -444,7 +443,7 @@ abstract class TableReader {
 		List<Parameter> coefficients = new LinkedList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			ParamXml paramXml = (ParamXml) pmmParam;
-			coefficients.add(new PrimCoefficient(paramXml).getParameter());
+			coefficients.add(new Coefficient(paramXml).getParameter());
 		}
 		return coefficients;
 	}
@@ -656,7 +655,7 @@ class PrimaryTableReader extends TableReader {
 		model.setName(modelXml.getName());
 
 		// Annotation
-		String modelTitle = modelXml.getName();
+		String modelTitle = estXml.getName();
 		Map<String, String> qualityTags = parseQualityTags(estXml);
 
 		// Get literature references
@@ -815,22 +814,10 @@ class TertiaryTableReader extends TableReader {
 		List<Parameter> consts = new LinkedList<>();
 		for (PmmXmlElementConvertable pmmParam : params) {
 			ParamXml xml = (ParamXml) pmmParam;
-			consts.add(new SecCoefficient(xml).getParameter());
+			consts.add(new Coefficient(xml).getParameter());
 		}
 
 		return consts;
-	}
-
-	private List<Parameter> createSecIndeps(
-			final List<PmmXmlElementConvertable> params) {
-		List<Parameter> indeps = new LinkedList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			IndepXml xml = (IndepXml) pmmParam;
-			Parameter p = new Parameter(xml.getName());
-			p.setConstant(false);
-			indeps.add(p);
-		}
-		return indeps;
 	}
 
 	public ListOf<UnitDefinition> getUnits(
@@ -930,7 +917,7 @@ class TertiaryTableReader extends TableReader {
 				.getPlugin(CompConstants.shortLabel);
 
 		// Annotation
-		String modelTitle = modelXml.getName();
+		String modelTitle = estXml.getName();
 		Integer modelClassNum = modelXml.getModelClass();
 		if (modelClassNum == null) {
 			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
@@ -1043,15 +1030,16 @@ class TertiaryTableReader extends TableReader {
 			unitDefs = getUnits(secConstParams);
 			modelDefinition.setListOfUnitDefinitions(unitDefs);
 
-			// Add dep from sec
+			// TODO: Add dep from sec
 			Parameter secDep = new Parameter(secDepXml.getName());
 			secDep.setConstant(false);
 			secDep.setValue(0.0);
 			modelDefinition.addParameter(secDep);
 
 			// Add independent parameters
-			List<Parameter> secIndeps = createSecIndeps(secIndepParams);
-			for (Parameter param : secIndeps) {
+			for (PmmXmlElementConvertable pmmParam : secIndepParams) {
+				IndepXml indepXml = (IndepXml) pmmParam;
+				Parameter param = new SecIndep(indepXml).getParam();
 				modelDefinition.addParameter(param);
 			}
 

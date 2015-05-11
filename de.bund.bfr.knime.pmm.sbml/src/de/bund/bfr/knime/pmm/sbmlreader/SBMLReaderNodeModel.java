@@ -55,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
@@ -66,9 +67,8 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
-import de.bund.bfr.knime.pmm.sbmlutil.PrimCoefficient;
-import de.bund.bfr.knime.pmm.sbmlutil.SecCoefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
+import de.bund.bfr.knime.pmm.sbmlwriter.SecIndep;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -307,7 +307,7 @@ class ReaderUtils {
 
 		PmmXmlDoc constDoc = new PmmXmlDoc();
 		for (Parameter param : constParams) {
-			ParamXml paramXml = new PrimCoefficient(param).toParamXml();
+			ParamXml paramXml = new Coefficient(param).toParamXml();
 
 			if (param.getUnits().equals("dimensionless")) {
 				paramXml.setUnit("");
@@ -320,7 +320,6 @@ class ReaderUtils {
 					paramXml.setUnit(unit);
 					if (unitsMap.containsKey(unit)) {
 						UnitsFromDB dbUnit = unitsMap.get(unit);
-						paramXml.setDescription(dbUnit.getDescription());
 						paramXml.setCategory(dbUnit
 								.getKind_of_property_quantity());
 					}
@@ -561,69 +560,6 @@ class TertiaryModelParser {
 		return new PmmXmlDoc(new DepXml(rule.getVariable(), "P", "", "", ""));
 	}
 
-	/**
-	 * Parse independent parameters from a secondary model.
-	 * 
-	 * <ol>
-	 * <li>Search non constant parameters not named as the dep.</li>
-	 * <li>Get unit name from the parameter.</li>
-	 * <li>Get unit from DB</li>
-	 * <li>Get data from the parameter</li>
-	 * <li>Get parameter limits using its unit's name</li>
-	 * </ol>
-	 */
-	private static PmmXmlDoc parseSecIndeps(final String depName,
-			final ListOf<Parameter> params, final Map<String, Limits> limits) {
-		PmmXmlDoc indepDoc = new PmmXmlDoc();
-
-		for (Parameter param : params) {
-			if (!param.getId().equals(depName) && !param.isConstant()) {
-				// Get limits
-				Double min = null, max = null;
-				if (limits.containsKey(param.getId())) {
-					Limits indepLimits = limits.get(param.getId());
-					min = indepLimits.getMin();
-					max = indepLimits.getMax();
-				}
-
-				// Secondary model indeps lacks units and categories
-				IndepXml indepXml = new IndepXml(param.getId(), min, max, "",
-						"");
-				indepXml.setDescription("variable");
-
-				indepDoc.add(indepXml);
-			}
-		}
-
-		return indepDoc;
-	}
-
-	/**
-	 * Create PmmXmlDoc with ParamXmls for every constant parameter from the
-	 * SBML document.
-	 * 
-	 * @param params
-	 * @param limits
-	 * @return
-	 */
-	private static PmmXmlDoc parseConstsSec(final ListOf<Parameter> params) {
-
-		// Get coefficients
-		LinkedList<SecCoefficient> coefficients = new LinkedList<>();
-		for (Parameter param : params) {
-			if (param.isConstant()) {
-				coefficients.add(new SecCoefficient(param));
-			}
-		}
-
-		PmmXmlDoc coefficientsXml = new PmmXmlDoc();
-		for (SecCoefficient coefficient : coefficients) {
-			coefficientsXml.add(coefficient.toParamXml());
-		}
-
-		return coefficientsXml;
-	}
-
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
@@ -682,7 +618,8 @@ class TertiaryModelParser {
 				model.getListOfUnitDefinitions(), limits);
 
 		// Parse uncertainty measures from the document's annotations
-		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation.getUncertainties());
+		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
+				.getUncertainties());
 		estModel.setName(primModelAnnotation.getModelTitle());
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
@@ -716,9 +653,33 @@ class TertiaryModelParser {
 
 			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule());
 			String depName = rule2.getRule().getVariable();
-			PmmXmlDoc independentSecCell = parseSecIndeps(depName, secParams,
-					secLimits);
-			PmmXmlDoc parameterSecCell = parseConstsSec(secParams);
+
+			// parse sec indeps
+			PmmXmlDoc independentSecCell = new PmmXmlDoc();
+			for (Parameter param : secParams) {
+				if (!param.getId().equals(depName) && !param.isConstant()) {
+
+					IndepXml indepXml = new SecIndep(param).toIndepXml();
+
+					// Get limits
+					if (secLimits.containsKey(param.getId())) {
+						Limits indepLimits = secLimits.get(param.getId());
+						indepXml.setMax(indepLimits.getMax());
+						indepXml.setMin(indepLimits.getMin());
+					}
+
+					independentSecCell.add(indepXml);
+				}
+			}
+
+			// parse sec conts
+			PmmXmlDoc parameterSecCell = new PmmXmlDoc();
+			for (Parameter param : secParams) {
+				if (param.isConstant()) {
+					parameterSecCell
+							.add(new Coefficient(param).toParamXml());
+				}
+			}
 
 			PmmXmlDoc estModelSecCell = new PmmXmlDoc();
 			estModelSecCell.add(new EstModelXml(MathUtilities
@@ -727,8 +688,8 @@ class TertiaryModelParser {
 
 			PmmXmlDoc mLiteratureSecCell = new PmmXmlDoc();
 
-			Model2Annotation secModelAnnotation = new Model2Annotation(
-					secModel.getAnnotation().getNonRDFannotation());
+			Model2Annotation secModelAnnotation = new Model2Annotation(secModel
+					.getAnnotation().getNonRDFannotation());
 			final int globalModelID = secModelAnnotation.getGlobalModelID();
 
 			// Add references to PMM Lab table

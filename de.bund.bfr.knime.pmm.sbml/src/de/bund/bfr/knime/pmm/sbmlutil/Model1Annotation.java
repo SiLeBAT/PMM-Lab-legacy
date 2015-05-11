@@ -90,11 +90,13 @@ public class Model1Annotation {
 		node.addChild(modelIDNode);
 
 		// Build modelTitle node
-		XMLTriple modelTitleTriple = new XMLTriple(MODEL_TITLE_TAG, null,
-				PMF_TAG);
-		XMLNode modelTitleNode = new XMLNode(modelTitleTriple);
-		modelTitleNode.addChild(new XMLNode(modelTitle));
-		node.addChild(modelTitleNode);
+		if (modelTitle != null) {
+			XMLTriple modelTitleTriple = new XMLTriple(MODEL_TITLE_TAG, null,
+					PMF_TAG);
+			XMLNode modelTitleNode = new XMLNode(modelTitleTriple);
+			modelTitleNode.addChild(new XMLNode(modelTitle));
+			node.addChild(modelTitleNode);
+		}
 
 		// Build uncertainties node
 		if (!uncertainties.isEmpty()) {

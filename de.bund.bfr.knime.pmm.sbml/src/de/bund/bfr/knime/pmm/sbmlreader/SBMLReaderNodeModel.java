@@ -556,10 +556,6 @@ class PrimaryModelParser {
 
 class TertiaryModelParser {
 
-	private static PmmXmlDoc parseSecDep(final AssignmentRule rule) {
-		return new PmmXmlDoc(new DepXml(rule.getVariable(), "P", "", "", ""));
-	}
-
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
@@ -651,8 +647,14 @@ class TertiaryModelParser {
 				unitDefs.add(ud);
 			}
 
-			PmmXmlDoc dependentSecCell = parseSecDep(rule2.getRule());
 			String depName = rule2.getRule().getVariable();
+			
+			// Create sec dep
+			Parameter depParam = listOfParameters.get(depName);
+			Coefficient depCoeff = new Coefficient(depParam);
+			DepXml depXml = new DepXml(depName);
+			depXml.setDescription(depCoeff.getDescription());
+			PmmXmlDoc dependentSecCell = new PmmXmlDoc(depXml);
 
 			// parse sec indeps
 			PmmXmlDoc independentSecCell = new PmmXmlDoc();

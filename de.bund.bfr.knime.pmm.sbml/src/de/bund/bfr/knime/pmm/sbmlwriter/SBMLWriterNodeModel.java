@@ -154,7 +154,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	private KnimeSchema schema;
 
 	public enum ModelType {
-		PRIMARY, TERCIARY
+		PRIMARY, TERTIARY
 	};
 
 	private ModelType modelType;
@@ -201,7 +201,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		if (modelType == ModelType.PRIMARY) {
 			PrimaryTableReader reader = new PrimaryTableReader(tuples, dlgInfo);
 			experiments = reader.getExperiments();
-		} else if (modelType == ModelType.TERCIARY) {
+		} else if (modelType == ModelType.TERTIARY) {
 			TertiaryTableReader reader = new TertiaryTableReader(tuples,
 					dlgInfo);
 			experiments = reader.getExperiments();
@@ -229,7 +229,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		if (SchemaFactory.createM12DataSchema().conforms(
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM12DataSchema();
-			modelType = ModelType.TERCIARY;
+			modelType = ModelType.TERTIARY;
 		} else if (SchemaFactory.createM1DataSchema().conforms(
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM1DataSchema();
@@ -753,58 +753,92 @@ class TertiaryTableReader extends TableReader {
 
 		dlgInfo.put("type", "Tertiary");
 
-		HashMap<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
+		HashMap<Integer, HashMap<Integer, List<KnimeTuple>>> globalModels = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
-			String id = tuple.getString(TimeSeriesSchema.ATT_CONDID);
-			if (tuplesMap.containsKey(id)) {
-				tuplesMap.get(id).add(tuple);
-			} else {
-				List<KnimeTuple> newModel = new ArrayList<>();
-				newModel.add(tuple);
-				tuplesMap.put(id, newModel);
+			Integer globalModelID = tuple
+					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			Integer condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+
+			// global model is in globalModels
+			if (globalModels.containsKey(globalModelID)) {
+				// Get global model
+				HashMap<Integer, List<KnimeTuple>> globalModel = globalModels
+						.get(globalModelID);
+				// globalModel has tertiary model with condID => Add tuple to
+				// this tertiary model
+				if (globalModel.containsKey(condID)) {
+					globalModel.get(condID).add(tuple);
+				}
+				// Otherwise, create a tertiary model with condID and add it the
+				// current tuple
+				else {
+					LinkedList<KnimeTuple> tertiaryModel = new LinkedList<>();
+					tertiaryModel.add(tuple);
+					globalModel.put(condID, tertiaryModel);
+				}
+			}
+
+			// else, create tertiary model with condID and add it to new global
+			// model
+			else {
+				// Create new global model
+				HashMap<Integer, List<KnimeTuple>> globalModel = new HashMap<>();
+
+				// Create tertiary model and add it to new global model
+				LinkedList<KnimeTuple> tertiaryModel = new LinkedList<>();
+				tertiaryModel.add(tuple);
+				globalModel.put(condID, tertiaryModel);
+
+				// Add new global model
+				globalModels.put(globalModelID, globalModel);
 			}
 		}
 
-		for (List<KnimeTuple> modelTuples : tuplesMap.values()) {
-			SBMLDocument model = parseTertiaryTuple(modelTuples, dlgInfo);
+		for (Map<Integer, List<KnimeTuple>> globalModel : globalModels.values()) {
+			for (List<KnimeTuple> tertiaryModel : globalModel.values()) {
 
-			// Add NuML doc
-			KnimeTuple tuple = modelTuples.get(0);
+				SBMLDocument model = parseTertiaryTuple(tertiaryModel, dlgInfo);
 
-			// * Get data points
-			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+				// Add NuML doc
+				KnimeTuple tuple = tertiaryModel.get(0);
 
-			// No data for this model
-			if (mdData.size() == 0) {
-				experiments.add(new Experiment(model));
-			} else {
-				// XML time series
-				List<TimeSeriesXml> timeSeries = new LinkedList<>();
-				for (PmmXmlElementConvertable point : mdData.getElementSet()) {
-					timeSeries.add((TimeSeriesXml) point);
+				// * Get data points
+				PmmXmlDoc mdData = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+
+				// No data for this model
+				if (mdData.size() == 0) {
+					experiments.add(new Experiment(model));
+				} else {
+					// XML time series
+					List<TimeSeriesXml> timeSeries = new LinkedList<>();
+					for (PmmXmlElementConvertable point : mdData
+							.getElementSet()) {
+						timeSeries.add((TimeSeriesXml) point);
+					}
+					Map<Double, Double> dim = new HashMap<>(); // dimension
+					for (TimeSeriesXml point : timeSeries) {
+						dim.put(point.getTime(), point.getConcentration());
+					}
+
+					// * Create NuML document with this time series
+					String unit = ((TimeSeriesXml) tuple.getPmmXml(
+							TimeSeriesSchema.ATT_TIMESERIES).get(0))
+							.getConcentrationUnit();
+					MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+							TimeSeriesSchema.ATT_MATRIX).get(0);
+					AgentXml agentXml = (AgentXml) tuple.getPmmXml(
+							TimeSeriesSchema.ATT_AGENT).get(0);
+					String depUnit = (String) ((DepXml) tuple.getPmmXml(
+							Model1Schema.ATT_DEPENDENT).get(0)).getUnit();
+					DataFile dataFile = new DataFile(dim, unit, matrixXml,
+							agentXml, depUnit, dlgInfo);
+
+					// * Get and add data set
+					NuMLDocument data = dataFile.getDocument();
+
+					experiments.add(new Experiment(model, data));
 				}
-				Map<Double, Double> dim = new HashMap<>(); // dimension
-				for (TimeSeriesXml point : timeSeries) {
-					dim.put(point.getTime(), point.getConcentration());
-				}
-
-				// * Create NuML document with this time series
-				String unit = ((TimeSeriesXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_TIMESERIES).get(0))
-						.getConcentrationUnit();
-				MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0);
-				AgentXml agentXml = (AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0);
-				String depUnit = (String) ((DepXml) tuple.getPmmXml(
-						Model1Schema.ATT_DEPENDENT).get(0)).getUnit();
-				DataFile dataFile = new DataFile(dim, unit, matrixXml,
-						agentXml, depUnit, dlgInfo);
-
-				// * Get and add data set
-				NuMLDocument data = dataFile.getDocument();
-
-				experiments.add(new Experiment(model, data));
 			}
 		}
 	}
@@ -1030,7 +1064,7 @@ class TertiaryTableReader extends TableReader {
 			unitDefs = getUnits(secConstParams);
 			modelDefinition.setListOfUnitDefinitions(unitDefs);
 
-			// TODO: Add dep from sec
+			// Add dep from sec
 			Parameter secDep = new Parameter(secDepXml.getName());
 			secDep.setConstant(false);
 			secDep.setValue(0.0);

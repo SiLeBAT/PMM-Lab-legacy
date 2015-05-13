@@ -608,8 +608,17 @@ class SecondaryModelParser {
 		DepXml depXml = new DepXml(depName);
 		Parameter depParam = model.getParameter(depName);
 		if (depParam.getUnits() != null) {
+			// Add unit
 			String unitID = depParam.getUnits();
-			depXml.setUnit(model.getUnitDefinition(unitID).getName());
+			String unitName = model.getUnitDefinition(unitID).getName();
+			depXml.setUnit(unitName);
+			
+			// Add unit category
+			if (unitName.equals("min") || unitName.equals("h")) {
+				depXml.setCategory(Categories.getTimeCategory().getName());
+			} else if (unitName.equals("°C")) {
+				depXml.setCategory(Categories.getTempCategory().getName());
+			}
 		}
 		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
 
@@ -632,7 +641,15 @@ class SecondaryModelParser {
 			// Assign unit
 			if (param.getUnits() != null) {
 				String unitID = param.getUnits();
-				indepXml.setUnit(model.getUnitDefinition(unitID).getName());
+				String unitName = model.getUnitDefinition(unitID).getName();
+				indepXml.setUnit(unitName);
+
+				// Add unit category
+				if (unitName.equals("min") || unitName.equals("h")) {
+					indepXml.setCategory(Categories.getTimeCategory().getName());
+				} else if (unitName.equals("°C")) {
+					indepXml.setCategory(Categories.getTempCategory().getName());
+				}
 			}
 
 			// Get limits
@@ -653,8 +670,17 @@ class SecondaryModelParser {
 			// Assign unit
 			if (param.getUnits() != null) {
 				String unitID = param.getUnits();
-				if (!unitID.equals("dimensionless")) {
-					paramXml.setUnit(model.getUnitDefinition(unitID).getName());
+				if (unitID.equals("dimensionless")) {
+					constCell.add(paramXml);
+					continue;
+				}
+				String unitName = model.getUnitDefinition(unitID).getName();
+
+				// Add unit category
+				if (unitName.equals("min") || unitName.equals("h")) {
+					paramXml.setCategory(Categories.getTimeCategory().getName());
+				} else if (unitName.equals("ºC")) {
+					paramXml.setCategory(Categories.getTempCategory().getName());
 				}
 			}
 

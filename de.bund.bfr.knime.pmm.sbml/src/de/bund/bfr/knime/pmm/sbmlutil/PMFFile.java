@@ -38,6 +38,62 @@ public class PMFFile {
 	final static String NuML_EXTENSION = "numl";
 	final static String PMF_EXTENSION = "pmf";
 
+	public List<Experiment> read2(String filename) throws Exception {
+		// Create lists for models and data
+		Map<String, SBMLDocument> models = new HashMap<>();
+		Map<String, NuMLDocument> data = new HashMap<>();
+
+		// Create Combine Archive
+		CombineArchive ca = new CombineArchive(new File(filename));
+
+		// Create SBML and NuML readers
+		SBMLReader sbmlReader = new SBMLReader();
+		NuMLReader numlReader = new NuMLReader();
+
+		URI sbmlURI = new URI(SBML_URI_STR);
+		URI numlURI = new URI(NuML_URI_STR);
+
+		// Parse models in the PMF file
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
+			InputStream stream = Files.newInputStream(entry.getPath(),
+					StandardOpenOption.READ);
+			String modelname = entry.getFileName().replace(
+					"." + SBML_EXTENSION, "");
+			models.put(modelname, sbmlReader.readSBMLFromStream(stream));
+			stream.close();
+		}
+
+		// Parse data in the PMF file
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
+			InputStream stream = Files.newInputStream(entry.getPath(),
+					StandardOpenOption.READ);
+			String modelname = entry.getFileName().replace(
+					"." + NuML_EXTENSION, "");
+			data.put(modelname, numlReader.read(stream));
+			stream.close();
+		}
+
+		ca.close();
+
+		List<Experiment> exps = new LinkedList<>();
+		for (Entry<String, SBMLDocument> entry : models.entrySet()) {
+			String modelName = entry.getKey();
+			SBMLDocument sbmlDoc = entry.getValue();
+
+			// Current model has associated data
+			if (data.containsKey(modelName)) {
+				NuMLDocument numlDoc = data.get(modelName);
+				exps.add(new Experiment(sbmlDoc, numlDoc));
+			}
+			// Current model has not associated data
+			else {
+				exps.add(new Experiment(sbmlDoc));
+			}
+		}
+		
+		return exps;
+	}
+
 	/**
 	 * Read experiments from a PMF file in disk.
 	 * 
@@ -98,7 +154,7 @@ public class PMFFile {
 				exps.add(new Experiment(sbmlDoc));
 			}
 		}
-
+		
 		return exps;
 	}
 

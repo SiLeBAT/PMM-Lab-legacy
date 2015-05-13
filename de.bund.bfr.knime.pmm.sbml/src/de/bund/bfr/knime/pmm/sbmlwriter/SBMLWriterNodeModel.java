@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,6 +109,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
@@ -152,10 +152,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 			CFG_REFERENCE, null);
 
 	private KnimeSchema schema;
-
-	public enum ModelType {
-		PRIMARY, TERTIARY
-	};
 
 	private ModelType modelType;
 
@@ -205,6 +201,10 @@ public class SBMLWriterNodeModel extends NodeModel {
 			TertiaryTableReader reader = new TertiaryTableReader(tuples,
 					dlgInfo);
 			experiments = reader.getExperiments();
+		} else if (modelType == ModelType.SECONDARY) {
+			SecondaryTableReader reader = new SecondaryTableReader(tuples,
+					dlgInfo);
+			experiments = reader.getExperiments();
 		}
 
 		PMFFile.write(outPath.getStringValue(), modelName.getStringValue(),
@@ -230,11 +230,23 @@ public class SBMLWriterNodeModel extends NodeModel {
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM12DataSchema();
 			modelType = ModelType.TERTIARY;
-		} else if (SchemaFactory.createM1DataSchema().conforms(
+		}
+
+		// Primary model
+		else if (SchemaFactory.createM1DataSchema().conforms(
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM1DataSchema();
 			modelType = ModelType.PRIMARY;
-		} else if (outPath.getStringValue() == null
+		}
+
+		// Secondary model
+		else if (SchemaFactory.createM2Schema().conforms(
+				(DataTableSpec) inSpecs[0])) {
+			schema = SchemaFactory.createM2Schema();
+			modelType = ModelType.SECONDARY;
+		}
+
+		else if (outPath.getStringValue() == null
 				|| modelName.getStringValue() == null
 				|| variableParams.getStringValue() == null) {
 			throw new InvalidSettingsException("Node must be configured");
@@ -557,6 +569,19 @@ abstract class TableReader {
 
 		return qualityTags;
 	}
+
+	public static void addNamespaces(SBMLDocument doc) {
+		doc.addDeclaredNamespace("xmlns:xsi",
+				"http://www.w3.org/2001/XMLSchema-instance");
+		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		doc.addDeclaredNamespace("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
+		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
+		doc.addDeclaredNamespace("xmlns:numl",
+				"http://www.numl.org/numl/level1/version1");
+		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
+	}
 }
 
 class PrimaryTableReader extends TableReader {
@@ -635,17 +660,7 @@ class PrimaryTableReader extends TableReader {
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 
-		// Add namespaces
-		doc.addDeclaredNamespace("xmlns:xsi",
-				"http://www.w3.org/2001/XMLSchema-instance");
-		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
-		doc.addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
-		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
-		doc.addDeclaredNamespace("xmlns:numl",
-				"http://www.numl.org/numl/level1/version1");
-		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
+		addNamespaces(doc);
 
 		// Document annotation
 		Annotation docAnnot = createDocAnnotation(docInfo);
@@ -741,6 +756,150 @@ class PrimaryTableReader extends TableReader {
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
 				modelXml, organims.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
+		return doc;
+	}
+}
+
+class SecondaryTableReader extends TableReader {
+
+	public SecondaryTableReader(List<KnimeTuple> tuples,
+			Map<String, String> dlgInfo) throws URISyntaxException {
+		super();
+
+		for (KnimeTuple tuple : tuples) {
+			SBMLDocument sbmlDoc = parseSecondaryTuple(tuple, dlgInfo);
+			experiments.add(new Experiment(sbmlDoc));
+		}
+	}
+
+	private SBMLDocument parseSecondaryTuple(KnimeTuple tuple,
+			Map<String, String> docInfo) {
+
+		// retrieve XML cells
+		CatalogModelXml catModelXml = (CatalogModelXml) tuple.getPmmXml(
+				Model2Schema.ATT_MODELCATALOG).get(0);
+		EstModelXml estModelXml = (EstModelXml) tuple.getPmmXml(
+				Model2Schema.ATT_ESTMODEL).get(0);
+		DepXml depXml = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
+				.get(0);
+
+		// Get independent parameters
+		LinkedList<IndepXml> indepXmls = new LinkedList<>();
+		for (PmmXmlElementConvertable xmlItem : tuple.getPmmXml(
+				Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+			indepXmls.add((IndepXml) xmlItem);
+		}
+
+		// Get constant parameters
+		LinkedList<ParamXml> constXmls = new LinkedList<>();
+		for (PmmXmlElementConvertable xmlItem : tuple.getPmmXml(
+				Model2Schema.ATT_PARAMETER).getElementSet()) {
+			constXmls.add((ParamXml) xmlItem);
+		}
+
+		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		// Enable Hierarchical Composition package
+		doc.enablePackage(CompConstants.shortLabel);
+
+		// Add SBML comp plugin to SBML document
+		CompSBMLDocumentPlugin docCompPlugin = (CompSBMLDocumentPlugin) doc
+				.getPlugin(CompConstants.shortLabel);
+
+		addNamespaces(doc);
+
+		// Create model definition
+		String modelDefinitionId = "model_" + depXml.getName();
+		Model model = docCompPlugin.createModelDefinition(modelDefinitionId);
+		model.setName(catModelXml.getName());
+
+		// Get units from dep, indeps and consts
+		HashSet<String> units = new HashSet<>();
+		if (depXml.getUnit() != null) {
+			units.add(depXml.getUnit());
+		}
+
+		for (IndepXml indepXml : indepXmls) {
+			if (indepXml.getUnit() != null) {
+				units.add(indepXml.getUnit());
+			}
+		}
+
+		for (ParamXml paramXml : constXmls) {
+			if (paramXml.getUnit() != null) {
+				units.add(paramXml.getUnit());
+			}
+		}
+
+		for (String unit : units) {
+			UnitDefinition unitDefinition = new UnitDefinition(
+					Util.createId(unit));
+			unitDefinition.setName(unit);
+			model.addUnitDefinition(unitDefinition);
+		}
+
+		// Add dep
+		Parameter depParam = new Parameter(depXml.getName());
+		depParam.setConstant(false);
+		depParam.setValue(0.0);
+		if (depXml.getUnit() != null) {
+			depParam.setUnits(Util.createId(depXml.getUnit()));
+		}
+		model.addParameter(depParam);
+
+		// Add independent parameters
+		for (IndepXml indepXml : indepXmls) {
+			Parameter indepParam = new SecIndep(indepXml).getParam();
+			if (indepXml.getUnit() != null) {
+				indepParam.setUnits(Util.createId(indepXml.getUnit()));
+			}
+			model.addParameter(indepParam);
+
+			// Add constraint
+			Double min = indepXml.getMin(), max = indepXml.getMax();
+			LimitsConstraint lc = new LimitsConstraint(indepXml.getName(), min,
+					max);
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
+			}
+		}
+
+		// Add constant parameters
+		for (ParamXml paramXml : constXmls) {
+			Parameter constParam = new Coefficient(paramXml).getParameter();
+			if (paramXml.getUnit() != null) {
+				constParam.setUnits(Util.createId(paramXml.getUnit()));
+			}
+			model.addParameter(constParam);
+
+			// Add constraint
+			Double min = paramXml.getMin(), max = paramXml.getMax();
+			LimitsConstraint lc = new LimitsConstraint(paramXml.getName(), min,
+					max);
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
+			}
+		}
+
+		Model2Rule rule2 = Model2Rule
+				.convertCatalogModelXmlToModel2Rule(catModelXml);
+		model.addRule(rule2.getRule());
+
+		// Add literature items
+		List<PmmXmlElementConvertable> litItems = tuple.getPmmXml(
+				Model2Schema.ATT_EMLIT).getElementSet();
+		LinkedList<LiteratureItem> lits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : litItems) {
+			lits.add((LiteratureItem) item);
+		}
+
+		int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+
+		// Add annotation
+		Map<String, String> uncertainties = parseQualityTags(estModelXml);
+		Model2Annotation modelAnnotation = new Model2Annotation(globalModelID, uncertainties,
+				lits);
+		model.getAnnotation().setNonRDFAnnotation(modelAnnotation.getNode());
+
 		return doc;
 	}
 }
@@ -933,17 +1092,7 @@ class TertiaryTableReader extends TableReader {
 		Annotation docAnnot = createDocAnnotation(docInfo);
 		doc.setAnnotation(docAnnot);
 
-		// Add namespaces
-		doc.addDeclaredNamespace("xmlns:xsi",
-				"http://www.w3.org/2001/XMLSchema-instance");
-		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
-		doc.addDeclaredNamespace("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
-		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
-		doc.addDeclaredNamespace("xmlns:numl",
-				"http://www.numl.org/numl/level1/version1");
-		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
+		addNamespaces(doc);
 
 		Model model = doc.createModel(modelId);
 		model.setName(modelXml.getName());
@@ -1115,8 +1264,9 @@ class TertiaryTableReader extends TableReader {
 
 			// Add sec literature references
 			int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			Map<String, String> uncertainties = parseQualityTags(estXml);
 			Model2Annotation secModelAnnotation = new Model2Annotation(
-					globalModelID, lits);
+					globalModelID, uncertainties, lits);
 			modelDefinition.getAnnotation().setNonRDFAnnotation(
 					secModelAnnotation.getNode());
 

@@ -16,11 +16,13 @@ public class SecIndep {
 	String desc;
 
 	public SecIndep(Parameter param) {
-		// Get description from annotation
-		XMLNode nonRDFannotation = param.getAnnotation().getNonRDFannotation();
-		SecIndepAnnotation annot = new SecIndepAnnotation(nonRDFannotation);
-		desc = annot.getDescription();
-		
+		// If param has annotation, process it
+		if (param.getAnnotation().getNonRDFannotation() != null) {
+			SecIndepAnnotation annot = new SecIndepAnnotation(param
+					.getAnnotation().getNonRDFannotation());
+			desc = annot.getDescription();
+		}
+
 		// copy parameter
 		this.param = param;
 	}
@@ -30,10 +32,12 @@ public class SecIndep {
 		param = new Parameter(indepXml.getName());
 		param.setConstant(false);
 
-		// Build and set non RDF annotation
-		SecIndepAnnotation annot = new SecIndepAnnotation(
-				indepXml.getDescription());
-		param.getAnnotation().setNonRDFAnnotation(annot.getNode());
+		if (indepXml.getDescription() != null) {
+			// Build and set non RDF annotation
+			SecIndepAnnotation annot = new SecIndepAnnotation(
+					indepXml.getDescription());
+			param.getAnnotation().setNonRDFAnnotation(annot.getNode());
+		}
 	}
 
 	public IndepXml toIndepXml() {

@@ -90,12 +90,14 @@ public abstract class ModelRule {
 			formula += sb.toString();
 		} else {
 			// Replace MathML's log with Pmm Lab's ln
+			// TODO:
 			String formulaStr;
-			if (modelMath.toFormula().indexOf("^") != -1) {
-				formulaStr = postorder(modelMath);
-			} else {
-				formulaStr = modelMath.toFormula();
-			}
+//			if (modelMath.toFormula().indexOf("^") != -1) {
+//				formulaStr = postorder(modelMath);
+//			} else {
+//				formulaStr = modelMath.toFormula();
+//			}
+			formulaStr = modelMath.toFormula();
 			formulaStr = formulaStr.replaceAll("log\\(", "ln(");
 			formula += formulaStr;
 		}

@@ -22,8 +22,15 @@ public class Model2Rule extends ModelRule {
 		AssignmentRule assignmentRule = convertFormulaToAssignmentRule(var,
 				formula);
 		Model2Rule rule = new Model2Rule(assignmentRule);
+		
+		String formulaName;
+		if (catModel.getName() == null) {
+			formulaName = "Missing formula name";
+		} else {
+			formulaName = catModel.getName();
+		}
 
-		rule.addAnnotation(catModel.getName(), catModel.getModelClass(),
+		rule.addAnnotation(formulaName, catModel.getModelClass(),
 				catModel.getId());
 
 		return rule;

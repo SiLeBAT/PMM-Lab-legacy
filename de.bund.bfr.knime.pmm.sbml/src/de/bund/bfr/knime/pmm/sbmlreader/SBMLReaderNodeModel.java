@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -29,8 +27,6 @@ import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.Species;
-import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
@@ -56,7 +52,6 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
-import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
@@ -68,8 +63,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
-import de.bund.bfr.knime.pmm.sbmlutil.Util;
-import de.bund.bfr.knime.pmm.sbmlwriter.SecIndep;
+import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -175,8 +169,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 	// Load PMF file
 	private BufferedDataTable[] loadPMF(final ExecutionContext exec)
 			throws Exception {
-		PMFFile pmfFile = new PMFFile();
-		List<Experiment> exps = pmfFile.read2(filename.getStringValue());
+		List<Experiment> exps = PMFFile.read(filename.getStringValue());
 
 		// Get model typefrom the first model in the list of experiments
 		SBMLDocument firstDoc = exps.get(0).getModel();
@@ -280,92 +273,18 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 class ReaderUtils {
 
-	// Create dependent variable
-	public static PmmXmlDoc parseDep(final Species species,
-			final Map<String, UnitsFromDB> units,
-			final ListOf<UnitDefinition> unitDefinitions) {
-		String depUnitId = species.getUnits();
-		String depUnit = unitDefinitions.get(depUnitId).getName();
+	static Map<String, UnitsFromDB> dbUnits;
 
-		UnitsFromDB dbUnit = units.get(depUnitId);
-		String category = dbUnit.getKind_of_property_quantity();
+	static {
+		// Get units from DB
+		UnitsFromDB unitsFromDB = new UnitsFromDB();
+		unitsFromDB.askDB();
 
-		return new PmmXmlDoc(new DepXml("Value", category, depUnit));
-	}
-
-	// Create independent variable
-	public static PmmXmlDoc createIndep(final Parameter indepParam,
-			final Map<String, Limits> limits) {
-		String category = Categories.getTimeCategory().getName();
-		String name = Categories.getTime();
-		String origname = Categories.getTime();
-		String unit = indepParam.getUnits();
-		Double min = null, max = null;
-		if (limits.containsKey(name)) {
-			Limits indepLimits = limits.get(name);
-			min = indepLimits.getMin();
-			max = indepLimits.getMax();
+		// Create unit map with unit display as keys
+		dbUnits = new HashMap<>();
+		for (UnitsFromDB ufdb : unitsFromDB.getMap().values()) {
+			dbUnits.put(ufdb.getDisplay_in_GUI_as(), ufdb);
 		}
-		IndepXml indep = new IndepXml(name, min, max, category, unit);
-		indep.setDescription("time");
-		indep.setOrigName(origname);
-
-		return new PmmXmlDoc(indep);
-	}
-
-	// Create constant variables
-	public static PmmXmlDoc parseConsts(final ListOf<Parameter> params,
-			final ListOf<UnitDefinition> unitDefinitions,
-			final Map<String, Limits> limits) {
-
-		// Get constant parameters
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : params) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			}
-		}
-
-		// Get unit data from DB
-		UnitsFromDB ufdb = new UnitsFromDB();
-		ufdb.askDB();
-		Map<String, UnitsFromDB> unitsMap = new HashMap<>();
-		for (UnitsFromDB dbUnit : ufdb.getMap().values()) {
-			unitsMap.put(dbUnit.getDisplay_in_GUI_as(), dbUnit);
-		}
-
-		PmmXmlDoc constDoc = new PmmXmlDoc();
-		for (Parameter param : constParams) {
-			ParamXml paramXml = new Coefficient(param).toParamXml();
-
-			if (param.getUnits().equals("dimensionless")) {
-				paramXml.setUnit("");
-			} else {
-				String unitId = Util.createId(param.getUnits());
-
-				// Get description and category from DB
-				String unit = unitDefinitions.get(unitId).getName();
-				if (unit != null) {
-					paramXml.setUnit(unit);
-					if (unitsMap.containsKey(unit)) {
-						UnitsFromDB dbUnit = unitsMap.get(unit);
-						paramXml.setCategory(dbUnit
-								.getKind_of_property_quantity());
-					}
-				}
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits paramLimits = limits.get(param.getId());
-				paramXml.setMax(paramLimits.getMax());
-				paramXml.setMin(paramLimits.getMin());
-			}
-
-			constDoc.add(paramXml);
-		}
-
-		return constDoc;
 	}
 
 	/**
@@ -494,8 +413,6 @@ class PrimaryModelParser {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
 
-		DBUnits dbUnits = new DBUnits();
-
 		// Parse model annotations
 		Model1Annotation primModelAnnotation = new Model1Annotation(model
 				.getAnnotation().getNonRDFannotation());
@@ -528,16 +445,67 @@ class PrimaryModelParser {
 
 		// primary model cells
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
+
 		// Parse dependent parameter (primary models only have one dependent
 		// variable)
-		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
-				.getListOfUnitDefinitions());
-		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
-				model.getListOfUnitDefinitions());
-		Parameter indepParam = listOfParameters.get("Time");
-		PmmXmlDoc indepCell = ReaderUtils.createIndep(indepParam, limits);
-		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
-				model.getListOfUnitDefinitions(), limits);
+		DepXml depXml = new DepXml("Value");
+		String depUnitID = organism.getSpecies().getUnits();
+		if (depUnitID != null) {
+			String depUnitName = model.getUnitDefinition(depUnitID).getName();
+			depXml.setUnit(depUnitName);
+			depXml.setCategory(ReaderUtils.dbUnits.get(depUnitName)
+					.getKind_of_property_quantity());
+		}
+		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
+
+		// Parse indep
+		Parameter indepParam = listOfParameters.get(Categories.getTime());
+		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
+		String indepUnitID = indepParam.getUnits();
+		if (!indepUnitID.equalsIgnoreCase("dimensionless")) {
+			String unitName = model.getUnitDefinition(indepUnitID).getName();
+			indepXml.setUnit(unitName);
+			indepXml.setCategory(Categories.getTimeCategory().getName());
+			indepXml.setDescription(Categories.getTime());
+		}
+		// Get limits
+		if (limits.containsKey(indepParam.getId())) {
+			Limits indepLimits = limits.get(indepParam.getId());
+			indepXml.setMax(indepLimits.getMax());
+			indepXml.setMin(indepLimits.getMin());
+		}
+		PmmXmlDoc indepCell = new PmmXmlDoc(indepXml);
+
+		// Parse Consts
+		LinkedList<Parameter> constParams = new LinkedList<>();
+		for (Parameter param : listOfParameters) {
+			if (param.isConstant()) {
+				constParams.add(param);
+			}
+		}
+
+		PmmXmlDoc paramCell = new PmmXmlDoc();
+		for (Parameter constParam : constParams) {
+			ParamXml paramXml = new Coefficient(constParam).toParamXml();
+
+			// Assign unit and category
+			String unitID = constParam.getUnits();
+			if (!unitID.equals("dimensionless")) {
+				String unitName = model.getUnitDefinition(unitID).getName();
+				paramXml.setUnit(unitName);
+				paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+						.getKind_of_property_quantity());
+			}
+
+			// Get limits
+			if (limits.containsKey(constParam.getId())) {
+				Limits constLimits = limits.get(constParam.getId());
+				paramXml.setMax(constLimits.getMax());
+				paramXml.setMin(constLimits.getMin());
+			}
+
+			paramCell.add(paramXml);
+		}
 
 		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
 				.getUncertainties());
@@ -612,7 +580,7 @@ class SecondaryModelParser {
 			String unitID = depParam.getUnits();
 			String unitName = model.getUnitDefinition(unitID).getName();
 			depXml.setUnit(unitName);
-			
+
 			// Add unit category
 			if (unitName.equals("min") || unitName.equals("h")) {
 				depXml.setCategory(Categories.getTimeCategory().getName());
@@ -638,18 +606,13 @@ class SecondaryModelParser {
 		for (Parameter param : indepParams) {
 			IndepXml indepXml = new SecIndep(param).toIndepXml();
 
-			// Assign unit
-			if (param.getUnits() != null) {
-				String unitID = param.getUnits();
+			// Assign unit and category
+			String unitID = param.getUnits();
+			if (!unitID.equals("dimensionless")) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				indepXml.setUnit(unitName);
-
-				// Add unit category
-				if (unitName.equals("min") || unitName.equals("h")) {
-					indepXml.setCategory(Categories.getTimeCategory().getName());
-				} else if (unitName.equals("°C")) {
-					indepXml.setCategory(Categories.getTempCategory().getName());
-				}
+				indepXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+						.getKind_of_property_quantity());
 			}
 
 			// Get limits
@@ -667,21 +630,13 @@ class SecondaryModelParser {
 		for (Parameter param : constParams) {
 			ParamXml paramXml = new Coefficient(param).toParamXml();
 
-			// Assign unit
-			if (param.getUnits() != null) {
-				String unitID = param.getUnits();
-				if (unitID.equals("dimensionless")) {
-					constCell.add(paramXml);
-					continue;
-				}
+			// Assign unit and category
+			String unitID = param.getUnits();
+			if (!unitID.equals("dimensionless")) {
 				String unitName = model.getUnitDefinition(unitID).getName();
-
-				// Add unit category
-				if (unitName.equals("min") || unitName.equals("h")) {
-					paramXml.setCategory(Categories.getTimeCategory().getName());
-				} else if (unitName.equals("ºC")) {
-					paramXml.setCategory(Categories.getTempCategory().getName());
-				}
+				paramXml.setUnit(unitName);
+				paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+						.getKind_of_property_quantity());
 			}
 
 			// Get limits
@@ -735,7 +690,6 @@ class TertiaryModelParser {
 	public static List<KnimeTuple> parseDocument(SBMLDocument doc) {
 		Model model = doc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
-		DBUnits dbUnits = new DBUnits();
 
 		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) doc
 				.getPlugin(CompConstants.shortLabel);
@@ -777,17 +731,64 @@ class TertiaryModelParser {
 		CatalogModelXml catModel = rule1.toCatModel();
 		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
 
-		Set<UnitDefinition> unitDefs = new HashSet<>(
-				model.getListOfUnitDefinitions());
+		// Parse dep
+		DepXml depXml = new DepXml("Value");
+		String depUnitID = organism.getSpecies().getUnits();
+		if (depUnitID != null) {
+			String depUnitName = model.getUnitDefinition(depUnitID).getName();
+			depXml.setUnit(depUnitName);
+			depXml.setCategory(ReaderUtils.dbUnits.get(depUnitName)
+					.getKind_of_property_quantity());
+		}
+		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
 
-		Map<String, UnitsFromDB> units = dbUnits.getUnits(model
-				.getListOfUnitDefinitions());
-		PmmXmlDoc depCell = ReaderUtils.parseDep(organism.getSpecies(), units,
-				model.getListOfUnitDefinitions());
-		Parameter indepParam = listOfParameters.get("Time");
-		PmmXmlDoc indepCell = ReaderUtils.createIndep(indepParam, limits);
-		PmmXmlDoc paramCell = ReaderUtils.parseConsts(listOfParameters,
-				model.getListOfUnitDefinitions(), limits);
+		// Parse indep
+		Parameter indepParam = listOfParameters.get(Categories.getTime());
+		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
+		String indepUnitID = indepParam.getUnits();
+		if (!indepUnitID.equalsIgnoreCase("dimensionless")) {
+			String unitName = model.getUnitDefinition(indepUnitID).getName();
+			indepXml.setUnit(unitName);
+			indepXml.setCategory(Categories.getTimeCategory().getName());
+			indepXml.setDescription(Categories.getTime());
+		}
+		// Get limits
+		if (limits.containsKey(indepParam.getId())) {
+			Limits indepLimits = limits.get(indepParam.getId());
+			indepXml.setMax(indepLimits.getMax());
+			indepXml.setMin(indepLimits.getMin());
+		}
+		PmmXmlDoc indepCell = new PmmXmlDoc(indepXml);
+
+		// Parse consts
+		LinkedList<Parameter> constParams = new LinkedList<>();
+		for (Parameter param : listOfParameters) {
+			if (param.isConstant()) {
+				constParams.add(param);
+			}
+		}
+		PmmXmlDoc paramCell = new PmmXmlDoc();
+		for (Parameter constParam : constParams) {
+			ParamXml paramXml = new Coefficient(constParam).toParamXml();
+
+			// Assign unit and category
+			String unitID = constParam.getUnits();
+			if (!unitID.equals("dimensionless")) {
+				String unitName = model.getUnitDefinition(unitID).getName();
+				paramXml.setUnit(unitName);
+				paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+						.getKind_of_property_quantity());
+			}
+
+			// Get limits
+			if (limits.containsKey(constParam.getId())) {
+				Limits constLimits = limits.get(constParam.getId());
+				paramXml.setMax(constLimits.getMax());
+				paramXml.setMin(constLimits.getMin());
+			}
+
+			paramCell.add(paramXml);
+		}
 
 		// Parse uncertainty measures from the document's annotations
 		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
@@ -818,50 +819,64 @@ class TertiaryModelParser {
 			CatalogModelXml catModelSec = rule2.toCatModel();
 			PmmXmlDoc catModelSecCell = new PmmXmlDoc(catModelSec);
 
-			// Add sec unit definitions
-			for (UnitDefinition ud : secModel.getListOfUnitDefinitions()) {
-				unitDefs.add(ud);
-			}
-
-			String depName = rule2.getRule().getVariable();
-
 			// Create sec dep
+			String depName = rule2.getRule().getVariable();
 			Parameter depParam = listOfParameters.get(depName);
 			Coefficient depCoeff = new Coefficient(depParam);
-			DepXml depXml = new DepXml(depName);
-			depXml.setDescription(depCoeff.getDescription());
-			PmmXmlDoc dependentSecCell = new PmmXmlDoc(depXml);
+			DepXml secDepXml = new DepXml(depName);
+			secDepXml.setDescription(depCoeff.getDescription());
+			PmmXmlDoc dependentSecCell = new PmmXmlDoc(secDepXml);
 
 			// Sort const and indep params
-			LinkedList<Parameter> indepParams = new LinkedList<>();
-			LinkedList<Parameter> constParams = new LinkedList<>();
+			LinkedList<Parameter> secIndepParams = new LinkedList<>();
+			LinkedList<Parameter> secConstParams = new LinkedList<>();
 			for (Parameter param : secParams) {
 				if (param.isConstant()) {
-					constParams.add(param);
+					secConstParams.add(param);
 				} else if (!param.getId().equals(depName)) {
-					indepParams.add(param);
+					secIndepParams.add(param);
 				}
 			}
 
 			// Parse sec indeps
 			PmmXmlDoc secIndepCell = new PmmXmlDoc();
-			for (Parameter param : indepParams) {
-				IndepXml indepXml = new SecIndep(param).toIndepXml();
+			for (Parameter param : secIndepParams) {
+				IndepXml secIndepXml = new SecIndep(param).toIndepXml();
+
+				// Assign unit and category
+				String unitID = param.getUnits();
+				if (!unitID.equals("dimensionless")) {
+					String unitName = secModel.getUnitDefinition(unitID)
+							.getName();
+					secIndepXml.setUnit(unitName);
+					secIndepXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+							.getKind_of_property_quantity());
+				}
 
 				// Get limits
 				if (secLimits.containsKey(param.getId())) {
 					Limits indepLimits = secLimits.get(param.getId());
-					indepXml.setMax(indepLimits.getMax());
-					indepXml.setMin(indepLimits.getMin());
+					secIndepXml.setMax(indepLimits.getMax());
+					secIndepXml.setMin(indepLimits.getMin());
 				}
 
-				secIndepCell.add(indepXml);
+				secIndepCell.add(secIndepXml);
 			}
 
 			// Parse sec consts
 			PmmXmlDoc secConstCell = new PmmXmlDoc();
-			for (Parameter param : constParams) {
+			for (Parameter param : secConstParams) {
 				ParamXml paramXml = new Coefficient(param).toParamXml();
+
+				// Assign unit and category
+				String unitID = param.getUnits();
+				if (!unitID.equals("dimensionless")) {
+					String unitName = secModel.getUnitDefinition(unitID)
+							.getName();
+					paramXml.setUnit(unitName);
+					paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+							.getKind_of_property_quantity());
+				}
 
 				// Get limits
 				if (secLimits.containsKey(param.getId())) {

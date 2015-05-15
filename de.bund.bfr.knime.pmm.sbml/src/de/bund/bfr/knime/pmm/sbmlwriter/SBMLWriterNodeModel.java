@@ -36,13 +36,13 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -58,10 +58,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
-import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
@@ -111,6 +111,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
+import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
@@ -336,53 +337,19 @@ abstract class TableReader {
 		return experiments;
 	}
 
-	/*
-	 * Get units from the parameters (dep, indep and consts), get their data
-	 * from DB and return them.
-	 */
-	public ListOf<UnitDefinition> getUnits(DepXml dep, IndepXml indep,
-			List<PmmXmlElementConvertable> constParams) {
-
-		// get unit names
-		HashSet<String> units = new HashSet<>();
-		if (dep.getUnit() != null)
-			units.add(dep.getUnit());
-		if (indep.getUnit() != null)
-			units.add(indep.getUnit());
-		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
-			ParamXml param = (ParamXml) pmmXmlElement;
-			if (param.getUnit() != null) {
-				units.add(param.getUnit());
-			}
-		}
-
+	static Map<String, UnitsFromDB> dbUnits;
+	
+	static {
 		// Get units from DB
-		UnitsFromDB unitDB = new UnitsFromDB();
-		unitDB.askDB();
-		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
-
-		// Create new map with unit display as keys
-		Map<String, UnitsFromDB> map = new HashMap<>();
-		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
-			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
+		UnitsFromDB unitsFromDB = new UnitsFromDB();
+		unitsFromDB.askDB();
+		
+		// Create unit map with unit display as keys
+		dbUnits = new HashMap<>();
+		for (UnitsFromDB ufdb : unitsFromDB.getMap().values()) {
+			dbUnits.put(ufdb.getDisplay_in_GUI_as(), ufdb);
 		}
-
-		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
-		for (String unit : units) {
-			UnitsFromDB dbUnit = map.get(unit);
-			if (dbUnit != null) {
-				UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
-						.xmlToUnitDefinition(dbUnit.getMathML_string());
-				UnitDefinition ud = wrapper.getUnitDefinition();
-				ud.setId(Util.createId(unit));
-				ud.setName(unit);
-				unitDefs.add(ud);
-			}
-		}
-
-		return unitDefs;
 	}
-
 	protected static void renameLog(KnimeTuple tuple) {
 		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
@@ -440,24 +407,6 @@ abstract class TableReader {
 
 		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
-	}
-
-	protected Parameter createIndep(IndepXml indepXml) {
-		Parameter param = new Parameter(Categories.getTime());
-		param.setValue(0.0);
-		param.setConstant(false);
-		param.setUnits(indepXml.getUnit());
-		return param;
-	}
-
-	protected List<Parameter> createConstantParameters(
-			final List<PmmXmlElementConvertable> params) {
-		List<Parameter> coefficients = new LinkedList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			ParamXml paramXml = (ParamXml) pmmParam;
-			coefficients.add(new Coefficient(paramXml).getParameter());
-		}
-		return coefficients;
 	}
 
 	/**
@@ -581,6 +530,55 @@ abstract class TableReader {
 		doc.addDeclaredNamespace("xmlns:numl",
 				"http://www.numl.org/numl/level1/version1");
 		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
+	}
+
+	public void addUnitDefinitions(Model model, DepXml depXml,
+			List<IndepXml> indepXmls, List<ParamXml> constXmls) {
+		// Get units from dep, indeps and consts
+		HashSet<String> units = new HashSet<>();
+		if (depXml.getUnit() != null) {
+			units.add(depXml.getUnit());
+		}
+
+		for (IndepXml indepXml : indepXmls) {
+			if (indepXml.getUnit() != null) {
+				units.add(indepXml.getUnit());
+			}
+		}
+
+		for (ParamXml paramXml : constXmls) {
+			if (paramXml.getUnit() != null) {
+				units.add(paramXml.getUnit());
+			}
+		}
+
+		// Create and add unit definitions for the units present in DB. Missing
+		// units in DB will not be retrievable and thus will lack a list of
+		// units
+		for (String unit : units) {
+			UnitDefinition unitDefinition = new UnitDefinition(
+					Util.createId(unit));
+			unitDefinition.setLevel(LEVEL);
+			unitDefinition.setVersion(VERSION);
+			unitDefinition.setName(unit);
+
+			// Current unit `unit` is in the DB
+			if (dbUnits.containsKey(unit)) {
+				UnitsFromDB dbUnit = dbUnits.get(unit);
+
+				String mathml = dbUnit.getMathML_string();
+				if (mathml != null && !mathml.isEmpty()) {
+					UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
+							.xmlToUnitDefinition(dbUnit.getMathML_string());
+					UnitDefinition ud = wrapper.getUnitDefinition();
+					for (Unit wrapperUnit : ud.getListOfUnits()) {
+						unitDefinition.addUnit(new Unit(wrapperUnit));
+					}
+				}
+			}
+
+			model.addUnitDefinition(unitDefinition);
+		}
 	}
 }
 
@@ -710,9 +708,6 @@ class PrimaryTableReader extends TableReader {
 		Agent organims = new Agent(organismXml, depXml.getUnit());
 		model.addSpecies(organims.getSpecies());
 
-		String depName = depXml.getOrigName();
-		String depUnit = depXml.getUnit();
-
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -725,32 +720,34 @@ class PrimaryTableReader extends TableReader {
 		}
 
 		// Add independent parameter
-		model.addParameter(createIndep(indep));
+		Parameter indepParam = new Parameter(Categories.getTime());
+		indepParam.setValue(0.0);
+		indepParam.setConstant(false);
+		indepParam.setUnits(indep.getUnit());
+		model.addParameter(indepParam);
 
-		// Parse constant parameters
-		List<PmmXmlElementConvertable> constParams = tuple.getPmmXml(
-				Model1Schema.ATT_PARAMETER).getElementSet();
+		// Add constant parameters
+		LinkedList<ParamXml> constXmls = new LinkedList<>();
+		for (PmmXmlElementConvertable pmmParam : tuple.getPmmXml(
+				Model1Schema.ATT_PARAMETER).getElementSet()) {
+			constXmls.add((ParamXml) pmmParam);
+		}
 
-		// Add constraints
-		for (PmmXmlElementConvertable item : constParams) {
-			ParamXml param = (ParamXml) item;
-			String name = param.getName();
-			if (!name.isEmpty()) {
-				Double min = param.getMin();
-				Double max = param.getMax();
-				LimitsConstraint lc = new LimitsConstraint(name, min, max);
-				if (lc.getConstraint() != null) {
-					model.addConstraint(lc.getConstraint());
-				}
+		for (ParamXml constXml : constXmls) {
+			// Add constant parameter
+			Parameter param = new Coefficient(constXml).getParameter();
+			model.addParameter(param);
+
+			// Add constraint
+			LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
+					constXml.getMin(), constXml.getMax());
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
 			}
 		}
-		// Add constant parameters
-		for (Parameter param : createConstantParameters(constParams)) {
-			model.addParameter(param);
-		}
 
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
-		model.setListOfUnitDefinitions(unitDefs);
+		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
+		addUnitDefinitions(model, depXml, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
@@ -812,30 +809,7 @@ class SecondaryTableReader extends TableReader {
 		Model model = docCompPlugin.createModelDefinition(modelDefinitionId);
 		model.setName(catModelXml.getName());
 
-		// Get units from dep, indeps and consts
-		HashSet<String> units = new HashSet<>();
-		if (depXml.getUnit() != null) {
-			units.add(depXml.getUnit());
-		}
-
-		for (IndepXml indepXml : indepXmls) {
-			if (indepXml.getUnit() != null) {
-				units.add(indepXml.getUnit());
-			}
-		}
-
-		for (ParamXml paramXml : constXmls) {
-			if (paramXml.getUnit() != null) {
-				units.add(paramXml.getUnit());
-			}
-		}
-
-		for (String unit : units) {
-			UnitDefinition unitDefinition = new UnitDefinition(
-					Util.createId(unit));
-			unitDefinition.setName(unit);
-			model.addUnitDefinition(unitDefinition);
-		}
+		addUnitDefinitions(model, depXml, indepXmls, constXmls);
 
 		// Add dep
 		Parameter depParam = new Parameter(depXml.getName());
@@ -848,8 +822,13 @@ class SecondaryTableReader extends TableReader {
 
 		// Add independent parameters
 		for (IndepXml indepXml : indepXmls) {
+			// Create SBML parameter
 			Parameter indepParam = new SecIndep(indepXml).getParam();
-			if (indepXml.getUnit() != null) {
+
+			// Assign unit
+			if (indepXml.getUnit() == null) {
+				indepParam.setUnits("dimensionless");
+			} else {
 				indepParam.setUnits(Util.createId(indepXml.getUnit()));
 			}
 			model.addParameter(indepParam);
@@ -865,8 +844,13 @@ class SecondaryTableReader extends TableReader {
 
 		// Add constant parameters
 		for (ParamXml paramXml : constXmls) {
+			// Create SBML parameter
 			Parameter constParam = new Coefficient(paramXml).getParameter();
-			if (paramXml.getUnit() != null) {
+
+			// Assign unit
+			if (paramXml.getUnit() == null) {
+				constParam.setUnits("dimensionless");
+			} else {
 				constParam.setUnits(Util.createId(paramXml.getUnit()));
 			}
 			model.addParameter(constParam);
@@ -896,8 +880,8 @@ class SecondaryTableReader extends TableReader {
 
 		// Add annotation
 		Map<String, String> uncertainties = parseQualityTags(estModelXml);
-		Model2Annotation modelAnnotation = new Model2Annotation(globalModelID, uncertainties,
-				lits);
+		Model2Annotation modelAnnotation = new Model2Annotation(globalModelID,
+				uncertainties, lits);
 		model.getAnnotation().setNonRDFAnnotation(modelAnnotation.getNode());
 
 		return doc;
@@ -1002,62 +986,6 @@ class TertiaryTableReader extends TableReader {
 		}
 	}
 
-	private List<Parameter> createConstsSec(
-			final List<PmmXmlElementConvertable> params) {
-		List<Parameter> consts = new LinkedList<>();
-		for (PmmXmlElementConvertable pmmParam : params) {
-			ParamXml xml = (ParamXml) pmmParam;
-			consts.add(new Coefficient(xml).getParameter());
-		}
-
-		return consts;
-	}
-
-	public ListOf<UnitDefinition> getUnits(
-			List<PmmXmlElementConvertable> constParams) {
-
-		// get unit names
-		HashSet<String> units = new HashSet<>();
-		for (PmmXmlElementConvertable pmmXmlElement : constParams) {
-			ParamXml param = (ParamXml) pmmXmlElement;
-			if (param.getUnit() != null) {
-				units.add(param.getUnit());
-			}
-		}
-
-		// Get units from DB
-		UnitsFromDB unitDB = new UnitsFromDB();
-		unitDB.askDB();
-		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
-
-		// Create new map with unit display as keys
-		Map<String, UnitsFromDB> map = new HashMap<>();
-		for (Entry<Integer, UnitsFromDB> entry : origMap.entrySet()) {
-			map.put(entry.getValue().getDisplay_in_GUI_as(), entry.getValue());
-		}
-
-		ListOf<UnitDefinition> unitDefs = new ListOf<>(3, 1);
-		for (String unit : units) {
-			UnitsFromDB dbUnit = map.get(unit);
-			if (dbUnit != null) {
-				UnitDefinition ud;
-
-				// DB unit has not MathML string
-				if (dbUnit.getMathML_string().isEmpty()) {
-					ud = new UnitDefinition();
-				} else {
-					ud = UnitDefinitionWrapper.xmlToUnitDefinition(
-							dbUnit.getMathML_string()).getUnitDefinition();
-				}
-				ud.setId(Util.createId(unit));
-				ud.setName(unit);
-				unitDefs.add(ud);
-			}
-		}
-
-		return unitDefs;
-	}
-
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
 			Map<String, String> docInfo) {
 		// modify formulas
@@ -1144,9 +1072,6 @@ class TertiaryTableReader extends TableReader {
 		Agent organism = new Agent(organismXml, depXml.getUnit());
 		model.addSpecies(organism.getSpecies());
 
-		String depName = depXml.getOrigName();
-		String depUnit = depXml.getUnit();
-
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -1159,33 +1084,35 @@ class TertiaryTableReader extends TableReader {
 		}
 
 		// Add independent parameter
-		model.addParameter(createIndep(indep));
+		Parameter indepParam = new Parameter(Categories.getTime());
+		indepParam.setValue(0.0);
+		indepParam.setConstant(false);
+		indepParam.setUnits(indep.getUnit());
+		model.addParameter(indepParam);
 
-		// Parse constant parameters
-		List<PmmXmlElementConvertable> constParams = firstTuple.getPmmXml(
-				Model1Schema.ATT_PARAMETER).getElementSet();
+		// Add constant parameters
+		LinkedList<ParamXml> constXmls = new LinkedList<>();
+		for (PmmXmlElementConvertable pmmParam : firstTuple.getPmmXml(
+				Model1Schema.ATT_PARAMETER).getElementSet()) {
+			constXmls.add((ParamXml) pmmParam);
+		}
 
-		// Add constraints
-		for (PmmXmlElementConvertable item : constParams) {
-			ParamXml param = (ParamXml) item;
-			String name = param.getName();
-			if (!name.isEmpty()) {
-				Double min = param.getMin();
-				Double max = param.getMax();
-				LimitsConstraint lc = new LimitsConstraint(name, min, max);
-				if (lc.getConstraint() != null) {
-					model.addConstraint(lc.getConstraint());
-				}
+		for (ParamXml constXml : constXmls) {
+			// Add constant parameter
+			Parameter param = new Coefficient(constXml).getParameter();
+			model.addParameter(param);
+
+			// Add constraint
+			LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
+					constXml.getMin(), constXml.getMax());
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
 			}
 		}
-		// Add constant params
-		for (Parameter param : createConstantParameters(constParams)) {
-			model.addParameter(param);
-		}
 
-		// Add units
-		ListOf<UnitDefinition> unitDefs = getUnits(depXml, indep, constParams);
-		model.setListOfUnitDefinitions(unitDefs);
+		// Add unit definitions
+		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
+		addUnitDefinitions(model, depXml, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
@@ -1199,58 +1126,76 @@ class TertiaryTableReader extends TableReader {
 					Model2Schema.ATT_MODELCATALOG).get(0);
 			DepXml secDepXml = (DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0);
-			List<PmmXmlElementConvertable> secIndepParams = tuple.getPmmXml(
-					Model2Schema.ATT_INDEPENDENT).getElementSet();
-			List<PmmXmlElementConvertable> secConstParams = tuple.getPmmXml(
-					Model2Schema.ATT_PARAMETER).getElementSet();
+
+			// Get independent parameters
+			LinkedList<IndepXml> secIndepXmls = new LinkedList<>();
+			for (PmmXmlElementConvertable xmlItem : tuple.getPmmXml(
+					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+				secIndepXmls.add((IndepXml) xmlItem);
+			}
+
+			// Get constant parameters
+			LinkedList<ParamXml> secConstXmls = new LinkedList<>();
+			for (PmmXmlElementConvertable xmlItem : tuple.getPmmXml(
+					Model2Schema.ATT_PARAMETER).getElementSet()) {
+				secConstXmls.add((ParamXml) xmlItem);
+			}
 
 			String modelDefinitionId = "model_" + secDepXml.getName();
-			ModelDefinition modelDefinition = new ModelDefinition(
-					modelDefinitionId, LEVEL, VERSION);
-			modelDefinition.setName(secModelXml.getName());
+			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
+					LEVEL, VERSION);
+			secModel.setName(secModelXml.getName());
 
-			// Add units
-			unitDefs = getUnits(secConstParams);
-			modelDefinition.setListOfUnitDefinitions(unitDefs);
+			// Add unit definitions
+			addUnitDefinitions(secModel, secDepXml, secIndepXmls, secConstXmls);
 
 			// Add dep from sec
 			Parameter secDep = new Parameter(secDepXml.getName());
 			secDep.setConstant(false);
 			secDep.setValue(0.0);
-			modelDefinition.addParameter(secDep);
+			secModel.addParameter(secDep);
 
-			// Add independent parameters
-			for (PmmXmlElementConvertable pmmParam : secIndepParams) {
-				IndepXml indepXml = (IndepXml) pmmParam;
+			for (IndepXml indepXml : secIndepXmls) {
+				// Create SBML parameter
 				Parameter param = new SecIndep(indepXml).getParam();
-				modelDefinition.addParameter(param);
-			}
 
-			// Add constraints of independent parameters
-			for (PmmXmlElementConvertable item : secIndepParams) {
-				IndepXml xml = (IndepXml) item;
-				Double min = xml.getMin(), max = xml.getMax();
-				LimitsConstraint lc = new LimitsConstraint(xml.getName(), min,
-						max);
+				// Assign unit
+				if (indepXml.getUnit() == null) {
+					param.setUnits("dimensionless");
+				} else {
+					param.setUnits(Util.createId(indepXml.getUnit()));
+				}
+
+				// Add independent parameter to model
+				secModel.addParameter(param);
+
+				// Add constraint
+				LimitsConstraint lc = new LimitsConstraint(indepXml.getName(),
+						indepXml.getMin(), indepXml.getMax());
 				if (lc.getConstraint() != null) {
-					modelDefinition.addConstraint(lc.getConstraint());
+					secModel.addConstraint(lc.getConstraint());
 				}
 			}
 
-			// Add constant parameters
-			List<Parameter> secConsts = createConstsSec(secConstParams);
-			for (Parameter param : secConsts) {
-				modelDefinition.addParameter(param);
-			}
+			for (ParamXml constXml : secConstXmls) {
+				// Create SBML parameter
+				Parameter constParam = new Coefficient(constXml).getParameter();
 
-			// Add constraint of constant parameters
-			for (PmmXmlElementConvertable item : secConstParams) {
-				ParamXml xml = (ParamXml) item;
-				Double min = xml.getMin(), max = xml.getMax();
-				LimitsConstraint lc = new LimitsConstraint(xml.getName(), min,
-						max);
+				// Assign unit
+				if (constXml.getUnit() == null) {
+					constParam.setUnits("dimensionless");
+				} else {
+					constParam.setUnits(Util.createId(constXml.getUnit()));
+				}
+
+				// Add constant parameter
+				secModel.addParameter(constParam);
+
+				// Add constraint
+				LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
+						constXml.getMin(), constXml.getMax());
 				if (lc.getConstraint() != null) {
-					modelDefinition.addConstraint(lc.getConstraint());
+					secModel.addConstraint(lc.getConstraint());
 				}
 			}
 
@@ -1267,14 +1212,14 @@ class TertiaryTableReader extends TableReader {
 			Map<String, String> uncertainties = parseQualityTags(estXml);
 			Model2Annotation secModelAnnotation = new Model2Annotation(
 					globalModelID, uncertainties, lits);
-			modelDefinition.getAnnotation().setNonRDFAnnotation(
+			secModel.getAnnotation().setNonRDFAnnotation(
 					secModelAnnotation.getNode());
 
 			Model2Rule rule2 = Model2Rule
 					.convertCatalogModelXmlToModel2Rule(secModelXml);
-			modelDefinition.addRule(rule2.getRule());
+			secModel.addRule(rule2.getRule());
 
-			compDocPlugin.addModelDefinition(modelDefinition);
+			compDocPlugin.addModelDefinition(secModel);
 
 			Submodel submodel = compModelPlugin.createSubmodel("submodel"
 					+ Integer.toString(i));

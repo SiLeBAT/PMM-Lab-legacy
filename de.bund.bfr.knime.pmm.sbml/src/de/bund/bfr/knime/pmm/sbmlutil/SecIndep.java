@@ -2,7 +2,7 @@
  * Pmm Lab secondary independent
  * @author Miguel Alba
  */
-package de.bund.bfr.knime.pmm.sbmlwriter;
+package de.bund.bfr.knime.pmm.sbmlutil;
 
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.xml.XMLNode;

@@ -10,6 +10,7 @@ import org.sbml.jsbml.xml.XMLTriple;
  * @author Miguel Alba
  */
 public class CreatedNode extends SBMLNodeBase {
+
 	public CreatedNode(String created) {
 		XMLTriple triple = new XMLTriple("created", null, "dcterms");
 		node = new XMLNode(triple);

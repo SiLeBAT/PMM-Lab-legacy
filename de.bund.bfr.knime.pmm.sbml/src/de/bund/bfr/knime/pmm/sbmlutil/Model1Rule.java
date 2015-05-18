@@ -3,9 +3,10 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 import org.sbml.jsbml.AssignmentRule;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 /**
- * Parse the rule of a primary model
+ * Parses the rule of a primary model.
  * 
  * @author Miguel Alba
  */
@@ -16,11 +17,8 @@ public class Model1Rule extends ModelRule {
 		// Trims out the "Value=" from the formula
 		int pos = catModel.getFormula().indexOf("=");
 		String formula = catModel.getFormula().substring(pos + 1);
-		// Remove boundary conditions
-		pos = formula.lastIndexOf("*((((");
-		if (pos != -1) {
-			formula = formula.substring(0, pos);
-		}
+		// Removes boundary conditions
+		formula = MathUtilities.getAllButBoundaryCondition(formula);
 
 		AssignmentRule assignmentRule = convertFormulaToAssignmentRule(var,
 				formula);

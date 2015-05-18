@@ -15,10 +15,24 @@ import org.sbml.jsbml.xml.XMLTriple;
  * @author Miguel Alba
  */
 public class UncertaintyNode extends SBMLNodeBase {
+
+	/**
+	 * Builds an UncertaintyNode from an existing XMLNode.
+	 * 
+	 * @param node
+	 *            XMLNode.
+	 */
 	public UncertaintyNode(XMLNode node) {
 		this.node = node;
 	}
 
+	/**
+	 * Builds an UncertaintyNode from uncertainty measures.
+	 * 
+	 * @param uncertainties
+	 *            Map with uncertainty measure names as keys and their values.
+	 *            Both their keys and values are Strings.
+	 */
 	public UncertaintyNode(Map<String, String> uncertainties) {
 		XMLTriple triple = new XMLTriple("modelquality", null, "pmml");
 		XMLAttributes attrs = new XMLAttributes();
@@ -28,6 +42,11 @@ public class UncertaintyNode extends SBMLNodeBase {
 		node = new XMLNode(triple, attrs);
 	}
 
+	/**
+	 * Gets uncertainty measures.
+	 * 
+	 * @return Uncertainty measures with their names as keys.
+	 */
 	public Map<String, String> getMeasures() {
 		Map<String, String> measures = new HashMap<>();
 		XMLAttributes attributes = node.getAttributes();

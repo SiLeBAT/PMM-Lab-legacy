@@ -25,13 +25,36 @@ import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.OntologyTerm;
 import de.bund.bfr.numl.ResultComponent;
 
+/**
+ * NuML data document handler
+ * 
+ * @author Miguel Alba
+ */
 public class DataFile {
-	private NuMLDocument doc;
 
+	NuMLDocument doc;
+
+	/**
+	 * Builds a DataFile with an existing NuMLDocument.
+	 * 
+	 * @param doc
+	 *            NumlDocument.
+	 */
 	public DataFile(NuMLDocument doc) {
 		this.doc = doc;
 	}
 
+	/**
+	 * Builds a DataFile.
+	 * 
+	 * @param dimension
+	 * @param concentrationUnit
+	 * @param matrixXml
+	 * @param agentXml
+	 * @param depUnit
+	 * @param dlgInfo
+	 * @throws URISyntaxException
+	 */
 	public DataFile(Map<Double, Double> dimension, String concentrationUnit,
 			MatrixXml matrixXml, AgentXml agentXml, String depUnit,
 			Map<String, String> dlgInfo) throws URISyntaxException {
@@ -39,7 +62,7 @@ public class DataFile {
 		OntologyTerm concentration = createConcentrationOntology(
 				concentrationUnit, matrixXml, agentXml, depUnit);
 
-		// * create descriptions for the ontologies
+		// * creates descriptions for the ontologies
 		AtomicDescription concentrationDesc = new AtomicDescription();
 		concentrationDesc.setName("concentration");
 		concentrationDesc.setOntologyTerm(concentration);
@@ -56,14 +79,14 @@ public class DataFile {
 		resultComponent.setDimensionDescription(timeDesc);
 		resultComponent.setDimension(dimension);
 
-		// Add PMF namespace to resultComponent's annotation
+		// Adds PMF namespace to resultComponent's annotation
 		Map<String, String> pmfNS = new HashMap<>();
 		pmfNS.put("xmlns:pmf",
 				"http://sourceforge.net/microbialmodelingexchange/files/PMF-ML");
 		Node resultComponentNode = new Node(null, "annotation", pmfNS);
 		resultComponent.setAnnotation(resultComponentNode);
 
-		// Add PMF annotation
+		// Adds PMF annotation
 		Map<String, String> dcNS = new HashMap<>(); // dc and dcterms namespaces
 		dcNS.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
 		dcNS.put("xmlns:dcterms", "http://purl.org/dc/terms/");
@@ -91,25 +114,31 @@ public class DataFile {
 		doc.setResultComponents(Arrays.asList(resultComponent));
 	}
 
+	/**
+	 * Creates time ontology.
+	 * 
+	 * @return
+	 * @throws URISyntaxException
+	 */
 	private OntologyTerm createTimeOntology() throws URISyntaxException {
 		OntologyTerm time = new OntologyTerm();
 		time.setTerm("time");
 		time.setSourceTermId("SBO:0000345");
 		time.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
 
-		// Add PMF namespace to annotation
+		// Adds PMF namespace to annotation
 		Map<String, String> pmfNS = new HashMap<>();
 		pmfNS.put("xmlns:pmf",
 				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		time.setAnnotation(new Node(null, "annotation", pmfNS));
 
-		// Add PMF annotation
+		// Adds PMF annotation
 		Map<String, String> sbmlNS = new HashMap<>();
 		sbmlNS.put("xmlns:sbml",
 				"http://www.sbml.org/sbml/level3/version1/core");
 		Node pmfNode = new Node(time.getAnnotation(), "pmf:metadata", sbmlNS);
 
-		// Add unit definition annotation
+		// Adds unit definition annotation
 		UnitDefinition ud = new UnitDefinition("h", "h", 3, 1);
 		ud.addUnit(new Unit(3600, 1, Unit.Kind.SECOND, 1, 3, 1));
 
@@ -120,10 +149,16 @@ public class DataFile {
 		return time;
 	}
 
-	protected static String createId(String s) {
-		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
-	}
-
+	/**
+	 * Creates concentration ontology.
+	 * 
+	 * @param concentrationUnit
+	 * @param matrixXml
+	 * @param agentXml
+	 * @param depUnit
+	 * @return
+	 * @throws URISyntaxException
+	 */
 	private OntologyTerm createConcentrationOntology(String concentrationUnit,
 			MatrixXml matrixXml, AgentXml agentXml, String depUnit)
 			throws URISyntaxException {
@@ -134,38 +169,28 @@ public class DataFile {
 		concentration.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
 
 		// unit annotation
-		// * Get units from DB
-		UnitsFromDB unitDB = new UnitsFromDB();
-		unitDB.askDB();
-		Map<Integer, UnitsFromDB> origMap = unitDB.getMap();
-
-		// * Create new map with unit display as keys
-		Map<String, UnitsFromDB> map = new HashMap<>();
-		for (UnitsFromDB ufdb : origMap.values())
-			map.put(ufdb.getDisplay_in_GUI_as(), ufdb);
-
-		// * Get unit definition from db
-		UnitsFromDB dbUnit = map.get(concentrationUnit);
+		// * Gets unit definition from db
+		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(concentrationUnit);
 		UnitDefinitionWrapper udwrapper = UnitDefinitionWrapper
 				.xmlToUnitDefinition(dbUnit.getMathML_string());
 		UnitDefinition ud = udwrapper.getUnitDefinition();
-		ud.setId(createId(concentrationUnit));
+		ud.setId(Util.createId(concentrationUnit));
 		ud.setName(concentrationUnit);
 
-		// Add PMF namespace to annotation
+		// Adds PMF namespace to annotation
 		Map<String, String> pmfNS = new HashMap<>();
 		pmfNS.put("xmlns:pmf",
 				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		concentration.setAnnotation(new Node(null, "annotation", pmfNS));
 
-		// Add PMF annotation
+		// Adds PMF annotation
 		Map<String, String> sbmlNS = new HashMap<>();
 		sbmlNS.put("xmlns:sbml",
 				"http://www.sbml.org/sbml/level3/version1/core");
 		Node pmfNode = new Node(concentration.getAnnotation(), "pmf:metadata",
 				sbmlNS);
 
-		// Add unit definition
+		// Adds unit definition
 		pmfNode.append(udwrapper.toGroovyNode());
 
 		// compartment annotation

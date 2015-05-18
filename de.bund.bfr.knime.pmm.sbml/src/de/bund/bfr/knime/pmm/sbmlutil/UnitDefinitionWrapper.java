@@ -16,7 +16,7 @@ import org.sbml.jsbml.xml.XMLNode;
 
 /** Wrapper class for SBML unit definitions */
 public class UnitDefinitionWrapper {
-	private UnitDefinition unitDefinition;
+	UnitDefinition unitDefinition;
 
 	public UnitDefinitionWrapper(UnitDefinition unitDefinition) {
 		this.unitDefinition = unitDefinition;
@@ -30,7 +30,7 @@ public class UnitDefinitionWrapper {
 	 * Creates a UnitDefinitionWrapper from a XML string.
 	 * 
 	 * @param xml
-	 *            . XML string containing a valid SBML UnitDefinition.
+	 *            XML string containing a valid SBML UnitDefinition.
 	 * @return
 	 */
 	public static UnitDefinitionWrapper xmlToUnitDefinition(String xml) {

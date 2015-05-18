@@ -14,6 +14,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 /**
  * XML node with literature data.
+ * 
  * @author Miguel Alba
  */
 public class ReferenceNode extends SBMLNodeBase {
@@ -35,6 +36,12 @@ public class ReferenceNode extends SBMLNodeBase {
 		TAGSET.put("comment", "N1");
 	}
 
+	/**
+	 * Builds a ReferenceNode using the RIS tag set.
+	 * 
+	 * @param lit
+	 *            Pmm Lab LiteratureItem
+	 */
 	public ReferenceNode(LiteratureItem lit) {
 		// reference container
 		XMLTriple refTriple = new XMLTriple("reference", null, "dc");
@@ -139,10 +146,19 @@ public class ReferenceNode extends SBMLNodeBase {
 		}
 	}
 
+	/**
+	 * Builds a ReferenceNode from an existing XMLNode.
+	 * 
+	 * @param node
+	 *            XMLNode
+	 */
 	public ReferenceNode(XMLNode node) {
 		this.node = node;
 	}
 
+	/**
+	 * Create Pmm Lab LiteratureItem.
+	 */
 	public LiteratureItem toLiteratureItem() {
 		String author = null;
 		String title = null;
@@ -167,8 +183,7 @@ public class ReferenceNode extends SBMLNodeBase {
 			title = titleNode.getChildAt(0).getCharacters();
 		}
 
-		XMLNode abstractNode = node.getChildElement(TAGSET.get("abstract"),
-				"");
+		XMLNode abstractNode = node.getChildElement(TAGSET.get("abstract"), "");
 		if (abstractNode != null) {
 			abstractText = abstractNode.getChildAt(0).getCharacters();
 		}
@@ -192,8 +207,7 @@ public class ReferenceNode extends SBMLNodeBase {
 		if (pageNode != null)
 			page = Integer.parseInt(pageNode.getChildAt(0).getCharacters());
 
-		XMLNode approvalNode = node.getChildElement(TAGSET.get("approval"),
-				"");
+		XMLNode approvalNode = node.getChildElement(TAGSET.get("approval"), "");
 		if (approvalNode != null) {
 			approvalMode = Integer.parseInt(approvalNode.getChildAt(0)
 					.getCharacters());

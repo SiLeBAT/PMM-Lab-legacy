@@ -10,23 +10,24 @@ import org.sbml.jsbml.text.parser.ParseException;
 /**
  * A constraint with the limit values of a parameter.
  * 
- * @author malba
+ * @author Miguel Alba
  */
 public class LimitsConstraint {
-	private static final int LEVEL = 3;
-	private static final int VERSION = 1;
+
+	static final int LEVEL = 3;
+	static final int VERSION = 1;
 	Constraint constraint;
 
 	/**
-	 * Initialize constraint. var can't be null. Either min or max can be null
+	 * Initialises constraint. var can't be null. Either min or max can be null
 	 * but not both.
 	 * 
 	 * @param var
-	 *            : Variable name.
+	 *            Variable name.
 	 * @param min
-	 *            : Minimum value.
+	 *            Minimum value.
 	 * @param max
-	 *            : Maximum value.
+	 *            Maximum value.
 	 */
 	public LimitsConstraint(String var, Double min, Double max) {
 		String formula;
@@ -53,6 +54,11 @@ public class LimitsConstraint {
 		}
 	}
 
+	/**
+	 * Creates a LimitConstraint from existing constraint.
+	 * 
+	 * @param constraint SBML Constraint
+	 */
 	public LimitsConstraint(Constraint constraint) {
 		this.constraint = constraint;
 	}
@@ -61,6 +67,7 @@ public class LimitsConstraint {
 		return constraint;
 	}
 
+	/** Get limits */
 	public Limits getLimits() {
 		final ASTNode math = constraint.getMath();
 		List<ASTNode> nodes = math.getListOfNodes();

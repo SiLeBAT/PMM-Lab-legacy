@@ -4,8 +4,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Utilitary methods.
+ * 
+ * @author Miguel Alba
+ */
 public class Util {
 	
+	private Util() {
+	}
+
 	// Dictionary that maps model classes to integers
 	public static final Map<String, Integer> MODELCLASS_NUMS;
 
@@ -29,10 +37,10 @@ public class Util {
 
 		MODELCLASS_NUMS = Collections.unmodifiableMap(tempMap);
 	}
-	
+
 	// Dictionary that maps integers to model classes
 	public static final Map<Integer, String> MODELCLASS_STRS;
-	
+
 	static {
 		Map<Integer, String> tempMap = new HashMap<>();
 		tempMap.put(0, "unknown");
@@ -50,7 +58,7 @@ public class Util {
 		tempMap.put(12, "T/aw");
 		tempMap.put(13, "pH/aw");
 		tempMap.put(14, "T/pH/aw");
-		
+
 		MODELCLASS_STRS = Collections.unmodifiableMap(tempMap);
 	}
 

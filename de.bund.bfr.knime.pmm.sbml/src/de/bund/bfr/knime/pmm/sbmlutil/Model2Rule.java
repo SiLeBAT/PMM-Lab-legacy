@@ -5,7 +5,7 @@ import org.sbml.jsbml.AssignmentRule;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
 /**
- * Parse the rule of a secondary model
+ * Parses the rule of a secondary model
  * 
  * @author Miguel Alba
  */

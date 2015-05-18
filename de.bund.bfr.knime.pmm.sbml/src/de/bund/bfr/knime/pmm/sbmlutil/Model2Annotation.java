@@ -15,9 +15,16 @@ import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
+/**
+ * Secondary model annotation. Holds global model ID, references and uncertainty
+ * measures.
+ * 
+ * @author Miguel Alba
+ */
 public class Model2Annotation {
 
 	static final String METADATA_TAG = "metadata";
+
 	static final String PMF_TAG = "pmf";
 	static final String GLOBAL_MODEL_ID_TAG = "globalModelID";
 	static final String REFERENCE_TAG = "reference";
@@ -28,24 +35,26 @@ public class Model2Annotation {
 	int globalModelID;
 	Map<String, String> uncertainties;
 
-	// Get literature items and globalModelID from existing sec model annotation
+	/**
+	 * Gets literature items and globalModelID from existing Model2Annotation
+	 */
 	public Model2Annotation(XMLNode node) {
 		this.node = node;
 		XMLNode metadata = node.getChildElement(METADATA_TAG, "");
 
-		// Get globalModelID
+		// Gets globalModelID
 		XMLNode globalModelIDNode = metadata.getChildElement(
 				GLOBAL_MODEL_ID_TAG, "");
 		globalModelID = Integer.parseInt(globalModelIDNode.getChild(0)
 				.getCharacters());
 
-		// Get model quality annotation
+		// Gets model quality annotation
 		XMLNode qualityNode = metadata.getChildElement(MODEL_QUALITY_TAG, "");
 		if (qualityNode != null) {
 			uncertainties = new UncertaintyNode(qualityNode).getMeasures();
 		}
 
-		// Get references
+		// Gets references
 		literatureItems = new LinkedList<>();
 		for (XMLNode ref : metadata.getChildElements(REFERENCE_TAG, "")) {
 			ReferenceNode refNode = new ReferenceNode(ref);
@@ -53,32 +62,32 @@ public class Model2Annotation {
 		}
 	}
 
-	// Build new coefficient annotation for globalModelID and references
+	// Builds new coefficient annotation for globalModelID and references
 	public Model2Annotation(int globalModelID,
 			Map<String, String> uncertainties, List<LiteratureItem> lits) {
-		// Build metadata node
+		// Builds metadata node
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
-		// Build globalModelID node
+		// Builds globalModelID node
 		XMLTriple globalModelIDTriple = new XMLTriple(GLOBAL_MODEL_ID_TAG, "",
 				PMF_TAG);
 		XMLNode globalModelIDNode = new XMLNode(globalModelIDTriple);
 		globalModelIDNode.addChild(new XMLNode(new Integer(globalModelID)
 				.toString()));
 		node.addChild(globalModelIDNode);
-		
-		// Build uncertainties node
+
+		// Builds uncertainties node
 		if (!uncertainties.isEmpty()) {
 			node.addChild(new UncertaintyNode(uncertainties).getNode());
 		}
 
-		// Build references node
+		// Builds references node
 		for (LiteratureItem lit : lits) {
 			ReferenceNode ref = new ReferenceNode(lit);
 			node.addChild(ref.getNode());
 		}
 
-		// Save fields
+		// Saves fields
 		this.globalModelID = globalModelID;
 		this.literatureItems = lits;
 		this.uncertainties = uncertainties;
@@ -96,7 +105,7 @@ public class Model2Annotation {
 	public List<LiteratureItem> getLiteratureItems() {
 		return literatureItems;
 	}
-	
+
 	public Map<String, String> getUncertainties() {
 		return uncertainties;
 	}

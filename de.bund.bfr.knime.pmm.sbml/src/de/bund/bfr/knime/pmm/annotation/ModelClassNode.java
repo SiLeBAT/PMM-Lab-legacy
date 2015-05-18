@@ -4,12 +4,18 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 /**
- * Model class xml node. Uses the dc:type tag.
- * E.g. <dc:type>Primary</dc:type>
+ * Model class xml node. Uses the dc:type tag. E.g. <dc:type>Primary</dc:type>
  * 
  * @author Miguel Alba
  */
 public class ModelClassNode extends SBMLNodeBase {
+
+	/**
+	 * Builds a ModelClassNode.
+	 * 
+	 * @param modelClass
+	 *            Model type: primary, secondary or tertiary.
+	 */
 	public ModelClassNode(String modelClass) {
 		XMLTriple triple = new XMLTriple("type", null, "dc");
 		node = new XMLNode(triple);

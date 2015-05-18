@@ -16,60 +16,67 @@ import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
+/**
+ * Primary model annotation. Holds model id, model title, uncertainties,
+ * references, combase ID, and cond ID.
+ * 
+ * @author Miguel Alba (malba@optimumquality.es)
+ */
 public class Model1Annotation {
 
-	private static final String METADATA_TAG = "metadata";
-	private static final String PMF_TAG = "pmf";
-	private static final String MODEL_ID_TAG = "identifier";
-	private static final String COMBASE_ID_TAG = "combaseID";
-	private static final String COND_ID_TAG = "condID";
-	private static final String MODEL_TITLE_TAG = "modelTitle";
-	private static final String MODEL_QUALITY_TAG = "modelquality";
-	private static final String REFERENCE_TAG = "reference";
+	static final String METADATA_TAG = "metadata";
 
-	private XMLNode node;
-	private String modelID;
-	private String modelTitle;
-	private Map<String, String> uncertainties;
-	private List<LiteratureItem> lits;
-	private String combaseID;
-	private int condID;
+	static final String PMF_TAG = "pmf";
+	static final String MODEL_ID_TAG = "identifier";
+	static final String COMBASE_ID_TAG = "combaseID";
+	static final String COND_ID_TAG = "condID";
+	static final String MODEL_TITLE_TAG = "modelTitle";
+	static final String MODEL_QUALITY_TAG = "modelquality";
+	static final String REFERENCE_TAG = "reference";
 
-	// Get fields from existing prim model annotation
+	XMLNode node;
+	String modelID;
+	String modelTitle;
+	Map<String, String> uncertainties;
+	List<LiteratureItem> lits;
+	String combaseID;
+	int condID;
+
+	/** Get fields from existing prim model annotation */
 	public Model1Annotation(XMLNode node) {
 		this.node = node;
 		XMLNode metadata = node.getChildElement(METADATA_TAG, "");
 
-		// Get modelID
+		// Gets modelID
 		XMLNode modelIDNode = metadata.getChildElement(MODEL_ID_TAG, "");
 		if (modelIDNode != null) {
 			modelID = modelIDNode.getChild(0).getCharacters();
 		}
 
-		// Get combaseID
+		// Gets  combaseID
 		XMLNode combaseIDNode = metadata.getChildElement(COMBASE_ID_TAG, "");
 		if (combaseIDNode != null) {
 			combaseID = combaseIDNode.getChild(0).getCharacters();
 		}
 
-		// Get condID
+		// Gets  condID
 		XMLNode condIDNode = metadata.getChildElement(COND_ID_TAG, "");
 		condID = Integer.parseInt(condIDNode.getChild(0).getCharacters());
 
-		// Get modelTitle
+		// Gets  modelTitle
 		XMLNode modelTitleNode = metadata.getChildElement(MODEL_TITLE_TAG, "");
 		if (modelTitleNode != null) {
 			modelTitle = modelTitleNode.getChild(0).getCharacters();
 		}
 
-		// Get model quality annotation
+		// Gets  model quality annotation
 		XMLNode modelQualityNode = metadata.getChildElement(MODEL_QUALITY_TAG,
 				"");
 		if (modelQualityNode != null) {
 			uncertainties = new UncertaintyNode(modelQualityNode).getMeasures();
 		}
 
-		// Get references
+		// Gets  references
 		lits = new LinkedList<>();
 		for (XMLNode refNode : metadata.getChildElements(REFERENCE_TAG, "")) {
 			lits.add(new ReferenceNode(refNode).toLiteratureItem());
@@ -80,16 +87,16 @@ public class Model1Annotation {
 			Map<String, String> uncertainties,
 			List<LiteratureItem> literatureItems, String combaseID, int condID) {
 
-		// Build metadata node
+		// Builds metadata node
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
-		// Build modelID node
+		// Builds modelID node
 		XMLTriple modelIDTriple = new XMLTriple(MODEL_ID_TAG, null, PMF_TAG);
 		XMLNode modelIDNode = new XMLNode(modelIDTriple);
 		modelIDNode.addChild(new XMLNode(modelID));
 		node.addChild(modelIDNode);
 
-		// Build modelTitle node
+		// Builds modelTitle node
 		if (modelTitle != null) {
 			XMLTriple modelTitleTriple = new XMLTriple(MODEL_TITLE_TAG, null,
 					PMF_TAG);
@@ -98,17 +105,17 @@ public class Model1Annotation {
 			node.addChild(modelTitleNode);
 		}
 
-		// Build uncertainties node
+		// Builds uncertainties node
 		if (!uncertainties.isEmpty()) {
 			node.addChild(new UncertaintyNode(uncertainties).getNode());
 		}
 
-		// Build reference nodes
+		// Builds reference nodes
 		for (LiteratureItem lit : literatureItems) {
 			node.addChild(new ReferenceNode(lit).getNode());
 		}
 
-		// Build combaseID node
+		// Builds combaseID node
 		if (combaseID != null) {
 			XMLTriple combaseIDTriple = new XMLTriple(COMBASE_ID_TAG, null,
 					PMF_TAG);
@@ -117,13 +124,13 @@ public class Model1Annotation {
 			node.addChild(combaseIDNode);
 		}
 
-		// Build condID node
+		// Builds condID node
 		XMLTriple condIDTriple = new XMLTriple(COND_ID_TAG, null, PMF_TAG);
 		XMLNode condIDNode = new XMLNode(condIDTriple);
 		condIDNode.addChild(new XMLNode(new Integer(condID).toString()));
 		node.addChild(condIDNode);
 
-		// Save fields
+		// Saves fields
 		this.modelID = modelID;
 		this.modelTitle = modelTitle;
 		this.uncertainties = uncertainties;

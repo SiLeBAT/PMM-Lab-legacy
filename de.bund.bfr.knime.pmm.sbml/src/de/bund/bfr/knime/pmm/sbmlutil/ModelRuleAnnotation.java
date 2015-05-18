@@ -6,16 +6,16 @@ import org.sbml.jsbml.xml.XMLTriple;
 // Model rule annotation. Holds formula name, subject, and its PmmLab ID
 public class ModelRuleAnnotation {
 
-	private static final String METADATA_TAG = "metadata";
-	private static final String PMF_TAG = "pmf";
-	private static final String NAME_TAG = "formulaName";
-	private static final String SUBJECT_TAG = "subject";
-	private static final String ID_TAG = "pmmlabID";
+	static final String METADATA_TAG = "metadata";
+	static final String PMF_TAG = "pmf";
+	static final String NAME_TAG = "formulaName";
+	static final String SUBJECT_TAG = "subject";
+	static final String ID_TAG = "pmmlabID";
 
-	private XMLNode node;
-	private String formulaName;
-	private String subject;
-	private int pmmlabID;
+	XMLNode node;
+	String formulaName;
+	String subject;
+	int pmmlabID;
 
 	// Get formula name, subject, and PmmLab id from existing rule annotation
 	public ModelRuleAnnotation(XMLNode node) {

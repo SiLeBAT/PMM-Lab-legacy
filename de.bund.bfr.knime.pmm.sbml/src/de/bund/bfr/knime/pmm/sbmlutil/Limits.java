@@ -1,21 +1,29 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
 /**
- * Limits values of a parameter.
+ * Limit values of a parameter.
+ * 
  * @author malba
- *
  */
 public class Limits {
-	private String var;
-	private Double min;
-	private Double max;
-	
+
+	String var;
+	Double min;
+	Double max;
+
+	/**
+	 * Creates new Limits of a variable.
+	 * @param var Variable name.
+	 * @param min Variable minimum value.
+	 * @param max Varaible maximum value.
+	 */
 	public Limits(String var, Double min, Double max) {
 		this.var = var;
 		this.min = min;
 		this.max = max;
 	}
-	
+
+	// Getters
 	public String getVar() {
 		return var;
 	}
@@ -23,7 +31,7 @@ public class Limits {
 	public Double getMin() {
 		return min;
 	}
-	
+
 	public Double getMax() {
 		return max;
 	}

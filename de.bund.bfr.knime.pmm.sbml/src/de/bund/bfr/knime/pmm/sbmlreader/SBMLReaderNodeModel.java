@@ -49,9 +49,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
+import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
@@ -171,22 +171,8 @@ public class SBMLReaderNodeModel extends NodeModel {
 			throws Exception {
 		List<Experiment> exps = PMFFile.read(filename.getStringValue());
 
-		// Get model typefrom the first model in the list of experiments
-		SBMLDocument firstDoc = exps.get(0).getModel();
-		CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) firstDoc
-				.getPlugin("comp");
-
 		// Find out model type
-		ModelType modelType;
-		if (plugin.getNumModelDefinitions() == 0) {
-			modelType = ModelType.PRIMARY;
-		} else {
-			if (firstDoc.getModel() == null) {
-				modelType = ModelType.SECONDARY;
-			} else {
-				modelType = ModelType.TERTIARY;
-			}
-		}
+		ModelType modelType = ModelType.getDocumentType(exps.get(0).getModel());
 
 		// Create schema and container
 		KnimeSchema schema = null;
@@ -273,22 +259,8 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 class ReaderUtils {
 
-	static Map<String, UnitsFromDB> dbUnits;
-
-	static {
-		// Get units from DB
-		UnitsFromDB unitsFromDB = new UnitsFromDB();
-		unitsFromDB.askDB();
-
-		// Create unit map with unit display as keys
-		dbUnits = new HashMap<>();
-		for (UnitsFromDB ufdb : unitsFromDB.getMap().values()) {
-			dbUnits.put(ufdb.getDisplay_in_GUI_as(), ufdb);
-		}
-	}
-
 	/**
-	 * Parse a list of constraints and return a dictionary that maps variables
+	 * Parses a list of constraints and returns a dictionary that maps variables
 	 * and their limit values.
 	 * 
 	 * @param constraints
@@ -306,10 +278,15 @@ class ReaderUtils {
 		return paramLimits;
 	}
 
-	// create EstModelXml from the model annotations
+	/**
+	 * Creates an EstModelXml from a number of model annotations.
+	 * 
+	 * @param annotations
+	 *            Map of uncertainty measures and their values.
+	 */
 	public static EstModelXml createEstModel(
 			final Map<String, String> annotations) {
-		// Initialize variables
+		// Initialises variables
 		int id = MathUtilities.getRandomNegativeInt(); // model id
 		String name = null;
 		String comment = null;
@@ -357,7 +334,7 @@ class ReaderUtils {
 	}
 
 	/**
-	 * Parse misc items.
+	 * Parses misc items.
 	 * 
 	 * @param miscs
 	 *            . Dictionary that maps miscs names and their values.
@@ -453,7 +430,7 @@ class PrimaryModelParser {
 		if (depUnitID != null) {
 			String depUnitName = model.getUnitDefinition(depUnitID).getName();
 			depXml.setUnit(depUnitName);
-			depXml.setCategory(ReaderUtils.dbUnits.get(depUnitName)
+			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName)
 					.getKind_of_property_quantity());
 		}
 		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
@@ -493,7 +470,7 @@ class PrimaryModelParser {
 			if (!unitID.equals("dimensionless")) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				paramXml.setUnit(unitName);
-				paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+				paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
 						.getKind_of_property_quantity());
 			}
 
@@ -611,7 +588,7 @@ class SecondaryModelParser {
 			if (!unitID.equals("dimensionless")) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				indepXml.setUnit(unitName);
-				indepXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+				indepXml.setCategory(DBUnits.getDBUnits().get(unitName)
 						.getKind_of_property_quantity());
 			}
 
@@ -635,7 +612,7 @@ class SecondaryModelParser {
 			if (!unitID.equals("dimensionless")) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				paramXml.setUnit(unitName);
-				paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+				paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
 						.getKind_of_property_quantity());
 			}
 
@@ -737,7 +714,7 @@ class TertiaryModelParser {
 		if (depUnitID != null) {
 			String depUnitName = model.getUnitDefinition(depUnitID).getName();
 			depXml.setUnit(depUnitName);
-			depXml.setCategory(ReaderUtils.dbUnits.get(depUnitName)
+			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName)
 					.getKind_of_property_quantity());
 		}
 		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
@@ -776,7 +753,7 @@ class TertiaryModelParser {
 			if (!unitID.equals("dimensionless")) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				paramXml.setUnit(unitName);
-				paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+				paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
 						.getKind_of_property_quantity());
 			}
 
@@ -849,7 +826,7 @@ class TertiaryModelParser {
 					String unitName = secModel.getUnitDefinition(unitID)
 							.getName();
 					secIndepXml.setUnit(unitName);
-					secIndepXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+					secIndepXml.setCategory(DBUnits.getDBUnits().get(unitName)
 							.getKind_of_property_quantity());
 				}
 
@@ -874,7 +851,7 @@ class TertiaryModelParser {
 					String unitName = secModel.getUnitDefinition(unitID)
 							.getName();
 					paramXml.setUnit(unitName);
-					paramXml.setCategory(ReaderUtils.dbUnits.get(unitName)
+					paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
 							.getKind_of_property_quantity());
 				}
 

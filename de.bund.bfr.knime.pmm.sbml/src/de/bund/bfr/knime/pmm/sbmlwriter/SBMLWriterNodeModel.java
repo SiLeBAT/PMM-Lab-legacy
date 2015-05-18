@@ -101,6 +101,7 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
+import de.bund.bfr.knime.pmm.sbmlutil.DBUnits;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Experiment;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
@@ -226,36 +227,29 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		// Tertiary model (primary+secondary)
-		if (SchemaFactory.createM12DataSchema().conforms(
-				(DataTableSpec) inSpecs[0])) {
-			schema = SchemaFactory.createM12DataSchema();
-			modelType = ModelType.TERTIARY;
-		}
-
-		// Primary model
-		else if (SchemaFactory.createM1DataSchema().conforms(
-				(DataTableSpec) inSpecs[0])) {
-			schema = SchemaFactory.createM1DataSchema();
-			modelType = ModelType.PRIMARY;
-		}
-
-		// Secondary model
-		else if (SchemaFactory.createM2Schema().conforms(
-				(DataTableSpec) inSpecs[0])) {
-			schema = SchemaFactory.createM2Schema();
-			modelType = ModelType.SECONDARY;
-		}
-
-		else if (outPath.getStringValue() == null
+		if (outPath.getStringValue() == null
 				|| modelName.getStringValue() == null
 				|| variableParams.getStringValue() == null) {
 			throw new InvalidSettingsException("Node must be configured");
 		} else {
-			throw new InvalidSettingsException("Invalid Input");
+			try {
+				modelType = ModelType.getTableType((DataTableSpec) inSpecs[0]);
+				switch (modelType) {
+				case PRIMARY:
+					schema = SchemaFactory.createM1DataSchema();
+					break;
+				case SECONDARY:
+					schema = SchemaFactory.createM2Schema();
+					break;
+				case TERTIARY:
+					schema = SchemaFactory.createM12DataSchema();
+					break;
+				}
+				return new DataTableSpec[] {};
+			} catch (Exception e) {
+				throw new InvalidSettingsException("Invalid input");
+			}
 		}
-
-		return new DataTableSpec[] {};
 	}
 
 	/**
@@ -337,19 +331,6 @@ abstract class TableReader {
 		return experiments;
 	}
 
-	static Map<String, UnitsFromDB> dbUnits;
-	
-	static {
-		// Get units from DB
-		UnitsFromDB unitsFromDB = new UnitsFromDB();
-		unitsFromDB.askDB();
-		
-		// Create unit map with unit display as keys
-		dbUnits = new HashMap<>();
-		for (UnitsFromDB ufdb : unitsFromDB.getMap().values()) {
-			dbUnits.put(ufdb.getDisplay_in_GUI_as(), ufdb);
-		}
-	}
 	protected static void renameLog(KnimeTuple tuple) {
 		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
@@ -563,8 +544,8 @@ abstract class TableReader {
 			unitDefinition.setName(unit);
 
 			// Current unit `unit` is in the DB
-			if (dbUnits.containsKey(unit)) {
-				UnitsFromDB dbUnit = dbUnits.get(unit);
+			if (DBUnits.getDBUnits().containsKey(unit)) {
+				UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
 
 				String mathml = dbUnit.getMathML_string();
 				if (mathml != null && !mathml.isEmpty()) {

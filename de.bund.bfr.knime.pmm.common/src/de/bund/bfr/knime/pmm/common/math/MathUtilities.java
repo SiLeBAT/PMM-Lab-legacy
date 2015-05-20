@@ -161,6 +161,8 @@ public class MathUtilities {
 			parser.addDiffRule(new ZeroDiffRule(">="));
 			parser.addDiffRule(new ZeroDiffRule("&&"));
 			parser.addDiffRule(new ZeroDiffRule("||"));
+			parser.addDiffRule(new ZeroDiffRule("=="));
+			parser.addDiffRule(new ZeroDiffRule("!="));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

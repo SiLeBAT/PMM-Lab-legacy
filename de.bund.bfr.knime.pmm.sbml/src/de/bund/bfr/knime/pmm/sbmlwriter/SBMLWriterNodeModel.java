@@ -455,6 +455,10 @@ abstract class TableReader {
 	static Map<String, String> parseQualityTags(EstModelXml estModel) {
 		Map<String, String> qualityTags = new HashMap<>();
 
+		if (estModel.getId() != null) {
+			qualityTags.put("id", estModel.getId().toString());
+		}
+
 		String dataUsage = estModel.getComment();
 		if (dataUsage != null) {
 			qualityTags.put("dataUsage", dataUsage);
@@ -1190,7 +1194,12 @@ class TertiaryTableReader extends TableReader {
 
 			// Add sec literature references
 			int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-			Map<String, String> uncertainties = parseQualityTags(estXml);
+
+			// Add uncertainties
+			EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(
+					Model2Schema.ATT_ESTMODEL).get(0);
+			Map<String, String> uncertainties = parseQualityTags(secEstModel);
+
 			Model2Annotation secModelAnnotation = new Model2Annotation(
 					globalModelID, uncertainties, lits);
 			secModel.getAnnotation().setNonRDFAnnotation(

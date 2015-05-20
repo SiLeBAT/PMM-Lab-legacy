@@ -43,7 +43,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
@@ -287,7 +286,7 @@ class ReaderUtils {
 	public static EstModelXml createEstModel(
 			final Map<String, String> annotations) {
 		// Initialises variables
-		int id = MathUtilities.getRandomNegativeInt(); // model id
+		int id = Integer.parseInt(annotations.get("id")); // model id
 		String name = null;
 		String comment = null;
 		Double r2 = null;

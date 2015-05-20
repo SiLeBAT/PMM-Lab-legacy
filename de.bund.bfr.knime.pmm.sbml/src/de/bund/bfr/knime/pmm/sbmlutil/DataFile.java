@@ -232,6 +232,7 @@ public class DataFile {
 					numberOfMeasurements);
 			t.setConcentrationUnitObjectType(concentrationUnitObjectType);
 			ts.add(t);
+			counter++;
 		}
 
 		return ts;

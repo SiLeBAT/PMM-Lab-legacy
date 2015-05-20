@@ -131,6 +131,8 @@ public class PMFFile {
 		CombineArchive ca = new CombineArchive(new File(caName));
 
 		// Creates SBML writer
+		// TODO: test TidySBMLWriter
+//		SBMLWriter sbmlWriter = new TidySBMLWriter();
 		SBMLWriter sbmlWriter = new SBMLWriter();
 		sbmlWriter.setProgramName("SBML Writer node");
 		sbmlWriter.setProgramVersion("1.0");

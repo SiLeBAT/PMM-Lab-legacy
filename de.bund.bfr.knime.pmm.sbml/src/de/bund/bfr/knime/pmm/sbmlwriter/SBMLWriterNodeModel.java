@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -593,11 +594,11 @@ class PrimaryTableReader extends TableReader {
 				for (PmmXmlElementConvertable point : mdData.getElementSet()) {
 					timeSeries.add((TimeSeriesXml) point);
 				}
-				Map<Double, Double> dim = new HashMap<>(); // dimension
+				LinkedHashMap<Double, Double> dim = new LinkedHashMap<>(); // dimension
 				for (TimeSeriesXml point : timeSeries) {
 					dim.put(point.getTime(), point.getConcentration());
 				}
-
+				
 				// * Create NuML document with this time series
 				String unit = ((TimeSeriesXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_TIMESERIES).get(0))
@@ -944,7 +945,7 @@ class TertiaryTableReader extends TableReader {
 							.getElementSet()) {
 						timeSeries.add((TimeSeriesXml) point);
 					}
-					Map<Double, Double> dim = new HashMap<>(); // dimension
+					LinkedHashMap<Double, Double> dim = new LinkedHashMap<>(); // dimension
 					for (TimeSeriesXml point : timeSeries) {
 						dim.put(point.getTime(), point.getConcentration());
 					}

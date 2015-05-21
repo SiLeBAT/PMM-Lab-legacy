@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class DataFile {
 	 * @param dlgInfo
 	 * @throws URISyntaxException
 	 */
-	public DataFile(Map<Double, Double> dimension, String concentrationUnit,
+	public DataFile(LinkedHashMap<Double, Double> dimension, String concentrationUnit,
 			MatrixXml matrixXml, AgentXml agentXml, String depUnit,
 			Map<String, String> dlgInfo) throws URISyntaxException {
 		OntologyTerm time = createTimeOntology();
@@ -211,7 +212,7 @@ public class DataFile {
 		List<TimeSeriesXml> ts = new LinkedList<>();
 
 		@SuppressWarnings("unchecked")
-		Map<Double, Double> dim = (Map<Double, Double>) doc
+		LinkedHashMap<Double, Double> dim = (LinkedHashMap<Double, Double>) doc
 				.getResultComponents().get(0).getDimension();
 
 		// Common fields

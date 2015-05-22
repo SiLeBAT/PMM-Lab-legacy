@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLWriter;
+import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
@@ -131,9 +132,7 @@ public class PMFFile {
 		CombineArchive ca = new CombineArchive(new File(caName));
 
 		// Creates SBML writer
-		// TODO: test TidySBMLWriter
-//		SBMLWriter sbmlWriter = new TidySBMLWriter();
-		SBMLWriter sbmlWriter = new SBMLWriter();
+		SBMLWriter sbmlWriter = new TidySBMLWriter();
 		sbmlWriter.setProgramName("SBML Writer node");
 		sbmlWriter.setProgramVersion("1.0");
 

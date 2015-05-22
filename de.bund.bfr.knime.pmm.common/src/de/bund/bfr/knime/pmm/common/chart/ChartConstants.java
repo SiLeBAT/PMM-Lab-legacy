@@ -36,7 +36,7 @@ package de.bund.bfr.knime.pmm.common.chart;
 public interface ChartConstants {
 
 	public static final String STATUS = "Status";
-	
+
 	public static final String OK = "Ok";
 	public static final String FAILED = "Failed";
 	public static final String OUT_OF_LIMITS = "Coeff Out Of Limit";

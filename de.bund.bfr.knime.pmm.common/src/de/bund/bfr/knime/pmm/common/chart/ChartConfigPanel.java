@@ -657,8 +657,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		if (type == PARAMETER_FIELDS) {
 			for (int i = 0; i < parameterFields.size(); i++) {
-				DoubleTextField field = parameterFields
-						.get(i);
+				DoubleTextField field = parameterFields.get(i);
 				String paramName = parameterNames.get(i);
 
 				if (field.getValue() != null) {

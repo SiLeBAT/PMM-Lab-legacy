@@ -214,6 +214,22 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			plotable.setSamples(samplePanel.getTimeValues());
+
+			try {
+				plotable.convertToUnit(configPanel.getParamX(), 1.0,
+						configPanel.getUnitX());
+			} catch (ConvertException e) {
+				configPanel.setUnitX(plotable.getUnits().get(
+						configPanel.getParamX()));
+			}
+
+			try {
+				plotable.convertToUnit(configPanel.getParamY(), 1.0,
+						configPanel.getUnitY());
+			} catch (ConvertException e) {
+				configPanel.setUnitY(plotable.getUnits().get(
+						configPanel.getParamY()));
+			}
 		} else {
 			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);

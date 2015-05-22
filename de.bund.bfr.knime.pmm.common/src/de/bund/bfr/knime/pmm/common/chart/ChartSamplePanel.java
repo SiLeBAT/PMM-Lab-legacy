@@ -54,6 +54,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -88,8 +89,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		table = new TimeSeriesTable(ROW_COUNT, 1, true, false);
 		table.getTimeColumn().getCellEditor().addCellEditorListener(this);
 		tablePane = new JScrollPane(table,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		warningArea = new TextArea(3, 10);
 		warningArea.setEditable(false);
 		stepsButton = new JButton("Set equidistant steps");
@@ -139,7 +140,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 	public TimeSeriesTable getTimeSeriesTable() {
 		return table;
-	}	
+	}
 
 	public void addEditListener(EditListener listener) {
 		listeners.add(listener);
@@ -179,7 +180,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 	public void setSampleName(String name) {
 		table.setTimeColumnName(name);
-	}	
+	}
 
 	public void setDataPoints(Map<String, double[][]> points) {
 		String timeColumnName = table.getTimeColumnName();
@@ -207,8 +208,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 			table = new TimeSeriesTable(ROW_COUNT, cValues.size(), true, false);
 			table.getTimeColumn().getCellEditor().addCellEditorListener(this);
 			tablePane = new JScrollPane(table,
-					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+					ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			add(tablePane, BorderLayout.CENTER);
 			revalidate();
 			table.setTimeColumnName(timeColumnName);

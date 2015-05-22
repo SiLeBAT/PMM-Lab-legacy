@@ -7,6 +7,7 @@ import java.awt.event.ComponentListener;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.ScrollPaneConstants;
 
 public class ChartAllPanel extends JPanel implements ComponentListener {
 
@@ -34,8 +35,9 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 		upperPanel.setLayout(new BorderLayout());
 		upperPanel.add(chartCreator, BorderLayout.CENTER);
 		upperPanel.add(new JScrollPane(configPanel,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.EAST);
 
 		verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				upperPanel, selectionPanel);
@@ -59,8 +61,9 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 		upperPanel.setLayout(new BorderLayout());
 		upperPanel.add(chartCreator, BorderLayout.CENTER);
 		upperPanel.add(new JScrollPane(configPanel,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.EAST);
 
 		horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				selectionPanel, samplePanel);

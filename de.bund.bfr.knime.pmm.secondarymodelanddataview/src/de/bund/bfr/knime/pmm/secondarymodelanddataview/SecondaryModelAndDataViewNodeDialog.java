@@ -60,6 +60,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * <code>NodeDialog</code> for the "SecondaryModelAndDataView" Node.
@@ -281,6 +282,22 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			chartCreator.setTransformX(configPanel.getTransformX());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
+
+			try {
+				plotable.convertToUnit(configPanel.getParamX(), 1.0,
+						configPanel.getUnitX());
+			} catch (ConvertException e) {
+				configPanel.setUnitX(plotable.getUnits().get(
+						configPanel.getParamX()));
+			}
+
+			try {
+				plotable.convertToUnit(configPanel.getParamY(), 1.0,
+						configPanel.getUnitY());
+			} catch (ConvertException e) {
+				configPanel.setUnitY(plotable.getUnits().get(
+						configPanel.getParamY()));
+			}
 		} else {
 			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);

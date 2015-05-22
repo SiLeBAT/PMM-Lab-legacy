@@ -68,10 +68,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -404,8 +405,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		optionsPanel = new SpacePanel(upperPanel);
 		tableScrollPane = new JScrollPane(selectTable,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		setLayout(new BorderLayout());
 		add(optionsPanel, BorderLayout.NORTH);
@@ -1503,7 +1504,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		public CheckBoxRenderer() {
 			super();
-			setHorizontalAlignment(JLabel.CENTER);
+			setHorizontalAlignment(SwingConstants.CENTER);
 			setBorderPainted(true);
 		}
 
@@ -1573,7 +1574,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public CheckBoxEditor() {
 			super(new JCheckBox());
 			((JCheckBox) getComponent())
-					.setHorizontalAlignment(JCheckBox.CENTER);
+					.setHorizontalAlignment(SwingConstants.CENTER);
 		}
 	}
 
@@ -1945,7 +1946,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				String value = variables.get(param);
 
 				field.setValue(" " + value);
-				field.setHorizontalAlignment(JTextField.RIGHT);
+				field.setHorizontalAlignment(SwingConstants.RIGHT);
 				field.setEditable(false);
 
 				leftPanel.add(new JLabel(param + ":"));
@@ -2202,8 +2203,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					.getPreferredSize().height));
 
 			return new JScrollPane(panel,
-					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+					ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 
 		private void updateCheckBoxes() {

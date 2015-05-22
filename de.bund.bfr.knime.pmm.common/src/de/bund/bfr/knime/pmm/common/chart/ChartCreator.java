@@ -349,7 +349,7 @@ public class ChartCreator extends ChartPanel {
 			yAxis.setRange(new Range(minY, maxY));
 		}
 
-		Set<String> unconvertable = new LinkedHashSet<>();
+		Set<ConvertException> convertExceptions = new LinkedHashSet<>();
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -361,7 +361,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index));
 					index++;
 				} catch (ConvertException e) {
-					unconvertable.add(e.getFromUnit());
+					convertExceptions.add(e);
 				}
 			}
 		}
@@ -375,7 +375,7 @@ public class ChartCreator extends ChartPanel {
 					plotDataSetStrict(plot, plotable, id);
 					index++;
 				} catch (ConvertException e) {
-					unconvertable.add(e.getFromUnit());
+					convertExceptions.add(e);
 				}
 			}
 		}
@@ -390,7 +390,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index), usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					unconvertable.add(e.getFromUnit());
+					convertExceptions.add(e);
 				}
 			}
 		}
@@ -409,7 +409,7 @@ public class ChartCreator extends ChartPanel {
 							warnings);
 					index++;
 				} catch (ConvertException e) {
-					unconvertable.add(e.getFromUnit());
+					convertExceptions.add(e);
 				}
 			}
 		}
@@ -424,7 +424,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index), usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					unconvertable.add(e.getFromUnit());
+					convertExceptions.add(e);
 				}
 			}
 		}
@@ -437,18 +437,18 @@ public class ChartCreator extends ChartPanel {
 					plotBothStrict(plot, plotable, id, usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					unconvertable.add(e.getFromUnit());
+					convertExceptions.add(e);
 				}
 			}
 		}
 
-		if (!unconvertable.isEmpty()) {
+		if (!convertExceptions.isEmpty()) {
 			String warning = "Some datasets/functions cannot be converted to the desired unit\n";
 
 			warning += "Uncovertable units: ";
 
-			for (String unit : unconvertable) {
-				warning += unit + ", ";
+			for (ConvertException e : convertExceptions) {
+				warning += e.getFromUnit() + "->" + e.getToUnit() + ", ";
 			}
 
 			warning = warning.substring(0, warning.length() - 2);

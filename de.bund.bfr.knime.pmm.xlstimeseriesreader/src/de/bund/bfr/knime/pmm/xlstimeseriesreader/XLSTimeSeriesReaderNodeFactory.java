@@ -43,49 +43,48 @@ import org.knime.core.node.NodeView;
  *
  * @author Christian Thoens
  */
-public class XLSTimeSeriesReaderNodeFactory 
-        extends NodeFactory<XLSTimeSeriesReaderNodeModel> {
+public class XLSTimeSeriesReaderNodeFactory extends
+		NodeFactory<XLSTimeSeriesReaderNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public XLSTimeSeriesReaderNodeModel createNodeModel() {
-        return new XLSTimeSeriesReaderNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public XLSTimeSeriesReaderNodeModel createNodeModel() {
+		return new XLSTimeSeriesReaderNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<XLSTimeSeriesReaderNodeModel> createNodeView(final int viewIndex,
-            final XLSTimeSeriesReaderNodeModel nodeModel) {
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<XLSTimeSeriesReaderNodeModel> createNodeView(
+			final int viewIndex, final XLSTimeSeriesReaderNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new XLSTimeSeriesReaderNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new XLSTimeSeriesReaderNodeDialog();
+	}
 
 }
-

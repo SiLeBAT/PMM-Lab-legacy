@@ -109,7 +109,7 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (!filePanel.isFileNameValid()) {
+		if (filePanel.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
 

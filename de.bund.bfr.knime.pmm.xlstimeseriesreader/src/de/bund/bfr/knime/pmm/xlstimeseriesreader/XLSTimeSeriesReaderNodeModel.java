@@ -50,6 +50,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -84,7 +85,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		XLSReader xlsReader = new XLSReader();
 		List<KnimeTuple> tuples = new ArrayList<>(xlsReader
-				.getTimeSeriesTuples(new File(set.getFileName()),
+				.getTimeSeriesTuples(KnimeUtils.getFile(set.getFileName()),
 						set.getSheetName(), set.getColumnMappings(),
 						set.getTimeUnit(), set.getConcentrationUnit(),
 						set.getAgentColumn(), set.getAgentMappings(),

@@ -184,7 +184,7 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (!filePanel.isFileNameValid()) {
+		if (filePanel.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
 

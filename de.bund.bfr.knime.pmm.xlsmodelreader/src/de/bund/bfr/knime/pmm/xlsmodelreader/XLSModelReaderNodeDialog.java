@@ -43,7 +43,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +77,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -281,7 +281,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		filePanel.addFileListener(this);
 
 		try {
-			fileSheetList = xlsReader.getSheets(new File(set.getFileName()));
+			fileSheetList = xlsReader.getSheets(KnimeUtils.getFile(set
+					.getFileName()));
 		} catch (Exception e) {
 			fileSheetList = new ArrayList<>();
 		}
@@ -298,7 +299,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			fileColumnList = xlsReader.getColumns(
-					new File(filePanel.getFileName()),
+					KnimeUtils.getFile(filePanel.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
@@ -732,7 +733,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			try {
 				set.setSheetName((String) sheetBox.getSelectedItem());
 				fileColumnList = xlsReader.getColumns(
-						new File(filePanel.getFileName()), set.getSheetName());
+						KnimeUtils.getFile(filePanel.getFileName()),
+						set.getSheetName());
 			} catch (Exception ex) {
 				fileColumnList = new ArrayList<>();
 			}
@@ -871,7 +873,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setFileName(filePanel.getFileName());
 
 		try {
-			fileSheetList = xlsReader.getSheets(new File(set.getFileName()));
+			fileSheetList = xlsReader.getSheets(KnimeUtils.getFile(set
+					.getFileName()));
 		} catch (Exception e) {
 			fileSheetList = new ArrayList<>();
 		}
@@ -891,7 +894,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		sheetBox.addItemListener(this);
 
 		try {
-			fileColumnList = xlsReader.getColumns(new File(set.getFileName()),
+			fileColumnList = xlsReader.getColumns(
+					KnimeUtils.getFile(set.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
@@ -1154,7 +1158,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			try {
 				values = xlsReader.getValuesInColumn(
-						new File(filePanel.getFileName()),
+						KnimeUtils.getFile(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
 				values = new LinkedHashSet<>();
@@ -1187,9 +1191,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				&& !set.getAgentColumn().equals(SettingsHelper.OTHER_PARAMETER)
 				&& !set.getAgentColumn().equals(SettingsHelper.DO_NOT_USE)) {
 			try {
-				List<Integer> missing = xlsReader.getMissingData(new File(
-						filePanel.getFileName()), (String) sheetBox
-						.getSelectedItem(), set.getAgentColumn());
+				List<Integer> missing = xlsReader.getMissingData(
+						KnimeUtils.getFile(filePanel.getFileName()),
+						(String) sheetBox.getSelectedItem(),
+						set.getAgentColumn());
 
 				if (!missing.isEmpty()) {
 					p.add(new JLabel("Data missing in rows: "
@@ -1246,7 +1251,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			try {
 				values = xlsReader.getValuesInColumn(
-						new File(filePanel.getFileName()),
+						KnimeUtils.getFile(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
 				values = new LinkedHashSet<>();
@@ -1280,9 +1285,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						.equals(SettingsHelper.OTHER_PARAMETER)
 				&& !set.getMatrixColumn().equals(SettingsHelper.DO_NOT_USE)) {
 			try {
-				List<Integer> missing = xlsReader.getMissingData(new File(
-						filePanel.getFileName()), (String) sheetBox
-						.getSelectedItem(), set.getMatrixColumn());
+				List<Integer> missing = xlsReader.getMissingData(
+						KnimeUtils.getFile(filePanel.getFileName()),
+						(String) sheetBox.getSelectedItem(),
+						set.getMatrixColumn());
 
 				if (!missing.isEmpty()) {
 					p.add(new JLabel("Data missing in rows: "

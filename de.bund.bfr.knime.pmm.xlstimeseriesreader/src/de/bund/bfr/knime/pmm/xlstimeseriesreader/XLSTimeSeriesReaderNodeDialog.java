@@ -43,7 +43,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -60,6 +59,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -72,6 +72,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.DBUtilities;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -192,8 +193,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		literaturePanel.setLayout(new BorderLayout());
 		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
 		literaturePanel.add(new JScrollPane(literatureList,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.CENTER);
 
 		JPanel optionsPanel = new JPanel();
 
@@ -234,7 +236,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		filePanel.addFileListener(this);
 
 		try {
-			fileSheetList = xlsReader.getSheets(new File(set.getFileName()));
+			fileSheetList = xlsReader.getSheets(KnimeUtils.getFile(set
+					.getFileName()));
 		} catch (Exception e) {
 			fileSheetList = new ArrayList<>();
 		}
@@ -251,7 +254,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			fileColumnList = xlsReader.getColumns(
-					new File(filePanel.getFileName()),
+					KnimeUtils.getFile(filePanel.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
@@ -553,7 +556,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			try {
 				set.setSheetName((String) sheetBox.getSelectedItem());
 				fileColumnList = xlsReader.getColumns(
-						new File(filePanel.getFileName()), set.getSheetName());
+						KnimeUtils.getFile(filePanel.getFileName()),
+						set.getSheetName());
 			} catch (Exception ex) {
 				fileColumnList = new ArrayList<>();
 			}
@@ -659,7 +663,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		set.setFileName(filePanel.getFileName());
 
 		try {
-			fileSheetList = xlsReader.getSheets(new File(set.getFileName()));
+			fileSheetList = xlsReader.getSheets(KnimeUtils.getFile(set
+					.getFileName()));
 		} catch (Exception e) {
 			fileSheetList = new ArrayList<>();
 		}
@@ -679,7 +684,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		sheetBox.addItemListener(this);
 
 		try {
-			fileColumnList = xlsReader.getColumns(new File(set.getFileName()),
+			fileColumnList = xlsReader.getColumns(
+					KnimeUtils.getFile(set.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
@@ -693,8 +699,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateAgentPanel() {
 		agentButtons.clear();
-		agentBox = new JComboBox<>(new String[] { DO_NOT_USE,
-				OTHER_PARAMETER });
+		agentBox = new JComboBox<>(new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		agentButton = new JButton(OTHER_PARAMETER);
 
 		for (String column : fileColumnList) {
@@ -729,7 +734,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			try {
 				values = xlsReader.getValuesInColumn(
-						new File(filePanel.getFileName()),
+						KnimeUtils.getFile(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
 				values = new LinkedHashSet<>();
@@ -767,8 +772,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateMatrixPanel() {
 		matrixButtons.clear();
-		matrixBox = new JComboBox<>(new String[] { DO_NOT_USE,
-				OTHER_PARAMETER });
+		matrixBox = new JComboBox<>(
+				new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		matrixButton = new JButton(OTHER_PARAMETER);
 
 		for (String column : fileColumnList) {
@@ -803,7 +808,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			try {
 				values = xlsReader.getValuesInColumn(
-						new File(filePanel.getFileName()),
+						KnimeUtils.getFile(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
 				values = new LinkedHashSet<>();
@@ -935,9 +940,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							column);
 
 					if (mapping.equals(AttributeUtilities.TIME)) {
-						JComboBox<String> unitBox = new JComboBox<>(
-								Categories.getTimeCategory().getAllUnits()
-										.toArray(new String[0]));
+						JComboBox<String> unitBox = new JComboBox<>(Categories
+								.getTimeCategory().getAllUnits()
+								.toArray(new String[0]));
 
 						UI.select(unitBox, set.getTimeUnit());
 						unitBox.addItemListener(this);

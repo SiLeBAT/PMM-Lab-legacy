@@ -55,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -130,7 +131,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 
 		XLSReader xlsReader = new XLSReader();
 		List<KnimeTuple> tuples = new ArrayList<>(xlsReader.getModelTuples(
-				new File(set.getFileName()), set.getSheetName(),
+				KnimeUtils.getFile(set.getFileName()), set.getSheetName(),
 				set.getColumnMappings(), set.getAgentColumn(),
 				set.getAgentMappings(), set.getMatrixColumn(),
 				set.getMatrixMappings(), modelTuple, set.getModelMappings(),

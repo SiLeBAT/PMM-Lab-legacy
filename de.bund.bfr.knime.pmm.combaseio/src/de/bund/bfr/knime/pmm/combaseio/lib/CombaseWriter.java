@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -155,7 +156,7 @@ public class CombaseWriter {
 
 			buf.append("\n\n\n");
 		}
-		OutputStream out = new FileOutputStream(filename);
+		OutputStream out = new FileOutputStream(KnimeUtils.getFile(filename));
 		out.write(encodeString(buf.toString()));
 		out.close();
 	}

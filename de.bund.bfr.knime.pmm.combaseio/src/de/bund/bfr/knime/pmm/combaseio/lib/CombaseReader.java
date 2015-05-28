@@ -50,6 +50,7 @@ import java.util.StringTokenizer;
 
 import org.hsh.bfr.db.DBKernel;
 
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -72,7 +73,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		conversion = new MiscConversion();
 
 		InputStreamReader isr = null;
-		File file = new File(filename);
+		File file = KnimeUtils.getFile(filename);
 		if (file.exists()) {
 			FileInputStream fis = new FileInputStream(file);
 			isr = new InputStreamReader(fis, "UTF-16LE");

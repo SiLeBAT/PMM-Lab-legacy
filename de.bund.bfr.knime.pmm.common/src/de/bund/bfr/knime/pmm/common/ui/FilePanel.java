@@ -124,18 +124,6 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 		fileFilters.add(new StandardFileFilter(fileExtension, description));
 	}
 
-	public boolean isFileNameValid() {
-		String fileName = getFileName();
-
-		if (dialogType == OPEN_DIALOG) {
-			return fileName != null && new File(fileName).exists();
-		} else if (dialogType == SAVE_DIALOG) {
-			return fileName != null;
-		}
-
-		return false;
-	}
-
 	private void fireFileChanged() {
 		for (FileListener listener : listeners) {
 			listener.fileChanged(this);

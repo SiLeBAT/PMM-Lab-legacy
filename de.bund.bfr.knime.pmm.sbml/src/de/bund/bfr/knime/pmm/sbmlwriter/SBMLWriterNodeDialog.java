@@ -38,7 +38,6 @@ import javax.swing.JFileChooser;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentDate;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
 import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
@@ -73,7 +72,7 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				"Initial Concentration Parameter");
 		DialogComponentString nameComp = new DialogComponentString(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
-						null), "Model Name");
+						null), "File Name");
 		DialogComponentString givenNameComp = new DialogComponentString(
 				new SettingsModelString(
 						SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null),
@@ -93,9 +92,6 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelDate(
 						SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE),
 				"Last Modified");
-		DialogComponentMultiLineString refComp = new DialogComponentMultiLineString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_REFERENCE, null),
-				"Reference as XHTML");
 
 		outComp.setBorderTitle("Output Path");
 
@@ -107,6 +103,5 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(creatorContactComp);
 		addDialogComponent(createdComp);
 		addDialogComponent(modifiedComp);
-		addDialogComponent(refComp);
 	}
 }

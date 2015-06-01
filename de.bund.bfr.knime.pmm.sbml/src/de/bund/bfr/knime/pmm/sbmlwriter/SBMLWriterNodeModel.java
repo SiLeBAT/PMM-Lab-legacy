@@ -133,7 +133,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_CREATOR_CONTACT = "CreatorContact";
 	protected static final String CFG_CREATED_DATE = "CreationDate";
 	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
-	protected static final String CFG_REFERENCE = "Reference";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
@@ -151,8 +150,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 			CFG_CREATED_DATE);
 	private SettingsModelDate modifiedDate = new SettingsModelDate(
 			CFG_LAST_MODIFIED_DATE);
-	private SettingsModelString reference = new SettingsModelString(
-			CFG_REFERENCE, null);
 
 	private KnimeSchema schema;
 
@@ -266,7 +263,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 		creatorContact.saveSettingsTo(settings);
 		createdDate.saveSettingsTo(settings);
 		modifiedDate.saveSettingsTo(settings);
-		reference.saveSettingsTo(settings);
 	}
 
 	/**
@@ -283,7 +279,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 		creatorContact.loadSettingsFrom(settings);
 		createdDate.loadSettingsFrom(settings);
 		modifiedDate.loadSettingsFrom(settings);
-		reference.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -300,7 +295,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 		creatorContact.validateSettings(settings);
 		createdDate.validateSettings(settings);
 		modifiedDate.validateSettings(settings);
-		reference.validateSettings(settings);
 	}
 
 	/**
@@ -460,16 +454,14 @@ abstract class TableReader {
 			qualityTags.put("id", estModel.getId().toString());
 		}
 
-		String dataUsage = estModel.getComment();
-		if (dataUsage != null) {
-			qualityTags.put("dataUsage", dataUsage);
+		if (estModel.getComment() != null) {
+			qualityTags.put("dataUsage", estModel.getComment());
 		}
 
-		String dataName = estModel.getName();
-		if (dataUsage != null) {
-			qualityTags.put("dataName", dataName);
-		} else {
+		if (estModel.getName() == null) {
 			qualityTags.put("dataName", "Missing data name");
+		} else {
+			qualityTags.put("dataName", estModel.getName());
 		}
 
 		Double r2 = estModel.getR2();

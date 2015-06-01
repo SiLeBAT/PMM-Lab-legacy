@@ -3,6 +3,7 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 import org.sbml.jsbml.AssignmentRule;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 /**
  * Parses the rule of a secondary model
@@ -18,6 +19,8 @@ public class Model2Rule extends ModelRule {
 		final String var = catModel.getFormula().substring(0, pos);
 		// The remaining chunk contains the actual formula
 		String formula = catModel.getFormula().substring(pos + 1);
+		// Removes boundary conditions
+		formula = MathUtilities.getAllButBoundaryCondition(formula);
 
 		AssignmentRule assignmentRule = convertFormulaToAssignmentRule(var,
 				formula);

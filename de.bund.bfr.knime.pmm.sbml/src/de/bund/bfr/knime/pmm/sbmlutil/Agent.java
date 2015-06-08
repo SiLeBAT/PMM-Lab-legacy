@@ -154,9 +154,11 @@ class AgentAnnotation {
 		if (metadata != null) {
 
 			// Gets CAS number
-			XMLNode source = metadata.getChildElement(REF_TAG, "");
-			ref = source.getChild(0).getCharacters(); // whole reference
-			ref = ref.substring(ref.lastIndexOf("/") + 1);
+			XMLNode sourceNode = metadata.getChildElement(REF_TAG, "");
+			if (sourceNode != null) {
+				ref = sourceNode.getChild(0).getCharacters(); // whole reference
+				ref = ref.substring(ref.lastIndexOf("/") + 1);
+			}
 
 			// Gets description
 			XMLNode detailNode = metadata.getChildElement(DETAIL_TAG, "");
@@ -179,9 +181,11 @@ class AgentAnnotation {
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
 		// Builds reference tag
-		XMLNode refNode = new XMLNode(new XMLTriple(REF_TAG, null, REF_NS));
-		refNode.addChild(new XMLNode("http://identifiers.org/ncim/" + code));
-		node.addChild(refNode);
+		if (code != null) {
+			XMLNode refNode = new XMLNode(new XMLTriple(REF_TAG, null, REF_NS));
+			refNode.addChild(new XMLNode("http://identifiers.org/ncim/" + code));
+			node.addChild(refNode);
+		}
 
 		// Builds detail tag
 		if (detail != null) {

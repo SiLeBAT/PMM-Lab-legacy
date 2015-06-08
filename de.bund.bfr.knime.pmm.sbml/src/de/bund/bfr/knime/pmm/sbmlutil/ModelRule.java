@@ -59,6 +59,8 @@ public abstract class ModelRule {
 	public static AssignmentRule convertFormulaToAssignmentRule(String var,
 			String formula) {
 		AssignmentRule assignmentRule = null;
+		// csymbol time needs a lower case t
+		formula = formula.replace("Time", "time");
 		
 		try {
 			ASTNode math = JSBML.parseFormula(formula);

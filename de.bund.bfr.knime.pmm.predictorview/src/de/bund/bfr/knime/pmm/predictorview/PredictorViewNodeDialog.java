@@ -204,11 +204,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		Map<String, Double> minValues = new LinkedHashMap<>();
 		Map<String, Double> maxValues = new LinkedHashMap<>();
 		Map<String, List<String>> categories = new LinkedHashMap<>();
-		Map<String, String> units = new LinkedHashMap<>();
+		Map<String, String> units = reader.getUnits();
 
 		for (Plotable plotable : reader.getPlotables().values()) {
 			paramsX.putAll(plotable.getFunctionArguments());
-			units.putAll(plotable.getUnits());
 
 			for (String param : plotable.getCategories().keySet()) {
 				if (!categories.containsKey(param)) {
@@ -218,18 +217,19 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				categories.get(param).addAll(
 						plotable.getCategories().get(param));
 			}
+		}
 
+		for (Plotable plotable : reader.getPlotables().values()) {
 			for (String arg : plotable.getMinArguments().keySet()) {
 				Double oldMin = minValues.get(arg);
 				String unit = plotable.getUnits().get(arg);
 				Category cat = Categories.getCategoryByUnit(plotable.getUnits()
 						.get(arg));
-				String stdUnit = cat.getStandardUnit();
 				Double newMin = null;
 
 				try {
 					newMin = cat.convert(plotable.getMinArguments().get(arg),
-							unit, stdUnit);
+							unit, units.get(arg));
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
@@ -246,12 +246,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				String unit = plotable.getUnits().get(arg);
 				Category cat = Categories.getCategoryByUnit(plotable.getUnits()
 						.get(arg));
-				String stdUnit = cat.getStandardUnit();
 				Double newMax = null;
 
 				try {
 					newMax = cat.convert(plotable.getMaxArguments().get(arg),
-							unit, stdUnit);
+							unit, units.get(arg));
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
@@ -271,7 +270,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				false, "Change Init/Lag Params", true, true);
+				false, "Change Init/Lag Params", true);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -363,7 +362,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 				Map<String, List<Double>> converted = PredictorViewNodeModel
 						.convertToUnits(configPanel.getParamsX(),
-								plotable.getUnits());
+								reader.getUnits(), plotable.getUnits());
 
 				converted.keySet().retainAll(
 						plotable.getFunctionArguments().keySet());
@@ -516,7 +515,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			if (plotable != null) {
 				Map<String, List<Double>> converted = PredictorViewNodeModel
 						.convertToUnits(configPanel.getParamsX(),
-								plotable.getUnits());
+								reader.getUnits(), plotable.getUnits());
 
 				for (String param : converted.keySet()) {
 					if (!nonVariables.contains(param)

@@ -130,7 +130,7 @@ public class SecondaryPredictorViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				true, null, false, true);
+				true, null, true);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getDoubleColumns(),
 				reader.getConditions(), null, reader.getConditionMinValues(),

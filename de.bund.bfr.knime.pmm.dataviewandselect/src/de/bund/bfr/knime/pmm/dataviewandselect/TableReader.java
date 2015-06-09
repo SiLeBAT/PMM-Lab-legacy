@@ -11,7 +11,6 @@ import java.util.Set;
 import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -126,7 +125,7 @@ public class TableReader {
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
 					TimeSeriesSchema.ATT_LITMD).getElementSet()) {
-				literature += "," + (LiteratureItem) el;
+				literature += "," + el;
 			}
 
 			if (!literature.isEmpty()) {

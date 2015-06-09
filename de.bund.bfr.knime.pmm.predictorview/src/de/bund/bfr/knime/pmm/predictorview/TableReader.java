@@ -57,6 +57,7 @@ public class TableReader {
 	private Map<String, String> newInitParams;
 	private Map<String, String> newLagParams;
 	private Map<KnimeTuple, List<KnimeTuple>> combinedTuples;
+	private Map<String, String> units;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -640,6 +641,12 @@ public class TableReader {
 
 			plotables.put(id, plotable);
 		}
+
+		units = new LinkedHashMap<>();
+
+		for (Plotable plotable : plotables.values()) {
+			units.putAll(plotable.getUnits());
+		}
 	}
 
 	public List<String> getIds() {
@@ -724,6 +731,10 @@ public class TableReader {
 
 	public Map<KnimeTuple, List<KnimeTuple>> getCombinedTuples() {
 		return combinedTuples;
+	}
+
+	public Map<String, String> getUnits() {
+		return units;
 	}
 
 	public Map<String, String> getTempParam() {

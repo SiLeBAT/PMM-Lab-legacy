@@ -199,7 +199,7 @@ public class DataFile {
 		pmfNode.append(matrix.toGroovyNode());
 
 		// species annotation
-		pmfNode.append(new Agent(agentXml, depUnit).toGroovyNode());
+		pmfNode.append(new Agent(agentXml, depUnit, matrix.getCompartment()).toGroovyNode());
 
 		return concentration;
 	}

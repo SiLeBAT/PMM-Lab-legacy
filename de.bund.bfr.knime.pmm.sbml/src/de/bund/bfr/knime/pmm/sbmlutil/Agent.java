@@ -8,6 +8,7 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 import groovy.util.Node;
 
 import org.hsh.bfr.db.DBKernel;
+import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -47,13 +48,15 @@ public class Agent {
 	 * @param unit
 	 *            Unit name (as displayed in GUI).
 	 */
-	public Agent(AgentXml agent, String unit) {
+	public Agent(AgentXml agent, String unit, Compartment compartment) {
 
 		// Create SBML species with id prefixed by "species"
-		species = new Species("species" + agent.getId());
+		species = new Species("species" + agent.getId(), 3, 1);
 		species.setBoundaryCondition(false);
 		species.setConstant(false);
 		species.setUnits(Util.createId(unit));
+		species.setCompartment(compartment);
+		species.setHasOnlySubstanceUnits(false);
 
 		// Search species in DB
 		String name = (String) DBKernel.getValue("Agenzien", "ID", agent

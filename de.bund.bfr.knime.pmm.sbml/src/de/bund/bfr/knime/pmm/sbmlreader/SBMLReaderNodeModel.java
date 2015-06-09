@@ -298,9 +298,6 @@ class ReaderUtils {
 
 		// Get values from the annotations
 		if (annotations != null) {
-			if (annotations.containsKey("dataName")) {
-				name = annotations.get("dataName");
-			}
 			if (annotations.containsKey("dataUsage")) {
 				comment = annotations.get("dataUsage");
 			}
@@ -485,7 +482,9 @@ class PrimaryModelParser {
 
 		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
 				.getUncertainties());
-		estModel.setName(primModelAnnotation.getModelTitle());
+		if (model.isSetName()) {
+			estModel.setName(model.getName());
+		}
 
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
@@ -633,8 +632,11 @@ class SecondaryModelParser {
 				.getAnnotation().getNonRDFannotation());
 
 		// EstModel
-		PmmXmlDoc estModelCell = new PmmXmlDoc(
-				ReaderUtils.createEstModel(modelAnnotation.getUncertainties()));
+		EstModelXml estModelXml = ReaderUtils.createEstModel(modelAnnotation.getUncertainties());
+		if (model.isSetName()) {
+			estModelXml.setName(model.getName());
+		}
+		PmmXmlDoc estModelCell = new PmmXmlDoc(estModelXml);
 
 		// Get globalModelID from annotation
 		int globalModelID = modelAnnotation.getGlobalModelID();
@@ -769,7 +771,9 @@ class TertiaryModelParser {
 		// Parse uncertainty measures from the document's annotations
 		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
 				.getUncertainties());
-		estModel.setName(primModelAnnotation.getModelTitle());
+		if (model.isSetName()) {
+			estModel.setName(model.getName());
+		}
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc mLiteratureCell = new PmmXmlDoc();
@@ -870,9 +874,11 @@ class TertiaryModelParser {
 					.getAnnotation().getNonRDFannotation());
 
 			// EstModel
-			PmmXmlDoc estModelSecCell = new PmmXmlDoc(
-					ReaderUtils.createEstModel(secModelAnnotation
-							.getUncertainties()));
+			EstModelXml secEstModelXml = ReaderUtils.createEstModel(secModelAnnotation.getUncertainties());
+			if (secModel.isSetName()) {
+				secEstModelXml.setName(secEstModelXml.getName());
+			}
+			PmmXmlDoc estModelSecCell = new PmmXmlDoc(secEstModelXml);
 
 			final int globalModelID = secModelAnnotation.getGlobalModelID();
 

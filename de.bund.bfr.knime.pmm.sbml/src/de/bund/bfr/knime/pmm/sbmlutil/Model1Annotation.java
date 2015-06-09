@@ -30,7 +30,6 @@ public class Model1Annotation {
 	static final String MODEL_ID_TAG = "identifier";
 	static final String COMBASE_ID_TAG = "combaseID";
 	static final String COND_ID_TAG = "condID";
-	static final String MODEL_TITLE_TAG = "modelTitle";
 	static final String MODEL_QUALITY_TAG = "modelquality";
 	static final String REFERENCE_TAG = "reference";
 
@@ -63,12 +62,6 @@ public class Model1Annotation {
 		XMLNode condIDNode = metadata.getChildElement(COND_ID_TAG, "");
 		condID = Integer.parseInt(condIDNode.getChild(0).getCharacters());
 
-		// Gets  modelTitle
-		XMLNode modelTitleNode = metadata.getChildElement(MODEL_TITLE_TAG, "");
-		if (modelTitleNode != null) {
-			modelTitle = modelTitleNode.getChild(0).getCharacters();
-		}
-
 		// Gets  model quality annotation
 		XMLNode modelQualityNode = metadata.getChildElement(MODEL_QUALITY_TAG,
 				"");
@@ -95,15 +88,6 @@ public class Model1Annotation {
 		XMLNode modelIDNode = new XMLNode(modelIDTriple);
 		modelIDNode.addChild(new XMLNode(modelID));
 		node.addChild(modelIDNode);
-
-		// Builds modelTitle node
-		if (modelTitle != null) {
-			XMLTriple modelTitleTriple = new XMLTriple(MODEL_TITLE_TAG, null,
-					PMF_TAG);
-			XMLNode modelTitleNode = new XMLNode(modelTitleTriple);
-			modelTitleNode.addChild(new XMLNode(modelTitle));
-			node.addChild(modelTitleNode);
-		}
 
 		// Builds uncertainties node
 		if (!uncertainties.isEmpty()) {

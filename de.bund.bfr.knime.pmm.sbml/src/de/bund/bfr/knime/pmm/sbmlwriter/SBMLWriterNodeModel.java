@@ -550,7 +550,20 @@ abstract class TableReader {
 							.xmlToUnitDefinition(dbUnit.getMathML_string());
 					UnitDefinition ud = wrapper.getUnitDefinition();
 					for (Unit wrapperUnit : ud.getListOfUnits()) {
-						unitDefinition.addUnit(new Unit(wrapperUnit));
+						Unit u = new Unit(wrapperUnit);
+						if (!u.isSetKind()) {
+							u.setKind(Unit.Kind.DIMENSIONLESS);
+						}
+						if (!u.isSetExponent()) {
+							u.setExponent(1.0);
+						}
+						if (!u.isSetScale()) {
+							u.setScale(0);
+						}
+						if (!u.isSetMultiplier()) {
+							u.setMultiplier(1);
+						}
+						unitDefinition.addUnit(u);
 					}
 				}
 			}
@@ -590,7 +603,7 @@ class PrimaryTableReader extends TableReader {
 				for (TimeSeriesXml point : timeSeries) {
 					dim.put(point.getTime(), point.getConcentration());
 				}
-				
+
 				// * Create NuML document with this time series
 				String unit = ((TimeSeriesXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_TIMESERIES).get(0))
@@ -643,7 +656,9 @@ class PrimaryTableReader extends TableReader {
 		doc.setAnnotation(docAnnot);
 
 		Model model = doc.createModel(modelId);
-		model.setName(modelXml.getName());
+		if (estXml.getName() != null) {
+			model.setName(estXml.getName());
+		}
 
 		// Annotation
 		String modelTitle = estXml.getName();
@@ -673,17 +688,17 @@ class PrimaryTableReader extends TableReader {
 			miscs.add((MiscXml) misc);
 		}
 
+		// Create and add compartment to model
 		Map<String, Double> miscsMap = new HashMap<>();
 		for (MiscXml misc : miscs) {
 			miscsMap.put(misc.getName(), misc.getValue());
 		}
-
 		Matrix matrix = new Matrix(matrixXml, miscsMap);
 		Compartment c = matrix.getCompartment();
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Agent organims = new Agent(organismXml, depXml.getUnit());
+		Agent organims = new Agent(organismXml, depXml.getUnit(), c);
 		model.addSpecies(organims.getSpecies());
 
 		// Add indep constraint
@@ -785,7 +800,9 @@ class SecondaryTableReader extends TableReader {
 		// Create model definition
 		String modelDefinitionId = "model_" + depXml.getName();
 		Model model = docCompPlugin.createModelDefinition(modelDefinitionId);
-		model.setName(catModelXml.getName());
+		if (estModelXml.getName() != null) {
+			model.setName(estModelXml.getName());
+		}
 
 		addUnitDefinitions(model, depXml, indepXmls, constXmls);
 
@@ -1001,7 +1018,9 @@ class TertiaryTableReader extends TableReader {
 		addNamespaces(doc);
 
 		Model model = doc.createModel(modelId);
-		model.setName(modelXml.getName());
+		if (estXml.getName() != null) {
+			model.setName(estXml.getName());
+		}
 		CompModelPlugin compModelPlugin = (CompModelPlugin) model
 				.getPlugin(CompConstants.shortLabel);
 
@@ -1047,7 +1066,7 @@ class TertiaryTableReader extends TableReader {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Agent organism = new Agent(organismXml, depXml.getUnit());
+		Agent organism = new Agent(organismXml, depXml.getUnit(), compartment);
 		model.addSpecies(organism.getSpecies());
 
 		// Add indep constraint
@@ -1102,6 +1121,8 @@ class TertiaryTableReader extends TableReader {
 		for (KnimeTuple tuple : tuples) {
 			CatalogModelXml secModelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model2Schema.ATT_MODELCATALOG).get(0);
+			EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(
+					Model2Schema.ATT_ESTMODEL).get(0);
 			DepXml secDepXml = (DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0);
 
@@ -1122,7 +1143,9 @@ class TertiaryTableReader extends TableReader {
 			String modelDefinitionId = "model_" + secDepXml.getName();
 			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
 					LEVEL, VERSION);
-			secModel.setName(secModelXml.getName());
+			if (secEstModel.getName() != null) {
+				secModel.setName(secEstModel.getName());
+			}
 
 			// Add unit definitions
 			addUnitDefinitions(secModel, secDepXml, secIndepXmls, secConstXmls);
@@ -1189,8 +1212,6 @@ class TertiaryTableReader extends TableReader {
 			int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 
 			// Add uncertainties
-			EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(
-					Model2Schema.ATT_ESTMODEL).get(0);
 			Map<String, String> uncertainties = parseQualityTags(secEstModel);
 
 			Model2Annotation secModelAnnotation = new Model2Annotation(

@@ -126,6 +126,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private List<JLabel> parameterLabels;
 	private List<DoubleTextField> parameterFields;
 	private List<JSlider> parameterSliders;
+	private Set<String> lastVisibleParameters;
 
 	private int type;
 
@@ -300,6 +301,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);
+
+		lastVisibleParameters = null;
 	}
 
 	public void addConfigListener(ConfigListener listener) {
@@ -485,6 +488,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	public void setVisibleParameters(Set<String> visible) {
+		if (visible.equals(lastVisibleParameters)) {
+			return;
+		}
+
+		lastVisibleParameters = visible;
 		parameterValuesPanel.removeAll();
 
 		int row = 0;
@@ -830,6 +838,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
+		lastVisibleParameters = null;
 		setVisibleParameters(new LinkedHashSet<>(parameterNames));
 	}
 

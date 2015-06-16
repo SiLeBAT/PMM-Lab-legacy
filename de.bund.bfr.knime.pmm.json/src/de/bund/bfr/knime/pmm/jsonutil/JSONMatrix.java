@@ -13,10 +13,10 @@ public class JSONMatrix {
 	JSONObject obj; // Json object
 	
 	// attribute keys
-	private static final String ATT_ID = "id";
-	private static final String ATT_NAME = "name";
-	private static final String ATT_DETAIL = "detail";
-	private static final String ATT_DBUUID = "dbuuid";
+	static final String ATT_ID = "id";
+	static final String ATT_NAME = "name";
+	static final String ATT_DETAIL = "detail";
+	static final String ATT_DBUUID = "dbuuid";
 	
 	public JSONMatrix(JSONObject obj) {
 		this.obj = obj;

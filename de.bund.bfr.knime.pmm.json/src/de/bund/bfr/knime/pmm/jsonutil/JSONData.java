@@ -13,19 +13,19 @@ import org.json.simple.JSONObject;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 
 public class JSONData {
-	private JSONArray obj;
+	JSONArray obj;
 	
 	// attribute keys
-	private static final String ATT_NAME = "name";
-	private static final String ATT_TIME = "time";
-	private static final String ATT_TIME_UNIT = "timeUnit";
-	private static final String ATT_ORIG_TIME_UNIT = "origTimeUnit";
-	private static final String ATT_CONCENTRATION = "concentration";
-	private static final String ATT_CONCENTRATION_UNIT = "concentrationUnit";
-	private static final String ATT_CONCENTRATION_UNIT_OBJECT_TYPE = "concentrationUnitObjectType";
-	private static final String ATT_ORIG_CONCENTRATION_UNIT = "origConcentrationUnit";
-	private static final String ATT_CONCENTRATION_STDDEV = "concentrationStdDev";
-	private static final String ATT_NUMBER_OF_MEASUREMENTS = "numberOfMeasurements";
+	static final String ATT_NAME = "name";
+	static final String ATT_TIME = "time";
+	static final String ATT_TIME_UNIT = "timeUnit";
+	static final String ATT_ORIG_TIME_UNIT = "origTimeUnit";
+	static final String ATT_CONCENTRATION = "concentration";
+	static final String ATT_CONCENTRATION_UNIT = "concentrationUnit";
+	static final String ATT_CONCENTRATION_UNIT_OBJECT_TYPE = "concentrationUnitObjectType";
+	static final String ATT_ORIG_CONCENTRATION_UNIT = "origConcentrationUnit";
+	static final String ATT_CONCENTRATION_STDDEV = "concentrationStdDev";
+	static final String ATT_NUMBER_OF_MEASUREMENTS = "numberOfMeasurements";
 
 	public JSONData(JSONArray obj) {
 		this.obj = obj;

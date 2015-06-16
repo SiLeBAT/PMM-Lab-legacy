@@ -24,7 +24,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class JSONTimeSeries {
 
-	private JSONObject obj;
+	JSONObject obj;
 
 	public JSONTimeSeries(JSONObject obj) {
 		this.obj = obj;
@@ -38,10 +38,10 @@ public class JSONTimeSeries {
 		obj = new JSONObject();
 		obj.put(TimeSeriesSchema.ATT_CONDID, condId);
 		obj.put(TimeSeriesSchema.ATT_COMBASEID, combaseId);
-		obj.put(TimeSeriesSchema.ATT_MISC, new JSONAgent(organism).getObj());
+		obj.put(TimeSeriesSchema.ATT_MISC, new JSONMiscList(miscList).getObj());
+		obj.put(TimeSeriesSchema.ATT_AGENT, new JSONAgent(organism).getObj());
 		obj.put(TimeSeriesSchema.ATT_MATRIX, new JSONMatrix(matrix).getObj());
 		obj.put(TimeSeriesSchema.ATT_TIMESERIES, new JSONData(data).getObj());
-		obj.put(TimeSeriesSchema.ATT_MISC, new JSONMiscList(miscList).getObj());
 		obj.put(TimeSeriesSchema.ATT_MDINFO, new JSONMdInfo(mdInfo).getObj());
 		obj.put(TimeSeriesSchema.ATT_LITMD, new JSONLiteratureList(lits).getObj());
 		obj.put(TimeSeriesSchema.ATT_DBUUID, mDBUID);
@@ -80,7 +80,7 @@ public class JSONTimeSeries {
 		if (obj.containsKey(TimeSeriesSchema.ATT_AGENT)) {
 			JSONObject jo = (JSONObject)obj.get(TimeSeriesSchema.ATT_AGENT);
 			AgentXml xml = new JSONAgent(jo).toAgentXml();
-			tuple.setValue(TimeSeriesSchema.ATT_AGENT, xml);
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(xml));
 		}
 
 		// Set matrix

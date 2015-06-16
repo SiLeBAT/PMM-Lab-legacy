@@ -24,8 +24,7 @@ public class JSONParamList {
 		obj = new JSONArray();
 		
 		for (ParamXml param : params) {
-			JSONParam jp = new JSONParam(param);
-			obj.add(jp.getObj());
+			obj.add(new JSONParam(param).getObj());
 		}
 	}
 

@@ -24,7 +24,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 public class JSONModel2 {
 
-	private JSONObject obj;
+	JSONObject obj;
 	
 	public JSONModel2(JSONObject obj) {
 		this.obj = obj;
@@ -32,7 +32,7 @@ public class JSONModel2 {
 
 	@SuppressWarnings("unchecked")
 	public JSONModel2(CatalogModelXml catModel, DepXml dep,
-			IndepXml indep, List<ParamXml> params, EstModelXml estModel,
+			List<IndepXml> indeps, List<ParamXml> params, EstModelXml estModel,
 			List<LiteratureItem> mLits, List<LiteratureItem> emLits,
 			Integer databaseWritable, String mDBUID, Integer globalModelID) {
 
@@ -41,7 +41,7 @@ public class JSONModel2 {
 		obj.put(Model2Schema.ATT_ESTMODEL, new JSONEstModel(estModel).getObj());
 		obj.put(Model2Schema.ATT_DEPENDENT, new JSONDep(dep).getObj());
 		obj.put(Model2Schema.ATT_PARAMETER, new JSONParamList(params).getObj());
-		obj.put(Model2Schema.ATT_INDEPENDENT, new JSONIndep(indep).getObj());
+		obj.put(Model2Schema.ATT_INDEPENDENT, new JSONIndepList(indeps).getObj());
 		obj.put(Model2Schema.ATT_MLIT, new JSONLiteratureList(mLits).getObj());
 		obj.put(Model2Schema.ATT_EMLIT, new JSONLiteratureList(emLits).getObj());
 		obj.put(Model2Schema.ATT_DATABASEWRITABLE, databaseWritable);
@@ -89,9 +89,12 @@ public class JSONModel2 {
 		
 		// Set independent
 		if (obj.containsKey(Model2Schema.ATT_INDEPENDENT)) {
-			JSONObject jo = (JSONObject) obj.get(Model2Schema.ATT_INDEPENDENT);
-			IndepXml xml = new JSONIndep(jo).toIndepXml();
-			tuple.setValue(Model2Schema.ATT_INDEPENDENT, new PmmXmlDoc(xml));
+			JSONArray ja = (JSONArray) obj.get(Model2Schema.ATT_INDEPENDENT);
+			PmmXmlDoc indepsCell = new PmmXmlDoc();
+			for (IndepXml xml : new JSONIndepList(ja).toIndepXml()) {
+				indepsCell.add(xml);
+			}
+			tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepsCell);
 		}
 		
 		// Set model literature
@@ -168,6 +171,7 @@ public class JSONModel2 {
 
 		IndepXml indep = new IndepXml(indepName, indepOrigName, indepMin,
 				indepMax, indepCategory, indepUnit, indepDesc);
+		List<IndepXml> indeps = Arrays.asList(indep);
 
 		// Tmax parameter
 		ParamXml tmaxParam = new ParamXml("Tmax", 51.282);
@@ -199,7 +203,7 @@ public class JSONModel2 {
 		Integer globalModelID = -111090039;
 		
 		JSONModel2 model2Encoder = new JSONModel2(
-				catModel, dep, indep, params, estModel, mLits, emLits,
+				catModel, dep, indeps, params, estModel, mLits, emLits,
 				databaseWritable, dbUID, globalModelID);
 		JSONObject obj = model2Encoder.getObj();
 		System.out.println(obj);

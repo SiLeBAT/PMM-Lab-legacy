@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import org.json.simple.JSONObject;
 import org.knime.core.data.DataTableSpec;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.ext.comp.CompConstants;
@@ -39,8 +40,9 @@ public enum ModelType {
 	 * 
 	 * @param spec
 	 *            KNIME DataTableSpec.
-	 * @throws Exception When input table spec does not match a primary,
-	 * secondary or tertiary model table
+	 * @throws Exception
+	 *             When input table spec does not match a primary, secondary or
+	 *             tertiary model table
 	 */
 	public static ModelType getTableType(DataTableSpec spec) throws Exception {
 
@@ -54,4 +56,27 @@ public enum ModelType {
 			throw new Exception();
 		}
 	}
+
+	/**
+	 * Gets the type of a JSON object.
+	 * 
+	 * @param jo JSON object
+	 * @throws Exception
+	 *             When input JSON object does not match a primary, secondary or
+	 *             tertiary model table
+	 */
+//	public static ModelType getJSONType(JSONObject jo) throws Exception {
+//		if (jo.containsKey("TimeSeriesSchema")
+//				&& jo.containsKey("Model1Schema")
+//				&& jo.containsKey("Model2Schema")) {
+//			return TERTIARY;
+//		} else if (jo.containsKey("TimeSeriesSchema")
+//				&& jo.containsKey("Model1Schema")) {
+//			return PRIMARY;
+//		} else if (jo.containsKey("Model2Schema")) {
+//			return SECONDARY;
+//		} else {
+//			throw new Exception();
+//		}
+//	}
 };

@@ -2,12 +2,15 @@ package de.bund.bfr.knime.pmm.jsonencoder;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.hsh.bfr.db.DBKernel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.knime.core.data.DataTableSpec;
@@ -23,6 +26,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -36,15 +40,23 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.jsonutil.JSONAgent;
+import de.bund.bfr.knime.pmm.jsonutil.JSONLiteratureList;
+import de.bund.bfr.knime.pmm.jsonutil.JSONMatrix;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel1;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel2;
 import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
+import de.bund.bfr.knime.pmm.sbmlutil.DBAgents;
+import de.bund.bfr.knime.pmm.sbmlutil.DBLits;
+import de.bund.bfr.knime.pmm.sbmlutil.DBMatrices;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 
 /**
  * This is the model implementation of JSONEncoder. Turns a PMM Lab table into
@@ -73,15 +85,14 @@ public class JSONEncoderNodeModel extends NodeModel {
 		DataTableSpec inTableSpec = inTable.getDataTableSpec();
 
 		// Check model type
-		boolean isTertiary = SchemaFactory.createM12DataSchema().conforms(
-				inTableSpec);
+		ModelType modelType = ModelType.getTableType(inTableSpec);
 
 		List<Thread> threads = new LinkedList<>();
 		// Parse tertiary models
-		if (isTertiary) {
+		if (modelType == ModelType.TERTIARY) {
 			// Retrieve input tuples
-			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable,
-					SchemaFactory.createM12DataSchema());
+			KnimeSchema schema = SchemaFactory.createM12DataSchema();
+			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable, schema);
 
 			// Get secondary models for every tertiary model
 			Map<String, List<KnimeTuple>> tuplesMap = new HashMap<>();
@@ -102,16 +113,24 @@ public class JSONEncoderNodeModel extends NodeModel {
 			}
 		}
 
-		else {
+		else if (modelType == ModelType.PRIMARY) {
 			// Retrieve input tuples
-			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable,
-					SchemaFactory.createM1DataSchema());
+			KnimeSchema schema = SchemaFactory.createM1DataSchema();
+			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable, schema);
 
 			// Each KNIME tuple is a primary model
 			// Create threads for every tuple
 			for (KnimeTuple tuple : tuples) {
 				threads.add(new Thread(new PrimaryTupleParser(tuple)));
 			}
+		} else if (modelType == ModelType.SECONDARY) {
+			KnimeSchema schema = SchemaFactory.createM2Schema();
+			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable, schema);
+
+			for (KnimeTuple tuple : tuples) {
+				threads.add(new Thread(new SecondaryTupleParser(tuple)));
+			}
+
 		}
 
 		// Start threads
@@ -127,16 +146,17 @@ public class JSONEncoderNodeModel extends NodeModel {
 			exec.setProgress((float) counter / threads.size());
 		}
 
-		// Push model strings into flow variable ports
-		counter = 0;
-		ModelStrings ms = ModelStrings.getModelStrings();
-		for (String modelString : ms.getModels()) {
-			pushFlowVariableString(Integer.toString(counter), modelString);
-			counter++;
-		}
+		// Push model strings into flow variable port
+		Models m = Models.getInstance();
+		pushFlowVariableString("models", m.getModels().toJSONString());
 
 		// clear model strings (otherwise they'll be kept on the next run)
-		ms.clear();
+		m.clear();
+
+		setMatrices();
+		setAgents();
+		setLits();
+		setSecModels();
 
 		return new PortObject[] { FlowVariablePortObject.INSTANCE };
 	}
@@ -197,25 +217,84 @@ public class JSONEncoderNodeModel extends NodeModel {
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
 	}
+
+	@SuppressWarnings("unchecked")
+	private void setMatrices() {
+		JSONArray matArray = new JSONArray();
+		for (MatrixXml matrixXml : DBMatrices.getDBMatrices()) {
+			matArray.add(new JSONMatrix(matrixXml).getObj());
+		}
+		pushFlowVariableString("matrices", matArray.toJSONString());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void setAgents() {
+		JSONArray agentsArray = new JSONArray();
+		for (AgentXml agentXml : DBAgents.getDBAgents()) {
+			agentsArray.add(new JSONAgent(agentXml).getObj());
+		}
+		pushFlowVariableString("agents", agentsArray.toJSONString());
+	}
+
+	private void setLits() {
+		JSONLiteratureList lits = new JSONLiteratureList(DBLits.getDBLits());
+		pushFlowVariableString("references", lits.getObj().toJSONString());
+	}
+
+	private void setSecModels() throws SQLException, InterruptedException {
+		LinkedList<Integer> secModelIds = new LinkedList<>();
+		ResultSet rs = DBKernel.getResultSet(
+				"SELECT \"ID\" FROM \"Modellkatalog\" WHERE \"Level\"='2'",
+				true);
+		try {
+			while (rs.next()) {
+				secModelIds.add(rs.getInt("ID"));
+			}
+		} catch (SQLException e) {
+		}
+		Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+		List<Thread> threads = new LinkedList<>();
+		for (int id : secModelIds) {
+			KnimeTuple tuple = db.getSecModelById(id);
+			threads.add(new Thread(new SecondaryTupleParser(tuple)));
+		}
+
+		// Start threads
+		for (Thread thread : threads) {
+			thread.start();
+		}
+
+		// Join threads
+		for (Thread thread : threads) {
+			thread.join();
+		}
+
+		// Push model strings into flow variable port
+		Models m = Models.getInstance();
+		pushFlowVariableString("secondary", m.getModels().toJSONString());
+		// Clear model strings
+		m.clear();
+	}
 }
 
-class ModelStrings {
-	private static ModelStrings ms = new ModelStrings();
-	private List<String> models = new LinkedList<>();
+class Models {
+	private static Models m = new Models();
+	private JSONArray models = new JSONArray();
 
-	private ModelStrings() {
+	private Models() {
 	}
 
-	public static ModelStrings getModelStrings() {
-		return ms;
+	public static Models getInstance() {
+		return m;
 	}
 
-	public synchronized void addModel(String model) {
-		models.add(model);
-	}
-
-	public List<String> getModels() {
+	public JSONArray getModels() {
 		return models;
+	}
+
+	@SuppressWarnings("unchecked")
+	public synchronized void addModel(JSONObject obj) {
+		models.add(obj);
 	}
 
 	public void clear() {
@@ -232,16 +311,11 @@ class PrimaryTupleParser implements Runnable {
 	}
 
 	public void run() {
-		// Parse primary tuple
-		String model = parse(tuple);
-
-		// Add model
-		ModelStrings ms = ModelStrings.getModelStrings();
-		ms.addModel(model);
+		Models.getInstance().addModel(parse(tuple));
 	}
 
 	@SuppressWarnings("unchecked")
-	private String parse(KnimeTuple tuple) {
+	private JSONObject parse(KnimeTuple tuple) {
 		// Get time series columns
 		Integer condId = (Integer) tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 		String combaseId = (String) tuple
@@ -285,8 +359,11 @@ class PrimaryTupleParser implements Runnable {
 				Model1Schema.ATT_MODELCATALOG).get(0);
 		DepXml dep = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
 				.get(0);
-		IndepXml indep = (IndepXml) tuple.getPmmXml(
-				Model1Schema.ATT_INDEPENDENT).get(0);
+		List<IndepXml> indeps = new LinkedList<>();
+		for (PmmXmlElementConvertable item : tuple.getPmmXml(
+				Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+			indeps.add((IndepXml) item);
+		}
 
 		PmmXmlDoc paramsDoc = (PmmXmlDoc) tuple
 				.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -316,18 +393,85 @@ class PrimaryTupleParser implements Runnable {
 		dbuuid = tuple.getString(Model1Schema.ATT_DBUUID);
 
 		// Create JSONModel1
-		JSONModel1 m1 = new JSONModel1(catModel, dep, indep, params, modelXml,
+		JSONModel1 m1 = new JSONModel1(catModel, dep, indeps, params, modelXml,
 				mLits, emLits, databaseWritable, dbuuid);
 
 		// Create JSONObject obj with TimeSeries and Model1Schema
 		JSONObject obj = new JSONObject();
-		obj.put("TimeSeries", ts.getObj());
+		obj.put("TimeSeriesSchema", ts.getObj());
 		obj.put("Model1Schema", m1.getObj());
+		return obj;
+	}
+}
 
-		// Turn obj into json string and return it
-		String modelString = obj.toJSONString();
+class SecondaryTupleParser implements Runnable {
 
-		return modelString;
+	KnimeTuple tuple;
+
+	public SecondaryTupleParser(KnimeTuple tuple) {
+		this.tuple = tuple;
+	}
+
+	public void run() {
+		Models.getInstance().addModel(parse(tuple));
+	}
+
+	@SuppressWarnings("unchecked")
+	private JSONObject parse(KnimeTuple tuple) {
+		// Get model2 columns
+		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(
+				Model2Schema.ATT_MODELCATALOG).get(0);
+		EstModelXml estModel = (EstModelXml) tuple.getPmmXml(
+				Model2Schema.ATT_ESTMODEL).get(0);
+
+		DepXml dep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
+				.get(0);
+
+		// Get independent
+		PmmXmlDoc indepDoc = (PmmXmlDoc) tuple
+				.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+		LinkedList<IndepXml> indeps = new LinkedList<>();
+		for (PmmXmlElementConvertable item : indepDoc.getElementSet()) {
+			indeps.add((IndepXml) item);
+		}
+
+		// Get parameters
+		PmmXmlDoc paramsDoc = (PmmXmlDoc) tuple
+				.getPmmXml(Model2Schema.ATT_PARAMETER);
+		LinkedList<ParamXml> params = new LinkedList<>();
+		for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
+			params.add((ParamXml) item);
+		}
+
+		// Get model literature
+		PmmXmlDoc mLitDoc = (PmmXmlDoc) tuple.getPmmXml(Model2Schema.ATT_MLIT);
+		LinkedList<LiteratureItem> mLits = new LinkedList<>();
+		for (PmmXmlElementConvertable litItem : mLitDoc.getElementSet()) {
+			mLits.add((LiteratureItem) litItem);
+		}
+
+		// Get estimated model literature
+		PmmXmlDoc emLitDoc = (PmmXmlDoc) tuple
+				.getPmmXml(Model2Schema.ATT_EMLIT);
+		LinkedList<LiteratureItem> emLits = new LinkedList<>();
+		for (PmmXmlElementConvertable litItem : emLitDoc.getElementSet()) {
+			emLits.add((LiteratureItem) litItem);
+		}
+
+		// Get databaseWritable, dbuuid and globalModelID
+		Integer databaseWritable = tuple
+				.getInt(Model2Schema.ATT_DATABASEWRITABLE);
+		String dbuuid = tuple.getString(Model2Schema.ATT_DBUUID);
+		Integer globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+
+		// Create JSONModel2
+		JSONModel2 m2 = new JSONModel2(catModel, dep, indeps, params, estModel,
+				mLits, emLits, databaseWritable, dbuuid, globalModelID);
+
+		// Create JSONObject obj with Model2Schema
+		JSONObject obj = new JSONObject();
+		obj.put("Model2Schema", m2.getObj());
+		return obj;
 	}
 }
 
@@ -340,16 +484,11 @@ class TertiaryTupleReader implements Runnable {
 	}
 
 	public void run() {
-		// Parse primary tuple
-		String model = parse(tuples);
-
-		// Add model
-		ModelStrings ms = ModelStrings.getModelStrings();
-		ms.addModel(model);
+		Models.getInstance().addModel(parse(tuples));
 	}
 
 	@SuppressWarnings("unchecked")
-	private String parse(List<KnimeTuple> modelTuples) {
+	private JSONObject parse(List<KnimeTuple> modelTuples) {
 		// Get first tuple
 		KnimeTuple firstTuple = modelTuples.get(0);
 
@@ -397,8 +536,11 @@ class TertiaryTupleReader implements Runnable {
 				Model1Schema.ATT_MODELCATALOG).get(0);
 		DepXml dep = (DepXml) firstTuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
 				.get(0);
-		IndepXml indep = (IndepXml) firstTuple.getPmmXml(
-				Model1Schema.ATT_INDEPENDENT).get(0);
+		List<IndepXml> indeps = new LinkedList<>();
+		for (PmmXmlElementConvertable item : firstTuple.getPmmXml(
+				Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+			indeps.add((IndepXml) item);
+		}
 
 		PmmXmlDoc paramsDoc = (PmmXmlDoc) firstTuple
 				.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -429,7 +571,7 @@ class TertiaryTupleReader implements Runnable {
 		dbuuid = (String) firstTuple.getString(Model1Schema.ATT_DBUUID);
 
 		// Create JSONModel1
-		JSONModel1 m1 = new JSONModel1(catModel, dep, indep, params, modelXml,
+		JSONModel1 m1 = new JSONModel1(catModel, dep, indeps, params, modelXml,
 				mLits, emLits, databaseWritable, dbuuid);
 
 		// Create JSONArray that will hold the secondary models
@@ -441,8 +583,11 @@ class TertiaryTupleReader implements Runnable {
 					Model2Schema.ATT_MODELCATALOG).get(0);
 			dep = (DepXml) secTuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
 					.get(0);
-			indep = (IndepXml) secTuple.getPmmXml(Model2Schema.ATT_INDEPENDENT)
-					.get(0);
+			indeps.clear();
+			for (PmmXmlElementConvertable item : secTuple.getPmmXml(
+					Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+				indeps.add((IndepXml) item);
+			}
 
 			paramsDoc = (PmmXmlDoc) secTuple
 					.getPmmXml(Model2Schema.ATT_PARAMETER);
@@ -472,7 +617,7 @@ class TertiaryTupleReader implements Runnable {
 			Integer globalModelID = secTuple
 					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 
-			JSONModel2 m2 = new JSONModel2(catModel, dep, indep, params,
+			JSONModel2 m2 = new JSONModel2(catModel, dep, indeps, params,
 					modelXml, mLits, emLits, databaseWritable, dbuuid,
 					globalModelID);
 			secModels.add(m2.getObj());
@@ -480,13 +625,9 @@ class TertiaryTupleReader implements Runnable {
 
 		// Create JSONObject with TimeSeries, Model1Schema, and Model2Schemas
 		JSONObject obj = new JSONObject();
-		obj.put("TimeSeries", ts.getObj());
+		obj.put("TimeSeriesSchema", ts.getObj());
 		obj.put("Model1Schema", m1.getObj());
 		obj.put("Model2Schema", secModels);
-
-		// Turn obj into json string and return it
-		String modelString = obj.toJSONString();
-
-		return modelString;
+		return obj;
 	}
 }

@@ -24,7 +24,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 public class JSONModel1 {
 
-	private JSONObject obj;
+	JSONObject obj;
 	
 	public JSONModel1(JSONObject obj) {
 		this.obj = obj;
@@ -32,7 +32,7 @@ public class JSONModel1 {
 
 	@SuppressWarnings("unchecked")
 	public JSONModel1(CatalogModelXml catModel, DepXml dep,
-			IndepXml indep, List<ParamXml> params, EstModelXml modelXml,
+			List<IndepXml> indeps, List<ParamXml> params, EstModelXml modelXml,
 			List<LiteratureItem> mLits, List<LiteratureItem> emLits,
 			Integer databaseWritable, String mDBUID) {
 
@@ -41,7 +41,7 @@ public class JSONModel1 {
 		obj.put(Model1Schema.ATT_ESTMODEL, new JSONEstModel(modelXml).getObj());
 		obj.put(Model1Schema.ATT_DEPENDENT, new JSONDep(dep).getObj());
 		obj.put(Model1Schema.ATT_PARAMETER, new JSONParamList(params).getObj());
-		obj.put(Model1Schema.ATT_INDEPENDENT, new JSONIndep(indep).getObj());
+		obj.put(Model1Schema.ATT_INDEPENDENT, new JSONIndepList(indeps).getObj());
 		obj.put(Model1Schema.ATT_MLIT, new JSONLiteratureList(mLits).getObj());
 		obj.put(Model1Schema.ATT_EMLIT, new JSONLiteratureList(emLits).getObj());
 		obj.put(Model1Schema.ATT_DATABASEWRITABLE, databaseWritable);
@@ -89,9 +89,13 @@ public class JSONModel1 {
 		
 		// Set indep
 		if (obj.containsKey(Model1Schema.ATT_INDEPENDENT)) {
-			JSONObject jo = (JSONObject) obj.get(Model1Schema.ATT_INDEPENDENT);
-			IndepXml xml = new JSONIndep(jo).toIndepXml();
-			tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(xml));
+			JSONArray ja = (JSONArray) obj.get(Model1Schema.ATT_INDEPENDENT);
+			List<IndepXml> xmlList = new JSONIndepList(ja).toIndepXml();
+			PmmXmlDoc indepsCell = new PmmXmlDoc();
+			for (IndepXml xml : xmlList) {
+				indepsCell.add(xml);
+			}
+			tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepsCell);
 		}
 		
 		// Set model literature
@@ -148,6 +152,7 @@ public class JSONModel1 {
 		IndepXml indep = new IndepXml("Time", 0.0, 6.0, "Time", "h");
 		indep.setOrigName("Time");
 		indep.setDescription("Stunde");
+		List<IndepXml> indeps = Arrays.asList(indep);
 
 		// Log10N param - Create with name and value
 		ParamXml log10NParam = new ParamXml("Log10N", 0.0);
@@ -219,7 +224,7 @@ public class JSONModel1 {
 		String mDBUID = null;
 
 		JSONModel1 model1Encoder = new JSONModel1(
-				catModel, dep, indep, params, estModel, mLits, emLits,
+				catModel, dep, indeps, params, estModel, mLits, emLits,
 				databaseWritable, mDBUID);
 		JSONObject obj = model1Encoder.getObj();
 		System.out.println(obj);

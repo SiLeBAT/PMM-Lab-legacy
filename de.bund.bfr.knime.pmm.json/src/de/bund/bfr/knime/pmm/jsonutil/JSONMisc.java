@@ -14,14 +14,14 @@ public class JSONMisc {
 	JSONObject obj; // Json object
 	
 	// attribute keys
-	private static final String ATT_ID = "id";
-	private static final String ATT_NAME = "name";
-	private static final String ATT_DESCRIPTION = "description";
-	private static final String ATT_VALUE = "value";
-	private static final String ATT_CATEGORY = "category";
-	private static final String ATT_UNIT = "unit";
-	private static final String ATT_ORIGUNIT = "origUnit";
-	private static final String ATT_DBUUID = "dbuuid";
+	static final String ATT_ID = "id";
+	static final String ATT_NAME = "name";
+	static final String ATT_DESCRIPTION = "description";
+	static final String ATT_VALUE = "value";
+	static final String ATT_CATEGORY = "category";
+	static final String ATT_UNIT = "unit";
+	static final String ATT_ORIGUNIT = "origUnit";
+	static final String ATT_DBUUID = "dbuuid";
 
 
 	public JSONMisc(JSONObject obj) {

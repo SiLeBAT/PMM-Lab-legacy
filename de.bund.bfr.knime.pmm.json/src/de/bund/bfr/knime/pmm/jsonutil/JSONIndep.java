@@ -12,13 +12,13 @@ public class JSONIndep {
 	JSONObject obj; // json object
 
 	// attribute keys
-	private static final String ATT_NAME = "name";
-	private static final String ATT_ORIGNAME = "origname";
-	private static final String ATT_MIN = "min";
-	private static final String ATT_MAX = "max";
-	private static final String ATT_CATEGORY = "category";
-	private static final String ATT_UNIT = "unit";
-	private static final String ATT_DESCRIPTION = "description";
+	static final String ATT_NAME = "name";
+	static final String ATT_ORIGNAME = "origname";
+	static final String ATT_MIN = "min";
+	static final String ATT_MAX = "max";
+	static final String ATT_CATEGORY = "category";
+	static final String ATT_UNIT = "unit";
+	static final String ATT_DESCRIPTION = "description";
 
 	public JSONIndep(JSONObject obj) {
 		this.obj = obj;

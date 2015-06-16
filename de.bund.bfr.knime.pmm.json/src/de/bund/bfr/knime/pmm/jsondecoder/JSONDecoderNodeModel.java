@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -22,7 +21,6 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
-import org.knime.core.node.workflow.FlowVariable;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -33,6 +31,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel1;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel2;
 import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 
 /**
  * This is the model implementation of JSONDecoder. Turns a JSON table into a
@@ -56,43 +55,64 @@ public class JSONDecoderNodeModel extends NodeModel {
 	protected PortObject[] execute(final PortObject[] inData,
 			final ExecutionContext exec) throws Exception {
 
-		// Get input models
-		Map<String, FlowVariable> vars = getAvailableInputFlowVariables();
-
-		// Get model strings and skip the one named "knime.workspace"
-		List<String> modelStrings = new LinkedList<>();
-		for (FlowVariable var : vars.values()) {
-			if (!var.getName().equals("knime.workspace")) {
-				modelStrings.add(var.getStringValue());
-			}
-		}
+		String modelsString = getAvailableInputFlowVariables().get("models")
+				.getStringValue();
+		JSONArray models = (JSONArray) JSONValue.parse(modelsString);
 
 		// Find out model type
-		JSONObject obj = (JSONObject) JSONValue.parse(modelStrings.get(0));
-		boolean isTertiary = obj.containsKey("Model2Schema");
+		JSONObject jo = (JSONObject) models.get(0);
+		ModelType modelType;
+		if (jo.containsKey("TimeSeriesSchema")
+				&& jo.containsKey("Model1Schema")
+				&& jo.containsKey("Model2Schema")) {
+			modelType = ModelType.TERTIARY;
+		} else if (jo.containsKey("TimeSeriesSchema")
+				&& jo.containsKey("Model1Schema")) {
+			modelType = ModelType.PRIMARY;
+		} else {
+			modelType = ModelType.SECONDARY;
+		}
 
 		// Create output container
-		BufferedDataContainer container;
-		if (isTertiary) {
+		BufferedDataContainer container = null;
+		if (modelType == ModelType.TERTIARY) {
 			KnimeSchema schema = SchemaFactory.createM12DataSchema();
 			container = exec.createDataContainer(schema.createSpec());
-		} else {
+		} else if (modelType == ModelType.PRIMARY) {
 			KnimeSchema schema = SchemaFactory.createM1DataSchema();
+			container = exec.createDataContainer(schema.createSpec());
+		} else if (modelType == ModelType.SECONDARY) {
+			KnimeSchema schema = SchemaFactory.createM2Schema();
 			container = exec.createDataContainer(schema.createSpec());
 		}
 
 		// Create threads for each tuple
 		List<Thread> threads = new LinkedList<>();
-		// Parse tertiary models
-		if (isTertiary) {
-			for (String modelString : modelStrings) {
-				threads.add(new Thread(new TertiaryModelParser(modelString)));
+
+		// Parse primary models
+		if (modelType == ModelType.PRIMARY) {
+			for (int i = 0; i < models.size(); i++) {
+				JSONObject model = (JSONObject) models.get(i);
+				String modelString = model.toJSONString();
+				threads.add(new Thread(new PrimaryModelParser(modelString)));
 			}
 		}
-		// Parse primary models
-		else {
-			for (String modelString : modelStrings) {
-				threads.add(new Thread(new PrimaryModelParser(modelString)));
+
+		// Parse secondary models
+		else if (modelType == ModelType.SECONDARY) {
+			for (int i = 0; i < models.size(); i++) {
+				JSONObject model = (JSONObject) models.get(i);
+				String modelString = model.toJSONString();
+				threads.add(new Thread(new SecondaryModelParser(modelString)));
+			}
+		}
+
+		// Parse tertiary models
+		else if (modelType == ModelType.TERTIARY) {
+			for (int i = 0; i < models.size(); i++) {
+				JSONObject model = (JSONObject) models.get(i);
+				String modelString = model.toJSONString();
+				threads.add(new Thread(new TertiaryModelParser(modelString)));
 			}
 		}
 
@@ -108,12 +128,12 @@ public class JSONDecoderNodeModel extends NodeModel {
 			counter++;
 			exec.setProgress((float) counter / threads.size());
 		}
-		
+
 		// Add tuples to table
 		for (KnimeTuple tuple : ModelTuples.getModelTuples().getTuples()) {
 			container.addRowToTable(tuple);
 		}
-		
+
 		// clear model tuples (otherwise they'll be kept on the next run)
 		ModelTuples.getModelTuples().clear();
 
@@ -224,12 +244,12 @@ class PrimaryModelParser implements Runnable {
 	private KnimeTuple parse(String modelString) {
 		JSONObject obj = (JSONObject) JSONValue.parse(modelString);
 
-		// Parse JSONTimeSeries from json object
+		// Parse JSONTimeSeries from JSON object
 		JSONTimeSeries jTS = new JSONTimeSeries(
-				(JSONObject) obj.get("TimeSeries"));
+				(JSONObject) obj.get("TimeSeriesSchema"));
 		KnimeTuple tsTuple = jTS.toKnimeTuple();
 
-		// Parse JSONModel1 from json object
+		// Parse JSONModel1 from JSON object
 		JSONModel1 jM1 = new JSONModel1((JSONObject) obj.get("Model1Schema"));
 		KnimeTuple m1Tuple = jM1.toKnimeTuple();
 
@@ -278,6 +298,33 @@ class PrimaryModelParser implements Runnable {
 	}
 }
 
+class SecondaryModelParser implements Runnable {
+
+	String modelString;
+
+	public SecondaryModelParser(String modelString) {
+		this.modelString = modelString;
+	}
+
+	public void run() {
+		// Parse model string
+		KnimeTuple tuple = parse(modelString);
+
+		// Add tuples
+		ModelTuples mt = ModelTuples.getModelTuples();
+		mt.addTuple(tuple);
+	}
+
+	private KnimeTuple parse(String modelString) {
+		JSONObject obj = (JSONObject) JSONValue.parse(modelString);
+
+		// Parse JSONModel2 from JSONObject
+		JSONModel2 jM2 = new JSONModel2((JSONObject) obj.get("Model2Schema"));
+		KnimeTuple tuple = jM2.toKnimeTuple();
+		return tuple;
+	}
+}
+
 class TertiaryModelParser implements Runnable {
 	String modelString;
 
@@ -303,7 +350,7 @@ class TertiaryModelParser implements Runnable {
 
 		// Parse JSONTimeSeries from modelString
 		JSONTimeSeries jTS = new JSONTimeSeries(
-				(JSONObject) obj.get("TimeSeries"));
+				(JSONObject) obj.get("TimeSeriesSchema"));
 		KnimeTuple tsTuple = jTS.toKnimeTuple();
 
 		// Parse JSONModel1 from modelString

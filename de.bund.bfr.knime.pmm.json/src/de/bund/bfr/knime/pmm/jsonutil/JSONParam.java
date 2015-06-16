@@ -15,20 +15,20 @@ public class JSONParam {
 	JSONObject obj; // Json object
 	
 	// attribute keys
-	private static final String ATT_NAME = "name";
-	private static final String ATT_ORIGNAME = "origname";
-	private static final String ATT_VALUE = "value";
-	private static final String ATT_ERROR = "error";
-	private static final String ATT_MIN = "min";
-	private static final String ATT_MAX = "max";
-	private static final String ATT_P = "P";
-	private static final String ATT_T = "t";
-	private static final String ATT_MINGUESS = "minGuess";
-	private static final String ATT_MAXGUESS = "maxGuess";
-	private static final String ATT_CATEGORY = "category";
-	private static final String ATT_UNIT = "unit";
-	private static final String ATT_DESCRIPTION = "description";
-	private static final String ATT_CORRELATION = "correlation";
+	static final String ATT_NAME = "name";
+	static final String ATT_ORIGNAME = "origname";
+	static final String ATT_VALUE = "value";
+	static final String ATT_ERROR = "error";
+	static final String ATT_MIN = "min";
+	static final String ATT_MAX = "max";
+	static final String ATT_P = "P";
+	static final String ATT_T = "t";
+	static final String ATT_MINGUESS = "minGuess";
+	static final String ATT_MAXGUESS = "maxGuess";
+	static final String ATT_CATEGORY = "category";
+	static final String ATT_UNIT = "unit";
+	static final String ATT_DESCRIPTION = "description";
+	static final String ATT_CORRELATION = "correlation";
 
 
 	public JSONParam(JSONObject obj) {

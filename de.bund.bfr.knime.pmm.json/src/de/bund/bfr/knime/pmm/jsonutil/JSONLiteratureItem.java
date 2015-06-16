@@ -13,20 +13,20 @@ public class JSONLiteratureItem {
 	JSONObject obj; // Json object
 	
 	// attribute keys
-	private static final String ATT_AUTHOR = "author";
-	private static final String ATT_YEAR = "year";
-	private static final String ATT_TITLE = "title";
-	private static final String ATT_ABSTRACT = "abstract";
-	private static final String ATT_JOURNAL = "journal";
-	private static final String ATT_VOLUME = "volume";
-	private static final String ATT_ISSUE = "issue";
-	private static final String ATT_PAGE = "page";
-	private static final String ATT_APPROVAL_MODE = "approvalMode";
-	private static final String ATT_WEBSITE = "website";
-	private static final String ATT_TYPE = "type";
-	private static final String ATT_COMMENT = "comment";
-	private static final String ATT_ID = "id";
-	private static final String ATT_DBUUID = "dbuuid";
+	static final String ATT_AUTHOR = "author";
+	static final String ATT_YEAR = "year";
+	static final String ATT_TITLE = "title";
+	static final String ATT_ABSTRACT = "abstract";
+	static final String ATT_JOURNAL = "journal";
+	static final String ATT_VOLUME = "volume";
+	static final String ATT_ISSUE = "issue";
+	static final String ATT_PAGE = "page";
+	static final String ATT_APPROVAL_MODE = "approvalMode";
+	static final String ATT_WEBSITE = "website";
+	static final String ATT_TYPE = "type";
+	static final String ATT_COMMENT = "comment";
+	static final String ATT_ID = "id";
+	static final String ATT_DBUUID = "dbuuid";
 
 
 	public JSONLiteratureItem(JSONObject obj) {

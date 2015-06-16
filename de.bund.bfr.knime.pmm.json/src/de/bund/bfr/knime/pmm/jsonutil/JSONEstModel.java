@@ -12,18 +12,18 @@ public class JSONEstModel {
 	JSONObject obj; // Json object
 
 	// attribute keys
-	private static final String ATT_ID = "id";
-	private static final String ATT_NAME = "name";
-	private static final String ATT_SSE = "sse";
-	private static final String ATT_RMS = "rms";
-	private static final String ATT_R2 = "r2";
-	private static final String ATT_AIC = "aic";
-	private static final String ATT_BIC = "bic";
-	private static final String ATT_DOF = "dof";
-	private static final String ATT_QUALITYSCORE = "qualityScore";
-	private static final String ATT_CHECKED = "checked";
-	private static final String ATT_COMMENT = "comment";
-	private static final String ATT_DBUUID = "dbuuid";
+	static final String ATT_ID = "id";
+	static final String ATT_NAME = "name";
+	static final String ATT_SSE = "sse";
+	static final String ATT_RMS = "rms";
+	static final String ATT_R2 = "r2";
+	static final String ATT_AIC = "aic";
+	static final String ATT_BIC = "bic";
+	static final String ATT_DOF = "dof";
+	static final String ATT_QUALITYSCORE = "qualityScore";
+	static final String ATT_CHECKED = "checked";
+	static final String ATT_COMMENT = "comment";
+	static final String ATT_DBUUID = "dbuuid";
 
 	public JSONEstModel(JSONObject obj) {
 		this.obj = obj;

@@ -12,12 +12,12 @@ public class JSONCatalogModel {
 	JSONObject obj; // Json object
 	
 	// attribute keys
-	private static final String ATT_ID = "id";
-	private static final String ATT_NAME = "name";
-	private static final String ATT_FORMULA = "formula";
-	private static final String ATT_MODEL_CLASS = "modelClass";
-	private static final String ATT_COMMENT = "comment";
-	private static final String ATT_DBUUID = "dbuuid";
+	static final String ATT_ID = "id";
+	static final String ATT_NAME = "name";
+	static final String ATT_FORMULA = "formula";
+	static final String ATT_MODEL_CLASS = "modelClass";
+	static final String ATT_COMMENT = "comment";
+	static final String ATT_DBUUID = "dbuuid";
 
 	public JSONCatalogModel(JSONObject obj) {
 		this.obj = obj;
@@ -43,7 +43,7 @@ public class JSONCatalogModel {
 		int id = ((Long) obj.get(ATT_ID)).intValue();
 		String name = (String) obj.get(ATT_NAME);
 		String formula = (String) obj.get(ATT_FORMULA);
-		int modelClass = ((Long) obj.get(ATT_MODEL_CLASS)).intValue();
+		Integer modelClass = (Integer) obj.get(ATT_MODEL_CLASS);
 		String comment = (String) obj.get(ATT_COMMENT);
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 

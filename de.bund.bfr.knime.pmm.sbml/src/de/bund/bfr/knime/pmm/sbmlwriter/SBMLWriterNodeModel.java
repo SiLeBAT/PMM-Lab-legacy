@@ -112,8 +112,12 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
+import de.bund.bfr.knime.pmm.sbmlutil.OSFTModelFile;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimaryModel;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimaryModelFile;
 import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
+import de.bund.bfr.knime.pmm.sbmlutil.TertiaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
@@ -168,7 +172,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 
 		List<KnimeTuple> tuples = PmmUtilities.getTuples(inData[0], schema);
-		List<Experiment> experiments = null;
 
 		// Retrieve info from dialog
 		Map<String, String> dlgInfo = new HashMap<>(); // dialog info
@@ -194,21 +197,23 @@ public class SBMLWriterNodeModel extends NodeModel {
 			dlgInfo.put("Modified", modified.toString());
 		}
 
-		if (modelType == ModelType.PRIMARY) {
+		String dir = outPath.getStringValue();
+		String mdName = modelName.getStringValue();
+
+		if (modelType == ModelType.TERTIARY) {
+			OSFTModelReader reader = new OSFTModelReader(tuples, dlgInfo);
+			List<TertiaryModel> tms = reader.getModels();
+			OSFTModelFile.write(dir, mdName, tms, exec);
+		} else if (modelType == ModelType.PRIMARY) {
 			PrimaryTableReader reader = new PrimaryTableReader(tuples, dlgInfo);
-			experiments = reader.getExperiments();
-		} else if (modelType == ModelType.TERTIARY) {
-			TertiaryTableReader reader = new TertiaryTableReader(tuples,
-					dlgInfo);
-			experiments = reader.getExperiments();
+			List<PrimaryModel> models = reader.getModels();
+			PrimaryModelFile.write(dir, mdName, models, exec);
 		} else if (modelType == ModelType.SECONDARY) {
 			SecondaryTableReader reader = new SecondaryTableReader(tuples,
 					dlgInfo);
-			experiments = reader.getExperiments();
+			PMFFile.write(dir, mdName, reader.getExperiments(), exec);
 		}
 
-		PMFFile.write(outPath.getStringValue(), modelName.getStringValue(),
-				experiments, exec);
 		return new BufferedDataTable[] {};
 	}
 
@@ -575,6 +580,8 @@ abstract class TableReader {
 
 class PrimaryTableReader extends TableReader {
 
+	List<PrimaryModel> models = new LinkedList<>();
+
 	public PrimaryTableReader(List<KnimeTuple> tuples,
 			Map<String, String> dlgInfo) throws URISyntaxException {
 		super();
@@ -582,17 +589,17 @@ class PrimaryTableReader extends TableReader {
 		dlgInfo.put("type", "Primary");
 
 		for (KnimeTuple tuple : tuples) {
-			SBMLDocument model = parsePrimaryTuple(tuple, dlgInfo);
+			SBMLDocument sbmlDoc = parsePrimaryTuple(tuple, dlgInfo);
+			PrimaryModel model;
 
 			// Add NuML doc
-			// TODO: Empty time series use case
 
 			// * Get data points
 			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 
 			// No data for this model
 			if (mdData.size() == 0) {
-				experiments.add(new Experiment(model));
+				model = new PrimaryModel(sbmlDoc);
 			} else {
 				// XML time series
 				List<TimeSeriesXml> timeSeries = new LinkedList<>();
@@ -618,11 +625,15 @@ class PrimaryTableReader extends TableReader {
 						agentXml, depUnit, dlgInfo);
 
 				// * Get and add dataset
-				NuMLDocument data = dataFile.getDocument();
-
-				experiments.add(new Experiment(model, data));
+				NuMLDocument numlDoc = dataFile.getDocument();
+				model = new PrimaryModel(sbmlDoc, numlDoc);
 			}
+			models.add(model);
 		}
+	}
+
+	public List<PrimaryModel> getModels() {
+		return models;
 	}
 
 	private SBMLDocument parsePrimaryTuple(KnimeTuple tuple,
@@ -979,6 +990,390 @@ class TertiaryTableReader extends TableReader {
 				}
 			}
 		}
+	}
+
+	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
+			Map<String, String> docInfo) {
+		// modify formulas
+		for (KnimeTuple tuple : tuples) {
+			replaceCelsiusAndFahrenheit(tuple);
+			renameLog(tuple);
+		}
+
+		// retrieve common cells from the first tuple
+		KnimeTuple firstTuple = tuples.get(0);
+		CatalogModelXml modelXml = (CatalogModelXml) firstTuple.getPmmXml(
+				Model1Schema.ATT_MODELCATALOG).get(0);
+		EstModelXml estXml = (EstModelXml) firstTuple.getPmmXml(
+				Model1Schema.ATT_ESTMODEL).get(0);
+		DepXml depXml = (DepXml) firstTuple.getPmmXml(
+				Model1Schema.ATT_DEPENDENT).get(0);
+		IndepXml indep = (IndepXml) firstTuple.getPmmXml(
+				Model1Schema.ATT_INDEPENDENT).get(0);
+		AgentXml organismXml = (AgentXml) firstTuple.getPmmXml(
+				TimeSeriesSchema.ATT_AGENT).get(0);
+		MatrixXml matrixXml = (MatrixXml) firstTuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+		String modelId = "model";
+
+		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		// Enable Hierarchical Composition package
+		doc.enablePackage(CompConstants.shortLabel);
+		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) doc
+				.getPlugin(CompConstants.shortLabel);
+
+		// Document annotation
+		Annotation docAnnot = createDocAnnotation(docInfo);
+		doc.setAnnotation(docAnnot);
+
+		addNamespaces(doc);
+
+		Model model = doc.createModel(modelId);
+		if (estXml.getName() != null) {
+			model.setName(estXml.getName());
+		}
+		CompModelPlugin compModelPlugin = (CompModelPlugin) model
+				.getPlugin(CompConstants.shortLabel);
+
+		// Annotation
+		String modelTitle = estXml.getName();
+		Integer modelClassNum = modelXml.getModelClass();
+		if (modelClassNum == null) {
+			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
+		}
+		Map<String, String> qualityTags = parseQualityTags(estXml);
+
+		// Get literature references
+		List<PmmXmlElementConvertable> litItems = firstTuple.getPmmXml(
+				Model1Schema.ATT_EMLIT).getElementSet();
+		List<LiteratureItem> lits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : litItems) {
+			LiteratureItem lit = (LiteratureItem) item;
+			lits.add(lit);
+		}
+
+		// Add model annotations
+		int condID = firstTuple.getInt(TimeSeriesSchema.ATT_CONDID);
+		String combaseID = firstTuple.getString(TimeSeriesSchema.ATT_COMBASEID);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId,
+				modelTitle, qualityTags, lits, combaseID, condID);
+		model.getAnnotation()
+				.setNonRDFAnnotation(primModelAnnotation.getNode());
+
+		// Create a compartment and add it to the model
+		List<MiscXml> miscs = new LinkedList<>();
+		for (PmmXmlElementConvertable misc : firstTuple.getPmmXml(
+				TimeSeriesSchema.ATT_MISC).getElementSet()) {
+			miscs.add((MiscXml) misc);
+		}
+
+		Map<String, Double> miscsMap = new HashMap<>();
+		for (MiscXml misc : miscs) {
+			miscsMap.put(misc.getName(), misc.getValue());
+		}
+
+		Matrix matrix = new Matrix(matrixXml, miscsMap);
+		Compartment compartment = matrix.getCompartment();
+		model.addCompartment(compartment);
+
+		// Create species and add it to the model
+		Agent organism = new Agent(organismXml, depXml.getUnit(), compartment);
+		model.addSpecies(organism.getSpecies());
+
+		// Add indep constraint
+		if (!indep.getName().isEmpty()) {
+			Double min = indep.getMin();
+			Double max = indep.getMax();
+			LimitsConstraint lc = new LimitsConstraint(indep.getName(), min,
+					max);
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
+			}
+		}
+
+		// Add independent parameter
+		Parameter indepParam = new Parameter(Categories.getTime());
+		indepParam.setValue(0.0);
+		indepParam.setConstant(false);
+		indepParam.setUnits(indep.getUnit());
+		model.addParameter(indepParam);
+
+		// Add constant parameters
+		LinkedList<ParamXml> constXmls = new LinkedList<>();
+		for (PmmXmlElementConvertable pmmParam : firstTuple.getPmmXml(
+				Model1Schema.ATT_PARAMETER).getElementSet()) {
+			constXmls.add((ParamXml) pmmParam);
+		}
+
+		for (ParamXml constXml : constXmls) {
+			// Add constant parameter
+			Parameter param = new Coefficient(constXml).getParameter();
+			model.addParameter(param);
+
+			// Add constraint
+			LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
+					constXml.getMin(), constXml.getMax());
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
+			}
+		}
+
+		// Add unit definitions
+		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
+		addUnitDefinitions(model, depXml, indepXmls, constXmls);
+
+		// Create rule of the model and add it to the rest of rules
+		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
+				modelXml, organism.getSpecies().getId());
+		model.addRule(model1Rule.getRule());
+
+		// Add submodels and model definitions
+		int i = 0;
+		for (KnimeTuple tuple : tuples) {
+			CatalogModelXml secModelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model2Schema.ATT_MODELCATALOG).get(0);
+			EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(
+					Model2Schema.ATT_ESTMODEL).get(0);
+			DepXml secDepXml = (DepXml) tuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0);
+
+			// Get independent parameters
+			LinkedList<IndepXml> secIndepXmls = new LinkedList<>();
+			for (PmmXmlElementConvertable xmlItem : tuple.getPmmXml(
+					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+				secIndepXmls.add((IndepXml) xmlItem);
+			}
+
+			// Get constant parameters
+			LinkedList<ParamXml> secConstXmls = new LinkedList<>();
+			for (PmmXmlElementConvertable xmlItem : tuple.getPmmXml(
+					Model2Schema.ATT_PARAMETER).getElementSet()) {
+				secConstXmls.add((ParamXml) xmlItem);
+			}
+
+			String modelDefinitionId = "model_" + secDepXml.getName();
+			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
+					LEVEL, VERSION);
+			if (secEstModel.getName() != null) {
+				secModel.setName(secEstModel.getName());
+			}
+
+			// Add unit definitions
+			addUnitDefinitions(secModel, secDepXml, secIndepXmls, secConstXmls);
+
+			// Add dep from sec
+			Parameter secDep = new Parameter(secDepXml.getName());
+			secDep.setConstant(false);
+			secDep.setValue(0.0);
+			secModel.addParameter(secDep);
+
+			for (IndepXml indepXml : secIndepXmls) {
+				// Create SBML parameter
+				Parameter param = new SecIndep(indepXml).getParam();
+
+				// Assign unit
+				if (indepXml.getUnit() == null) {
+					param.setUnits("dimensionless");
+				} else {
+					param.setUnits(Util.createId(indepXml.getUnit()));
+				}
+
+				// Add independent parameter to model
+				secModel.addParameter(param);
+
+				// Add constraint
+				LimitsConstraint lc = new LimitsConstraint(indepXml.getName(),
+						indepXml.getMin(), indepXml.getMax());
+				if (lc.getConstraint() != null) {
+					secModel.addConstraint(lc.getConstraint());
+				}
+			}
+
+			for (ParamXml constXml : secConstXmls) {
+				// Create SBML parameter
+				Parameter constParam = new Coefficient(constXml).getParameter();
+
+				// Assign unit
+				if (constXml.getUnit() == null) {
+					constParam.setUnits("dimensionless");
+				} else {
+					constParam.setUnits(Util.createId(constXml.getUnit()));
+				}
+
+				// Add constant parameter
+				secModel.addParameter(constParam);
+
+				// Add constraint
+				LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
+						constXml.getMin(), constXml.getMax());
+				if (lc.getConstraint() != null) {
+					secModel.addConstraint(lc.getConstraint());
+				}
+			}
+
+			// Get literature references
+			litItems = tuple.getPmmXml(Model2Schema.ATT_EMLIT).getElementSet();
+			lits = new LinkedList<>();
+			for (PmmXmlElementConvertable item : litItems) {
+				LiteratureItem lit = (LiteratureItem) item;
+				lits.add(lit);
+			}
+
+			// Add sec literature references
+			int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+
+			// Add uncertainties
+			Map<String, String> uncertainties = parseQualityTags(secEstModel);
+
+			Model2Annotation secModelAnnotation = new Model2Annotation(
+					globalModelID, uncertainties, lits);
+			secModel.getAnnotation().setNonRDFAnnotation(
+					secModelAnnotation.getNode());
+
+			Model2Rule rule2 = Model2Rule
+					.convertCatalogModelXmlToModel2Rule(secModelXml);
+			secModel.addRule(rule2.getRule());
+
+			compDocPlugin.addModelDefinition(secModel);
+
+			Submodel submodel = compModelPlugin.createSubmodel("submodel"
+					+ Integer.toString(i));
+			submodel.setModelRef(modelDefinitionId);
+
+			i++;
+		}
+		return doc;
+	}
+}
+
+/**
+ * One Step Fit Tertiary Model
+ * 
+ * @author Miguel Alba
+ */
+class OSFTModelReader extends TableReader {
+
+	List<TertiaryModel> models = new LinkedList<>();
+
+	public OSFTModelReader(List<KnimeTuple> tuples, Map<String, String> dlgInfo)
+			throws URISyntaxException {
+		super();
+
+		// Sort tertiary models
+		Map<Integer, Map<Integer, List<KnimeTuple>>> globalModels = sortTuples(tuples);
+
+		// For every global model
+		for (Map<Integer, List<KnimeTuple>> globalModel : globalModels.values()) {
+			// Get all instances of this global model
+			List<List<KnimeTuple>> gmInstances = new LinkedList<>(
+					globalModel.values());
+
+			// Get tuples of the first instance
+			List<KnimeTuple> firstInstance = gmInstances.get(0);
+
+			// Generate SBML document from first tertiary model
+			SBMLDocument doc = parseTertiaryTuple(firstInstance, dlgInfo);
+
+			// Parse data from every instance
+			LinkedList<NuMLDocument> numlDocs = new LinkedList<>();
+			for (List<KnimeTuple> gmInstance : gmInstances) {
+				// Get first tuple of this instance (gmInstance). Every tuple in
+				// an instance have the same data
+				KnimeTuple firstTuple = gmInstance.get(0);
+
+				// If gmInstance has any data
+				if (firstTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES)
+						.size() > 0) {
+					// Create data file with these points and add it to the NuML
+					// documents associated to this global model
+					DataFile dataFile = createDataFile(firstTuple, dlgInfo);
+					numlDocs.add(dataFile.getDocument());
+				}
+			}
+
+			TertiaryModel tm = new TertiaryModel(doc, numlDocs);
+			models.add(tm);
+		}
+	}
+
+	public List<TertiaryModel> getModels() {
+		return models;
+	}
+
+	private Map<Integer, Map<Integer, List<KnimeTuple>>> sortTuples(
+			List<KnimeTuple> tuples) {
+		// Sort tertiary models
+		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = new HashMap<>();
+		for (KnimeTuple tuple : tuples) {
+			Integer gmID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			Integer condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+
+			// global model is in globalModels
+			if (gms.containsKey(gmID)) {
+				// Get global model
+				Map<Integer, List<KnimeTuple>> gm = gms.get(gmID);
+				// globalModel has tertiary model with condID => Add tuple to
+				// this tertiary model
+				if (gm.containsKey(condID)) {
+					gm.get(condID).add(tuple);
+				}
+				// Otherwise, create a tertiary model with condID and add it the
+				// current tuple
+				else {
+					LinkedList<KnimeTuple> tertiaryModel = new LinkedList<>();
+					tertiaryModel.add(tuple);
+					gm.put(condID, tertiaryModel);
+				}
+			}
+
+			// else, create tertiary model with condID and add it to new global
+			// model
+			else {
+				// Create new global model
+				HashMap<Integer, List<KnimeTuple>> gm = new HashMap<>();
+
+				// Create tertiary model and add it to new global model
+				LinkedList<KnimeTuple> tertiaryModel = new LinkedList<>();
+				tertiaryModel.add(tuple);
+				gm.put(condID, tertiaryModel);
+
+				// Add new global model
+				gms.put(gmID, gm);
+			}
+		}
+		return gms;
+	}
+
+	private DataFile createDataFile(KnimeTuple tuple,
+			Map<String, String> dlgInfo) throws URISyntaxException {
+
+		// Get data points
+		PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+		List<TimeSeriesXml> points = new LinkedList<>();
+		for (PmmXmlElementConvertable point : mdData.getElementSet()) {
+			points.add((TimeSeriesXml) point);
+		}
+
+		LinkedHashMap<Double, Double> dim = new LinkedHashMap<>(); // dimension
+		for (TimeSeriesXml point : points) {
+			dim.put(point.getTime(), point.getConcentration());
+		}
+
+		// Create NuML document with this time series
+
+		// Get unit from the first points (all points have the same unit
+		String unit = points.get(0).getConcentrationUnit();
+
+		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+		AgentXml agentXml = (AgentXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_AGENT).get(0);
+		String depUnit = (String) ((DepXml) tuple.getPmmXml(
+				Model1Schema.ATT_DEPENDENT).get(0)).getUnit();
+
+		DataFile dataFile = new DataFile(dim, unit, matrixXml, agentXml,
+				depUnit, dlgInfo);
+		return dataFile;
 	}
 
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,

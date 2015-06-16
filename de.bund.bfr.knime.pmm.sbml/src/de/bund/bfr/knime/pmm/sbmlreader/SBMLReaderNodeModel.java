@@ -2,6 +2,10 @@ package de.bund.bfr.knime.pmm.sbmlreader;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,6 +31,7 @@ import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
@@ -61,8 +66,15 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
+import de.bund.bfr.knime.pmm.sbmlutil.OSFTModelFile;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFFile;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimaryModel;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimaryModelFile;
 import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
+import de.bund.bfr.knime.pmm.sbmlutil.TertiaryModel;
+import de.bund.bfr.numl.NuMLDocument;
+import de.unirostock.sems.cbarchive.ArchiveEntry;
+import de.unirostock.sems.cbarchive.CombineArchive;
 
 /**
  * This is the model implementation of SBMLReader.
@@ -168,10 +180,22 @@ public class SBMLReaderNodeModel extends NodeModel {
 	// Load PMF file
 	private BufferedDataTable[] loadPMF(final ExecutionContext exec)
 			throws Exception {
-		List<Experiment> exps = PMFFile.read(filename.getStringValue());
+
+		CombineArchive ca = new CombineArchive(new File(
+				filename.getStringValue()));
+
+		String SBML_URI_STR	= "http://identifiers.org/combine/specifications/sbml";
+		URI sbmlURI = new URI(SBML_URI_STR);
+		ArchiveEntry entry = ca.getEntriesWithFormat(sbmlURI).get(0);
+
+		InputStream stream = Files.newInputStream(entry.getPath(),
+				StandardOpenOption.READ);
+		SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
+
+		ca.close();
 
 		// Find out model type
-		ModelType modelType = ModelType.getDocumentType(exps.get(0).getModel());
+		ModelType modelType = ModelType.getDocumentType(sbmlDoc);
 
 		// Create schema and container
 		KnimeSchema schema = null;
@@ -187,55 +211,69 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		// Parse models
 		if (modelType == ModelType.TERTIARY) {
-			short counter = 0;
-			for (Experiment exp : exps) {
-				// Parse model data
-				PmmXmlDoc mdData = new PmmXmlDoc();
-				if (exp.getData() != null) {
-					DataFile df = new DataFile(exp.getData());
-					for (TimeSeriesXml ts : df.getData()) {
-						mdData.add(ts);
+			short modelCounter = 0;
+			List<TertiaryModel> tms = OSFTModelFile.read(filename
+					.getStringValue());
+
+			for (TertiaryModel tm : tms) {
+				// Create tuple with model
+				List<KnimeTuple> modelTuples = TertiaryModelParser
+						.parseDocument(tm.getSBMLDocument());
+				List<NuMLDocument> numlDocs = tm.getNuMLDocuments();
+				if (numlDocs.isEmpty()) {
+					for (KnimeTuple tuple : modelTuples) {
+						container.addRowToTable(tuple);
+					}
+				} else {
+					for (NuMLDocument numlDoc : numlDocs) {
+						PmmXmlDoc mdData = new PmmXmlDoc();
+						DataFile df = new DataFile(numlDoc);
+						for (TimeSeriesXml ts : df.getData()) {
+							mdData.add(ts);
+						}
+
+						for (KnimeTuple tuple : modelTuples) {
+							tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+							container.addRowToTable(tuple);
+						}
 					}
 				}
-
-				// Parse model
-				for (KnimeTuple tuple : TertiaryModelParser.parseDocument(exp
-						.getModel())) {
-					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-					container.addRowToTable(tuple);
-				}
-
+				
 				// Increment counter and update progress bar
-				counter++;
-				exec.setProgress((float) counter / exps.size());
+				modelCounter++;
+				exec.setProgress((float) modelCounter / tms.size());
 			}
 		}
 
 		else if (modelType == ModelType.PRIMARY) {
-			short counter = 0;
-			for (Experiment exp : exps) {
+			
+			List<PrimaryModel> models = PrimaryModelFile.read(filename.getStringValue());
+			short modelCounter = 0;
+			
+			for (PrimaryModel model : models) {
+				sbmlDoc = model.getSBMLDocument();
+				NuMLDocument numlDoc = model.getNuMLDocument();
+				
+				KnimeTuple tuple = PrimaryModelParser.parseDocument(sbmlDoc);
 				// Parse model data
-				PmmXmlDoc mdData = new PmmXmlDoc();
-				if (exp.getData() != null) {
-					DataFile df = new DataFile(exp.getData());
+				if (numlDoc != null) {
+					PmmXmlDoc mdData = new PmmXmlDoc();
+					DataFile df = new DataFile(numlDoc);
 					for (TimeSeriesXml ts : df.getData()) {
 						mdData.add(ts);
 					}
+					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 				}
-
-				// Parse model
-				KnimeTuple tuple = PrimaryModelParser.parseDocument(exp
-						.getModel());
-				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 				container.addRowToTable(tuple);
-
+				
 				// Increment counter and update progress bar
-				counter++;
-				exec.setProgress((float) counter / exps.size());
+				modelCounter++;
+				exec.setProgress((float) modelCounter / models.size());
 			}
 		}
 
 		else if (modelType == ModelType.SECONDARY) {
+			List<Experiment> exps = PMFFile.read(filename.getStringValue());
 			short counter = 0;
 			for (Experiment exp : exps) {
 				// Parse model
@@ -632,7 +670,8 @@ class SecondaryModelParser {
 				.getAnnotation().getNonRDFannotation());
 
 		// EstModel
-		EstModelXml estModelXml = ReaderUtils.createEstModel(modelAnnotation.getUncertainties());
+		EstModelXml estModelXml = ReaderUtils.createEstModel(modelAnnotation
+				.getUncertainties());
 		if (model.isSetName()) {
 			estModelXml.setName(model.getName());
 		}
@@ -874,7 +913,8 @@ class TertiaryModelParser {
 					.getAnnotation().getNonRDFannotation());
 
 			// EstModel
-			EstModelXml secEstModelXml = ReaderUtils.createEstModel(secModelAnnotation.getUncertainties());
+			EstModelXml secEstModelXml = ReaderUtils
+					.createEstModel(secModelAnnotation.getUncertainties());
 			if (secModel.isSetName()) {
 				secEstModelXml.setName(secEstModelXml.getName());
 			}

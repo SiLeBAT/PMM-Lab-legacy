@@ -29,7 +29,9 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.sbmlreader,
  de.bund.bfr.knime.pmm.sbmlutil,
- de.bund.bfr.knime.pmm.sbmlwriter
+ de.bund.bfr.knime.pmm.sbmlwriter,
+ de.unirostock.sems.cbarchive,
+ org.sbml.jsbml
 Import-Package: de.bund.bfr.knime.pmm.common.generictablemodel,
  de.bund.bfr.knime.pmm.common.pmmtablemodel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

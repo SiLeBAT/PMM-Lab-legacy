@@ -72,7 +72,6 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {
@@ -127,15 +126,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private List<JLabel> parameterLabels;
 	private List<DoubleTextField> parameterFields;
 	private List<JSlider> parameterSliders;
+	private Set<String> lastVisibleParameters;
 
 	private int type;
-	private boolean stdUnitForFields;
 
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval,
-			String extraButtonLabel, boolean stdUnitForFields,
-			boolean varsChangeable) {
+			String extraButtonLabel, boolean varsChangeable) {
 		this.type = type;
-		this.stdUnitForFields = stdUnitForFields;
 		configListeners = new ArrayList<>();
 		buttonListeners = new ArrayList<>();
 		lastParamX = null;
@@ -304,6 +301,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);
+
+		lastVisibleParameters = null;
 	}
 
 	public void addConfigListener(ConfigListener listener) {
@@ -489,6 +488,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	public void setVisibleParameters(Set<String> visible) {
+		if (visible.equals(lastVisibleParameters)) {
+			return;
+		}
+
+		lastVisibleParameters = visible;
 		parameterValuesPanel.removeAll();
 
 		int row = 0;
@@ -773,14 +777,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			parameterNames.add(param);
 
 			if (type == PARAMETER_FIELDS) {
+				String unit = units.get(param);
 				JLabel label;
 
-				if (stdUnitForFields) {
-					Category cat = Categories.getCategoryByUnit(units
-							.get(param));
-
-					label = new JLabel(param + " (" + cat.getStandardUnit()
-							+ "):");
+				if (unit != null) {
+					label = new JLabel(param + " (" + units.get(param) + "):");
 				} else {
 					label = new JLabel(param + ":");
 				}
@@ -837,6 +838,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
+		lastVisibleParameters = null;
 		setVisibleParameters(new LinkedHashSet<>(parameterNames));
 	}
 

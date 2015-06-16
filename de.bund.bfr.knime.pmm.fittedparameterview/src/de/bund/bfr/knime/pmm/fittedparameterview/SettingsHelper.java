@@ -139,101 +139,101 @@ public class SettingsHelper {
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
 			selectedID = settings.getString(CFG_SELECTEDID);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			currentParamX = settings.getString(CFG_CURRENTPARAMX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			selectedValuesX = XmlConverter.xmlToObject(
 					settings.getString(CFG_SELECTEDVALUESX),
 					new LinkedHashMap<String, List<Boolean>>());
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			colorLists = XmlConverter.xmlToColorListMap(settings
 					.getString(CFG_COLORLISTS));
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			shapeLists = XmlConverter.xmlToShapeListMap(settings
 					.getString(CFG_SHAPELISTS));
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			manualRange = settings.getBoolean(CFG_MANUALRANGE);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			minX = settings.getDouble(CFG_MINX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			maxX = settings.getDouble(CFG_MAXX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			minY = settings.getDouble(CFG_MINY);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			maxY = settings.getDouble(CFG_MAXY);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			drawLines = settings.getBoolean(CFG_DRAWLINES);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			showLegend = settings.getBoolean(CFG_SHOWLEGEND);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			addLegendInfo = settings.getBoolean(CFG_ADDLEGENDINFO);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			displayHighlighted = settings.getBoolean(CFG_DISPLAYHIGHLIGHTED);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			exportAsSvg = settings.getBoolean(CFG_EXPORTASSVG);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			unitX = settings.getString(CFG_UNITX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			unitY = settings.getString(CFG_UNITY);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			transformX = settings.getString(CFG_TRANSFORMX);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			transformY = settings.getString(CFG_TRANSFORMY);
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
@@ -246,14 +246,14 @@ public class SettingsHelper {
 			visibleColumns = XmlConverter.xmlToObject(
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			usedConditions = XmlConverter.xmlToObject(
 					settings.getString(CFG_USEDCONDITIONS),
 					new ArrayList<String>());
-		} catch (InvalidSettingsException e) {			
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
@@ -407,7 +407,7 @@ public class SettingsHelper {
 	public void setDisplayHighlighted(boolean displayHighlighted) {
 		this.displayHighlighted = displayHighlighted;
 	}
-	
+
 	public boolean isExportAsSvg() {
 		return exportAsSvg;
 	}

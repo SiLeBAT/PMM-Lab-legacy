@@ -178,7 +178,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		if (containsData) {
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_BOXES, true, null, false, true);
+					ChartConfigPanel.PARAMETER_BOXES, true, null, true);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getDoubleColumns(),
 					reader.getConditions(), null,
@@ -190,7 +190,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					reader.getColorCounts());
 		} else {
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, true, null, false, true);
+					ChartConfigPanel.PARAMETER_FIELDS, true, null, true);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getDoubleColumns(),
 					reader.getConditions(), null,

@@ -169,7 +169,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
-				true, null, false, false);
+				true, null, false);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				null, null, categories, units, null);
 		configPanel.setUseManualRange(set.isManualRange());

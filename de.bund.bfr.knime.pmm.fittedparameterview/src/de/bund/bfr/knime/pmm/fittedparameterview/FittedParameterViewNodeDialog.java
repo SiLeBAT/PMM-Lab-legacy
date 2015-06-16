@@ -48,6 +48,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataTable;
@@ -129,7 +130,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_BOXES,
-				false, "Conditions", false, true);
+				false, "Conditions", true);
 
 		if (set.getSelectedID() != null
 				&& reader.getPlotables().get(set.getSelectedID()) != null) {
@@ -346,8 +347,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			mainPanel.setLayout(new BorderLayout());
 			mainPanel.add(addRemovePanel, BorderLayout.NORTH);
 			mainPanel.add(new JScrollPane(conditionList,
-					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+					ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
 					BorderLayout.CENTER);
 
 			JPanel okCancelPanel = new JPanel();

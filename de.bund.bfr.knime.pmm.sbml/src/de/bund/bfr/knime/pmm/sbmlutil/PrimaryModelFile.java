@@ -8,6 +8,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.TidySBMLWriter;
@@ -20,6 +21,7 @@ import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 public class PrimaryModelFile {
 
@@ -162,6 +164,14 @@ public class PrimaryModelFile {
 			counter++;
 			exec.setProgress((float) counter / models.size());
 		}
+		
+		// Add description with model type
+		Element metaElement = new Element("modeltype");
+		metaElement.addContent("Primary model");
+		Element metaParent = new Element("metaParent");
+		metaParent.addContent(metaElement);
+		ca.addDescription(new DefaultMetaDataObject(metaParent));	
+		
 		ca.pack();
 		ca.close();
 	}

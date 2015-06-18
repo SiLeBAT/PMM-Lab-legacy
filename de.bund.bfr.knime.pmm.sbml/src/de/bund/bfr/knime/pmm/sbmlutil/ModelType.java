@@ -1,12 +1,14 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
-import org.json.simple.JSONObject;
+import org.jdom2.Element;
 import org.knime.core.data.DataTableSpec;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 public enum ModelType {
 	PRIMARY, SECONDARY, TERTIARY;
@@ -57,26 +59,16 @@ public enum ModelType {
 		}
 	}
 
-	/**
-	 * Gets the type of a JSON object.
-	 * 
-	 * @param jo JSON object
-	 * @throws Exception
-	 *             When input JSON object does not match a primary, secondary or
-	 *             tertiary model table
-	 */
-//	public static ModelType getJSONType(JSONObject jo) throws Exception {
-//		if (jo.containsKey("TimeSeriesSchema")
-//				&& jo.containsKey("Model1Schema")
-//				&& jo.containsKey("Model2Schema")) {
-//			return TERTIARY;
-//		} else if (jo.containsKey("TimeSeriesSchema")
-//				&& jo.containsKey("Model1Schema")) {
-//			return PRIMARY;
-//		} else if (jo.containsKey("Model2Schema")) {
-//			return SECONDARY;
-//		} else {
-//			throw new Exception();
-//		}
-//	}
+	public static ModelType getPMFType(CombineArchive ca) throws Exception {
+		MetaDataObject mdo = ca.getDescriptions().get(0);
+		Element parentElement = mdo.getXmlDescription();
+		Element metadataElement = parentElement.getChild("modeltype");
+		String modelType = metadataElement.getText();
+
+		if (modelType.equals("Primary model")) {
+			return PRIMARY;
+		} else {
+			throw new Exception();
+		}
+	}
 };

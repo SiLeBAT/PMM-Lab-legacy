@@ -5,9 +5,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
@@ -20,6 +22,7 @@ import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 public class OSFTModelFile {
 
@@ -45,8 +48,15 @@ public class OSFTModelFile {
 
 		// Creates URIs
 		URI sbmlURI = new URI(SBML_URI_STR);
+		URI numlURI = new URI(NuML_URI_STR);
 
 		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(sbmlURI);
+
+		HashMap<String, ArchiveEntry> dataEntries = new HashMap<>();
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
+			dataEntries.put(entry.getFileName(), entry);
+		}
+
 		for (ArchiveEntry modelEntry : modelEntries) {
 			InputStream stream = Files.newInputStream(modelEntry.getPath(),
 					StandardOpenOption.READ);
@@ -57,11 +67,11 @@ public class OSFTModelFile {
 			XMLNode modelAnnotation = sbmlDoc.getModel().getAnnotation()
 					.getNonRDFannotation();
 			for (XMLNode dataNode : modelAnnotation.getChildElements(
-					"dataSourceNode", "")) {
+					"dataSource", "")) {
 				DataSourceNode dataSourceNode = new DataSourceNode(dataNode);
 				String dataFileName = dataSourceNode.getFile();
+				ArchiveEntry dataEntry = dataEntries.get(dataFileName);
 
-				ArchiveEntry dataEntry = ca.getEntry(dataFileName);
 				if (dataEntry != null) {
 					stream = Files.newInputStream(dataEntry.getPath(),
 							StandardOpenOption.READ);
@@ -147,6 +157,13 @@ public class OSFTModelFile {
 			modelCounter++;
 			exec.setProgress((float) modelCounter / models.size());
 		}
+
+		// Add description with model type
+		Element metaElement = new Element("modeltype");
+		metaElement.addContent("One Step Fit Model approach Tertiary");
+		Element metaParent = new Element("metaParent");
+		metaParent.addContent(metaElement);
+		ca.addDescription(new DefaultMetaDataObject(metaParent));
 
 		ca.pack();
 		ca.close();

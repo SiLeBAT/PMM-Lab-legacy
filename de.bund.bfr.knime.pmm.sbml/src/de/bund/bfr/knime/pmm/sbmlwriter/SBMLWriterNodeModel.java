@@ -1271,8 +1271,78 @@ class OSFTModelReader extends TableReader {
 			// Get tuples of the first instance
 			List<KnimeTuple> firstInstance = gmInstances.get(0);
 
+			HashMap<String, Double[]> limits = new HashMap<>();
+			for (List<KnimeTuple> gmInstance : gmInstances) {
+				// Get the first tuple of the instance. All the tuples in an
+				// tertiary model instance have identical primary model
+				// columns
+				KnimeTuple firstTuple = gmInstance.get(0);
+
+				// Get range for indep
+				IndepXml indep = (IndepXml) firstTuple.getPmmXml(
+						Model1Schema.ATT_INDEPENDENT).get(0);
+
+				Double indepMin = indep.getMin(), indepMax = indep.getMax();
+				if (indepMin != null && indepMax != null) {
+					Double indepRange = indepMax - indepMin;
+
+					// This indep already has a range from another primary model
+					if (limits.containsKey(indep.getName())) {
+						Double[] currLimits = limits.get(indep.getName());
+						Double currRange = currLimits[1] - currLimits[0];
+						if (indepRange > currRange) {
+							currLimits[0] = indepMin;
+							currLimits[1] = indepMax;
+						}
+					}
+					// This indep does not have yet limit values
+					else {
+						Double[] currLimits = new Double[] { indepMin, indepMax };
+						limits.put(indep.getName(), currLimits);
+					}
+				}
+
+				// Get ranges for constant parameters
+				LinkedList<ParamXml> constXmls = new LinkedList<>();
+				PmmXmlDoc constDoc = firstTuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
+				for (PmmXmlElementConvertable pmmParam : constDoc
+						.getElementSet()) {
+					constXmls.add((ParamXml) pmmParam);
+				}
+
+				for (ParamXml constXml : constXmls) {
+					Double constMin = constXml.getMin();
+					Double constMax = constXml.getMax();
+
+					if (constMin != null && constMax != null) {
+						Double constRange = constMax - constMin;
+
+						// This const already has a range from another primary
+						// model
+						if (limits.containsKey(constXml.getName())) {
+							Double[] currLimits = limits
+									.get(constXml.getName());
+							Double currRange = currLimits[1] - currLimits[0];
+							if (constRange > currRange) {
+								currLimits[0] = constMin;
+								currLimits[1] = constMax;
+							}
+						}
+
+						// This const does not have yet limit values
+						else {
+							Double[] currLimits = new Double[] { indepMin,
+									indepMax };
+							limits.put(indep.getName(), currLimits);
+						}
+					}
+				}
+			}
+
 			// Generate SBML document from first tertiary model
-			SBMLDocument doc = parseTertiaryTuple(firstInstance, dlgInfo);
+			SBMLDocument doc = parseTertiaryTuple(firstInstance, dlgInfo,
+					limits);
 
 			// Parse data from every instance
 			LinkedList<NuMLDocument> numlDocs = new LinkedList<>();
@@ -1377,7 +1447,7 @@ class OSFTModelReader extends TableReader {
 	}
 
 	private SBMLDocument parseTertiaryTuple(List<KnimeTuple> tuples,
-			Map<String, String> docInfo) {
+			Map<String, String> docInfo, HashMap<String, Double[]> limits) {
 		// modify formulas
 		for (KnimeTuple tuple : tuples) {
 			replaceCelsiusAndFahrenheit(tuple);
@@ -1465,14 +1535,11 @@ class OSFTModelReader extends TableReader {
 		model.addSpecies(organism.getSpecies());
 
 		// Add indep constraint
-		if (!indep.getName().isEmpty()) {
-			Double min = indep.getMin();
-			Double max = indep.getMax();
-			LimitsConstraint lc = new LimitsConstraint(indep.getName(), min,
-					max);
-			if (lc.getConstraint() != null) {
-				model.addConstraint(lc.getConstraint());
-			}
+		if (limits.containsKey(indep.getName())) {
+			Double[] indepLimits = limits.get(indep.getName());
+			LimitsConstraint lc = new LimitsConstraint(indep.getName(),
+					indepLimits[0], indepLimits[1]);
+			model.addConstraint(lc.getConstraint());
 		}
 
 		// Add independent parameter
@@ -1495,9 +1562,10 @@ class OSFTModelReader extends TableReader {
 			model.addParameter(param);
 
 			// Add constraint
-			LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
-					constXml.getMin(), constXml.getMax());
-			if (lc.getConstraint() != null) {
+			if (limits.containsKey(constXml.getMax())) {
+				Double[] constLimits = limits.get(constXml.getName());
+				LimitsConstraint lc = new LimitsConstraint(constXml.getName(),
+						constLimits[0], constLimits[1]);
 				model.addConstraint(lc.getConstraint());
 			}
 		}

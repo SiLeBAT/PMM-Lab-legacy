@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlutil;
+package de.bund.bfr.knime.pmm.file;
 
 import java.io.File;
 import java.io.InputStream;
@@ -16,6 +16,7 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.sbmlutil.PrimaryModel;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;

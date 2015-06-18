@@ -6,6 +6,13 @@ import org.sbml.jsbml.SBMLDocument;
 
 import de.bund.bfr.numl.NuMLDocument;
 
+/**
+ * Case 1. Tertiary model generated with a one-step fit approach. Keeps an SBML
+ * document for the tertiary model which include the primary model and the
+ * secondary models. This tertiary model also keeps a list of NuML documents.
+ * 
+ * @author Miguel Alba
+ */
 public class TertiaryModel {
 
 	SBMLDocument sbmlDoc;

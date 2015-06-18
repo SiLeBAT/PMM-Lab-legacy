@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.common;bundle-version="1.0.0",
  org.hsh.bfr.db;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Export-Package: de.bund.bfr.knime.pmm.sbmlreader,
+Export-Package: de.bund.bfr.knime.pmm.dbutil,
+ de.bund.bfr.knime.pmm.sbmlreader,
  de.bund.bfr.knime.pmm.sbmlutil,
  de.bund.bfr.knime.pmm.sbmlwriter,
  de.unirostock.sems.cbarchive,

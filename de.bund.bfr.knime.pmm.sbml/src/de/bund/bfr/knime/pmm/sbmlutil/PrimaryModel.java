@@ -4,6 +4,11 @@ import org.sbml.jsbml.SBMLDocument;
 
 import de.bund.bfr.numl.NuMLDocument;
 
+/**
+ * Case 4 Primary model. Holds a mandatory SBML document and an optional NuML
+ * document.
+ * @author Miguel Alba
+ */
 public class PrimaryModel {
 
 	SBMLDocument sbmlDoc;

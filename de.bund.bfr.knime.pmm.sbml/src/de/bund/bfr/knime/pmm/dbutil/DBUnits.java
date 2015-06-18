@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlutil;
+package de.bund.bfr.knime.pmm.dbutil;
 
 import java.util.HashMap;
 import java.util.Map;

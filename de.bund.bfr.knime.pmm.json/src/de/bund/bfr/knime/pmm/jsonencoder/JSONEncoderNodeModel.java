@@ -47,15 +47,15 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.dbutil.DBAgents;
+import de.bund.bfr.knime.pmm.dbutil.DBLits;
+import de.bund.bfr.knime.pmm.dbutil.DBMatrices;
 import de.bund.bfr.knime.pmm.jsonutil.JSONAgent;
 import de.bund.bfr.knime.pmm.jsonutil.JSONLiteratureList;
 import de.bund.bfr.knime.pmm.jsonutil.JSONMatrix;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel1;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel2;
 import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
-import de.bund.bfr.knime.pmm.sbmlutil.DBAgents;
-import de.bund.bfr.knime.pmm.sbmlutil.DBLits;
-import de.bund.bfr.knime.pmm.sbmlutil.DBMatrices;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 
 /**

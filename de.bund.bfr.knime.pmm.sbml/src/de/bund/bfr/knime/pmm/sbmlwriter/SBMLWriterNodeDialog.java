@@ -36,10 +36,12 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentDate;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -68,7 +70,7 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				OUT_HISTORY, JFileChooser.SAVE_DIALOG, true);
 		DialogComponentOptionalString varParamComp = new DialogComponentOptionalString(
 				new SettingsModelOptionalString(
-						SBMLWriterNodeModel.CFG_VARIABLE_PARAM, null, false),
+						SBMLWriterNodeModel.CFG_VARIABLE_PARAM, null, true),
 				"Initial Concentration Parameter");
 		DialogComponentString nameComp = new DialogComponentString(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
@@ -93,11 +95,17 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 						SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE),
 				"Last Modified");
 
+		SettingsModelBoolean isSecondary = new SettingsModelBoolean(
+				SBMLWriterNodeModel.CFG_ISSECONDARY, false);
+		DialogComponentBoolean isSecondaryCheckbox = new DialogComponentBoolean(
+				isSecondary, "Is secondary?");
+
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
 		addDialogComponent(varParamComp);
 		addDialogComponent(nameComp);
+		addDialogComponent(isSecondaryCheckbox);
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);

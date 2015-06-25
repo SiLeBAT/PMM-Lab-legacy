@@ -51,7 +51,7 @@ public class Agent {
 	public Agent(AgentXml agent, String unit, Compartment compartment) {
 
 		// Create SBML species with id prefixed by "species"
-		species = new Species("species" + agent.getId(), 3, 1);
+		species = new Species(Util.createId("species" + agent.getId()), 3, 1);
 		species.setBoundaryCondition(false);
 		species.setConstant(false);
 		species.setUnits(Util.createId(unit));

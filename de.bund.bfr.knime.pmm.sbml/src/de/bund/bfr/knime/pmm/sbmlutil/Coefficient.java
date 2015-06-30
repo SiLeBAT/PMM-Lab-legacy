@@ -240,11 +240,16 @@ class CoefficientAnnotation {
 
 		// Creates annotation for correlations
 		for (Entry<String, Double> entry : correlations.entrySet()) {
-			XMLTriple triple = new XMLTriple(CORR_TAG, null, CORR_NS);
-			XMLAttributes attrs = new XMLAttributes();
-			attrs.add(CORR_NAME, entry.getKey());
-			attrs.add(CORR_VALUE, entry.getValue().toString());
-			node.addChild(new XMLNode(triple, attrs));
+			String name = entry.getKey();
+			Double value = entry.getValue();
+
+			if (value != null) {
+				XMLTriple triple = new XMLTriple(CORR_TAG, null, CORR_NS);
+				XMLAttributes attrs = new XMLAttributes();
+				attrs.add(CORR_NAME, name);
+				attrs.add(CORR_VALUE, value.toString());
+				node.addChild(new XMLNode(triple, attrs));
+			}
 		}
 
 		// Creates annotation for description

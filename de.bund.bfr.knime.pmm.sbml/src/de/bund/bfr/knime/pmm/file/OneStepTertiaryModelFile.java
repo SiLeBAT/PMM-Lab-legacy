@@ -8,9 +8,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
+import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
@@ -20,7 +22,7 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
-import de.bund.bfr.knime.pmm.model.OneStepSecondaryModel;
+import de.bund.bfr.knime.pmm.model.OneStepTertiaryModel;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
@@ -29,12 +31,10 @@ import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
- * Case 2b: One step secondary model file. Secondary models generated
- * "implicitly" during 1-step fitting of tertiary models.
  * 
  * @author Miguel Alba
  */
-public class OneStepSecondaryModelFile {
+public class OneStepTertiaryModelFile {
 
 	// URI strings
 	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
@@ -45,13 +45,10 @@ public class OneStepSecondaryModelFile {
 	final static String NuML_EXTENSION = "numl";
 	final static String PMF_EXTENSION = "pmf";
 
-	/**
-	 * TODO ...
-	 */
-	public static List<OneStepSecondaryModel> read(String filename)
+	public static List<OneStepTertiaryModel> read(String filename)
 			throws Exception {
 
-		List<OneStepSecondaryModel> models = new LinkedList<>();
+		List<OneStepTertiaryModel> models = new LinkedList<>();
 
 		// Creates CombineArchive
 		CombineArchive ca = new CombineArchive(new File(filename));
@@ -74,36 +71,65 @@ public class OneStepSecondaryModelFile {
 			dataEntries.put(entry.getFileName(), doc);
 		}
 
+		// Classify models into tertiary or secondary models
+		Map<String, SBMLDocument> tertDocs = new HashMap<>();
+		Map<String, SBMLDocument> secDocs = new HashMap<>();
+
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(),
 					StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
-			// look for DataSourceNode
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc
+			// Secondary model -> Has no primary model
+			if (doc.getModel() == null) {
+				secDocs.put(entry.getFileName(), doc);
+			} else {
+				tertDocs.put(entry.getFileName(), doc);
+			}
+		}
+
+		ca.close();
+
+		for (SBMLDocument tertDoc : tertDocs.values()) {
+			List<SBMLDocument> secModels = new LinkedList<>();
+			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tertDoc
 					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition md = secCompPlugin.getModelDefinition(0);
-			List<NuMLDocument> numlDocs = new LinkedList<>();
-			XMLNode m2Annot = md.getAnnotation().getNonRDFannotation();
-			for (XMLNode node : m2Annot.getChildElements("dataSource", "")) {
-				DataSourceNode dsn = new DataSourceNode(node);
-				String dataFileName = dsn.getFile();
-				numlDocs.add(dataEntries.get(dataFileName));
+			// Gets secondary model ids
+			ListOf<ModelDefinition> mdList = secCompPlugin
+					.getListOfModelDefinitions();
+			for (ModelDefinition md : mdList) {
+				secModels.add(secDocs.get(md.getId()));
 			}
 
-			OneStepSecondaryModel ossm = new OneStepSecondaryModel(doc,
-					numlDocs);
-			models.add(ossm);
+			// Gets data files
+			List<NuMLDocument> numlDocs = new LinkedList<>();
+
+			String firstSecId = mdList.get(0).getId() + ".sbml";
+			SBMLDocument firstSecDoc = secDocs.get(firstSecId);
+			CompSBMLDocumentPlugin secCompDocPlugin = (CompSBMLDocumentPlugin) firstSecDoc
+					.getPlugin(CompConstants.shortLabel);
+			ModelDefinition firstSecModel = secCompDocPlugin
+					.getModelDefinition(0);
+
+			XMLNode m2Annot = firstSecModel.getAnnotation()
+					.getNonRDFannotation();
+			for (XMLNode node : m2Annot.getChildElements("dataSource", "")) {
+				DataSourceNode dsn = new DataSourceNode(node);
+				numlDocs.add(dataEntries.get(dsn.getFile()));
+			}
+			OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDoc,
+					secModels, numlDocs);
+			models.add(tstm);
 		}
-		ca.close();
+
 		return models;
 	}
 
 	/**
 	 */
 	public static void write(String dir, String filename,
-			List<OneStepSecondaryModel> models, ExecutionContext exec)
+			List<OneStepTertiaryModel> models, ExecutionContext exec)
 			throws Exception {
 
 		// Creates CombineArchive name
@@ -132,29 +158,47 @@ public class OneStepSecondaryModelFile {
 
 		// Add models and data
 		short modelCounter = 0;
-		for (OneStepSecondaryModel model : models) {
-			// Creates tmp file for the SBML model
-			File sbmlTmp = File.createTempFile("sbml", "");
-			sbmlTmp.deleteOnExit();
+		for (OneStepTertiaryModel model : models) {
+			// Creates tmp file for the secondary model
+			File tertTmp = File.createTempFile("sec", "");
+			tertTmp.deleteOnExit();
 
 			// Creates name for the secondary model
 			String mdName = String.format("%s_%s.%s", filename, modelCounter,
 					SBML_EXTENSION);
 
-			// Writes model to secTmp and adds it to the file
-			sbmlWriter.write(model.getSBMLDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp, mdName, sbmlURI);
+			// Writes tertiary model to tertTmp and adds it to the file
+			sbmlWriter.write(model.getTertiaryDoc(), tertTmp);
+			ca.addEntry(tertTmp, mdName, sbmlURI);
+
+			for (SBMLDocument secDoc : model.getSecDocs()) {
+				// Creates tmp file for the secondary model
+				File secTmp = File.createTempFile("sec", "");
+				secTmp.deleteOnExit();
+
+				// Creates name for the sec model
+				CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) secDoc
+						.getPlugin(CompConstants.shortLabel);
+				ModelDefinition md = secCompPlugin.getModelDefinition(0);
+				String secMdName = String.format("%s.%s", md.getId(),
+						SBML_EXTENSION);
+
+				// Writes model to secTmp and adds it to the file
+				sbmlWriter.write(secDoc, secTmp);
+				ca.addEntry(secTmp, secMdName, sbmlURI);
+			}
 
 			short dataCounter = 0;
-			for (NuMLDocument numlDoc : model.getNumlDocs()) {
-				// Creates tmp file for the NuML model
-				File numlTmp = File.createTempFile("numl", "");
+			for (NuMLDocument numlDoc : model.getDataDocs()) {
+				// Creates tmp file for this primary model's data
+				File numlTmp = File.createTempFile("data", "");
 				numlTmp.deleteOnExit();
 
-				// Creates name for the data file
-				String dataName = String.format("data%d.numl", dataCounter);
+				// Creates data file name
+				String dataName = String.format("data_%d_%d.%s", modelCounter,
+						dataCounter, NuML_EXTENSION);
 
-				// Writes model to numlTmp and adds it to the file
+				// Writes data to numlTmp and adds it to the file
 				numlWriter.write(numlDoc, numlTmp);
 				ca.addEntry(numlTmp, dataName, numlURI);
 
@@ -168,7 +212,7 @@ public class OneStepSecondaryModelFile {
 
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
-		metaElement.addContent("One step secondary model");
+		metaElement.addContent("One step tertiary model");
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
 		ca.addDescription(new DefaultMetaDataObject(metaParent));

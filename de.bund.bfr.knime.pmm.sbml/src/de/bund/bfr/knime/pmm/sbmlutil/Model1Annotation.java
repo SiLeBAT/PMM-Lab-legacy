@@ -52,24 +52,24 @@ public class Model1Annotation {
 			modelID = modelIDNode.getChild(0).getCharacters();
 		}
 
-		// Gets  combaseID
+		// Gets combaseID
 		XMLNode combaseIDNode = metadata.getChildElement(COMBASE_ID_TAG, "");
 		if (combaseIDNode != null) {
 			combaseID = combaseIDNode.getChild(0).getCharacters();
 		}
 
-		// Gets  condID
+		// Gets condID
 		XMLNode condIDNode = metadata.getChildElement(COND_ID_TAG, "");
 		condID = Integer.parseInt(condIDNode.getChild(0).getCharacters());
 
-		// Gets  model quality annotation
+		// Gets model quality annotation
 		XMLNode modelQualityNode = metadata.getChildElement(MODEL_QUALITY_TAG,
 				"");
 		if (modelQualityNode != null) {
 			uncertainties = new UncertaintyNode(modelQualityNode).getMeasures();
 		}
 
-		// Gets  references
+		// Gets references
 		lits = new LinkedList<>();
 		for (XMLNode refNode : metadata.getChildElements(REFERENCE_TAG, "")) {
 			lits.add(new ReferenceNode(refNode).toLiteratureItem());

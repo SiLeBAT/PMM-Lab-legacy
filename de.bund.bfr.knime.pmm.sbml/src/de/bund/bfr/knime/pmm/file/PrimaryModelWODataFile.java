@@ -20,7 +20,8 @@ import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
- * Primary models without data file.
+ * Case 1b: Primary models without data file.
+ * 
  * @author Miguel Alba
  */
 public class PrimaryModelWODataFile {
@@ -97,26 +98,27 @@ public class PrimaryModelWODataFile {
 			// Creates tmp file for the model
 			File sbmlTmp = File.createTempFile("temp1", "");
 			sbmlTmp.deleteOnExit();
-			
+
 			// Creates model file name
-			String mdName = String.format("%s_%d.%s", filename, modelCounter, SBML_EXTENSION);
-			
+			String mdName = String.format("%s_%d.%s", filename, modelCounter,
+					SBML_EXTENSION);
+
 			// Writes model to sbmlTmp and add it to the file
 			sbmlWriter.write(model.getSBMLDoc(), sbmlTmp);
 			ca.addEntry(sbmlTmp, mdName, sbmlURI);
-			
+
 			// Increments counter and update progress bar
 			modelCounter++;
 			exec.setProgress((float) modelCounter / models.size());
 		}
-		
+
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
 		metaElement.addContent("Primary model without data");
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
 		ca.addDescription(new DefaultMetaDataObject(metaParent));
-		
+
 		ca.pack();
 		ca.close();
 	}

@@ -6,9 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.hsh.bfr.db.DBKernel;
 import org.json.simple.JSONArray;
@@ -47,9 +50,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBAgents;
 import de.bund.bfr.knime.pmm.dbutil.DBLits;
 import de.bund.bfr.knime.pmm.dbutil.DBMatrices;
+import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.knime.pmm.jsonutil.JSONAgent;
 import de.bund.bfr.knime.pmm.jsonutil.JSONLiteratureList;
 import de.bund.bfr.knime.pmm.jsonutil.JSONMatrix;
@@ -157,6 +162,8 @@ public class JSONEncoderNodeModel extends NodeModel {
 		setAgents();
 		setLits();
 		setSecModels();
+		setUnits();
+		setUnitCategories();
 
 		return new PortObject[] { FlowVariablePortObject.INSTANCE };
 	}
@@ -239,6 +246,65 @@ public class JSONEncoderNodeModel extends NodeModel {
 	private void setLits() {
 		JSONLiteratureList lits = new JSONLiteratureList(DBLits.getDBLits());
 		pushFlowVariableString("references", lits.getObj().toJSONString());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setUnits() {
+		Map<String, List<String>> unitsPerCategory = new HashMap<>();
+		
+		for (UnitsFromDB ufdb : DBUnits.getDBUnits().values()) {
+			String category = ufdb.getKind_of_property_quantity();
+			String unit = ufdb.getDisplay_in_GUI_as();
+			if (unitsPerCategory.containsKey(category)) {
+				List<String> units = unitsPerCategory.get(category);
+				units.add(unit);
+			} else {
+				List<String> units = new LinkedList<>();
+				units.add(unit);
+				unitsPerCategory.put(category, units);
+			}
+		}
+		
+		JSONArray ja = new JSONArray();
+		for (Entry<String, List<String>> entry : unitsPerCategory.entrySet()) {
+			String category = entry.getKey();
+			List<String> units = entry.getValue();
+			
+			JSONObject categoryJSON = new JSONObject();
+			categoryJSON.put("text", category);
+			
+			JSONArray unitsJSON = new JSONArray();
+			for (String unit : units) {
+				JSONObject unitJSON = new JSONObject();
+				unitJSON.put("id", unit);
+				unitJSON.put("text", unit);
+				unitsJSON.add(unitJSON);
+			}
+			categoryJSON.put("children", unitsJSON);
+			ja.add(categoryJSON);
+		}
+		
+		pushFlowVariableString("units", ja.toJSONString());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setUnitCategories() {
+		// Get categories
+		Set<String> categories = new HashSet<>();
+		for (UnitsFromDB ufdb : DBUnits.getDBUnits().values()) {
+			categories.add(ufdb.getKind_of_property_quantity());
+		}
+		
+		// Build JSONArray
+		JSONArray ja = new JSONArray();
+		for (String category : categories) {
+			JSONObject jo = new JSONObject();
+			jo.put("id", ja.size());
+			jo.put("name", category);
+			ja.add(jo);
+		}
+		
+		pushFlowVariableString("categories", ja.toJSONString());
 	}
 
 	private void setSecModels() throws SQLException, InterruptedException {

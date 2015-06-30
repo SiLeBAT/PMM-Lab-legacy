@@ -6,6 +6,16 @@ import org.sbml.jsbml.SBMLDocument;
 
 import de.bund.bfr.numl.NuMLDocument;
 
+/**
+ * Case 3a: Tertiary model generated with 2-step fit approach.
+ * 
+ * Keeps one SBML Document per each tertiary model, linked to N SBMLDocuments
+ * for the secondary models. The SBMLDocument of the tertiary model also links
+ * to a number of data files.
+ * 
+ * @author Miguel Alba
+ *
+ */
 public class TwoStepTertiaryModel {
 
 	SBMLDocument tertiaryDoc;

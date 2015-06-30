@@ -19,7 +19,7 @@ public enum ModelType {
 
 	TWO_STEP_TERTIARY_MODEL, // Tertiary model generated with 2-step fit
 								// approach
-	ONE_STEP_TERTIARY_MODEL, // Tertiary model genereated with 1-step fit
+	ONE_STEP_TERTIARY_MODEL, // Tertiary model generated with 1-step fit
 								// approach
 	MANUAL_TERTIARY_MODEL,  // Tertiary models generated manually
 	

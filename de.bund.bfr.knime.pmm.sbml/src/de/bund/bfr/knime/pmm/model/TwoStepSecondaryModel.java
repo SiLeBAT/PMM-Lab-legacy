@@ -5,7 +5,7 @@ import java.util.List;
 import org.sbml.jsbml.SBMLDocument;
 
 /**
- * Two step secondary model
+ * Case 2a: Two step secondary model
  * 
  * Includes a SBML document for the secondary model (master) and N primary
  * models with data.

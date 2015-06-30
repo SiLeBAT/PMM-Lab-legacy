@@ -245,6 +245,10 @@ public class SBMLReaderNodeModel extends NodeModel {
 		for (ExperimentalData ed : eds) {
 			KnimeTuple tuple = ExperimentalDataParser.parseDocument(ed
 					.getNuMLDocument());
+			// sets CondID and CombaseID
+			tuple.setValue(TimeSeriesSchema.ATT_CONDID, container.size());
+			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID,
+					String.format("data%d", container.size()));
 			container.addRowToTable(tuple);
 			exec.setProgress((float) container.size() / eds.size());
 		}
@@ -598,6 +602,11 @@ class ExperimentalDataParser {
 			mdData.add(t);
 		}
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+
+		tuple.setValue(TimeSeriesSchema.ATT_MISC, new PmmXmlDoc());
+		MdInfoXml mdInfo = new MdInfoXml(null, "", "", null, false);
+		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
+		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
 
 		return tuple;
 	}

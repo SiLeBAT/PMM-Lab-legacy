@@ -26,6 +26,7 @@ import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
+ * Case 3c: File with tertiary models generated manually.
  * 
  * @author Miguel Alba
  */
@@ -71,7 +72,7 @@ public class ManualTertiaryModelFile {
 		}
 
 		ca.close();
-		
+
 		for (SBMLDocument tertDoc : tertDocs.values()) {
 			List<SBMLDocument> secModels = new LinkedList<>();
 			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tertDoc
@@ -83,7 +84,8 @@ public class ManualTertiaryModelFile {
 				secModels.add(secDocs.get(md.getId()));
 			}
 
-			ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, secModels);
+			ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc,
+					secModels);
 			models.add(mtm);
 		}
 

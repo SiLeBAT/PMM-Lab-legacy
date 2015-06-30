@@ -7,7 +7,7 @@ import org.sbml.jsbml.SBMLDocument;
 import de.bund.bfr.numl.NuMLDocument;
 
 /**
- * One step secondary model
+ * Case 2b: One step secondary model
  * 
  * It has a SBML document for a secondary model and its primary model, which can
  * be linked to N NuMLDocuments.

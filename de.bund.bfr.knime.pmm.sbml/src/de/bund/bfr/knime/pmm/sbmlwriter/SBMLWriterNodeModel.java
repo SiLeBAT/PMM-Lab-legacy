@@ -744,32 +744,35 @@ class ExperimentalDataReader extends TableReader {
 
 		super();
 		for (KnimeTuple tuple : tuples) {
-			// Create dim
-			LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
-				TimeSeriesXml point = (TimeSeriesXml) origPoint;
-				dim.put(point.getTime(), point.getConcentration());
-			}
-
-			String unit = ((TimeSeriesXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_TIMESERIES).get(0))
-					.getConcentrationUnit();
-			MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_MATRIX).get(0);
-			AgentXml agentXml = (AgentXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_AGENT).get(0);
-
-			RawDataFile dataFile = new RawDataFile(dim, unit, matrixXml,
-					agentXml);
-
-			// Get and add dataset
-			eds.add(new ExperimentalData(dataFile.getDocument()));
+			// Gets and adds dataset
+			ExperimentalData ed = parse(tuple);
+			eds.add(ed);
 		}
 	}
 
 	public List<ExperimentalData> getExperimentalData() {
 		return eds;
+	}
+
+	private ExperimentalData parse(KnimeTuple tuple) throws URISyntaxException {
+		// Create dim
+		LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
+		PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+		for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
+			TimeSeriesXml point = (TimeSeriesXml) origPoint;
+			dim.put(point.getTime(), point.getConcentration());
+		}
+
+		String unit = ((TimeSeriesXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_TIMESERIES).get(0)).getConcentrationUnit();
+		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_MATRIX).get(0);
+		AgentXml agentXml = (AgentXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_AGENT).get(0);
+
+		RawDataFile dataFile = new RawDataFile(dim, unit, matrixXml, agentXml);
+
+		return new ExperimentalData(dataFile.getDocument());
 	}
 }
 

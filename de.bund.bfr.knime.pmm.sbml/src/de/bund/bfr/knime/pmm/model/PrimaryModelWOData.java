@@ -3,9 +3,7 @@ package de.bund.bfr.knime.pmm.model;
 import org.sbml.jsbml.SBMLDocument;
 
 /**
- * Primary model without data.
- * 
- * It has no data.
+ * Case 1b: Primary model without data files.
  * 
  * @author Miguel Alba
  */

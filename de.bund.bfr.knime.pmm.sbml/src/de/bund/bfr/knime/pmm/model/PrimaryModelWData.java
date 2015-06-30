@@ -5,7 +5,7 @@ import org.sbml.jsbml.SBMLDocument;
 import de.bund.bfr.numl.NuMLDocument;
 
 /**
- * Primary model with data.
+ * Case 1a: Primary model with data.
  * 
  * Each primary model includes a NuMLDocument.
  * 

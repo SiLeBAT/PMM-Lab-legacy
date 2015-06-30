@@ -28,6 +28,10 @@ import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.OntologyTerm;
 import de.bund.bfr.numl.ResultComponent;
 
+/**
+ * Case 0: Experimental data file
+ * @author Miguel Alba
+ */
 public class RawDataFile {
 
 	NuMLDocument numlDoc;

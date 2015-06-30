@@ -31,7 +31,7 @@ import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
- * 
+ * Case 3b: File with tertiary model generated with 1-step fit approach.
  * @author Miguel Alba
  */
 public class OneStepTertiaryModelFile {

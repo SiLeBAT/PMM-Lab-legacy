@@ -9,12 +9,25 @@
     </shortDescription>
 
 	<fullDescription>
-		<intro>This node writes primary and tertiary models to SBML files.
-			Each model is saved in a separate XML file.
+		<intro>
+			This node writes models and data to a PMF file in disk. The
+			generated
+			PMF files support the following cases:
+			<ul>
+				<li>Experimental data</li>
+				<li>Primary model with data</li>
+				<li>Primary model without data</li>
+				<li>Two steps secondary model</li>
+				<li>One step secondary model</li>
+				<li>Manual secondary model</li>
+				<li>Two steps secondary model</li>
+				<li>One step secondary model</li>
+				<li>Manual secondary model</li>
+			</ul>
 		</intro>
 
 		<option name="Output Path">
-			Path where SBML files are written to.
+			Path where the PMF is written into.
 		</option>
 		<option name="Model Name">
 			Specifies the name of the models in SBML and the
@@ -29,9 +42,6 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Models">Primary or tertiary models (e.g. from
-			the nodes Model Fitting, Primary Model Selection, Tertiary Model
-			Selection)
-		</inPort>
+		<inPort index="0" name="Models">Table with data or models</inPort>
 	</ports>
 </knimeNode>

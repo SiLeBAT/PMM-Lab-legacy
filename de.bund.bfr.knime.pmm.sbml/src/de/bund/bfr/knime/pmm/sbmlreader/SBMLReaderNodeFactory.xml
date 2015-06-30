@@ -9,25 +9,24 @@
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Insert long description here...</intro>
-
-
-		<option name="short name of first option (like in the dialog)">description of first option</option>
-		<option name="short name of second option (like in the dialog)">description of second option</option>
-		<!-- possibly more options that can also be grouped by tabs -->
-		<!-- <tab name="Standard Options"> <option name="short name of first option 
-			(like in the dialog)">description of first option</option> <option name="short 
-			name of second option (like in the dialog)">description of second option</option> 
-			</tab> <tab name="Advanced Options"> <option name="short name of first advanced 
-			option (like in the dialog)">description of first advanced option</option> 
-			</tab> -->
+		<intro>
+			This node reads in models and data from a PMF file in disk. The
+			generated PMF files support the following cases:
+			<ul>
+				<li>Experimental data</li>
+				<li>Primary model with data</li>
+				<li>Primary model without data</li>
+				<li>Two steps secondary model</li>
+				<li>One step secondary model</li>
+				<li>Manual secondary model</li>
+				<li>Two steps secondary model</li>
+				<li>One step secondary model</li>
+				<li>Manual secondary model</li>
+			</ul>
+		</intro>
 	</fullDescription>
 
 	<ports>
 		<outPort index="0" name="Models">Read models</outPort>
 	</ports>
-	<views>
-		<view index="0" name="name of first view">Description of first view...</view>
-		<!--view index="1" name="name of second view">Description of second view...</view -->
-	</views>
 </knimeNode>

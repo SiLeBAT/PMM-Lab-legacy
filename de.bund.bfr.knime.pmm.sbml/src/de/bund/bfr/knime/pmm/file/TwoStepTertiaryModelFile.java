@@ -31,6 +31,7 @@ import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
+ * Case 3a: File with tertiary model generated with 2-step fit approach.
  * 
  * @author Miguel Alba
  */
@@ -104,7 +105,8 @@ public class TwoStepTertiaryModelFile {
 
 			// Gets data files
 			List<NuMLDocument> numlDocs = new LinkedList<>();
-			XMLNode m1Annot = tertDoc.getModel().getAnnotation().getNonRDFannotation();
+			XMLNode m1Annot = tertDoc.getModel().getAnnotation()
+					.getNonRDFannotation();
 			for (XMLNode node : m1Annot.getChildElements("dataSource", "")) {
 				DataSourceNode dsn = new DataSourceNode(node);
 				numlDocs.add(dataEntries.get(dsn.getFile()));

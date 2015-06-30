@@ -4,6 +4,14 @@ import java.util.List;
 
 import org.sbml.jsbml.SBMLDocument;
 
+/**
+ * Case 3c: Tertiary model generated manually.
+ * 
+ * Keeps a master SBMLDocument per tertiary model linked to N SBMLDocuments for
+ * the secondary models. It has no data.
+ * 
+ * @author Miguel Alba
+ */
 public class ManualTertiaryModel {
 
 	SBMLDocument tertiaryDoc;

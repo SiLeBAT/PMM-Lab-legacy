@@ -21,6 +21,7 @@ import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.model.OneStepSecondaryModel;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
@@ -168,7 +169,7 @@ public class OneStepSecondaryModelFile {
 
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
-		metaElement.addContent("One step secondary model");
+		metaElement.addContent(ModelType.ONE_STEP_SECONDARY_MODEL.name());
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
 		ca.addDescription(new DefaultMetaDataObject(metaParent));

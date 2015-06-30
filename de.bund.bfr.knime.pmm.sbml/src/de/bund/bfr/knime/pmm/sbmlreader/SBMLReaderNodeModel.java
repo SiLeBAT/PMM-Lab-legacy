@@ -83,6 +83,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.OntologyTerm;
@@ -104,6 +105,19 @@ public class SBMLReaderNodeModel extends NodeModel {
 	// persistent state
 	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE,
 			DEFAULT_FILE);
+
+	// Readers
+	Reader reader; // current reader
+
+	Reader experimentalDataReader = new ExperimentalDataReader();
+	Reader primaryModelWDataReader = new PrimaryModelWDataReader();
+	Reader primaryModelWODataReader = new PrimaryModelWODataReader();
+	Reader twoStepSecondaryModelReader = new TwoStepSecondaryModelReader();
+	Reader oneStepSecondaryModelReader = new OneStepSecondaryModelReader();
+	Reader manualSecondaryModelReader = new ManualSecondaryModelReader();
+	Reader twoStepTertiaryModelReader = new TwoStepTertiaryModelReader();
+	Reader oneStepTertiaryModelReader = new OneStepTertiaryModelReader();
+	Reader manualTertiaryModelReader = new ManualTertiaryModelReader();
 
 	/**
 	 * Constructor for the node model.
@@ -207,33 +221,41 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// c) Close archive
 		ca.close();
 
-		BufferedDataContainer container = null;
-		if (modelType.equals("Experimental data")) {
-			container = parseExperimentalDataPMF(filepath, exec);
-		} else if (modelType.equals("Primary model with data")) {
-			container = parsePrimaryModelWDataPMF(filepath, exec);
-		} else if (modelType.equals("Primary model without data")) {
-			container = parsePrimaryModelWODataPMF(filepath, exec);
-		} else if (modelType.equals("Two step secondary model")) {
-			container = parseTwoStepSecondaryModelPMF(filepath, exec);
-		} else if (modelType.equals("One step secondary model")) {
-			container = parseOneStepSecondaryModelPMF(filepath, exec);
-		} else if (modelType.equals("Manual secondary model")) {
-			container = parseManualSecondaryModelPMF(filepath, exec);
-		} else if (modelType.equals("Two step tertiary model")) {
-			container = parseTwoStepTertiaryModelPMF(filepath, exec);
-		} else if (modelType.equals("One step tertiary model")) {
-			container = parseOneStepTertiaryModelPMF(filepath, exec);
-		} else if (modelType.equals("Manual tertiary model")) {
-			container = parseManualTertiaryModel(filepath, exec);
+		if (modelType.equals(ModelType.EXPERIMENTAL_DATA.name())) {
+			reader = experimentalDataReader;
+		} else if (modelType.equals(ModelType.PRIMARY_MODEL_WDATA.name())) {
+			reader = primaryModelWDataReader;
+		} else if (modelType.equals(ModelType.PRIMARY_MODEL_WODATA.name())) {
+			reader = primaryModelWODataReader;
+		} else if (modelType.equals(ModelType.TWO_STEP_SECONDARY_MODEL.name())) {
+			reader = twoStepSecondaryModelReader;
+		} else if (modelType.equals(ModelType.ONE_STEP_SECONDARY_MODEL.name())) {
+			reader = oneStepSecondaryModelReader;
+		} else if (modelType.equals(ModelType.MANUAL_SECONDARY_MODEL.name())) {
+			reader = manualSecondaryModelReader;
+		} else if (modelType.equals(ModelType.MANUAL_SECONDARY_MODEL.name())) {
+			reader = twoStepTertiaryModelReader;
+		} else if (modelType.equals(ModelType.ONE_STEP_TERTIARY_MODEL.name())) {
+			reader = oneStepTertiaryModelReader;
+		} else if (modelType.equals(ModelType.MANUAL_TERTIARY_MODEL.name())) {
+			reader = manualTertiaryModelReader;
 		}
 
+		BufferedDataContainer container = reader.read(filepath, exec);
 		BufferedDataTable[] table = { container.getTable() };
 		return table;
 	}
+}
 
-	private BufferedDataContainer parseExperimentalDataPMF(String filepath,
-			ExecutionContext exec) throws Exception {
+interface Reader {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception;
+}
+
+class ExperimentalDataReader implements Reader {
+
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
 		// Creates table spec and container
 		DataTableSpec spec = SchemaFactory.createDataSchema().createSpec();
 		BufferedDataContainer container = exec.createDataContainer(spec);
@@ -243,8 +265,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		// Creates tuples and adds them to the container
 		for (ExperimentalData ed : eds) {
-			KnimeTuple tuple = ExperimentalDataParser.parseDocument(ed
-					.getNuMLDocument());
+			KnimeTuple tuple = parse(ed.getNuMLDocument());
 			// sets CondID and CombaseID
 			tuple.setValue(TimeSeriesSchema.ATT_CONDID, container.size());
 			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID,
@@ -257,319 +278,10 @@ public class SBMLReaderNodeModel extends NodeModel {
 		return container;
 	}
 
-	private BufferedDataContainer parsePrimaryModelWDataPMF(String filepath,
-			ExecutionContext exec) throws Exception {
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Reads in models from file
-		List<PrimaryModelWData> models = PrimaryModelWDataFile.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (PrimaryModelWData model : models) {
-			KnimeTuple tuple = PrimaryModelWDataParser.parse(
-					model.getSBMLDoc(), model.getNuMLDoc());
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parsePrimaryModelWODataPMF(String filepath,
-			ExecutionContext exec) throws Exception {
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Reads in models from file
-		List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (PrimaryModelWOData model : models) {
-			KnimeTuple tuple = PrimaryModelWODataParser.parse(model
-					.getSBMLDoc());
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parseTwoStepSecondaryModelPMF(
-			String filepath, ExecutionContext exec) throws Exception {
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Reads in models from file
-		List<TwoStepSecondaryModel> models = TwoStepSecondaryModelFile
-				.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (TwoStepSecondaryModel tssm : models) {
-			List<KnimeTuple> tuples = TwoStepSecondaryModelParser.parse(tssm);
-			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
-			}
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parseOneStepSecondaryModelPMF(
-			String filepath, ExecutionContext exec) throws Exception {
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Reads in models from file
-		List<OneStepSecondaryModel> models = OneStepSecondaryModelFile
-				.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (OneStepSecondaryModel ossm : models) {
-			List<KnimeTuple> tuples = OneStepSecondaryModelParser.parse(ossm);
-			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
-			}
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parseManualSecondaryModelPMF(String filepath,
-			ExecutionContext exec) throws Exception {
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM2Schema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Reads in models from file
-		List<ManualSecondaryModel> models = ManualSecondaryModelFile
-				.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (ManualSecondaryModel model : models) {
-			KnimeTuple tuple = ManualSecondaryModelParser.parse(model
-					.getSBMLDoc());
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parseTwoStepTertiaryModelPMF(String filepath,
-			ExecutionContext exec) throws Exception {
-
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Read in models from file
-		List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile
-				.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (TwoStepTertiaryModel tssm : models) {
-			List<KnimeTuple> tuples = TwoStepTertiaryModelParser.parse(tssm);
-			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
-			}
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parseOneStepTertiaryModelPMF(String filepath,
-			ExecutionContext exec) throws Exception {
-
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Read in models from file
-		List<OneStepTertiaryModel> models = OneStepTertiaryModelFile
-				.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (OneStepTertiaryModel tssm : models) {
-			List<KnimeTuple> tuples = OneStepTertiaryModelParser.parse(tssm);
-			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
-			}
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-
-	private BufferedDataContainer parseManualTertiaryModel(String filepath,
-			ExecutionContext exec) throws Exception {
-
-		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Read in models from file
-		List<ManualTertiaryModel> models = ManualTertiaryModelFile
-				.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (ManualTertiaryModel mtm : models) {
-			List<KnimeTuple> tuples = ManualTertiaryModelParser.parse(mtm);
-			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
-			}
-			exec.setProgress((float) container.size() / models.size());
-		}
-
-		container.close();
-		return container;
-	}
-}
-
-class ReaderUtils {
-
-	/**
-	 * Parses a list of constraints and returns a dictionary that maps variables
-	 * and their limit values.
-	 * 
-	 * @param constraints
-	 */
-	public static Map<String, Limits> parseConstraints(
-			final ListOf<Constraint> constraints) {
-		Map<String, Limits> paramLimits = new HashMap<>();
-
-		for (Constraint currConstraint : constraints) {
-			LimitsConstraint lc = new LimitsConstraint(currConstraint);
-			Limits lcLimits = lc.getLimits();
-			paramLimits.put(lcLimits.getVar(), lcLimits);
-		}
-
-		return paramLimits;
-	}
-
-	/**
-	 * Creates an EstModelXml from a number of model annotations.
-	 * 
-	 * @param annotations
-	 *            Map of uncertainty measures and their values.
-	 */
-	public static EstModelXml createEstModel(
-			final Map<String, String> annotations) {
-		// Initialises variables
-		int id = Integer.parseInt(annotations.get("id")); // model id
-		String name = null;
-		String comment = null;
-		Double r2 = null;
-		Double rms = null;
-		Double sse = null;
-		Double aic = null;
-		Double bic = null;
-		Integer dof = null;
-
-		// Get values from the annotations
-		if (annotations != null) {
-			if (annotations.containsKey("dataUsage")) {
-				comment = annotations.get("dataUsage");
-			}
-			if (annotations.containsKey("r-squared")) {
-				r2 = Double.parseDouble(annotations.get("r-squared"));
-			}
-			if (annotations.containsKey("rootMeanSquaredError")) {
-				rms = Double.parseDouble(annotations
-						.get("rootMeanSquaredError"));
-			}
-			if (annotations.containsKey("sumSquaredError")) {
-				sse = Double.parseDouble(annotations.get("sumSquaredError"));
-			}
-			if (annotations.containsKey("AIC")) {
-				aic = Double.parseDouble(annotations.get("AIC"));
-			}
-			if (annotations.containsKey("BIC")) {
-				bic = Double.parseDouble(annotations.get("BIC"));
-			}
-			if (annotations.containsKey("degreesOfFreedom")) {
-				dof = Integer.parseInt(annotations.get("degreesOfFreedom"));
-			}
-		}
-
-		EstModelXml estModel = new EstModelXml(id, name, sse, rms, r2, aic,
-				bic, dof);
-		estModel.setQualityScore(0); // unchecked model
-		estModel.setComment(comment);
-		return estModel;
-	}
-
-	/**
-	 * Parses misc items.
-	 * 
-	 * @param miscs
-	 *            . Dictionary that maps miscs names and their values.
-	 * @return
-	 */
-	public static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
-		PmmXmlDoc cell = new PmmXmlDoc();
-
-		// First misc item has id -1 and the rest of items have negative ints
-		int counter = -1;
-
-		for (Entry<String, Double> entry : miscs.entrySet()) {
-			String name = entry.getKey();
-			Double value = entry.getValue();
-
-			List<String> categories;
-			String description, unit;
-
-			switch (name) {
-			case "Temperature":
-				categories = Arrays.asList(Categories.getTempCategory()
-						.getName());
-				description = name;
-				unit = Categories.getTempCategory().getStandardUnit();
-
-				cell.add(new MiscXml(counter, name, description, value,
-						categories, unit));
-
-				counter -= 1;
-				break;
-
-			case "pH":
-				categories = Arrays
-						.asList(Categories.getPhCategory().getName());
-				description = name;
-				unit = Categories.getPhUnit();
-
-				cell.add(new MiscXml(counter, name, description, value,
-						categories, unit));
-
-				counter -= 1;
-				break;
-			}
-		}
-
-		return cell;
-	}
-}
-
-class ExperimentalDataParser {
-
-	public static KnimeTuple parseDocument(NuMLDocument doc) {
+	private KnimeTuple parse(NuMLDocument numlDoc) {
 		// Search concentration ontology
 		OntologyTerm concOntology = null;
-		for (OntologyTerm ot : doc.getOntologyTerms()) {
+		for (OntologyTerm ot : numlDoc.getOntologyTerms()) {
 			if (ot.getTerm().equals("concentration")) {
 				concOntology = ot;
 				break;
@@ -596,7 +308,7 @@ class ExperimentalDataParser {
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
 
 		// Set time series
-		RawDataFile dataFile = new RawDataFile(doc);
+		RawDataFile dataFile = new RawDataFile(numlDoc);
 		PmmXmlDoc mdData = new PmmXmlDoc();
 		for (TimeSeriesXml t : dataFile.getData()) {
 			mdData.add(t);
@@ -612,153 +324,29 @@ class ExperimentalDataParser {
 	}
 }
 
-class PrimaryModelWODataParser {
+class PrimaryModelWDataReader implements Reader {
 
-	public static KnimeTuple parse(SBMLDocument doc) {
-		Model model = doc.getModel();
-		ListOf<Parameter> listOfParameters = model.getListOfParameters();
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
 
-		// Parse model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(model
-				.getAnnotation().getNonRDFannotation());
+		// Reads in models from file
+		List<PrimaryModelWData> models = PrimaryModelWDataFile.read(filepath);
 
-		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
-
-		// Parse constraints
-		ListOf<Constraint> constraints = model.getListOfConstraints();
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
-
-		// time series cells
-		final int condID = primModelAnnotation.getCondID();
-		final String combaseID = primModelAnnotation.getCombaseID();
-		Agent organism = new Agent(model.getSpecies(0));
-		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
-		Matrix matrix = new Matrix(model.getCompartment(0));
-		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
-
-		PmmXmlDoc mdDataCell = new PmmXmlDoc();
-
-		// Parse model variables: Temperature, pH and water activity
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
-				null, null));
-
-		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc();
-		String mdDBUID = "?";
-
-		// primary model cells
-		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
-
-		// Parse dependent parameter (primary models only have one dependent
-		// variable)
-		DepXml depXml = new DepXml("Value");
-		String depUnitID = organism.getSpecies().getUnits();
-		if (depUnitID != null) {
-			String depUnitName = model.getUnitDefinition(depUnitID).getName();
-			depXml.setUnit(depUnitName);
-			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName)
-					.getKind_of_property_quantity());
-		}
-		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
-
-		// Parse indep
-		Parameter indepParam = listOfParameters.get(Categories.getTime());
-		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
-		String indepUnitID = indepParam.getUnits();
-		if (!indepUnitID.equalsIgnoreCase("dimensionless")) {
-			String unitName = model.getUnitDefinition(indepUnitID).getName();
-			indepXml.setUnit(unitName);
-			indepXml.setCategory(Categories.getTimeCategory().getName());
-			indepXml.setDescription(Categories.getTime());
-		}
-		// Get limits
-		if (limits.containsKey(indepParam.getId())) {
-			Limits indepLimits = limits.get(indepParam.getId());
-			indepXml.setMax(indepLimits.getMax());
-			indepXml.setMin(indepLimits.getMin());
-		}
-		PmmXmlDoc indepCell = new PmmXmlDoc(indepXml);
-
-		// Parse Consts
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : listOfParameters) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			}
+		// Creates tuples and adds them to the container
+		for (PrimaryModelWData model : models) {
+			KnimeTuple tuple = parse(model.getSBMLDoc(), model.getNuMLDoc());
+			container.addRowToTable(tuple);
+			exec.setProgress((float) container.size() / models.size());
 		}
 
-		PmmXmlDoc paramCell = new PmmXmlDoc();
-		for (Parameter constParam : constParams) {
-			ParamXml paramXml = new Coefficient(constParam).toParamXml();
-
-			// Assign unit and category
-			String unitID = constParam.getUnits();
-			if (!unitID.equals("dimensionless")) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
-						.getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(constParam.getId())) {
-				Limits constLimits = limits.get(constParam.getId());
-				paramXml.setMax(constLimits.getMax());
-				paramXml.setMin(constLimits.getMin());
-			}
-
-			paramCell.add(paramXml);
-		}
-
-		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
-				.getUncertainties());
-		if (model.isSetName()) {
-			estModel.setName(model.getName());
-		}
-
-		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
-
-		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
-		for (LiteratureItem lit : primModelAnnotation.getLits()) {
-			emLiteratureCell.add(lit);
-		}
-
-		String mDBUID = "?";
-
-		// Add cells to the row
-		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
-
-		// time series cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		row.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
-		row.setValue(TimeSeriesSchema.ATT_AGENT, organismCell);
-		row.setValue(TimeSeriesSchema.ATT_MATRIX, matrixCell);
-		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);
-		row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		row.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoCell);
-		row.setValue(TimeSeriesSchema.ATT_LITMD, mdLiteratureCell);
-		row.setValue(TimeSeriesSchema.ATT_DBUUID, mdDBUID);
-
-		// primary model cells
-		row.setValue(Model1Schema.ATT_MODELCATALOG, catModelCell);
-		row.setValue(Model1Schema.ATT_DEPENDENT, depCell);
-		row.setValue(Model1Schema.ATT_INDEPENDENT, indepCell);
-		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
-		row.setValue(Model1Schema.ATT_ESTMODEL, estModelCell);
-		row.setValue(Model1Schema.ATT_MLIT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_EMLIT, emLiteratureCell);
-		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
-		row.setValue(Model1Schema.ATT_DBUUID, mDBUID);
-
-		return row;
+		container.close();
+		return container;
 	}
-}
 
-class PrimaryModelWDataParser {
-
-	public static KnimeTuple parse(SBMLDocument sbmlDoc, NuMLDocument numlDoc) {
+	private KnimeTuple parse(SBMLDocument sbmlDoc, NuMLDocument numlDoc) {
 		Model model = sbmlDoc.getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
 
@@ -904,10 +492,196 @@ class PrimaryModelWDataParser {
 	}
 }
 
-class TwoStepSecondaryModelParser {
+class PrimaryModelWODataReader implements Reader {
 
-	public static List<KnimeTuple> parse(TwoStepSecondaryModel tssm) {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
 
+		// Reads in models from file
+		List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(filepath);
+
+		// Creates tuples and adds them to the container
+		for (PrimaryModelWOData model : models) {
+			KnimeTuple tuple = parse(model.getSBMLDoc());
+			container.addRowToTable(tuple);
+			exec.setProgress((float) container.size() / models.size());
+		}
+
+		container.close();
+		return container;
+	}
+
+	private KnimeTuple parse(SBMLDocument sbmlDoc) {
+		Model model = sbmlDoc.getModel();
+		ListOf<Parameter> listOfParameters = model.getListOfParameters();
+
+		// Parse model annotations
+		Model1Annotation primModelAnnotation = new Model1Annotation(model
+				.getAnnotation().getNonRDFannotation());
+
+		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
+		CatalogModelXml catModel = rule.toCatModel();
+
+		// Parse constraints
+		ListOf<Constraint> constraints = model.getListOfConstraints();
+		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
+
+		// time series cells
+		final int condID = primModelAnnotation.getCondID();
+		final String combaseID = primModelAnnotation.getCombaseID();
+		Agent organism = new Agent(model.getSpecies(0));
+		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
+		Matrix matrix = new Matrix(model.getCompartment(0));
+		PmmXmlDoc matrixCell = new PmmXmlDoc(matrix.toMatrixXml());
+
+		PmmXmlDoc mdDataCell = new PmmXmlDoc();
+
+		// Parse model variables: Temperature, pH and water activity
+		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
+
+		PmmXmlDoc mdInfoCell = new PmmXmlDoc(new MdInfoXml(null, null, null,
+				null, null));
+
+		PmmXmlDoc mdLiteratureCell = new PmmXmlDoc();
+		String mdDBUID = "?";
+
+		// primary model cells
+		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
+
+		// Parse dependent parameter (primary models only have one dependent
+		// variable)
+		DepXml depXml = new DepXml("Value");
+		String depUnitID = organism.getSpecies().getUnits();
+		if (depUnitID != null) {
+			String depUnitName = model.getUnitDefinition(depUnitID).getName();
+			depXml.setUnit(depUnitName);
+			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName)
+					.getKind_of_property_quantity());
+		}
+		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
+
+		// Parse indep
+		Parameter indepParam = listOfParameters.get(Categories.getTime());
+		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
+		String indepUnitID = indepParam.getUnits();
+		if (!indepUnitID.equalsIgnoreCase("dimensionless")) {
+			String unitName = model.getUnitDefinition(indepUnitID).getName();
+			indepXml.setUnit(unitName);
+			indepXml.setCategory(Categories.getTimeCategory().getName());
+			indepXml.setDescription(Categories.getTime());
+		}
+		// Get limits
+		if (limits.containsKey(indepParam.getId())) {
+			Limits indepLimits = limits.get(indepParam.getId());
+			indepXml.setMax(indepLimits.getMax());
+			indepXml.setMin(indepLimits.getMin());
+		}
+		PmmXmlDoc indepCell = new PmmXmlDoc(indepXml);
+
+		// Parse Consts
+		LinkedList<Parameter> constParams = new LinkedList<>();
+		for (Parameter param : listOfParameters) {
+			if (param.isConstant()) {
+				constParams.add(param);
+			}
+		}
+
+		PmmXmlDoc paramCell = new PmmXmlDoc();
+		for (Parameter constParam : constParams) {
+			ParamXml paramXml = new Coefficient(constParam).toParamXml();
+
+			// Assign unit and category
+			String unitID = constParam.getUnits();
+			if (!unitID.equals("dimensionless")) {
+				String unitName = model.getUnitDefinition(unitID).getName();
+				paramXml.setUnit(unitName);
+				paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
+						.getKind_of_property_quantity());
+			}
+
+			// Get limits
+			if (limits.containsKey(constParam.getId())) {
+				Limits constLimits = limits.get(constParam.getId());
+				paramXml.setMax(constLimits.getMax());
+				paramXml.setMin(constLimits.getMin());
+			}
+
+			paramCell.add(paramXml);
+		}
+
+		EstModelXml estModel = ReaderUtils.createEstModel(primModelAnnotation
+				.getUncertainties());
+		if (model.isSetName()) {
+			estModel.setName(model.getName());
+		}
+
+		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
+
+		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		for (LiteratureItem lit : primModelAnnotation.getLits()) {
+			emLiteratureCell.add(lit);
+		}
+
+		String mDBUID = "?";
+
+		// Add cells to the row
+		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
+
+		// time series cells
+		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
+		row.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
+		row.setValue(TimeSeriesSchema.ATT_AGENT, organismCell);
+		row.setValue(TimeSeriesSchema.ATT_MATRIX, matrixCell);
+		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);
+		row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
+		row.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoCell);
+		row.setValue(TimeSeriesSchema.ATT_LITMD, mdLiteratureCell);
+		row.setValue(TimeSeriesSchema.ATT_DBUUID, mdDBUID);
+
+		// primary model cells
+		row.setValue(Model1Schema.ATT_MODELCATALOG, catModelCell);
+		row.setValue(Model1Schema.ATT_DEPENDENT, depCell);
+		row.setValue(Model1Schema.ATT_INDEPENDENT, indepCell);
+		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
+		row.setValue(Model1Schema.ATT_ESTMODEL, estModelCell);
+		row.setValue(Model1Schema.ATT_MLIT, new PmmXmlDoc());
+		row.setValue(Model1Schema.ATT_EMLIT, emLiteratureCell);
+		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
+		row.setValue(Model1Schema.ATT_DBUUID, mDBUID);
+
+		return row;
+	}
+}
+
+class TwoStepSecondaryModelReader implements Reader {
+
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
+
+		// Reads in models from file
+		List<TwoStepSecondaryModel> models = TwoStepSecondaryModelFile
+				.read(filepath);
+
+		// Creates tuples and adds them to the container
+		for (TwoStepSecondaryModel tssm : models) {
+			List<KnimeTuple> tuples = parse(tssm);
+			for (KnimeTuple tuple : tuples) {
+				container.addRowToTable(tuple);
+			}
+			exec.setProgress((float) container.size() / models.size());
+		}
+
+		container.close();
+		return container;
+	}
+
+	private List<KnimeTuple> parse(TwoStepSecondaryModel tssm) {
 		// create n rows for n secondary models
 		List<KnimeTuple> rows = new LinkedList<>();
 
@@ -1197,9 +971,32 @@ class TwoStepSecondaryModelParser {
 	}
 }
 
-class OneStepSecondaryModelParser {
+class OneStepSecondaryModelReader implements Reader {
 
-	public static List<KnimeTuple> parse(OneStepSecondaryModel ossm) {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
+
+		// Reads in models from file
+		List<OneStepSecondaryModel> models = OneStepSecondaryModelFile
+				.read(filepath);
+
+		// Creates tuples and adds them to the container
+		for (OneStepSecondaryModel ossm : models) {
+			List<KnimeTuple> tuples = parse(ossm);
+			for (KnimeTuple tuple : tuples) {
+				container.addRowToTable(tuple);
+			}
+			exec.setProgress((float) container.size() / models.size());
+		}
+
+		container.close();
+		return container;
+	}
+
+	private List<KnimeTuple> parse(OneStepSecondaryModel ossm) {
 		List<KnimeTuple> rows = new LinkedList<>();
 
 		// Create primary model
@@ -1480,11 +1277,31 @@ class OneStepSecondaryModelParser {
 	}
 }
 
-class ManualSecondaryModelParser {
+class ManualSecondaryModelReader implements Reader {
 
-	public static KnimeTuple parse(SBMLDocument doc) {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM2Schema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
 
-		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) doc
+		// Reads in models from file
+		List<ManualSecondaryModel> models = ManualSecondaryModelFile
+				.read(filepath);
+
+		// Creates tuples and adds them to the container
+		for (ManualSecondaryModel model : models) {
+			KnimeTuple tuple = parse(model.getSBMLDoc());
+			container.addRowToTable(tuple);
+			exec.setProgress((float) container.size() / models.size());
+		}
+
+		container.close();
+		return container;
+	}
+
+	private KnimeTuple parse(SBMLDocument sbmlDoc) {
+		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) sbmlDoc
 				.getPlugin(CompConstants.shortLabel);
 		ModelDefinition model = compPlugin.getModelDefinition(0);
 
@@ -1615,145 +1432,32 @@ class ManualSecondaryModelParser {
 	}
 }
 
-class SecondaryModelParser {
+class TwoStepTertiaryModelReader implements Reader {
 
-	public static KnimeTuple parseDocument(SBMLDocument doc) {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
 
-		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) doc
-				.getPlugin(CompConstants.shortLabel);
-		ModelDefinition model = compPlugin.getModelDefinition(0);
+		// Read in models from file
+		List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile
+				.read(filepath);
 
-		// Parse constraints
-		ListOf<Constraint> constraints = model.getListOfConstraints();
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
-
-		// Parse rule
-		Model2Rule rule = new Model2Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
-		PmmXmlDoc catModelCell = new PmmXmlDoc(catModel);
-
-		// Get parameters
-		ListOf<Parameter> params = model.getListOfParameters();
-
-		// Parse dep
-		String depName = rule.getRule().getVariable();
-		DepXml depXml = new DepXml(depName);
-		Parameter depParam = model.getParameter(depName);
-		if (depParam.getUnits() != null) {
-			// Add unit
-			String unitID = depParam.getUnits();
-			String unitName = model.getUnitDefinition(unitID).getName();
-			depXml.setUnit(unitName);
-
-			// Add unit category
-			if (unitName.equals("min") || unitName.equals("h")) {
-				depXml.setCategory(Categories.getTimeCategory().getName());
-			} else if (unitName.equals("°C")) {
-				depXml.setCategory(Categories.getTempCategory().getName());
+		// Creates tuples and adds them to the container
+		for (TwoStepTertiaryModel tssm : models) {
+			List<KnimeTuple> tuples = parse(tssm);
+			for (KnimeTuple tuple : tuples) {
+				container.addRowToTable(tuple);
 			}
-		}
-		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
-
-		// Sort const and indep params
-		LinkedList<Parameter> indepParams = new LinkedList<>();
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : params) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			} else if (!param.getId().equals(depName)) {
-				indepParams.add(param);
-			}
+			exec.setProgress((float) container.size() / models.size());
 		}
 
-		// Parse indeps
-		PmmXmlDoc indepCell = new PmmXmlDoc();
-		for (Parameter param : indepParams) {
-			IndepXml indepXml = new SecIndep(param).toIndepXml();
-
-			// Assign unit and category
-			String unitID = param.getUnits();
-			if (!unitID.equals("dimensionless")) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				indepXml.setUnit(unitName);
-				indepXml.setCategory(DBUnits.getDBUnits().get(unitName)
-						.getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits indepLimits = limits.get(param.getId());
-				indepXml.setMax(indepLimits.getMax());
-				indepXml.setMin(indepLimits.getMin());
-			}
-
-			indepCell.add(indepXml);
-		}
-
-		// Parse consts
-		PmmXmlDoc constCell = new PmmXmlDoc();
-		for (Parameter param : constParams) {
-			ParamXml paramXml = new Coefficient(param).toParamXml();
-
-			// Assign unit and category
-			String unitID = param.getUnits();
-			if (!unitID.equals("dimensionless")) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName)
-						.getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits constLimits = limits.get(param.getId());
-				paramXml.setMax(constLimits.getMax());
-				paramXml.setMin(constLimits.getMin());
-			}
-
-			constCell.add(paramXml);
-		}
-
-		// Get model annotation
-		Model2Annotation modelAnnotation = new Model2Annotation(model
-				.getAnnotation().getNonRDFannotation());
-
-		// EstModel
-		EstModelXml estModelXml = ReaderUtils.createEstModel(modelAnnotation
-				.getUncertainties());
-		if (model.isSetName()) {
-			estModelXml.setName(model.getName());
-		}
-		PmmXmlDoc estModelCell = new PmmXmlDoc(estModelXml);
-
-		// Get globalModelID from annotation
-		int globalModelID = modelAnnotation.getGlobalModelID();
-
-		// Get EM_Literature (references) from annotation
-		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
-		for (LiteratureItem lit : modelAnnotation.getLiteratureItems()) {
-			emLiteratureCell.add(lit);
-		}
-
-		// Add cells to the row
-		KnimeTuple row = new KnimeTuple(SchemaFactory.createM2Schema());
-		row.setValue(Model2Schema.ATT_MODELCATALOG, catModelCell);
-		row.setValue(Model2Schema.ATT_DEPENDENT, depCell);
-		row.setValue(Model2Schema.ATT_INDEPENDENT, indepCell);
-		row.setValue(Model2Schema.ATT_PARAMETER, constCell);
-		row.setValue(Model2Schema.ATT_ESTMODEL, estModelCell);
-		row.setValue(Model2Schema.ATT_MLIT, new PmmXmlDoc());
-		row.setValue(Model2Schema.ATT_EMLIT, emLiteratureCell);
-		row.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
-		row.setValue(Model2Schema.ATT_DBUUID, "?");
-		row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
-		return row;
+		container.close();
+		return container;
 	}
-}
 
-class TwoStepTertiaryModelParser {
-
-	public static List<KnimeTuple> parse(TwoStepTertiaryModel tstm) {
-
+	private List<KnimeTuple> parse(TwoStepTertiaryModel tstm) {
 		// Parses model
 		SBMLDocument tertDoc = tstm.getTertiaryDoc();
 		Model model = tertDoc.getModel();
@@ -2027,10 +1731,32 @@ class TwoStepTertiaryModelParser {
 	}
 }
 
-class OneStepTertiaryModelParser {
+class OneStepTertiaryModelReader implements Reader {
 
-	public static List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
 
+		// Read in models from file
+		List<OneStepTertiaryModel> models = OneStepTertiaryModelFile
+				.read(filepath);
+
+		// Creates tuples and adds them to the container
+		for (OneStepTertiaryModel ostm : models) {
+			List<KnimeTuple> tuples = parse(ostm);
+			for (KnimeTuple tuple : tuples) {
+				container.addRowToTable(tuple);
+			}
+			exec.setProgress((float) container.size() / models.size());
+		}
+
+		container.close();
+		return container;
+	}
+
+	private List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
 		// Parses model
 		SBMLDocument tertDoc = ostm.getTertiaryDoc();
 		Model model = tertDoc.getModel();
@@ -2343,9 +2069,32 @@ class OneStepTertiaryModelParser {
 	}
 }
 
-class ManualTertiaryModelParser {
+class ManualTertiaryModelReader implements Reader {
 
-	public static List<KnimeTuple> parse(ManualTertiaryModel mtm) {
+	public BufferedDataContainer read(String filepath, ExecutionContext exec)
+			throws Exception {
+		// Creates table spec and container
+		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(spec);
+
+		// Read in models from file
+		List<ManualTertiaryModel> models = ManualTertiaryModelFile
+				.read(filepath);
+
+		// Creates tuples and adds them to the container
+		for (ManualTertiaryModel mtm : models) {
+			List<KnimeTuple> tuples = parse(mtm);
+			for (KnimeTuple tuple : tuples) {
+				container.addRowToTable(tuple);
+			}
+			exec.setProgress((float) container.size() / models.size());
+		}
+
+		container.close();
+		return container;
+	}
+
+	private List<KnimeTuple> parse(ManualTertiaryModel mtm) {
 		Model model = mtm.getTertiaryDoc().getModel();
 		ListOf<Parameter> listOfParameters = model.getListOfParameters();
 
@@ -2609,5 +2358,129 @@ class ManualTertiaryModelParser {
 		}
 
 		return rows;
+	}
+}
+
+class ReaderUtils {
+
+	/**
+	 * Parses a list of constraints and returns a dictionary that maps variables
+	 * and their limit values.
+	 * 
+	 * @param constraints
+	 */
+	public static Map<String, Limits> parseConstraints(
+			final ListOf<Constraint> constraints) {
+		Map<String, Limits> paramLimits = new HashMap<>();
+
+		for (Constraint currConstraint : constraints) {
+			LimitsConstraint lc = new LimitsConstraint(currConstraint);
+			Limits lcLimits = lc.getLimits();
+			paramLimits.put(lcLimits.getVar(), lcLimits);
+		}
+
+		return paramLimits;
+	}
+
+	/**
+	 * Creates an EstModelXml from a number of model annotations.
+	 * 
+	 * @param annotations
+	 *            Map of uncertainty measures and their values.
+	 */
+	public static EstModelXml createEstModel(
+			final Map<String, String> annotations) {
+		// Initialises variables
+		int id = Integer.parseInt(annotations.get("id")); // model id
+		String name = null;
+		String comment = null;
+		Double r2 = null;
+		Double rms = null;
+		Double sse = null;
+		Double aic = null;
+		Double bic = null;
+		Integer dof = null;
+
+		// Get values from the annotations
+		if (annotations != null) {
+			if (annotations.containsKey("dataUsage")) {
+				comment = annotations.get("dataUsage");
+			}
+			if (annotations.containsKey("r-squared")) {
+				r2 = Double.parseDouble(annotations.get("r-squared"));
+			}
+			if (annotations.containsKey("rootMeanSquaredError")) {
+				rms = Double.parseDouble(annotations
+						.get("rootMeanSquaredError"));
+			}
+			if (annotations.containsKey("sumSquaredError")) {
+				sse = Double.parseDouble(annotations.get("sumSquaredError"));
+			}
+			if (annotations.containsKey("AIC")) {
+				aic = Double.parseDouble(annotations.get("AIC"));
+			}
+			if (annotations.containsKey("BIC")) {
+				bic = Double.parseDouble(annotations.get("BIC"));
+			}
+			if (annotations.containsKey("degreesOfFreedom")) {
+				dof = Integer.parseInt(annotations.get("degreesOfFreedom"));
+			}
+		}
+
+		EstModelXml estModel = new EstModelXml(id, name, sse, rms, r2, aic,
+				bic, dof);
+		estModel.setQualityScore(0); // unchecked model
+		estModel.setComment(comment);
+		return estModel;
+	}
+
+	/**
+	 * Parses misc items.
+	 * 
+	 * @param miscs
+	 *            . Dictionary that maps miscs names and their values.
+	 * @return
+	 */
+	public static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
+		PmmXmlDoc cell = new PmmXmlDoc();
+
+		// First misc item has id -1 and the rest of items have negative ints
+		int counter = -1;
+
+		for (Entry<String, Double> entry : miscs.entrySet()) {
+			String name = entry.getKey();
+			Double value = entry.getValue();
+
+			List<String> categories;
+			String description, unit;
+
+			switch (name) {
+			case "Temperature":
+				categories = Arrays.asList(Categories.getTempCategory()
+						.getName());
+				description = name;
+				unit = Categories.getTempCategory().getStandardUnit();
+
+				cell.add(new MiscXml(counter, name, description, value,
+						categories, unit));
+
+				counter -= 1;
+				break;
+
+			case "pH":
+				categories = Arrays
+						.asList(Categories.getPhCategory().getName());
+				description = name;
+				unit = Categories.getPhUnit();
+
+				cell.add(new MiscXml(counter, name, description, value,
+						categories, unit));
+
+				counter -= 1;
+				break;
+			}
+		}
+
+		return cell;
 	}
 }

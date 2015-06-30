@@ -63,6 +63,9 @@ public class Util {
 	}
 
 	public static String createId(String s) {
+		if (s.equals("%")) {
+			return "percentage";
+		}
 		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
 	}
 }

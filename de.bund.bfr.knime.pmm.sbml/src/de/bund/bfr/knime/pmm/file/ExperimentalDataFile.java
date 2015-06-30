@@ -12,6 +12,7 @@ import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 
 import de.bund.bfr.knime.pmm.model.ExperimentalData;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
@@ -103,7 +104,7 @@ public class ExperimentalDataFile {
 		
 		// Add description with model type
 		Element metaElement = new Element("modeltype");
-		metaElement.addContent("Experimental data");
+		metaElement.addContent(ModelType.EXPERIMENTAL_DATA.name());
 		
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);

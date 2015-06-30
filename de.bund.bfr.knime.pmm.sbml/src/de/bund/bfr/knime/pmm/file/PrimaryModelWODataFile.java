@@ -15,6 +15,7 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 
 import de.bund.bfr.knime.pmm.model.PrimaryModelWOData;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
@@ -114,7 +115,7 @@ public class PrimaryModelWODataFile {
 
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
-		metaElement.addContent("Primary model without data");
+		metaElement.addContent(ModelType.PRIMARY_MODEL_WODATA.name());
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
 		ca.addDescription(new DefaultMetaDataObject(metaParent));

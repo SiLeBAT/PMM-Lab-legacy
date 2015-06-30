@@ -22,6 +22,7 @@ import org.sbml.jsbml.xml.XMLNode;
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWData;
 import de.bund.bfr.knime.pmm.model.TwoStepSecondaryModel;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
@@ -211,7 +212,7 @@ public class TwoStepSecondaryModelFile {
 
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
-		metaElement.addContent("Two step secondary model");
+		metaElement.addContent(ModelType.TWO_STEP_SECONDARY_MODEL.name());
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
 		ca.addDescription(new DefaultMetaDataObject(metaParent));

@@ -21,6 +21,7 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
 import de.bund.bfr.knime.pmm.model.ManualTertiaryModel;
+import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
@@ -157,7 +158,7 @@ public class ManualTertiaryModelFile {
 
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
-		metaElement.addContent("Manual tertiary model");
+		metaElement.addContent(ModelType.MANUAL_TERTIARY_MODEL.name());
 		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
 		ca.addDescription(new DefaultMetaDataObject(metaParent));

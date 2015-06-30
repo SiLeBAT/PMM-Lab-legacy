@@ -26,30 +26,6 @@ public enum ModelType {
 	PRIMARY, SECONDARY, TERTIARY;  // Types used by JSON nodes
 
 	/**
-	 * Gets the type of an SBMLDocument
-	 * 
-	 * @param doc
-	 *            SBMLDocument
-	 */
-//	public static ModelType getDocumentType(SBMLDocument doc) {
-//		CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc
-//				.getPlugin(CompConstants.shortLabel);
-//
-//		// If doc has no model definitions of secondary models => primary model
-//		if (plugin.getNumModelDefinitions() == 0) {
-//			return PRIMARY;
-//		}
-//		// Doc with no model but secondary models => secondary model
-//		else if (doc.getModel() == null) {
-//			return SECONDARY;
-//		}
-//		// Doc with model and secondary models => tertiary model
-//		else {
-//			return TERTIARY;
-//		}
-//	}
-
-	/**
 	 * Gets the type of a KNIME table spec.
 	 * 
 	 * @param spec
@@ -72,17 +48,4 @@ public enum ModelType {
 			throw new Exception();
 		}
 	}
-
-//	public static ModelType getPMFType(CombineArchive ca) throws Exception {
-//		MetaDataObject mdo = ca.getDescriptions().get(0);
-//		Element parentElement = mdo.getXmlDescription();
-//		Element metadataElement = parentElement.getChild("modeltype");
-//		String modelType = metadataElement.getText();
-//
-//		if (modelType.equals("Primary model")) {
-//			return PRIMARY;
-//		} else {
-//			throw new Exception();
-//		}
-//	}
 };

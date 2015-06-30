@@ -173,6 +173,20 @@ public class SBMLWriterNodeModel extends NodeModel {
 	private SettingsModelBoolean isSecondary = new SettingsModelBoolean(
 			CFG_ISSECONDARY, false);
 
+	// TODO: Parsers
+	// Parser parser; // current parser
+
+//	Parser experimentalDataParser = new ExperimentalDataParser();
+
+	// Parser primaryModelWDataParser = new PrimaryModelWDataParser();
+	// Parser primaryModelWODataParser = new PrimaryModelWODataParser();
+	// Parser twoStepSecondaryModelParser = new TwoStepSecondaryModelParser();
+	// Parser oneStepSecondaryModelParser = new OneStepSecondaryModelParser();
+	// Parser manualSecondaryModelParser = new ManualSecondaryModelParser();
+	// Parser twoStepTertiaryModelParser = new TwoStepTertiaryModelParser();
+	// Parser oneStepTertiaryModelParser = new OneStepTertiaryModelParser();
+	// Parser manualTertiaryModelParser = new ManualTertiaryModelParser();
+
 	/**
 	 * Constructor for the node model.
 	 */
@@ -730,6 +744,26 @@ abstract class TableReader {
 
 }
 
+// TODO: ...
+//interface Parser {
+//	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+//			ExecutionContext exec) throws Exception;
+//}
+//
+//class ExperimentalDataParser implements Parser {
+//
+//	@Override
+//	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+//			ExecutionContext exec) throws Exception {
+//		List<ExperimentalData> eds = new LinkedList<>();
+//		
+//		
+//	}
+//	
+//	public void parse
+//
+//}
+
 /**
  * Parse tuples from a table with timeseries.
  * 
@@ -742,7 +776,6 @@ class ExperimentalDataReader extends TableReader {
 	public ExperimentalDataReader(List<KnimeTuple> tuples)
 			throws URISyntaxException {
 
-		super();
 		for (KnimeTuple tuple : tuples) {
 			// Gets and adds dataset
 			ExperimentalData ed = parse(tuple);

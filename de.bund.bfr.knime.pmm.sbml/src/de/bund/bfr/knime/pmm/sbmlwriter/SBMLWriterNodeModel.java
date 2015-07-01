@@ -173,19 +173,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	private SettingsModelBoolean isSecondary = new SettingsModelBoolean(
 			CFG_ISSECONDARY, false);
 
-	// TODO: Parsers
-	// Parser parser; // current parser
-
-//	Parser experimentalDataParser = new ExperimentalDataParser();
-
-	// Parser primaryModelWDataParser = new PrimaryModelWDataParser();
-	// Parser primaryModelWODataParser = new PrimaryModelWODataParser();
-	// Parser twoStepSecondaryModelParser = new TwoStepSecondaryModelParser();
-	// Parser oneStepSecondaryModelParser = new OneStepSecondaryModelParser();
-	// Parser manualSecondaryModelParser = new ManualSecondaryModelParser();
-	// Parser twoStepTertiaryModelParser = new TwoStepTertiaryModelParser();
-	// Parser oneStepTertiaryModelParser = new OneStepTertiaryModelParser();
-	// Parser manualTertiaryModelParser = new ManualTertiaryModelParser();
+	Parser parser; // current parser
 
 	/**
 	 * Constructor for the node model.
@@ -287,49 +275,26 @@ public class SBMLWriterNodeModel extends NodeModel {
 		String mdName = modelName.getStringValue();
 
 		if (modelType == ModelType.EXPERIMENTAL_DATA) {
-			ExperimentalDataReader reader = new ExperimentalDataReader(tuples);
-			List<ExperimentalData> eds = reader.getExperimentalData();
-			ExperimentalDataFile.write(dir, mdName, eds, exec);
+			parser = new ExperimentalDataParser();
 		} else if (modelType == ModelType.PRIMARY_MODEL_WDATA) {
-			PrimaryModelWDataReader reader = new PrimaryModelWDataReader(tuples);
-			List<PrimaryModelWData> pms = reader.getModels();
-			PrimaryModelWDataFile.write(dir, mdName, pms, exec);
+			parser = new PrimaryModelWDataParser();
 		} else if (modelType == ModelType.PRIMARY_MODEL_WODATA) {
-			PrimaryModelWODataReader reader = new PrimaryModelWODataReader(
-					tuples);
-			List<PrimaryModelWOData> pms = reader.getModels();
-			PrimaryModelWODataFile.write(dir, mdName, pms, exec);
+			parser = new PrimaryModelWODataParser();
 		} else if (modelType == ModelType.TWO_STEP_SECONDARY_MODEL) {
-			TwoStepSecondaryModelReader reader = new TwoStepSecondaryModelReader(
-					tuples);
-			List<TwoStepSecondaryModel> sms = reader.getModels();
-			TwoStepSecondaryModelFile.write(dir, mdName, sms, exec);
+			parser = new TwoStepSecondaryModelParser();
 		} else if (modelType == ModelType.ONE_STEP_SECONDARY_MODEL) {
-			OneStepSecondaryModelReader reader = new OneStepSecondaryModelReader(
-					tuples);
-			List<OneStepSecondaryModel> sms = reader.getModels();
-			OneStepSecondaryModelFile.write(dir, mdName, sms, exec);
+			parser = new OneStepSecondaryModelParser();
 		} else if (modelType == ModelType.MANUAL_SECONDARY_MODEL) {
-			ManualSecondaryModelReader reader = new ManualSecondaryModelReader(
-					tuples);
-			List<ManualSecondaryModel> sms = reader.getModels();
-			ManualSecondaryModelFile.write(dir, mdName, sms, exec);
+			parser = new ManualSecondaryModelParser();
 		} else if (modelType == ModelType.TWO_STEP_TERTIARY_MODEL) {
-			TwoStepTertiaryModelReader reader = new TwoStepTertiaryModelReader(
-					tuples);
-			List<TwoStepTertiaryModel> tms = reader.getModels();
-			TwoStepTertiaryModelFile.write(dir, mdName, tms, exec);
+			parser = new TwoStepTertiaryModelParser();
 		} else if (modelType == ModelType.ONE_STEP_TERTIARY_MODEL) {
-			OneStepTertiaryModelReader reader = new OneStepTertiaryModelReader(
-					tuples);
-			List<OneStepTertiaryModel> tms = reader.getModels();
-			OneStepTertiaryModelFile.write(dir, mdName, tms, exec);
+			parser = new OneStepTertiaryModelParser();
 		} else if (modelType == ModelType.MANUAL_TERTIARY_MODEL) {
-			ManualTertiaryModelReader reader = new ManualTertiaryModelReader(
-					tuples);
-			List<ManualTertiaryModel> tms = reader.getModels();
-			ManualTertiaryModelFile.write(dir, mdName, tms, exec);
+			parser = new ManualTertiaryModelParser();
 		}
+
+		parser.write(tuples, dir, mdName, exec);
 
 		return new BufferedDataTable[] {};
 	}
@@ -448,11 +413,11 @@ public class SBMLWriterNodeModel extends NodeModel {
 	}
 }
 
-abstract class TableReader {
+class TableReader {
 	protected final static int LEVEL = 3;
 	protected final static int VERSION = 1;
 
-	protected static void renameLog(KnimeTuple tuple) {
+	public static void renameLog(KnimeTuple tuple) {
 		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
 
@@ -461,7 +426,7 @@ abstract class TableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	protected static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
+	public static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
 		final String CELSIUS = "°C";
 		final String FAHRENHEIT = "°F";
 		final String KELVIN = "K";
@@ -525,7 +490,7 @@ abstract class TableReader {
 	 * @param modified
 	 *            : Modified date.
 	 */
-	protected Annotation createDocAnnotation(Map<String, String> docInfo) {
+	public static Annotation createDocAnnotation(Map<String, String> docInfo) {
 		Annotation annot = new Annotation();
 
 		// pmf container
@@ -573,7 +538,7 @@ abstract class TableReader {
 	 * @param estModel
 	 * @return
 	 */
-	static Map<String, String> parseQualityTags(EstModelXml estModel) {
+	public static Map<String, String> parseQualityTags(EstModelXml estModel) {
 		Map<String, String> qualityTags = new HashMap<>();
 
 		if (estModel.getId() != null) {
@@ -636,7 +601,7 @@ abstract class TableReader {
 		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
 	}
 
-	public void addUnitDefinitions(Model model, DepXml depXml,
+	public static void addUnitDefinitions(Model model, DepXml depXml,
 			List<IndepXml> indepXmls, List<ParamXml> constXmls) {
 		// Get units from dep, indeps and consts
 		HashSet<String> units = new HashSet<>();
@@ -698,7 +663,7 @@ abstract class TableReader {
 		}
 	}
 
-	public Map<Integer, Map<Integer, List<KnimeTuple>>> sortGlobalModels(
+	public static Map<Integer, Map<Integer, List<KnimeTuple>>> sortGlobalModels(
 			List<KnimeTuple> tuples) {
 		// Sort tertiary models
 		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = new HashMap<>();
@@ -744,47 +709,26 @@ abstract class TableReader {
 
 }
 
-// TODO: ...
-//interface Parser {
-//	public void write(List<KnimeTuple> tuples, String dir, String mdName,
-//			ExecutionContext exec) throws Exception;
-//}
-//
-//class ExperimentalDataParser implements Parser {
-//
-//	@Override
-//	public void write(List<KnimeTuple> tuples, String dir, String mdName,
-//			ExecutionContext exec) throws Exception {
-//		List<ExperimentalData> eds = new LinkedList<>();
-//		
-//		
-//	}
-//	
-//	public void parse
-//
-//}
+interface Parser {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception;
+}
 
 /**
  * Parse tuples from a table with timeseries.
  * 
  * @author Miguel Alba
  */
-class ExperimentalDataReader extends TableReader {
+class ExperimentalDataParser implements Parser {
 
-	List<ExperimentalData> eds = new LinkedList<>();
-
-	public ExperimentalDataReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
+		List<ExperimentalData> eds = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			// Gets and adds dataset
-			ExperimentalData ed = parse(tuple);
-			eds.add(ed);
+			eds.add(parse(tuple));
 		}
-	}
-
-	public List<ExperimentalData> getExperimentalData() {
-		return eds;
+		ExperimentalDataFile.write(dir, mdName, eds, exec);
 	}
 
 	private ExperimentalData parse(KnimeTuple tuple) throws URISyntaxException {
@@ -811,63 +755,25 @@ class ExperimentalDataReader extends TableReader {
 
 /**
  * Parse tuples from a table with primary models with data.
+ * 
+ * @author Miguel Alba
  */
-class PrimaryModelWDataReader extends TableReader {
+class PrimaryModelWDataParser implements Parser {
 
-	List<PrimaryModelWData> models = new LinkedList<>();
-
-	public PrimaryModelWDataReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
-
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
+		List<PrimaryModelWData> pms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			SBMLDocument sbmlDoc = parse(tuple);
-			PrimaryModelWData model;
-
-			// TODO: model data should be parsed in the parse method
-			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			// No data for this model
-			if (mdData.size() == 0) {
-				model = new PrimaryModelWData(sbmlDoc, null);
-			} else {
-				// Create dim
-				LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-				for (PmmXmlElementConvertable origPoint : mdData
-						.getElementSet()) {
-					TimeSeriesXml point = (TimeSeriesXml) origPoint;
-					dim.put(point.getTime(), point.getConcentration());
-				}
-
-				TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
-				String unit = firstPoint.getConcentrationUnit();
-
-				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0);
-
-				AgentXml agent = (AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0);
-
-				DepXml dep = (DepXml) tuple.getPmmXml(
-						Model1Schema.ATT_DEPENDENT).get(0);
-
-				DataFile dataFile = new DataFile(dim, unit, matrix, agent,
-						dep.getUnit(), new HashMap<String, String>());
-
-				// Gets and add dataset
-				NuMLDocument numlDoc = dataFile.getDocument();
-				model = new PrimaryModelWData(sbmlDoc, numlDoc);
-			}
-			models.add(model);
+			pms.add(parse(tuple));
 		}
+
+		PrimaryModelWDataFile.write(dir, mdName, pms, exec);
 	}
 
-	public List<PrimaryModelWData> getModels() {
-		return models;
-	}
-
-	private SBMLDocument parse(KnimeTuple tuple) {
-		replaceCelsiusAndFahrenheit(tuple);
-		renameLog(tuple);
+	private PrimaryModelWData parse(KnimeTuple tuple) throws URISyntaxException {
+		TableReader.replaceCelsiusAndFahrenheit(tuple);
+		TableReader.renameLog(tuple);
 
 		// Retrieve TimeSeriesSchema cells
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(
@@ -893,11 +799,12 @@ class PrimaryModelWDataReader extends TableReader {
 
 		String modelId = "model";
 
-		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 
-		addNamespaces(doc);
+		TableReader.addNamespaces(doc);
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -906,7 +813,8 @@ class PrimaryModelWDataReader extends TableReader {
 
 		// Annotation
 		String modelTitle = estModel.getName();
-		Map<String, String> qualityTags = parseQualityTags(estModel);
+		Map<String, String> qualityTags = TableReader
+				.parseQualityTags(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -977,40 +885,53 @@ class PrimaryModelWDataReader extends TableReader {
 		}
 
 		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
 				catModel, organims.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
-		return doc;
+
+		// Parse data
+		NuMLDocument numlDoc = null;
+		if (mdData.size() > 0) {
+			// Create dim
+			LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
+			for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
+				TimeSeriesXml point = (TimeSeriesXml) origPoint;
+				dim.put(point.getTime(), point.getConcentration());
+			}
+
+			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
+			String unit = firstPoint.getConcentrationUnit();
+
+			DataFile dataFile = new DataFile(dim, unit, matrixXml, agentXml,
+					dep.getUnit(), new HashMap<String, String>());
+			numlDoc = dataFile.getDocument();
+		}
+
+		return new PrimaryModelWData(doc, numlDoc);
 	}
 }
 
 /**
  * Parse tuples from a table with primary models without data.
  */
-class PrimaryModelWODataReader extends TableReader {
+class PrimaryModelWODataParser implements Parser {
 
-	List<PrimaryModelWOData> models = new LinkedList<>();
-
-	public PrimaryModelWODataReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
-
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
+		List<PrimaryModelWOData> pms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			SBMLDocument sbmlDoc = parse(tuple);
-			models.add(new PrimaryModelWOData(sbmlDoc));
+			pms.add(parse(tuple));
 		}
+		PrimaryModelWODataFile.write(dir, mdName, pms, exec);
 	}
 
-	public List<PrimaryModelWOData> getModels() {
-		return models;
-	}
-
-	private SBMLDocument parse(KnimeTuple tuple) {
-		replaceCelsiusAndFahrenheit(tuple);
-		renameLog(tuple);
+	private PrimaryModelWOData parse(KnimeTuple tuple) {
+		TableReader.replaceCelsiusAndFahrenheit(tuple);
+		TableReader.renameLog(tuple);
 
 		// Retrieve TimeSeriesSchema cells
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(
@@ -1035,11 +956,12 @@ class PrimaryModelWODataReader extends TableReader {
 
 		String modelId = "model";
 
-		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 
-		addNamespaces(doc);
+		TableReader.addNamespaces(doc);
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1048,7 +970,8 @@ class PrimaryModelWODataReader extends TableReader {
 
 		// Annotation
 		String modelTitle = estModel.getName();
-		Map<String, String> qualityTags = parseQualityTags(estModel);
+		Map<String, String> qualityTags = TableReader
+				.parseQualityTags(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -1119,35 +1042,32 @@ class PrimaryModelWODataReader extends TableReader {
 		}
 
 		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
 				catModel, organims.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
-		return doc;
+		return new PrimaryModelWOData(doc);
 	}
 }
 
 /**
- * Parse tuples from a table with only secondary models (without data or primary
- * models).
+ * Parse tuples from a table with primary models without data.
  */
-class ManualSecondaryModelReader extends TableReader {
+class ManualSecondaryModelParser implements Parser {
 
-	List<ManualSecondaryModel> models = new LinkedList<>();
-
-	public ManualSecondaryModelReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
-
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
+		List<ManualSecondaryModel> sms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			SBMLDocument sbmlDoc = parse(tuple);
-			models.add(new ManualSecondaryModel(sbmlDoc));
+			sms.add(parse(tuple));
 		}
+		ManualSecondaryModelFile.write(dir, mdName, sms, exec);
 	}
 
-	private SBMLDocument parse(KnimeTuple tuple) {
+	private ManualSecondaryModel parse(KnimeTuple tuple) {
 
 		// Retrieve Model2Schema cells
 		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(
@@ -1173,7 +1093,8 @@ class ManualSecondaryModelReader extends TableReader {
 			constXmls.add((ParamXml) item);
 		}
 
-		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 
@@ -1181,7 +1102,7 @@ class ManualSecondaryModelReader extends TableReader {
 		CompSBMLDocumentPlugin docCompPlugin = (CompSBMLDocumentPlugin) doc
 				.getPlugin(CompConstants.shortLabel);
 
-		addNamespaces(doc);
+		TableReader.addNamespaces(doc);
 
 		// Create model definition
 		String modelDefinitionId = "model_" + dep.getName();
@@ -1190,7 +1111,7 @@ class ManualSecondaryModelReader extends TableReader {
 			model.setName(estModel.getName());
 		}
 
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Add dep
 		Parameter depParam = new Parameter(dep.getName());
@@ -1256,29 +1177,24 @@ class ManualSecondaryModelReader extends TableReader {
 		}
 
 		// Add annotation
-		Map<String, String> uncertainties = parseQualityTags(estModel);
+		Map<String, String> uncertainties = TableReader
+				.parseQualityTags(estModel);
 		Model2Annotation modelAnnotation = new Model2Annotation(globalModelID,
 				uncertainties, lits);
 		model.getAnnotation().setNonRDFAnnotation(modelAnnotation.getNode());
 
-		return doc;
-	}
-
-	public List<ManualSecondaryModel> getModels() {
-		return models;
+		return new ManualSecondaryModel(doc);
 	}
 }
 
 /**
- * Parse tuples from a table with two step secondary models.
+ * Parse tuples from a table with primary models without data.
  */
-class TwoStepSecondaryModelReader extends TableReader {
+class TwoStepSecondaryModelParser implements Parser {
 
-	List<TwoStepSecondaryModel> models = new LinkedList<>();
-
-	public TwoStepSecondaryModelReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
 
 		// Sort secondary models
 		Map<Integer, List<KnimeTuple>> secTuples = new HashMap<>();
@@ -1296,14 +1212,13 @@ class TwoStepSecondaryModelReader extends TableReader {
 		}
 
 		// For the tuples of every secondary model
+		List<TwoStepSecondaryModel> sms = new LinkedList<>();
 		for (List<KnimeTuple> tupleList : secTuples.values()) {
 			TwoStepSecondaryModel model = parse(tupleList);
-			models.add(model);
+			sms.add(model);
 		}
-	}
 
-	public List<TwoStepSecondaryModel> getModels() {
-		return models;
+		TwoStepSecondaryModelFile.write(dir, mdName, sms, exec);
 	}
 
 	private TwoStepSecondaryModel parse(List<KnimeTuple> tuples)
@@ -1341,10 +1256,11 @@ class TwoStepSecondaryModelReader extends TableReader {
 			PmmXmlDoc litDoc = tuple.getPmmXml(Model1Schema.ATT_EMLIT);
 
 			// Create SBMLDocument for the primary model
-			SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+			SBMLDocument doc = new SBMLDocument(TableReader.LEVEL,
+					TableReader.VERSION);
 			// Enable Hierarchical Compositon package
 			doc.enablePackage(CompConstants.shortLabel);
-			addNamespaces(doc);
+			TableReader.addNamespaces(doc);
 
 			String modelId = Util.createId("model" + estModel.getId());
 
@@ -1365,7 +1281,8 @@ class TwoStepSecondaryModelReader extends TableReader {
 			}
 
 			// c) Parse quality measures
-			Map<String, String> qualityTags = parseQualityTags(estModel);
+			Map<String, String> qualityTags = TableReader
+					.parseQualityTags(estModel);
 
 			// d) Builds annotation
 			Model1Annotation m1Annot = new Model1Annotation(modelId,
@@ -1432,7 +1349,7 @@ class TwoStepSecondaryModelReader extends TableReader {
 
 			LinkedList<IndepXml> indepXmls = new LinkedList<>(
 					Arrays.asList(indep));
-			addUnitDefinitions(model, dep, indepXmls, constXmls);
+			TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 			// Create rule of the model and add it to the rest of rules
 			Model1Rule model1Rule = Model1Rule
@@ -1499,13 +1416,14 @@ class TwoStepSecondaryModelReader extends TableReader {
 		}
 
 		// Create SBMLDocument for the secondary model
-		SBMLDocument secDoc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		secDoc.enablePackage(CompConstants.shortLabel);
 		// Add SBML comp plugin to the SBMLDocument
 		CompSBMLDocumentPlugin docCompPlugin = (CompSBMLDocumentPlugin) secDoc
 				.getPlugin(CompConstants.shortLabel);
-		addNamespaces(secDoc);
+		TableReader.addNamespaces(secDoc);
 
 		// Creates model definition
 		String modelDefinitionId = Util.createId("model" + estModel.getId());
@@ -1514,7 +1432,7 @@ class TwoStepSecondaryModelReader extends TableReader {
 			secModel.setName(estModel.getName());
 		}
 
-		addUnitDefinitions(secModel, dep, indepXmls, paramXmls);
+		TableReader.addUnitDefinitions(secModel, dep, indepXmls, paramXmls);
 
 		// Add dep
 		Parameter depParam = new Parameter(dep.getName());
@@ -1580,7 +1498,8 @@ class TwoStepSecondaryModelReader extends TableReader {
 		}
 
 		// Add annotation
-		Map<String, String> uncertainties = parseQualityTags(estModel);
+		Map<String, String> uncertainties = TableReader
+				.parseQualityTags(estModel);
 		Model2Annotation m2Annot = new Model2Annotation(globalModelId,
 				uncertainties, lits);
 		secModel.getAnnotation().setNonRDFAnnotation(m2Annot.getNode());
@@ -1603,14 +1522,13 @@ class TwoStepSecondaryModelReader extends TableReader {
 }
 
 /**
- * Parse tuples from a table with one step secondary models.
+ * Parse tuples from a table with primary models without data.
  */
-class OneStepSecondaryModelReader extends TableReader {
+class OneStepSecondaryModelParser implements Parser {
 
-	List<OneStepSecondaryModel> models = new LinkedList<>();
-
-	public OneStepSecondaryModelReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
 
 		// Sort tuples according to its secondary model
 		Map<Integer, List<KnimeTuple>> secMap = new HashMap<>();
@@ -1629,14 +1547,13 @@ class OneStepSecondaryModelReader extends TableReader {
 		}
 
 		// For the tuples of every secondary model
+		List<OneStepSecondaryModel> sms = new LinkedList<>();
 		for (List<KnimeTuple> ltup : secMap.values()) {
 			OneStepSecondaryModel model = parse(ltup);
-			models.add(model);
+			sms.add(model);
 		}
-	}
 
-	public List<OneStepSecondaryModel> getModels() {
-		return models;
+		OneStepSecondaryModelFile.write(dir, mdName, sms, exec);
 	}
 
 	private OneStepSecondaryModel parse(List<KnimeTuple> tuples)
@@ -1680,7 +1597,8 @@ class OneStepSecondaryModelReader extends TableReader {
 		PmmXmlDoc secLitDoc = firstTuple.getPmmXml(Model2Schema.ATT_EMLIT);
 		int globalModelId = firstTuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 
-		SBMLDocument doc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) doc
@@ -1688,7 +1606,7 @@ class OneStepSecondaryModelReader extends TableReader {
 
 		String modelId = Util.createId("model" + secEstModel.getId());
 
-		addNamespaces(doc);
+		TableReader.addNamespaces(doc);
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1703,7 +1621,8 @@ class OneStepSecondaryModelReader extends TableReader {
 		if (modelClassNum == null) {
 			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
 		}
-		Map<String, String> qualityTags = parseQualityTags(estModel);
+		Map<String, String> qualityTags = TableReader
+				.parseQualityTags(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -1772,7 +1691,7 @@ class OneStepSecondaryModelReader extends TableReader {
 
 		// Add unit definitions
 		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
@@ -1795,13 +1714,14 @@ class OneStepSecondaryModelReader extends TableReader {
 
 		String modelDefinitionId = "model_" + secDep.getName();
 		ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
-				LEVEL, VERSION);
+				TableReader.LEVEL, TableReader.VERSION);
 		if (secEstModel.getName() != null) {
 			secModel.setName(secEstModel.getName());
 		}
 
 		// Add unit definitions
-		addUnitDefinitions(secModel, secDep, secIndepXmls, secConstXmls);
+		TableReader.addUnitDefinitions(secModel, secDep, secIndepXmls,
+				secConstXmls);
 
 		// Add dep from sec
 		Parameter secDepParam = new Parameter(secDep.getName());
@@ -1860,7 +1780,8 @@ class OneStepSecondaryModelReader extends TableReader {
 		}
 
 		// Add uncertainties
-		Map<String, String> uncertainties = parseQualityTags(secEstModel);
+		Map<String, String> uncertainties = TableReader
+				.parseQualityTags(secEstModel);
 
 		Model2Annotation secModelAnnotation = new Model2Annotation(
 				globalModelId, uncertainties, lits);
@@ -1911,16 +1832,16 @@ class OneStepSecondaryModelReader extends TableReader {
 	}
 }
 
-class TwoStepTertiaryModelReader extends TableReader {
+class TwoStepTertiaryModelParser implements Parser {
 
-	List<TwoStepTertiaryModel> models = new LinkedList<>();
-
-	public TwoStepTertiaryModelReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
+		List<TwoStepTertiaryModel> tms = new LinkedList<>();
 
 		// Sort global models
-		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = sortGlobalModels(tuples);
+		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader
+				.sortGlobalModels(tuples);
 
 		// Parse tertiary models
 		int modelCounter = 0;
@@ -1934,14 +1855,12 @@ class TwoStepTertiaryModelReader extends TableReader {
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
 			TwoStepTertiaryModel tm = parse(tuplesList, modelCounter);
-			models.add(tm);
+			tms.add(tm);
 
 			modelCounter++;
 		}
-	}
 
-	public List<TwoStepTertiaryModel> getModels() {
-		return models;
+		TwoStepTertiaryModelFile.write(dir, mdName, tms, exec);
 	}
 
 	private TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList,
@@ -1974,13 +1893,14 @@ class TwoStepTertiaryModelReader extends TableReader {
 		PmmXmlDoc litDoc = firstTuple.getPmmXml(Model1Schema.ATT_EMLIT);
 
 		// Create SBMLDocument for the tertiary model
-		SBMLDocument tertDoc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument tertDoc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Compositon package
 		tertDoc.enablePackage(CompConstants.shortLabel);
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc
 				.getPlugin(CompConstants.shortLabel);
 
-		addNamespaces(tertDoc);
+		TableReader.addNamespaces(tertDoc);
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2003,7 +1923,8 @@ class TwoStepTertiaryModelReader extends TableReader {
 		}
 
 		// c) Parse quality measures
-		Map<String, String> qualityTags = parseQualityTags(estModel);
+		Map<String, String> qualityTags = TableReader
+				.parseQualityTags(estModel);
 
 		// d) Builds annotation
 		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle,
@@ -2069,7 +1990,7 @@ class TwoStepTertiaryModelReader extends TableReader {
 		}
 
 		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
@@ -2107,13 +2028,14 @@ class TwoStepTertiaryModelReader extends TableReader {
 
 			String modelDefinitionId = "model_" + secDep.getName();
 			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
-					LEVEL, VERSION);
+					TableReader.LEVEL, TableReader.VERSION);
 			if (secEstModel.getName() != null) {
 				secModel.setName(secEstModel.getName());
 			}
 
 			// Add unit definitions
-			addUnitDefinitions(secModel, secDep, secIndeps, secConsts);
+			TableReader.addUnitDefinitions(secModel, secDep, secIndeps,
+					secConsts);
 
 			// Add dep from sec
 			Parameter secDepParam = new Parameter(secDep.getName());
@@ -2172,7 +2094,8 @@ class TwoStepTertiaryModelReader extends TableReader {
 			}
 
 			// Add uncertainties
-			Map<String, String> uncertainties = parseQualityTags(secEstModel);
+			Map<String, String> uncertainties = TableReader
+					.parseQualityTags(secEstModel);
 
 			Model2Annotation secModelAnnotation = new Model2Annotation(
 					globalModelID, uncertainties, lits);
@@ -2192,14 +2115,15 @@ class TwoStepTertiaryModelReader extends TableReader {
 			i++;
 
 			// Create SBMLDocument for the secondary model
-			SBMLDocument secDoc = new SBMLDocument(LEVEL, VERSION);
+			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
+					TableReader.VERSION);
 			// Enable Hierarchical Composition package
 			secDoc.enablePackage(CompConstants.shortLabel);
 
 			CompSBMLDocumentPlugin secDocCompPlugin = (CompSBMLDocumentPlugin) secDoc
 					.getPlugin(CompConstants.shortLabel);
 
-			addNamespaces(secDoc);
+			TableReader.addNamespaces(secDoc);
 
 			// Add model definition to the document
 			secDocCompPlugin.addModelDefinition(new ModelDefinition(secModel));
@@ -2258,16 +2182,16 @@ class TwoStepTertiaryModelReader extends TableReader {
  * 
  * @author Miguel Alba
  */
-class OneStepTertiaryModelReader extends TableReader {
+class OneStepTertiaryModelParser implements Parser {
 
-	List<OneStepTertiaryModel> models = new LinkedList<>();
-
-	public OneStepTertiaryModelReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
+		List<OneStepTertiaryModel> tms = new LinkedList<>();
 
 		// Sort global models
-		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = sortGlobalModels(tuples);
+		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader
+				.sortGlobalModels(tuples);
 
 		// Parse tertiary models
 		int modelCounter = 0;
@@ -2281,14 +2205,12 @@ class OneStepTertiaryModelReader extends TableReader {
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
 			OneStepTertiaryModel tm = parse(tuplesList, modelCounter);
-			models.add(tm);
+			tms.add(tm);
 
 			modelCounter++;
 		}
-	}
 
-	public List<OneStepTertiaryModel> getModels() {
-		return models;
+		OneStepTertiaryModelFile.write(dir, mdName, tms, exec);
 	}
 
 	private OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList,
@@ -2320,13 +2242,14 @@ class OneStepTertiaryModelReader extends TableReader {
 		PmmXmlDoc litDoc = firstTuple.getPmmXml(Model1Schema.ATT_EMLIT);
 
 		// Create SBMLDocument for the tertiary model
-		SBMLDocument tertDoc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument tertDoc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Compositon package
 		tertDoc.enablePackage(CompConstants.shortLabel);
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc
 				.getPlugin(CompConstants.shortLabel);
 
-		addNamespaces(tertDoc);
+		TableReader.addNamespaces(tertDoc);
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2349,7 +2272,8 @@ class OneStepTertiaryModelReader extends TableReader {
 		}
 
 		// c) Parse quality measures
-		Map<String, String> qualityTags = parseQualityTags(estModel);
+		Map<String, String> qualityTags = TableReader
+				.parseQualityTags(estModel);
 
 		// d) Builds annotation
 		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle,
@@ -2415,7 +2339,7 @@ class OneStepTertiaryModelReader extends TableReader {
 		}
 
 		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
@@ -2453,13 +2377,14 @@ class OneStepTertiaryModelReader extends TableReader {
 
 			String modelDefinitionId = "model_" + secDep.getName();
 			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
-					LEVEL, VERSION);
+					TableReader.LEVEL, TableReader.VERSION);
 			if (secEstModel.getName() != null) {
 				secModel.setName(secEstModel.getName());
 			}
 
 			// Add unit definitions
-			addUnitDefinitions(secModel, secDep, secIndeps, secConsts);
+			TableReader.addUnitDefinitions(secModel, secDep, secIndeps,
+					secConsts);
 
 			// Add dep from sec
 			Parameter secDepParam = new Parameter(secDep.getName());
@@ -2518,7 +2443,8 @@ class OneStepTertiaryModelReader extends TableReader {
 			}
 
 			// Add uncertainties
-			Map<String, String> uncertainties = parseQualityTags(secEstModel);
+			Map<String, String> uncertainties = TableReader
+					.parseQualityTags(secEstModel);
 
 			Model2Annotation secModelAnnotation = new Model2Annotation(
 					globalModelID, uncertainties, lits);
@@ -2538,14 +2464,15 @@ class OneStepTertiaryModelReader extends TableReader {
 			i++;
 
 			// Create SBMLDocument for the secondary model
-			SBMLDocument secDoc = new SBMLDocument(LEVEL, VERSION);
+			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
+					TableReader.VERSION);
 			// Enable Hierarchical Composition package
 			secDoc.enablePackage(CompConstants.shortLabel);
 
 			CompSBMLDocumentPlugin secDocCompPlugin = (CompSBMLDocumentPlugin) secDoc
 					.getPlugin(CompConstants.shortLabel);
 
-			addNamespaces(secDoc);
+			TableReader.addNamespaces(secDoc);
 
 			// Add model definition to the document
 			secDocCompPlugin.addModelDefinition(new ModelDefinition(secModel));
@@ -2605,16 +2532,17 @@ class OneStepTertiaryModelReader extends TableReader {
 	}
 }
 
-class ManualTertiaryModelReader extends TableReader {
+class ManualTertiaryModelParser implements Parser {
 
-	List<ManualTertiaryModel> models = new LinkedList<>();
+	@Override
+	public void write(List<KnimeTuple> tuples, String dir, String mdName,
+			ExecutionContext exec) throws Exception {
 
-	public ManualTertiaryModelReader(List<KnimeTuple> tuples)
-			throws URISyntaxException {
-		super();
+		List<ManualTertiaryModel> tms = new LinkedList<>();
 
 		// Sort global models
-		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = sortGlobalModels(tuples);
+		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader
+				.sortGlobalModels(tuples);
 
 		// Parse tertiary models
 		int modelCounter = 0;
@@ -2628,14 +2556,12 @@ class ManualTertiaryModelReader extends TableReader {
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
 			ManualTertiaryModel tm = parse(tuplesList, modelCounter);
-			models.add(tm);
+			tms.add(tm);
 
 			modelCounter++;
 		}
-	}
 
-	public List<ManualTertiaryModel> getModels() {
-		return models;
+		ManualTertiaryModelFile.write(dir, mdName, tms, exec);
 	}
 
 	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList,
@@ -2667,13 +2593,14 @@ class ManualTertiaryModelReader extends TableReader {
 		PmmXmlDoc litDoc = firstTuple.getPmmXml(Model1Schema.ATT_EMLIT);
 
 		// Create SBMLDocument for the tertiary model
-		SBMLDocument tertDoc = new SBMLDocument(LEVEL, VERSION);
+		SBMLDocument tertDoc = new SBMLDocument(TableReader.LEVEL,
+				TableReader.VERSION);
 		// Enable Hierarchical Compositon package
 		tertDoc.enablePackage(CompConstants.shortLabel);
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc
 				.getPlugin(CompConstants.shortLabel);
 
-		addNamespaces(tertDoc);
+		TableReader.addNamespaces(tertDoc);
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2696,7 +2623,8 @@ class ManualTertiaryModelReader extends TableReader {
 		}
 
 		// c) Parse quality measures
-		Map<String, String> qualityTags = parseQualityTags(estModel);
+		Map<String, String> qualityTags = TableReader
+				.parseQualityTags(estModel);
 
 		// d) Builds annotation
 		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle,
@@ -2762,7 +2690,7 @@ class ManualTertiaryModelReader extends TableReader {
 		}
 
 		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-		addUnitDefinitions(model, dep, indepXmls, constXmls);
+		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
@@ -2800,13 +2728,14 @@ class ManualTertiaryModelReader extends TableReader {
 
 			String modelDefinitionId = "model_" + secDep.getName();
 			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
-					LEVEL, VERSION);
+					TableReader.LEVEL, TableReader.VERSION);
 			if (secEstModel.getName() != null) {
 				secModel.setName(secEstModel.getName());
 			}
 
 			// Add unit definitions
-			addUnitDefinitions(secModel, secDep, secIndeps, secConsts);
+			TableReader.addUnitDefinitions(secModel, secDep, secIndeps,
+					secConsts);
 
 			// Add dep from sec
 			Parameter secDepParam = new Parameter(secDep.getName());
@@ -2865,7 +2794,8 @@ class ManualTertiaryModelReader extends TableReader {
 			}
 
 			// Add uncertainties
-			Map<String, String> uncertainties = parseQualityTags(secEstModel);
+			Map<String, String> uncertainties = TableReader
+					.parseQualityTags(secEstModel);
 
 			Model2Annotation secModelAnnotation = new Model2Annotation(
 					globalModelID, uncertainties, lits);
@@ -2885,14 +2815,15 @@ class ManualTertiaryModelReader extends TableReader {
 			i++;
 
 			// Create SBMLDocument for the secondary model
-			SBMLDocument secDoc = new SBMLDocument(LEVEL, VERSION);
+			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
+					TableReader.VERSION);
 			// Enable Hierarchical Composition package
 			secDoc.enablePackage(CompConstants.shortLabel);
 
 			CompSBMLDocumentPlugin secDocCompPlugin = (CompSBMLDocumentPlugin) secDoc
 					.getPlugin(CompConstants.shortLabel);
 
-			addNamespaces(secDoc);
+			TableReader.addNamespaces(secDoc);
 
 			// Add model definition to the document
 			secDocCompPlugin.addModelDefinition(new ModelDefinition(secModel));

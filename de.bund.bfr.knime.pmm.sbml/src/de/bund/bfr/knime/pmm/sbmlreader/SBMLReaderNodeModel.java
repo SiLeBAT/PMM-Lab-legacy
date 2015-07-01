@@ -106,18 +106,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE,
 			DEFAULT_FILE);
 
-	// Readers
 	Reader reader; // current reader
-
-	Reader experimentalDataReader = new ExperimentalDataReader();
-	Reader primaryModelWDataReader = new PrimaryModelWDataReader();
-	Reader primaryModelWODataReader = new PrimaryModelWODataReader();
-	Reader twoStepSecondaryModelReader = new TwoStepSecondaryModelReader();
-	Reader oneStepSecondaryModelReader = new OneStepSecondaryModelReader();
-	Reader manualSecondaryModelReader = new ManualSecondaryModelReader();
-	Reader twoStepTertiaryModelReader = new TwoStepTertiaryModelReader();
-	Reader oneStepTertiaryModelReader = new OneStepTertiaryModelReader();
-	Reader manualTertiaryModelReader = new ManualTertiaryModelReader();
 
 	/**
 	 * Constructor for the node model.
@@ -222,23 +211,23 @@ public class SBMLReaderNodeModel extends NodeModel {
 		ca.close();
 
 		if (modelType.equals(ModelType.EXPERIMENTAL_DATA.name())) {
-			reader = experimentalDataReader;
+			reader = new ExperimentalDataReader();
 		} else if (modelType.equals(ModelType.PRIMARY_MODEL_WDATA.name())) {
-			reader = primaryModelWDataReader;
+			reader = new PrimaryModelWDataReader();
 		} else if (modelType.equals(ModelType.PRIMARY_MODEL_WODATA.name())) {
-			reader = primaryModelWODataReader;
+			reader = new PrimaryModelWODataReader();
 		} else if (modelType.equals(ModelType.TWO_STEP_SECONDARY_MODEL.name())) {
-			reader = twoStepSecondaryModelReader;
+			reader = new TwoStepSecondaryModelReader();
 		} else if (modelType.equals(ModelType.ONE_STEP_SECONDARY_MODEL.name())) {
-			reader = oneStepSecondaryModelReader;
+			reader = new OneStepSecondaryModelReader();
 		} else if (modelType.equals(ModelType.MANUAL_SECONDARY_MODEL.name())) {
-			reader = manualSecondaryModelReader;
-		} else if (modelType.equals(ModelType.MANUAL_SECONDARY_MODEL.name())) {
-			reader = twoStepTertiaryModelReader;
+			reader = new ManualSecondaryModelReader();
+		} else if (modelType.equals(ModelType.TWO_STEP_TERTIARY_MODEL.name())) {
+			reader = new TwoStepTertiaryModelReader();
 		} else if (modelType.equals(ModelType.ONE_STEP_TERTIARY_MODEL.name())) {
-			reader = oneStepTertiaryModelReader;
+			reader = new OneStepTertiaryModelReader();
 		} else if (modelType.equals(ModelType.MANUAL_TERTIARY_MODEL.name())) {
-			reader = manualTertiaryModelReader;
+			reader = new ManualTertiaryModelReader();
 		}
 
 		BufferedDataContainer container = reader.read(filepath, exec);

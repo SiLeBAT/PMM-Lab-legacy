@@ -191,27 +191,9 @@ public class SBMLWriterNodeModel extends NodeModel {
 		ModelType modelType = null;
 		List<KnimeTuple> tuples;
 
-		// shows warning if despite overwrite being false the user still
-		// executes the node
-		if (overwrite.getBooleanValue() == false) {
-			setWarningMessage("File was not overwritten");
-			return new BufferedDataTable[] {};
-		}
-		
-		// Validate path
-		if (outPath.getStringValue().isEmpty()) {
-			setWarningMessage("Missing output path");
-			return new BufferedDataTable[] {};
-		}
-		
-		// Validate filename
-		if (modelName.getStringValue().isEmpty()) {
-			setWarningMessage("Missing model name");
-			return new BufferedDataTable[] {};
-		}
-		
+		DataTableSpec spec = inData[0].getSpec();
 		// Table has the structure Model1 + Model2 + Data
-		if (SchemaFactory.createM12DataSchema().conforms(inData[0])) {
+		if (SchemaFactory.conformsM12DataSchema(spec)) {
 			schema = SchemaFactory.createM12DataSchema();
 			tuples = PmmUtilities.getTuples(inData[0], schema);
 			if (hasData(tuples)) {
@@ -235,7 +217,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		}
 
 		// Table has Model1 + Data
-		else if (SchemaFactory.createM1DataSchema().conforms(inData[0])) {
+		else if (SchemaFactory.conformsM1DataSchema(spec)) {
 			schema = SchemaFactory.createM1DataSchema();
 			tuples = PmmUtilities.getTuples(inData[0], schema);
 
@@ -254,14 +236,14 @@ public class SBMLWriterNodeModel extends NodeModel {
 		}
 
 		// Table only has data
-		else if (SchemaFactory.createDataSchema().conforms(inData[0])) {
+		else if (SchemaFactory.conformsDataSchema(spec)) {
 			schema = SchemaFactory.createDataSchema();
 			tuples = PmmUtilities.getTuples(inData[0], schema);
 			modelType = ModelType.EXPERIMENTAL_DATA;
 		}
 
 		// Table only has secondary model cells
-		else if (SchemaFactory.createM2Schema().conforms(inData[0])) {
+		else if (SchemaFactory.conformsM2Schema(spec)) {
 			schema = SchemaFactory.createM2Schema();
 			tuples = PmmUtilities.getTuples(inData[0], schema);
 			modelType = ModelType.MANUAL_SECONDARY_MODEL;
@@ -272,29 +254,51 @@ public class SBMLWriterNodeModel extends NodeModel {
 		// Retrieve info from dialog
 		Map<String, String> dlgInfo = new HashMap<>(); // dialog info
 		String givenName = creatorGivenName.getStringValue();
-		if (!givenName.isEmpty())
+		if (givenName.isEmpty()) {
+			setWarningMessage("Given name missing");
+		} else {
 			dlgInfo.put("GivenName", givenName);
+		}
 
 		String familyName = creatorFamilyName.getStringValue();
-		if (!familyName.isEmpty())
+		if (familyName.isEmpty()) {
+			setWarningMessage("Creator family name missing");
+		} else {
 			dlgInfo.put("FamilyName", familyName);
+		}
 
 		String contact = creatorContact.getStringValue();
-		if (!contact.isEmpty())
+		if (contact.isEmpty()) {
+			setWarningMessage("Creator contact missing");
+		} else {
 			dlgInfo.put("Contact", contact);
+		}
 
 		Date created = createdDate.getDate();
-		if (created != null) {
+		if (created == null) {
+			setWarningMessage("Created date missing");
+		} else {
 			dlgInfo.put("Created", created.toString());
 		}
 
 		Date modified = modifiedDate.getDate();
-		if (modified != null) {
+		if (modified == null) {
+			setWarningMessage("Modified data missing");
+		} else {
 			dlgInfo.put("Modified", modified.toString());
 		}
 
 		String dir = outPath.getStringValue();
 		String mdName = modelName.getStringValue();
+
+		// Check for existing file -> shows warning if despite overwrite being
+		// false the user still executes the node
+		String filepath = String.format("%s/%s.pmf", dir, mdName);
+		File f = new File(filepath);
+		if (f.exists() && !f.isDirectory() && !overwrite.getBooleanValue()) {
+			setWarningMessage(filepath + " was not overwritten");
+			return new BufferedDataTable[] {};
+		}
 
 		if (modelType == ModelType.EXPERIMENTAL_DATA) {
 			parser = new ExperimentalDataParser();
@@ -334,10 +338,19 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
+
 		if (outPath.getStringValue() == null
 				|| modelName.getStringValue() == null
 				|| variableParams.getStringValue() == null) {
 			throw new InvalidSettingsException("Node must be configured");
+		}
+
+		if (outPath.getStringValue().isEmpty()) {
+			throw new InvalidSettingsException("Missing outpath");
+		}
+
+		if (modelName.getStringValue().isEmpty()) {
+			throw new InvalidSettingsException("Missing model name");
 		}
 		return new DataTableSpec[] {};
 	}

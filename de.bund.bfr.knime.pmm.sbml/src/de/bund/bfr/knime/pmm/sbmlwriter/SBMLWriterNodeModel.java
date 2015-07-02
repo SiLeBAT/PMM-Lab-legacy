@@ -153,6 +153,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_CREATED_DATE = "CreationDate";
 	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
 	protected static final String CFG_ISSECONDARY = "isSecondary";
+	protected static final String CFG_OVERWRITE = "overwrite";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
@@ -172,6 +173,8 @@ public class SBMLWriterNodeModel extends NodeModel {
 			CFG_LAST_MODIFIED_DATE);
 	private SettingsModelBoolean isSecondary = new SettingsModelBoolean(
 			CFG_ISSECONDARY, false);
+	private SettingsModelBoolean overwrite = new SettingsModelBoolean(
+			CFG_OVERWRITE, true);
 
 	Parser parser; // current parser
 
@@ -188,6 +191,25 @@ public class SBMLWriterNodeModel extends NodeModel {
 		ModelType modelType = null;
 		List<KnimeTuple> tuples;
 
+		// shows warning if despite overwrite being false the user still
+		// executes the node
+		if (overwrite.getBooleanValue() == false) {
+			setWarningMessage("File was not overwritten");
+			return new BufferedDataTable[] {};
+		}
+		
+		// Validate path
+		if (outPath.getStringValue().isEmpty()) {
+			setWarningMessage("Missing output path");
+			return new BufferedDataTable[] {};
+		}
+		
+		// Validate filename
+		if (modelName.getStringValue().isEmpty()) {
+			setWarningMessage("Missing model name");
+			return new BufferedDataTable[] {};
+		}
+		
 		// Table has the structure Model1 + Model2 + Data
 		if (SchemaFactory.createM12DataSchema().conforms(inData[0])) {
 			schema = SchemaFactory.createM12DataSchema();
@@ -334,6 +356,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		createdDate.saveSettingsTo(settings);
 		modifiedDate.saveSettingsTo(settings);
 		isSecondary.saveSettingsTo(settings);
+		overwrite.saveSettingsTo(settings);
 	}
 
 	/**
@@ -351,6 +374,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		createdDate.loadSettingsFrom(settings);
 		modifiedDate.loadSettingsFrom(settings);
 		isSecondary.loadSettingsFrom(settings);
+		overwrite.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -368,6 +392,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		createdDate.validateSettings(settings);
 		modifiedDate.validateSettings(settings);
 		isSecondary.validateSettings(settings);
+		overwrite.validateSettings(settings);
 	}
 
 	/**

@@ -100,12 +100,18 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentBoolean isSecondaryCheckbox = new DialogComponentBoolean(
 				isSecondary, "Is secondary?");
 
+		SettingsModelBoolean overwrite = new SettingsModelBoolean(
+				SBMLWriterNodeModel.CFG_OVERWRITE, true);
+		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(
+				overwrite, "Overwrite, ok?");
+
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
 		addDialogComponent(varParamComp);
 		addDialogComponent(nameComp);
 		addDialogComponent(isSecondaryCheckbox);
+		addDialogComponent(overwriteCheckbox);
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);

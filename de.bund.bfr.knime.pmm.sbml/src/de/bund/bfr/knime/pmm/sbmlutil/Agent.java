@@ -5,6 +5,8 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.Map;
+
 import groovy.util.Node;
 
 import org.hsh.bfr.db.DBKernel;
@@ -124,7 +126,17 @@ public class Agent {
 	}
 
 	public Node toGroovyNode() {
-		return new Node(null, "sbml:species", species.writeXMLAttributes());
+		Map<String, String> attrs = species.writeXMLAttributes();
+		attrs.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+		attrs.put("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		Node node = new Node(null, "sbml:species", attrs);
+		if (casNumber != null) {
+			node.appendNode("dc:source", casNumber);
+		}
+		if (detail != null) {
+			node.appendNode("pmf:detail", detail);
+		}
+		return node;
 	}
 }
 

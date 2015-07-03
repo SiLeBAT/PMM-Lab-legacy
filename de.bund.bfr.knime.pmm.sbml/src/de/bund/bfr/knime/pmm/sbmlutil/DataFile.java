@@ -15,8 +15,8 @@ import java.util.Map.Entry;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNode;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
@@ -58,11 +58,13 @@ public class DataFile {
 	 * @throws URISyntaxException
 	 */
 	public DataFile(LinkedHashMap<Double, Double> dimension, String concentrationUnit,
-			MatrixXml matrixXml, AgentXml agentXml, String depUnit,
+			Matrix matrix, Agent agent, List<LiteratureItem> lits, String depUnit,
 			Map<String, String> dlgInfo) throws URISyntaxException {
+		
+		// Creates ontologies
 		OntologyTerm time = createTimeOntology();
 		OntologyTerm concentration = createConcentrationOntology(
-				concentrationUnit, matrixXml, agentXml, depUnit);
+				concentrationUnit, matrix, agent, lits, depUnit);
 
 		// * creates descriptions for the ontologies
 		AtomicDescription concentrationDesc = new AtomicDescription();
@@ -162,7 +164,7 @@ public class DataFile {
 	 * @throws URISyntaxException
 	 */
 	private OntologyTerm createConcentrationOntology(String concentrationUnit,
-			MatrixXml matrixXml, AgentXml agentXml, String depUnit)
+			Matrix matrix, Agent agent, List<LiteratureItem> lits, String depUnit)
 			throws URISyntaxException {
 
 		OntologyTerm concentration = new OntologyTerm();
@@ -192,15 +194,21 @@ public class DataFile {
 		Node pmfNode = new Node(concentration.getAnnotation(), "pmf:metadata",
 				sbmlNS);
 
-		// Adds unit definition
-		pmfNode.append(udwrapper.toGroovyNode());
+		pmfNode.append(udwrapper.toGroovyNode());  // Adds unit definition
 
-		// compartment annotation
-		Matrix matrix = new Matrix(matrixXml, new HashMap<String, Double>());
-		pmfNode.append(matrix.toGroovyNode());
-
-		// species annotation
-		pmfNode.append(new Agent(agentXml, depUnit, matrix.getCompartment()).toGroovyNode());
+		// Comparment annotation
+		Node matrixNode = matrix.toGroovyNode();
+		pmfNode.append(matrixNode);
+		
+		// Species annotation
+		Node agentNode = agent.toGroovyNode();
+		pmfNode.append(agentNode);
+		
+		// Adds annotations for literature items
+		for (LiteratureItem lit : lits) {
+			Node litNode = new GroovyReferenceNode(lit).getNode();
+			pmfNode.append(litNode);
+		}
 
 		return concentration;
 	}

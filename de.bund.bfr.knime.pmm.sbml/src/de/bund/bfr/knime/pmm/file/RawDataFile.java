@@ -16,8 +16,8 @@ import org.jdom2.Element;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNode;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
@@ -30,6 +30,7 @@ import de.bund.bfr.numl.ResultComponent;
 
 /**
  * Case 0: Experimental data file
+ * 
  * @author Miguel Alba
  */
 public class RawDataFile {
@@ -41,31 +42,31 @@ public class RawDataFile {
 	}
 
 	public RawDataFile(LinkedHashMap<Double, Double> dimension,
-			String concentrationUnit, MatrixXml matrixXml, AgentXml agentXml)
-			throws URISyntaxException {
+			String concentrationUnit, Matrix matrix, Agent agent,
+			List<LiteratureItem> lits) throws URISyntaxException {
 
 		// Creates ontologies
 		OntologyTerm time = createTimeOntology();
-		OntologyTerm concentration = createConcentrationOntology(matrixXml,
-				agentXml);
+		OntologyTerm concentration = createConcentrationOntology(matrix, agent,
+				lits);
 
 		// Creates descriptions for the ontologies
 		AtomicDescription concentrationDesc = new AtomicDescription();
 		concentrationDesc.setName("concentration");
 		concentrationDesc.setOntologyTerm(concentration);
 		concentrationDesc.setValueType(DataType.Double);
-		
+
 		CompositeDescription timeDesc = new CompositeDescription();
 		timeDesc.setName("Time");
 		timeDesc.setIndexType(DataType.Double);
 		timeDesc.setOntologyTerm(time);
 		timeDesc.setDescription(concentrationDesc);
-		
+
 		ResultComponent resultComponent = new ResultComponent();
 		resultComponent.setId("exp1");
 		resultComponent.setDimensionDescription(timeDesc);
 		resultComponent.setDimension(dimension);
-		
+
 		// Adds PMF namespace to resultComponent's annotation
 		Map<String, String> pmfNS = new HashMap<>();
 		pmfNS.put("xmlns:pmf",
@@ -124,8 +125,8 @@ public class RawDataFile {
 	 * @param agentXml
 	 * @throws URISyntaxException
 	 */
-	private OntologyTerm createConcentrationOntology(MatrixXml matrixXml,
-			AgentXml agentXml) throws URISyntaxException {
+	private OntologyTerm createConcentrationOntology(Matrix matrix,
+			Agent agent, List<LiteratureItem> lits) throws URISyntaxException {
 
 		OntologyTerm concentration = new OntologyTerm();
 		concentration.setTerm("concentration");
@@ -136,6 +137,7 @@ public class RawDataFile {
 		Map<String, String> pmfNS = new HashMap<>();
 		pmfNS.put("xmlns:pmf",
 				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		pmfNS.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
 		concentration.setAnnotation(new Node(null, "annotation", pmfNS));
 
 		// Adds PMF annotation
@@ -145,13 +147,19 @@ public class RawDataFile {
 		Node pmfNode = new Node(concentration.getAnnotation(), "pmf:metadata",
 				sbmlNS);
 
-		// compartment annotation
-		Matrix matrix = new Matrix(matrixXml, new HashMap<String, Double>());
-		pmfNode.append(matrix.toGroovyNode());
+		// Comparment annotation
+		Node matrixNode = matrix.toGroovyNode();
+		pmfNode.append(matrixNode);
 
-		// species annotation
-		pmfNode.append(new Agent(agentXml, "dimensionless", matrix
-				.getCompartment()).toGroovyNode());
+		// Species annotation
+		Node agentNode = agent.toGroovyNode();
+		pmfNode.append(agentNode);
+
+		// Adds annotations for literature items
+		for (LiteratureItem lit : lits) {
+			Node litNode = new GroovyReferenceNode(lit).getNode();
+			pmfNode.append(litNode);
+		}
 
 		return concentration;
 	}
@@ -162,7 +170,8 @@ public class RawDataFile {
 
 	public List<TimeSeriesXml> getData() {
 
-		TimeSeriesXml basePoint = new TimeSeriesXml("", null, "h", null, "log10(count/g)", null, null);
+		TimeSeriesXml basePoint = new TimeSeriesXml("", null, "h", null,
+				"log10(count/g)", null, null);
 		basePoint.setConcentrationUnitObjectType("CFU");
 		Element basePointElement = basePoint.toXmlElement();
 
@@ -170,7 +179,7 @@ public class RawDataFile {
 		@SuppressWarnings("unchecked")
 		LinkedHashMap<Double, Double> dim = (LinkedHashMap<Double, Double>) numlDoc
 				.getResultComponents().get(0).getDimension();
-		
+
 		for (Entry<Double, Double> entry : dim.entrySet()) {
 			TimeSeriesXml t = new TimeSeriesXml(basePointElement);
 			t.setName(String.format("t%d", ts.size()));
@@ -178,7 +187,7 @@ public class RawDataFile {
 			t.setConcentration(entry.getValue());
 			ts.add(t);
 		}
-		
+
 		return ts;
 	}
 }

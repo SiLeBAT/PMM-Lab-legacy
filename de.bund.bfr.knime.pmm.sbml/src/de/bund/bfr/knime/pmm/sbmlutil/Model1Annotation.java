@@ -12,7 +12,7 @@ import java.util.Map;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
+import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
@@ -72,7 +72,7 @@ public class Model1Annotation {
 		// Gets references
 		lits = new LinkedList<>();
 		for (XMLNode refNode : metadata.getChildElements(REFERENCE_TAG, "")) {
-			lits.add(new ReferenceNode(refNode).toLiteratureItem());
+			lits.add(new SBMLReferenceNode(refNode).toLiteratureItem());
 		}
 	}
 
@@ -96,7 +96,7 @@ public class Model1Annotation {
 
 		// Builds reference nodes
 		for (LiteratureItem lit : literatureItems) {
-			node.addChild(new ReferenceNode(lit).getNode());
+			node.addChild(new SBMLReferenceNode(lit).getNode());
 		}
 
 		// Builds combaseID node

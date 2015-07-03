@@ -48,7 +48,7 @@ public abstract class ModelRule {
 		// Replace MathML's log with Pmm Lab's ln
 		String formulaStr = modelMath.toFormula();
 		formulaStr = formulaStr.replace("time", "Time");
-        formulaStr = formulaStr.replace("log\\(", "ln(");
+        formulaStr = formulaStr.replace("log(", "ln(");
 		formula += formulaStr;
 	
 		CatalogModelXml catModel = new CatalogModelXml(pmmlabID, formulaName, formula, type);

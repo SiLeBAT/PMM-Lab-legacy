@@ -56,7 +56,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
-import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.Compartment;
@@ -145,7 +144,6 @@ import de.bund.bfr.numl.NuMLDocument;
  */
 public class SBMLWriterNodeModel extends NodeModel {
 	protected static final String CFG_OUT_PATH = "outPath";
-	protected static final String CFG_VARIABLE_PARAM = "variableParams";
 	protected static final String CFG_MODEL_NAME = "modelName";
 	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
 	protected static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
@@ -157,8 +155,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
-	private SettingsModelString variableParams = new SettingsModelOptionalString(
-			CFG_VARIABLE_PARAM, null, false);
 	private SettingsModelString modelName = new SettingsModelString(
 			CFG_MODEL_NAME, null);
 	private SettingsModelString creatorGivenName = new SettingsModelString(
@@ -340,8 +336,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 
 		if (outPath.getStringValue() == null
-				|| modelName.getStringValue() == null
-				|| variableParams.getStringValue() == null) {
+				|| modelName.getStringValue() == null) {
 			throw new InvalidSettingsException("Node must be configured");
 		}
 
@@ -361,7 +356,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		outPath.saveSettingsTo(settings);
-		variableParams.saveSettingsTo(settings);
 		modelName.saveSettingsTo(settings);
 		creatorGivenName.saveSettingsTo(settings);
 		creatorFamilyName.saveSettingsTo(settings);
@@ -379,7 +373,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		outPath.loadSettingsFrom(settings);
-		variableParams.loadSettingsFrom(settings);
 		modelName.loadSettingsFrom(settings);
 		creatorGivenName.loadSettingsFrom(settings);
 		creatorFamilyName.loadSettingsFrom(settings);
@@ -397,7 +390,6 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		outPath.validateSettings(settings);
-		variableParams.validateSettings(settings);
 		modelName.validateSettings(settings);
 		creatorGivenName.validateSettings(settings);
 		creatorFamilyName.validateSettings(settings);
@@ -780,12 +772,30 @@ class ExperimentalDataParser implements Parser {
 
 		String unit = ((TimeSeriesXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_TIMESERIES).get(0)).getConcentrationUnit();
+
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_MATRIX).get(0);
+
+		Map<String, Double> miscs = new HashMap<>();
+		PmmXmlDoc miscDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+		for (PmmXmlElementConvertable item : miscDoc.getElementSet()) {
+			MiscXml misc = (MiscXml) item;
+			miscs.put(misc.getName(), misc.getValue());
+		}
+		Matrix matrix = new Matrix(matrixXml, miscs);
+
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_AGENT).get(0);
+		Agent agent = new Agent(agentXml, "dimensionless",
+				matrix.getCompartment());
+		
+		PmmXmlDoc litDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
+		List<LiteratureItem> lits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : litDoc.getElementSet()) {
+			lits.add((LiteratureItem) item);
+		}
 
-		RawDataFile dataFile = new RawDataFile(dim, unit, matrixXml, agentXml);
+		RawDataFile dataFile = new RawDataFile(dim, unit, matrix, agent, lits);
 
 		return new ExperimentalData(dataFile.getDocument());
 	}
@@ -866,24 +876,20 @@ class PrimaryModelWDataParser implements Parser {
 		model.getAnnotation()
 				.setNonRDFAnnotation(primModelAnnotation.getNode());
 
-		// Create compartment and add it to the model
-		List<MiscXml> miscs = new LinkedList<>();
-		for (PmmXmlElementConvertable item : miscDoc.getElementSet()) {
-			miscs.add((MiscXml) item);
-		}
-
 		// Create and add compartment to model
 		Map<String, Double> miscsMap = new HashMap<>();
-		for (MiscXml misc : miscs) {
+		for (PmmXmlElementConvertable item : miscDoc.getElementSet()) {
+			MiscXml misc = (MiscXml) item;
 			miscsMap.put(misc.getName(), misc.getValue());
 		}
 		Matrix matrix = new Matrix(matrixXml, miscsMap);
+
 		Compartment c = matrix.getCompartment();
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Agent organims = new Agent(agentXml, dep.getUnit(), c);
-		model.addSpecies(organims.getSpecies());
+		Agent agent = new Agent(agentXml, dep.getUnit(), c);
+		model.addSpecies(agent.getSpecies());
 
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
@@ -927,7 +933,7 @@ class PrimaryModelWDataParser implements Parser {
 
 		// Create rule of the model and add it to the rest of rules
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(
-				catModel, organims.getSpecies().getId());
+				catModel, agent.getSpecies().getId());
 		model.addRule(model1Rule.getRule());
 
 		// Parse data
@@ -943,7 +949,7 @@ class PrimaryModelWDataParser implements Parser {
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 			String unit = firstPoint.getConcentrationUnit();
 
-			DataFile dataFile = new DataFile(dim, unit, matrixXml, agentXml,
+			DataFile dataFile = new DataFile(dim, unit, matrix, agent, lits,
 					dep.getUnit(), new HashMap<String, String>());
 			numlDoc = dataFile.getDocument();
 		}
@@ -1412,9 +1418,8 @@ class TwoStepSecondaryModelParser implements Parser {
 				TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 				String unit = firstPoint.getConcentrationUnit();
 
-				DataFile dataFile = new DataFile(dim, unit, matrixXml,
-						organismXml, dep.getUnit(),
-						new HashMap<String, String>());
+				DataFile dataFile = new DataFile(dim, unit, matrix, agent, lits,
+						dep.getUnit(), new HashMap<String, String>());
 
 				// Adds DataSourceNode to the model
 				DataSourceNode dsn = new DataSourceNode(estModel.getId()
@@ -1852,7 +1857,7 @@ class OneStepSecondaryModelParser implements Parser {
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 			String unit = firstPoint.getConcentrationUnit();
 
-			DataFile dataFile = new DataFile(dim, unit, matrixXml, agentXml,
+			DataFile dataFile = new DataFile(dim, unit, matrix, agent, lits,
 					dep.getUnit(), new HashMap<String, String>());
 			numlDocs.add(dataFile.getDocument());
 
@@ -2196,7 +2201,7 @@ class TwoStepTertiaryModelParser implements Parser {
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 			String unit = firstPoint.getConcentrationUnit();
 
-			DataFile dataFile = new DataFile(dim, unit, matrixXml, agentXml,
+			DataFile dataFile = new DataFile(dim, unit, matrix, agent, lits,
 					dep.getUnit(), new HashMap<String, String>());
 			numlDocs.add(dataFile.getDocument());
 
@@ -2545,7 +2550,7 @@ class OneStepTertiaryModelParser implements Parser {
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 			String unit = firstPoint.getConcentrationUnit();
 
-			DataFile dataFile = new DataFile(dim, unit, matrixXml, agentXml,
+			DataFile dataFile = new DataFile(dim, unit, matrix, agent, lits,
 					dep.getUnit(), new HashMap<String, String>());
 			numlDocs.add(dataFile.getDocument());
 

@@ -1,6 +1,7 @@
 package de.bund.bfr.knime.pmm.sbmlreader;
 
 import groovy.util.Node;
+import groovy.util.NodeList;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
+import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -284,16 +286,32 @@ class ExperimentalDataReader implements Reader {
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID,
 				MathUtilities.getRandomNegativeInt());
 
-		// Set matrix
-		Node matrixNode = (Node) metadataNode.children().get(0);
+		// Creates matrix
+		NodeList matrixNodes = (NodeList) metadataNode.get("compartment");
+		Node matrixNode = (Node) matrixNodes.get(0);
 		MatrixXml matrixXml = new MatrixXml();
 		matrixXml.setName((String) matrixNode.attribute("name"));
+		
+		// Gets and sets matrix detail
+		NodeList detailNodes = (NodeList) matrixNode.get("detail");
+		Node detailNode = (Node) detailNodes.get(0);
+		matrixXml.setDetail(detailNode.text());
+
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
 
-		// Set agent
-		Node agentNode = (Node) metadataNode.children().get(1);
+		// Gets agent
+		NodeList agentNodes = (NodeList) metadataNode.get("species");
+		Node agentNode = (Node) agentNodes.get(0);
+
+		// Gets agent detail
+		detailNodes = (NodeList) agentNode.get("detail");
+		detailNode = (Node) detailNodes.get(0);
+		
+		// Sets AgentXml
 		AgentXml agentXml = new AgentXml();
 		agentXml.setName((String) agentNode.attribute("name"));
+		agentXml.setDetail(detailNode.text());
+		
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
 
 		// Set time series
@@ -304,10 +322,30 @@ class ExperimentalDataReader implements Reader {
 		}
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, new PmmXmlDoc());
+		// Gets model variables
+		Map<String, Double> miscs = new HashMap<>();
+		NodeList miscNodes = (NodeList) matrixNode.get("modelvariable");
+		for (int i = 0; i < miscNodes.size(); i++) {
+			Node miscNode = (Node) miscNodes.get(i);
+			Map<?, ?> attrs = miscNode.attributes();
+			String name = (String) attrs.get("name");
+			Double value = Double.parseDouble((String) attrs.get("value"));
+			miscs.put(name, value);
+		}
+		
+		tuple.setValue(TimeSeriesSchema.ATT_MISC, ReaderUtils.parseMiscs(miscs));
+		
+		// Gets literature items
+		PmmXmlDoc litDoc = new PmmXmlDoc();
+		NodeList litNodes = (NodeList) metadataNode.get("reference");
+		for (int i = 0; i < litNodes.size(); i++) {
+			Node litNode = (Node) litNodes.get(0);
+			litDoc.add(new GroovyReferenceNode(litNode).toLiteratureItem());
+		}
+
 		MdInfoXml mdInfo = new MdInfoXml(null, "", "", null, false);
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
+		tuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
 
 		return tuple;
 	}

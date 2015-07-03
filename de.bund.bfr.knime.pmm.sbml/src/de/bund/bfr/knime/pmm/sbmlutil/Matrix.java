@@ -111,8 +111,23 @@ public class Matrix {
 	 * Creates Groovy node.
 	 */
 	public Node toGroovyNode() {
-		return new Node(null, "sbml:compartment",
-				compartment.writeXMLAttributes());
+		Map<String, String> attrs = compartment.writeXMLAttributes();
+		attrs.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+		attrs.put("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		Node node = new Node(null, "sbml:compartment", attrs);
+		if (node != null) {
+			node.appendNode("dc:source", code);
+		}
+		if (details != null) {
+			node.appendNode("dc:detail", details);
+		}
+		for (Entry<String, Double> entry : miscs.entrySet()) {
+			Map<String, String> modelVariable = new HashMap<>();
+			modelVariable.put("name", entry.getKey());
+			modelVariable.put("value", entry.getValue().toString());
+			node.appendNode("pmml:modelvariable", modelVariable);
+		}
+		return node;
 	}
 }
 

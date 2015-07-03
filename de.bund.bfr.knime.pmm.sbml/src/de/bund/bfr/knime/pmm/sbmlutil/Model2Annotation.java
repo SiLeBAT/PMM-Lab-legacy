@@ -11,7 +11,7 @@ import java.util.Map;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.annotation.ReferenceNode;
+import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
@@ -57,7 +57,7 @@ public class Model2Annotation {
 		// Gets references
 		literatureItems = new LinkedList<>();
 		for (XMLNode ref : metadata.getChildElements(REFERENCE_TAG, "")) {
-			ReferenceNode refNode = new ReferenceNode(ref);
+			SBMLReferenceNode refNode = new SBMLReferenceNode(ref);
 			literatureItems.add(refNode.toLiteratureItem());
 		}
 	}
@@ -83,7 +83,7 @@ public class Model2Annotation {
 
 		// Builds references node
 		for (LiteratureItem lit : lits) {
-			ReferenceNode ref = new ReferenceNode(lit);
+			SBMLReferenceNode ref = new SBMLReferenceNode(lit);
 			node.addChild(ref.getNode());
 		}
 

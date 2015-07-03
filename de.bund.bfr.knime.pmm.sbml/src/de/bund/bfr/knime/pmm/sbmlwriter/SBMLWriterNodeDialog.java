@@ -39,11 +39,9 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentDate;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
-import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -68,10 +66,6 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null),
 				OUT_HISTORY, JFileChooser.SAVE_DIALOG, true);
-		DialogComponentOptionalString varParamComp = new DialogComponentOptionalString(
-				new SettingsModelOptionalString(
-						SBMLWriterNodeModel.CFG_VARIABLE_PARAM, null, true),
-				"Initial Concentration Parameter");
 		DialogComponentString nameComp = new DialogComponentString(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
 						null), "File Name");
@@ -108,7 +102,6 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
-		addDialogComponent(varParamComp);
 		addDialogComponent(nameComp);
 		addDialogComponent(isSecondaryCheckbox);
 		addDialogComponent(overwriteCheckbox);

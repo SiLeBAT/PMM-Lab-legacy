@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.sbml.jsbml.SBMLDocument;
 
-import de.bund.bfr.numl.NuMLDocument;
-
 /**
  * Case 3a: Tertiary model generated with 2-step fit approach.
  * 
@@ -19,25 +17,25 @@ import de.bund.bfr.numl.NuMLDocument;
 public class TwoStepTertiaryModel {
 
 	SBMLDocument tertiaryDoc;
+	List<PrimaryModelWData> primModels;
 	List<SBMLDocument> secDocs;
-	List<NuMLDocument> dataDocs;
 
-	public TwoStepTertiaryModel(SBMLDocument tertiaryDoc,
-			List<SBMLDocument> secDocs, List<NuMLDocument> dataDocs) {
-		this.tertiaryDoc = tertiaryDoc;
+	public TwoStepTertiaryModel(SBMLDocument tertDoc,
+			List<PrimaryModelWData> primModels, List<SBMLDocument> secDocs) {
+		this.tertiaryDoc = tertDoc;
+		this.primModels = primModels;
 		this.secDocs = secDocs;
-		this.dataDocs = dataDocs;
 	}
 
-	public SBMLDocument getTertiaryDoc() {
+	public SBMLDocument getTertDoc() {
 		return tertiaryDoc;
+	}
+
+	public List<PrimaryModelWData> getPrimModels() {
+		return primModels;
 	}
 
 	public List<SBMLDocument> getSecDocs() {
 		return secDocs;
-	}
-
-	public List<NuMLDocument> getDataDocs() {
-		return dataDocs;
 	}
 }

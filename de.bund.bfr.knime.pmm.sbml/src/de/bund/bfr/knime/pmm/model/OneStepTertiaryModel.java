@@ -28,7 +28,7 @@ public class OneStepTertiaryModel {
 		this.dataDocs = dataDocs;
 	}
 
-	public SBMLDocument getTertiaryDoc() {
+	public SBMLDocument getTertDoc() {
 		return tertiaryDoc;
 	}
 

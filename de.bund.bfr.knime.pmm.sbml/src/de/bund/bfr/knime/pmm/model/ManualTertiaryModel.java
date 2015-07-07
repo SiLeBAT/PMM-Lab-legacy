@@ -23,7 +23,7 @@ public class ManualTertiaryModel {
 		this.secDocs = secDocs;
 	}
 
-	public SBMLDocument getTertiaryDoc() {
+	public SBMLDocument getTertDoc() {
 		return tertiaryDoc;
 	}
 

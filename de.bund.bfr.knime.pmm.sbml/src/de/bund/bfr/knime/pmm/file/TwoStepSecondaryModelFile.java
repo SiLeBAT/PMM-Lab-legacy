@@ -50,8 +50,7 @@ public class TwoStepSecondaryModelFile {
 	/**
 	 * TODO ...
 	 */
-	public static List<TwoStepSecondaryModel> read(String filename)
-			throws Exception {
+	public static List<TwoStepSecondaryModel> read(String filename) throws Exception {
 
 		List<TwoStepSecondaryModel> models = new LinkedList<>();
 
@@ -69,8 +68,7 @@ public class TwoStepSecondaryModelFile {
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			dataEntries.put(entry.getFileName(), doc);
 		}
@@ -80,8 +78,7 @@ public class TwoStepSecondaryModelFile {
 		HashMap<String, SBMLDocument> primModels = new HashMap<>();
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
@@ -99,8 +96,7 @@ public class TwoStepSecondaryModelFile {
 					.getPlugin(CompConstants.shortLabel);
 			ModelDefinition md = secCompPlugin.getModelDefinition(0);
 
-			XMLNode metadata = md.getAnnotation().getNonRDFannotation()
-					.getChildElement("metadata", "");
+			XMLNode metadata = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 			List<PrimaryModelWData> pmwds = new LinkedList<>();
 
 			List<XMLNode> refs = metadata.getChildElements("primaryModel", "");
@@ -110,8 +106,7 @@ public class TwoStepSecondaryModelFile {
 				NuMLDocument numlDoc;
 
 				// look for DataSourceNode
-				XMLNode m1Annot = primDoc.getModel().getAnnotation()
-						.getNonRDFannotation();
+				XMLNode m1Annot = primDoc.getModel().getAnnotation().getNonRDFannotation();
 				XMLNode node = m1Annot.getChildElement("dataSourceNode", "");
 
 				if (node == null) {
@@ -124,8 +119,7 @@ public class TwoStepSecondaryModelFile {
 				pmwds.add(new PrimaryModelWData(primDoc, numlDoc));
 			}
 
-			TwoStepSecondaryModel tssm = new TwoStepSecondaryModel(secModel,
-					pmwds);
+			TwoStepSecondaryModel tssm = new TwoStepSecondaryModel(secModel, pmwds);
 			models.add(tssm);
 		}
 
@@ -134,8 +128,7 @@ public class TwoStepSecondaryModelFile {
 
 	/**
 	 */
-	public static void write(String dir, String filename,
-			List<TwoStepSecondaryModel> models, ExecutionContext exec)
+	public static void write(String dir, String filename, List<TwoStepSecondaryModel> models, ExecutionContext exec)
 			throws Exception {
 
 		// Creates CombineArchive name
@@ -170,25 +163,13 @@ public class TwoStepSecondaryModelFile {
 			secTmp.deleteOnExit();
 
 			// Creates name for the secondary model
-			String mdName = String.format("%s_%s.%s", filename, modelCounter,
-					SBML_EXTENSION);
+			String mdName = String.format("%s_%s.%s", filename, modelCounter, SBML_EXTENSION);
 
 			// Writes model to secTmp and adds it to the file
 			sbmlWriter.write(model.getSecDoc(), secTmp);
 			ca.addEntry(secTmp, mdName, sbmlURI);
 
 			for (PrimaryModelWData primModel : model.getPrimModels()) {
-				// Creates tmp file for the primary model
-				File primTmp = File.createTempFile("prim", "");
-				primTmp.deleteOnExit();
-
-				// Creates name for the primary model
-				mdName = String.format("%s.%s", primModel.getSBMLDoc()
-						.getModel().getId(), SBML_EXTENSION);
-
-				// Writes model to primTmp and adds it to the file
-				sbmlWriter.write(primModel.getSBMLDoc(), primTmp);
-				ca.addEntry(primTmp, mdName, sbmlURI);
 
 				if (primModel.getNuMLDoc() != null) {
 					// Creates tmp file for this primary model's data
@@ -196,13 +177,27 @@ public class TwoStepSecondaryModelFile {
 					numlTmp.deleteOnExit();
 
 					// Creates data file name
-					String dataName = String.format("%s.%s", primModel
-							.getSBMLDoc().getModel().getId(), NuML_EXTENSION);
+					String dataName = String.format("%s.%s", primModel.getSBMLDoc().getModel().getId(), NuML_EXTENSION);
 
 					// Writes data to numlTmp and adds it to the file
 					numlWriter.write(primModel.getNuMLDoc(), numlTmp);
 					ca.addEntry(numlTmp, dataName, numlURI);
+
+					// Adds DataSourceNode to the model
+					DataSourceNode dsn = new DataSourceNode(dataName);
+					primModel.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
 				}
+
+				// Creates tmp file for the primary model
+				File primTmp = File.createTempFile("prim", "");
+				primTmp.deleteOnExit();
+
+				// Creates name for the primary model
+				mdName = String.format("%s.%s", primModel.getSBMLDoc().getModel().getId(), SBML_EXTENSION);
+
+				// Writes model to primTmp and adds it to the file
+				sbmlWriter.write(primModel.getSBMLDoc(), primTmp);
+				ca.addEntry(primTmp, mdName, sbmlURI);
 			}
 
 			// Increments counter and update progress bar

@@ -94,7 +94,7 @@ public class ExperimentalDataFile {
 					NuML_EXTENSION);
 			
 			// Writes data to numlTmp and it to the PMF file (ca)
-			numlWriter.write(ed.getNuMLDocument(), numlTmp);
+			numlWriter.write(ed.getNuMLDoc(), numlTmp);
 			ca.addEntry(numlTmp, dataName, numlURI);
 			
 			// Increments counter and update progress bar

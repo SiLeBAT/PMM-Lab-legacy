@@ -29,7 +29,7 @@ public class OneStepSecondaryModel {
 		return sbmlDoc;
 	}
 
-	public List<NuMLDocument> getNumlDocs() {
+	public List<NuMLDocument> getNuMLDocs() {
 		return numlDocs;
 	}
 }

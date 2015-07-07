@@ -15,7 +15,7 @@ public class ExperimentalData {
 		this.numlDoc = numlDoc;
 	}
 
-	public NuMLDocument getNuMLDocument() {
+	public NuMLDocument getNuMLDoc() {
 		return numlDoc;
 	}
 }

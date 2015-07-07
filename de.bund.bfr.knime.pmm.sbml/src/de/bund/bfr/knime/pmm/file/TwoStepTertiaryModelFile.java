@@ -18,10 +18,13 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
+import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.model.PrimaryModelWData;
 import de.bund.bfr.knime.pmm.model.TwoStepTertiaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
@@ -47,8 +50,7 @@ public class TwoStepTertiaryModelFile {
 	final static String NuML_EXTENSION = "numl";
 	final static String PMF_EXTENSION = "pmf";
 
-	public static List<TwoStepTertiaryModel> read(String filename)
-			throws Exception {
+	public static List<TwoStepTertiaryModel> read(String filename) throws Exception {
 
 		List<TwoStepTertiaryModel> models = new LinkedList<>();
 
@@ -66,8 +68,7 @@ public class TwoStepTertiaryModelFile {
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			stream.close();
 			dataEntries.put(entry.getFileName(), doc);
@@ -75,19 +76,27 @@ public class TwoStepTertiaryModelFile {
 
 		// Classify models into tertiary or secondary models
 		Map<String, SBMLDocument> tertDocs = new HashMap<>();
+		Map<String, SBMLDocument> primDocs = new HashMap<>();
 		Map<String, SBMLDocument> secDocs = new HashMap<>();
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
+			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
+			ListOf<ExternalModelDefinition> mdList = secCompPlugin.getListOfExternalModelDefinitions();
 			stream.close();
 
 			// Secondary model -> Has no primary model
 			if (doc.getModel() == null) {
 				secDocs.put(entry.getFileName(), doc);
-			} else {
+			}
+			// Tertiary model -> Has model definitions
+			else if (mdList.size() > 0) {
 				tertDocs.put(entry.getFileName(), doc);
+			}
+			// Primary model -> Has no model definitions
+			else {
+				primDocs.put(entry.getFileName(), doc);
 			}
 		}
 
@@ -95,25 +104,38 @@ public class TwoStepTertiaryModelFile {
 
 		for (SBMLDocument tertDoc : tertDocs.values()) {
 			List<SBMLDocument> secModels = new LinkedList<>();
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tertDoc
-					.getPlugin(CompConstants.shortLabel);
-			// Gets secondary model ids
-			ListOf<ModelDefinition> mdList = secCompPlugin
-					.getListOfModelDefinitions();
-			for (ModelDefinition md : mdList) {
-				secModels.add(secDocs.get(md.getId()));
+			List<PrimaryModelWData> primModels = new LinkedList<>();
+			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
+			// Gets secondary model documents
+			ListOf<ExternalModelDefinition> emds = secCompPlugin.getListOfExternalModelDefinitions();
+			for (ExternalModelDefinition emd : emds) {
+				secModels.add(secDocs.get(emd.getSource()));
 			}
 
-			// Gets data files
-			List<NuMLDocument> numlDocs = new LinkedList<>();
-			XMLNode m1Annot = tertDoc.getModel().getAnnotation()
-					.getNonRDFannotation();
-			for (XMLNode node : m1Annot.getChildElements("dataSource", "")) {
-				DataSourceNode dsn = new DataSourceNode(node);
-				numlDocs.add(dataEntries.get(dsn.getFile()));
+			// All the secondary models of a Two step tertiary model are linked
+			// to the same primary models. Thus these primary models can be
+			// retrieved from the first secondary model
+			SBMLDocument secDoc = secModels.get(0);
+			CompSBMLDocumentPlugin secDocPlugin = (CompSBMLDocumentPlugin) secDoc.getPlugin(CompConstants.shortLabel);
+			ModelDefinition md = secDocPlugin.getModelDefinition(0);
+
+			XMLNode metadata = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+			for (XMLNode pmNode : metadata.getChildElements("primarymodel", "")) {
+				// Gets model name from annotation
+				String mdName = pmNode.getChild(0).getCharacters();
+				// Gets primary model
+				SBMLDocument mdDoc = primDocs.get(mdName);
+				// Gets data source annotation of the primary model
+				XMLNode node = mdDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("dataSource", "");
+				// Gets data name from this annotation
+				String dataName = new DataSourceNode(node).getFile();
+				// Gets data file
+				NuMLDocument dataDoc = dataEntries.get(dataName);
+
+				primModels.add(new PrimaryModelWData(mdDoc, dataDoc));
 			}
-			TwoStepTertiaryModel tstm = new TwoStepTertiaryModel(tertDoc,
-					secModels, numlDocs);
+
+			TwoStepTertiaryModel tstm = new TwoStepTertiaryModel(tertDoc, primModels, secModels);
 			models.add(tstm);
 		}
 
@@ -122,8 +144,7 @@ public class TwoStepTertiaryModelFile {
 
 	/**
 	 */
-	public static void write(String dir, String filename,
-			List<TwoStepTertiaryModel> models, ExecutionContext exec)
+	public static void write(String dir, String filename, List<TwoStepTertiaryModel> models, ExecutionContext exec)
 			throws Exception {
 
 		// Creates CombineArchive name
@@ -153,18 +174,44 @@ public class TwoStepTertiaryModelFile {
 		// Add models and data
 		short modelCounter = 0;
 		for (TwoStepTertiaryModel model : models) {
-			// Creates tmp file for the secondary model
-			File tertTmp = File.createTempFile("sec", "");
-			tertTmp.deleteOnExit();
 
-			// Creates name for the secondary model
-			String mdName = String.format("%s_%s.%s", filename, modelCounter,
-					SBML_EXTENSION);
+			// List of primary model names
+			List<String> pmNames = new LinkedList<>();
 
-			// Writes tertiary model to tertTmp and adds it to the file
-			sbmlWriter.write(model.getTertiaryDoc(), tertTmp);
-			ca.addEntry(tertTmp, mdName, sbmlURI);
+			short instCounter = 0; // instance counter
+			for (PrimaryModelWData pm : model.getPrimModels()) {
 
+				// Creates tmp file for the data
+				File numlTmp = File.createTempFile("data", "");
+				numlTmp.deleteOnExit();
+
+				// Creates data file name
+				String dataName = String.format("%s_%d_%d.%s", filename, modelCounter, instCounter, NuML_EXTENSION);
+
+				// Writes data to numlTmp and add it to the file
+				numlWriter.write(pm.getNuMLDoc(), numlTmp);
+				ca.addEntry(numlTmp, dataName, numlURI);
+
+				// Adds DataSourceNode to the model
+				DataSourceNode node = new DataSourceNode(dataName);
+				pm.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation().addChild(node.getNode());
+
+				// Creates tmp file for the model
+				File sbmlTmp = File.createTempFile("model", "");
+				sbmlTmp.deleteOnExit();
+
+				// Creates model file name
+				String mdName = String.format("%s_%d_%d.%s", filename, modelCounter, instCounter, SBML_EXTENSION);
+				pmNames.add(mdName);
+
+				// Writes model to sbmlTmp and add it to the file
+				sbmlWriter.write(pm.getSBMLDoc(), sbmlTmp);
+				ca.addEntry(sbmlTmp, mdName, sbmlURI);
+
+				instCounter++;
+			}
+
+			// //////////////////////////////////////////////////////////////////////////////
 			for (SBMLDocument secDoc : model.getSecDocs()) {
 				// Creates tmp file for the secondary model
 				File secTmp = File.createTempFile("sec", "");
@@ -174,30 +221,32 @@ public class TwoStepTertiaryModelFile {
 				CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) secDoc
 						.getPlugin(CompConstants.shortLabel);
 				ModelDefinition md = secCompPlugin.getModelDefinition(0);
-				String secMdName = String.format("%s.%s", md.getId(),
-						SBML_EXTENSION);
+				String secMdName = String.format("%s.%s", md.getId(), SBML_EXTENSION);
+
+				// Adds annotations for the primary models
+				XMLNode metadataNode = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+				for (String name : pmNames) {
+					XMLTriple triple = new XMLTriple("primarymodel", "", "pmf");
+					XMLNode node = new XMLNode(triple);
+					node.addChild(new XMLNode(name));
+					metadataNode.addChild(node);
+				}
 
 				// Writes model to secTmp and adds it to the file
 				sbmlWriter.write(secDoc, secTmp);
 				ca.addEntry(secTmp, secMdName, sbmlURI);
 			}
 
-			short dataCounter = 0;
-			for (NuMLDocument numlDoc : model.getDataDocs()) {
-				// Creates tmp file for this primary model's data
-				File numlTmp = File.createTempFile("data", "");
-				numlTmp.deleteOnExit();
+			// Creates tmp file for the secondary model
+			File tertTmp = File.createTempFile("tert", "");
+			tertTmp.deleteOnExit();
 
-				// Creates data file name
-				String dataName = String.format("data_%d_%d.%s", modelCounter,
-						dataCounter, NuML_EXTENSION);
+			// Creates name for the tertiary model
+			String mdName = String.format("%s_%s.%s", filename, modelCounter, SBML_EXTENSION);
 
-				// Writes data to numlTmp and adds it to the file
-				numlWriter.write(numlDoc, numlTmp);
-				ca.addEntry(numlTmp, dataName, numlURI);
-
-				dataCounter++;
-			}
+			// Writes tertiary model to tertTmp and adds it to the file
+			sbmlWriter.write(model.getTertDoc(), tertTmp);
+			ca.addEntry(tertTmp, mdName, sbmlURI);
 
 			// Increments counter and update progress bar
 			modelCounter++;

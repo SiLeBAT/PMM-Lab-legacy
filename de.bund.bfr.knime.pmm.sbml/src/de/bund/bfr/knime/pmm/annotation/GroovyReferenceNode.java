@@ -107,7 +107,7 @@ public class GroovyReferenceNode {
 	public LiteratureItem toLiteratureItem() {
 
 		String author;
-		NodeList authorNodes = (NodeList) node.get(spec.getYear());
+		NodeList authorNodes = (NodeList) node.get(spec.getAuthor());
 		if (authorNodes.size() == 0) {
 			author = null;
 		} else {

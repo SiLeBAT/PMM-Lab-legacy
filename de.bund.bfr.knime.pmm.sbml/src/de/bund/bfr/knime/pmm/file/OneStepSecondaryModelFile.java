@@ -49,8 +49,7 @@ public class OneStepSecondaryModelFile {
 	/**
 	 * TODO ...
 	 */
-	public static List<OneStepSecondaryModel> read(String filename)
-			throws Exception {
+	public static List<OneStepSecondaryModel> read(String filename) throws Exception {
 
 		List<OneStepSecondaryModel> models = new LinkedList<>();
 
@@ -68,22 +67,19 @@ public class OneStepSecondaryModelFile {
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			stream.close();
 			dataEntries.put(entry.getFileName(), doc);
 		}
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
 			// look for DataSourceNode
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc
-					.getPlugin(CompConstants.shortLabel);
+			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
 			ModelDefinition md = secCompPlugin.getModelDefinition(0);
 			List<NuMLDocument> numlDocs = new LinkedList<>();
 			XMLNode m2Annot = md.getAnnotation().getNonRDFannotation();
@@ -93,8 +89,7 @@ public class OneStepSecondaryModelFile {
 				numlDocs.add(dataEntries.get(dataFileName));
 			}
 
-			OneStepSecondaryModel ossm = new OneStepSecondaryModel(doc,
-					numlDocs);
+			OneStepSecondaryModel ossm = new OneStepSecondaryModel(doc, numlDocs);
 			models.add(ossm);
 		}
 		ca.close();
@@ -103,8 +98,7 @@ public class OneStepSecondaryModelFile {
 
 	/**
 	 */
-	public static void write(String dir, String filename,
-			List<OneStepSecondaryModel> models, ExecutionContext exec)
+	public static void write(String dir, String filename, List<OneStepSecondaryModel> models, ExecutionContext exec)
 			throws Exception {
 
 		// Creates CombineArchive name
@@ -134,20 +128,12 @@ public class OneStepSecondaryModelFile {
 		// Add models and data
 		short modelCounter = 0;
 		for (OneStepSecondaryModel model : models) {
-			// Creates tmp file for the SBML model
-			File sbmlTmp = File.createTempFile("sbml", "");
-			sbmlTmp.deleteOnExit();
-
-			// Creates name for the secondary model
-			String mdName = String.format("%s_%s.%s", filename, modelCounter,
-					SBML_EXTENSION);
-
-			// Writes model to secTmp and adds it to the file
-			sbmlWriter.write(model.getSBMLDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp, mdName, sbmlURI);
+			CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) model.getSBMLDoc()
+					.getPlugin(CompConstants.shortLabel);
+			ModelDefinition md = compDocPlugin.getModelDefinition(0);
 
 			short dataCounter = 0;
-			for (NuMLDocument numlDoc : model.getNumlDocs()) {
+			for (NuMLDocument numlDoc : model.getNuMLDocs()) {
 				// Creates tmp file for the NuML model
 				File numlTmp = File.createTempFile("numl", "");
 				numlTmp.deleteOnExit();
@@ -159,8 +145,22 @@ public class OneStepSecondaryModelFile {
 				numlWriter.write(numlDoc, numlTmp);
 				ca.addEntry(numlTmp, dataName, numlURI);
 
+				// Adds DataSourceNode to the model
+				DataSourceNode dsn = new DataSourceNode(dataName);
+				md.getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
 				dataCounter++;
 			}
+
+			// Creates tmp file for the SBML model
+			File sbmlTmp = File.createTempFile("sbml", "");
+			sbmlTmp.deleteOnExit();
+
+			// Creates name for the secondary model
+			String mdName = String.format("%s_%s.%s", filename, modelCounter, SBML_EXTENSION);
+
+			// Writes model to secTmp and adds it to the file
+			sbmlWriter.write(model.getSBMLDoc(), sbmlTmp);
+			ca.addEntry(sbmlTmp, mdName, sbmlURI);
 
 			// Increments counter and update progress bar
 			modelCounter++;

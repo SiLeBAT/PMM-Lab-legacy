@@ -36,13 +36,13 @@ public enum ModelType {
 	 */
 	public static ModelType getTableType(DataTableSpec spec) throws Exception {
 
-		if (SchemaFactory.createM12DataSchema().conforms(spec)) {
+		if (SchemaFactory.conformsM12DataSchema(spec)) {
 			return TERTIARY;
-		} else if (SchemaFactory.createM1DataSchema().conforms(spec)) {
+		} else if (SchemaFactory.conformsM1DataSchema(spec)) {
 			return PRIMARY;
-		} else if (SchemaFactory.createM2Schema().conforms(spec)) {
+		} else if (SchemaFactory.conformsM2Schema(spec)) {
 			return SECONDARY;
-		} else if (SchemaFactory.createDataSchema().conforms(spec)) {
+		} else if (SchemaFactory.conformsDataSchema(spec)) {
 			return EXPERIMENTAL_DATA;
 		} else {
 			throw new Exception();

@@ -12,12 +12,12 @@ import java.util.Map;
 
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
-import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
+import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
 import de.bund.bfr.knime.pmm.model.ManualTertiaryModel;
@@ -76,13 +76,12 @@ public class ManualTertiaryModelFile {
 
 		for (SBMLDocument tertDoc : tertDocs.values()) {
 			List<SBMLDocument> secModels = new LinkedList<>();
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tertDoc
+			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) tertDoc
 					.getPlugin(CompConstants.shortLabel);
 			// Gets secondary model ids
-			ListOf<ModelDefinition> mdList = secCompPlugin
-					.getListOfModelDefinitions();
-			for (ModelDefinition md : mdList) {
-				secModels.add(secDocs.get(md.getId()));
+			for (ExternalModelDefinition emd : plugin
+					.getListOfExternalModelDefinitions()) {
+				secModels.add(secDocs.get(emd.getSource()));
 			}
 
 			ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc,
@@ -131,7 +130,7 @@ public class ManualTertiaryModelFile {
 					SBML_EXTENSION);
 
 			// Writes tertiary model to tertTmp and adds it to the file
-			sbmlWriter.write(model.getTertiaryDoc(), tertTmp);
+			sbmlWriter.write(model.getTertDoc(), tertTmp);
 			ca.addEntry(tertTmp, mdName, sbmlURI);
 
 			for (SBMLDocument secDoc : model.getSecDocs()) {
@@ -140,9 +139,9 @@ public class ManualTertiaryModelFile {
 				secTmp.deleteOnExit();
 
 				// Creates name for the sec model
-				CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) secDoc
+				CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) secDoc
 						.getPlugin(CompConstants.shortLabel);
-				ModelDefinition md = secCompPlugin.getModelDefinition(0);
+				ModelDefinition md = plugin.getModelDefinition(0);
 				String secMdName = String.format("%s.%s", md.getId(),
 						SBML_EXTENSION);
 

@@ -989,7 +989,7 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,literatur,tenazity_raw_data},
 				new String[][]{{"CombaseID","Literatur","Versuchsbedingung"}},
 				new LinkedHashMap[]{null,null,null});
-		if (isSiLeBAT || isPmm) addTable(importedCombaseData, -1);
+		if (isSiLeBAT || isPmm) addTable(importedCombaseData, Tenazitaet_LIST);
 
 		// Prozessdaten:
 		MyTable betriebe = new MyTable("Produzent", new String[]{"Kontaktadresse","Betriebsnummer"},

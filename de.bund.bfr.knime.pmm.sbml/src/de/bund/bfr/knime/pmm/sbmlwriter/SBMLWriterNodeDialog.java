@@ -37,7 +37,6 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentDate;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -81,9 +80,11 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelString(
 						SBMLWriterNodeModel.CFG_CREATOR_CONTACT, null),
 				"Creator Contact");
+
 		DialogComponentDate createdComp = new DialogComponentDate(
 				new SettingsModelDate(SBMLWriterNodeModel.CFG_CREATED_DATE),
 				"Created");
+
 		DialogComponentDate modifiedComp = new DialogComponentDate(
 				new SettingsModelDate(
 						SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE),

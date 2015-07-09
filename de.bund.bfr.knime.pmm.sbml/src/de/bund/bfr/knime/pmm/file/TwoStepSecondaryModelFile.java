@@ -96,7 +96,8 @@ public class TwoStepSecondaryModelFile {
 					.getPlugin(CompConstants.shortLabel);
 			ModelDefinition md = secCompPlugin.getModelDefinition(0);
 
-			XMLNode metadata = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+			XMLNode annot = md.getAnnotation().getNonRDFannotation();
+			XMLNode metadata = annot.getChildElement("metadata", "");
 			List<PrimaryModelWData> pmwds = new LinkedList<>();
 
 			List<XMLNode> refs = metadata.getChildElements("primaryModel", "");
@@ -107,7 +108,7 @@ public class TwoStepSecondaryModelFile {
 
 				// look for DataSourceNode
 				XMLNode m1Annot = primDoc.getModel().getAnnotation().getNonRDFannotation();
-				XMLNode node = m1Annot.getChildElement("dataSourceNode", "");
+				XMLNode node = m1Annot.getChildElement("dataSource", "");
 
 				if (node == null) {
 					numlDoc = null;

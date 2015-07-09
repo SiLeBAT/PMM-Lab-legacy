@@ -18,7 +18,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 /**
  * Primary model annotation. Holds model id, model title, uncertainties,
- * references, combase ID, and cond ID.
+ * references, and cond ID.
  * 
  * @author Miguel Alba (malba@optimumquality.es)
  */
@@ -28,7 +28,6 @@ public class Model1Annotation {
 
 	static final String PMF_TAG = "pmf";
 	static final String MODEL_ID_TAG = "identifier";
-	static final String COMBASE_ID_TAG = "combaseID";
 	static final String COND_ID_TAG = "condID";
 	static final String MODEL_QUALITY_TAG = "modelquality";
 	static final String REFERENCE_TAG = "reference";
@@ -38,7 +37,6 @@ public class Model1Annotation {
 	String modelTitle;
 	Map<String, String> uncertainties;
 	List<LiteratureItem> lits;
-	String combaseID;
 	int condID;
 
 	/** Get fields from existing prim model annotation */
@@ -50,12 +48,6 @@ public class Model1Annotation {
 		XMLNode modelIDNode = metadata.getChildElement(MODEL_ID_TAG, "");
 		if (modelIDNode != null) {
 			modelID = modelIDNode.getChild(0).getCharacters();
-		}
-
-		// Gets combaseID
-		XMLNode combaseIDNode = metadata.getChildElement(COMBASE_ID_TAG, "");
-		if (combaseIDNode != null) {
-			combaseID = combaseIDNode.getChild(0).getCharacters();
 		}
 
 		// Gets condID
@@ -78,7 +70,7 @@ public class Model1Annotation {
 
 	public Model1Annotation(String modelID, String modelTitle,
 			Map<String, String> uncertainties,
-			List<LiteratureItem> literatureItems, String combaseID, int condID) {
+			List<LiteratureItem> literatureItems, int condID) {
 
 		// Builds metadata node
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
@@ -99,15 +91,6 @@ public class Model1Annotation {
 			node.addChild(new SBMLReferenceNode(lit).getNode());
 		}
 
-		// Builds combaseID node
-		if (combaseID != null) {
-			XMLTriple combaseIDTriple = new XMLTriple(COMBASE_ID_TAG, null,
-					PMF_TAG);
-			XMLNode combaseIDNode = new XMLNode(combaseIDTriple);
-			combaseIDNode.addChild(new XMLNode(combaseID));
-			node.addChild(combaseIDNode);
-		}
-
 		// Builds condID node
 		XMLTriple condIDTriple = new XMLTriple(COND_ID_TAG, null, PMF_TAG);
 		XMLNode condIDNode = new XMLNode(condIDTriple);
@@ -119,7 +102,6 @@ public class Model1Annotation {
 		this.modelTitle = modelTitle;
 		this.uncertainties = uncertainties;
 		this.lits = literatureItems;
-		this.combaseID = combaseID;
 		this.condID = condID;
 	}
 
@@ -142,10 +124,6 @@ public class Model1Annotation {
 
 	public List<LiteratureItem> getLits() {
 		return lits;
-	}
-
-	public String getCombaseID() {
-		return combaseID;
 	}
 
 	public int getCondID() {

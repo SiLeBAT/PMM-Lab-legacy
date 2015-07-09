@@ -34,8 +34,10 @@ public class DataFile {
 		this.doc = doc;
 	}
 
-	public DataFile(LinkedHashMap<Double, Double> dimension, String concUnit, Matrix matrix, Agent agent,
-			List<LiteratureItem> lits, Map<String, String> dlgInfo) throws URISyntaxException {
+	public DataFile(String dataId, LinkedHashMap<Double, Double> dimension,
+			String concUnit, Matrix matrix, Agent agent,
+			List<LiteratureItem> lits, Map<String, String> dlgInfo)
+			throws URISyntaxException {
 
 		// Creates ontologies
 		OntologyTerm time = createTimeOntology();
@@ -65,31 +67,50 @@ public class DataFile {
 				"http://sourceforge.net/microbialmodelingexchange/files/PMF-ML");
 		Node resultNode = new Node(null, "annotation", pmfNS);
 		result.setAnnotation(resultNode);
+		
+		// Adds data id node
+		resultNode.appendNode("pmf:dataId", dataId);
 
 		// Adds PMF annotation
 		Map<String, String> dcNS = new HashMap<>(); // dc and dcterms namespaces
 		dcNS.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
 		dcNS.put("xmlns:dcterms", "http://purl.org/dc/terms/");
 		Node pmfNode = new Node(resultNode, "pmf:metadata", dcNS);
-		
-		// Add creator
-		if (dlgInfo.containsKey("GivenName")) {
-			Node creatorNode = new Node(pmfNode, "dc:creator", "");
-			creatorNode.setValue(dlgInfo.get("GivenName"));
+
+		String givenName = dlgInfo.get("GivenName");
+		String familyName = dlgInfo.get("FamilyName");
+		String contact = dlgInfo.get("Contact");
+		if (givenName != null || familyName != null || contact != null) {
+			StringBuilder sb = new StringBuilder();
+			if (givenName != null) {
+				sb.append(givenName + ". ");
+			}
+			if (familyName != null) {
+				sb.append(familyName + ". ");
+			}
+			if (contact != null) {
+				sb.append(contact);
+			}
+			String creator = sb.toString();
+			pmfNode.appendNode("dc:creator", creator);
 		}
 
-		// Add created
+		// Adds created
 		if (dlgInfo.containsKey("Created")) {
-			Node createdNode = new Node(pmfNode, "dcterms:created", "");
-			createdNode.setValue(dlgInfo.get("Created"));
+			pmfNode.appendNode("dcterms:created", dlgInfo.get("Created"));
 		}
 		
+		// Adds last modified
+		if (dlgInfo.containsKey("Modified")) {
+			pmfNode.appendNode("dcterms:modified", dlgInfo.get("Modified"));
+		}
+
 		// Adds annotations for literature items
 		for (LiteratureItem lit : lits) {
 			Node litNode = new GroovyReferenceNode(lit).getNode();
 			pmfNode.append(litNode);
 		}
-		
+
 		doc = new NuMLDocument();
 		doc.setResultComponents(Arrays.asList(result));
 	}
@@ -102,8 +123,8 @@ public class DataFile {
 		List<TimeSeriesXml> ts = new LinkedList<>();
 
 		@SuppressWarnings("unchecked")
-		LinkedHashMap<Double, Double> dim = (LinkedHashMap<Double, Double>) doc.getResultComponents().get(0)
-				.getDimension();
+		LinkedHashMap<Double, Double> dim = (LinkedHashMap<Double, Double>) doc
+				.getResultComponents().get(0).getDimension();
 
 		// Common fields
 		String timeUnit = "h";
@@ -118,8 +139,9 @@ public class DataFile {
 			double time = entry.getKey();
 			double concentration = entry.getValue();
 
-			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit, concentration, concentrationUnit,
-					concentrationStdDev, numberOfMeasurements);
+			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit,
+					concentration, concentrationUnit, concentrationStdDev,
+					numberOfMeasurements);
 			t.setConcentrationUnitObjectType(concentrationUnitObjectType);
 			ts.add(t);
 			counter++;
@@ -142,19 +164,22 @@ public class DataFile {
 
 		// Adds PMF namespace to annotation
 		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		pmfNS.put("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		time.setAnnotation(new Node(null, "annotation", pmfNS));
 
 		// Adds PMF annotation
 		Map<String, String> sbmlNS = new HashMap<>();
-		sbmlNS.put("xmlns:sbml", "http://www.sbml.org/sbml/level3/version1/core");
+		sbmlNS.put("xmlns:sbml",
+				"http://www.sbml.org/sbml/level3/version1/core");
 		Node pmfNode = new Node(time.getAnnotation(), "pmf:metadata", sbmlNS);
 
 		// Adds unit definition annotation
 		UnitDefinition ud = new UnitDefinition("h", "h", 3, 1);
 		ud.addUnit(new Unit(3600, 1, Unit.Kind.SECOND, 1, 3, 1));
 
-		Node node = new Node(pmfNode, "sbml:unitDefinition", ud.writeXMLAttributes());
+		Node node = new Node(pmfNode, "sbml:unitDefinition",
+				ud.writeXMLAttributes());
 		node.appendNode("sbml:unit", ud.getUnit(0).writeXMLAttributes());
 
 		return time;
@@ -163,13 +188,14 @@ public class DataFile {
 	/**
 	 * Creates concentration ontology.
 	 * 
-	 * @param unit : Concentration unit
+	 * @param unit
+	 *            : Concentration unit
 	 * @param matrix
 	 * @param agent
 	 * @throws URISyntaxException
 	 */
-	private OntologyTerm createConcOntology(String unit, Matrix matrix, Agent agent)
-			throws URISyntaxException {
+	private OntologyTerm createConcOntology(String unit, Matrix matrix,
+			Agent agent) throws URISyntaxException {
 
 		OntologyTerm ontology = new OntologyTerm();
 		ontology.setTerm("concentration");
@@ -178,25 +204,28 @@ public class DataFile {
 
 		// Adds PMF namespace to annotation
 		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		pmfNS.put("xmlns:pmf",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		Node annot = new Node(null, "annotation", pmfNS);
 		ontology.setAnnotation(annot);
 
 		// Adds PMF annotation
 		Map<String, String> sbmlNS = new HashMap<>();
-		sbmlNS.put("xmlns:sbml", "http://www.sbml.org/sbml/level3/version1/core");
+		sbmlNS.put("xmlns:sbml",
+				"http://www.sbml.org/sbml/level3/version1/core");
 		Node pmfNode = new Node(annot, "pmf:metadata", sbmlNS);
 
 		// Gets unit definition from DB and adds unit annotation
 		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
-		UnitDefinitionWrapper udWrapper = UnitDefinitionWrapper.xmlToUnitDefinition(dbUnit.getMathML_string());
-		
+		UnitDefinitionWrapper udWrapper = UnitDefinitionWrapper
+				.xmlToUnitDefinition(dbUnit.getMathML_string());
+
 		udWrapper.getUnitDefinition().setId(Util.createId(unit));
 		udWrapper.getUnitDefinition().setName(unit);
 		pmfNode.append(udWrapper.toGroovyNode());
 
-		pmfNode.append(matrix.toGroovyNode());  // Adds matrix annotation
-		pmfNode.append(agent.toGroovyNode());  // Adds agent annotation
+		pmfNode.append(matrix.toGroovyNode()); // Adds matrix annotation
+		pmfNode.append(agent.toGroovyNode()); // Adds agent annotation
 
 		return ontology;
 	}

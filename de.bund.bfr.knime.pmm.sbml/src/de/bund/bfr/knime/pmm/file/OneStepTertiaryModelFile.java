@@ -18,6 +18,7 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
+import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
@@ -47,7 +48,8 @@ public class OneStepTertiaryModelFile {
 	final static String NuML_EXTENSION = "numl";
 	final static String PMF_EXTENSION = "pmf";
 
-	public static List<OneStepTertiaryModel> read(String filename) throws Exception {
+	public static List<OneStepTertiaryModel> read(String filename)
+			throws Exception {
 
 		List<OneStepTertiaryModel> models = new LinkedList<>();
 
@@ -65,7 +67,8 @@ public class OneStepTertiaryModelFile {
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(),
+					StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			stream.close();
 			dataEntries.put(entry.getFileName(), doc);
@@ -76,7 +79,8 @@ public class OneStepTertiaryModelFile {
 		Map<String, SBMLDocument> secDocs = new HashMap<>();
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(),
+					StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
@@ -92,28 +96,26 @@ public class OneStepTertiaryModelFile {
 
 		for (SBMLDocument tertDoc : tertDocs.values()) {
 			List<SBMLDocument> secModels = new LinkedList<>();
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
+
+			CompSBMLDocumentPlugin tertPlugin = (CompSBMLDocumentPlugin) tertDoc
+					.getPlugin(CompConstants.shortLabel);
 			// Gets secondary model ids
-			ListOf<ModelDefinition> mdList = secCompPlugin.getListOfModelDefinitions();
-			for (ModelDefinition md : mdList) {
-				secModels.add(secDocs.get(md.getId()));
+			ListOf<ExternalModelDefinition> emds = tertPlugin
+					.getListOfExternalModelDefinitions();
+			for (ExternalModelDefinition emd : emds) {
+				SBMLDocument secDoc = secDocs.get(emd.getSource());
+				secModels.add(secDoc);
 			}
 
-			// Gets data files
+			// Gets data files from the tertiary model document
 			List<NuMLDocument> numlDocs = new LinkedList<>();
-
-			String firstSecId = mdList.get(0).getId() + ".sbml";
-			SBMLDocument firstSecDoc = secDocs.get(firstSecId);
-			CompSBMLDocumentPlugin secCompDocPlugin = (CompSBMLDocumentPlugin) firstSecDoc
-					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition firstSecModel = secCompDocPlugin.getModelDefinition(0);
-
-			XMLNode m2Annot = firstSecModel.getAnnotation().getNonRDFannotation();
-			for (XMLNode node : m2Annot.getChildElements("dataSource", "")) {
+			XMLNode tertAnnot = tertDoc.getModel().getAnnotation().getNonRDFannotation();
+			for (XMLNode node : tertAnnot.getChildElements("dataSource", "")) {
 				DataSourceNode dsn = new DataSourceNode(node);
 				numlDocs.add(dataEntries.get(dsn.getFile()));
 			}
-			OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDoc, secModels, numlDocs);
+			OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDoc,
+					secModels, numlDocs);
 			models.add(tstm);
 		}
 
@@ -122,7 +124,8 @@ public class OneStepTertiaryModelFile {
 
 	/**
 	 */
-	public static void write(String dir, String filename, List<OneStepTertiaryModel> models, ExecutionContext exec)
+	public static void write(String dir, String filename,
+			List<OneStepTertiaryModel> models, ExecutionContext exec)
 			throws Exception {
 
 		// Creates CombineArchive name
@@ -152,16 +155,6 @@ public class OneStepTertiaryModelFile {
 		// Add models and data
 		short modelCounter = 0;
 		for (OneStepTertiaryModel model : models) {
-			// Creates tmp file for the tertiary model
-			File tertTmp = File.createTempFile("tert", "");
-			tertTmp.deleteOnExit();
-
-			// Creates name for the secondary model
-			String mdName = String.format("%s_%s.%s", filename, modelCounter, SBML_EXTENSION);
-
-			// Writes tertiary model to tertTmp and adds it to the file
-			sbmlWriter.write(model.getTertDoc(), tertTmp);
-			ca.addEntry(tertTmp, mdName, sbmlURI);
 
 			List<String> dataNames = new LinkedList<>();
 			short dataCounter = 0;
@@ -171,7 +164,8 @@ public class OneStepTertiaryModelFile {
 				numlTmp.deleteOnExit();
 
 				// Creates data file name
-				String dataName = String.format("data_%d_%d.%s", modelCounter, dataCounter, NuML_EXTENSION);
+				String dataName = String.format("data_%d_%d.%s", modelCounter,
+						dataCounter, NuML_EXTENSION);
 				dataNames.add(dataName);
 
 				// Writes data to numlTmp and adds it to the file
@@ -180,6 +174,28 @@ public class OneStepTertiaryModelFile {
 
 				dataCounter++;
 			}
+
+			// Creates tmp file for the tertiary model
+			File tertTmp = File.createTempFile("tert", "");
+			tertTmp.deleteOnExit();
+
+			// Creates name for the secondary model
+			String mdName = String.format("%s_%s.%s", filename, modelCounter,
+					SBML_EXTENSION);
+
+			// Gets non RDF annotation of the tertiary model
+			XMLNode tertAnnot = model.getTertDoc().getModel().getAnnotation()
+					.getNonRDFannotation();
+
+			// Adds DataSourceNodes to the tertiary model
+			for (String dataName : dataNames) {
+				DataSourceNode dsn = new DataSourceNode(dataName);
+				tertAnnot.addChild(dsn.getNode());
+			}
+
+			// Writes tertiary model to tertTmp and adds it to the file
+			sbmlWriter.write(model.getTertDoc(), tertTmp);
+			ca.addEntry(tertTmp, mdName, sbmlURI);
 
 			for (SBMLDocument secDoc : model.getSecDocs()) {
 				// Creates tmp file for the secondary model
@@ -194,10 +210,12 @@ public class OneStepTertiaryModelFile {
 				// Adds DataSourceNodes to the sec model
 				for (String dataName : dataNames) {
 					DataSourceNode dsn = new DataSourceNode(dataName);
-					md.getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
+					md.getAnnotation().getNonRDFannotation()
+							.addChild(dsn.getNode());
 				}
 
-				String secMdName = String.format("%s.%s", md.getId(), SBML_EXTENSION);
+				String secMdName = String.format("%s.%s", md.getId(),
+						SBML_EXTENSION);
 
 				// Writes model to secTmp and adds it to the file
 				sbmlWriter.write(secDoc, secTmp);

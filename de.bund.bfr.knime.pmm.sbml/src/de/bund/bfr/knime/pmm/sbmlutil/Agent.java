@@ -21,6 +21,7 @@ import de.bund.bfr.knime.pmm.common.AgentXml;
 public class Agent {
 
 	Species species; // SBML species
+	String description; // Description of the dependent variable
 	String casNumber; // Agent CAS number
 	String detail; // Agent description
 
@@ -37,6 +38,7 @@ public class Agent {
 		AgentAnnotation agentAnnotation = new AgentAnnotation(nonRDFannotation);
 		casNumber = agentAnnotation.getRef();
 		detail = agentAnnotation.getDetail();
+		description = agentAnnotation.getDescription();
 
 		// Copy reference to SBML species
 		this.species = species;
@@ -50,7 +52,8 @@ public class Agent {
 	 * @param unit
 	 *            Unit name (as displayed in GUI).
 	 */
-	public Agent(AgentXml agent, String unit, Compartment compartment) {
+	public Agent(AgentXml agent, String unit, Compartment compartment,
+			String description) {
 
 		// Create SBML species with id prefixed by "species"
 		species = new Species(Util.createId("species" + agent.getId()), 3, 1);
@@ -71,12 +74,14 @@ public class Agent {
 			// Get CAS number from DB
 			casNumber = (String) DBKernel.getValue("Agenzien", "ID", agent
 					.getId().toString(), "CAS_Nummer");
+		} else {
+			species.setName(agent.getName());
 		}
 
 		detail = agent.getDetail();
 
 		// Build and set non RDF annotation
-		XMLNode annot = new AgentAnnotation(casNumber, detail).getNode();
+		XMLNode annot = new AgentAnnotation(casNumber, detail, description).getNode();
 		species.getAnnotation().setNonRDFAnnotation(annot);
 	}
 
@@ -124,6 +129,10 @@ public class Agent {
 	public String getDetail() {
 		return detail;
 	}
+	
+	public String getDescription() {
+		return description;
+	}
 
 	public Node toGroovyNode() {
 		Map<String, String> attrs = species.writeXMLAttributes();
@@ -135,6 +144,9 @@ public class Agent {
 		}
 		if (detail != null) {
 			node.appendNode("pmf:detail", detail);
+		}
+		if (description != null) {
+			node.appendNode("pmf:description", description);
 		}
 		return node;
 	}
@@ -149,10 +161,13 @@ class AgentAnnotation {
 	static String REF_NS = "dc"; // reference namespace
 	static String DETAIL_TAG = "detail"; // description tag
 	static String DETAIL_NS = "pmf"; // description namespace
+	static String DESC_TAG = "description";
+	static String DESC_NS = "pmf";
 
 	XMLNode node;
 	String ref; // CAS number
 	String detail; // Agent detail
+	String description; // Description of the dependent variable
 
 	/**
 	 * Builds an AgentAnnotation from existing XMLNode, parsing its CAS number
@@ -180,6 +195,12 @@ class AgentAnnotation {
 			if (detailNode != null) {
 				detail = detailNode.getChild(0).getCharacters();
 			}
+			
+			// Gets dep description
+			XMLNode descNode = metadata.getChildElement(DESC_TAG, "");
+			if (descNode != null) {
+				description = descNode.getChild(0).getCharacters();
+			}
 		}
 	}
 
@@ -191,7 +212,7 @@ class AgentAnnotation {
 	 * @param detail
 	 *            Description
 	 */
-	public AgentAnnotation(String code, String detail) {
+	public AgentAnnotation(String code, String detail, String description) {
 		// Builds PMF container
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
@@ -209,9 +230,18 @@ class AgentAnnotation {
 			detailNode.addChild(new XMLNode(detail));
 			node.addChild(detailNode);
 		}
+		
+		// Builds dep description tag
+		if (description != null) {
+			XMLTriple descTriple = new XMLTriple(DESC_TAG, null, DESC_NS);
+			XMLNode descNode = new XMLNode(descTriple);
+			descNode.addChild(new XMLNode(description));
+			node.addChild(descNode);
+		}
 
 		this.ref = code; // Copies CAS number
 		this.detail = detail; // Copies description
+		this.description = description;
 	}
 
 	// Getters
@@ -225,5 +255,9 @@ class AgentAnnotation {
 
 	public String getDetail() {
 		return detail;
+	}
+	
+	public String getDescription() {
+		return description;
 	}
 }

@@ -37,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class CombaseReader {
 
 	private List<PmmTimeSeries> result;
 
-	public CombaseReader(final String filename) throws FileNotFoundException, IOException, Exception {
+	public CombaseReader(final String filename) throws FileNotFoundException, IOException {
 		conversion = new MiscConversion();
 		result = new ArrayList<>();
 
@@ -81,6 +82,14 @@ public class CombaseReader {
 					result.add(data);
 				}
 			}
+
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+				PmmTimeSeries data;
+
+				while ((data = stepNew(reader)) != null) {
+					result.add(data);
+				}
+			}
 		}
 	}
 
@@ -88,7 +97,115 @@ public class CombaseReader {
 		return result;
 	}
 
-	private PmmTimeSeries step(BufferedReader reader) throws IOException, Exception {
+	private PmmTimeSeries stepNew(BufferedReader reader) throws IOException {
+		// initialize next time series
+		PmmTimeSeries next = new PmmTimeSeries();
+
+		while (true) {
+			String line = reader.readLine();
+
+			if (line == null) {
+				return null;
+			}
+
+			if (!line.contains(",")) {
+				continue;
+			}
+
+			String key = line.substring(0, line.indexOf(",")).trim();
+			String data = line.substring(line.indexOf(",") + 1).trim();
+
+			// fetch record id
+			if (key.equals("ComBase ID")) {
+				next.setCombaseId(data);
+				continue;
+			}
+
+			// fetch organism
+			if (key.equals("Organism")) {
+				// next.setAgentDetail( token[ 1 ] );
+				setAgent(next, data);
+				continue;
+			}
+
+			// fetch environment
+			if (key.equals("Matrix")) {
+				// next.setMatrixDetail(token[1]);
+				setMatrix(next, data);
+				continue;
+			}
+
+			// fetch temperature
+			if (key.equals("Temperature(°C)")) {
+				Double value = parse(data);
+				// next.setTemperature(value);
+				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE,
+						AttributeUtilities.ATT_TEMPERATURE, value,
+						Arrays.asList(Categories.getTempCategory().getName()),
+						Categories.getTempCategory().getStandardUnit());
+				continue;
+			}
+
+			// fetch pH
+			if (key.equals("pH")) {
+				Double value = parse(data);
+				// next.setPh(value);
+				next.addMisc(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, value,
+						Arrays.asList(Categories.getPhCategory().getName()), Categories.getPhUnit());
+				continue;
+			}
+
+			// fetch water activity
+			if (key.equals("Aw")) {
+				Double value = parse(data);
+				// next.setWaterActivity(value);
+				next.addMisc(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_AW, AttributeUtilities.ATT_AW, value,
+						Arrays.asList(Categories.getAwCategory().getName()), Categories.getAwUnit());
+				continue;
+			}
+
+			// fetch conditions
+			if (key.equals("Conditions")) {
+				PmmXmlDoc xml = combase2XMLNew(data);
+				next.addMiscs(xml);
+				continue;
+			}
+
+			if (key.equals("Max.rate(logc.conc/h)")) {
+				next.setMaximumRate(parse(data));
+				continue;
+			}
+
+			if (key.equals("Logcs:")) {
+				while (true) {
+					line = reader.readLine();
+
+					if (line == null)
+						return next;
+
+					if (!line.contains(",")) {
+						break;
+					}
+
+					String dataPoint = line.substring(line.indexOf(",") + 1).trim();
+					double t = parse(dataPoint.substring(0, dataPoint.indexOf(",")).trim());
+					double logc = parse(dataPoint.substring(dataPoint.indexOf(",") + 1).trim());
+
+					if (Double.isNaN(t) || Double.isNaN(logc)) {
+						continue;
+					}
+
+					next.add(t, Categories.getTimeCategory().getStandardUnit(), logc,
+							Categories.getConcentrationCategories().get(0).getStandardUnit());
+				}
+				break;
+			}
+		}
+
+		return next;
+	}
+
+	private PmmTimeSeries step(BufferedReader reader) throws IOException {
 		// initialize next time series
 		PmmTimeSeries next = new PmmTimeSeries();
 
@@ -185,7 +302,7 @@ public class CombaseReader {
 
 			if (key.startsWith("time") && token[1].equals("logc")) {
 				if (!key.endsWith("(h)"))
-					throw new Exception("Time unit must be [h].");
+					throw new IOException("Time unit must be [h].");
 				while (true) {
 					line = reader.readLine();
 					if (line == null)
@@ -230,6 +347,46 @@ public class CombaseReader {
 		}
 
 		return n;
+	}
+
+	private PmmXmlDoc combase2XMLNew(String misc) {
+		PmmXmlDoc result = null;
+		if (misc != null) {
+			result = new PmmXmlDoc();
+			for (String s : misc.split(";")) {
+
+				int valueSep = s.indexOf(':');
+				String name = null;
+				Double value = null;
+
+				if (valueSep != -1) {
+					String valueString = s.substring(valueSep + 1).trim();
+
+					name = s.substring(0, valueSep).trim();
+
+					if (valueString.charAt(valueString.length() - 1) == ')') {
+						int unitSep = valueString.lastIndexOf('(');
+						String unitString = valueString.substring(unitSep + 1, valueString.length() - 1).trim();
+
+						valueString = valueString.replace(unitString, "").trim();
+					}
+
+					value = parse(valueString);
+				} else {
+					name = s;
+					value = 1.0;
+				}
+
+				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.:
+				// "was ist los?" -> "was ist los?"
+				String description = name.trim().replaceAll(" +", " ");
+				MiscXml mx = getMiscXml(description, value);
+				// new MiscXml(newIDs.get(description),
+				// getCombaseName(description), description, dbl, unit);
+				result.add(mx);
+			}
+		}
+		return result;
 	}
 
 	private PmmXmlDoc combase2XML(String misc) {

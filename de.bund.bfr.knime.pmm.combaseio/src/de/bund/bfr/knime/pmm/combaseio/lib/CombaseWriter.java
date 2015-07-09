@@ -71,13 +71,11 @@ public class CombaseWriter {
 		buffer.add(candidate);
 	}
 
-	public void flush() throws UnsupportedEncodingException,
-			FileNotFoundException, IOException, PmmException {
+	public void flush() throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
 		flush16le(); // "UTF-16LE"
 	}
 
-	public void flush16le() throws UnsupportedEncodingException,
-			FileNotFoundException, IOException, PmmException {
+	public void flush16le() throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
 		StringBuffer buf = new StringBuffer();
 		for (PmmTimeSeries candidate : buffer) {
 			String organism = "";
@@ -96,8 +94,7 @@ public class CombaseWriter {
 			}
 
 			if (candidate.hasCombaseId()) {
-				buf.append("\"RecordID\"\t\"" + candidate.getCombaseId()
-						+ "\"\n");
+				buf.append("\"RecordID\"\t\"" + candidate.getCombaseId() + "\"\n");
 			}
 
 			if (candidate.hasAgent()) {
@@ -109,8 +106,7 @@ public class CombaseWriter {
 			}
 
 			if (candidate.hasTemperature()) {
-				buf.append("\"Temperature\"\t\"" + candidate.getTemperature()
-						+ " °C\"\n");
+				buf.append("\"Temperature\"\t\"" + candidate.getTemperature() + " °C\"\n");
 			}
 
 			if (candidate.hasPh()) {
@@ -118,8 +114,7 @@ public class CombaseWriter {
 			}
 
 			if (candidate.hasWaterActivity()) {
-				buf.append("\"Water Activity\"\t\""
-						+ candidate.getWaterActivity() + "\"\n");
+				buf.append("\"Water Activity\"\t\"" + candidate.getWaterActivity() + "\"\n");
 			}
 
 			if (candidate.hasMisc()) {
@@ -148,8 +143,7 @@ public class CombaseWriter {
 				for (PmmXmlElementConvertable el : tsXmlDoc.getElementSet()) {
 					if (el instanceof TimeSeriesXml) {
 						TimeSeriesXml tsx = (TimeSeriesXml) el;
-						buf.append("\"" + tsx.getTime() + "\"\t\""
-								+ tsx.getConcentration() + "\"\n");
+						buf.append("\"" + tsx.getTime() + "\"\t\"" + tsx.getConcentration() + "\"\n");
 					}
 				}
 			}
@@ -182,9 +176,8 @@ public class CombaseWriter {
 	}
 
 	private String xml2Combase(PmmXmlDoc misc) {
-		List<Integer> tempPhAwIds = Arrays.asList(
-				AttributeUtilities.ATT_TEMPERATURE_ID,
-				AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_AW_ID);
+		List<Integer> tempPhAwIds = Arrays.asList(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_PH_ID,
+				AttributeUtilities.ATT_AW_ID);
 		String result = null;
 		if (misc != null) {
 			result = "";

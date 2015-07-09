@@ -67,8 +67,7 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel;
  * 
  * @author Jorgen Brandt
  */
-public class CombaseReaderNodeDialog extends NodeDialogPane implements
-		ActionListener {
+public class CombaseReaderNodeDialog extends NodeDialogPane implements ActionListener {
 
 	private FilePanel filePanel;
 	private JCheckBox startValueBox;
@@ -85,11 +84,9 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 		startValueBox = new JCheckBox("Use Start Values");
 		startValueBox.addActionListener(this);
 		eliminationField = new DoubleTextField();
-		eliminationField.setPreferredSize(new Dimension(100, eliminationField
-				.getPreferredSize().height));
+		eliminationField.setPreferredSize(new Dimension(100, eliminationField.getPreferredSize().height));
 		growthField = new DoubleTextField();
-		growthField.setPreferredSize(new Dimension(100, growthField
-				.getPreferredSize().height));
+		growthField.setPreferredSize(new Dimension(100, growthField.getPreferredSize().height));
 
 		JPanel leftOptionsPanel = new JPanel();
 
@@ -101,8 +98,7 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 
 		JPanel rightOptionsPanel = new JPanel();
 
-		rightOptionsPanel
-				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightOptionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		rightOptionsPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		rightOptionsPanel.add(new JLabel());
 		rightOptionsPanel.add(eliminationField);
@@ -110,9 +106,7 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 
 		JPanel optionsPanel = new JPanel();
 
-		optionsPanel
-				.setBorder(BorderFactory
-						.createTitledBorder("Values for Data Model if only Maximum Rate is known"));
+		optionsPanel.setBorder(BorderFactory.createTitledBorder("Values for Data Model if only Maximum Rate is known"));
 		optionsPanel.setLayout(new BorderLayout());
 		optionsPanel.add(leftOptionsPanel, BorderLayout.WEST);
 		optionsPanel.add(rightOptionsPanel, BorderLayout.EAST);
@@ -132,37 +126,32 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
 		String fileName;
 		int useStartValue;
 		double startElim;
 		double startGrow;
 
 		try {
-			fileName = settings
-					.getString(CombaseReaderNodeModel.PARAM_FILENAME);
+			fileName = settings.getString(CombaseReaderNodeModel.PARAM_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = CombaseReaderNodeModel.DEFAULT_FILENAME;
 		}
 
 		try {
-			useStartValue = settings
-					.getInt(CombaseReaderNodeModel.PARAM_USESTARTVALUE);
+			useStartValue = settings.getInt(CombaseReaderNodeModel.PARAM_USESTARTVALUE);
 		} catch (InvalidSettingsException e) {
 			useStartValue = CombaseReaderNodeModel.DEFAULT_USESTARTVALUE;
 		}
 
 		try {
-			startElim = settings
-					.getDouble(CombaseReaderNodeModel.PARAM_STARTELIM);
+			startElim = settings.getDouble(CombaseReaderNodeModel.PARAM_STARTELIM);
 		} catch (InvalidSettingsException e) {
 			startElim = CombaseReaderNodeModel.DEFAULT_STARTELIM;
 		}
 
 		try {
-			startGrow = settings
-					.getDouble(CombaseReaderNodeModel.PARAM_STARTGROW);
+			startGrow = settings.getDouble(CombaseReaderNodeModel.PARAM_STARTGROW);
 		} catch (InvalidSettingsException e) {
 			startGrow = CombaseReaderNodeModel.DEFAULT_STARTGROW;
 		}
@@ -182,14 +171,12 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		if (filePanel.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
 
-		settings.addString(CombaseReaderNodeModel.PARAM_FILENAME,
-				filePanel.getFileName());
+		settings.addString(CombaseReaderNodeModel.PARAM_FILENAME, filePanel.getFileName());
 
 		if (startValueBox.isSelected()) {
 			if (!eliminationField.isValueValid() || !growthField.isValueValid()) {
@@ -197,10 +184,8 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 			}
 
 			settings.addInt(CombaseReaderNodeModel.PARAM_USESTARTVALUE, 1);
-			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTELIM,
-					eliminationField.getValue());
-			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTGROW,
-					growthField.getValue());
+			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTELIM, eliminationField.getValue());
+			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTGROW, growthField.getValue());
 		} else {
 			Double elim = eliminationField.getValue();
 			Double grow = growthField.getValue();

@@ -83,8 +83,8 @@ public class CombaseWriterNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 
 		File f = new File(filename);
 
@@ -95,8 +95,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 		int n = inData[0].getRowCount();
 
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
-		KnimeRelationReader reader = new KnimeRelationReader(inSchema,
-				inData[0]);
+		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
 		int j = 0;
 		CombaseWriter cbw = new CombaseWriter(filename);
 		while (reader.hasMoreElements()) {
@@ -123,8 +122,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		if (filename.isEmpty())
 			throw new InvalidSettingsException("Filename must be specified.");
 		File f = new File(filename);
@@ -134,8 +132,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 		return null;// new DataTableSpec[]{};
 	}
 
-	private KnimeSchema getInSchema(final DataTableSpec inSpec)
-			throws InvalidSettingsException {
+	private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
 		KnimeSchema result = null;
 		String errorMsg = "Unexpected format - Microbial data is not present in the columns of the incoming table";
 		KnimeSchema inSchema = new TimeSeriesSchema();
@@ -164,8 +161,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		filename = settings.getString(PARAM_FILENAME);
 		overwrite = settings.getBoolean(PARAM_OVERWRITE);
 	}
@@ -174,26 +170,23 @@ public class CombaseWriterNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 }

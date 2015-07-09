@@ -86,19 +86,16 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
 		String fileName;
 
 		try {
-			fileName = settings
-					.getString(CombaseWriterNodeModel.PARAM_FILENAME);
+			fileName = settings.getString(CombaseWriterNodeModel.PARAM_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = CombaseWriterNodeModel.DEFAULT_FILENAME;
 		}
 		try {
-			overwrite.setSelected(settings
-					.getBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE));
+			overwrite.setSelected(settings.getBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE));
 		} catch (InvalidSettingsException e) {
 			overwrite.setSelected(false);
 		}
@@ -107,15 +104,12 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		if (filePanel.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
 
-		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME,
-				filePanel.getFileName());
-		settings.addBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE,
-				overwrite.isSelected());
+		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME, filePanel.getFileName());
+		settings.addBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE, overwrite.isSelected());
 	}
 }

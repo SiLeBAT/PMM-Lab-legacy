@@ -39,10 +39,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,74 +57,46 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 
-public class CombaseReader implements Enumeration<PmmTimeSeries> {
+public class CombaseReader {
 
-	private BufferedReader reader;
-	private PmmTimeSeries next;
 	private Map<String, Integer> newAgentIDs = new LinkedHashMap<>();
 	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<>();
 	private Map<String, MiscXml> newMiscs = new LinkedHashMap<>();
 	private MiscConversion conversion;
 
-	public CombaseReader(final String filename) throws FileNotFoundException,
-			IOException, Exception {
-		conversion = new MiscConversion();
+	private List<PmmTimeSeries> result;
 
-		InputStreamReader isr = null;
+	public CombaseReader(final String filename) throws FileNotFoundException, IOException, Exception {
+		conversion = new MiscConversion();
+		result = new ArrayList<>();
+
 		File file = KnimeUtils.getFile(filename);
+
 		if (file.exists()) {
-			FileInputStream fis = new FileInputStream(file);
-			isr = new InputStreamReader(fis, "UTF-16LE");
-		} else {
-			try {
-				URL url = new URL(filename);
-				isr = new InputStreamReader(url.openStream(), "UTF-16LE");
-				isr.read();
-			} catch (Exception e) {
-				throw new FileNotFoundException("File not found");
+			try (BufferedReader reader = new BufferedReader(
+					new InputStreamReader(new FileInputStream(file), "UTF-16LE"))) {
+				PmmTimeSeries data;
+
+				while ((data = step(reader)) != null) {
+					result.add(data);
+				}
 			}
 		}
-		if (isr != null) {
-			reader = new BufferedReader(isr);
-			step();
-		}
 	}
 
-	public void close() throws IOException {
-		reader.close();
+	public List<PmmTimeSeries> getResult() {
+		return result;
 	}
 
-	@Override
-	public PmmTimeSeries nextElement() {
-
-		PmmTimeSeries ret;
-
-		ret = next;
-
-		try {
-			step();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return ret;
-	}
-
-	@Override
-	public boolean hasMoreElements() {
-		return next != null;
-	}
-
-	private void step() throws IOException, Exception {
+	private PmmTimeSeries step(BufferedReader reader) throws IOException, Exception {
 		// initialize next time series
-		next = new PmmTimeSeries();
+		PmmTimeSeries next = new PmmTimeSeries();
 
 		while (true) {
 			String line = reader.readLine();
 
 			if (line == null) {
-				next = null;
-				return;
+				return null;
 			}
 
 			// split up token
@@ -176,8 +146,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					throw new PmmException("Temperature unit must be [°C]");
 				Double value = parse(token[1].substring(0, pos));
 				// next.setTemperature(value);
-				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,
-						AttributeUtilities.ATT_TEMPERATURE,
+				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_TEMPERATURE, value,
 						Arrays.asList(Categories.getTempCategory().getName()),
 						Categories.getTempCategory().getStandardUnit());
@@ -188,11 +157,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			if (key.equals("ph")) {
 				Double value = parse(token[1]);
 				// next.setPh(value);
-				next.addMisc(AttributeUtilities.ATT_PH_ID,
-						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH,
-						value,
-						Arrays.asList(Categories.getPhCategory().getName()),
-						Categories.getPhUnit());
+				next.addMisc(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, value,
+						Arrays.asList(Categories.getPhCategory().getName()), Categories.getPhUnit());
 				continue;
 			}
 
@@ -200,11 +166,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			if (key.equals("water activity")) {
 				Double value = parse(token[1]);
 				// next.setWaterActivity(value);
-				next.addMisc(AttributeUtilities.ATT_AW_ID,
-						AttributeUtilities.ATT_AW, AttributeUtilities.ATT_AW,
-						value,
-						Arrays.asList(Categories.getAwCategory().getName()),
-						Categories.getAwUnit());
+				next.addMisc(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_AW, AttributeUtilities.ATT_AW, value,
+						Arrays.asList(Categories.getAwCategory().getName()), Categories.getAwUnit());
 				continue;
 			}
 
@@ -226,13 +189,12 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				while (true) {
 					line = reader.readLine();
 					if (line == null)
-						return;
+						return next;
 					if (line.replaceAll("\\t\"", "").isEmpty())
 						break;
 					token = line.split("\t");
 					for (int i = 0; i < token.length; i++) {
-						token[i] = token[i].replaceAll(
-								"[^a-zA-Z0-9° \\.\\(\\)/,]", "");
+						token[i] = token[i].replaceAll("[^a-zA-Z0-9° \\.\\(\\)/,]", "");
 					}
 					if (token.length < 2) {
 						break;
@@ -242,13 +204,14 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					if (Double.isNaN(t) || Double.isNaN(logc)) {
 						continue;
 					}
-					next.add(t, Categories.getTimeCategory().getStandardUnit(),
-							logc, Categories.getConcentrationCategories()
-									.get(0).getStandardUnit());
+					next.add(t, Categories.getTimeCategory().getStandardUnit(), logc,
+							Categories.getConcentrationCategories().get(0).getStandardUnit());
 				}
 				break;
 			}
 		}
+
+		return next;
 	}
 
 	private static double parse(String num) {
@@ -284,8 +247,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					try {
 						dbl = Double.parseDouble(val.substring(index + 1));
 						if (val.charAt(index - 1) == ')') {
-							for (index2 = index - 1; index2 >= 0
-									&& val.charAt(index2) != '('; index2--) {
+							for (index2 = index - 1; index2 >= 0 && val.charAt(index2) != '('; index2--) {
 								;
 							}
 							// unit = val.substring(index2 + 1, index - 1);
@@ -298,7 +260,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					dbl = 1.0;
 				}
 				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.:
-				// "was    ist los?" -> "was ist los?"
+				// "was ist los?" -> "was ist los?"
 				String description = val.trim().replaceAll(" +", " ");
 				MiscXml mx = getMiscXml(description, dbl);
 				// new MiscXml(newIDs.get(description),
@@ -326,8 +288,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			newMatrixIDs.put(matrixname, id);
 		} else
 			id = newMatrixIDs.get(matrixname);
-		matrixdetail = id < 0 ? matrixname + " (" + matrixdetail + ")"
-				: matrixdetail;
+		matrixdetail = id < 0 ? matrixname + " (" + matrixdetail + ")" : matrixdetail;
 		next.setMatrix(id, id < 0 ? null : matrixname, matrixdetail, null);
 	}
 
@@ -342,15 +303,13 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			newAgentIDs.put(agentsname, id);
 		} else
 			id = newAgentIDs.get(agentsname);
-		next.setAgent(id, id < 0 ? null : agentsname, id < 0 ? agentsname
-				: null, null);
+		next.setAgent(id, id < 0 ? null : agentsname, id < 0 ? agentsname : null, null);
 	}
 
 	private MiscXml getMiscXml(String description, Double dbl) {
 		if (!newMiscs.containsKey(description)) {
 			MiscXml m = conversion.combaseToPmm(description);
-			Integer id = (Integer) DBKernel.getValue(null, "SonstigeParameter",
-					"Parameter", m.getName(), "ID");
+			Integer id = (Integer) DBKernel.getValue(null, "SonstigeParameter", "Parameter", m.getName(), "ID");
 
 			m.setId(id);
 			newMiscs.put(description, m);

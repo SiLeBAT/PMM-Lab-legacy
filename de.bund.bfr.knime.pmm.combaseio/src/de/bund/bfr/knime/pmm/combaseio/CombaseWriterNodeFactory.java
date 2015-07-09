@@ -43,8 +43,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Jorgen Brandt
  */
-public class CombaseWriterNodeFactory extends
-		NodeFactory<CombaseWriterNodeModel> {
+public class CombaseWriterNodeFactory extends NodeFactory<CombaseWriterNodeModel> {
 
 	/**
 	 * {@inheritDoc}

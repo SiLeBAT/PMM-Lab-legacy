@@ -108,34 +108,24 @@ public class CombaseReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
-		CombaseReader reader = new CombaseReader(filename);
-		KnimeSchema commonSchema = KnimeSchema.merge(new TimeSeriesSchema(),
-				new Model1Schema());
-		BufferedDataContainer buf = exec
-				.createDataContainer(new TimeSeriesSchema().createSpec());
-		BufferedDataContainer buf2 = exec.createDataContainer(commonSchema
-				.createSpec());
-		PmmXmlDoc dValue = new PmmXmlDoc(new CatalogModelXml(1000000,
-				"D-Value", AttributeUtilities.CONCENTRATION
-						+ "=LogC0-1/Dvalue*" + AttributeUtilities.TIME, null));
-		PmmXmlDoc linear = new PmmXmlDoc(new CatalogModelXml(1000001,
-				"LogLinear", AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
-						+ AttributeUtilities.TIME, null));
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
+		KnimeSchema commonSchema = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
+		BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
+		BufferedDataContainer buf2 = exec.createDataContainer(commonSchema.createSpec());
+		PmmXmlDoc dValue = new PmmXmlDoc(new CatalogModelXml(1000000, "D-Value",
+				AttributeUtilities.CONCENTRATION + "=LogC0-1/Dvalue*" + AttributeUtilities.TIME, null));
+		PmmXmlDoc linear = new PmmXmlDoc(new CatalogModelXml(1000001, "LogLinear",
+				AttributeUtilities.CONCENTRATION + "=LogC0+mumax*" + AttributeUtilities.TIME, null));
 		int j = 0;
 
-		while (reader.hasMoreElements()) {
-			PmmTimeSeries timeSeries = reader.nextElement();
-
+		for (PmmTimeSeries timeSeries : new CombaseReader(filename).getResult()) {
 			if (timeSeries.isEmpty()) {
-				if (Double.isNaN(timeSeries.getMaximumRate())
-						|| Double.isInfinite(timeSeries.getMaximumRate())) {
+				if (Double.isNaN(timeSeries.getMaximumRate()) || Double.isInfinite(timeSeries.getMaximumRate())) {
 					continue;
 				}
 
-				KnimeTuple modelTuple = KnimeTuple.merge(commonSchema,
-						new KnimeTuple(commonSchema), timeSeries);
+				KnimeTuple modelTuple = KnimeTuple.merge(commonSchema, new KnimeTuple(commonSchema), timeSeries);
 				PmmXmlDoc paramDoc = new PmmXmlDoc();
 
 				Double start;
@@ -143,18 +133,14 @@ public class CombaseReaderNodeModel extends NodeModel {
 				if (timeSeries.getMaximumRate() >= 0) {
 					start = useStartValue == 1 ? startGrow : null;
 					modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, linear);
-					paramDoc.add(new ParamXml("LogC0", start, null, null, null,
-							null, null));
-					paramDoc.add(new ParamXml("mumax", timeSeries
-							.getMaximumRate(), null, null, null, null, null));
+					paramDoc.add(new ParamXml("LogC0", start, null, null, null, null, null));
+					paramDoc.add(new ParamXml("mumax", timeSeries.getMaximumRate(), null, null, null, null, null));
 				} else {
 					start = useStartValue == 1 ? startElim : null;
 					modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, dValue);
-					paramDoc.add(new ParamXml("LogC0", start, null, null, null,
-							null, null));
-					paramDoc.add(new ParamXml("Dvalue", -1.0
-							/ timeSeries.getMaximumRate(), null, null, null,
-							null, null));
+					paramDoc.add(new ParamXml("LogC0", start, null, null, null, null, null));
+					paramDoc.add(
+							new ParamXml("Dvalue", -1.0 / timeSeries.getMaximumRate(), null, null, null, null, null));
 				}
 
 				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
@@ -162,13 +148,10 @@ public class CombaseReaderNodeModel extends NodeModel {
 				PmmXmlDoc depXml = new PmmXmlDoc();
 				PmmXmlDoc indepXML = new PmmXmlDoc();
 
-				depXml.add(new DepXml(AttributeUtilities.CONCENTRATION,
-						Categories.getConcentrations().get(0), Categories
-								.getConcentrationCategories().get(0)
-								.getStandardUnit()));
-				indepXML.add(new IndepXml(AttributeUtilities.TIME, null, null,
-						Categories.getTime(), Categories.getTimeCategory()
-								.getStandardUnit()));
+				depXml.add(new DepXml(AttributeUtilities.CONCENTRATION, Categories.getConcentrations().get(0),
+						Categories.getConcentrationCategories().get(0).getStandardUnit()));
+				indepXML.add(new IndepXml(AttributeUtilities.TIME, null, null, Categories.getTime(),
+						Categories.getTimeCategory().getStandardUnit()));
 
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depXml);
 				modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
@@ -178,24 +161,19 @@ public class CombaseReaderNodeModel extends NodeModel {
 				int estModelID = MathUtilities.getRandomNegativeInt();
 				int dataID = MathUtilities.getRandomNegativeInt();
 
-				emDoc.add(new EstModelXml(estModelID, "EM_" + estModelID, null,
-						null, null, null, null, null));
-				mdInfoDoc.add(new MdInfoXml(dataID, "i" + dataID,
-						COMMENT_CLAUSE, null, null));
+				emDoc.add(new EstModelXml(estModelID, "EM_" + estModelID, null, null, null, null, null, null));
+				mdInfoDoc.add(new MdInfoXml(dataID, "i" + dataID, COMMENT_CLAUSE, null, null));
 
 				modelTuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 				modelTuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
-				modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
-						Model1Schema.WRITABLE);
+				modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 
-				buf2.addRowToTable(new DefaultRow(String.valueOf(j++),
-						modelTuple));
+				buf2.addRowToTable(new DefaultRow(String.valueOf(j++), modelTuple));
 			} else {
-				buf.addRowToTable(new DefaultRow(String.valueOf(j++),
-						timeSeries));
+				buf.addRowToTable(new DefaultRow(String.valueOf(j++), timeSeries));
 			}
 		}
-		reader.close();
+
 		buf.close();
 		buf2.close();
 
@@ -213,8 +191,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
 		DataTableSpec[] ret;
 
@@ -224,10 +201,8 @@ public class CombaseReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Filename must be specified.");
 
 		try {
-			ret = new DataTableSpec[] {
-					new TimeSeriesSchema().createSpec(),
-					KnimeSchema.merge(new TimeSeriesSchema(),
-							new Model1Schema()).createSpec() };
+			ret = new DataTableSpec[] { new TimeSeriesSchema().createSpec(),
+					KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema()).createSpec() };
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}
@@ -250,8 +225,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		filename = settings.getString(PARAM_FILENAME);
 		useStartValue = settings.getInt(PARAM_USESTARTVALUE);
 		startElim = settings.getDouble(PARAM_STARTELIM);
@@ -262,26 +236,23 @@ public class CombaseReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	protected static DataTableSpec createXmlSpec() {
@@ -291,8 +262,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 		spec = new DataColumnSpec[1];
 		// spec[ 0 ] = new DataColumnSpecCreator( "xmlString", XMLCell.TYPE
 		// ).createSpec();
-		spec[0] = new DataColumnSpecCreator("xmlString", StringCell.TYPE)
-				.createSpec();
+		spec[0] = new DataColumnSpecCreator("xmlString", StringCell.TYPE).createSpec();
 
 		return new DataTableSpec(spec);
 	}

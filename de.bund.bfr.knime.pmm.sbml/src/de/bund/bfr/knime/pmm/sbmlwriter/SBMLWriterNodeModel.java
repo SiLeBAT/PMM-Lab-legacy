@@ -77,7 +77,6 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.CreatedNode;
 import de.bund.bfr.knime.pmm.annotation.CreatorNode;
-import de.bund.bfr.knime.pmm.annotation.ModelClassNode;
 import de.bund.bfr.knime.pmm.annotation.ModifiedNode;
 import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
@@ -188,7 +187,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 		KnimeSchema schema = null;
 		ModelType modelType = null;
 		List<KnimeTuple> tuples;
-		
+
 		DataTableSpec spec = inData[0].getSpec();
 		// Table has the structure Model1 + Model2 + Data
 		if (SchemaFactory.conformsM12DataSchema(spec)) {
@@ -552,12 +551,6 @@ class TableReader {
 			pmfNode.addChild(modifiedNode.getNode());
 		}
 
-		// model type
-		if (docInfo.containsKey("type")) {
-			ModelClassNode typeNode = new ModelClassNode(docInfo.get("type"));
-			pmfNode.addChild(typeNode.getNode());
-		}
-
 		// add non-rdf annotation
 		annot.setNonRDFAnnotation(pmfNode);
 
@@ -772,11 +765,12 @@ class ExperimentalDataParser implements Parser {
 		String combaseId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 
 		// Create dim
-		LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
+		LinkedHashMap<Integer, List<Double>> dim = new LinkedHashMap<>();
 		PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-		for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
-			TimeSeriesXml point = (TimeSeriesXml) origPoint;
-			dim.put(point.getTime(), point.getConcentration());
+		for (PmmXmlElementConvertable item : mdData.getElementSet()) {
+			TimeSeriesXml point = (TimeSeriesXml) item;
+			dim.put(dim.size(),
+					Arrays.asList(point.getTime(), point.getConcentration()));
 		}
 
 		String unit = ((TimeSeriesXml) tuple.getPmmXml(
@@ -903,7 +897,8 @@ class PrimaryModelWDataParser implements Parser {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
+		Agent agent = new Agent(agentXml, dep.getUnit(), c,
+				dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
 		// Add indep constraint
@@ -955,10 +950,12 @@ class PrimaryModelWDataParser implements Parser {
 		NuMLDocument numlDoc = null;
 		if (mdData.size() > 0) {
 			// Create dim
-			LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-			for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
-				TimeSeriesXml point = (TimeSeriesXml) origPoint;
-				dim.put(point.getTime(), point.getConcentration());
+			LinkedHashMap<Integer, List<Double>> dim = new LinkedHashMap<>();
+			for (PmmXmlElementConvertable item : mdData.getElementSet()) {
+				TimeSeriesXml point = (TimeSeriesXml) item;
+				double time = point.getTime();
+				double conc = point.getConcentration();
+				dim.put(dim.size(), Arrays.asList(time, conc));
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
@@ -1064,7 +1061,8 @@ class PrimaryModelWODataParser implements Parser {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Agent organims = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
+		Agent organims = new Agent(agentXml, dep.getUnit(), c,
+				dep.getDescription());
 		model.addSpecies(organims.getSpecies());
 
 		// Add indep constraint
@@ -1370,7 +1368,8 @@ class TwoStepSecondaryModelParser implements Parser {
 			model.addCompartment(c);
 
 			// Creates species and adds it to the model
-			Agent agent = new Agent(organismXml, dep.getUnit(), c, dep.getDescription());
+			Agent agent = new Agent(organismXml, dep.getUnit(), c,
+					dep.getDescription());
 			model.addSpecies(agent.getSpecies());
 
 			// Add indep constraint
@@ -1427,11 +1426,12 @@ class TwoStepSecondaryModelParser implements Parser {
 				pmwd = new PrimaryModelWData(doc, null);
 			} else {
 				// Create dim
-				LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-				for (PmmXmlElementConvertable origPoint : mdData
-						.getElementSet()) {
-					TimeSeriesXml point = (TimeSeriesXml) origPoint;
-					dim.put(point.getTime(), point.getConcentration());
+				LinkedHashMap<Integer, List<Double>> dim = new LinkedHashMap<>();
+				for (PmmXmlElementConvertable item : mdData.getElementSet()) {
+					TimeSeriesXml point = (TimeSeriesXml) item;
+					double time = point.getTime();
+					double conc = point.getConcentration();
+					dim.put(dim.size(), Arrays.asList(time, conc));
 				}
 
 				TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
@@ -1711,7 +1711,8 @@ class OneStepSecondaryModelParser implements Parser {
 		model.addCompartment(compartment);
 
 		// Create species and add it to the model
-		Agent agent = new Agent(agentXml, dep.getUnit(), compartment, dep.getDescription());
+		Agent agent = new Agent(agentXml, dep.getUnit(), compartment,
+				dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
 		// Add indep constraint
@@ -1869,10 +1870,12 @@ class OneStepSecondaryModelParser implements Parser {
 
 			// Create dim
 			mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-			for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
-				TimeSeriesXml point = (TimeSeriesXml) origPoint;
-				dim.put(point.getTime(), point.getConcentration());
+			LinkedHashMap<Integer, List<Double>> dim = new LinkedHashMap<>();
+			for (PmmXmlElementConvertable item : mdData.getElementSet()) {
+				TimeSeriesXml point = (TimeSeriesXml) item;
+				double time = point.getTime();
+				double conc = point.getConcentration();
+				dim.put(dim.size(), Arrays.asList(time, conc));
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
@@ -2089,7 +2092,8 @@ class TwoStepTertiaryModelParser implements Parser {
 		model.addCompartment(c);
 
 		// Create species and add it to the model
-		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
+		Agent agent = new Agent(agentXml, dep.getUnit(), c,
+				dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
 		// Add indep constraint
@@ -2141,10 +2145,12 @@ class TwoStepTertiaryModelParser implements Parser {
 		NuMLDocument numlDoc = null;
 		if (mdData.size() > 0) {
 			// Create dim
-			LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-			for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
-				TimeSeriesXml point = (TimeSeriesXml) origPoint;
-				dim.put(point.getTime(), point.getConcentration());
+			LinkedHashMap<Integer, List<Double>> dim = new LinkedHashMap<>();
+			for (PmmXmlElementConvertable item : mdData.getElementSet()) {
+				TimeSeriesXml point = (TimeSeriesXml) item;
+				double time = point.getTime();
+				double conc = point.getConcentration();
+				dim.put(dim.size(), Arrays.asList(time, conc));
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
@@ -2402,7 +2408,8 @@ class OneStepTertiaryModelParser implements Parser {
 		model.addCompartment(c);
 
 		// Creates species and adds it to the model
-		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
+		Agent agent = new Agent(agentXml, dep.getUnit(), c,
+				dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
 		// Add indep constraint
@@ -2602,10 +2609,12 @@ class OneStepTertiaryModelParser implements Parser {
 			String combaseId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 
 			// Create dim
-			LinkedHashMap<Double, Double> dim = new LinkedHashMap<>();
-			for (PmmXmlElementConvertable origPoint : mdData.getElementSet()) {
-				TimeSeriesXml point = (TimeSeriesXml) origPoint;
-				dim.put(point.getTime(), point.getConcentration());
+			LinkedHashMap<Integer, List<Double>> dim = new LinkedHashMap<>();
+			for (PmmXmlElementConvertable item : mdData.getElementSet()) {
+				TimeSeriesXml point = (TimeSeriesXml) item;
+				double time = point.getTime();
+				double conc = point.getConcentration();
+				dim.put(dim.size(), Arrays.asList(time, conc));
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
@@ -2656,7 +2665,8 @@ class ManualTertiaryModelParser implements Parser {
 	}
 
 	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList,
-			int modelNum, Map<String, String> dlgInfo) throws URISyntaxException {
+			int modelNum, Map<String, String> dlgInfo)
+			throws URISyntaxException {
 		// We'll get microbial data from the first instance
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		// and the primary model from the first tuple
@@ -2691,7 +2701,7 @@ class ManualTertiaryModelParser implements Parser {
 				.getPlugin(CompConstants.shortLabel);
 
 		TableReader.addNamespaces(tertDoc);
-		
+
 		// Adds document annotation
 		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
@@ -2736,7 +2746,8 @@ class ManualTertiaryModelParser implements Parser {
 		model.addCompartment(c);
 
 		// Creates species and adds it to the model
-		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
+		Agent agent = new Agent(agentXml, dep.getUnit(), c,
+				dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
 		// Add indep constraint

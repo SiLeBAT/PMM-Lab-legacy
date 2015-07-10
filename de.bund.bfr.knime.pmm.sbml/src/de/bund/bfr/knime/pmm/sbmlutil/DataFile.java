@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import groovy.util.Node;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -21,10 +23,11 @@ import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.numl.AtomicDescription;
 import de.bund.bfr.numl.CompositeDescription;
 import de.bund.bfr.numl.DataType;
+import de.bund.bfr.numl.Description;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.OntologyTerm;
 import de.bund.bfr.numl.ResultComponent;
-import groovy.util.Node;
+import de.bund.bfr.numl.TupleDescription;
 
 public class DataFile {
 
@@ -34,7 +37,7 @@ public class DataFile {
 		this.doc = doc;
 	}
 
-	public DataFile(String dataId, LinkedHashMap<Double, Double> dimension,
+	public DataFile(String dataId, LinkedHashMap<Integer, List<Double>> dim,
 			String concUnit, Matrix matrix, Agent agent,
 			List<LiteratureItem> lits, Map<String, String> dlgInfo)
 			throws URISyntaxException {
@@ -50,16 +53,26 @@ public class DataFile {
 		concDesc.setValueType(DataType.Double);
 
 		// Creates time description
-		CompositeDescription timeDesc = new CompositeDescription();
+		AtomicDescription timeDesc = new AtomicDescription();
 		timeDesc.setName("Time");
-		timeDesc.setIndexType(DataType.Double);
 		timeDesc.setOntologyTerm(time);
-		timeDesc.setDescription(concDesc);
+		timeDesc.setValueType(DataType.Double);
+
+		TupleDescription td = new TupleDescription();
+		List<Description> descriptions = new LinkedList<>();
+		descriptions.add((Description) timeDesc);
+		descriptions.add((Description) concDesc);
+		td.setDescriptions(descriptions);
+
+		CompositeDescription cd = new CompositeDescription();
+		cd.setName("index");
+		cd.setIndexType(DataType.Integer);
+		cd.setDescription(td);
 
 		ResultComponent result = new ResultComponent();
 		result.setId("exp1");
-		result.setDimensionDescription(timeDesc);
-		result.setDimension(dimension);
+		result.setDimensionDescription(cd);
+		result.setDimension(dim);
 
 		// Adds PMF namespace to resultComponent's annotation
 		Map<String, String> pmfNS = new HashMap<>();
@@ -67,7 +80,7 @@ public class DataFile {
 				"http://sourceforge.net/microbialmodelingexchange/files/PMF-ML");
 		Node resultNode = new Node(null, "annotation", pmfNS);
 		result.setAnnotation(resultNode);
-		
+
 		// Adds data id node
 		resultNode.appendNode("pmf:dataId", dataId);
 
@@ -99,7 +112,7 @@ public class DataFile {
 		if (dlgInfo.containsKey("Created")) {
 			pmfNode.appendNode("dcterms:created", dlgInfo.get("Created"));
 		}
-		
+
 		// Adds last modified
 		if (dlgInfo.containsKey("Modified")) {
 			pmfNode.appendNode("dcterms:modified", dlgInfo.get("Modified"));
@@ -123,28 +136,25 @@ public class DataFile {
 		List<TimeSeriesXml> ts = new LinkedList<>();
 
 		@SuppressWarnings("unchecked")
-		LinkedHashMap<Double, Double> dim = (LinkedHashMap<Double, Double>) doc
+		LinkedHashMap<Integer, List<Double>> dim = (LinkedHashMap<Integer, List<Double>>) doc
 				.getResultComponents().get(0).getDimension();
 
 		// Common fields
 		String timeUnit = "h";
-		String concentrationUnit = "log10(count/g)";
-		String concentrationUnitObjectType = "CFU";
-		Double concentrationStdDev = null;
+		String concUnit = "log10(count/g)";
+		String concUnitObjectType = "CFU";
+		Double concStdDev = null;
 		Integer numberOfMeasurements = null;
 
-		int counter = 0;
-		for (Entry<Double, Double> entry : dim.entrySet()) {
-			String name = String.format("t%d", counter);
-			double time = entry.getKey();
-			double concentration = entry.getValue();
+		for (List<Double> list : dim.values()) {
+			double time = list.get(0);
+			double conc = list.get(1);
+			String name = "t" + ts.size();
 
-			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit,
-					concentration, concentrationUnit, concentrationStdDev,
-					numberOfMeasurements);
-			t.setConcentrationUnitObjectType(concentrationUnitObjectType);
+			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit, conc,
+					concUnit, concStdDev, numberOfMeasurements);
+			t.setConcentrationUnitObjectType(concUnitObjectType);
 			ts.add(t);
-			counter++;
 		}
 
 		return ts;

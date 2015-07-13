@@ -13,13 +13,13 @@ import java.util.Map;
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.ListOf;
+import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
-import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
@@ -85,7 +85,7 @@ public class OneStepTertiaryModelFile {
 			stream.close();
 
 			// Secondary model -> Has no primary model
-			if (doc.getModel() == null) {
+			if (doc.getModel().getListOfSpecies().size() == 0) {
 				secDocs.put(entry.getFileName(), doc);
 			} else {
 				tertDocs.put(entry.getFileName(), doc);
@@ -203,9 +203,7 @@ public class OneStepTertiaryModelFile {
 				secTmp.deleteOnExit();
 
 				// Creates name for the sec model
-				CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) secDoc
-						.getPlugin(CompConstants.shortLabel);
-				ModelDefinition md = secCompPlugin.getModelDefinition(0);
+				Model md = secDoc.getModel();
 
 				// Adds DataSourceNodes to the sec model
 				for (String dataName : dataNames) {

@@ -268,7 +268,7 @@ class ExperimentalDataReader implements Reader {
 
 		// Creates tuples and adds them to the container
 		for (ExperimentalData ed : eds) {
-			KnimeTuple tuple = parse(ed, container.size());
+			KnimeTuple tuple = parse(ed);
 			container.addRowToTable(tuple);
 			exec.setProgress((float) container.size() / eds.size());
 		}
@@ -277,21 +277,24 @@ class ExperimentalDataReader implements Reader {
 		return container;
 	}
 
-	private KnimeTuple parse(ExperimentalData ed, int condId) {
+	private KnimeTuple parse(ExperimentalData ed) {
 		NuMLDocument numlDoc = ed.getNuMLDoc();
 
-		// Searches concentration ontology
-		OntologyTerm conc = null;
-		for (OntologyTerm ot : numlDoc.getOntologyTerms()) {
-			if (ot.getTerm().equals("concentration")) {
-				conc = ot;
-				break;
-			}
-		}
+		// Gets time unit
+		OntologyTerm time = numlDoc.getOntologyTerms().get(0);
+		Node timeMetadata = (Node) time.getAnnotation().children().get(0);
+		Node timeUnitDefinition = (Node) timeMetadata.children().get(0);
+		String timeUnit = (String) timeUnitDefinition.attribute("name");
 
-		// Gets concentration annotation
-		Node concAnnot = (Node) conc.getAnnotation();
-		Node concMetadata = (Node) concAnnot.children().get(0);
+		// Gets concentration unit
+		OntologyTerm conc = numlDoc.getOntologyTerms().get(1);
+		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		Node concUnitDefinition = (Node) concMetadata.children().get(0);
+		String concUnit = (String) concUnitDefinition.attribute("name");
+
+		// Gets concentration unit object type from DB
+		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+		String concUnitObjectType = ufdb.getObject_type();
 
 		// Creates matrix
 		// 1) Gets matrix node
@@ -321,10 +324,8 @@ class ExperimentalDataReader implements Reader {
 
 		// Gets time series
 		DataFile dataFile = new DataFile(numlDoc);
-		PmmXmlDoc mdData = new PmmXmlDoc();
-		for (TimeSeriesXml ts : dataFile.getData()) {
-			mdData.add(ts);
-		}
+		PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit,
+				concUnitObjectType, dataFile.getData());
 
 		// Gets model variables
 		Map<String, Double> miscs = new HashMap<>();
@@ -342,10 +343,20 @@ class ExperimentalDataReader implements Reader {
 		ResultComponent rc = numlDoc.getResultComponents().get(0);
 		Node rcAnnot = rc.getAnnotation();
 
-		// Gets data id
-		NodeList dataIdNodes = (NodeList) rcAnnot.get("dataId");
-		Node dataIdNode = (Node) dataIdNodes.get(0);
-		String combaseId = dataIdNode.text();
+		// Gets CondId
+		NodeList condIdNodes = (NodeList) rcAnnot.get("condId");
+		Node condIdNode = (Node) condIdNodes.get(0);
+		int condId = Integer.parseInt(condIdNode.text());
+
+		// Gets CombaseId
+		String combaseId;
+		NodeList combaseIdNodes = (NodeList) rcAnnot.get("combaseId");
+		if (combaseIdNodes.size() > 0) {
+			Node combaseIdNode = (Node) combaseIdNodes.get(0);
+			combaseId = combaseIdNode.text();
+		} else {
+			combaseId = "?";
+		}
 
 		// Gets literature items
 		// 1) Gets literature annotations
@@ -432,12 +443,26 @@ class PrimaryModelWDataReader implements Reader {
 		Node dataIdNode = (Node) dataIdNodes.get(0);
 		String combaseId = dataIdNode.text();
 
+		// Gets time unit
+		OntologyTerm time = numlDoc.getOntologyTerms().get(0);
+		Node timeMetadata = (Node) time.getAnnotation().children().get(0);
+		Node timeUnitDefinition = (Node) timeMetadata.children().get(0);
+		String timeUnit = (String) timeUnitDefinition.attribute("name");
+
+		// Gets concentration unit
+		OntologyTerm conc = numlDoc.getOntologyTerms().get(1);
+		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		Node concUnitDefinition = (Node) concMetadata.children().get(0);
+		String concUnit = (String) concUnitDefinition.attribute("name");
+
+		// Gets concentration unit object type from DB
+		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+		String concUnitObjectType = ufdb.getObject_type();
+
 		// Gets data
-		PmmXmlDoc mdDataCell = new PmmXmlDoc();
-		DataFile df = new DataFile(numlDoc);
-		for (TimeSeriesXml ts : df.getData()) {
-			mdDataCell.add(ts);
-		}
+		double[][] data = new DataFile(numlDoc).getData();
+		PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit, concUnit,
+				concUnitObjectType, data);
 
 		// Parse model variables: Temperature, pH and water activity
 		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
@@ -752,9 +777,7 @@ class TwoStepSecondaryModelReader implements Reader {
 		List<KnimeTuple> rows = new LinkedList<>();
 
 		// Parse secondary model
-		CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) tssm
-				.getSecDoc().getPlugin(CompConstants.shortLabel);
-		ModelDefinition secModel = secCompPlugin.getModelDefinition(0);
+		Model secModel = tssm.getSecDoc().getModel();
 
 		// Parse constraints
 		ListOf<Constraint> secConstraints = secModel.getListOfConstraints();
@@ -907,11 +930,28 @@ class TwoStepSecondaryModelReader implements Reader {
 				Node dataIdNode = (Node) dataIdNodes.get(0);
 				combaseId = dataIdNode.text();
 
+				// Gets time unit
+				OntologyTerm time = pmwd.getNuMLDoc().getOntologyTerms().get(0);
+				Node timeMetadata = (Node) time.getAnnotation().children()
+						.get(0);
+				Node timeUnitDefinition = (Node) timeMetadata.children().get(0);
+				String timeUnit = (String) timeUnitDefinition.attribute("name");
+
+				// Gets concentration unit
+				OntologyTerm conc = pmwd.getNuMLDoc().getOntologyTerms().get(1);
+				Node concMetadata = (Node) conc.getAnnotation().children()
+						.get(0);
+				Node concUnitDefinition = (Node) concMetadata.children().get(0);
+				String concUnit = (String) concUnitDefinition.attribute("name");
+
+				// Gets concentration unit object type from DB
+				UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+				String concUnitObjectType = ufdb.getObject_type();
+
 				// Gets data
-				DataFile df = new DataFile(pmwd.getNuMLDoc());
-				for (TimeSeriesXml ts : df.getData()) {
-					mdData.add(ts);
-				}
+				double[][] data = new DataFile(pmwd.getNuMLDoc()).getData();
+				mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit,
+						concUnitObjectType, data);
 			}
 
 			// Parse model variables
@@ -1094,9 +1134,11 @@ class OneStepSecondaryModelReader implements Reader {
 
 		// time series cells
 		final int condID = primModelAnnotation.getCondID();
-		// TODO: need to fix the whole method. In the meantime a random combaseId will be used
-//		final String combaseID = primModelAnnotation.getCombaseID();
-		String combaseID = Integer.toString(MathUtilities.getRandomNegativeInt());
+		// TODO: need to fix the whole method. In the meantime a random
+		// combaseId will be used
+		// final String combaseID = primModelAnnotation.getCombaseID();
+		String combaseID = Integer.toString(MathUtilities
+				.getRandomNegativeInt());
 		Agent organism = new Agent(model.getSpecies(0));
 		PmmXmlDoc organismCell = new PmmXmlDoc(organism.toAgentXml());
 
@@ -1345,11 +1387,26 @@ class OneStepSecondaryModelReader implements Reader {
 
 		// Add data
 		for (NuMLDocument numlDoc : ossm.getNuMLDocs()) {
-			PmmXmlDoc mdData = new PmmXmlDoc();
-			DataFile df = new DataFile(numlDoc);
-			for (TimeSeriesXml ts : df.getData()) {
-				mdData.add(ts);
-			}
+
+			// Gets time unit
+			OntologyTerm time = numlDoc.getOntologyTerms().get(0);
+			Node timeMetadata = (Node) time.getAnnotation().children().get(0);
+			Node timeUnitDefinition = (Node) timeMetadata.children().get(0);
+			String timeUnit = (String) timeUnitDefinition.attribute("name");
+
+			// Gets concentration unit
+			OntologyTerm conc = numlDoc.getOntologyTerms().get(1);
+			Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+			Node concUnitDefinition = (Node) concMetadata.children().get(0);
+			String concUnit = (String) concUnitDefinition.attribute("name");
+
+			// Gets concentration unit object type from DB
+			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+			String concUnitObjectType = ufdb.getObject_type();
+
+			double[][] data = new DataFile(numlDoc).getData();
+			PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit,
+					concUnitObjectType, data);
 			row.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 			rows.add(row);
 		}
@@ -1383,9 +1440,7 @@ class ManualSecondaryModelReader implements Reader {
 
 	private KnimeTuple parse(ManualSecondaryModel sm) {
 		SBMLDocument sbmlDoc = sm.getSBMLDoc();
-		CompSBMLDocumentPlugin compPlugin = (CompSBMLDocumentPlugin) sbmlDoc
-				.getPlugin(CompConstants.shortLabel);
-		ModelDefinition model = compPlugin.getModelDefinition(0);
+		Model model = sbmlDoc.getModel();
 
 		// Parse constraints
 		ListOf<Constraint> constraints = model.getListOfConstraints();
@@ -1628,9 +1683,7 @@ class TwoStepTertiaryModelReader implements Reader {
 
 		for (SBMLDocument secDoc : secDocs) {
 			// Gets model definition
-			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) secDoc
-					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition md = plugin.getModelDefinition(0);
+			Model md = secDoc.getModel();
 
 			// Parse constraints
 			Map<String, Limits> limits = ReaderUtils.parseConstraints(md
@@ -1777,12 +1830,26 @@ class TwoStepTertiaryModelReader implements Reader {
 			Node dataIdNode = (Node) dataIdNodes.get(0);
 			String combaseId = dataIdNode.text();
 
+			// Gets time unit
+			OntologyTerm time = numlDoc.getOntologyTerms().get(0);
+			Node timeMetadata = (Node) time.getAnnotation().children().get(0);
+			Node timeUnitDefinition = (Node) timeMetadata.children().get(0);
+			String timeUnit = (String) timeUnitDefinition.attribute("name");
+
+			// Gets concentration unit
+			OntologyTerm conc = numlDoc.getOntologyTerms().get(1);
+			Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+			Node concUnitDefinition = (Node) concMetadata.children().get(0);
+			String concUnit = (String) concUnitDefinition.attribute("name");
+
+			// Gets concentration unit object type from DB
+			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+			String concUnitObjectType = ufdb.getObject_type();
+
 			// Gets data
-			PmmXmlDoc mdDataCell = new PmmXmlDoc();
-			DataFile df = new DataFile(numlDoc);
-			for (TimeSeriesXml ts : df.getData()) {
-				mdDataCell.add(ts);
-			}
+			double[][] data = new DataFile(numlDoc).getData();
+			PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit,
+					concUnit, concUnitObjectType, data);
 
 			// Parse model variables: Temperature, pH and water activity
 			PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
@@ -2144,13 +2211,27 @@ class OneStepTertiaryModelReader implements Reader {
 			NodeList dataIdNodes = (NodeList) rcAnnot.get("dataId");
 			Node dataIdNode = (Node) dataIdNodes.get(0);
 			String combaseId = dataIdNode.text();
-			
+
+			// Gets time unit
+			OntologyTerm time = dataDoc.getOntologyTerms().get(0);
+			Node timeMetadata = (Node) time.getAnnotation().children().get(0);
+			Node timeUnitDefinition = (Node) timeMetadata.children().get(0);
+			String timeUnit = (String) timeUnitDefinition.attribute("name");
+
+			// Gets concentration unit
+			OntologyTerm conc = dataDoc.getOntologyTerms().get(1);
+			Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+			Node concUnitDefinition = (Node) concMetadata.children().get(0);
+			String concUnit = (String) concUnitDefinition.attribute("name");
+
+			// Gets concentration unit object type from DB
+			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+			String concUnitObjectType = ufdb.getObject_type();
+
 			// Gets data
-			PmmXmlDoc mdDataCell = new PmmXmlDoc();
-			DataFile df = new DataFile(dataDoc);
-			for (TimeSeriesXml ts : df.getData()) {
-				mdDataCell.add(ts);
-			}
+			double[][] data = new DataFile(dataDoc).getData();
+			PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit,
+					concUnit, concUnitObjectType, data);
 
 			KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 			tuple.setValue(TimeSeriesSchema.ATT_CONDID, -1);
@@ -2177,9 +2258,7 @@ class OneStepTertiaryModelReader implements Reader {
 
 		for (SBMLDocument secDoc : secDocs) {
 			// Gets model definition
-			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) secDoc
-					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition md = plugin.getModelDefinition(0);
+			Model md = secDoc.getModel();
 
 			// Parse constraints
 			Map<String, Limits> limits = ReaderUtils.parseConstraints(md
@@ -2427,9 +2506,7 @@ class ManualTertiaryModelReader implements Reader {
 
 		for (SBMLDocument secDoc : mtm.getSecDocs()) {
 			// Gets model definition
-			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) secDoc
-					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition secModel = plugin.getModelDefinition(0);
+			Model secModel = secDoc.getModel();
 
 			ListOf<Parameter> secParams = secModel.getListOfParameters();
 
@@ -2454,9 +2531,10 @@ class ManualTertiaryModelReader implements Reader {
 				depUnit = null;
 			} else {
 				depUnit = depParam.getUnits();
-				
+
 				UnitsFromDB dbUnit = DBUnits.getDBUnits().get(depUnit);
-				secDepXml.setCategory(dbUnit.getKind_of_property_quantity());;
+				secDepXml.setCategory(dbUnit.getKind_of_property_quantity());
+				;
 			}
 			secDepXml.setUnit(depUnit);
 			secDepXml.setDescription(depCoeff.getDescription());
@@ -2608,6 +2686,31 @@ class ReaderUtils {
 		}
 
 		return paramLimits;
+	}
+
+	/**
+	 * Creates time series
+	 */
+	public static PmmXmlDoc createTimeSeries(String timeUnit, String concUnit,
+			String concUnitObjectType, double[][] data) {
+
+		PmmXmlDoc mdData = new PmmXmlDoc();
+
+		Double concStdDev = null;
+		Integer numberOfMeasurements = null;
+
+		for (double[] point : data) {
+			double time = point[0];
+			double conc = point[1];
+			String name = "t" + mdData.size();
+
+			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit, conc,
+					concUnit, concStdDev, numberOfMeasurements);
+			t.setConcentrationUnitObjectType(concUnitObjectType);
+			mdData.add(t);
+		}
+
+		return mdData;
 	}
 
 	/**

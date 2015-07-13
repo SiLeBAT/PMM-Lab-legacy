@@ -10,14 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.sbml.jsbml.Unit;
-import org.sbml.jsbml.UnitDefinition;
+import org.sbml.jsbml.SBMLDocument;
 
 import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
-import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.numl.AtomicDescription;
@@ -37,14 +34,20 @@ public class DataFile {
 		this.doc = doc;
 	}
 
-	public DataFile(String dataId, LinkedHashMap<Integer, List<Double>> dim,
-			String concUnit, Matrix matrix, Agent agent,
-			List<LiteratureItem> lits, Map<String, String> dlgInfo)
-			throws URISyntaxException {
+	public DataFile(int condId, String combaseId,
+			LinkedHashMap<Integer, List<Double>> dim, String concUnit,
+			String timeUnit, Matrix matrix, Agent agent,
+			List<LiteratureItem> lits, Map<String, String> dlgInfo) {
 
 		// Creates ontologies
-		OntologyTerm time = createTimeOntology();
-		OntologyTerm conc = createConcOntology(concUnit, matrix, agent);
+		OntologyTerm time = new TimeOntology().prepareOntology(timeUnit);
+		OntologyTerm conc = new ConcentrationOntology()
+				.prepareOntology(concUnit);
+
+		// Adds matrix and agent to the concentration metadata
+		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		concMetadata.append(matrix.toGroovyNode());
+		concMetadata.append(agent.toGroovyNode());
 
 		// Creates concentration description
 		AtomicDescription concDesc = new AtomicDescription();
@@ -81,8 +84,12 @@ public class DataFile {
 		Node resultNode = new Node(null, "annotation", pmfNS);
 		result.setAnnotation(resultNode);
 
-		// Adds data id node
-		resultNode.appendNode("pmf:dataId", dataId);
+		// Adds CondId node
+		resultNode.appendNode("pmf:condId", condId);
+		// Adds CombaseId node
+		if (combaseId != null) {
+			resultNode.appendNode("pmf:combaseId", combaseId);
+		}
 
 		// Adds PMF annotation
 		Map<String, String> dcNS = new HashMap<>(); // dc and dcterms namespaces
@@ -132,110 +139,88 @@ public class DataFile {
 		return doc;
 	}
 
-	public List<TimeSeriesXml> getData() {
-		List<TimeSeriesXml> ts = new LinkedList<>();
+	public double[][] getData() {
 
 		@SuppressWarnings("unchecked")
 		LinkedHashMap<Integer, List<Double>> dim = (LinkedHashMap<Integer, List<Double>>) doc
 				.getResultComponents().get(0).getDimension();
 
-		// Common fields
-		String timeUnit = "h";
-		String concUnit = "log10(count/g)";
-		String concUnitObjectType = "CFU";
-		Double concStdDev = null;
-		Integer numberOfMeasurements = null;
-
+		double[][] data = new double[dim.size()][2];
+		int i = 0;
 		for (List<Double> list : dim.values()) {
-			double time = list.get(0);
-			double conc = list.get(1);
-			String name = "t" + ts.size();
-
-			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit, conc,
-					concUnit, concStdDev, numberOfMeasurements);
-			t.setConcentrationUnitObjectType(concUnitObjectType);
-			ts.add(t);
+			data[i][0] = list.get(0); // Assigns time
+			data[i][1] = list.get(1); // Assigns concentration
+			i++;
 		}
 
-		return ts;
+		return data;
+	}
+}
+
+abstract class Ontology {
+
+	final public OntologyTerm prepareOntology(String unit) {
+		OntologyTerm ontology = createOntology();
+		ontology.setAnnotation(createAnnotation(unit));
+		return ontology;
 	}
 
-	/**
-	 * Creates time ontology.
-	 * 
-	 * @return
-	 * @throws URISyntaxException
-	 */
-	private OntologyTerm createTimeOntology() throws URISyntaxException {
-		OntologyTerm time = new OntologyTerm();
-		time.setTerm("time");
-		time.setSourceTermId("SBO:0000345");
-		time.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
+	protected abstract OntologyTerm createOntology();
 
-		// Adds PMF namespace to annotation
-		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-		time.setAnnotation(new Node(null, "annotation", pmfNS));
-
-		// Adds PMF annotation
-		Map<String, String> sbmlNS = new HashMap<>();
-		sbmlNS.put("xmlns:sbml",
-				"http://www.sbml.org/sbml/level3/version1/core");
-		Node pmfNode = new Node(time.getAnnotation(), "pmf:metadata", sbmlNS);
-
-		// Adds unit definition annotation
-		UnitDefinition ud = new UnitDefinition("h", "h", 3, 1);
-		ud.addUnit(new Unit(3600, 1, Unit.Kind.SECOND, 1, 3, 1));
-
-		Node node = new Node(pmfNode, "sbml:unitDefinition",
-				ud.writeXMLAttributes());
-		node.appendNode("sbml:unit", ud.getUnit(0).writeXMLAttributes());
-
-		return time;
-	}
-
-	/**
-	 * Creates concentration ontology.
-	 * 
-	 * @param unit
-	 *            : Concentration unit
-	 * @param matrix
-	 * @param agent
-	 * @throws URISyntaxException
-	 */
-	private OntologyTerm createConcOntology(String unit, Matrix matrix,
-			Agent agent) throws URISyntaxException {
-
-		OntologyTerm ontology = new OntologyTerm();
-		ontology.setTerm("concentration");
-		ontology.setSourceTermId("SBO:0000196");
-		ontology.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
-
-		// Adds PMF namespace to annotation
+	protected Node createAnnotation(String unit) {
+		// Creates annotation with the PMF namespace
 		Map<String, String> pmfNS = new HashMap<>();
 		pmfNS.put("xmlns:pmf",
 				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		Node annot = new Node(null, "annotation", pmfNS);
-		ontology.setAnnotation(annot);
 
-		// Adds PMF annotation
+		// Creates and adds PMF annotation
 		Map<String, String> sbmlNS = new HashMap<>();
-		sbmlNS.put("xmlns:sbml",
-				"http://www.sbml.org/sbml/level3/version1/core");
+		sbmlNS.put("xmlns:sbml", SBMLDocument.URI_NAMESPACE_L3V1Core);
 		Node pmfNode = new Node(annot, "pmf:metadata", sbmlNS);
 
-		// Gets unit definition from DB and adds unit annotation
+		// Gets unit definition from DB
 		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
 		UnitDefinitionWrapper udWrapper = UnitDefinitionWrapper
 				.xmlToUnitDefinition(dbUnit.getMathML_string());
 
+		// Modifies the unit definition and adds it to the pmfNode
 		udWrapper.getUnitDefinition().setId(Util.createId(unit));
 		udWrapper.getUnitDefinition().setName(unit);
 		pmfNode.append(udWrapper.toGroovyNode());
 
-		pmfNode.append(matrix.toGroovyNode()); // Adds matrix annotation
-		pmfNode.append(agent.toGroovyNode()); // Adds agent annotation
+		return annot;
+	}
+}
+
+class TimeOntology extends Ontology {
+
+	protected OntologyTerm createOntology() {
+		OntologyTerm ontology = new OntologyTerm();
+		ontology.setTerm("time");
+		ontology.setSourceTermId("SBO:0000345");
+		try {
+			ontology.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
+		} catch (URISyntaxException e) {
+			// The URI assigned is valid so there is no need to do something
+			// here
+		}
+
+		return ontology;
+	}
+}
+
+class ConcentrationOntology extends Ontology {
+
+	protected OntologyTerm createOntology() {
+		OntologyTerm ontology = new OntologyTerm();
+		ontology.setTerm("concentration");
+		ontology.setSourceTermId("SBO:0000196");
+		try {
+			ontology.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
+		} catch (URISyntaxException e) {
+			// The URI assigned is valid so there is no need to something here
+		}
 
 		return ontology;
 	}

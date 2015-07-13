@@ -12,13 +12,13 @@ import java.util.Map;
 
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
+import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
-import org.sbml.jsbml.ext.comp.ModelDefinition;
 
 import de.bund.bfr.knime.pmm.model.ManualTertiaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
@@ -64,8 +64,7 @@ public class ManualTertiaryModelFile {
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
-			// Secondary model -> Has no primary model
-			if (doc.getModel() == null) {
+			if (doc.getModel().getListOfSpecies().size() == 0) {
 				secDocs.put(entry.getFileName(), doc);
 			} else {
 				tertDocs.put(entry.getFileName(), doc);
@@ -139,9 +138,7 @@ public class ManualTertiaryModelFile {
 				secTmp.deleteOnExit();
 
 				// Creates name for the sec model
-				CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) secDoc
-						.getPlugin(CompConstants.shortLabel);
-				ModelDefinition md = plugin.getModelDefinition(0);
+				Model md = secDoc.getModel();
 				String secMdName = String.format("%s.%s", md.getId(),
 						SBML_EXTENSION);
 

@@ -761,7 +761,8 @@ class ExperimentalDataParser implements Parser {
 	private ExperimentalData parse(KnimeTuple tuple, Map<String, String> dlgInfo)
 			throws URISyntaxException {
 
-		// Gets data id
+		// Gets CondID and CombaseID
+		int condId = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 		String combaseId = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 
 		// Create dim
@@ -773,8 +774,10 @@ class ExperimentalDataParser implements Parser {
 					Arrays.asList(point.getTime(), point.getConcentration()));
 		}
 
-		String unit = ((TimeSeriesXml) tuple.getPmmXml(
-				TimeSeriesSchema.ATT_TIMESERIES).get(0)).getConcentrationUnit();
+		TimeSeriesXml firstPoint = (TimeSeriesXml) tuple.getPmmXml(
+				TimeSeriesSchema.ATT_TIMESERIES).get(0);
+		String concUnit = firstPoint.getConcentrationUnit();
+		String timeUnit = firstPoint.getTimeUnit();
 
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
 				TimeSeriesSchema.ATT_MATRIX).get(0);
@@ -798,8 +801,8 @@ class ExperimentalDataParser implements Parser {
 			lits.add((LiteratureItem) item);
 		}
 
-		DataFile dataFile = new DataFile(combaseId, dim, unit, matrix, agent,
-				lits, dlgInfo);
+		DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit,
+				timeUnit, matrix, agent, lits, dlgInfo);
 
 		return new ExperimentalData(dataFile.getDocument());
 	}
@@ -959,10 +962,11 @@ class PrimaryModelWDataParser implements Parser {
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
-			String unit = firstPoint.getConcentrationUnit();
+			String concUnit = firstPoint.getConcentrationUnit();
+			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(combaseId, dim, unit, matrix,
-					agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit,
+					timeUnit, matrix, agent, lits, dlgInfo);
 			numlDoc = dataFile.getDocument();
 		}
 
@@ -1164,15 +1168,11 @@ class ManualSecondaryModelParser implements Parser {
 		// Adds document annotation
 		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
-		// Adds SBML comp plugin to SBML document
-		CompSBMLDocumentPlugin docCompPlugin = (CompSBMLDocumentPlugin) doc
-				.getPlugin(CompConstants.shortLabel);
-
 		TableReader.addNamespaces(doc);
 
 		// Create model definition
-		String modelDefinitionId = "model_" + dep.getName();
-		Model model = docCompPlugin.createModelDefinition(modelDefinitionId);
+		String modelId = "model_" + dep.getName();
+		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
 			model.setName(estModel.getName());
 		}
@@ -1435,10 +1435,11 @@ class TwoStepSecondaryModelParser implements Parser {
 				}
 
 				TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
-				String unit = firstPoint.getConcentrationUnit();
+				String concUnit = firstPoint.getConcentrationUnit();
+				String timeUnit = firstPoint.getTimeUnit();
 
-				DataFile dataFile = new DataFile(combaseId, dim, unit, matrix,
-						agent, lits, dlgInfo);
+				DataFile dataFile = new DataFile(condId, combaseId, dim,
+						concUnit, timeUnit, matrix, agent, lits, dlgInfo);
 
 				pmwd = new PrimaryModelWData(doc, dataFile.getDocument());
 			}
@@ -1476,17 +1477,14 @@ class TwoStepSecondaryModelParser implements Parser {
 				TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		secDoc.enablePackage(CompConstants.shortLabel);
-		// Add SBML comp plugin to the SBMLDocument
-		CompSBMLDocumentPlugin docCompPlugin = (CompSBMLDocumentPlugin) secDoc
-				.getPlugin(CompConstants.shortLabel);
 		TableReader.addNamespaces(secDoc);
 
 		// Adds document annotation
 		secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
 		// Creates model definition
-		String modelDefinitionId = Util.createId("model" + estModel.getId());
-		Model secModel = docCompPlugin.createModelDefinition(modelDefinitionId);
+		String secModelId = Util.createId("model" + estModel.getId());
+		Model secModel = secDoc.createModel(secModelId);
 		if (estModel.getName() != null) {
 			secModel.setName(estModel.getName());
 		}
@@ -1879,10 +1877,11 @@ class OneStepSecondaryModelParser implements Parser {
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
-			String unit = firstPoint.getConcentrationUnit();
+			String concUnit = firstPoint.getConcentrationUnit();
+			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(combaseId, dim, unit, matrix,
-					agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit,
+					timeUnit, matrix, agent, lits, dlgInfo);
 			numlDocs.add(dataFile.getDocument());
 		}
 
@@ -1963,10 +1962,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		// Creates ExternalModelDefinition
 		for (SBMLDocument secDoc : secDocs) {
 			// Gets model definition id from secDoc
-			CompSBMLDocumentPlugin secPlugin = (CompSBMLDocumentPlugin) secDoc
-					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition md = secPlugin.getModelDefinition(0);
-			String mdId = md.getId();
+			String mdId = secDoc.getModel().getId();
 
 			// Creates and adds an ExternalModelDefinition to the tertiary model
 			ExternalModelDefinition emd = compDocPlugin
@@ -2154,10 +2150,11 @@ class TwoStepTertiaryModelParser implements Parser {
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
-			String unit = firstPoint.getConcentrationUnit();
+			String concUnit = firstPoint.getConcentrationUnit();
+			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(combaseId, dim, unit, matrix,
-					agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit,
+					timeUnit, matrix, agent, lits, dlgInfo);
 			numlDoc = dataFile.getDocument();
 		}
 
@@ -2188,9 +2185,14 @@ class TwoStepTertiaryModelParser implements Parser {
 			secConsts.add((ParamXml) item);
 		}
 
-		String mdId = "model_" + secDep.getName();
-		ModelDefinition secModel = new ModelDefinition(mdId, TableReader.LEVEL,
+		// Create SBMLDocument for the secondary model
+		SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
 				TableReader.VERSION);
+		// Enable Hierarchical Composition package
+		secDoc.enablePackage(CompConstants.shortLabel);
+
+		String mdId = "model_" + secDep.getName();
+		Model secModel = secDoc.createModel(mdId);
 		if (secEstModel.getName() != null) {
 			secModel.setName(secEstModel.getName());
 		}
@@ -2267,19 +2269,7 @@ class TwoStepTertiaryModelParser implements Parser {
 				.convertCatalogModelXmlToModel2Rule(secCatModel);
 		secModel.addRule(rule2.getRule());
 
-		// Create SBMLDocument for the secondary model
-		SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
-				TableReader.VERSION);
-		// Enable Hierarchical Composition package
-		secDoc.enablePackage(CompConstants.shortLabel);
-
-		CompSBMLDocumentPlugin secDocCompPlugin = (CompSBMLDocumentPlugin) secDoc
-				.getPlugin(CompConstants.shortLabel);
-
 		TableReader.addNamespaces(secDoc);
-
-		// Add model definition to the document
-		secDocCompPlugin.addModelDefinition(secModel);
 
 		return secDoc;
 	}
@@ -2485,9 +2475,15 @@ class OneStepTertiaryModelParser implements Parser {
 				secConsts.add((ParamXml) item);
 			}
 
-			String modelDefinitionId = "model_" + secDep.getName();
-			ModelDefinition secModel = new ModelDefinition(modelDefinitionId,
-					TableReader.LEVEL, TableReader.VERSION);
+			// Create SBMLDocument for the secondary model
+			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
+					TableReader.VERSION);
+			// Enable Hierarchical Composition package
+			secDoc.enablePackage(CompConstants.shortLabel);
+			TableReader.addNamespaces(secDoc);
+
+			String secModelId = "model_" + secDep.getName();
+			Model secModel = secDoc.createModel(secModelId);
 			if (secEstModel.getName() != null) {
 				secModel.setName(secEstModel.getName());
 			}
@@ -2567,23 +2563,9 @@ class OneStepTertiaryModelParser implements Parser {
 
 			// Creates and adds an ExternalModelDefinition
 			ExternalModelDefinition emd = compDocPlugin
-					.createExternalModelDefinition(modelDefinitionId);
-			emd.setSource(modelDefinitionId + ".sbml");
-			emd.setModelRef(modelDefinitionId);
-
-			// Create SBMLDocument for the secondary model
-			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
-					TableReader.VERSION);
-			// Enable Hierarchical Composition package
-			secDoc.enablePackage(CompConstants.shortLabel);
-
-			CompSBMLDocumentPlugin secDocCompPlugin = (CompSBMLDocumentPlugin) secDoc
-					.getPlugin(CompConstants.shortLabel);
-
-			TableReader.addNamespaces(secDoc);
-
-			// Add model definition to the document
-			secDocCompPlugin.addModelDefinition(new ModelDefinition(secModel));
+					.createExternalModelDefinition(secModelId);
+			emd.setSource(secModelId + ".sbml");
+			emd.setModelRef(secModelId);
 
 			// Add annotation for the primary model
 			XMLNode metadataNode = secModelAnnotation.getNode();
@@ -2618,10 +2600,11 @@ class OneStepTertiaryModelParser implements Parser {
 			}
 
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
-			String unit = firstPoint.getConcentrationUnit();
+			String concUnit = firstPoint.getConcentrationUnit();
+			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(combaseId, dim, unit, matrix,
-					agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit,
+					timeUnit, matrix, agent, lits, dlgInfo);
 			numlDocs.add(dataFile.getDocument());
 		}
 
@@ -2840,8 +2823,13 @@ class ManualTertiaryModelParser implements Parser {
 			Submodel submodel = compModelPlugin.createSubmodel(emdId);
 			submodel.setModelRef(emdModelRef);
 
-			ModelDefinition md = new ModelDefinition(emdModelRef,
-					TableReader.LEVEL, TableReader.VERSION);
+			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
+					TableReader.VERSION);
+			// Enable Hierarchical Composition package
+			secDoc.enablePackage(CompConstants.shortLabel);
+			TableReader.addNamespaces(secDoc);
+
+			Model md = secDoc.createModel(emdModelRef);
 			if (secEstModel.getName() != null) {
 				md.setName(secEstModel.getName());
 			}
@@ -2916,17 +2904,6 @@ class ManualTertiaryModelParser implements Parser {
 			Model2Rule rule2 = Model2Rule
 					.convertCatalogModelXmlToModel2Rule(secCatModel);
 			md.addRule(rule2.getRule());
-
-			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL,
-					TableReader.VERSION);
-			// Enable Hierarchical Composition package
-			secDoc.enablePackage(CompConstants.shortLabel);
-			CompSBMLDocumentPlugin secDocCompPlugin = (CompSBMLDocumentPlugin) secDoc
-					.getPlugin(CompConstants.shortLabel);
-			TableReader.addNamespaces(secDoc);
-
-			// Adds model definition to the document
-			secDocCompPlugin.addModelDefinition(md);
 
 			i++;
 

@@ -13,13 +13,13 @@ import java.util.Map;
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.ListOf;
+import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
-import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
@@ -82,18 +82,19 @@ public class TwoStepTertiaryModelFile {
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
-			ListOf<ExternalModelDefinition> mdList = secCompPlugin.getListOfExternalModelDefinitions();
+			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
 			stream.close();
-
-			// Secondary model -> Has no primary model
-			if (doc.getModel() == null) {
-				secDocs.put(entry.getFileName(), doc);
-			}
-			// Tertiary model -> Has model definitions
-			else if (mdList.size() > 0) {
+			
+			// Tertiary model -> has external moel definitions
+			if (plugin.getNumExternalModelDefinitions() > 0) {
 				tertDocs.put(entry.getFileName(), doc);
 			}
+
+			// Secondary model
+			else if (doc.getModel().getListOfSpecies().size() == 0) {
+				secDocs.put(entry.getFileName(), doc);
+			}
+			
 			// Primary model -> Has no model definitions
 			else {
 				primDocs.put(entry.getFileName(), doc);
@@ -115,9 +116,7 @@ public class TwoStepTertiaryModelFile {
 			// All the secondary models of a Two step tertiary model are linked
 			// to the same primary models. Thus these primary models can be
 			// retrieved from the first secondary model
-			SBMLDocument secDoc = secModels.get(0);
-			CompSBMLDocumentPlugin secDocPlugin = (CompSBMLDocumentPlugin) secDoc.getPlugin(CompConstants.shortLabel);
-			ModelDefinition md = secDocPlugin.getModelDefinition(0);
+			Model md = secModels.get(0).getModel();
 
 			XMLNode metadata = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 			for (XMLNode pmNode : metadata.getChildElements("primarymodel", "")) {
@@ -218,9 +217,7 @@ public class TwoStepTertiaryModelFile {
 				secTmp.deleteOnExit();
 
 				// Creates name for the sec model
-				CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) secDoc
-						.getPlugin(CompConstants.shortLabel);
-				ModelDefinition md = secCompPlugin.getModelDefinition(0);
+				Model md = secDoc.getModel();
 				String secMdName = String.format("%s.%s", md.getId(), SBML_EXTENSION);
 
 				// Adds annotations for the primary models

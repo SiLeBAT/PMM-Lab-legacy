@@ -11,12 +11,10 @@ import java.util.List;
 
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
+import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
-import org.sbml.jsbml.ext.comp.CompConstants;
-import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
-import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
@@ -82,19 +80,19 @@ public class TwoStepSecondaryModelFile {
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
-			// Secondary model -> Has no primary model
-			if (doc.getModel() == null) {
+			// Secondary models do not have species
+			if (doc.getModel().getListOfSpecies().size() == 0) {
 				secModels.put(entry.getFileName(), doc);
-			} else {
+			}
+			// Primary models have species
+			else {
 				primModels.put(entry.getFileName(), doc);
 			}
 		}
 		ca.close();
 
 		for (SBMLDocument secModel : secModels.values()) {
-			CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) secModel
-					.getPlugin(CompConstants.shortLabel);
-			ModelDefinition md = secCompPlugin.getModelDefinition(0);
+			Model md = secModel.getModel();
 
 			XMLNode annot = md.getAnnotation().getNonRDFannotation();
 			XMLNode metadata = annot.getChildElement("metadata", "");

@@ -216,8 +216,8 @@ public class ModelCombiner {
 
 			newID = MathUtilities.generateID(newID);
 
-			Integer newEstID = ((CatalogModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
+			Integer newEstID = ((EstModelXml) newTuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getId();
 
 			for (KnimeTuple tuple : usedTuples) {
 				Integer estID = ((EstModelXml) tuple.getPmmXml(

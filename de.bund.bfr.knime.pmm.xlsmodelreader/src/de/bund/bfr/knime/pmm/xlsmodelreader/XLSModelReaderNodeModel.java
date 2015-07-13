@@ -90,36 +90,31 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		KnimeTuple modelTuple = new KnimeTuple(set.getModelTuple().getSchema(),
-				set.getModelTuple().getSchema().createSpec(),
-				set.getModelTuple());
+				set.getModelTuple().getSchema().createSpec(), set.getModelTuple());
 		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<>();
 
 		for (String key : set.getSecModelTuples().keySet()) {
 			KnimeTuple tuple = set.getSecModelTuples().get(key);
 
-			secModelTuples.put(key, new KnimeTuple(tuple.getSchema(), tuple
-					.getSchema().createSpec(), tuple));
+			secModelTuples.put(key, new KnimeTuple(tuple.getSchema(), tuple.getSchema().createSpec(), tuple));
 		}
 
-		PmmXmlDoc modelXml = modelTuple
-				.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		PmmXmlDoc modelXml = modelTuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 		PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
 		PmmXmlDoc indepVar = modelTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
 		if (depVar.size() == 1) {
-			formula = MathUtilities.replaceVariable(formula,
-					((DepXml) depVar.get(0)).getName(),
+			formula = MathUtilities.replaceVariable(formula, ((DepXml) depVar.get(0)).getName(),
 					AttributeUtilities.CONCENTRATION);
 			((DepXml) depVar.get(0)).setName(AttributeUtilities.CONCENTRATION);
 		}
 
 		if (indepVar.size() == 1) {
-			formula = MathUtilities.replaceVariable(formula,
-					((IndepXml) indepVar.get(0)).getName(),
+			formula = MathUtilities.replaceVariable(formula, ((IndepXml) indepVar.get(0)).getName(),
 					AttributeUtilities.TIME);
 			((IndepXml) indepVar.get(0)).setName(AttributeUtilities.TIME);
 		}
@@ -130,21 +125,16 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<>(xlsReader.getModelTuples(
-				KnimeUtils.getFile(set.getFileName()), set.getSheetName(),
-				set.getColumnMappings(), set.getAgentColumn(),
-				set.getAgentMappings(), set.getMatrixColumn(),
-				set.getMatrixMappings(), modelTuple, set.getModelMappings(),
-				set.getModelParamErrors(), set.getModelDepMin(),
-				set.getModelDepMax(), set.getModelDepUnit(),
-				set.getModelIndepMin(), set.getModelIndepMax(),
-				set.getModelIndepUnit(), set.getModelRmse(), set.getModelR2(),
-				set.getModelAic(), set.getModelDataPoints(), secModelTuples,
-				set.getSecModelMappings(), set.getSecModelParamErrors(),
-				set.getSecModelIndepMins(), set.getSecModelIndepMaxs(),
-				set.getSecModelIndepCategories(), set.getSecModelIndepUnits(),
-				set.getSecModelRmse(), set.getSecModelR2(),
-				set.getSecModelAic(), set.getSecModelDataPoints()).values());
+		List<KnimeTuple> tuples = new ArrayList<>(xlsReader.getModelTuples(KnimeUtils.getFile(set.getFileName()),
+				set.getSheetName(), set.getColumnMappings(), set.getAgentColumn(), set.getAgentMappings(),
+				set.getMatrixColumn(), set.getMatrixMappings(), modelTuple, set.getModelMappings(),
+				set.getModelParamErrors(), set.getModelDepMin(), set.getModelDepMax(), set.getModelDepUnit(),
+				set.getModelIndepMin(), set.getModelIndepMax(), set.getModelIndepUnit(), set.getModelRmse(),
+				set.getModelR2(), set.getModelAic(), set.getModelDataPoints(), secModelTuples,
+				set.getSecModelMappings(), set.getSecModelParamErrors(), set.getSecModelIndepMins(),
+				set.getSecModelIndepMaxs(), set.getSecModelIndepCategories(), set.getSecModelIndepUnits(),
+				set.getSecModelRmse(), set.getSecModelR2(), set.getSecModelAic(), set.getSecModelDataPoints(),
+				set.isPreserveIds(), set.getUsedIds(), set.getSecUsedIds(), set.getGlobalUsedIds()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);
@@ -152,27 +142,22 @@ public class XLSModelReaderNodeModel extends NodeModel {
 
 		if (set.getAgentColumn() == null && set.getAgent() != null) {
 			for (KnimeTuple tuple : tuples) {
-				PmmXmlDoc agentXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+				PmmXmlDoc agentXml = tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT);
 
 				((AgentXml) agentXml.get(0)).setId(set.getAgent().getId());
 				((AgentXml) agentXml.get(0)).setName(set.getAgent().getName());
-				((AgentXml) agentXml.get(0)).setDbuuid(set.getAgent()
-						.getDbuuid());
+				((AgentXml) agentXml.get(0)).setDbuuid(set.getAgent().getDbuuid());
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 			}
 		}
 
 		if (set.getMatrixColumn() == null && set.getMatrix() != null) {
 			for (KnimeTuple tuple : tuples) {
-				PmmXmlDoc matrixXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+				PmmXmlDoc matrixXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
 
 				((MatrixXml) matrixXml.get(0)).setId(set.getMatrix().getId());
-				((MatrixXml) matrixXml.get(0)).setName(set.getMatrix()
-						.getName());
-				((MatrixXml) matrixXml.get(0)).setDbuuid(set.getMatrix()
-						.getDbuuid());
+				((MatrixXml) matrixXml.get(0)).setName(set.getMatrix().getName());
+				((MatrixXml) matrixXml.get(0)).setDbuuid(set.getMatrix().getDbuuid());
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 			}
 		}
@@ -190,11 +175,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		BufferedDataContainer container;
 
 		if (secModelTuples.isEmpty()) {
-			container = exec.createDataContainer(SchemaFactory
-					.createM1DataSchema().createSpec());
+			container = exec.createDataContainer(SchemaFactory.createM1DataSchema().createSpec());
 		} else {
-			container = exec.createDataContainer(SchemaFactory
-					.createM12DataSchema().createSpec());
+			container = exec.createDataContainer(SchemaFactory.createM12DataSchema().createSpec());
 		}
 
 		for (KnimeTuple tuple : tuples) {
@@ -217,8 +200,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		if (set.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
@@ -246,8 +228,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -255,26 +236,23 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 }

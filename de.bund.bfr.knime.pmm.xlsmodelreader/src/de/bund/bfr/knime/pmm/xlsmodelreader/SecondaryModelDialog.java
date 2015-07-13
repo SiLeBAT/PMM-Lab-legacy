@@ -59,8 +59,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 
-public class SecondaryModelDialog extends JDialog implements ActionListener,
-		ItemListener {
+public class SecondaryModelDialog extends JDialog implements ActionListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -97,22 +96,18 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	private JComboBox<String> aicBox;
 	private JComboBox<String> dataPointsBox;
 
-	public SecondaryModelDialog(Component parent, List<String> fileColumnList,
-			SettingsHelper set, String param) {
-		super(SwingUtilities.getWindowAncestor(parent), "Secondary Model",
-				DEFAULT_MODALITY_TYPE);
+	public SecondaryModelDialog(Component parent, List<String> fileColumnList, SettingsHelper set, String param) {
+		super(SwingUtilities.getWindowAncestor(parent), "Secondary Model", DEFAULT_MODALITY_TYPE);
 		this.fileColumnList = fileColumnList;
 		this.set = set;
 		this.param = param;
 
 		tuple = set.getSecModelTuples().get(param);
 		mappings = new LinkedHashMap<>(set.getSecModelMappings().get(param));
-		paramErrors = new LinkedHashMap<>(set.getSecModelParamErrors().get(
-				param));
+		paramErrors = new LinkedHashMap<>(set.getSecModelParamErrors().get(param));
 		mins = new LinkedHashMap<>(set.getSecModelIndepMins().get(param));
 		maxs = new LinkedHashMap<>(set.getSecModelIndepMaxs().get(param));
-		categories = new LinkedHashMap<>(set.getSecModelIndepCategories().get(
-				param));
+		categories = new LinkedHashMap<>(set.getSecModelIndepCategories().get(param));
 		units = new LinkedHashMap<>(set.getSecModelIndepUnits().get(param));
 		rmse = set.getSecModelRmse().get(param);
 		r2 = set.getSecModelR2().get(param);
@@ -157,16 +152,10 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			set.getSecModelIndepMaxs().put(param, maxs);
 			set.getSecModelIndepCategories().put(param, categories);
 			set.getSecModelIndepUnits().put(param, units);
-			set.getSecModelRmse().put(param,
-					rmse.equals(SettingsHelper.DO_NOT_USE) ? null : rmse);
-			set.getSecModelR2().put(param,
-					r2.equals(SettingsHelper.DO_NOT_USE) ? null : r2);
-			set.getSecModelAic().put(param,
-					aic.equals(SettingsHelper.DO_NOT_USE) ? null : aic);
-			set.getSecModelDataPoints().put(
-					param,
-					dataPoints.equals(SettingsHelper.DO_NOT_USE) ? null
-							: dataPoints);
+			set.getSecModelRmse().put(param, rmse.equals(SettingsHelper.DO_NOT_USE) ? null : rmse);
+			set.getSecModelR2().put(param, r2.equals(SettingsHelper.DO_NOT_USE) ? null : r2);
+			set.getSecModelAic().put(param, aic.equals(SettingsHelper.DO_NOT_USE) ? null : aic);
+			set.getSecModelDataPoints().put(param, dataPoints.equals(SettingsHelper.DO_NOT_USE) ? null : dataPoints);
 			dispose();
 		} else if (e.getSource() == cancelButton) {
 			dispose();
@@ -174,10 +163,8 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 			Integer id;
 
 			if (tuple != null) {
-				id = DBKernel.openSecModelDBWindow(
-						modelButton,
-						((CatalogModelXml) tuple.getPmmXml(
-								Model2Schema.ATT_MODELCATALOG).get(0)).getId());
+				id = DBKernel.openSecModelDBWindow(modelButton,
+						((CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0)).getId());
 			} else {
 				id = DBKernel.openSecModelDBWindow(modelButton, null);
 			}
@@ -194,8 +181,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				updateConfigPanel();
 			}
 		} else if (e.getSource() == reloadButton) {
-			Integer id = ((CatalogModelXml) tuple.getPmmXml(
-					Model2Schema.ATT_MODELCATALOG).get(0)).getId();
+			Integer id = ((CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			if (id != null) {
 				Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
@@ -224,40 +210,35 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		} else {
 			for (String param2 : modelBoxes.keySet()) {
 				if (e.getSource() == modelBoxes.get(param2)) {
-					mappings.put(param2, (String) modelBoxes.get(param2)
-							.getSelectedItem());
+					mappings.put(param2, (String) modelBoxes.get(param2).getSelectedItem());
 					return;
 				}
 			}
 
 			for (String param2 : paramErrorBoxes.keySet()) {
 				if (e.getSource() == paramErrorBoxes.get(param2)) {
-					paramErrors.put(param2, (String) paramErrorBoxes
-							.get(param2).getSelectedItem());
+					paramErrors.put(param2, (String) paramErrorBoxes.get(param2).getSelectedItem());
 					return;
 				}
 			}
 
 			for (String param2 : minBoxes.keySet()) {
 				if (e.getSource() == minBoxes.get(param2)) {
-					mins.put(param2, (String) minBoxes.get(param2)
-							.getSelectedItem());
+					mins.put(param2, (String) minBoxes.get(param2).getSelectedItem());
 					return;
 				}
 			}
 
 			for (String param2 : maxBoxes.keySet()) {
 				if (e.getSource() == maxBoxes.get(param2)) {
-					maxs.put(param2, (String) maxBoxes.get(param2)
-							.getSelectedItem());
+					maxs.put(param2, (String) maxBoxes.get(param2).getSelectedItem());
 					return;
 				}
 			}
 
 			for (String param2 : categoryBoxes.keySet()) {
 				if (e.getSource() == categoryBoxes.get(param2)) {
-					categories.put(param2, (String) categoryBoxes.get(param2)
-							.getSelectedItem());
+					categories.put(param2, (String) categoryBoxes.get(param2).getSelectedItem());
 					updateConfigPanel();
 					return;
 				}
@@ -265,8 +246,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 
 			for (String param2 : unitBoxes.keySet()) {
 				if (e.getSource() == unitBoxes.get(param2)) {
-					units.put(param2, (String) unitBoxes.get(param2)
-							.getSelectedItem());
+					units.put(param2, (String) unitBoxes.get(param2).getSelectedItem());
 					return;
 				}
 			}
@@ -291,8 +271,8 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		JPanel secButtonPanel = new JPanel();
 
 		if (tuple != null) {
-			modelButton = new JButton(((CatalogModelXml) tuple.getPmmXml(
-					Model2Schema.ATT_MODELCATALOG).get(0)).getName());
+			modelButton = new JButton(
+					((CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0)).getName());
 			reloadButton = new JButton(SettingsHelper.RELOAD);
 			reloadButton.setEnabled(true);
 		} else {
@@ -319,55 +299,42 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		unitBoxes = new LinkedHashMap<>();
 
 		if (tuple != null) {
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					Model2Schema.ATT_PARAMETER).getElementSet()) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(Model2Schema.ATT_PARAMETER).getElementSet()) {
 				ParamXml secParam = (ParamXml) el;
-				JComboBox<String> box = new JComboBox<>(
-						options.toArray(new String[0]));
-				JComboBox<String> errorBox = new JComboBox<>(
-						options.toArray(new String[0]));
+				JComboBox<String> box = new JComboBox<>(options.toArray(new String[0]));
+				JComboBox<String> errorBox = new JComboBox<>(options.toArray(new String[0]));
 
-				mappings.put(secParam.getName(), UI.select(box,
-						mappings.get(secParam.getName()),
-						SettingsHelper.DO_NOT_USE));
-				paramErrors.put(secParam.getName(), UI.select(errorBox,
-						paramErrors.get(secParam.getName()),
-						SettingsHelper.DO_NOT_USE));
+				mappings.put(secParam.getName(),
+						UI.select(box, mappings.get(secParam.getName()), SettingsHelper.DO_NOT_USE));
+				paramErrors.put(secParam.getName(),
+						UI.select(errorBox, paramErrors.get(secParam.getName()), SettingsHelper.DO_NOT_USE));
 
 				box.addItemListener(this);
 				errorBox.addItemListener(this);
 				modelBoxes.put(secParam.getName(), box);
 				paramErrorBoxes.put(secParam.getName(), errorBox);
 
-				panel.add(new JLabel(secParam.getName() + ":"),
-						createConstraints(0, row));
+				panel.add(new JLabel(secParam.getName() + ":"), createConstraints(0, row));
 				panel.add(box, createConstraints(1, row));
 				row++;
-				panel.add(new JLabel(secParam.getName() + " Error:"),
-						createConstraints(0, row));
+				panel.add(new JLabel(secParam.getName() + " Error:"), createConstraints(0, row));
 				panel.add(errorBox, createConstraints(1, row));
 				row++;
 			}
 
-			for (PmmXmlElementConvertable el2 : tuple.getPmmXml(
-					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+			for (PmmXmlElementConvertable el2 : tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT).getElementSet()) {
 				IndepXml indep = (IndepXml) el2;
 				// String[] categoryChoice = Categories.getAllCategories()
 				// .toArray(new String[0]);
 				// String defaultCategory = indep.getCategory() != null ? indep
 				// .getCategory() : categoryChoice[0];
 
-				JComboBox<String> minBox = new JComboBox<>(
-						options.toArray(new String[0]));
-				JComboBox<String> maxBox = new JComboBox<>(
-						options.toArray(new String[0]));
-				JComboBox<String> categoryBox = new JComboBox<>(
-						new String[] { indep.getCategory() });
+				JComboBox<String> minBox = new JComboBox<>(options.toArray(new String[0]));
+				JComboBox<String> maxBox = new JComboBox<>(options.toArray(new String[0]));
+				JComboBox<String> categoryBox = new JComboBox<>(new String[] { indep.getCategory() });
 
-				mins.put(indep.getName(), UI.select(minBox,
-						mins.get(indep.getName()), SettingsHelper.DO_NOT_USE));
-				maxs.put(indep.getName(), UI.select(maxBox,
-						maxs.get(indep.getName()), SettingsHelper.DO_NOT_USE));
+				mins.put(indep.getName(), UI.select(minBox, mins.get(indep.getName()), SettingsHelper.DO_NOT_USE));
+				maxs.put(indep.getName(), UI.select(maxBox, maxs.get(indep.getName()), SettingsHelper.DO_NOT_USE));
 				categories.put(indep.getName(), indep.getCategory());
 
 				// String[] unitChoice = Categories
@@ -376,8 +343,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				// String defaultUnit = indep.getUnit() != null ?
 				// indep.getUnit()
 				// : unitChoice[0];
-				JComboBox<String> unitBox = new JComboBox<>(
-						new String[] { indep.getUnit() });
+				JComboBox<String> unitBox = new JComboBox<>(new String[] { indep.getUnit() });
 
 				units.put(indep.getName(), indep.getUnit());
 
@@ -390,20 +356,16 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 				categoryBoxes.put(indep.getName(), categoryBox);
 				unitBoxes.put(indep.getName(), unitBox);
 
-				panel.add(new JLabel("Min " + indep.getName() + ":"),
-						createConstraints(0, row));
+				panel.add(new JLabel("Min " + indep.getName() + ":"), createConstraints(0, row));
 				panel.add(minBox, createConstraints(1, row));
 				row++;
-				panel.add(new JLabel("Max " + indep.getName() + ":"),
-						createConstraints(0, row));
+				panel.add(new JLabel("Max " + indep.getName() + ":"), createConstraints(0, row));
 				panel.add(maxBox, createConstraints(1, row));
 				row++;
-				panel.add(new JLabel(indep.getName() + " Category:"),
-						createConstraints(0, row));
+				panel.add(new JLabel(indep.getName() + " Category:"), createConstraints(0, row));
 				panel.add(categoryBox, createConstraints(1, row));
 				row++;
-				panel.add(new JLabel(indep.getName() + " Unit:"),
-						createConstraints(0, row));
+				panel.add(new JLabel(indep.getName() + " Unit:"), createConstraints(0, row));
 				panel.add(unitBox, createConstraints(1, row));
 				row++;
 			}
@@ -417,8 +379,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 		rmse = UI.select(rmseBox, rmse, SettingsHelper.DO_NOT_USE);
 		r2 = UI.select(r2Box, r2, SettingsHelper.DO_NOT_USE);
 		aic = UI.select(aicBox, aic, SettingsHelper.DO_NOT_USE);
-		dataPoints = UI.select(dataPointsBox, dataPoints,
-				SettingsHelper.DO_NOT_USE);
+		dataPoints = UI.select(dataPointsBox, dataPoints, SettingsHelper.DO_NOT_USE);
 
 		rmseBox.addItemListener(this);
 		r2Box.addItemListener(this);
@@ -454,8 +415,7 @@ public class SecondaryModelDialog extends JDialog implements ActionListener,
 	}
 
 	private GridBagConstraints createConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0,
-				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
+		return new GridBagConstraints(x, y, 1, 1, 0, 0, GridBagConstraints.LINE_START, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0);
 	}
 

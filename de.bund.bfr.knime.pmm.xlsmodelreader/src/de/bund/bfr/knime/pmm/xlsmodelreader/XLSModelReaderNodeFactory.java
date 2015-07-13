@@ -43,8 +43,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class XLSModelReaderNodeFactory extends
-		NodeFactory<XLSModelReaderNodeModel> {
+public class XLSModelReaderNodeFactory extends NodeFactory<XLSModelReaderNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -66,8 +65,8 @@ public class XLSModelReaderNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<XLSModelReaderNodeModel> createNodeView(
-			final int viewIndex, final XLSModelReaderNodeModel nodeModel) {
+	public NodeView<XLSModelReaderNodeModel> createNodeView(final int viewIndex,
+			final XLSModelReaderNodeModel nodeModel) {
 		return null;
 	}
 

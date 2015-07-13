@@ -58,6 +58,10 @@ public class SettingsHelper {
 
 	private static final String CFG_FILE_NAME = "FileName";
 	private static final String CFG_SHEET_NAME = "SheetName";
+	private static final String CFG_PRESERVE_IDS = "PreserveIds";
+	private static final String CFG_USED_IDS = "UsedIds";
+	private static final String CFG_SEC_USED_IDS = "SecUsedIds";
+	private static final String CFG_GLOBAL_USED_IDS = "GlobalUsedIds";
 	private static final String CFG_MODEL_MAPPINGS = "ModelMappings";
 	private static final String CFG_MODEL_DEP_MIN = "ModelDepMin";
 	private static final String CFG_MODEL_DEP_MAX = "ModelDepMax";
@@ -93,6 +97,10 @@ public class SettingsHelper {
 
 	private String fileName;
 	private String sheetName;
+	private boolean preserveIds;
+	private List<Integer> usedIds;
+	private Map<String, List<Integer>> secUsedIds;
+	private List<Integer> globalUsedIds;
 	private Map<String, String> modelMappings;
 	private String modelDepMin;
 	private String modelDepMax;
@@ -129,6 +137,10 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		fileName = null;
 		sheetName = null;
+		preserveIds = false;
+		usedIds = new ArrayList<>();
+		secUsedIds = new LinkedHashMap<>();
+		globalUsedIds = new ArrayList<>();
 		modelTuple = null;
 		secModelTuples = new LinkedHashMap<>();
 		modelMappings = new LinkedHashMap<>();
@@ -175,20 +187,38 @@ public class SettingsHelper {
 		}
 
 		try {
-			modelTuple = XmlConverter.xmlToTuple(settings
-					.getString(CFG_MODEL_TUPLE));
+			preserveIds = settings.getBoolean(CFG_PRESERVE_IDS);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelTuples = XmlConverter.xmlToTupleMap(settings
-					.getString(CFG_SEC_MODEL_TUPLES));
+			usedIds = XmlConverter.xmlToObject(settings.getString(CFG_USED_IDS), new ArrayList<Integer>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			modelMappings = XmlConverter.xmlToObject(
-					settings.getString(CFG_MODEL_MAPPINGS),
+			secUsedIds = XmlConverter.xmlToObject(settings.getString(CFG_SEC_USED_IDS),
+					new LinkedHashMap<String, List<Integer>>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			globalUsedIds = XmlConverter.xmlToObject(settings.getString(CFG_GLOBAL_USED_IDS), new ArrayList<Integer>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			modelTuple = XmlConverter.xmlToTuple(settings.getString(CFG_MODEL_TUPLE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			secModelTuples = XmlConverter.xmlToTupleMap(settings.getString(CFG_SEC_MODEL_TUPLES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			modelMappings = XmlConverter.xmlToObject(settings.getString(CFG_MODEL_MAPPINGS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -244,85 +274,73 @@ public class SettingsHelper {
 		}
 
 		try {
-			modelParamErrors = XmlConverter.xmlToObject(
-					settings.getString(CFG_MODEL_PARAM_ERRORS),
+			modelParamErrors = XmlConverter.xmlToObject(settings.getString(CFG_MODEL_PARAM_ERRORS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelMappings = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_MAPPINGS),
+			secModelMappings = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_MAPPINGS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelParamErrors = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_PARAM_ERRORS),
+			secModelParamErrors = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_PARAM_ERRORS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelIndepMins = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_INDEP_MINS),
+			secModelIndepMins = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_INDEP_MINS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelIndepMaxs = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_INDEP_MAXS),
+			secModelIndepMaxs = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_INDEP_MAXS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelIndepCategories = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_INDEP_CATEGORIES),
+			secModelIndepCategories = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_INDEP_CATEGORIES),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelIndepUnits = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_INDEP_UNITS),
+			secModelIndepUnits = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_INDEP_UNITS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelRmse = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_RMSE),
+			secModelRmse = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_RMSE),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelR2 = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_R2),
+			secModelR2 = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_R2),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelAic = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_AIC),
+			secModelAic = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_AIC),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			secModelDataPoints = XmlConverter.xmlToObject(
-					settings.getString(CFG_SEC_MODEL_DATA_POINTS),
+			secModelDataPoints = XmlConverter.xmlToObject(settings.getString(CFG_SEC_MODEL_DATA_POINTS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			columnMappings = XmlConverter.xmlToObject(
-					settings.getString(CFG_COLUMN_MAPPINGS),
+			columnMappings = XmlConverter.xmlToObject(settings.getString(CFG_COLUMN_MAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -333,8 +351,7 @@ public class SettingsHelper {
 		}
 
 		try {
-			agentMappings = XmlConverter.xmlToObject(
-					settings.getString(CFG_AGENT_MAPPINGS),
+			agentMappings = XmlConverter.xmlToObject(settings.getString(CFG_AGENT_MAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -345,28 +362,23 @@ public class SettingsHelper {
 		}
 
 		try {
-			matrixMappings = XmlConverter.xmlToObject(
-					settings.getString(CFG_MATRIX_MAPPINGS),
+			matrixMappings = XmlConverter.xmlToObject(settings.getString(CFG_MATRIX_MAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			agent = XmlConverter.xmlToObject(settings.getString(CFG_AGENT),
-					null);
+			agent = XmlConverter.xmlToObject(settings.getString(CFG_AGENT), null);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			matrix = XmlConverter.xmlToObject(settings.getString(CFG_MATRIX),
-					null);
+			matrix = XmlConverter.xmlToObject(settings.getString(CFG_MATRIX), null);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			literature = XmlConverter.xmlToObject(
-					settings.getString(CFG_LITERATURE),
-					new ArrayList<LiteratureItem>());
+			literature = XmlConverter.xmlToObject(settings.getString(CFG_LITERATURE), new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
 		}
 	}
@@ -374,11 +386,13 @@ public class SettingsHelper {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_FILE_NAME, fileName);
 		settings.addString(CFG_SHEET_NAME, sheetName);
+		settings.addBoolean(CFG_PRESERVE_IDS, preserveIds);
+		settings.addString(CFG_USED_IDS, XmlConverter.objectToXml(usedIds));
+		settings.addString(CFG_SEC_USED_IDS, XmlConverter.objectToXml(secUsedIds));
+		settings.addString(CFG_GLOBAL_USED_IDS, XmlConverter.objectToXml(globalUsedIds));
 		settings.addString(CFG_MODEL_TUPLE, XmlConverter.tupleToXml(modelTuple));
-		settings.addString(CFG_SEC_MODEL_TUPLES,
-				XmlConverter.tupleMapToXml(secModelTuples));
-		settings.addString(CFG_MODEL_MAPPINGS,
-				XmlConverter.objectToXml(modelMappings));
+		settings.addString(CFG_SEC_MODEL_TUPLES, XmlConverter.tupleMapToXml(secModelTuples));
+		settings.addString(CFG_MODEL_MAPPINGS, XmlConverter.objectToXml(modelMappings));
 		settings.addString(CFG_MODEL_DEP_MIN, modelDepMin);
 		settings.addString(CFG_MODEL_DEP_MAX, modelDepMax);
 		settings.addString(CFG_MODEL_DEP_UNIT, modelDepUnit);
@@ -389,36 +403,22 @@ public class SettingsHelper {
 		settings.addString(CFG_MODEL_R2, modelR2);
 		settings.addString(CFG_MODEL_AIC, modelAic);
 		settings.addString(CFG_MODEL_DATA_POINTS, modelDataPoints);
-		settings.addString(CFG_MODEL_PARAM_ERRORS,
-				XmlConverter.objectToXml(modelParamErrors));
-		settings.addString(CFG_SEC_MODEL_MAPPINGS,
-				XmlConverter.objectToXml(secModelMappings));
-		settings.addString(CFG_SEC_MODEL_PARAM_ERRORS,
-				XmlConverter.objectToXml(secModelParamErrors));
-		settings.addString(CFG_SEC_MODEL_INDEP_MINS,
-				XmlConverter.objectToXml(secModelIndepMins));
-		settings.addString(CFG_SEC_MODEL_INDEP_MAXS,
-				XmlConverter.objectToXml(secModelIndepMaxs));
-		settings.addString(CFG_SEC_MODEL_INDEP_CATEGORIES,
-				XmlConverter.objectToXml(secModelIndepCategories));
-		settings.addString(CFG_SEC_MODEL_INDEP_UNITS,
-				XmlConverter.objectToXml(secModelIndepUnits));
-		settings.addString(CFG_SEC_MODEL_RMSE,
-				XmlConverter.objectToXml(secModelRmse));
-		settings.addString(CFG_SEC_MODEL_R2,
-				XmlConverter.objectToXml(secModelR2));
-		settings.addString(CFG_SEC_MODEL_AIC,
-				XmlConverter.objectToXml(secModelAic));
-		settings.addString(CFG_SEC_MODEL_DATA_POINTS,
-				XmlConverter.objectToXml(secModelDataPoints));
-		settings.addString(CFG_COLUMN_MAPPINGS,
-				XmlConverter.objectToXml(columnMappings));
+		settings.addString(CFG_MODEL_PARAM_ERRORS, XmlConverter.objectToXml(modelParamErrors));
+		settings.addString(CFG_SEC_MODEL_MAPPINGS, XmlConverter.objectToXml(secModelMappings));
+		settings.addString(CFG_SEC_MODEL_PARAM_ERRORS, XmlConverter.objectToXml(secModelParamErrors));
+		settings.addString(CFG_SEC_MODEL_INDEP_MINS, XmlConverter.objectToXml(secModelIndepMins));
+		settings.addString(CFG_SEC_MODEL_INDEP_MAXS, XmlConverter.objectToXml(secModelIndepMaxs));
+		settings.addString(CFG_SEC_MODEL_INDEP_CATEGORIES, XmlConverter.objectToXml(secModelIndepCategories));
+		settings.addString(CFG_SEC_MODEL_INDEP_UNITS, XmlConverter.objectToXml(secModelIndepUnits));
+		settings.addString(CFG_SEC_MODEL_RMSE, XmlConverter.objectToXml(secModelRmse));
+		settings.addString(CFG_SEC_MODEL_R2, XmlConverter.objectToXml(secModelR2));
+		settings.addString(CFG_SEC_MODEL_AIC, XmlConverter.objectToXml(secModelAic));
+		settings.addString(CFG_SEC_MODEL_DATA_POINTS, XmlConverter.objectToXml(secModelDataPoints));
+		settings.addString(CFG_COLUMN_MAPPINGS, XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFG_AGENT_COLUMN, agentColumn);
-		settings.addString(CFG_AGENT_MAPPINGS,
-				XmlConverter.objectToXml(agentMappings));
+		settings.addString(CFG_AGENT_MAPPINGS, XmlConverter.objectToXml(agentMappings));
 		settings.addString(CFG_MATRIX_COLUMN, matrixColumn);
-		settings.addString(CFG_MATRIX_MAPPINGS,
-				XmlConverter.objectToXml(matrixMappings));
+		settings.addString(CFG_MATRIX_MAPPINGS, XmlConverter.objectToXml(matrixMappings));
 		settings.addString(CFG_AGENT, XmlConverter.objectToXml(agent));
 		settings.addString(CFG_MATRIX, XmlConverter.objectToXml(matrix));
 		settings.addString(CFG_LITERATURE, XmlConverter.objectToXml(literature));
@@ -438,6 +438,38 @@ public class SettingsHelper {
 
 	public void setSheetName(String sheetName) {
 		this.sheetName = sheetName;
+	}
+
+	public boolean isPreserveIds() {
+		return preserveIds;
+	}
+
+	public void setPreserveIds(boolean preserveIds) {
+		this.preserveIds = preserveIds;
+	}
+
+	public List<Integer> getUsedIds() {
+		return usedIds;
+	}
+
+	public void setUsedIds(List<Integer> usedIds) {
+		this.usedIds = usedIds;
+	}
+
+	public Map<String, List<Integer>> getSecUsedIds() {
+		return secUsedIds;
+	}
+
+	public void setSecUsedIds(Map<String, List<Integer>> secUsedIds) {
+		this.secUsedIds = secUsedIds;
+	}
+
+	public List<Integer> getGlobalUsedIds() {
+		return globalUsedIds;
+	}
+
+	public void setGlobalUsedIds(List<Integer> globalUsedIds) {
+		this.globalUsedIds = globalUsedIds;
 	}
 
 	public Map<String, String> getModelMappings() {
@@ -540,8 +572,7 @@ public class SettingsHelper {
 		return secModelMappings;
 	}
 
-	public void setSecModelMappings(
-			Map<String, Map<String, String>> secModelMappings) {
+	public void setSecModelMappings(Map<String, Map<String, String>> secModelMappings) {
 		this.secModelMappings = secModelMappings;
 	}
 
@@ -549,8 +580,7 @@ public class SettingsHelper {
 		return secModelParamErrors;
 	}
 
-	public void setSecModelParamErrors(
-			Map<String, Map<String, String>> secModelParamErrors) {
+	public void setSecModelParamErrors(Map<String, Map<String, String>> secModelParamErrors) {
 		this.secModelParamErrors = secModelParamErrors;
 	}
 
@@ -558,8 +588,7 @@ public class SettingsHelper {
 		return secModelIndepMins;
 	}
 
-	public void setSecModelIndepMins(
-			Map<String, Map<String, String>> secModelIndepMins) {
+	public void setSecModelIndepMins(Map<String, Map<String, String>> secModelIndepMins) {
 		this.secModelIndepMins = secModelIndepMins;
 	}
 
@@ -567,8 +596,7 @@ public class SettingsHelper {
 		return secModelIndepMaxs;
 	}
 
-	public void setSecModelIndepMaxs(
-			Map<String, Map<String, String>> secModelIndepMaxs) {
+	public void setSecModelIndepMaxs(Map<String, Map<String, String>> secModelIndepMaxs) {
 		this.secModelIndepMaxs = secModelIndepMaxs;
 	}
 
@@ -576,8 +604,7 @@ public class SettingsHelper {
 		return secModelIndepCategories;
 	}
 
-	public void setSecModelIndepCategories(
-			Map<String, Map<String, String>> secModelIndepCategories) {
+	public void setSecModelIndepCategories(Map<String, Map<String, String>> secModelIndepCategories) {
 		this.secModelIndepCategories = secModelIndepCategories;
 	}
 
@@ -585,8 +612,7 @@ public class SettingsHelper {
 		return secModelIndepUnits;
 	}
 
-	public void setSecModelIndepUnits(
-			Map<String, Map<String, String>> secModelIndepUnits) {
+	public void setSecModelIndepUnits(Map<String, Map<String, String>> secModelIndepUnits) {
 		this.secModelIndepUnits = secModelIndepUnits;
 	}
 

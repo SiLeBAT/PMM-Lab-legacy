@@ -439,7 +439,7 @@ class PrimaryModelWDataReader implements Reader {
 		// Gets data id
 		ResultComponent rc = numlDoc.getResultComponents().get(0);
 		Node rcAnnot = rc.getAnnotation();
-		NodeList dataIdNodes = (NodeList) rcAnnot.get("dataId");
+		NodeList dataIdNodes = (NodeList) rcAnnot.get("combaseId");
 		Node dataIdNode = (Node) dataIdNodes.get(0);
 		String combaseId = dataIdNode.text();
 
@@ -926,7 +926,7 @@ class TwoStepSecondaryModelReader implements Reader {
 				ResultComponent rc = pmwd.getNuMLDoc().getResultComponents()
 						.get(0);
 				Node rcAnnot = rc.getAnnotation();
-				NodeList dataIdNodes = (NodeList) rcAnnot.get("dataId");
+				NodeList dataIdNodes = (NodeList) rcAnnot.get("combaseId");
 				Node dataIdNode = (Node) dataIdNodes.get(0);
 				combaseId = dataIdNode.text();
 
@@ -1826,7 +1826,7 @@ class TwoStepTertiaryModelReader implements Reader {
 			// Gets data id
 			ResultComponent rc = numlDoc.getResultComponents().get(0);
 			Node rcAnnot = rc.getAnnotation();
-			NodeList dataIdNodes = (NodeList) rcAnnot.get("dataId");
+			NodeList dataIdNodes = (NodeList) rcAnnot.get("combaseId");
 			Node dataIdNode = (Node) dataIdNodes.get(0);
 			String combaseId = dataIdNode.text();
 
@@ -2208,7 +2208,7 @@ class OneStepTertiaryModelReader implements Reader {
 			// Gets dataId
 			ResultComponent rc = dataDoc.getResultComponents().get(0);
 			Node rcAnnot = rc.getAnnotation();
-			NodeList dataIdNodes = (NodeList) rcAnnot.get("dataId");
+			NodeList dataIdNodes = (NodeList) rcAnnot.get("combaseId");
 			Node dataIdNode = (Node) dataIdNodes.get(0);
 			String combaseId = dataIdNode.text();
 

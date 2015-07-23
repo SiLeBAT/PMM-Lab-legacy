@@ -174,7 +174,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements ActionLi
 		fileSheetList = new ArrayList<>();
 		fileColumnList = new ArrayList<>();
 
-		preserveIdsBox = new JCheckBox("Preserve Data IDs");
+		preserveIdsBox = new JCheckBox("Preserve Model IDs");
 
 		addLiteratureButton = new JButton("Add");
 		addLiteratureButton.addActionListener(this);

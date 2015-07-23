@@ -81,15 +81,13 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		XLSReader xlsReader = new XLSReader();
 		List<KnimeTuple> tuples = new ArrayList<>(xlsReader
-				.getTimeSeriesTuples(KnimeUtils.getFile(set.getFileName()),
-						set.getSheetName(), set.getColumnMappings(),
-						set.getTimeUnit(), set.getConcentrationUnit(),
-						set.getAgentColumn(), set.getAgentMappings(),
-						set.getMatrixColumn(), set.getMatrixMappings())
+				.getTimeSeriesTuples(KnimeUtils.getFile(set.getFileName()), set.getSheetName(), set.getColumnMappings(),
+						set.getTimeUnit(), set.getConcentrationUnit(), set.getAgentColumn(), set.getAgentMappings(),
+						set.getMatrixColumn(), set.getMatrixMappings(), set.isPreserveIds(), set.getUsedIds())
 				.values());
 
 		for (String warning : xlsReader.getWarnings()) {
@@ -98,27 +96,22 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 		if (set.getAgentColumn() == null && set.getAgent() != null) {
 			for (KnimeTuple tuple : tuples) {
-				PmmXmlDoc agentXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+				PmmXmlDoc agentXml = tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT);
 
 				((AgentXml) agentXml.get(0)).setId(set.getAgent().getId());
 				((AgentXml) agentXml.get(0)).setName(set.getAgent().getName());
-				((AgentXml) agentXml.get(0)).setDbuuid(set.getAgent()
-						.getDbuuid());
+				((AgentXml) agentXml.get(0)).setDbuuid(set.getAgent().getDbuuid());
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 			}
 		}
 
 		if (set.getMatrixColumn() == null && set.getMatrix() != null) {
 			for (KnimeTuple tuple : tuples) {
-				PmmXmlDoc matrixXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+				PmmXmlDoc matrixXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
 
 				((MatrixXml) matrixXml.get(0)).setId(set.getMatrix().getId());
-				((MatrixXml) matrixXml.get(0)).setName(set.getMatrix()
-						.getName());
-				((MatrixXml) matrixXml.get(0)).setDbuuid(set.getMatrix()
-						.getDbuuid());
+				((MatrixXml) matrixXml.get(0)).setName(set.getMatrix().getName());
+				((MatrixXml) matrixXml.get(0)).setDbuuid(set.getMatrix().getDbuuid());
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 			}
 		}
@@ -133,9 +126,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);
 		}
 
-		BufferedDataContainer container = exec
-				.createDataContainer(SchemaFactory.createDataSchema()
-						.createSpec());
+		BufferedDataContainer container = exec.createDataContainer(SchemaFactory.createDataSchema().createSpec());
 
 		for (KnimeTuple tuple : tuples) {
 			container.addRowToTable(tuple);
@@ -157,14 +148,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		if (set.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
 
-		return new DataTableSpec[] { SchemaFactory.createDataSchema()
-				.createSpec() };
+		return new DataTableSpec[] { SchemaFactory.createDataSchema().createSpec() };
 	}
 
 	/**
@@ -179,8 +168,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -188,26 +176,23 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 }

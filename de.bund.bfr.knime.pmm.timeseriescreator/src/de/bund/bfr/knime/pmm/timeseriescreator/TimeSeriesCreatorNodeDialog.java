@@ -737,7 +737,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							fileChooser.getSelectedFile(), (String) sheet,
 							dialog.getMappings(), dialog.getTimeUnit(),
 							dialog.getConcentrationUnit(), null, null, null,
-							null);
+							null, false, new ArrayList<Integer>());
 
 					if (!xlsReader.getWarnings().isEmpty()) {
 						JOptionPane.showMessageDialog(panel, xlsReader

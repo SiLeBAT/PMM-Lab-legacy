@@ -79,7 +79,8 @@ public class XLSReader {
 
 	public Map<String, KnimeTuple> getTimeSeriesTuples(File file, String sheet, Map<String, Object> columnMappings,
 			String timeUnit, String concentrationUnit, String agentColumnName, Map<String, AgentXml> agentMappings,
-			String matrixColumnName, Map<String, MatrixXml> matrixMappings) throws Exception {
+			String matrixColumnName, Map<String, MatrixXml> matrixMappings, boolean preserveIds, List<Integer> usedIds)
+					throws Exception {
 		Workbook wb = getWorkbook(file);
 		Sheet s = wb.getSheet(sheet);
 
@@ -148,13 +149,14 @@ public class XLSReader {
 
 		KnimeTuple tuple = null;
 		PmmXmlDoc timeSeriesXml = null;
-		String id = null;
+		List<Integer> newIds = new ArrayList<>();
+		String idString = null;
 
 		for (int i = 1;; i++) {
 			if (isEndOfFile(s, i)) {
 				if (tuple != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
-					tuples.put(id, tuple);
+					tuples.put(idString, tuple);
 				}
 
 				break;
@@ -212,16 +214,25 @@ public class XLSReader {
 				matrixCell = row.getCell(matrixColumn);
 			}
 
-			if (hasData(idCell) && !getData(idCell).equals(id)) {
+			if (hasData(idCell) && !getData(idCell).equals(idString)) {
 				if (tuple != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
-					tuples.put(id, tuple);
+					tuples.put(idString, tuple);
 				}
 
-				id = getData(idCell);
+				int id;
+
+				if (preserveIds && !usedIds.isEmpty()) {
+					id = usedIds.remove(0);
+				} else {
+					id = MathUtilities.getRandomNegativeInt();
+				}
+
+				newIds.add(id);
+				idString = getData(idCell);
 				tuple = new KnimeTuple(SchemaFactory.createDataSchema());
-				tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, id);
-				tuple.setValue(TimeSeriesSchema.ATT_CONDID, MathUtilities.getRandomNegativeInt());
+				tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, idString);
+				tuple.setValue(TimeSeriesSchema.ATT_CONDID, id);
 				timeSeriesXml = new PmmXmlDoc();
 
 				PmmXmlDoc dataInfo = new PmmXmlDoc();
@@ -359,6 +370,9 @@ public class XLSReader {
 				timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit, logc, concentrationUnit, stdDev, nMeasure));
 			}
 		}
+		
+		usedIds.clear();
+		usedIds.addAll(newIds);
 
 		return tuples;
 	}

@@ -49,21 +49,25 @@ import de.bund.bfr.knime.pmm.common.XmlConverter;
 
 public class SettingsHelper {
 
-	protected static final String CFGKEY_FILENAME = "FileName";
-	protected static final String CFGKEY_SHEETNAME = "SheetName";
-	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
-	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
-	protected static final String CFGKEY_CONCENTRATIONUNIT = "ConcentrationUnit";
-	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
-	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
-	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
-	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
-	protected static final String CFGKEY_AGENT = "Agent";
-	protected static final String CFGKEY_MATRIX = "Matrix";
-	protected static final String CFGKEY_LITERATURE = "Literature";
+	private static final String CFGKEY_FILENAME = "FileName";
+	private static final String CFGKEY_SHEETNAME = "SheetName";
+	private static final String CFG_PRESERVE_IDS = "PreserveIds";
+	private static final String CFG_USED_IDS = "UsedIds";
+	private static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
+	private static final String CFGKEY_TIMEUNIT = "TimeUnit";
+	private static final String CFGKEY_CONCENTRATIONUNIT = "ConcentrationUnit";
+	private static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
+	private static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
+	private static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
+	private static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
+	private static final String CFGKEY_AGENT = "Agent";
+	private static final String CFGKEY_MATRIX = "Matrix";
+	private static final String CFGKEY_LITERATURE = "Literature";
 
 	private String fileName;
 	private String sheetName;
+	private boolean preserveIds;
+	private List<Integer> usedIds;
 	private Map<String, Object> columnMappings;
 	private String timeUnit;
 	private String concentrationUnit;
@@ -78,6 +82,8 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		fileName = null;
 		sheetName = null;
+		preserveIds = false;
+		usedIds = new ArrayList<>();
 		columnMappings = new LinkedHashMap<>();
 		timeUnit = null;
 		concentrationUnit = null;
@@ -102,8 +108,17 @@ public class SettingsHelper {
 		}
 
 		try {
-			columnMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_COLUMNMAPPINGS),
+			preserveIds = settings.getBoolean(CFG_PRESERVE_IDS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			usedIds = XmlConverter.xmlToObject(settings.getString(CFG_USED_IDS), new ArrayList<Integer>());
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			columnMappings = XmlConverter.xmlToObject(settings.getString(CFGKEY_COLUMNMAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -124,8 +139,7 @@ public class SettingsHelper {
 		}
 
 		try {
-			agentMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_AGENTMAPPINGS),
+			agentMappings = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENTMAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -136,27 +150,23 @@ public class SettingsHelper {
 		}
 
 		try {
-			matrixMappings = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_MATRIXMAPPINGS),
+			matrixMappings = XmlConverter.xmlToObject(settings.getString(CFGKEY_MATRIXMAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			agent = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENT),
-					null);
+			agent = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENT), null);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			matrix = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_MATRIX), null);
+			matrix = XmlConverter.xmlToObject(settings.getString(CFGKEY_MATRIX), null);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			literature = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_LITERATURE),
+			literature = XmlConverter.xmlToObject(settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
 		}
@@ -165,20 +175,18 @@ public class SettingsHelper {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
 		settings.addString(CFGKEY_SHEETNAME, sheetName);
-		settings.addString(CFGKEY_COLUMNMAPPINGS,
-				XmlConverter.objectToXml(columnMappings));
+		settings.addBoolean(CFG_PRESERVE_IDS, preserveIds);
+		settings.addString(CFG_USED_IDS, XmlConverter.objectToXml(usedIds));
+		settings.addString(CFGKEY_COLUMNMAPPINGS, XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_CONCENTRATIONUNIT, concentrationUnit);
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
-		settings.addString(CFGKEY_AGENTMAPPINGS,
-				XmlConverter.objectToXml(agentMappings));
+		settings.addString(CFGKEY_AGENTMAPPINGS, XmlConverter.objectToXml(agentMappings));
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
-		settings.addString(CFGKEY_MATRIXMAPPINGS,
-				XmlConverter.objectToXml(matrixMappings));
+		settings.addString(CFGKEY_MATRIXMAPPINGS, XmlConverter.objectToXml(matrixMappings));
 		settings.addString(CFGKEY_AGENT, XmlConverter.objectToXml(agent));
 		settings.addString(CFGKEY_MATRIX, XmlConverter.objectToXml(matrix));
-		settings.addString(CFGKEY_LITERATURE,
-				XmlConverter.objectToXml(literature));
+		settings.addString(CFGKEY_LITERATURE, XmlConverter.objectToXml(literature));
 	}
 
 	public String getFileName() {
@@ -195,6 +203,22 @@ public class SettingsHelper {
 
 	public void setSheetName(String sheetName) {
 		this.sheetName = sheetName;
+	}
+
+	public boolean isPreserveIds() {
+		return preserveIds;
+	}
+
+	public void setPreserveIds(boolean preserveIds) {
+		this.preserveIds = preserveIds;
+	}
+
+	public List<Integer> getUsedIds() {
+		return usedIds;
+	}
+
+	public void setUsedIds(List<Integer> usedIds) {
+		this.usedIds = usedIds;
 	}
 
 	public Map<String, Object> getColumnMappings() {

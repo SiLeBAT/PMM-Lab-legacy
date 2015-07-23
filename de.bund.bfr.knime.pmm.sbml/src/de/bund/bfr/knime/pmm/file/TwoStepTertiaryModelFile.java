@@ -21,9 +21,10 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
-import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
+import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWData;
 import de.bund.bfr.knime.pmm.model.TwoStepTertiaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
@@ -40,10 +41,6 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  * @author Miguel Alba
  */
 public class TwoStepTertiaryModelFile {
-
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-	final static String NuML_URI_STR = "http://numl.googlecode/svn/trunk/NUMLSchema.xsd";
 
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
@@ -62,8 +59,8 @@ public class TwoStepTertiaryModelFile {
 		NuMLReader numlReader = new NuMLReader();
 
 		// Creates URIs
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
@@ -119,7 +116,7 @@ public class TwoStepTertiaryModelFile {
 			Model md = secModels.get(0).getModel();
 
 			XMLNode metadata = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
-			for (XMLNode pmNode : metadata.getChildElements("primarymodel", "")) {
+			for (XMLNode pmNode : metadata.getChildElements(PrimaryModelNode.TAG, "")) {
 				// Gets model name from annotation
 				String mdName = pmNode.getChild(0).getCharacters();
 				// Gets primary model
@@ -167,8 +164,8 @@ public class TwoStepTertiaryModelFile {
 		NuMLWriter numlWriter = new NuMLWriter();
 
 		// Creates SBML URI
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Add models and data
 		short modelCounter = 0;
@@ -223,10 +220,7 @@ public class TwoStepTertiaryModelFile {
 				// Adds annotations for the primary models
 				XMLNode metadataNode = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 				for (String name : pmNames) {
-					XMLTriple triple = new XMLTriple("primarymodel", "", "pmf");
-					XMLNode node = new XMLNode(triple);
-					node.addChild(new XMLNode(name));
-					metadataNode.addChild(node);
+					metadataNode.addChild(new PrimaryModelNode(name).getNode());
 				}
 
 				// Writes model to secTmp and adds it to the file

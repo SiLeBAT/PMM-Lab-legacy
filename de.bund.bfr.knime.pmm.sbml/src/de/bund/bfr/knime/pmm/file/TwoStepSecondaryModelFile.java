@@ -18,6 +18,9 @@ import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
+import de.bund.bfr.knime.pmm.file.uri.NuMLURI;
+import de.bund.bfr.knime.pmm.file.uri.SBMLURI;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWData;
 import de.bund.bfr.knime.pmm.model.TwoStepSecondaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
@@ -35,10 +38,6 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  * @author Miguel Alba
  */
 public class TwoStepSecondaryModelFile {
-
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-	final static String NuML_URI_STR = "http://numl.googlecode/svn/trunk/NUMLSchema.xsd";
 
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
@@ -60,8 +59,8 @@ public class TwoStepSecondaryModelFile {
 		NuMLReader numlReader = new NuMLReader();
 
 		// Creates URIs
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = new SBMLURI().createURI();
+		URI numlURI = new NuMLURI().createURI();
 
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
@@ -98,7 +97,7 @@ public class TwoStepSecondaryModelFile {
 			XMLNode metadata = annot.getChildElement("metadata", "");
 			List<PrimaryModelWData> pmwds = new LinkedList<>();
 
-			List<XMLNode> refs = metadata.getChildElements("primaryModel", "");
+			List<XMLNode> refs = metadata.getChildElements(PrimaryModelNode.TAG, "");
 			for (XMLNode ref : refs) {
 				String primName = ref.getChild(0).getCharacters();
 				SBMLDocument primDoc = primModels.get(primName);
@@ -151,8 +150,8 @@ public class TwoStepSecondaryModelFile {
 		NuMLWriter numlWriter = new NuMLWriter();
 
 		// Creates SBML URI
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = new SBMLURI().createURI();
+		URI numlURI = new NuMLURI().createURI();
 
 		// Add models and data
 		short modelCounter = 0;

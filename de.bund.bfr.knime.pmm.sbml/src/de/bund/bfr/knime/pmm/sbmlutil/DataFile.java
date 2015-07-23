@@ -1,6 +1,7 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
 import groovy.util.Node;
+import groovy.util.NodeList;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,8 +14,11 @@ import java.util.Map;
 
 import org.sbml.jsbml.SBMLDocument;
 
+import de.bund.bfr.knime.pmm.annotation.CondIDNode;
 import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNode;
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.numl.AtomicDescription;
@@ -84,18 +88,20 @@ public class DataFile {
 		Node resultNode = new Node(null, "annotation", pmfNS);
 		result.setAnnotation(resultNode);
 
-		// Adds CondId node
-		resultNode.appendNode("pmf:condId", condId);
-		// Adds CombaseId node
-		if (combaseId != null) {
-			resultNode.appendNode("pmf:combaseId", combaseId);
-		}
-
 		// Adds PMF annotation
 		Map<String, String> dcNS = new HashMap<>(); // dc and dcterms namespaces
 		dcNS.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
 		dcNS.put("xmlns:dcterms", "http://purl.org/dc/terms/");
+		dcNS.put("xmlns:pmmlab",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		Node pmfNode = new Node(resultNode, "pmf:metadata", dcNS);
+
+		// Adds CondId node
+		pmfNode.appendNode("pmmlab:condID", condId);
+		// Adds CombaseId node
+		if (combaseId != null) {
+			pmfNode.appendNode("pmmlab:combaseId", combaseId);
+		}
 
 		String givenName = dlgInfo.get("GivenName");
 		String familyName = dlgInfo.get("FamilyName");
@@ -137,6 +143,134 @@ public class DataFile {
 
 	public NuMLDocument getDocument() {
 		return doc;
+	}
+
+	public int getCondID() {
+		// Gets result component metadata
+		ResultComponent rc = doc.getResultComponents().get(0);
+		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation()
+				.get("metadata");
+		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+
+		// Gets CondID
+		NodeList condIDNodes = (NodeList) rcMetadataNode.get(CondIDNode.TAG);
+		Node condIdNode = (Node) condIDNodes.get(0);
+		int condID = Integer.parseInt(condIdNode.text());
+
+		return condID;
+	}
+
+	public String getCombaseID() {
+		// Gets result component metadata
+		ResultComponent rc = doc.getResultComponents().get(0);
+		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation()
+				.get("metadata");
+		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+
+		// Gets CombaseID
+		NodeList combaseIDNodes = (NodeList) rcMetadataNode.get("combaseId");
+		if (combaseIDNodes.size() == 1) {
+			return ((Node) combaseIDNodes.get(0)).text();
+		} else {
+			return "?";
+		}
+	}
+	
+	public String getConcUnit() {
+		OntologyTerm ot = doc.getOntologyTerms().get(1);
+		Node metadata = (Node) ot.getAnnotation().children().get(0);
+		Node unitDef = (Node) metadata.children().get(0);
+		return (String) unitDef.attribute("name");
+	}
+	
+	public String getTimeUnit() {
+		OntologyTerm ot = doc.getOntologyTerms().get(0);
+		Node metadata = (Node) ot.getAnnotation().children().get(0);
+		Node unitDef = (Node) metadata.children().get(0);
+		return (String) unitDef.attribute("name");
+	}
+	
+	public MatrixXml getMatrix() {
+		OntologyTerm conc = doc.getOntologyTerms().get(1);
+		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		
+		// Gets matrix node
+		NodeList matrixNodes = (NodeList) concMetadata.get("compartment");
+		Node matrixNode = (Node) matrixNodes.get(0);
+		
+		// Creates matrix
+		MatrixXml matrixXml = new MatrixXml();
+		
+		// Gets and sets matrix name
+		matrixXml.setName((String) matrixNode.attribute("name"));
+		
+		// Gets and sets matrix detail
+		NodeList detailNodes = (NodeList) matrixNode.get("detail");
+		Node detailNode = (Node) detailNodes.get(0);
+		matrixXml.setDetail(detailNode.text());
+		
+		return matrixXml;
+	}
+	
+	public AgentXml getAgent() {
+		OntologyTerm conc = doc.getOntologyTerms().get(1);
+		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		
+		// Gets agent node
+		NodeList agentNodes = (NodeList) concMetadata.get("species");
+		Node agentNode = (Node) agentNodes.get(0);
+		
+		// Creates agent
+		AgentXml agentXml = new AgentXml();
+		
+		// Gets and sets agent name
+		agentXml.setName((String) agentNode.attribute("name"));
+		
+		// Gets and sets agent detail
+		NodeList detailNodes = (NodeList) agentNode.get("detail");
+		Node detailNode = (Node) detailNodes.get(0);
+		agentXml.setDetail(detailNode.text());
+		
+		return agentXml;
+	}
+	
+	public Map<String, Double> getMiscs() {
+		OntologyTerm conc = doc.getOntologyTerms().get(1);
+		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		
+		// Gets matrix node
+		NodeList matrixNodes = (NodeList) concMetadata.get("compartment");
+		Node matrixNode = (Node) matrixNodes.get(0);
+
+		Map<String, Double> miscs = new HashMap<>();
+		NodeList miscNodes = (NodeList) matrixNode.get("modelvariable");
+		for (int i = 0; i < miscNodes.size(); i++) {
+			Node miscNode = (Node) miscNodes.get(i);
+			Map<?, ?> attrs = miscNode.attributes();
+			String name = (String) attrs.get("name");
+			Double value = Double.parseDouble((String) attrs.get("value"));
+			miscs.put(name, value);
+		}
+		
+		return miscs;
+	}
+	
+	public List<LiteratureItem> getLits() {
+		ResultComponent rc = doc.getResultComponents().get(0);
+		
+		// Gets result component metadata
+		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
+		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+		
+		// Gets literature items
+		NodeList litNodes = (NodeList) rcMetadataNode.get("reference");
+		List<LiteratureItem> lits = new LinkedList<>();
+		for (int i = 0; i < litNodes.size(); i++) {
+			Node litNode = (Node) litNodes.get(i);
+			lits.add(new GroovyReferenceNode(litNode).toLiteratureItem());
+		}
+		
+		return lits;
 	}
 
 	public double[][] getData() {

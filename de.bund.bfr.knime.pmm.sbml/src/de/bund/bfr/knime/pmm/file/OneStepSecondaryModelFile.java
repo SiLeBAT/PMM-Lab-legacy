@@ -1,15 +1,20 @@
 package de.bund.bfr.knime.pmm.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
@@ -20,6 +25,7 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.OneStepSecondaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
@@ -27,6 +33,7 @@ import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -37,10 +44,6 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  */
 public class OneStepSecondaryModelFile {
 
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-	final static String NuML_URI_STR = "http://numl.googlecode/svn/trunk/NUMLSchema.xsd";
-
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
 	final static String NuML_EXTENSION = "numl";
@@ -48,8 +51,13 @@ public class OneStepSecondaryModelFile {
 
 	/**
 	 * TODO ...
+	 * @throws IOException 
+	 * @throws CombineArchiveException 
+	 * @throws ParseException 
+	 * @throws JDOMException 
+	 * @throws XMLStreamException 
 	 */
-	public static List<OneStepSecondaryModel> read(String filename) throws Exception {
+	public static List<OneStepSecondaryModel> read(String filename) throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
 
 		List<OneStepSecondaryModel> models = new LinkedList<>();
 
@@ -61,8 +69,8 @@ public class OneStepSecondaryModelFile {
 		NuMLReader numlReader = new NuMLReader();
 
 		// Creates URIs
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
@@ -122,8 +130,8 @@ public class OneStepSecondaryModelFile {
 		NuMLWriter numlWriter = new NuMLWriter();
 
 		// Creates SBML URI
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Add models and data
 		short modelCounter = 0;

@@ -17,6 +17,7 @@ import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWData;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
@@ -31,10 +32,6 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  * @author Miguel Alba
  */
 public class PrimaryModelWDataFile {
-
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-	final static String NuML_URI_STR = "http://numl.googlecode/svn/trunk/NUMLSchema.xsd";
 
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
@@ -56,8 +53,8 @@ public class PrimaryModelWDataFile {
 		SBMLReader sbmlReader = new SBMLReader();
 		NuMLReader numlReader = new NuMLReader();
 
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 		
 		// Get data entries
 		HashMap<String, ArchiveEntry> dataEntries = new HashMap<>();
@@ -129,8 +126,8 @@ public class PrimaryModelWDataFile {
 		NuMLWriter numlWriter = new NuMLWriter();
 
 		// Creates SBML and NuML URIs
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Add models and data
 		short modelCounter = 0;

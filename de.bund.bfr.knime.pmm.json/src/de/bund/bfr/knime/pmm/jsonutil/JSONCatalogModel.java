@@ -10,7 +10,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
 public class JSONCatalogModel {
 	JSONObject obj; // Json object
-	
+
 	// attribute keys
 	static final String ATT_ID = "id";
 	static final String ATT_NAME = "name";
@@ -43,7 +43,7 @@ public class JSONCatalogModel {
 		int id = ((Long) obj.get(ATT_ID)).intValue();
 		String name = (String) obj.get(ATT_NAME);
 		String formula = (String) obj.get(ATT_FORMULA);
-		Integer modelClass = (Integer) obj.get(ATT_MODEL_CLASS);
+		int modelClass = ((Long) obj.get(ATT_MODEL_CLASS)).intValue();
 		String comment = (String) obj.get(ATT_COMMENT);
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 

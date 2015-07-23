@@ -137,16 +137,17 @@ public class Agent {
 	public Node toGroovyNode() {
 		Map<String, String> attrs = species.writeXMLAttributes();
 		attrs.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-		attrs.put("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		attrs.put("xmlns:pmmlab", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+
 		Node node = new Node(null, "sbml:species", attrs);
 		if (casNumber != null) {
 			node.appendNode("dc:source", casNumber);
 		}
 		if (detail != null) {
-			node.appendNode("pmf:detail", detail);
+			node.appendNode("pmmlab:detail", detail);
 		}
 		if (description != null) {
-			node.appendNode("pmf:description", description);
+			node.appendNode("pmmlab:description", description);
 		}
 		return node;
 	}
@@ -154,15 +155,6 @@ public class Agent {
 
 /** Agent non RDF annotation. Holds an agent's CAS number */
 class AgentAnnotation {
-
-	static String METADATA_TAG = "metadata";
-	static String PMF_TAG = "pmf";
-	static String REF_TAG = "source"; // reference tag
-	static String REF_NS = "dc"; // reference namespace
-	static String DETAIL_TAG = "detail"; // description tag
-	static String DETAIL_NS = "pmf"; // description namespace
-	static String DESC_TAG = "description";
-	static String DESC_NS = "pmf";
 
 	XMLNode node;
 	String ref; // CAS number
@@ -180,24 +172,24 @@ class AgentAnnotation {
 		this.node = node; // copies XMLNode
 
 		// Parses annotation
-		XMLNode metadata = node.getChildElement(METADATA_TAG, "");
+		XMLNode metadata = node.getChildElement("metadata", "");
 		if (metadata != null) {
 
 			// Gets CAS number
-			XMLNode sourceNode = metadata.getChildElement(REF_TAG, "");
+			XMLNode sourceNode = metadata.getChildElement("source", "");
 			if (sourceNode != null) {
 				ref = sourceNode.getChild(0).getCharacters(); // whole reference
 				ref = ref.substring(ref.lastIndexOf("/") + 1);
 			}
 
 			// Gets description
-			XMLNode detailNode = metadata.getChildElement(DETAIL_TAG, "");
+			XMLNode detailNode = metadata.getChildElement("detail", "");
 			if (detailNode != null) {
 				detail = detailNode.getChild(0).getCharacters();
 			}
 			
 			// Gets dep description
-			XMLNode descNode = metadata.getChildElement(DESC_TAG, "");
+			XMLNode descNode = metadata.getChildElement("description", "");
 			if (descNode != null) {
 				description = descNode.getChild(0).getCharacters();
 			}
@@ -214,18 +206,18 @@ class AgentAnnotation {
 	 */
 	public AgentAnnotation(String code, String detail, String description) {
 		// Builds PMF container
-		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
+		node = new XMLNode(new XMLTriple("metadata", null, "pmf"));
 
 		// Builds reference tag
 		if (code != null) {
-			XMLNode refNode = new XMLNode(new XMLTriple(REF_TAG, null, REF_NS));
+			XMLNode refNode = new XMLNode(new XMLTriple("source", null, "dc"));
 			refNode.addChild(new XMLNode("http://identifiers.org/ncim/" + code));
 			node.addChild(refNode);
 		}
 
 		// Builds detail tag
 		if (detail != null) {
-			XMLTriple detailTriple = new XMLTriple(DETAIL_TAG, null, DETAIL_NS);
+			XMLTriple detailTriple = new XMLTriple("detail", null, "pmmlab");
 			XMLNode detailNode = new XMLNode(detailTriple);
 			detailNode.addChild(new XMLNode(detail));
 			node.addChild(detailNode);
@@ -233,7 +225,7 @@ class AgentAnnotation {
 		
 		// Builds dep description tag
 		if (description != null) {
-			XMLTriple descTriple = new XMLTriple(DESC_TAG, null, DESC_NS);
+			XMLTriple descTriple = new XMLTriple("description", null, "pmmlab");
 			XMLNode descNode = new XMLNode(descTriple);
 			descNode.addChild(new XMLNode(description));
 			node.addChild(descNode);

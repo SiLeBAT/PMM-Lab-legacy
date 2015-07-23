@@ -1,23 +1,32 @@
 package de.bund.bfr.knime.pmm.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 
+import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.ManualSecondaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -27,19 +36,20 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  */
 public class ManualSecondaryModelFile {
 
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
 	final static String PMF_EXTENSION = "pmf";
 
 	/**
 	 * Reads in a manually generated secondary model.
+	 * @throws IOException 
+	 * @throws CombineArchiveException 
+	 * @throws ParseException 
+	 * @throws JDOMException 
+	 * @throws XMLStreamException 
 	 */
-	public static List<ManualSecondaryModel> read(String filename)
-			throws Exception {
-
+	public static List<ManualSecondaryModel> read(String filename) throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
+			
 		List<ManualSecondaryModel> models = new LinkedList<>();
 
 		// Creates CombineArchive
@@ -47,7 +57,7 @@ public class ManualSecondaryModelFile {
 
 		// Creates SBMLReader
 		SBMLReader sbmlReader = new SBMLReader();
-		URI sbmlURI = new URI(SBML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
 
 		// Parse models in the PMF file
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
@@ -64,10 +74,16 @@ public class ManualSecondaryModelFile {
 
 	/**
 	 * Writes out a manually generated secondary model.
+	 * @throws IOException 
+	 * @throws XMLStreamException 
+	 * @throws SBMLException 
+	 * @throws CombineArchiveException 
+	 * @throws ParseException 
+	 * @throws JDOMException 
+	 * @throws TransformerException 
 	 */
 	public static void write(String dir, String filename,
-			List<ManualSecondaryModel> models, ExecutionContext exec)
-			throws Exception {
+			List<ManualSecondaryModel> models, ExecutionContext exec) throws SBMLException, XMLStreamException, IOException, JDOMException, ParseException, CombineArchiveException, TransformerException {
 
 		// Creates CombineArchive name
 		String caName = String.format("%s/%s.%s", dir, filename, PMF_EXTENSION);
@@ -87,7 +103,7 @@ public class ManualSecondaryModelFile {
 		sbmlWriter.setProgramVersion("1.0");
 
 		// Creates SBML URI
-		URI sbmlURI = new URI(SBML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
 
 		// Add models and data
 		short modelCounter = 0;

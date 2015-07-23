@@ -12,6 +12,7 @@ import java.util.Map;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import de.bund.bfr.knime.pmm.annotation.CondIDNode;
 import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
@@ -28,7 +29,6 @@ public class Model1Annotation {
 
 	static final String PMF_TAG = "pmf";
 	static final String MODEL_ID_TAG = "identifier";
-	static final String COND_ID_TAG = "condID";
 	static final String MODEL_QUALITY_TAG = "modelquality";
 	static final String REFERENCE_TAG = "reference";
 
@@ -51,12 +51,11 @@ public class Model1Annotation {
 		}
 
 		// Gets condID
-		XMLNode condIDNode = metadata.getChildElement(COND_ID_TAG, "");
+		XMLNode condIDNode = metadata.getChildElement(CondIDNode.TAG, "");
 		condID = Integer.parseInt(condIDNode.getChild(0).getCharacters());
 
 		// Gets model quality annotation
-		XMLNode modelQualityNode = metadata.getChildElement(MODEL_QUALITY_TAG,
-				"");
+		XMLNode modelQualityNode = metadata.getChildElement(UncertaintyNode.TAG, "");
 		if (modelQualityNode != null) {
 			uncertainties = new UncertaintyNode(modelQualityNode).getMeasures();
 		}
@@ -68,8 +67,7 @@ public class Model1Annotation {
 		}
 	}
 
-	public Model1Annotation(String modelID, String modelTitle,
-			Map<String, String> uncertainties,
+	public Model1Annotation(String modelID, String modelTitle, Map<String, String> uncertainties,
 			List<LiteratureItem> literatureItems, int condID) {
 
 		// Builds metadata node
@@ -92,10 +90,7 @@ public class Model1Annotation {
 		}
 
 		// Builds condID node
-		XMLTriple condIDTriple = new XMLTriple(COND_ID_TAG, null, PMF_TAG);
-		XMLNode condIDNode = new XMLNode(condIDTriple);
-		condIDNode.addChild(new XMLNode(new Integer(condID).toString()));
-		node.addChild(condIDNode);
+		node.addChild(new CondIDNode(condID).getNode());
 
 		// Saves fields
 		this.modelID = modelID;

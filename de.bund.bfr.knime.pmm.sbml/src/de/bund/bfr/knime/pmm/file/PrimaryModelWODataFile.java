@@ -14,6 +14,7 @@ import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 
+import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWOData;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
@@ -26,10 +27,6 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  * @author Miguel Alba
  */
 public class PrimaryModelWODataFile {
-
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-	final static String NuML_URI_STR = "http://numl.googlecode/svn/trunk/NUMLSchema.xsd";
 
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
@@ -49,7 +46,7 @@ public class PrimaryModelWODataFile {
 
 		// Creates SBMLReader
 		SBMLReader sbmlReader = new SBMLReader();
-		URI sbmlURI = new URI(SBML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
 
 		// Parse models in the PMF file
 		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(sbmlURI);
@@ -91,7 +88,7 @@ public class PrimaryModelWODataFile {
 		sbmlWriter.setProgramVersion("1.0");
 
 		// Creates SBML URI
-		URI sbmlURI = new URI(SBML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
 
 		// Add models and data
 		short modelCounter = 0;

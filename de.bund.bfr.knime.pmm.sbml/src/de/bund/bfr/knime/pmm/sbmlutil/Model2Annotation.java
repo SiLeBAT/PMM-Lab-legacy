@@ -11,6 +11,7 @@ import java.util.Map;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import de.bund.bfr.knime.pmm.annotation.GlobalModelIdNode;
 import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
@@ -26,9 +27,7 @@ public class Model2Annotation {
 	static final String METADATA_TAG = "metadata";
 
 	static final String PMF_TAG = "pmf";
-	static final String GLOBAL_MODEL_ID_TAG = "globalModelID";
 	static final String REFERENCE_TAG = "reference";
-	static final String MODEL_QUALITY_TAG = "modelquality";
 
 	XMLNode node;
 	List<LiteratureItem> literatureItems;
@@ -44,12 +43,12 @@ public class Model2Annotation {
 
 		// Gets globalModelID
 		XMLNode globalModelIDNode = metadata.getChildElement(
-				GLOBAL_MODEL_ID_TAG, "");
+				GlobalModelIdNode.TAG, "");
 		globalModelID = Integer.parseInt(globalModelIDNode.getChild(0)
 				.getCharacters());
 
 		// Gets model quality annotation
-		XMLNode qualityNode = metadata.getChildElement(MODEL_QUALITY_TAG, "");
+		XMLNode qualityNode = metadata.getChildElement(UncertaintyNode.TAG, "");
 		if (qualityNode != null) {
 			uncertainties = new UncertaintyNode(qualityNode).getMeasures();
 		}
@@ -69,12 +68,7 @@ public class Model2Annotation {
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
 		// Builds globalModelID node
-		XMLTriple globalModelIDTriple = new XMLTriple(GLOBAL_MODEL_ID_TAG, "",
-				PMF_TAG);
-		XMLNode globalModelIDNode = new XMLNode(globalModelIDTriple);
-		globalModelIDNode.addChild(new XMLNode(new Integer(globalModelID)
-				.toString()));
-		node.addChild(globalModelIDNode);
+		node.addChild(new GlobalModelIdNode(globalModelID).getNode());
 
 		// Builds uncertainties node
 		if (!uncertainties.isEmpty()) {

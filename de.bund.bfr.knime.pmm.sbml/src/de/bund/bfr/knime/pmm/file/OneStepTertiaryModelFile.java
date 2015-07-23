@@ -1,20 +1,27 @@
 package de.bund.bfr.knime.pmm.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
@@ -23,6 +30,7 @@ import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.OneStepTertiaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.numl.NuMLDocument;
@@ -30,6 +38,7 @@ import de.bund.bfr.numl.NuMLReader;
 import de.bund.bfr.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -39,17 +48,13 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  */
 public class OneStepTertiaryModelFile {
 
-	// URI strings
-	final static String SBML_URI_STR = "http://identifiers.org/combine/specifications/sbml";
-	final static String NuML_URI_STR = "http://numl.googlecode/svn/trunk/NUMLSchema.xsd";
-
 	// Extensions
 	final static String SBML_EXTENSION = "sbml";
 	final static String NuML_EXTENSION = "numl";
 	final static String PMF_EXTENSION = "pmf";
 
 	public static List<OneStepTertiaryModel> read(String filename)
-			throws Exception {
+			throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
 
 		List<OneStepTertiaryModel> models = new LinkedList<>();
 
@@ -61,14 +66,13 @@ public class OneStepTertiaryModelFile {
 		NuMLReader numlReader = new NuMLReader();
 
 		// Creates URIs
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
 		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			stream.close();
 			dataEntries.put(entry.getFileName(), doc);
@@ -79,8 +83,7 @@ public class OneStepTertiaryModelFile {
 		Map<String, SBMLDocument> secDocs = new HashMap<>();
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
@@ -97,11 +100,9 @@ public class OneStepTertiaryModelFile {
 		for (SBMLDocument tertDoc : tertDocs.values()) {
 			List<SBMLDocument> secModels = new LinkedList<>();
 
-			CompSBMLDocumentPlugin tertPlugin = (CompSBMLDocumentPlugin) tertDoc
-					.getPlugin(CompConstants.shortLabel);
+			CompSBMLDocumentPlugin tertPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
 			// Gets secondary model ids
-			ListOf<ExternalModelDefinition> emds = tertPlugin
-					.getListOfExternalModelDefinitions();
+			ListOf<ExternalModelDefinition> emds = tertPlugin.getListOfExternalModelDefinitions();
 			for (ExternalModelDefinition emd : emds) {
 				SBMLDocument secDoc = secDocs.get(emd.getSource());
 				secModels.add(secDoc);
@@ -114,8 +115,7 @@ public class OneStepTertiaryModelFile {
 				DataSourceNode dsn = new DataSourceNode(node);
 				numlDocs.add(dataEntries.get(dsn.getFile()));
 			}
-			OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDoc,
-					secModels, numlDocs);
+			OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDoc, secModels, numlDocs);
 			models.add(tstm);
 		}
 
@@ -123,10 +123,15 @@ public class OneStepTertiaryModelFile {
 	}
 
 	/**
+	 * @throws IOException 
+	 * @throws CombineArchiveException 
+	 * @throws ParseException 
+	 * @throws JDOMException 
+	 * @throws XMLStreamException 
+	 * @throws SBMLException 
+	 * @throws TransformerException 
 	 */
-	public static void write(String dir, String filename,
-			List<OneStepTertiaryModel> models, ExecutionContext exec)
-			throws Exception {
+	public static void write(String dir, String filename, List<OneStepTertiaryModel> models, ExecutionContext exec) throws IOException, JDOMException, ParseException, CombineArchiveException, SBMLException, XMLStreamException, TransformerException {
 
 		// Creates CombineArchive name
 		String caName = String.format("%s/%s.%s", dir, filename, PMF_EXTENSION);
@@ -149,8 +154,8 @@ public class OneStepTertiaryModelFile {
 		NuMLWriter numlWriter = new NuMLWriter();
 
 		// Creates SBML URI
-		URI sbmlURI = new URI(SBML_URI_STR);
-		URI numlURI = new URI(NuML_URI_STR);
+		URI sbmlURI = URIFactory.createSBMLURI();
+		URI numlURI = URIFactory.createNuMLURI();
 
 		// Add models and data
 		short modelCounter = 0;
@@ -164,8 +169,7 @@ public class OneStepTertiaryModelFile {
 				numlTmp.deleteOnExit();
 
 				// Creates data file name
-				String dataName = String.format("data_%d_%d.%s", modelCounter,
-						dataCounter, NuML_EXTENSION);
+				String dataName = String.format("data_%d_%d.%s", modelCounter, dataCounter, NuML_EXTENSION);
 				dataNames.add(dataName);
 
 				// Writes data to numlTmp and adds it to the file
@@ -180,12 +184,10 @@ public class OneStepTertiaryModelFile {
 			tertTmp.deleteOnExit();
 
 			// Creates name for the secondary model
-			String mdName = String.format("%s_%s.%s", filename, modelCounter,
-					SBML_EXTENSION);
+			String mdName = String.format("%s_%s.%s", filename, modelCounter, SBML_EXTENSION);
 
 			// Gets non RDF annotation of the tertiary model
-			XMLNode tertAnnot = model.getTertDoc().getModel().getAnnotation()
-					.getNonRDFannotation();
+			XMLNode tertAnnot = model.getTertDoc().getModel().getAnnotation().getNonRDFannotation();
 
 			// Adds DataSourceNodes to the tertiary model
 			for (String dataName : dataNames) {
@@ -208,12 +210,10 @@ public class OneStepTertiaryModelFile {
 				// Adds DataSourceNodes to the sec model
 				for (String dataName : dataNames) {
 					DataSourceNode dsn = new DataSourceNode(dataName);
-					md.getAnnotation().getNonRDFannotation()
-							.addChild(dsn.getNode());
+					md.getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
 				}
 
-				String secMdName = String.format("%s.%s", md.getId(),
-						SBML_EXTENSION);
+				String secMdName = String.format("%s.%s", md.getId(), SBML_EXTENSION);
 
 				// Writes model to secTmp and adds it to the file
 				sbmlWriter.write(secDoc, secTmp);

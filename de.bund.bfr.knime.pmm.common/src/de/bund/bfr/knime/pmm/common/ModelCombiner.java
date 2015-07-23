@@ -56,8 +56,8 @@ public class ModelCombiner {
 	private Map<KnimeTuple, List<KnimeTuple>> tupleCombinations;
 	private Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> parameterRenaming;
 
-	public ModelCombiner(List<KnimeTuple> tuples, boolean containsData,
-			Map<String, String> initParams, Map<String, String> lagParams) {
+	public ModelCombiner(List<KnimeTuple> tuples, boolean containsData, Map<String, String> initParams,
+			Map<String, String> lagParams) {
 		if (initParams == null) {
 			initParams = new LinkedHashMap<>();
 		}
@@ -76,23 +76,17 @@ public class ModelCombiner {
 			for (KnimeTuple tuple : usedTuples) {
 				rename.put(tuple, new LinkedHashMap<String, String>());
 
-				String modelID = ((CatalogModelXml) tuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getId()
-						+ "";
-				String depVarSec = ((DepXml) tuple.getPmmXml(
-						Model2Schema.ATT_DEPENDENT).get(0)).getName();
+				String modelID = ((CatalogModelXml) tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getId() + "";
+				String depVarSec = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
-				if (depVarSec.equals(initParams.get(modelID))
-						|| depVarSec.equals(lagParams.get(modelID))) {
+				if (depVarSec.equals(initParams.get(modelID)) || depVarSec.equals(lagParams.get(modelID))) {
 					continue;
 				}
 
-				String formulaSec = ((CatalogModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_MODELCATALOG).get(0)).getFormula();
-				PmmXmlDoc indepVarsSec = tuple
-						.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-				PmmXmlDoc paramsSec = tuple
-						.getPmmXml(Model2Schema.ATT_PARAMETER);
+				String formulaSec = ((CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0))
+						.getFormula();
+				PmmXmlDoc indepVarsSec = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+				PmmXmlDoc paramsSec = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
 
 				for (PmmXmlElementConvertable el : paramsSec.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -100,9 +94,7 @@ public class ModelCombiner {
 					String paramName = element.getName();
 					String newParamName = paramName;
 
-					while (CellIO.getNameList(
-							newTuple.getPmmXml(Model1Schema.ATT_PARAMETER))
-							.contains(newParamName)) {
+					while (CellIO.getNameList(newTuple.getPmmXml(Model1Schema.ATT_PARAMETER)).contains(newParamName)) {
 						index++;
 						newParamName = paramName + index;
 					}
@@ -110,40 +102,32 @@ public class ModelCombiner {
 					rename.get(tuple).put(paramName, newParamName);
 
 					if (index > 1) {
-						formulaSec = MathUtilities.replaceVariable(formulaSec,
-								paramName, newParamName);
+						formulaSec = MathUtilities.replaceVariable(formulaSec, paramName, newParamName);
 						element.setName(newParamName);
 					}
 
 					element.getAllCorrelations().clear();
 				}
 
-				String replacement = "("
-						+ formulaSec.replace(depVarSec + "=", "") + ")";
-				String formula = ((CatalogModelXml) newTuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-				PmmXmlDoc newParams = newTuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
-				PmmXmlDoc newIndepVars = newTuple
-						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+				String replacement = "(" + formulaSec.replace(depVarSec + "=", "") + ")";
+				String formula = ((CatalogModelXml) newTuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
+						.getFormula();
+				PmmXmlDoc newParams = newTuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+				PmmXmlDoc newIndepVars = newTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
-				newParams.getElementSet().remove(
-						CellIO.getNameList(newParams).indexOf(depVarSec));
+				newParams.getElementSet().remove(CellIO.getNameList(newParams).indexOf(depVarSec));
 				newParams.getElementSet().addAll(paramsSec.getElementSet());
 
 				for (PmmXmlElementConvertable el : indepVarsSec.getElementSet()) {
 					IndepXml element = (IndepXml) el;
 
-					if (!CellIO.getNameList(newIndepVars).contains(
-							element.getName())) {
+					if (!CellIO.getNameList(newIndepVars).contains(element.getName())) {
 						newIndepVars.getElementSet().add(element);
 					} else {
 						IndepXml original = null;
 
-						for (PmmXmlElementConvertable el2 : newIndepVars
-								.getElementSet()) {
-							if (((IndepXml) el2).getName().equals(
-									element.getName())) {
+						for (PmmXmlElementConvertable el2 : newIndepVars.getElementSet()) {
+							if (((IndepXml) el2).getName().equals(element.getName())) {
 								original = (IndepXml) el2;
 								break;
 							}
@@ -152,26 +136,16 @@ public class ModelCombiner {
 						Double min = element.getMin();
 						Double max = element.getMax();
 
-						if (original.getUnit() != null
-								&& !original.getUnit()
-										.equals(element.getUnit())) {
-							Category cat = Categories
-									.getCategoryByUnit(original.getUnit());
+						if (original.getUnit() != null && !original.getUnit().equals(element.getUnit())) {
+							Category cat = Categories.getCategoryByUnit(original.getUnit());
 
 							try {
-								String conversion = "("
-										+ cat.getConversionString(
-												element.getName(),
-												original.getUnit(),
-												element.getUnit()) + ")";
+								String conversion = "(" + cat.getConversionString(element.getName(), original.getUnit(),
+										element.getUnit()) + ")";
 
-								replacement = MathUtilities.replaceVariable(
-										replacement, element.getName(),
-										conversion);
-								min = cat.convert(min, element.getUnit(),
-										original.getUnit());
-								max = cat.convert(max, element.getUnit(),
-										original.getUnit());
+								replacement = MathUtilities.replaceVariable(replacement, element.getName(), conversion);
+								min = cat.convert(min, element.getUnit(), original.getUnit());
+								max = cat.convert(max, element.getUnit(), original.getUnit());
 							} catch (ConvertException e) {
 								e.printStackTrace();
 							}
@@ -195,53 +169,29 @@ public class ModelCombiner {
 					}
 				}
 
-				PmmXmlDoc modelXml = tuple
-						.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+				PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 
-				((CatalogModelXml) modelXml.get(0)).setFormula(MathUtilities
-						.replaceVariable(formula, depVarSec, replacement));
+				((CatalogModelXml) modelXml.get(0))
+						.setFormula(MathUtilities.replaceVariable(formula, depVarSec, replacement));
 
 				newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 				newTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVars);
 				newTuple.setValue(Model1Schema.ATT_PARAMETER, newParams);
 			}
 
-			int newID = ((CatalogModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
+			int newID = ((CatalogModelXml) newTuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			for (KnimeTuple tuple : usedTuples) {
-				newID += ((CatalogModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_MODELCATALOG).get(0)).getId();
+				newID += ((CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0)).getId();
 			}
 
 			newID = MathUtilities.generateID(newID);
 
-			Integer newEstID = ((EstModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getId();
-
-			for (KnimeTuple tuple : usedTuples) {
-				Integer estID = ((EstModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_ESTMODEL).get(0)).getId();
-
-				if (estID != null) {
-					newEstID += estID;
-				} else {
-					newEstID = null;
-					break;
-				}
-			}
-
-			if (newEstID != null) {
-				newEstID = MathUtilities.generateID(newEstID);
-			}
-
-			PmmXmlDoc modelXml = newTuple
-					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-			PmmXmlDoc estModelXml = newTuple
-					.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			PmmXmlDoc modelXml = newTuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			PmmXmlDoc estModelXml = newTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 			((CatalogModelXml) modelXml.get(0)).setId(newID);
-			((EstModelXml) estModelXml.get(0)).setId(newEstID);
+			((EstModelXml) estModelXml.get(0)).setId(usedTuples.get(0).getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
 			((EstModelXml) estModelXml.get(0)).setSse(null);
 			((EstModelXml) estModelXml.get(0)).setRms(null);
 			((EstModelXml) estModelXml.get(0)).setR2(null);
@@ -250,8 +200,7 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
 			newTuple.setValue(Model1Schema.ATT_DBUUID, null);
-			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
-					Model1Schema.NOTWRITABLE);
+			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.NOTWRITABLE);
 
 			parameterRenaming.put(newTuple, rename);
 		}
@@ -272,8 +221,7 @@ public class ModelCombiner {
 		return parameterRenaming;
 	}
 
-	private static Map<KnimeTuple, List<KnimeTuple>> getTuplesToCombine(
-			List<KnimeTuple> tuples, boolean containsData) {
+	private static Map<KnimeTuple, List<KnimeTuple>> getTuplesToCombine(List<KnimeTuple> tuples, boolean containsData) {
 		KnimeSchema outSchema = null;
 
 		if (containsData) {
@@ -290,8 +238,7 @@ public class ModelCombiner {
 			String id = null;
 
 			try {
-				id = String.valueOf(tuple
-						.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
+				id = String.valueOf(tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
 			} catch (Exception e) {
 				continue;
 			}
@@ -309,8 +256,7 @@ public class ModelCombiner {
 					newTuple.setCell(attr, tuple.getCell(attr));
 				}
 
-				PmmXmlDoc params = newTuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
+				PmmXmlDoc params = newTuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 				for (PmmXmlElementConvertable el : params.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -325,8 +271,7 @@ public class ModelCombiner {
 				replacements.put(id, new LinkedHashSet<String>());
 			}
 
-			String depVarSec = ((DepXml) tuple.getPmmXml(
-					Model2Schema.ATT_DEPENDENT).get(0)).getName();
+			String depVarSec = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 			if (replacements.get(id).add(depVarSec)) {
 				usedTupleLists.get(id).add(tuple);
@@ -342,8 +287,7 @@ public class ModelCombiner {
 		return toCombine;
 	}
 
-	private static void updateMetaData(List<KnimeTuple> tuples,
-			Map<KnimeTuple, List<KnimeTuple>> tupleCombinations) {
+	private static void updateMetaData(List<KnimeTuple> tuples, Map<KnimeTuple, List<KnimeTuple>> tupleCombinations) {
 		Map<Integer, Set<String>> organisms = new LinkedHashMap<>();
 		Map<Integer, Set<String>> matrices = new LinkedHashMap<>();
 		Map<Integer, Set<String>> organismDetails = new LinkedHashMap<>();
@@ -367,16 +311,11 @@ public class ModelCombiner {
 				comments.put(id, new LinkedHashSet<String>());
 			}
 
-			String organism = ((AgentXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_AGENT).get(0)).getName();
-			String matrix = ((MatrixXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
-			String organismDetail = ((AgentXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_AGENT).get(0)).getDetail();
-			String matrixDetail = ((MatrixXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail();
-			String comment = ((MdInfoXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_MDINFO).get(0)).getComment();
+			String organism = ((AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0)).getName();
+			String matrix = ((MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
+			String organismDetail = ((AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0)).getDetail();
+			String matrixDetail = ((MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail();
+			String comment = ((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0)).getComment();
 
 			if (organism != null) {
 				organisms.get(id).add(organism);
@@ -400,8 +339,7 @@ public class ModelCombiner {
 		}
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
-			int id = tupleCombinations.get(tuple).get(0)
-					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			int id = tupleCombinations.get(tuple).get(0).getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			String organism = "";
 			String matrix = "";
 			String organismDetail = "";
@@ -457,10 +395,8 @@ public class ModelCombiner {
 			matrixXml.setName(matrix);
 			matrixXml.setDetail(matrixDetail);
 
-			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(
-					organismXml));
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIX,
-					new PmmXmlDoc(matrixXml));
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(organismXml));
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
 			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(infoXml));
 		}
 	}
@@ -484,8 +420,7 @@ public class ModelCombiner {
 				Map<String, Double> sums = new LinkedHashMap<>();
 				Map<String, Integer> counts = new LinkedHashMap<>();
 
-				for (PmmXmlElementConvertable el : tuple.getPmmXml(
-						Model1Schema.ATT_PARAMETER).getElementSet()) {
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
 					ParamXml param = (ParamXml) el;
 
 					sums.put(param.getName(), 0.0);
@@ -500,13 +435,11 @@ public class ModelCombiner {
 			Map<String, Double> sums = paramSums.get(id);
 			Map<String, Integer> counts = paramCounts.get(id);
 
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					Model1Schema.ATT_PARAMETER).getElementSet()) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
 				ParamXml param = (ParamXml) el;
 
 				if (param.getValue() != null) {
-					sums.put(param.getName(),
-							sums.get(param.getName()) + param.getValue());
+					sums.put(param.getName(), sums.get(param.getName()) + param.getValue());
 					counts.put(param.getName(), counts.get(param.getName()) + 1);
 				}
 			}
@@ -517,22 +450,19 @@ public class ModelCombiner {
 				int count = paramCounts.get(id).get(param);
 
 				if (count != 0) {
-					paramValues.get(id).put(param,
-							paramSums.get(id).get(param) / count);
+					paramValues.get(id).put(param, paramSums.get(id).get(param) / count);
 				}
 			}
 		}
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
-			int id = tupleCombinations.get(tuple).get(0)
-					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			int id = tupleCombinations.get(tuple).get(0).getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml param = (ParamXml) el;
 
-				if (param.getValue() == null
-						&& paramValues.get(id).get(param.getName()) != null) {
+				if (param.getValue() == null && paramValues.get(id).get(param.getName()) != null) {
 					param.setValue(paramValues.get(id).get(param.getName()));
 					param.getAllCorrelations().clear();
 					param.setError(null);
@@ -563,8 +493,7 @@ public class ModelCombiner {
 				Map<String, Double> min = new LinkedHashMap<>();
 				Map<String, Double> max = new LinkedHashMap<>();
 
-				for (PmmXmlElementConvertable el : tuple.getPmmXml(
-						Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).getElementSet()) {
 					IndepXml indep = (IndepXml) el;
 
 					min.put(indep.getName(), Double.POSITIVE_INFINITY);
@@ -578,25 +507,21 @@ public class ModelCombiner {
 			Map<String, Double> min = indepMin.get(id);
 			Map<String, Double> max = indepMax.get(id);
 
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).getElementSet()) {
 				IndepXml indep = (IndepXml) el;
 
 				if (indep.getMin() != null) {
-					min.put(indep.getName(),
-							Math.min(min.get(indep.getName()), indep.getMin()));
+					min.put(indep.getName(), Math.min(min.get(indep.getName()), indep.getMin()));
 				}
 
 				if (indep.getMax() != null) {
-					max.put(indep.getName(),
-							Math.max(max.get(indep.getName()), indep.getMax()));
+					max.put(indep.getName(), Math.max(max.get(indep.getName()), indep.getMax()));
 				}
 			}
 		}
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
-			int id = tupleCombinations.get(tuple).get(0)
-					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			int id = tupleCombinations.get(tuple).get(0).getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			Map<String, Double> mins = indepMin.get(id);
 			Map<String, Double> maxs = indepMax.get(id);
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);

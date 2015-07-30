@@ -56,6 +56,7 @@ public class SecIndep {
 					indepXml.getDescription());
 			param.getAnnotation().setNonRDFAnnotation(annot.getNode());
 		}
+		param.setValue(0.0);
 	}
 
 	/** Creates a Pmm Lab IndepXml. */

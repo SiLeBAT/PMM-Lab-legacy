@@ -18,10 +18,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 *
 * @author Kilian Thiel, KNIME.com GmbH, Berlin, Germany
 */
-/**
- * @author Kilian
- *
- */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public final class ModelPlotterViewRepresentation extends JSONViewContent {
@@ -39,8 +35,71 @@ public final class ModelPlotterViewRepresentation extends JSONViewContent {
 	private String xUnit;
 	
 	private String yUnit;
-
 	
+	private int minXAxis;
+	
+	private int maxXAxis;
+	
+	private int minYAxis;
+	
+	private int maxYAxis;
+	
+	/**
+	 * @return the min value of the y axis
+	 */
+	public int getMinYAxis() {
+		return minYAxis;
+	}
+
+	/**
+	 * @param minYAxis the min value of the y axis
+	 */
+	public void setMinYAxis(int minYAxis) {
+		this.minYAxis = minYAxis;
+	}
+
+	/**
+	 * @return the max value of the y axis
+	 */
+	public int getMaxYAxis() {
+		return maxYAxis;
+	}
+
+	/**
+	 * @param maxYAxis the max value of the y axis
+	 */
+	public void setMaxYAxis(int maxYAxis) {
+		this.maxYAxis = maxYAxis;
+	}	
+	
+	/**
+	 * @return the min value of the x axis
+	 */
+	public int getMinXAxis() {
+		return minXAxis;
+	}
+
+	/**
+	 * @param minXAxis the min value of the x axis
+	 */
+	public void setMinXAxis(int minXAxis) {
+		this.minXAxis = minXAxis;
+	}
+
+	/**
+	 * @return the max value of the x axis
+	 */
+	public int getMaxXAxis() {
+		return maxXAxis;
+	}
+
+	/**
+	 * @param maxXAxis the max value of the x axis
+	 */
+	public void setMaxXAxis(int maxXAxis) {
+		this.maxXAxis = maxXAxis;
+	}
+
 	/**
 	 * @return the unit of the x axis.
 	 */

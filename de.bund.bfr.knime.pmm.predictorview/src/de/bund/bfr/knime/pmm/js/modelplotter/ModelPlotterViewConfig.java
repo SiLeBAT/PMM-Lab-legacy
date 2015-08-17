@@ -16,20 +16,106 @@ final class ModelPlotterViewConfig {
 
 	static final String Y0 = "Y0";
 	
+	static final String MIN_X_AXIS = "Min X Axis";
+	static final String MAX_X_AXIS = "Max X Axis";
+	
+	static final String MIN_Y_AXIS = "Min Y Axis";
+	static final String MAX_Y_AXIS = "Max Y Axis";
+	
 	static final String HIDE_IN_WIZARD = "hideInWizard";
 
 	static final double DEF_Y0 = 4.169;
 	static final double MIN_Y0 = 0;
 	static final double MAX_Y0 = 10;
+	
+	static final int DEF_MIN_X_AXIS = -10;
+	static final int MAX_MIN_X_AXIS = 0;
+	static final int MIN_MIN_X_AXIS = -1000;
 
+	static final int DEF_MAX_X_AXIS = 100;
+	static final int MAX_MAX_X_AXIS = 1000;
+	static final int MIN_MAX_X_AXIS = 0;
+	
+	static final int DEF_MIN_Y_AXIS = -10;
+	static final int MAX_MIN_Y_AXIS = -10;
+	static final int MIN_MIN_Y_AXIS = -1000;
+
+	static final int DEF_MAX_Y_AXIS = 20;
+	static final int MAX_MAX_Y_AXIS = 1000;
+	static final int MIN_MAX_Y_AXIS = 0;
+	
 	private static final String DEF_CHART_TITLE = "PMM Model Plot";
 
-	private String m_chartTitle;
+	private String m_chartTitle = DEF_CHART_TITLE;
 
-	private boolean m_isHideInWizard;
+	private boolean m_isHideInWizard = false;
 
-	private double m_y0;
+	private double m_y0 = DEF_Y0;
+	
+	private int m_minXAxis = DEF_MIN_X_AXIS;
+	
+	private int m_maxXAxis = DEF_MAX_X_AXIS;
+	
+	private int m_minYAxis = DEF_MIN_Y_AXIS;
+	
+	private int m_maxYAxis = DEF_MAX_Y_AXIS;
 
+	/**
+	 * @return
+	 */
+	public int getMinYAxis() {
+		return m_minYAxis;
+	}
+	
+	/**
+	 * @param minXAxis
+	 */
+	public void setMinYAxis(final int minYAxis) {
+		m_minYAxis = minYAxis;
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getMaxYAxis() {
+		return m_maxYAxis;
+	}	
+	
+	/**
+	 * @param minXAxis
+	 */
+	public void setMaxYAxis(final int maxYAxis) {
+		m_maxYAxis = maxYAxis;
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getMinXAxis() {
+		return m_minXAxis;
+	}
+	
+	/**
+	 * @param minXAxis
+	 */
+	public void setMinXAxis(final int minXAxis) {
+		m_minXAxis = minXAxis;
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getMaxXAxis() {
+		return m_maxXAxis;
+	}	
+	
+	/**
+	 * @param minXAxis
+	 */
+	public void setMaxXAxis(final int maxXAxis) {
+		m_maxXAxis = maxXAxis;
+	}	
+	
 	/**
 	 * @return
 	 */
@@ -40,7 +126,7 @@ final class ModelPlotterViewConfig {
 	/**
 	 * @param y0
 	 */
-	public void setY0(double y0) {
+	public void setY0(final double y0) {
 		this.m_y0 = y0;
 	}
 
@@ -54,7 +140,7 @@ final class ModelPlotterViewConfig {
 	/**
 	 * @param hideInWizard
 	 */
-	public void setHideInWizard(boolean hideInWizard) {
+	public void setHideInWizard(final boolean hideInWizard) {
 		this.m_isHideInWizard = hideInWizard;
 	}
 
@@ -86,6 +172,10 @@ final class ModelPlotterViewConfig {
 		m_chartTitle = settings.getString(CHART_TITLE);
 		m_isHideInWizard = settings.getBoolean(HIDE_IN_WIZARD);
 		m_y0 = settings.getDouble(Y0);
+		m_minXAxis = settings.getInt(MIN_X_AXIS);
+		m_maxXAxis = settings.getInt(MAX_X_AXIS);
+		m_minYAxis = settings.getInt(MIN_Y_AXIS);
+		m_maxYAxis = settings.getInt(MAX_Y_AXIS);		
 	}
 
 	/**
@@ -98,6 +188,10 @@ final class ModelPlotterViewConfig {
 		m_chartTitle = settings.getString(CHART_TITLE, DEF_CHART_TITLE);
 		m_isHideInWizard = settings.getBoolean(HIDE_IN_WIZARD, false);
 		m_y0 = settings.getDouble(Y0, DEF_Y0);
+		m_minXAxis = settings.getInt(MIN_X_AXIS, DEF_MIN_X_AXIS);
+		m_maxXAxis = settings.getInt(MAX_X_AXIS, DEF_MAX_X_AXIS);
+		m_minYAxis = settings.getInt(MIN_Y_AXIS, DEF_MIN_Y_AXIS);
+		m_maxYAxis = settings.getInt(MAX_Y_AXIS, DEF_MAX_Y_AXIS);
 	}
 
 	/**
@@ -110,5 +204,9 @@ final class ModelPlotterViewConfig {
 		settings.addString(CHART_TITLE, m_chartTitle);
 		settings.addBoolean(HIDE_IN_WIZARD, m_isHideInWizard);
 		settings.addDouble(Y0, m_y0);
+		settings.addInt(MIN_X_AXIS, m_minXAxis);
+		settings.addInt(MAX_X_AXIS, m_maxXAxis);
+		settings.addInt(MIN_Y_AXIS, m_minYAxis);
+		settings.addInt(MAX_Y_AXIS, m_maxYAxis);
 	}
 }

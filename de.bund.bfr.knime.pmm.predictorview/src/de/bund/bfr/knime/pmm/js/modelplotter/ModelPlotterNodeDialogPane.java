@@ -34,6 +34,18 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 	
 	private final SpinnerModel m_y0Model;
 	private final JSpinner m_y0;
+
+	private final SpinnerModel m_minXAxisModel;
+	private final JSpinner m_minXAxis;
+
+	private final SpinnerModel m_maxXAxisModel;
+	private final JSpinner m_maxXAxis;
+	
+	private final SpinnerModel m_minYAxisModel;
+	private final JSpinner m_minYAxis;
+
+	private final SpinnerModel m_maxYAxisModel;
+	private final JSpinner m_maxYAxis;	
 	
 	/**
 	 * Constructor of {@code ModelPlotterNodeDialogPane}, creating the dialog pane with the dialog
@@ -46,7 +58,31 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 				ModelPlotterViewConfig.MIN_Y0, ModelPlotterViewConfig.MAX_Y0, 0.1);
 		m_y0 = new JSpinner();
 		m_y0.setModel(m_y0Model);
-		m_y0.setEditor(new JSpinner.NumberEditor(m_y0, "0.0000000000"));
+		m_y0.setEditor(new JSpinner.NumberEditor(m_y0, "0.0000"));
+		
+		m_minXAxisModel = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_MIN_X_AXIS,
+				ModelPlotterViewConfig.MIN_MIN_X_AXIS, ModelPlotterViewConfig.MAX_MIN_X_AXIS, 10);
+		m_minXAxis = new JSpinner();
+		m_minXAxis.setModel(m_minXAxisModel);
+		m_minXAxis.setEditor(new JSpinner.NumberEditor(m_minXAxis, ""));
+		
+		m_maxXAxisModel = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_MAX_X_AXIS,
+				ModelPlotterViewConfig.MAX_MIN_X_AXIS, ModelPlotterViewConfig.MAX_MAX_X_AXIS, 10);
+		m_maxXAxis = new JSpinner();
+		m_maxXAxis.setModel(m_maxXAxisModel);
+		m_maxXAxis.setEditor(new JSpinner.NumberEditor(m_maxXAxis, ""));
+		
+		m_minYAxisModel = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_MIN_Y_AXIS,
+				ModelPlotterViewConfig.MIN_MIN_Y_AXIS, ModelPlotterViewConfig.MAX_MIN_Y_AXIS, 5);
+		m_minYAxis = new JSpinner();
+		m_minYAxis.setModel(m_minYAxisModel);
+		m_minYAxis.setEditor(new JSpinner.NumberEditor(m_minYAxis, ""));
+		
+		m_maxYAxisModel = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_MAX_Y_AXIS,
+				ModelPlotterViewConfig.MAX_MIN_Y_AXIS, ModelPlotterViewConfig.MAX_MAX_Y_AXIS, 5);
+		m_maxYAxis = new JSpinner();
+		m_maxYAxis.setModel(m_maxYAxisModel);
+		m_maxYAxis.setEditor(new JSpinner.NumberEditor(m_maxYAxis, ""));		
 		
 		addTab("Options", initDialog());
 	}
@@ -73,6 +109,38 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
         c.gridy = 1;
         panel.add(m_y0, c);
         
+        c.gridx = 0;
+        c.gridy = 2;
+        panel.add(new JLabel("Min x-axis"), c);        
+
+        c.gridx = 1;
+        c.gridy = 2;
+        panel.add(m_minXAxis, c);
+        
+        c.gridx = 2;
+        c.gridy = 2;
+        panel.add(new JLabel("Max x-axis"), c);        
+
+        c.gridx = 3;
+        c.gridy = 2;
+        panel.add(m_maxXAxis, c);
+        
+        c.gridx = 0;
+        c.gridy = 3;
+        panel.add(new JLabel("Min y-axis"), c);        
+
+        c.gridx = 1;
+        c.gridy = 3;
+        panel.add(m_minYAxis, c);
+        
+        c.gridx = 2;
+        c.gridy = 3;
+        panel.add(new JLabel("Max y-axis"), c);        
+
+        c.gridx = 3;
+        c.gridy = 3;
+        panel.add(m_maxYAxis, c);
+        
         return panel;
     }
 	
@@ -85,6 +153,10 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 		ModelPlotterViewConfig config = new ModelPlotterViewConfig();
 		config.setChartTitle(m_chartTitleTextField.getText());
 		config.setY0((Double)m_y0Model.getValue());
+		config.setMinXAxis((Integer)m_minXAxisModel.getValue());
+		config.setMaxXAxis((Integer)m_maxXAxisModel.getValue());
+		config.setMinYAxis((Integer)m_minYAxisModel.getValue());
+		config.setMaxYAxis((Integer)m_maxYAxisModel.getValue());
 		
 		config.saveSettings(settings);
 	}
@@ -99,5 +171,9 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
         config.loadSettingsForDialog(settings);
         m_chartTitleTextField.setText(config.getChartTitle());
         m_y0Model.setValue(config.getY0());
+        m_minXAxisModel.setValue(config.getMinXAxis());
+        m_maxXAxisModel.setValue(config.getMaxXAxis());
+        m_minYAxisModel.setValue(config.getMinYAxis());
+        m_maxYAxisModel.setValue(config.getMaxYAxis());        
     }
 }

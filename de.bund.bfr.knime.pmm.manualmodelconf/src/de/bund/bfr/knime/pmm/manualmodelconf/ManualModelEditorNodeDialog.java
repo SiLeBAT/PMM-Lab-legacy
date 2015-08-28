@@ -34,12 +34,17 @@
 package de.bund.bfr.knime.pmm.manualmodelconf;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
 import org.hsh.bfr.db.DBKernel;
+import org.javers.core.Javers;
+import org.javers.core.JaversBuilder;
+import org.javers.core.diff.Diff;
+import org.javers.core.diff.changetype.ValueChange;
 import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -81,6 +86,8 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 	private MMC_M m_mmcm;
 	private MMC_TS m_mmcts;
 	private HashMap<Integer, HashSet<Integer>> oneStepFitTs;
+	
+	PmmXmlDoc inputDoc = null; 
 
 	/**
      * New pane for configuring the ManualModelConf node.
@@ -105,7 +112,10 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		//m_confui.stopCellEditing();
 		m_mmcm.stopCellEditing();
 		//settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_confui.toXmlString() );
-		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_mmcm.listToXmlString() );
+		getDiff(inputDoc, m_mmcm.listToDoc());
+		
+		String xml = m_mmcm.listToXmlString();
+		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, xml);
 		String tStr = m_mmcm.tssToXmlString();
 		settings.addString( ManualModelConfNodeModel.PARAM_TSXMLSTRING, tStr );//-1673022417
 		
@@ -144,10 +154,13 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			}
 		}
 		catch (Exception e) {} // e.printStackTrace();
+		
+		inputDoc = null;
 		if (inData != null && inData.length == 1) {
 			HashMap<Integer, ParametricModel> mlist = new HashMap<>();
 			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<>();
 			try {
+				
 				if (mStr != null && !mStr.isEmpty()) {
 					PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
 					for (int i = 0; i < mDoc.size(); i++) {
@@ -158,6 +171,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 						}
 					}
 				}
+				
 				if (tsStr != null && !tsStr.isEmpty()) {
 					PmmXmlDoc tsDoc = new PmmXmlDoc(tsStr);
 					for (int i = 0; i < tsDoc.size(); i++) {
@@ -230,6 +244,11 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		    			}
 		    		}
 		    		m_mmcm.setInputData(m1s.values(), m_secondaryModels, tss);
+		    		try {
+		    			inputDoc = m_mmcm.listToDoc().clonePMs();
+					} catch (InvalidSettingsException e) {
+						e.printStackTrace();
+					}
 		    	}
 		    }
 		    catch (PmmException e) {}
@@ -238,6 +257,52 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			if (tsStr != null) m_mmcts.setTS(tsStr);
 			if (mStr != null) m_mmcm.setFromXmlString(mStr);
 		}
+	}
+	
+	private void getDiff(PmmXmlDoc inputDoc, PmmXmlDoc outputDoc) {
+		   Javers javers = JaversBuilder.javers().build();
+
+		   /*
+		    Diff diff = javers.compare(inputDoc, outputDoc);
+		    System.out.println(diff);
+*/
+		    for (PmmXmlElementConvertable out : outputDoc.getElementSet()) {
+	    		if (out instanceof ParametricModel) {
+	        		ParametricModel mOut = (ParametricModel) out;	 
+	    	    	for (PmmXmlElementConvertable in : inputDoc.getElementSet()) {
+	    	    		if (in instanceof ParametricModel) {
+	    	        		ParametricModel mIn = (ParametricModel) in;	 
+	    	        		if (mOut.getEstModelId() == mIn.getEstModelId()) {
+	    	        		    Diff diff = javers.compare(mIn, mOut);
+	    	        		    if (diff.getChanges().size() > 0) {
+		    	        		    System.out.println(mOut.getEstModelId() + "\n" + diff);
+		    	        		    for (ValueChange c : diff.getChangesByType(ValueChange.class)) {
+		    	        		    	System.out.println(c.getProperty().getName());
+		    	        		    	System.out.println(c.getLeft());
+		    	        		    	System.out.println(c.getRight());
+		    	        		    	System.out.println(c);
+		    	        		    	
+		    	        		    	System.out.println(mIn.getFittedModelName());
+		    	        		    	setValue(mIn, c.getProperty().getName(), c.getRight());
+		    	        		    	System.out.println(mIn.getFittedModelName());
+		    	        		    }	    	        		    
+	    	        		    }
+	    	        			break;
+	    	        		}
+	    	    		}
+	    	    	}
+	    		}
+	    	}
+	}
+	private void setValue(Object o, String fieldName, Object newValue) {
+		try {
+			Field field = o.getClass().getDeclaredField(fieldName);
+			field.setAccessible(true);
+			field.set(o, newValue);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 }
 

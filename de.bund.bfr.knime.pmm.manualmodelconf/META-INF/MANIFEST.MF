@@ -3,7 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ManualModelConf-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.manualmodelconf;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: manualmodelconf.jar
+Bundle-ClassPath: manualmodelconf.jar,
+ libs/gson-2.2.4.jar,
+ libs/javers-core-1.3.4.jar,
+ libs/joda-time-2.3.jar,
+ libs/picocontainer-2.14.3.jar,
+ libs/slf4j-api-1.7.2.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.manualmodelconf.ManualModelConfNodePlugin
 Bundle-Vendor: BfR
 Require-Bundle: org.eclipse.core.runtime,

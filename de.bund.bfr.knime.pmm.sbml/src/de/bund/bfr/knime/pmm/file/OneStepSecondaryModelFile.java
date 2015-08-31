@@ -91,7 +91,8 @@ public class OneStepSecondaryModelFile {
 			ModelDefinition md = secCompPlugin.getModelDefinition(0);
 			List<NuMLDocument> numlDocs = new LinkedList<>();
 			XMLNode m2Annot = md.getAnnotation().getNonRDFannotation();
-			for (XMLNode node : m2Annot.getChildElements("dataSource", "")) {
+			XMLNode metadata = m2Annot.getChildElement("metadata", "");
+			for (XMLNode node : metadata.getChildElements("dataSource", "")) {
 				DataSourceNode dsn = new DataSourceNode(node);
 				String dataFileName = dsn.getFile();
 				numlDocs.add(dataEntries.get(dataFileName));
@@ -139,6 +140,9 @@ public class OneStepSecondaryModelFile {
 			CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) model.getSBMLDoc()
 					.getPlugin(CompConstants.shortLabel);
 			ModelDefinition md = compDocPlugin.getModelDefinition(0);
+			
+			// Gets metadata node
+			XMLNode metadataNode = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 
 			short dataCounter = 0;
 			for (NuMLDocument numlDoc : model.getNuMLDocs()) {
@@ -154,8 +158,7 @@ public class OneStepSecondaryModelFile {
 				ca.addEntry(numlTmp, dataName, numlURI);
 
 				// Adds DataSourceNode to the model
-				DataSourceNode dsn = new DataSourceNode(dataName);
-				md.getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
+				metadataNode.addChild(new DataSourceNode(dataName).getNode());
 				dataCounter++;
 			}
 

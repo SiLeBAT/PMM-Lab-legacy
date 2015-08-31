@@ -122,7 +122,8 @@ public class TwoStepTertiaryModelFile {
 				// Gets primary model
 				SBMLDocument mdDoc = primDocs.get(mdName);
 				// Gets data source annotation of the primary model
-				XMLNode node = mdDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("dataSource", "");
+				XMLNode mdDocMetadata = mdDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+				XMLNode node = mdDocMetadata.getChildElement("dataSource", "");
 				// Gets data name from this annotation
 				String dataName = new DataSourceNode(node).getFile();
 				// Gets data file
@@ -189,8 +190,8 @@ public class TwoStepTertiaryModelFile {
 				ca.addEntry(numlTmp, dataName, numlURI);
 
 				// Adds DataSourceNode to the model
-				DataSourceNode node = new DataSourceNode(dataName);
-				pm.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation().addChild(node.getNode());
+				XMLNode metadataNode = pm.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+				metadataNode.addChild(new DataSourceNode(dataName).getNode());
 
 				// Creates tmp file for the model
 				File sbmlTmp = File.createTempFile("model", "");

@@ -38,15 +38,12 @@ public class DataFile {
 		this.doc = doc;
 	}
 
-	public DataFile(int condId, String combaseId,
-			LinkedHashMap<Integer, List<Double>> dim, String concUnit,
-			String timeUnit, Matrix matrix, Agent agent,
-			List<LiteratureItem> lits, Map<String, String> dlgInfo) {
+	public DataFile(int condId, String combaseId, LinkedHashMap<Integer, List<Double>> dim, String concUnit,
+			String timeUnit, Matrix matrix, Agent agent, List<LiteratureItem> lits, Map<String, String> dlgInfo) {
 
 		// Creates ontologies
 		OntologyTerm time = new TimeOntology().prepareOntology(timeUnit);
-		OntologyTerm conc = new ConcentrationOntology()
-				.prepareOntology(concUnit);
+		OntologyTerm conc = new ConcentrationOntology().prepareOntology(concUnit);
 
 		// Adds matrix and agent to the concentration metadata
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
@@ -83,8 +80,7 @@ public class DataFile {
 
 		// Adds PMF namespace to resultComponent's annotation
 		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf",
-				"http://sourceforge.net/microbialmodelingexchange/files/PMF-ML");
+		pmfNS.put("xmlns:pmf", "http://sourceforge.net/microbialmodelingexchange/files/PMF-ML");
 		Node resultNode = new Node(null, "annotation", pmfNS);
 		result.setAnnotation(resultNode);
 
@@ -92,8 +88,7 @@ public class DataFile {
 		Map<String, String> dcNS = new HashMap<>(); // dc and dcterms namespaces
 		dcNS.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
 		dcNS.put("xmlns:dcterms", "http://purl.org/dc/terms/");
-		dcNS.put("xmlns:pmmlab",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		dcNS.put("xmlns:pmmlab", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		Node pmfNode = new Node(resultNode, "pmf:metadata", dcNS);
 
 		// Adds CondId node
@@ -148,8 +143,7 @@ public class DataFile {
 	public int getCondID() {
 		// Gets result component metadata
 		ResultComponent rc = doc.getResultComponents().get(0);
-		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation()
-				.get("metadata");
+		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
 		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
 
 		// Gets CondID
@@ -160,11 +154,15 @@ public class DataFile {
 		return condID;
 	}
 
+	/**
+	 * Gets the CombaseID within the ResultComponent.
+	 * 
+	 * @return CombaseID string. If missing a "?" will be returned.
+	 */
 	public String getCombaseID() {
 		// Gets result component metadata
 		ResultComponent rc = doc.getResultComponents().get(0);
-		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation()
-				.get("metadata");
+		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
 		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
 
 		// Gets CombaseID
@@ -175,69 +173,73 @@ public class DataFile {
 			return "?";
 		}
 	}
-	
+
 	public String getConcUnit() {
 		OntologyTerm ot = doc.getOntologyTerms().get(1);
 		Node metadata = (Node) ot.getAnnotation().children().get(0);
 		Node unitDef = (Node) metadata.children().get(0);
 		return (String) unitDef.attribute("name");
 	}
-	
+
 	public String getTimeUnit() {
 		OntologyTerm ot = doc.getOntologyTerms().get(0);
 		Node metadata = (Node) ot.getAnnotation().children().get(0);
 		Node unitDef = (Node) metadata.children().get(0);
 		return (String) unitDef.attribute("name");
 	}
-	
+
 	public MatrixXml getMatrix() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
-		
+
 		// Gets matrix node
 		NodeList matrixNodes = (NodeList) concMetadata.get("compartment");
 		Node matrixNode = (Node) matrixNodes.get(0);
-		
+
 		// Creates matrix
 		MatrixXml matrixXml = new MatrixXml();
-		
+
 		// Gets and sets matrix name
 		matrixXml.setName((String) matrixNode.attribute("name"));
-		
-		// Gets and sets matrix detail
-		NodeList detailNodes = (NodeList) matrixNode.get("detail");
-		Node detailNode = (Node) detailNodes.get(0);
-		matrixXml.setDetail(detailNode.text());
-		
+
+		// Gets and sets matrix detail for not missing compartments
+		if (!matrixXml.getName().equals("MISSING_COMPARTMENT")) {
+			NodeList detailNodes = (NodeList) matrixNode.get("detail");
+			Node detailNode = (Node) detailNodes.get(0);
+			matrixXml.setDetail(detailNode.text());
+		}
+
 		return matrixXml;
 	}
-	
+
 	public AgentXml getAgent() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
-		
+
 		// Gets agent node
 		NodeList agentNodes = (NodeList) concMetadata.get("species");
 		Node agentNode = (Node) agentNodes.get(0);
-		
+
 		// Creates agent
 		AgentXml agentXml = new AgentXml();
-		
+
 		// Gets and sets agent name
 		agentXml.setName((String) agentNode.attribute("name"));
-		
+
 		// Gets and sets agent detail
-		NodeList detailNodes = (NodeList) agentNode.get("detail");
-		Node detailNode = (Node) detailNodes.get(0);
-		agentXml.setDetail(detailNode.text());
-		
+		if (agentXml.getName() != null) {
+			NodeList detailNodes = (NodeList) agentNode.get("detail");
+			Node detailNode = (Node) detailNodes.get(0);
+			agentXml.setDetail(detailNode.text());
+		}
+
 		return agentXml;
 	}
-	
+
 	public Map<String, Double> getMiscs() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
-		
+
 		// Gets matrix node
 		NodeList matrixNodes = (NodeList) concMetadata.get("compartment");
 		Node matrixNode = (Node) matrixNodes.get(0);
@@ -251,17 +253,17 @@ public class DataFile {
 			Double value = Double.parseDouble((String) attrs.get("value"));
 			miscs.put(name, value);
 		}
-		
+
 		return miscs;
 	}
-	
+
 	public List<LiteratureItem> getLits() {
 		ResultComponent rc = doc.getResultComponents().get(0);
-		
+
 		// Gets result component metadata
 		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
 		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
-		
+
 		// Gets literature items
 		NodeList litNodes = (NodeList) rcMetadataNode.get("reference");
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -269,15 +271,15 @@ public class DataFile {
 			Node litNode = (Node) litNodes.get(i);
 			lits.add(new GroovyReferenceNode(litNode).toLiteratureItem());
 		}
-		
+
 		return lits;
 	}
 
 	public double[][] getData() {
 
 		@SuppressWarnings("unchecked")
-		LinkedHashMap<Integer, List<Double>> dim = (LinkedHashMap<Integer, List<Double>>) doc
-				.getResultComponents().get(0).getDimension();
+		LinkedHashMap<Integer, List<Double>> dim = (LinkedHashMap<Integer, List<Double>>) doc.getResultComponents()
+				.get(0).getDimension();
 
 		double[][] data = new double[dim.size()][2];
 		int i = 0;
@@ -304,8 +306,7 @@ abstract class Ontology {
 	protected Node createAnnotation(String unit) {
 		// Creates annotation with the PMF namespace
 		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf",
-				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		pmfNS.put("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 		Node annot = new Node(null, "annotation", pmfNS);
 
 		// Creates and adds PMF annotation
@@ -315,13 +316,13 @@ abstract class Ontology {
 
 		// Gets unit definition from DB
 		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
-		UnitDefinitionWrapper udWrapper = UnitDefinitionWrapper
-				.xmlToUnitDefinition(dbUnit.getMathML_string());
+//		UnitDefinitionWrapper udWrapper = UnitDefinitionWrapper.xmlToUnitDefinition(dbUnit.getMathML_string());
+		PMFUnitDefinition pud = PMFUnitDefinition.xmlToPMFUnitDefinition(dbUnit.getMathML_string());
 
 		// Modifies the unit definition and adds it to the pmfNode
-		udWrapper.getUnitDefinition().setId(Util.createId(unit));
-		udWrapper.getUnitDefinition().setName(unit);
-		pmfNode.append(udWrapper.toGroovyNode());
+		pud.getUnitDefinition().setId(Util.createId(unit));
+		pud.getUnitDefinition().setName(unit);
+		pmfNode.append(pud.toGroovyNode());
 
 		return annot;
 	}

@@ -74,7 +74,7 @@ public class Model1Annotation {
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
 		// Builds modelID node
-		XMLTriple modelIDTriple = new XMLTriple(MODEL_ID_TAG, null, PMF_TAG);
+		XMLTriple modelIDTriple = new XMLTriple(MODEL_ID_TAG, null, "pmmlab");
 		XMLNode modelIDNode = new XMLNode(modelIDTriple);
 		modelIDNode.addChild(new XMLNode(modelID));
 		node.addChild(modelIDNode);

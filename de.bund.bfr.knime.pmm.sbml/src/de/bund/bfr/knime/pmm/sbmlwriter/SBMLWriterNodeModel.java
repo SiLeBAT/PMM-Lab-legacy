@@ -36,7 +36,7 @@ package de.bund.bfr.knime.pmm.sbmlwriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -133,8 +133,8 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
+import de.bund.bfr.knime.pmm.sbmlutil.PMFUnitDefinition;
 import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
-import de.bund.bfr.knime.pmm.sbmlutil.UnitDefinitionWrapper;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
 
@@ -172,6 +172,11 @@ public class SBMLWriterNodeModel extends NodeModel {
 	 */
 	protected SBMLWriterNodeModel() {
 		super(1, 0);
+
+		// Set current date in the dialog components
+		long currentDate = Calendar.getInstance().getTimeInMillis();
+		createdDate.setTimeInMillis(currentDate);
+		modifiedDate.setTimeInMillis(currentDate);
 	}
 
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
@@ -262,18 +267,16 @@ public class SBMLWriterNodeModel extends NodeModel {
 			dlgInfo.put("Contact", contact);
 		}
 
-		Date created = createdDate.getDate();
-		if (created == null) {
+		if (createdDate.getSelectedFields() == 1) {
+			dlgInfo.put("Created", createdDate.getDate().toString());
+		} else {
 			setWarningMessage("Created date missing");
-		} else {
-			dlgInfo.put("Created", created.toString());
 		}
-
-		Date modified = modifiedDate.getDate();
-		if (modified == null) {
-			setWarningMessage("Modified data missing");
+		
+		if (modifiedDate.getSelectedFields() == 1) {
+			dlgInfo.put("Modified", modifiedDate.getDate().toString());
 		} else {
-			dlgInfo.put("Modified", modified.toString());
+			setWarningMessage("Modified date missing");
 		}
 
 		String dir = outPath.getStringValue();
@@ -631,24 +634,14 @@ class TableReader {
 
 				String mathml = dbUnit.getMathML_string();
 				if (mathml != null && !mathml.isEmpty()) {
-					UnitDefinitionWrapper wrapper = UnitDefinitionWrapper
-							.xmlToUnitDefinition(dbUnit.getMathML_string());
-					UnitDefinition ud = wrapper.getUnitDefinition();
+					PMFUnitDefinition pud = PMFUnitDefinition.xmlToPMFUnitDefinition(dbUnit.getMathML_string());
+					UnitDefinition ud = pud.getUnitDefinition();
+					
+					// Add annotation with transformation
+					unitDefinition.setAnnotation(ud.getAnnotation());
+					
 					for (Unit wrapperUnit : ud.getListOfUnits()) {
-						Unit u = new Unit(wrapperUnit);
-						if (!u.isSetKind()) {
-							u.setKind(Unit.Kind.DIMENSIONLESS);
-						}
-						if (!u.isSetExponent()) {
-							u.setExponent(1.0);
-						}
-						if (!u.isSetScale()) {
-							u.setScale(0);
-						}
-						if (!u.isSetMultiplier()) {
-							u.setMultiplier(1);
-						}
-						unitDefinition.addUnit(u);
+						unitDefinition.addUnit(new Unit(wrapperUnit));
 					}
 				}
 			}
@@ -955,10 +948,10 @@ class PrimaryModelWODataParser implements Parser {
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 
+		TableReader.addNamespaces(doc);
+
 		// Adds document annotation
 		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
-
-		TableReader.addNamespaces(doc);
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1234,6 +1227,9 @@ class TwoStepSecondaryModelParser implements Parser {
 			// Enable Hierarchical Compositon package
 			doc.enablePackage(CompConstants.shortLabel);
 			TableReader.addNamespaces(doc);
+			
+			// Adds document annotation
+			doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
 			String modelId = Util.createId("model" + estModel.getId());
 
@@ -1792,7 +1788,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		// the same secondary models)
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		for (KnimeTuple tuple : firstInstance) {
-			SBMLDocument secDoc = parseSecModel(tuple);
+			SBMLDocument secDoc = parseSecModel(tuple, dlgInfo);
 			secDocs.add(secDoc);
 		}
 
@@ -1887,6 +1883,9 @@ class TwoStepTertiaryModelParser implements Parser {
 		doc.enablePackage(CompConstants.shortLabel);
 
 		TableReader.addNamespaces(doc);
+
+		// Adds document annotation
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1987,7 +1986,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		return new PrimaryModelWData(doc, numlDoc);
 	}
 
-	private SBMLDocument parseSecModel(KnimeTuple tuple) {
+	private SBMLDocument parseSecModel(KnimeTuple tuple, Map<String, String> dlgInfo) {
 		CatalogModelXml secCatModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
 		EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
 		DepXml secDep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
@@ -2086,6 +2085,9 @@ class TwoStepTertiaryModelParser implements Parser {
 		secModel.addRule(rule2.getRule());
 
 		TableReader.addNamespaces(secDoc);
+		
+		// Adds document annotation
+		secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
 		return secDoc;
 	}
@@ -2274,6 +2276,9 @@ class OneStepTertiaryModelParser implements Parser {
 			// Enable Hierarchical Composition package
 			secDoc.enablePackage(CompConstants.shortLabel);
 			TableReader.addNamespaces(secDoc);
+			
+			// Adds document annotation
+			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
 			String secModelId = "model_" + secDep.getName();
 			Model secModel = secDoc.createModel(secModelId);
@@ -2542,7 +2547,6 @@ class ManualTertiaryModelParser implements Parser {
 
 		// Add submodels and model definitions
 		List<SBMLDocument> secDocs = new LinkedList<>();
-		int i = 0;
 		for (KnimeTuple tuple : firstInstance) {
 			CatalogModelXml secCatModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
 			EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
@@ -2565,26 +2569,27 @@ class ManualTertiaryModelParser implements Parser {
 			}
 
 			// Creates ExternalModelDefinition
-			String emdId = "submodel" + i;
+			String emdId = "model_" + secDep.getName();
 			ExternalModelDefinition emd = new ExternalModelDefinition(emdId, TableReader.LEVEL, TableReader.VERSION);
 
 			String emdSource = "model_" + secDep.getName() + ".sbml";
 			emd.setSource(emdSource);
-
-			String emdModelRef = "model_" + secDep.getName();
-			emd.setModelRef(emdModelRef);
+			emd.setModelRef(emdId);
 
 			compDocPlugin.addExternalModelDefinition(emd);
 
 			Submodel submodel = compModelPlugin.createSubmodel(emdId);
-			submodel.setModelRef(emdModelRef);
+			submodel.setModelRef(emdId);
 
 			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
 			// Enable Hierarchical Composition package
 			secDoc.enablePackage(CompConstants.shortLabel);
 			TableReader.addNamespaces(secDoc);
+			
+			// Adds document annotation
+			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
 
-			Model md = secDoc.createModel(emdModelRef);
+			Model md = secDoc.createModel(emdId);
 			if (secEstModel.getName() != null) {
 				md.setName(secEstModel.getName());
 			}
@@ -2653,8 +2658,6 @@ class ManualTertiaryModelParser implements Parser {
 
 			Model2Rule rule2 = Model2Rule.convertCatalogModelXmlToModel2Rule(secCatModel);
 			md.addRule(rule2.getRule());
-
-			i++;
 
 			// Save secondary model
 			secDocs.add(secDoc);

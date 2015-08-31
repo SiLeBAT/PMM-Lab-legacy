@@ -108,6 +108,10 @@ public class CombaseReader {
 				return null;
 			}
 
+			if (line.trim().isEmpty() && next.getCombaseId() != null) {
+				return next;
+			}
+
 			if (!line.contains(",")) {
 				continue;
 			}
@@ -136,7 +140,7 @@ public class CombaseReader {
 			}
 
 			// fetch temperature
-			if (key.equals("Temperature(Â°C)")) {
+			if (key.equals("Temperature(°C)")) {
 				Double value = parse(data);
 				// next.setTemperature(value);
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE,
@@ -214,6 +218,10 @@ public class CombaseReader {
 
 			if (line == null) {
 				return null;
+			}
+
+			if (line.trim().isEmpty() && next.getCombaseId() != null) {
+				return next;
 			}
 
 			// split up token

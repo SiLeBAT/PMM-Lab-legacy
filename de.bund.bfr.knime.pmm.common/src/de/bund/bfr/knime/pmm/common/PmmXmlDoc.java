@@ -162,4 +162,16 @@ public class PmmXmlDoc {
 	
 	public List<PmmXmlElementConvertable> getElementSet() {return elementSet;}
 	
+	public PmmXmlDoc clonePMs() {
+		PmmXmlDoc doc = new PmmXmlDoc();
+    	for (PmmXmlElementConvertable el : this.getElementSet()) {
+    		if (el instanceof ParametricModel) {
+        		ParametricModel model = (ParametricModel) el;	 
+        		doc.add(model.clone());
+    		}
+    		else doc.add(el);
+    	}
+		return doc;
+	}
+	
 }

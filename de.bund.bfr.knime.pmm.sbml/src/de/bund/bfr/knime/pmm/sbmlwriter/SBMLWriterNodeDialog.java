@@ -85,6 +85,9 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 
 		SettingsModelBoolean overwrite = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_OVERWRITE, true);
 		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(overwrite, "Overwrite, ok?");
+		
+		SettingsModelBoolean splitModels = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_SPLITMODELS, false);
+		DialogComponentBoolean splitCheckbox = new DialogComponentBoolean(splitModels, "Split top level models?");
 
 		outComp.setBorderTitle("Output Path");
 
@@ -92,6 +95,7 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(nameComp);
 		addDialogComponent(isSecondaryCheckbox);
 		addDialogComponent(overwriteCheckbox);
+		addDialogComponent(splitCheckbox);
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);

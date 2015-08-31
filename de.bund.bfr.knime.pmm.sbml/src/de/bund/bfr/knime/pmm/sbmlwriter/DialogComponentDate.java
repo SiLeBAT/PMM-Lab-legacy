@@ -46,8 +46,6 @@
  */
 package de.bund.bfr.knime.pmm.sbmlwriter;
 
-import java.util.Calendar;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;

@@ -39,7 +39,10 @@
 			Otherwise it is considered tertiary
 		</option>
 		<option name="Overwrite, ok?">If checked an existing model with the same name
-			will be overwritten</option>
+			will be overwritten
+		</option>
+		<option name="Split top level models?">If checked the top level models (secondary or
+			tertiary models) will be saved into separated PMF files</option>
 		<option name="Creator Given Name">Creator given name</option>
 		<option name="Creator Family Name">Creator family name</option>
 		<option name="Creator Contact">Creator contact</option>

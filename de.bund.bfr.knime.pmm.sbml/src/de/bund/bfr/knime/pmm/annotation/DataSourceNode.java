@@ -29,7 +29,7 @@ public class DataSourceNode extends SBMLNodeBase {
 	 *            Reference to data file.
 	 */
 	public DataSourceNode(String dataName) {
-		XMLTriple triple = new XMLTriple("dataSource", null, "pmf");
+		XMLTriple triple = new XMLTriple("dataSource", null, "pmmlab");
 		XMLAttributes attrs = new XMLAttributes();
 		attrs.add("id", "source1");
 		attrs.add("href", dataName);

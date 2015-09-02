@@ -111,7 +111,8 @@ public class OneStepTertiaryModelFile {
 			// Gets data files from the tertiary model document
 			List<NuMLDocument> numlDocs = new LinkedList<>();
 			XMLNode tertAnnot = tertDoc.getModel().getAnnotation().getNonRDFannotation();
-			for (XMLNode node : tertAnnot.getChildElements("dataSource", "")) {
+			XMLNode tertAnnotMetadata = tertAnnot.getChildElement("metadata", "");
+			for (XMLNode node : tertAnnotMetadata.getChildElements("dataSource", "")) {
 				DataSourceNode dsn = new DataSourceNode(node);
 				numlDocs.add(dataEntries.get(dsn.getFile()));
 			}
@@ -188,11 +189,11 @@ public class OneStepTertiaryModelFile {
 
 			// Gets non RDF annotation of the tertiary model
 			XMLNode tertAnnot = model.getTertDoc().getModel().getAnnotation().getNonRDFannotation();
+			XMLNode tertAnnotMetadata = tertAnnot.getChildElement("metadata", "");
 
 			// Adds DataSourceNodes to the tertiary model
 			for (String dataName : dataNames) {
-				DataSourceNode dsn = new DataSourceNode(dataName);
-				tertAnnot.addChild(dsn.getNode());
+				tertAnnotMetadata.addChild(new DataSourceNode(dataName).getNode());
 			}
 
 			// Writes tertiary model to tertTmp and adds it to the file
@@ -206,11 +207,11 @@ public class OneStepTertiaryModelFile {
 
 				// Creates name for the sec model
 				Model md = secDoc.getModel();
+				XMLNode mdMetadata = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 
 				// Adds DataSourceNodes to the sec model
 				for (String dataName : dataNames) {
-					DataSourceNode dsn = new DataSourceNode(dataName);
-					md.getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
+					mdMetadata.addChild(new DataSourceNode(dataName).getNode());
 				}
 
 				String secMdName = String.format("%s.%s", md.getId(), SBML_EXTENSION);

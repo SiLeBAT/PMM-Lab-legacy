@@ -105,7 +105,8 @@ public class TwoStepSecondaryModelFile {
 
 				// look for DataSourceNode
 				XMLNode m1Annot = primDoc.getModel().getAnnotation().getNonRDFannotation();
-				XMLNode node = m1Annot.getChildElement("dataSource", "");
+				XMLNode m1Metadata = m1Annot.getChildElement("metadata", "");
+				XMLNode node = m1Metadata.getChildElement("dataSource", "");
 
 				if (node == null) {
 					numlDoc = null;
@@ -169,6 +170,9 @@ public class TwoStepSecondaryModelFile {
 
 			for (PrimaryModelWData primModel : model.getPrimModels()) {
 
+				XMLNode metadataNode = primModel.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation()
+						.getChildElement("metadata", "");
+
 				if (primModel.getNuMLDoc() != null) {
 					// Creates tmp file for this primary model's data
 					File numlTmp = File.createTempFile("temp2", "");
@@ -182,8 +186,7 @@ public class TwoStepSecondaryModelFile {
 					ca.addEntry(numlTmp, dataName, numlURI);
 
 					// Adds DataSourceNode to the model
-					DataSourceNode dsn = new DataSourceNode(dataName);
-					primModel.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation().addChild(dsn.getNode());
+					metadataNode.addChild(new DataSourceNode(dataName).getNode());
 				}
 
 				// Creates tmp file for the primary model

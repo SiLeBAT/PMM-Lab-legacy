@@ -29,6 +29,7 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
  * Case 1a: Primary models with data file.
+ * 
  * @author Miguel Alba
  */
 public class PrimaryModelWDataFile {
@@ -41,8 +42,7 @@ public class PrimaryModelWDataFile {
 	/**
 	 * Reads in a primary model with data.
 	 */
-	public static List<PrimaryModelWData> read(String filename)
-			throws Exception {
+	public static List<PrimaryModelWData> read(String filename) throws Exception {
 
 		List<PrimaryModelWData> models = new LinkedList<>();
 
@@ -55,7 +55,7 @@ public class PrimaryModelWDataFile {
 
 		URI sbmlURI = URIFactory.createSBMLURI();
 		URI numlURI = URIFactory.createNuMLURI();
-		
+
 		// Get data entries
 		HashMap<String, ArchiveEntry> dataEntries = new HashMap<>();
 		for (ArchiveEntry dataEntry : ca.getEntriesWithFormat(numlURI)) {
@@ -65,28 +65,25 @@ public class PrimaryModelWDataFile {
 		// Parse models in the PMF file
 		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(sbmlURI);
 		for (ArchiveEntry modelEntry : modelEntries) {
-			InputStream stream = Files.newInputStream(modelEntry.getPath(),
-					StandardOpenOption.READ);
+			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
 			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
 			// Parse data
 			PrimaryModelWData model;
-			XMLNode modelAnnotation = sbmlDoc.getModel().getAnnotation()
-					.getNonRDFannotation();
+			XMLNode modelAnnotation = sbmlDoc.getModel().getAnnotation().getNonRDFannotation();
 			if (modelAnnotation == null) {
 				model = new PrimaryModelWData(sbmlDoc, null);
 			} else {
-				XMLNode node = modelAnnotation
-						.getChildElement("dataSource", "");
+				XMLNode metadataNode = modelAnnotation.getChildElement("metadata", "");
+				XMLNode node = metadataNode.getChildElement("dataSource", "");
 				DataSourceNode dataSourceNode = new DataSourceNode(node);
 				String dataFileName = dataSourceNode.getFile();
 				ArchiveEntry dataEntry = dataEntries.get(dataFileName);
 				if (dataEntry == null) {
 					model = new PrimaryModelWData(sbmlDoc, null);
 				} else {
-					stream = Files.newInputStream(dataEntry.getPath(),
-							StandardOpenOption.READ);
+					stream = Files.newInputStream(dataEntry.getPath(), StandardOpenOption.READ);
 					NuMLDocument numlDoc = numlReader.read(stream);
 					model = new PrimaryModelWData(sbmlDoc, numlDoc);
 				}
@@ -101,8 +98,7 @@ public class PrimaryModelWDataFile {
 	/**
 	 * Writes experiments to PrimaryModelWDataFile.
 	 */
-	public static void write(String dir, String filename,
-			List<PrimaryModelWData> models, ExecutionContext exec)
+	public static void write(String dir, String filename, List<PrimaryModelWData> models, ExecutionContext exec)
 			throws Exception {
 
 		// Creates CombineArchive name
@@ -139,17 +135,17 @@ public class PrimaryModelWDataFile {
 				numlTmp.deleteOnExit();
 
 				// Creates data file name
-				String dataName = String.format("%s_%s.%s", filename,
-						modelCounter, NuML_EXTENSION);
+				String dataName = String.format("%s_%s.%s", filename, modelCounter, NuML_EXTENSION);
 
 				// Writes data to numlTmp and add it to the file
 				numlWriter.write(model.getNuMLDoc(), numlTmp);
 				ca.addEntry(numlTmp, dataName, numlURI);
 
 				// Adds DataSourceNode to the model
-				DataSourceNode node = new DataSourceNode(dataName);
-				model.getSBMLDoc().getModel().getAnnotation()
-						.getNonRDFannotation().addChild(node.getNode());
+				XMLNode dsn = new DataSourceNode(dataName).getNode();
+				XMLNode metadataNode = model.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation()
+						.getChildElement("metadata", "");
+				metadataNode.addChild(dsn);
 			}
 
 			// Creates tmp file for the model
@@ -157,8 +153,7 @@ public class PrimaryModelWDataFile {
 			sbmlTmp.deleteOnExit();
 
 			// Creates model file name
-			String mdName = String.format("%s_%d.%s", filename, modelCounter,
-					SBML_EXTENSION);
+			String mdName = String.format("%s_%d.%s", filename, modelCounter, SBML_EXTENSION);
 
 			// Writes model to sbmlTmp and add it to the file
 			sbmlWriter.write(model.getSBMLDoc(), sbmlTmp);

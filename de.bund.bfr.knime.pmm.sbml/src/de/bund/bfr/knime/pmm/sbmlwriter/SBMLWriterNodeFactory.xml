@@ -2,7 +2,7 @@
 <knimeNode icon="./SBMLWriter.png" type="Sink"
 	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-	<name>SBML Writer</name>
+	<name>PMF Writer</name>
 
 	<shortDescription>
      	This node writes primary and tertiary models to SBML files
@@ -35,10 +35,19 @@
 			are named
 			"Test_1", "Test_2", ...
 		</option>
-		<option name="Initial Concentration Parameter">
-			If there is a parameter for the initial
-			concentration (e.g. LOG10N0), name it here.
+		<option name="Is secondary?">If checked the model is considered secondary.
+			Otherwise it is considered tertiary
 		</option>
+		<option name="Overwrite, ok?">If checked an existing model with the same name
+			will be overwritten
+		</option>
+		<option name="Split top level models?">If checked the top level models (secondary or
+			tertiary models) will be saved into separated PMF files</option>
+		<option name="Creator Given Name">Creator given name</option>
+		<option name="Creator Family Name">Creator family name</option>
+		<option name="Creator Contact">Creator contact</option>
+		<option name="Created">Created on</option>
+		<option name="Last Modified">Date of last modification</option>
 	</fullDescription>
 
 	<ports>

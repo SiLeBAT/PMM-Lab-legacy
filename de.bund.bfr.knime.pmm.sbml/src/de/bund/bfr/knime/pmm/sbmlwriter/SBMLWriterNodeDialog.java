@@ -63,42 +63,31 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	protected SBMLWriterNodeDialog() {
 		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null),
-				OUT_HISTORY, JFileChooser.SAVE_DIALOG, true);
+				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null), OUT_HISTORY, JFileChooser.SAVE_DIALOG,
+				true);
 		DialogComponentString nameComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
-						null), "File Name");
+				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME, null), "File Name");
 		DialogComponentString givenNameComp = new DialogComponentString(
-				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null),
-				"Creator Given Name");
+				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null), "Creator Given Name");
 		DialogComponentString familyNameComp = new DialogComponentString(
-				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null),
-				"Creator Family Name");
+				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null), "Creator Family Name");
 		DialogComponentString creatorContactComp = new DialogComponentString(
-				new SettingsModelString(
-						SBMLWriterNodeModel.CFG_CREATOR_CONTACT, null),
-				"Creator Contact");
+				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATOR_CONTACT, null), "Creator Contact");
 
-		DialogComponentDate createdComp = new DialogComponentDate(
-				new SettingsModelDate(SBMLWriterNodeModel.CFG_CREATED_DATE),
-				"Created");
+		SettingsModelDate createdDateModel = new SettingsModelDate(SBMLWriterNodeModel.CFG_CREATED_DATE);
+		DialogComponentDate createdComp = new DialogComponentDate(createdDateModel, "Created");
 
-		DialogComponentDate modifiedComp = new DialogComponentDate(
-				new SettingsModelDate(
-						SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE),
-				"Last Modified");
+		SettingsModelDate modifiedDateModel = new SettingsModelDate(SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE);
+		DialogComponentDate modifiedComp = new DialogComponentDate(modifiedDateModel, "Last Modified");
 
-		SettingsModelBoolean isSecondary = new SettingsModelBoolean(
-				SBMLWriterNodeModel.CFG_ISSECONDARY, false);
-		DialogComponentBoolean isSecondaryCheckbox = new DialogComponentBoolean(
-				isSecondary, "Is secondary?");
+		SettingsModelBoolean isSecondary = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_ISSECONDARY, false);
+		DialogComponentBoolean isSecondaryCheckbox = new DialogComponentBoolean(isSecondary, "Is secondary?");
 
-		SettingsModelBoolean overwrite = new SettingsModelBoolean(
-				SBMLWriterNodeModel.CFG_OVERWRITE, true);
-		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(
-				overwrite, "Overwrite, ok?");
+		SettingsModelBoolean overwrite = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_OVERWRITE, true);
+		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(overwrite, "Overwrite, ok?");
+		
+		SettingsModelBoolean splitModels = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_SPLITMODELS, false);
+		DialogComponentBoolean splitCheckbox = new DialogComponentBoolean(splitModels, "Split top level models?");
 
 		outComp.setBorderTitle("Output Path");
 
@@ -106,6 +95,7 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(nameComp);
 		addDialogComponent(isSecondaryCheckbox);
 		addDialogComponent(overwriteCheckbox);
+		addDialogComponent(splitCheckbox);
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);

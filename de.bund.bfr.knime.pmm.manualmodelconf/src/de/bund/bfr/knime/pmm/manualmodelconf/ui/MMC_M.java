@@ -46,7 +46,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -225,8 +224,8 @@ public class MMC_M extends JPanel {
 			setDblTextVal(bicField, pm.getBic());
 			while (referencesTable.getRowCount() > 0)
 				((DefaultTableModel) referencesTable.getModel()).removeRow(0);
-			insertRefs(pm.getEstModelLit());
-			insertRefs(pm.getModelLit());
+			insertRefs(pm.getEstModelLit(), true);
+			insertRefs(pm.getModelLit(), false);
 			if (pm.isChecked() != null && pm.isChecked()) checkBox1.setSelected(true);
 			else checkBox1.setSelected(false);
 			if (pm.getQualityScore() != null) qScoreBox.setSelectedIndex(pm.getQualityScore());
@@ -237,13 +236,16 @@ public class MMC_M extends JPanel {
 		}
 	}
 
-	private void insertRefs(PmmXmlDoc modelLit) {
+	private void insertRefs(PmmXmlDoc modelLit, boolean isEM) {
 		for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
 			if (el instanceof LiteratureItem) {
-				Vector<LiteratureItem> vli = new Vector<>();
+				//Vector<LiteratureItem> vli = new Vector<>();
 				LiteratureItem li = (LiteratureItem) el;
-				vli.add(li);
-				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
+				//vli.add(li);
+				Object[] o = new Object[2];
+				o[0] = isEM;//(formulaCreator || !table.isEstimated()) ? Boolean.FALSE : Boolean.TRUE;
+				o[1] = li;
+				((DefaultTableModel) referencesTable.getModel()).addRow(o);
 			}
 		}
 	}
@@ -842,7 +844,8 @@ public class MMC_M extends JPanel {
 
 	private void button1ActionPerformed(ActionEvent e) {
 		// New
-		doLit(null);
+		boolean b = (formulaCreator || !table.isEstimated());
+		doLit(null, !b);
 	}
 
 	private void button2ActionPerformed(ActionEvent e) {
@@ -852,9 +855,10 @@ public class MMC_M extends JPanel {
 
 	private void button3ActionPerformed(ActionEvent e) {
 		// Edit
-		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(referencesTable.getSelectedRow(), 0);
+		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(referencesTable.getSelectedRow(), 1);
+		Boolean b = (Boolean) referencesTable.getValueAt(referencesTable.getSelectedRow(), 0);
 		// if (li != null) doLit(li.getId());
-		doLit(li);
+		doLit(li, b);
 	}
 
 	private void deleteSelLitRow() {
@@ -866,26 +870,30 @@ public class MMC_M extends JPanel {
 		pm.removeEstModelLits();
 		pm.removeModelLits();
 		for (int i = 0; i < referencesTable.getRowCount(); i++) {
-			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
-			if (formulaCreator || !table.isEstimated()) pm.addModelLit(li);
+			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 1);
+			Boolean b = (Boolean) referencesTable.getValueAt(i, 0);
+			if (!b) pm.addModelLit(li);
 			else pm.addEstModelLit(li);
 		}
 	}
 
-	private void doLit(LiteratureItem oldLi) {
+	private void doLit(LiteratureItem oldLi, Boolean isEM) {
 		MyTable lit = DBKernel.myDBi.getTable("Literatur");
 		Integer litID = (oldLi != null && (dbuuid != null && dbuuid.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
 		Integer newVal = (Integer) DBKernel.mainFrame.openNewWindow(lit, litID, (Object) "Literatur", null, 1, 1, null, true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			LiteratureItem li = DBUtilities.getLiteratureItem(newVal);
-			Vector<LiteratureItem> vli = new Vector<>();
-			vli.add(li);
+			Object[] o = new Object[2];
+			o[0] = isEM;
+			o[1] = li;
+			//Vector<LiteratureItem> vli = new Vector<>();
+			//vli.add(li);
 			if (oldLi != null) {
 				int selRow = referencesTable.getSelectedRow();
 				deleteSelLitRow();
-				((DefaultTableModel) referencesTable.getModel()).insertRow(selRow, vli);
+				((DefaultTableModel) referencesTable.getModel()).insertRow(selRow, o);
 			} else {
-				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
+				((DefaultTableModel) referencesTable.getModel()).addRow(o);
 			}
 		}
 		refreshRefsInPM(getPM());
@@ -1478,17 +1486,29 @@ public class MMC_M extends JPanel {
 				new Object[][] {
 				},
 				new String[] {
-					"Reference"
+					"EstModel", "Reference"
 				}
 			) {
-				boolean[] columnEditable = new boolean[] {
-					false
+				Class<?>[] columnTypes = new Class<?>[] {
+					Boolean.class, Object.class
 				};
+				boolean[] columnEditable = new boolean[] {
+					true, false
+				};
+				@Override
+				public Class<?> getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
 				@Override
 				public boolean isCellEditable(int rowIndex, int columnIndex) {
 					return columnEditable[columnIndex];
 				}
 			});
+			{
+				TableColumnModel cm = referencesTable.getColumnModel();
+				cm.getColumn(0).setMaxWidth(100);
+				cm.getColumn(0).setPreferredWidth(60);
+			}
 			scrollPane2.setViewportView(referencesTable);
 		}
 		add(scrollPane2, CC.xywh(5, 21, 17, 1));

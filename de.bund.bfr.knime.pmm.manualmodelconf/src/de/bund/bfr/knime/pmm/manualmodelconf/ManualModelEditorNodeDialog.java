@@ -44,6 +44,8 @@ import org.hsh.bfr.db.DBKernel;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
+import org.javers.core.diff.changetype.NewObject;
+import org.javers.core.diff.changetype.ObjectRemoved;
 import org.javers.core.diff.changetype.ValueChange;
 import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
@@ -55,6 +57,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -112,7 +115,8 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		//m_confui.stopCellEditing();
 		m_mmcm.stopCellEditing();
 		//settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_confui.toXmlString() );
-		getDiff(inputDoc, m_mmcm.listToDoc());
+		HashMap<Integer, HashMap<String, Object[]>> diffMap = getDiff(inputDoc, m_mmcm.listToDoc());
+		settings.addString( ManualModelConfNodeModel.PARAM_XMLDIFFSTRING, XmlConverter.objectToXml(diffMap));
 		
 		String xml = m_mmcm.listToXmlString();
 		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, xml);
@@ -146,7 +150,6 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		catch( InvalidSettingsException e ) {
 			e.printStackTrace();
 		}
-
 		//MMC_TS
 		try {
 			if (settings.containsKey(ManualModelConfNodeModel.PARAM_TSXMLSTRING)) {
@@ -154,41 +157,9 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			}
 		}
 		catch (Exception e) {} // e.printStackTrace();
-		
+
 		inputDoc = null;
 		if (inData != null && inData.length == 1) {
-			HashMap<Integer, ParametricModel> mlist = new HashMap<>();
-			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<>();
-			try {
-				
-				if (mStr != null && !mStr.isEmpty()) {
-					PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
-					for (int i = 0; i < mDoc.size(); i++) {
-						PmmXmlElementConvertable el = mDoc.get(i);
-						if (el instanceof ParametricModel) {
-							ParametricModel pm = (ParametricModel) el;
-							mlist.put(pm.getEstModelId(), pm);
-						}
-					}
-				}
-				
-				if (tsStr != null && !tsStr.isEmpty()) {
-					PmmXmlDoc tsDoc = new PmmXmlDoc(tsStr);
-					for (int i = 0; i < tsDoc.size(); i++) {
-						PmmXmlElementConvertable el = tsDoc.get(i);
-						if (el instanceof PmmTimeSeries) {
-							PmmTimeSeries ts = (PmmTimeSeries) el;
-							tslist.put(ts.getCondId(), ts);
-						}
-					}
-				}
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (JDOMException e) {
-				e.printStackTrace();
-			}
 		    DataTableSpec inSpec = inData[0].getDataTableSpec();
 		    try {
 			    KnimeSchema tsSchema = new TimeSeriesSchema();
@@ -217,15 +188,13 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			    			PmmTimeSeries ts = new PmmTimeSeries(row);
 			    			condID = ts.getCondId();
 			    			//System.err.println(condID);
-			    			if (tslist.containsKey(condID)) tss.put(condID, tslist.get(condID));
-			    			else tss.put(condID, ts);
+			    			tss.put(condID, ts);
 		    			}
 		    			if (hasM1) {
 			    			ParametricModel pm1 = new ParametricModel(row, 1, hasTs ? condID : null);
 			    			m1EstID = pm1.getEstModelId();
 			    			if (!m1s.containsKey(m1EstID)) {
-				    			if (mlist.containsKey(m1EstID)) m1s.put(m1EstID, mlist.get(m1EstID));
-				    			else m1s.put(m1EstID, pm1);			    				
+			    				m1s.put(m1EstID, pm1);			    				
 			    			}
 			    			if (!oneStepFitTs.containsKey(m1EstID)) oneStepFitTs.put(m1EstID, new HashSet<Integer>());
 			    			HashSet<Integer> hs = oneStepFitTs.get(m1EstID);
@@ -234,8 +203,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			    				ParametricModel pm2 = new ParametricModel(row, 2, null);
 			    				m2EstID = pm2.getEstModelId();
 				    			if (!m2s.containsKey(m2EstID)) {
-					    			if (mlist.containsKey(m2EstID)) m2s.put(m2EstID, mlist.get(m2EstID));
-					    			else m2s.put(m2EstID, pm2);			    				
+				    				m2s.put(m2EstID, pm2);			    				
 				    			}
 				    			if (!m_secondaryModels.containsKey(m1s.get(m1EstID))) m_secondaryModels.put(m1s.get(m1EstID), new HashMap<String, ParametricModel>());
 				    			HashMap<String, ParametricModel> hm = m_secondaryModels.get(m1s.get(m1EstID));
@@ -249,6 +217,63 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 					} catch (InvalidSettingsException e) {
 						e.printStackTrace();
 					}
+
+		    		try {
+		    			if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLDIFFSTRING)) { // new behaviour
+		    				HashMap<Integer, HashMap<String, Object[]>> diffMap = XmlConverter.xmlToObject(settings.getString(ManualModelConfNodeModel.PARAM_XMLDIFFSTRING), new HashMap<Integer, HashMap<String, Object[]>>());
+		    				for (Integer id : diffMap.keySet()) {
+		    					HashMap<String, Object[]> hm = diffMap.get(id);
+		    					if (m1s.containsKey(id)) {
+		    						for (String property : hm.keySet()) {
+		    							Object[] o = hm.get(property);
+					    		    	if (o != null) setValue(m1s.get(id), property, o[0], o[1]);
+		    						}
+		    					}
+		    					else { // secondary Models
+		    						checkSec(m_secondaryModels, id, hm);
+		    					}
+		    				}
+		    			}
+		    			else {
+	    					try {
+	    						
+	    						if (mStr != null && !mStr.isEmpty()) {
+	    							PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
+	    							for (int i = 0; i < mDoc.size(); i++) {
+	    								PmmXmlElementConvertable el = mDoc.get(i);
+	    								if (el instanceof ParametricModel) {
+	    									ParametricModel pm = (ParametricModel) el;
+	    									if (m1s.containsKey(pm.getEstModelId())) m1s.put(pm.getEstModelId(), pm);
+	    									else {
+	    			    						checkSec(m_secondaryModels, pm);
+	    									}
+	    								}
+	    							}
+	    						}
+	    						
+	    						if (tsStr != null && !tsStr.isEmpty()) {
+	    							PmmXmlDoc tsDoc = new PmmXmlDoc(tsStr);
+	    							for (int i = 0; i < tsDoc.size(); i++) {
+	    								PmmXmlElementConvertable el = tsDoc.get(i);
+	    								if (el instanceof PmmTimeSeries) {
+	    									PmmTimeSeries ts = (PmmTimeSeries) el;
+	    									if (tss.containsKey(ts.getCondId())) tss.put(ts.getCondId(), ts);
+	    								}
+	    							}
+	    						}
+	    					}
+	    					catch (IOException e) {
+	    						e.printStackTrace();
+	    					}
+	    					catch (JDOMException e) {
+	    						e.printStackTrace();
+	    					}
+		    			}
+			    		m_mmcm.setInputData(m1s.values(), m_secondaryModels, tss);
+		    		}
+		    		catch( InvalidSettingsException e ) {
+		    			e.printStackTrace();
+		    		}
 		    	}
 		    }
 		    catch (PmmException e) {}
@@ -258,8 +283,39 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 			if (mStr != null) m_mmcm.setFromXmlString(mStr);
 		}
 	}
+	private void checkSec(HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels, ParametricModel pm) {
+		boolean idFound = false;
+		for (HashMap<String, ParametricModel> sm : m_secondaryModels.values()) {
+			for (String dep : sm.keySet()) {
+				ParametricModel pms = sm.get(dep);
+				if (pms.getEstModelId() == pm.getEstModelId()) {
+					idFound = true;
+					sm.put(dep, pm);
+					break;
+				}
+			}
+			if (idFound) break;
+		}		
+	}
+	private void checkSec(HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels, int id, HashMap<String, Object[]> hm) {
+		boolean idFound = false;
+		for (HashMap<String, ParametricModel> sm : m_secondaryModels.values()) {
+			for (ParametricModel pm : sm.values()) {
+				if (pm.getEstModelId() == id) {
+					idFound = true;
+					for (String property : hm.keySet()) {
+						Object[] o = hm.get(property);
+	    		    	if (o != null) setValue(pm, property, o[0], o[1]);
+					}
+					break;
+				}
+			}
+			if (idFound) break;
+		}		
+	}
 	
-	private void getDiff(PmmXmlDoc inputDoc, PmmXmlDoc outputDoc) {
+	private HashMap<Integer, HashMap<String, Object[]>> getDiff(PmmXmlDoc inputDoc, PmmXmlDoc outputDoc) {
+		HashMap<Integer, HashMap<String, Object[]>> result = new HashMap<>();
 		   Javers javers = JaversBuilder.javers().build();
 
 		   /*
@@ -277,15 +333,44 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 	    	        		    if (diff.getChanges().size() > 0) {
 		    	        		    System.out.println(mOut.getEstModelId() + "\n" + diff);
 		    	        		    for (ValueChange c : diff.getChangesByType(ValueChange.class)) {
-		    	        		    	System.out.println(c.getProperty().getName());
-		    	        		    	System.out.println(c.getLeft());
-		    	        		    	System.out.println(c.getRight());
+		    	        		    	//System.out.println(c.getProperty().getName());
+		    	        		    	//System.out.println(c.getLeft());
+		    	        		    	//System.out.println(c.getRight());
+		    	        		    	if (!result.containsKey(mOut.getEstModelId())) result.put(mOut.getEstModelId(), new HashMap<String, Object[]>());
+		    	        		    	HashMap<String, Object[]> hm = result.get(mOut.getEstModelId());
+		    	        		    	String gid = c.getAffectedGlobalId().value();
+		    	        		    	if (gid.indexOf("#") > 0) gid = gid.substring(gid.indexOf("#") + 1) + "#"; // parameter#elementSet/2#
+		    	        		    	else gid = "";
+		    	        		    	hm.put(gid + c.getProperty().getName(), new Object[]{c.getLeft(),c.getRight()});
+		    	        		    	/*
 		    	        		    	System.out.println(c);
-		    	        		    	
 		    	        		    	System.out.println(mIn.getFittedModelName());
 		    	        		    	setValue(mIn, c.getProperty().getName(), c.getRight());
 		    	        		    	System.out.println(mIn.getFittedModelName());
-		    	        		    }	    	        		    
+		    	        		    	*/
+		    	        		    }
+		    	        		    for (NewObject c : diff.getChangesByType(NewObject.class)) {
+		    	        		    	if (!result.containsKey(mOut.getEstModelId())) result.put(mOut.getEstModelId(), new HashMap<String, Object[]>());
+		    	        		    	HashMap<String, Object[]> hm = result.get(mOut.getEstModelId());
+		    	        		    	String gid = c.getAffectedGlobalId().value();
+		    	        		    	if (gid.indexOf("#") > 0) gid = gid.substring(gid.indexOf("#") + 1) + "#"; // estLit#elementSet/0#
+		    	        		    	else {
+		    	        		    		System.err.println(gid);
+		    	        		    		//gid = "";
+		    	        		    	}
+		    	        		    	hm.put(gid, new Object[]{null,c.getAffectedObject().get()});
+		    	        		    }
+		    	        		    for (ObjectRemoved c : diff.getChangesByType(ObjectRemoved.class)) {
+		    	        		    	if (!result.containsKey(mOut.getEstModelId())) result.put(mOut.getEstModelId(), new HashMap<String, Object[]>());
+		    	        		    	HashMap<String, Object[]> hm = result.get(mOut.getEstModelId());
+		    	        		    	String gid = c.getAffectedGlobalId().value();
+		    	        		    	if (gid.indexOf("#") > 0) gid = gid.substring(gid.indexOf("#") + 1) + "#"; // estLit#elementSet/0#
+		    	        		    	else {
+		    	        		    		System.err.println(gid);
+		    	        		    		//gid = "";
+		    	        		    	}
+		    	        		    	hm.put(gid, new Object[]{null, null}); // c.getAffectedObject().get()
+		    	        		    }
 	    	        		    }
 	    	        			break;
 	    	        		}
@@ -293,12 +378,51 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 	    	    	}
 	    		}
 	    	}
+		   return result;
 	}
-	private void setValue(Object o, String fieldName, Object newValue) {
+	private void setValue(Object o, String fieldName, Object oldValue, Object newValue) {
+		// todo: checken, ob "oldValue = oldValue"?
 		try {
-			Field field = o.getClass().getDeclaredField(fieldName);
-			field.setAccessible(true);
-			field.set(o, newValue);
+			if (fieldName.indexOf("#") >= 0) { // z.B. '#parameter#elementSet/2'
+				String fn = fieldName.substring(0, fieldName.indexOf("#"));// "parameter"
+				String param = fieldName.substring(fieldName.lastIndexOf("#") + 1); // max
+				Field f = o.getClass().getDeclaredField(fn);	
+				if (f.getType() == PmmXmlDoc.class) {
+					f.setAccessible(true);
+					PmmXmlDoc doc = (PmmXmlDoc) f.get(o);
+					
+					String indexS = fieldName.substring(fieldName.indexOf("#elementSet/") + "#elementSet/".length(), fieldName.lastIndexOf("#"));// 2
+					Integer index = Integer.parseInt(indexS);
+					PmmXmlElementConvertable pxec = doc.get(index);
+					if (newValue == null) { // ObjectRemoved
+						doc.remove(pxec);
+					}
+					else if (oldValue == null) { // NewObject
+						doc.add((PmmXmlElementConvertable) newValue);
+					}
+					else {
+						Field field = pxec.getClass().getDeclaredField(param);
+						field.setAccessible(true);
+						field.set(pxec, newValue);
+					}
+				}
+				else if (f.getType() == DepXml.class) {
+					f.setAccessible(true);
+					DepXml dx = (DepXml) f.get(o);
+
+					Field field = dx.getClass().getDeclaredField(param);
+					field.setAccessible(true);
+					field.set(dx, newValue);
+				}
+				else {
+					System.out.println(f.getType());
+				}
+			}
+			else {
+				Field field = o.getClass().getDeclaredField(fieldName);
+				field.setAccessible(true);
+				field.set(o, newValue);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

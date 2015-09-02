@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.2.1.0.138" Java: "1.7.0_75" encoding: "UTF-8"
+JFDML JFormDesigner: "5.2.2.0.199" Java: "1.8.0_05" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -302,12 +302,16 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTable" ) {
 					name: "referencesTable"
 					"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector, new java.util.Vector {
+						add( "EstModel" )
 						add( "Reference" )
 					}, new java.util.Vector {
+						add( class java.lang.Boolean )
 						add( class java.lang.Object )
 					}, new java.util.Vector {
+						add( null )
 						add( false )
 					}, new java.util.Vector {
+						add( new com.jformdesigner.model.SwingTableColumn( null, 60, 0, 100, true ) )
 						add( null )
 					} )
 				} )

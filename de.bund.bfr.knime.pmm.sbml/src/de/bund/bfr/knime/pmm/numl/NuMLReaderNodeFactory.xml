@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./SBMLReader.png" type="Source"
+<knimeNode icon="./NuMLReader.png" type="Source"
 	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
-	<name>SBML Reader</name>
+	<name>NuML Reader</name>
 
 	<shortDescription>
-		This node reads in models from a single SBML document.
+		This nodes reads data from a single NuML document.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			This node reads in a single SBMLDocument and retrieves the model.
+			This node reads in a single NuMLDocument and retrieves the data.
 		</intro>
 
 		<option name="Selected File">
@@ -19,6 +19,6 @@
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Models">Read models</outPort>
+		<outPort index="0" name="Models">Read data</outPort>
 	</ports>
 </knimeNode>

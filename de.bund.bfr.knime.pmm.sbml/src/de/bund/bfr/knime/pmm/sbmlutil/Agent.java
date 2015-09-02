@@ -12,6 +12,7 @@ import groovy.util.Node;
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Species;
+import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
@@ -59,7 +60,14 @@ public class Agent {
 		species = new Species(Util.createId("species" + agent.getId()), 3, 1);
 		species.setBoundaryCondition(false);
 		species.setConstant(false);
-		species.setUnits(Util.createId(unit));
+		
+		// Deal with null units
+		if (unit == null) {
+			species.setUnits(Unit.Kind.DIMENSIONLESS);
+		} else {
+			species.setUnits(Util.createId(unit));
+		}
+		
 		species.setCompartment(compartment);
 		species.setHasOnlySubstanceUnits(false);
 

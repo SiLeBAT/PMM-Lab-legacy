@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlreader;
+package de.bund.bfr.knime.pmm.numl;
 
 import javax.swing.JFileChooser;
 
@@ -7,21 +7,23 @@ import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
- * <code>NodeDialog</code> for the "SBMLReader" node.
+ * <code>NodeDialog</code> for the "NuMLReader" Node.
+ * 
  * @author Miguel de Alba
  */
-public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
+public class NuMLReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	DialogComponentFileChooser fileChooser;
 	
 	/**
-	 * New pane for configuring {@link SBMLReaderNodeDialog}
+	 * New pane for configuring {@link NuMLReaderNodeDialog}.
 	 */
-	protected SBMLReaderNodeDialog() {
+	
+	protected NuMLReaderNodeDialog() {
 		super();
 		
 		// Set model strings
-		final SettingsModelString fileName = new SettingsModelString(SBMLReaderNodeModel.CFGKEY_FILE, "");
+		final SettingsModelString fileName = new SettingsModelString(NuMLReaderNodeModel.CFGKEY_FILE, "");
 		fileName.setEnabled(true);
 		
 		// Create fileChooser
@@ -31,7 +33,7 @@ public class SBMLReaderNodeDialog extends DefaultNodeSettingsPane {
 		createNewGroup("Data source");
 		addDialogComponent(fileChooser);
 		
-		// starts showing fileChooser
+		// start showing fileChooser
 		fileChooser.getComponentPanel().setVisible(true);
 	}
 }

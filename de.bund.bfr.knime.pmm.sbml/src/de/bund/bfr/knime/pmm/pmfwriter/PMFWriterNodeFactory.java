@@ -31,63 +31,60 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.sbmlwriter;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
-import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.BundleContext;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
 /**
- * This is the eclipse bundle activator.
- * Note: KNIME node developers probably won't have to do anything in here, 
- * as this class is only needed by the eclipse platform/plugin mechanism.
- * If you want to move/rename this file, make sure to change the plugin.xml
- * file in the project root directory accordingly.
+ * <code>NodeFactory</code> for the "SBMLWriter" Node.
+ * 
  *
  * @author Christian Thoens
  */
-public class SBMLWriterNodePlugin extends Plugin {
-    // The shared instance.
-    private static SBMLWriterNodePlugin plugin;
+public class PMFWriterNodeFactory 
+        extends NodeFactory<PMFWriterNodeModel> {
 
     /**
-     * The constructor.
-     */
-    public SBMLWriterNodePlugin() {
-        super();
-        plugin = this;
-    }
-
-    /**
-     * This method is called upon plug-in activation.
-     * 
-     * @param context The OSGI bundle context
-     * @throws Exception If this plugin could not be started
+     * {@inheritDoc}
      */
     @Override
-    public void start(final BundleContext context) throws Exception {
-        super.start(context);
-
+    public PMFWriterNodeModel createNodeModel() {
+        return new PMFWriterNodeModel();
     }
 
     /**
-     * This method is called when the plug-in is stopped.
-     * 
-     * @param context The OSGI bundle context
-     * @throws Exception If this plugin could not be stopped
+     * {@inheritDoc}
      */
     @Override
-    public void stop(final BundleContext context) throws Exception {
-        super.stop(context);
-        plugin = null;
+    public int getNrNodeViews() {
+        return 0;
     }
 
     /**
-     * Returns the shared instance.
-     * 
-     * @return Singleton instance of the Plugin
+     * {@inheritDoc}
      */
-    public static SBMLWriterNodePlugin getDefault() {
-        return plugin;
+    @Override
+    public NodeView<PMFWriterNodeModel> createNodeView(final int viewIndex,
+            final PMFWriterNodeModel nodeModel) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasDialog() {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NodeDialogPane createNodeDialogPane() {
+        return new PMFWriterNodeDialog();
     }
 
 }

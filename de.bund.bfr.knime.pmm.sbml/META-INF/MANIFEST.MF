@@ -14,8 +14,7 @@ Bundle-ClassPath: sbmlreader.jar,
  lib/jsbml-tidy-1.0.jar,
  lib/jtidy-r938.jar,
  lib/pmf.jar
-Bundle-Activator: de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodePlugin
-Bundle-Vendor: Optimum Quality
+Bundle-Activator: de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodePlugin
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
@@ -33,9 +32,16 @@ Export-Package: de.bund.bfr.knime.pmm.dbutil,
    org.knime.base.util.flowvariable,
    org.knime.core.node.web,
    org.knime.js.core.node",
- de.bund.bfr.knime.pmm.sbmlreader;
+ de.bund.bfr.knime.pmm.pmfreader;
   uses:="org.eclipse.core.runtime,
    org.knime.core.node,
+   org.osgi.framework,
+   org.knime.core.node.defaultnodesettings",
+ de.bund.bfr.knime.pmm.pmfwriter;
+  uses:="org.sbml.jsbml,
+   org.knime.core.node,
+   org.eclipse.core.runtime,
+   javax.swing,
    org.osgi.framework,
    org.knime.core.node.defaultnodesettings",
  de.bund.bfr.knime.pmm.sbmlutil;
@@ -45,13 +51,6 @@ Export-Package: de.bund.bfr.knime.pmm.dbutil,
    de.bund.bfr.numl,
    org.knime.core.data,
    de.bund.bfr.knime.pmm.common",
- de.bund.bfr.knime.pmm.sbmlwriter;
-  uses:="org.sbml.jsbml,
-   org.knime.core.node,
-   org.eclipse.core.runtime,
-   javax.swing,
-   org.osgi.framework,
-   org.knime.core.node.defaultnodesettings",
  de.unirostock.sems.cbarchive;uses:="de.unirostock.sems.cbarchive.meta,de.unirostock.sems.cbarchive.meta.omex,org.jdom2",
  org.sbml.jsbml
 Import-Package: com.fasterxml.jackson.annotation;version="2.4.3",

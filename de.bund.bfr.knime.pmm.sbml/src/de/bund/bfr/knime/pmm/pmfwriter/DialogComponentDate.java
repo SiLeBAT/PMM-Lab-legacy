@@ -44,7 +44,7 @@
  *
  * Created on 21.03.2013 by peter
  */
-package de.bund.bfr.knime.pmm.sbmlwriter;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;

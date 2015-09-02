@@ -82,7 +82,7 @@ public class TwoStepTertiaryModelFile {
 			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
 			stream.close();
 			
-			// Tertiary model -> has external moel definitions
+			// Tertiary model -> has external model definitions
 			if (plugin.getNumExternalModelDefinitions() > 0) {
 				tertDocs.put(entry.getFileName(), doc);
 			}

@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.sbmlwriter;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
 import javax.swing.JFileChooser;
 
@@ -54,39 +54,39 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * 
  * @author Christian Thoens
  */
-public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
+public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
 
 	private static final String OUT_HISTORY = "Out History";
 
 	/**
 	 * New pane for configuring the SBMLWriter node.
 	 */
-	protected SBMLWriterNodeDialog() {
+	protected PMFWriterNodeDialog() {
 		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null), OUT_HISTORY, JFileChooser.SAVE_DIALOG,
+				new SettingsModelString(PMFWriterNodeModel.CFG_OUT_PATH, null), OUT_HISTORY, JFileChooser.SAVE_DIALOG,
 				true);
 		DialogComponentString nameComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME, null), "File Name");
+				new SettingsModelString(PMFWriterNodeModel.CFG_MODEL_NAME, null), "File Name");
 		DialogComponentString givenNameComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null), "Creator Given Name");
+				new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null), "Creator Given Name");
 		DialogComponentString familyNameComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null), "Creator Family Name");
+				new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null), "Creator Family Name");
 		DialogComponentString creatorContactComp = new DialogComponentString(
-				new SettingsModelString(SBMLWriterNodeModel.CFG_CREATOR_CONTACT, null), "Creator Contact");
+				new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_CONTACT, null), "Creator Contact");
 
-		SettingsModelDate createdDateModel = new SettingsModelDate(SBMLWriterNodeModel.CFG_CREATED_DATE);
+		SettingsModelDate createdDateModel = new SettingsModelDate(PMFWriterNodeModel.CFG_CREATED_DATE);
 		DialogComponentDate createdComp = new DialogComponentDate(createdDateModel, "Created");
 
-		SettingsModelDate modifiedDateModel = new SettingsModelDate(SBMLWriterNodeModel.CFG_LAST_MODIFIED_DATE);
+		SettingsModelDate modifiedDateModel = new SettingsModelDate(PMFWriterNodeModel.CFG_LAST_MODIFIED_DATE);
 		DialogComponentDate modifiedComp = new DialogComponentDate(modifiedDateModel, "Last Modified");
 
-		SettingsModelBoolean isSecondary = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_ISSECONDARY, false);
+		SettingsModelBoolean isSecondary = new SettingsModelBoolean(PMFWriterNodeModel.CFG_ISSECONDARY, false);
 		DialogComponentBoolean isSecondaryCheckbox = new DialogComponentBoolean(isSecondary, "Is secondary?");
 
-		SettingsModelBoolean overwrite = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_OVERWRITE, true);
+		SettingsModelBoolean overwrite = new SettingsModelBoolean(PMFWriterNodeModel.CFG_OVERWRITE, true);
 		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(overwrite, "Overwrite, ok?");
 		
-		SettingsModelBoolean splitModels = new SettingsModelBoolean(SBMLWriterNodeModel.CFG_SPLITMODELS, false);
+		SettingsModelBoolean splitModels = new SettingsModelBoolean(PMFWriterNodeModel.CFG_SPLITMODELS, false);
 		DialogComponentBoolean splitCheckbox = new DialogComponentBoolean(splitModels, "Split top level models?");
 
 		outComp.setBorderTitle("Output Path");

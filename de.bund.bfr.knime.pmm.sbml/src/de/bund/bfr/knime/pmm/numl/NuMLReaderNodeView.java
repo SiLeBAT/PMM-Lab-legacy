@@ -1,16 +1,16 @@
-package de.bund.bfr.knime.pmm.sbmlreader;
+package de.bund.bfr.knime.pmm.numl;
 
 import org.knime.core.node.NodeView;
 
-public class SBMLReaderNodeView extends NodeView<SBMLReaderNodeModel> {
-	
+public class NuMLReaderNodeView extends NodeView<NuMLReaderNodeModel> {
+
 	/**
 	 * Creates a new view
-	 * @param nodeModel The model (class: {@link SBMLReaderNodeModel})
+	 * @param nodeModel The model (class: {@link NuMLReaderNodeModel})
 	 */
-	protected SBMLReaderNodeView(final SBMLReaderNodeModel nodeModel) {
+	protected NuMLReaderNodeView(final NuMLReaderNodeModel nodeModel) {
 		super(nodeModel);
-		// SBMLReaderNodeView has no components
+		// NuMLReaderNodeView has no components
 	}
 	
 	/**
@@ -18,10 +18,10 @@ public class SBMLReaderNodeView extends NodeView<SBMLReaderNodeModel> {
 	 */
 	@Override
 	protected void modelChanged() {
-		SBMLReaderNodeModel nodeModel = (SBMLReaderNodeModel) getNodeModel();
+		NuMLReaderNodeModel nodeModel = (NuMLReaderNodeModel) getNodeModel();
 		assert nodeModel != null;
 	}
-		
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -29,7 +29,7 @@ public class SBMLReaderNodeView extends NodeView<SBMLReaderNodeModel> {
 	protected void onClose() {
 		// TODO things to do when closing the view
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlwriter;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;

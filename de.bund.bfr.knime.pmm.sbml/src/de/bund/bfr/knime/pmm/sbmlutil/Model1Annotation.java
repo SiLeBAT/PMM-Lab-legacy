@@ -7,7 +7,6 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -35,7 +34,7 @@ public class Model1Annotation {
 	XMLNode node;
 	String modelID;
 	String modelTitle;
-	Map<String, String> uncertainties;
+	Uncertainties uncertainties;
 	List<LiteratureItem> lits;
 	int condID;
 
@@ -67,7 +66,7 @@ public class Model1Annotation {
 		}
 	}
 
-	public Model1Annotation(String modelID, String modelTitle, Map<String, String> uncertainties,
+	public Model1Annotation(String modelID, String modelTitle, Uncertainties uncertainties,
 			List<LiteratureItem> literatureItems, int condID) {
 
 		// Builds metadata node
@@ -80,9 +79,7 @@ public class Model1Annotation {
 		node.addChild(modelIDNode);
 
 		// Builds uncertainties node
-		if (!uncertainties.isEmpty()) {
-			node.addChild(new UncertaintyNode(uncertainties).getNode());
-		}
+		node.addChild(new UncertaintyNode(uncertainties).getNode());
 
 		// Builds reference nodes
 		for (LiteratureItem lit : literatureItems) {
@@ -113,7 +110,7 @@ public class Model1Annotation {
 		return modelTitle;
 	}
 
-	public Map<String, String> getUncertainties() {
+	public Uncertainties getUncertainties() {
 		return uncertainties;
 	}
 

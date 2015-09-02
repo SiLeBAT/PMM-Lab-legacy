@@ -6,7 +6,6 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -32,7 +31,7 @@ public class Model2Annotation {
 	XMLNode node;
 	List<LiteratureItem> literatureItems;
 	int globalModelID;
-	Map<String, String> uncertainties;
+	Uncertainties uncertainties;
 
 	/**
 	 * Gets literature items and globalModelID from existing Model2Annotation
@@ -63,7 +62,7 @@ public class Model2Annotation {
 
 	// Builds new coefficient annotation for globalModelID and references
 	public Model2Annotation(int globalModelID,
-			Map<String, String> uncertainties, List<LiteratureItem> lits) {
+			Uncertainties uncertainties, List<LiteratureItem> lits) {
 		// Builds metadata node
 		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
 
@@ -71,9 +70,7 @@ public class Model2Annotation {
 		node.addChild(new GlobalModelIdNode(globalModelID).getNode());
 
 		// Builds uncertainties node
-		if (!uncertainties.isEmpty()) {
-			node.addChild(new UncertaintyNode(uncertainties).getNode());
-		}
+		node.addChild(new UncertaintyNode(uncertainties).getNode());
 
 		// Builds references node
 		for (LiteratureItem lit : lits) {
@@ -100,7 +97,7 @@ public class Model2Annotation {
 		return literatureItems;
 	}
 
-	public Map<String, String> getUncertainties() {
+	public Uncertainties getUncertainties() {
 		return uncertainties;
 	}
 }

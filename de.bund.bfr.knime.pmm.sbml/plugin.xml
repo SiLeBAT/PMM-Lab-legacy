@@ -2,9 +2,19 @@
 <?eclipse version="3.0"?><plugin>
 
 	<extension point="org.knime.workbench.repository.nodes">
-   		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory" id="sbmlreader.SBMLReaderNodeFactory"/>
-   		<node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory" id="sbmlwriter.SBMLWriterNodeFactory"/>
+   		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory" id="pmfreader.PMFReaderNodeFactory"/>
+   		<node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory" id="pmfwriter.PMFWriterNodeFactory"/>
 	   	<node category-path="/pmmlab/editors" factory-class="de.bund.bfr.knime.pmm.js.editor.JSEditorNodeFactory" id="editor.JSEditorNodeFactory"/>
+     <node
+           category-path="/pmmlab/reader"
+           factory-class="de.bund.bfr.knime.pmm.numl.NuMLReaderNodeFactory"
+           id="numl.NuMLReaderNodeFactory">
+     </node>
+     <node
+           category-path="/pmmlab/reader"
+           factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory"
+           id="sbmlreader.SBMLReaderNodeFactory">
+     </node>
 	</extension>
    
    <extension

@@ -5,7 +5,7 @@
 	<name>PMF Writer</name>
 
 	<shortDescription>
-     	This node writes primary and tertiary models to SBML files
+     	This node writes primary and tertiary models to PMF files
     </shortDescription>
 
 	<fullDescription>

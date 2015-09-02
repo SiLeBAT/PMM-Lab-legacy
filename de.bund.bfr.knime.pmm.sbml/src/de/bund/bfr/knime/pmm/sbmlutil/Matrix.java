@@ -75,16 +75,14 @@ public class Matrix {
 			// Gets PMF code from DB
 			String[] colNames = { "CodeSystem", "Basis" };
 			String[] colVals = { "PMF", matrixXml.getId().toString() };
-			code = (String) DBKernel.getValue(null, "Codes_Matrices", colNames,
-					colVals, "Code");
+			code = (String) DBKernel.getValue(null, "Codes_Matrices", colNames, colVals, "Code");
 
 			// Copies model variables and description
 			this.miscs = miscs;
 			details = matrixXml.getDetail();
 
 			// Builds and sets non RDF annotation
-			XMLNode annot = new MatrixAnnotation(code, miscs, details)
-					.getNode();
+			XMLNode annot = new MatrixAnnotation(code, miscs, details).getNode();
 			compartment.getAnnotation().setNonRDFAnnotation(annot);
 		}
 	}
@@ -105,14 +103,12 @@ public class Matrix {
 	// Create MatrixXml
 	public MatrixXml toMatrixXml() {
 		if (code == null) {
-			return new MatrixXml(MathUtilities.getRandomNegativeInt(),
-					compartment.getName(), null, null);
+			return new MatrixXml(MathUtilities.getRandomNegativeInt(), compartment.getName(), null, null);
 		} else {
 			// Get matrix DB id
 			String[] colNames = { "CodeSystem", "Code" };
 			String[] colVals = { "PMF", code };
-			int id = (int) DBKernel.getValue(null, "Codes_Matrices", colNames,
-					colVals, "Basis");
+			int id = (int) DBKernel.getValue(null, "Codes_Matrices", colNames, colVals, "Basis");
 
 			// Get matrix dbuuid
 			String dbuuid = DBKernel.getLocalDBUUID();
@@ -164,8 +160,12 @@ class MatrixAnnotation {
 		XMLNode metadata = node.getChildElement("metadata", "");
 
 		// Gets PMF code
-		code = metadata.getChildElement("source", "").getChild(0)
-				.getCharacters();
+//		code = metadata.getChildElement("source", "").getChild(0).getCharacters();
+		
+		XMLNode codeNode = metadata.getChildElement("source",  "");
+		if (codeNode != null) {
+			code = codeNode.getChild(0).getCharacters();
+		}
 
 		// Gets matrix details
 		XMLNode detailsNode = metadata.getChildElement("detail", "");
@@ -201,8 +201,7 @@ class MatrixAnnotation {
 	 * @param details
 	 *            Matrix description.
 	 */
-	public MatrixAnnotation(String code, Map<String, Double> vars,
-			String details) {
+	public MatrixAnnotation(String code, Map<String, Double> vars, String details) {
 		this.code = code;
 		miscs = vars;
 		this.details = details;
@@ -211,9 +210,11 @@ class MatrixAnnotation {
 		node = new XMLNode(new XMLTriple("metadata", null, "pmf"));
 
 		// Creates annotation for PMF code
-		XMLNode codeNode = new XMLNode(new XMLTriple("source", null, "dc"));
-		codeNode.addChild(new XMLNode(code));
-		node.addChild(codeNode);
+		if (code != null) {
+			XMLNode codeNode = new XMLNode(new XMLTriple("source", null, "dc"));
+			codeNode.addChild(new XMLNode(code));
+			node.addChild(codeNode);
+		}
 
 		// Creates annotation for matrix details
 		if (details != null) {

@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.sbmlwriter;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -135,6 +135,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFUnitDefinition;
 import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
+import de.bund.bfr.knime.pmm.sbmlutil.Uncertainties;
 import de.bund.bfr.knime.pmm.sbmlutil.Util;
 import de.bund.bfr.numl.NuMLDocument;
 
@@ -144,7 +145,7 @@ import de.bund.bfr.numl.NuMLDocument;
  * 
  * @author Christian Thoens
  */
-public class SBMLWriterNodeModel extends NodeModel {
+public class PMFWriterNodeModel extends NodeModel {
 	protected static final String CFG_OUT_PATH = "outPath";
 	protected static final String CFG_MODEL_NAME = "modelName";
 	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
@@ -172,7 +173,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	/**
 	 * Constructor for the node model.
 	 */
-	protected SBMLWriterNodeModel() {
+	protected PMFWriterNodeModel() {
 		super(1, 0);
 
 		// Set current date in the dialog components
@@ -536,62 +537,6 @@ class TableReader {
 		return annot;
 	}
 
-	/**
-	 * Parse model quality tags such as SSE and RMS from the EstModelXml cell.
-	 * 
-	 * @param estModel
-	 * @return
-	 */
-	public static Map<String, String> parseQualityTags(EstModelXml estModel) {
-		Map<String, String> qualityTags = new HashMap<>();
-
-		if (estModel.getId() != null) {
-			qualityTags.put("id", estModel.getId().toString());
-		}
-
-		if (estModel.getComment() != null) {
-			qualityTags.put("dataUsage", estModel.getComment());
-		}
-
-		if (estModel.getName() == null) {
-			qualityTags.put("dataName", "Missing data name");
-		} else {
-			qualityTags.put("dataName", estModel.getName());
-		}
-
-		Double r2 = estModel.getR2();
-		if (r2 != null) {
-			qualityTags.put("r-squared", r2.toString());
-		}
-
-		Double rms = estModel.getRms();
-		if (rms != null) {
-			qualityTags.put("rootMeanSquaredError", rms.toString());
-		}
-
-		Double sse = estModel.getSse();
-		if (sse != null) {
-			qualityTags.put("sumSquaredError", sse.toString());
-		}
-
-		Double aic = estModel.getAic();
-		if (aic != null) {
-			qualityTags.put("AIC", aic.toString());
-		}
-
-		Double bic = estModel.getBic();
-		if (bic != null) {
-			qualityTags.put("BIC", bic.toString());
-		}
-
-		Integer dof = estModel.getDof();
-		if (dof != null) {
-			qualityTags.put("degreesOfFreedom", dof.toString());
-		}
-
-		return qualityTags;
-	}
-
 	public static void addNamespaces(SBMLDocument doc) {
 		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
@@ -821,7 +766,6 @@ class PrimaryModelWDataParser implements Parser {
 
 		// Annotation
 		String modelTitle = estModel.getName();
-		Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -830,7 +774,8 @@ class PrimaryModelWDataParser implements Parser {
 		}
 
 		// Add model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+		Uncertainties uncertainties = new Uncertainties(estModel);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 		model.getAnnotation().setNonRDFAnnotation(primModelAnnotation.getNode());
 
 		// Create and add compartment to model
@@ -902,11 +847,19 @@ class PrimaryModelWDataParser implements Parser {
 				dim.put(dim.size(), Arrays.asList(time, conc));
 			}
 
+			// Gets data literature
+			PmmXmlDoc mdLit = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
+			List<LiteratureItem> mdLits = new LinkedList<>();
+			for (PmmXmlElementConvertable item : mdLit.getElementSet()) {
+				mdLits.add((LiteratureItem) item);
+			}
+
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 			String concUnit = firstPoint.getConcentrationUnit();
 			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, mdLits,
+					dlgInfo);
 			numlDoc = dataFile.getDocument();
 		}
 
@@ -965,7 +918,6 @@ class PrimaryModelWODataParser implements Parser {
 
 		// Annotation
 		String modelTitle = estModel.getName();
-		Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -974,7 +926,8 @@ class PrimaryModelWODataParser implements Parser {
 		}
 
 		// Add model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+		Uncertainties uncertainties = new Uncertainties(estModel);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 		model.getAnnotation().setNonRDFAnnotation(primModelAnnotation.getNode());
 
 		// Create compartment and add it to the model
@@ -1053,9 +1006,6 @@ class ManualSecondaryModelParser implements Parser {
 		for (KnimeTuple tuple : tuples) {
 			sms.add(parse(tuple, dlgInfo));
 		}
-
-		// TODO: test splitModels with ManualSecondaryModelFile
-		// ManualSecondaryModelFile.write(dir, mdName, sms, exec);
 
 		if (splitModels) {
 			for (int numModel = 0; numModel < sms.size(); numModel++) {
@@ -1171,7 +1121,7 @@ class ManualSecondaryModelParser implements Parser {
 		}
 
 		// Add annotation
-		Map<String, String> uncertainties = TableReader.parseQualityTags(estModel);
+		Uncertainties uncertainties = new Uncertainties(estModel);
 		Model2Annotation modelAnnotation = new Model2Annotation(globalModelID, uncertainties, lits);
 		model.getAnnotation().setNonRDFAnnotation(modelAnnotation.getNode());
 
@@ -1209,8 +1159,6 @@ class TwoStepSecondaryModelParser implements Parser {
 			sms.add(model);
 		}
 
-		// TODO: test splitModels with TwoStepSecondaryModelFile
-		// TwoStepSecondaryModelFile.write(dir, mdName, sms, exec);
 		if (splitModels) {
 			for (int numModel = 0; numModel < sms.size(); numModel++) {
 				String modelName = mdName + Integer.toString(numModel);
@@ -1276,9 +1224,9 @@ class TwoStepSecondaryModelParser implements Parser {
 				lits.add((LiteratureItem) item);
 			}
 			// c) Parse quality measures
-			Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
+			Uncertainties uncertainties = new Uncertainties(estModel);
 			// d) Builds annotation
-			Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+			Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 			// e) Adds annotation to the model
 			model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
 
@@ -1470,7 +1418,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		}
 
 		// Add annotation
-		Map<String, String> uncertainties = TableReader.parseQualityTags(estModel);
+		Uncertainties uncertainties = new Uncertainties(estModel);
 		Model2Annotation m2Annot = new Model2Annotation(globalModelId, uncertainties, lits);
 		secModel.getAnnotation().setNonRDFAnnotation(m2Annot.getNode());
 
@@ -1518,7 +1466,6 @@ class OneStepSecondaryModelParser implements Parser {
 			sms.add(model);
 		}
 
-		// TODO: test splitModels with OneStepSecondaryModelFile
 		if (splitModels) {
 			for (int numModel = 0; numModel < sms.size(); numModel++) {
 				String modelName = mdName + Integer.toString(numModel);
@@ -1584,7 +1531,6 @@ class OneStepSecondaryModelParser implements Parser {
 		if (modelClassNum == null) {
 			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
 		}
-		Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -1594,7 +1540,8 @@ class OneStepSecondaryModelParser implements Parser {
 		}
 
 		// Add model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+		Uncertainties uncertainties = new Uncertainties(estModel);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 		model.getAnnotation().setNonRDFAnnotation(primModelAnnotation.getNode());
 
 		// Create a compartment and add it to the model
@@ -1733,7 +1680,7 @@ class OneStepSecondaryModelParser implements Parser {
 		}
 
 		// Add uncertainties
-		Map<String, String> uncertainties = TableReader.parseQualityTags(secEstModel);
+		uncertainties = new Uncertainties(secEstModel);
 
 		Model2Annotation secModelAnnotation = new Model2Annotation(globalModelId, uncertainties, lits);
 		secModel.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
@@ -1804,8 +1751,6 @@ class TwoStepTertiaryModelParser implements Parser {
 			modelCounter++;
 		}
 
-		// TwoStepTertiaryModelFile.write(dir, mdName, tms, exec);
-		// TODO: test splitModels with TwoStepTertiaryModelFile
 		if (splitModels) {
 			for (int numModel = 0; numModel < tms.size(); numModel++) {
 				String modelName = mdName + Integer.toString(numModel);
@@ -1901,6 +1846,18 @@ class TwoStepTertiaryModelParser implements Parser {
 		AssignmentRule rule = (AssignmentRule) primModel.getRule(0);
 		model.addRule(new AssignmentRule(rule));
 
+		// Assigns parameters of the primary model
+		for (Parameter p : primModel.getListOfParameters()) {
+			Parameter p2 = new Parameter(p);
+			if (p2.isSetAnnotation()) {
+				p2.setAnnotation(new Annotation());
+			}
+			model.addParameter(p2);
+		}
+
+		// Assigns unit definitions of the primary model
+		model.setListOfUnitDefinitions(primModel.getListOfUnitDefinitions());
+
 		TwoStepTertiaryModel tstm = new TwoStepTertiaryModel(tertDoc, primModels, secDocs);
 		return tstm;
 	}
@@ -1943,7 +1900,7 @@ class TwoStepTertiaryModelParser implements Parser {
 
 		// Annotation
 		String modelTitle = estModel.getName();
-		Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
+		Uncertainties uncertainties = new Uncertainties(estModel);
 
 		// Get literature references
 		List<LiteratureItem> lits = new LinkedList<>();
@@ -1952,7 +1909,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 
 		// Add model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 		model.getAnnotation().setNonRDFAnnotation(primModelAnnotation.getNode());
 
 		// Create and add compartment to model
@@ -2125,7 +2082,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 
 		// Add uncertainties
-		Map<String, String> uncertainties = TableReader.parseQualityTags(secEstModel);
+		Uncertainties uncertainties = new Uncertainties(secEstModel);
 
 		Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, secLits);
 		secModel.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
@@ -2174,8 +2131,6 @@ class OneStepTertiaryModelParser implements Parser {
 			modelCounter++;
 		}
 
-		// OneStepTertiaryModelFile.write(dir, mdName, tms, exec);
-		// TODO: test splitModels with OneStepTertiaryModelFile
 		if (splitModels) {
 			for (int numModel = 0; numModel < tms.size(); numModel++) {
 				String modelName = mdName + Integer.toString(numModel);
@@ -2239,10 +2194,10 @@ class OneStepTertiaryModelParser implements Parser {
 		}
 
 		// c) Parse quality measures
-		Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
+		Uncertainties uncertainties = new Uncertainties(estModel);
 
 		// d) Builds annotation
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 
 		// e) Adds annotation to the model
 		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
@@ -2404,7 +2359,7 @@ class OneStepTertiaryModelParser implements Parser {
 			}
 
 			// Add uncertainties
-			Map<String, String> uncertainties = TableReader.parseQualityTags(secEstModel);
+			uncertainties = new Uncertainties(secEstModel);
 
 			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, lits);
 			secModel.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
@@ -2462,8 +2417,8 @@ class OneStepTertiaryModelParser implements Parser {
 class ManualTertiaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo, boolean splitModels,
-			ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
+			boolean splitModels, ExecutionContext exec) throws Exception {
 
 		List<ManualTertiaryModel> tms = new LinkedList<>();
 
@@ -2487,8 +2442,6 @@ class ManualTertiaryModelParser implements Parser {
 			modelCounter++;
 		}
 
-//		ManualTertiaryModelFile.write(dir, mdName, tms, exec);
-		// TODO: test splitModels with ManualTertiaryModelFile
 		if (splitModels) {
 			for (int numModel = 0; numModel < tms.size(); numModel++) {
 				String modelName = mdName + Integer.toString(numModel);
@@ -2550,9 +2503,9 @@ class ManualTertiaryModelParser implements Parser {
 			lits.add((LiteratureItem) item);
 		}
 		// c) Parse quality measures
-		Map<String, String> qualityTags = TableReader.parseQualityTags(estModel);
+		Uncertainties uncertainties = new Uncertainties(estModel);
 		// d) Builds annotation
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, qualityTags, lits, condId);
+		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
 		// e) Adds annotation to the model
 		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
 
@@ -2721,7 +2674,7 @@ class ManualTertiaryModelParser implements Parser {
 			}
 
 			// Add uncertainties
-			Map<String, String> uncertainties = TableReader.parseQualityTags(secEstModel);
+			uncertainties = new Uncertainties(estModel);
 
 			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, lits);
 			md.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());

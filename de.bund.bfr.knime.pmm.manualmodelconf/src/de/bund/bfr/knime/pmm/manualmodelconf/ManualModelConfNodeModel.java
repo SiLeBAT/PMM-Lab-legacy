@@ -88,12 +88,14 @@ import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
 public class ManualModelConfNodeModel extends NodeModel {
 	
 	protected static final String PARAM_XMLSTRING = "xmlString";
+	protected static final String PARAM_XMLDIFFSTRING = "xmlDiffString";
 	protected static final String PARAM_TSXMLSTRING = "tsXmlString";
 	protected static final String PARAM_TSONESTEP = "oneStepFitTss";
 		
 	private PmmXmlDoc doc = null;
 	private PmmXmlDoc docTS = null;
 	private HashMap<Integer, HashSet<Integer>> oneStepFitTs = null;
+	private String diffString = null;
 	
 	private boolean hasEditFeature;
 	private boolean formulaCreator;
@@ -431,6 +433,9 @@ public class ManualModelConfNodeModel extends NodeModel {
     	// OneStepFitTss
 		if (oneStepFitTs != null) settings.addString(ManualModelConfNodeModel.PARAM_TSONESTEP, XmlConverter.objectToXml(oneStepFitTs));
     	// Modelle
+		if (hasEditFeature) {
+			settings.addString(ManualModelConfNodeModel.PARAM_XMLDIFFSTRING, diffString);
+		}
     	if (doc != null) {
     		String xmlStr = doc.toXmlString();
     		//System.err.println(xmlStr);
@@ -456,6 +461,9 @@ public class ManualModelConfNodeModel extends NodeModel {
 			oneStepFitTs = XmlConverter.xmlToObject(settings.getString(PARAM_TSONESTEP), new HashMap<Integer, HashSet<Integer>>());
 		}
 
+		if (hasEditFeature && settings.containsKey(PARAM_XMLDIFFSTRING)) {
+			diffString = settings.getString(ManualModelConfNodeModel.PARAM_XMLDIFFSTRING);
+		}
 		// Modelle
     	try {
 			if (settings.containsKey(PARAM_XMLSTRING)) {

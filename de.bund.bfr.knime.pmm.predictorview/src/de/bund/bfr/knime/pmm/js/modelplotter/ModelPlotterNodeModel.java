@@ -91,11 +91,6 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	}
 
 	@Override
-	public void loadViewValue(ModelPlotterViewValue viewContent, boolean useAsDefault) {
-
-	}
-
-	@Override
 	public void saveCurrentValue(NodeSettingsWO content) {
 		// Nothing to do.
 	}
@@ -223,6 +218,10 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 		setViewRepresentation(vR);
 		
 		exec.setProgress(1);
+		
+		// View VALUE
+		//getViewValue();
+		
 		return null;
 	}
 
@@ -238,7 +237,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 
 	@Override
 	protected void useCurrentValueAsDefault() {
-		// Nothing to do.
+		// save value #getViewValue() as config for default values after restart 
 	}
 
 	@Override

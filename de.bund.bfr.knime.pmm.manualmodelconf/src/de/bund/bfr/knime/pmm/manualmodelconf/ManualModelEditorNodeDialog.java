@@ -369,7 +369,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 		    	        		    		System.err.println(gid);
 		    	        		    		//gid = "";
 		    	        		    	}
-		    	        		    	hm.put(gid, new Object[]{null, null}); // c.getAffectedObject().get()
+		    	        		    	hm.put(gid, new Object[]{c.getAffectedObject().get(), null});
 		    	        		    }
 	    	        		    }
 	    	        			break;
@@ -394,10 +394,18 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 					String indexS = fieldName.substring(fieldName.indexOf("#elementSet/") + "#elementSet/".length(), fieldName.lastIndexOf("#"));// 2
 					Integer index = Integer.parseInt(indexS);
 					PmmXmlElementConvertable pxec = doc.get(index);
-					if (newValue == null) { // ObjectRemoved
-						doc.remove(pxec);
+					if (newValue == null && oldValue instanceof PmmXmlElementConvertable) { // ObjectRemoved
+						PmmXmlElementConvertable pxecO = (PmmXmlElementConvertable) oldValue;
+						Javers javers = JaversBuilder.javers().build();
+						for (PmmXmlElementConvertable pxecL : doc.getElementSet()) {
+							Diff diff = javers.compare(pxecO, pxecL);
+							if (diff.getChanges().size() == 0) {
+								doc.remove(pxecL);
+								break;
+							}
+						}
 					}
-					else if (oldValue == null) { // NewObject
+					else if (oldValue == null && newValue instanceof PmmXmlElementConvertable) { // NewObject
 						doc.add((PmmXmlElementConvertable) newValue);
 					}
 					else {

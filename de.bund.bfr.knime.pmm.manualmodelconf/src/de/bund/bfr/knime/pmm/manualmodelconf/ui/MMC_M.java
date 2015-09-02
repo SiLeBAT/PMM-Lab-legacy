@@ -46,6 +46,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -781,16 +782,32 @@ public class MMC_M extends JPanel {
 	public void setInputData(Collection<ParametricModel> m1s, HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels, HashMap<Integer, PmmTimeSeries> tss) {
 		this.tss = tss;
 		this.m_secondaryModels = m_secondaryModels;
-		dontFireList = true;
-		listModel = new DefaultListModel<>();
-		list1.setModel(listModel);
-		for (ParametricModel pm : m1s) {
-			listModel.addElement(pm);
+		if (m1s.size() == 0) {
+			scrollPane3.setVisible(false);
+			if (m_secondaryModels.size() > 0) {
+				for (Entry<ParametricModel, HashMap<String, ParametricModel>> e : m_secondaryModels.entrySet()) {
+					for (Entry<String, ParametricModel> hm : e.getValue().entrySet()) {
+						setPM(hm.getValue());
+						break;
+					}
+					break;
+				}
+			}
+			table.repaint();
 		}
-		scrollPane3.setVisible(true);
-		isEditor = true;
-		dontFireList = false;
-		if (listModel.getSize() > 0) list1.setSelectedIndex(0);
+		else {
+			dontFireList = true;
+			listModel = new DefaultListModel<>();
+			list1.setModel(listModel);
+			for (ParametricModel pm : m1s) {
+				listModel.addElement(pm);
+			}
+			scrollPane3.setVisible(true);
+			isEditor = true;
+			dontFireList = false;
+			if (listModel.getSize() > 0) list1.setSelectedIndex(0);
+			list1.setVisible(true);
+		}
 	}
 
 	public void setFromXmlString(final String xmlString) {

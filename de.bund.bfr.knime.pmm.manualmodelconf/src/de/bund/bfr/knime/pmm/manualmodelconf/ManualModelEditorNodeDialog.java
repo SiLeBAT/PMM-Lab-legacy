@@ -210,6 +210,16 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 				    			hm.put(pm2.getDepVar(), m2s.get(m2EstID));
 			    			}
 		    			}
+		    			else if (hasM2) {
+		    				ParametricModel pm2 = new ParametricModel(row, 2, null);
+		    				m2EstID = pm2.getEstModelId();
+			    			if (!m2s.containsKey(m2EstID)) {
+			    				m2s.put(m2EstID, pm2);			    				
+			    			}
+			    			m_secondaryModels.put(null, new HashMap<String, ParametricModel>());
+			    			HashMap<String, ParametricModel> hm = m_secondaryModels.get(null);
+			    			hm.put(pm2.getDepVar(), m2s.get(m2EstID));
+		    			}
 		    		}
 		    		m_mmcm.setInputData(m1s.values(), m_secondaryModels, tss);
 		    		try {

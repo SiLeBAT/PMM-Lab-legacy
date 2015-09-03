@@ -503,7 +503,7 @@ class TableReader {
 	 * @param modified
 	 *            : Modified date.
 	 */
-	public static Annotation createDocAnnotation(Map<String, String> docInfo) {
+	public static Annotation createDocAnnotation(Map<String, String> docInfo, String modelType) {
 		Annotation annot = new Annotation();
 
 		// pmf container
@@ -530,6 +530,11 @@ class TableReader {
 			ModifiedNode modifiedNode = new ModifiedNode(docInfo.get("Modified"));
 			pmfNode.addChild(modifiedNode.getNode());
 		}
+		
+		// model type
+		XMLNode typeNode = new XMLNode(new XMLTriple("type", null, "dc"));
+		typeNode.addChild(new XMLNode(modelType));
+		pmfNode.addChild(typeNode);
 
 		// add non-rdf annotation
 		annot.setNonRDFAnnotation(pmfNode);
@@ -757,7 +762,7 @@ class PrimaryModelWDataParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.PRIMARY_MODEL_WDATA.toString()));
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -909,7 +914,7 @@ class PrimaryModelWODataParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.PRIMARY_MODEL_WODATA.toString()));
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1047,7 +1052,7 @@ class ManualSecondaryModelParser implements Parser {
 		doc.enablePackage(CompConstants.shortLabel);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_SECONDARY_MODEL.toString()));
 
 		TableReader.addNamespaces(doc);
 
@@ -1205,7 +1210,7 @@ class TwoStepSecondaryModelParser implements Parser {
 			TableReader.addNamespaces(doc);
 
 			// Adds document annotation
-			doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+			doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_SECONDARY_MODEL.toString()));
 
 			String modelId = Util.createId("model" + estModel.getId());
 
@@ -1346,7 +1351,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		TableReader.addNamespaces(secDoc);
 
 		// Adds document annotation
-		secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_SECONDARY_MODEL.toString()));
 
 		// Creates model definition
 		String secModelId = Util.createId("model" + estModel.getId());
@@ -1517,7 +1522,7 @@ class OneStepSecondaryModelParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.ONE_STEP_SECONDARY_MODEL.toString()));
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1794,7 +1799,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(tertDoc);
 
 		// Adds document annotation
-		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_TERTIARY_MODEL.toString()));
 
 		// Creates ExternalModelDefinition
 		for (SBMLDocument secDoc : secDocs) {
@@ -1891,7 +1896,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_TERTIARY_MODEL.toString()));
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -2093,7 +2098,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(secDoc);
 
 		// Adds document annotation
-		secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_TERTIARY_MODEL.toString()));
 
 		return secDoc;
 	}
@@ -2173,7 +2178,7 @@ class OneStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(tertDoc);
 
 		// Adds document annotation
-		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.ONE_STEP_TERTIARY_MODEL.toString()));
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2293,7 +2298,7 @@ class OneStepTertiaryModelParser implements Parser {
 			TableReader.addNamespaces(secDoc);
 
 			// Adds document annotation
-			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.ONE_STEP_TERTIARY_MODEL.toString()));
 
 			String secModelId = "model_" + secDep.getName();
 			Model secModel = secDoc.createModel(secModelId);
@@ -2361,7 +2366,7 @@ class OneStepTertiaryModelParser implements Parser {
 			// Add uncertainties
 			uncertainties = new Uncertainties(secEstModel);
 
-			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, lits);
+			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, secLits);
 			secModel.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
 
 			Model2Rule rule2 = Model2Rule.convertCatalogModelXmlToModel2Rule(secCatModel);
@@ -2384,7 +2389,7 @@ class OneStepTertiaryModelParser implements Parser {
 		for (List<KnimeTuple> instance : tupleList) {
 			// Get first tuple: All the tuples of an instance have the same data
 			KnimeTuple tuple = instance.get(0);
-
+			
 			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			if (mdData.size() == 0)
 				continue;
@@ -2404,8 +2409,30 @@ class OneStepTertiaryModelParser implements Parser {
 			TimeSeriesXml firstPoint = (TimeSeriesXml) mdData.get(0);
 			String concUnit = firstPoint.getConcentrationUnit();
 			String timeUnit = firstPoint.getTimeUnit();
+			
+			PmmXmlDoc mdLitDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
+			List<LiteratureItem> mdLits = new LinkedList<>();
+			for (PmmXmlElementConvertable item : mdLitDoc.getElementSet()) {
+				mdLits.add((LiteratureItem) item);
+			}
+			
+			// a) Gather misc values
+			miscs = new HashMap<>();
+			miscDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+			for (PmmXmlElementConvertable item : miscDoc.getElementSet()) {
+				MiscXml miscXml = (MiscXml) item;
+				miscs.put(miscXml.getName(), miscXml.getValue());
+			}
+			
+			// b) Creates matrix
+			matrixXml = (MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
+			matrix = new Matrix(matrixXml, miscs);
+			
+			// c) Creates agent
+			agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
+			agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 
-			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, mdLits, dlgInfo);
 			numlDocs.add(dataFile.getDocument());
 		}
 
@@ -2436,7 +2463,7 @@ class ManualTertiaryModelParser implements Parser {
 			// microbial data yet different data. Then we'll create a
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
-			ManualTertiaryModel tm = parse(tuplesList, modelCounter, dlgInfo);
+			ManualTertiaryModel tm = parse(tuplesList, mdName, modelCounter, dlgInfo);
 			tms.add(tm);
 
 			modelCounter++;
@@ -2454,7 +2481,7 @@ class ManualTertiaryModelParser implements Parser {
 		}
 	}
 
-	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Map<String, String> dlgInfo) {
+	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, String mdName, int modelNum, Map<String, String> dlgInfo) {
 		// We'll get microbial data from the first instance
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		// and the primary model from the first tuple
@@ -2483,7 +2510,7 @@ class ManualTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(tertDoc);
 
 		// Adds document annotation
-		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_TERTIARY_MODEL.toString()));
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2594,8 +2621,7 @@ class ManualTertiaryModelParser implements Parser {
 			// Creates ExternalModelDefinition
 			String emdId = "model_" + secDep.getName();
 			ExternalModelDefinition emd = new ExternalModelDefinition(emdId, TableReader.LEVEL, TableReader.VERSION);
-
-			String emdSource = "model_" + secDep.getName() + ".sbml";
+			String emdSource = String.format("%s_%s_%s.%s", mdName, modelNum, emdId, "sbml");
 			emd.setSource(emdSource);
 			emd.setModelRef(emdId);
 
@@ -2610,7 +2636,7 @@ class ManualTertiaryModelParser implements Parser {
 			TableReader.addNamespaces(secDoc);
 
 			// Adds document annotation
-			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo));
+			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_TERTIARY_MODEL.toString()));
 
 			Model md = secDoc.createModel(emdId);
 			if (secEstModel.getName() != null) {
@@ -2676,7 +2702,7 @@ class ManualTertiaryModelParser implements Parser {
 			// Add uncertainties
 			uncertainties = new Uncertainties(estModel);
 
-			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, lits);
+			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, secLits);
 			md.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
 
 			Model2Rule rule2 = Model2Rule.convertCatalogModelXmlToModel2Rule(secCatModel);

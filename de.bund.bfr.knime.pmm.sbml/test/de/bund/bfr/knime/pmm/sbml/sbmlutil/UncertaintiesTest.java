@@ -13,14 +13,27 @@ public class UncertaintiesTest {
 	@Test
 	public void testCreateEstModel() {
 
-		EstModelXml estModel = new EstModelXml(0, "test", 1.90, 0.34, 0.99, -32.97, -32.0, 16);
+		EstModelXml estModel = new EstModelXml(0, "estModel", 1.90, 0.34, 0.99, -32.97, -32.0, 16);
 		estModel.setComment("test");
 		estModel.setQualityScore(0);
 		Uncertainties expectedUncertainties = new Uncertainties(estModel);
 
-		Uncertainties obtainedUncertainties = new Uncertainties(0, null, "test", 0.99, 0.34, 1.90, -32.97, -32.0, 16);
+		Uncertainties obtainedUncertainties = new Uncertainties(0, "estModel", "test", 0.99, 0.34, 1.90, -32.97, -32.0, 16);
 
 		assertEquals(expectedUncertainties, obtainedUncertainties);
+	}
+
+	@Test
+	public void testComparisonDifferentName() {
+		EstModelXml estModelA = new EstModelXml(-1, "estModelA", 0.0, 0.0, 0.0, 0.0, 0.0, 0);
+		estModelA.setComment("test");
+		EstModelXml estModelB = new EstModelXml(-1, "estModelB", 0.0, 0.0, 0.0, 0.0, 0.0, 0);
+		estModelB.setComment("test");
+
+		Uncertainties uncertaintiesA = new Uncertainties(estModelA);
+		Uncertainties uncertaintiesB = new Uncertainties(estModelB);
+		
+		assertFalse(uncertaintiesA.equals(uncertaintiesB));
 	}
 
 	@Test
@@ -126,6 +139,4 @@ public class UncertaintiesTest {
 
 		assertFalse(uncertaintiesA.equals(uncertaintiesB));
 	}
-
-	// test different r2, Rms, Sse, Aic, Bic, Dof,
 }

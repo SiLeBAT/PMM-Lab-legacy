@@ -30,6 +30,8 @@ public class Uncertainties {
 
 		if (estModel.getId() != otherEstModel.getId())
 			return false;
+		if (!estModel.getName().equals(otherEstModel.getName()))
+			return false;
 		if (!estModel.getComment().equals(otherEstModel.getComment()))
 			return false;
 		if (Double.compare(estModel.getR2(), otherEstModel.getR2()) != 0)

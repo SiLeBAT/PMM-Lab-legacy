@@ -328,7 +328,7 @@ class PrimaryModelWDataReader implements Reader {
 		Model model = sbmlDoc.getModel();
 
 		// Parse model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -337,7 +337,7 @@ class PrimaryModelWDataReader implements Reader {
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
 		// time series cells
-		int condID = primModelAnnotation.getCondID();
+		int condID = m1Annot.getCondID();
 		Agent agent = new Agent(model.getSpecies(0));
 		Matrix matrix = new Matrix(model.getCompartment(0));
 
@@ -425,16 +425,15 @@ class PrimaryModelWDataReader implements Reader {
 			paramCell.add(paramXml);
 		}
 
-		Uncertainties uncertainties = primModelAnnotation.getUncertainties();
+		Uncertainties uncertainties = m1Annot.getUncertainties();
 		EstModelXml estModel = uncertainties.getEstModelXml();
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
-
 		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
-		for (LiteratureItem lit : primModelAnnotation.getLits()) {
+		for (LiteratureItem lit : m1Annot.getLits()) {
 			emLiteratureCell.add(lit);
 		}
 
@@ -493,7 +492,7 @@ class PrimaryModelWODataReader implements Reader {
 		Model model = sbmlDoc.getModel();
 
 		// Parse model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -502,7 +501,7 @@ class PrimaryModelWODataReader implements Reader {
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
 		// time series cells
-		final int condID = primModelAnnotation.getCondID();
+		final int condID = m1Annot.getCondID();
 		Agent agent = new Agent(model.getSpecies(0));
 		Matrix matrix = new Matrix(model.getCompartment(0));
 
@@ -570,7 +569,7 @@ class PrimaryModelWODataReader implements Reader {
 			paramCell.add(paramXml);
 		}
 		
-		Uncertainties uncertainties = primModelAnnotation.getUncertainties();
+		Uncertainties uncertainties = m1Annot.getUncertainties();
 		EstModelXml estModel = uncertainties.getEstModelXml();
 
 		if (model.isSetName()) {
@@ -578,7 +577,7 @@ class PrimaryModelWODataReader implements Reader {
 		}
 
 		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
-		for (LiteratureItem lit : primModelAnnotation.getLits()) {
+		for (LiteratureItem lit : m1Annot.getLits()) {
 			emLiteratureCell.add(lit);
 		}
 
@@ -1015,7 +1014,6 @@ class OneStepSecondaryModelReader implements Reader {
 
 		Uncertainties uncertainties = primModelAnnotation.getUncertainties();
 		EstModelXml estModel = uncertainties.getEstModelXml();
-
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
@@ -1119,7 +1117,6 @@ class OneStepSecondaryModelReader implements Reader {
 		// EstModel
 		uncertainties = primModelAnnotation.getUncertainties();
 		EstModelXml secEstModel = uncertainties.getEstModelXml();
-
 		if (secModel.isSetName()) {
 			secEstModel.setName(secModel.getName());
 		}
@@ -1300,7 +1297,6 @@ class ManualSecondaryModelReader implements Reader {
 		// EstModel
 		Uncertainties uncertainties = modelAnnotation.getUncertainties();
 		EstModelXml estModelXml = uncertainties.getEstModelXml();
-
 		if (model.isSetName()) {
 			estModelXml.setName(model.getName());
 		}
@@ -1486,7 +1482,6 @@ class TwoStepTertiaryModelReader implements Reader {
 			// EstModel
 			Uncertainties uncertainties = secModelAnnotation.getUncertainties();
 			EstModelXml estModel = uncertainties.getEstModelXml();
-
 			if (md.isSetName()) {
 				estModel.setName(md.getName());
 			}
@@ -1621,7 +1616,6 @@ class TwoStepTertiaryModelReader implements Reader {
 
 			Uncertainties uncertainties = m1Annot.getUncertainties();
 			EstModelXml estModel = uncertainties.getEstModelXml();
-
 			if (model.isSetName()) {
 				estModel.setName(model.getName());
 			}
@@ -1815,7 +1809,6 @@ class OneStepTertiaryModelReader implements Reader {
 
 		Uncertainties uncertainties = m1Annot.getUncertainties();
 		EstModelXml estModel = uncertainties.getEstModelXml();
-
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
@@ -1842,15 +1835,6 @@ class OneStepTertiaryModelReader implements Reader {
 
 	private List<KnimeTuple> parseData(SBMLDocument tertDoc, List<NuMLDocument> dataDocs) {
 
-		Model model = tertDoc.getModel();
-
-		// time series cells
-		Agent agent = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		// Parses model variables: Temperature, pH and water activity
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
 		List<KnimeTuple> tuples = new LinkedList<>();
@@ -1863,18 +1847,31 @@ class OneStepTertiaryModelReader implements Reader {
 			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
 			String concUnitObjectType = ufdb.getObject_type();
 
+			// Gets matrix and agent
+			AgentXml agentXml = df.getAgent();
+			MatrixXml matrixXml = df.getMatrix();
+			
+			// Gets miscs
+			PmmXmlDoc miscCell = ReaderUtils.parseMiscs(df.getMiscs());
+			
 			// Gets data
 			PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
+			
+			// Gets literature
+			PmmXmlDoc litDoc = new PmmXmlDoc();
+			for (LiteratureItem lit : df.getLits()) {
+				litDoc.add(lit);
+			}
 
 			KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 			tuple.setValue(TimeSeriesSchema.ATT_CONDID, df.getCondID());
 			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, df.getCombaseID());
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
 			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
 			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-			tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
+			tuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
 			tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
 
 			tuples.add(tuple);
@@ -1962,7 +1959,6 @@ class OneStepTertiaryModelReader implements Reader {
 			// EstModel
 			Uncertainties uncertainties = m2Annot.getUncertainties();
 			EstModelXml estModel = uncertainties.getEstModelXml();
-
 			if (md.isSetName()) {
 				estModel.setName(md.getName());
 			}
@@ -2119,7 +2115,6 @@ class ManualTertiaryModelReader implements Reader {
 		// Parse uncertainty measures from the document's annotations
 		Uncertainties  uncertainties = primModelAnnotation.getUncertainties();
 		EstModelXml estModel = uncertainties.getEstModelXml();
-
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
@@ -2227,19 +2222,19 @@ class ManualTertiaryModelReader implements Reader {
 			Model2Annotation secModelAnnotation = new Model2Annotation(secModel.getAnnotation().getNonRDFannotation());
 
 			// EstModel
-			uncertainties = primModelAnnotation.getUncertainties();
+			uncertainties = secModelAnnotation.getUncertainties();
 			EstModelXml secEstModelXml = uncertainties.getEstModelXml();
 			if (secModel.isSetName()) {
 				secEstModelXml.setName(secModel.getName());
 			}
 			PmmXmlDoc estModelSecCell = new PmmXmlDoc(secEstModelXml);
 
-			final int globalModelID = secModelAnnotation.getGlobalModelID();
+			final int globalModelID = MathUtilities.getRandomNegativeInt();
 
 			// Add references to PMM Lab table
 			PmmXmlDoc emLiteratureSecCell = new PmmXmlDoc();
 			for (LiteratureItem lit : secModelAnnotation.getLiteratureItems()) {
-				emLiteratureCell.add(lit);
+				emLiteratureSecCell.add(lit);
 			}
 
 			String mDBUIDSEC = "?";

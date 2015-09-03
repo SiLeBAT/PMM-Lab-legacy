@@ -29,13 +29,11 @@ public class PMFReaderNodeDialog extends DefaultNodeSettingsPane {
 		super();
 
 		// Set model strings
-		final SettingsModelString fileName = new SettingsModelString(
-				PMFReaderNodeModel.CFGKEY_FILE, "");
+		final SettingsModelString fileName = new SettingsModelString(PMFReaderNodeModel.CFGKEY_FILE, "");
 		fileName.setEnabled(true);
 
 		// Create fileChooser
-		fileChooser = new DialogComponentFileChooser(fileName,
-				"filename-history", JFileChooser.OPEN_DIALOG, false);
+		fileChooser = new DialogComponentFileChooser(fileName, "filename-history", JFileChooser.OPEN_DIALOG, ".pmf");
 
 		// Add widgets
 		createNewGroup("Data Source");

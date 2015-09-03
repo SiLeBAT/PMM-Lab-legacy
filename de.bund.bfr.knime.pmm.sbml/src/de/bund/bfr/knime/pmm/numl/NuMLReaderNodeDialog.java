@@ -27,7 +27,7 @@ public class NuMLReaderNodeDialog extends DefaultNodeSettingsPane {
 		fileName.setEnabled(true);
 		
 		// Create fileChooser
-		fileChooser = new DialogComponentFileChooser(fileName, "filename-history", JFileChooser.OPEN_DIALOG, false);
+		fileChooser = new DialogComponentFileChooser(fileName, "filename-history", JFileChooser.OPEN_DIALOG, ".numl");
 		
 		// Add widgets
 		createNewGroup("Data source");

@@ -146,7 +146,7 @@ public class ManualTertiaryModelFile {
 
 				// Creates name for the sec model
 				Model md = secDoc.getModel();
-				String secMdName = String.format("%s.%s", md.getId(), SBML_EXTENSION);
+				String secMdName = String.format("%s_%s_%s.%s", filename, modelCounter, md.getId(), SBML_EXTENSION);
 
 				// Writes model to secTmp and adds it to the file
 				sbmlWriter.write(secDoc, secTmp);

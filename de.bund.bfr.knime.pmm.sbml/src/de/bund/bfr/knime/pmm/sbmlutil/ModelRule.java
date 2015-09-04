@@ -5,18 +5,22 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.List;
+
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.text.parser.ParseException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 public abstract class ModelRule {
 	protected final static int LEVEL = 3;
 	protected final static int VERSION = 1;
 
 	protected AssignmentRule rule;
+	protected List<LiteratureItem> lits;
 
 	public AssignmentRule getRule() {
 		return rule;
@@ -25,14 +29,14 @@ public abstract class ModelRule {
 	/**
 	 * Add annotation to the rule.
 	 */
-	protected void addAnnotation(String name, Integer type, int id) {
+	protected void addAnnotation(String name, Integer type, int id, List<LiteratureItem> lits) {
 		String subject;
 		if (type == null) {
 			subject = "unknown";
 		} else {
 			subject = Util.MODELCLASS_STRS.get(type);
 		}
-		ModelRuleAnnotation annot = new ModelRuleAnnotation(name, subject, id);
+		ModelRuleAnnotation annot = new ModelRuleAnnotation(name, subject, id, lits);
 		rule.getAnnotation().setNonRDFAnnotation(annot.getNode());
 	}
 

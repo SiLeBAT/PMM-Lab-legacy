@@ -1,8 +1,11 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
+import java.util.List;
+
 import org.sbml.jsbml.AssignmentRule;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 /**
@@ -13,7 +16,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 public class Model2Rule extends ModelRule {
 
 	public static Model2Rule convertCatalogModelXmlToModel2Rule(
-			CatalogModelXml catModel) {
+			CatalogModelXml catModel, List<LiteratureItem> lits) {
 		// Parse variable from the rule
 		final int pos = catModel.getFormula().indexOf("=");
 		final String var = catModel.getFormula().substring(0, pos);
@@ -34,16 +37,24 @@ public class Model2Rule extends ModelRule {
 		}
 
 		rule.addAnnotation(formulaName, catModel.getModelClass(),
-				catModel.getId());
+				catModel.getId(), lits);
 
 		return rule;
 	}
 
 	public Model2Rule(AssignmentRule rule) {
 		this.rule = rule;
+		if (rule.isSetAnnotation()) {
+			ModelRuleAnnotation ruleAnnotation = new ModelRuleAnnotation(rule.getAnnotation().getNonRDFannotation());
+			lits = ruleAnnotation.getLits();
+		}
 	}
 
 	protected String createVariable() {
-		return rule.getVariable();
+		return "Value";
+	}
+	
+	public List<LiteratureItem> getLits() {
+		return lits;
 	}
 }

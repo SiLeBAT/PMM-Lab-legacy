@@ -403,7 +403,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 					
 					String indexS = fieldName.substring(fieldName.indexOf("#elementSet/") + "#elementSet/".length(), fieldName.lastIndexOf("#"));// 2
 					Integer index = Integer.parseInt(indexS);
-					PmmXmlElementConvertable pxec = doc.get(index);
+					PmmXmlElementConvertable pxec = (index < doc.getElementSet().size()) ? doc.get(index) : null;
 					if (newValue == null && oldValue instanceof PmmXmlElementConvertable) { // ObjectRemoved
 						PmmXmlElementConvertable pxecO = (PmmXmlElementConvertable) oldValue;
 						Javers javers = JaversBuilder.javers().build();

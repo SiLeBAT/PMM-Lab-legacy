@@ -108,6 +108,10 @@ public class MMC_M extends JPanel {
 	private boolean formulaCreator;
 	private boolean isEditor = false;
 
+	public void setEditor(boolean isEditor) {
+		this.isEditor = isEditor;
+	}
+
 	public MMC_M() {
 		this(null, 1, "", false, null);
 	}
@@ -626,6 +630,7 @@ public class MMC_M extends JPanel {
 					secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());
 					String param = table.getValueAt(row, 0).toString();
 					MMC_M m2 = new MMC_M(null, 2, param, formulaCreator, null);
+					m2.setEditor(isEditor);
 					m2.setConnection(m_conn);
 					HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM());
 					m2.setPM(sm.get(param));

@@ -47,6 +47,9 @@
  */
 package de.bund.bfr.knime.pmm.js.editor;
 
+import javax.json.JsonException;
+import javax.json.JsonValue;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.knime.core.node.InvalidSettingsException;
@@ -99,7 +102,6 @@ public class JSEditorValue extends JSONViewContent implements DialogNodeValue {
 		m_models = settings.getString(CFG_MODELS, DEFAULT_MODELS);
 	}
 
-	@Override
 	public void validateSettings(NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		// TODO Auto-generated method stub
@@ -157,5 +159,24 @@ public class JSEditorValue extends JSONViewContent implements DialogNodeValue {
 		}
 		JSEditorValue other = (JSEditorValue) obj;
 		return new EqualsBuilder().append(m_models, other.m_models).isEquals();
+	}
+
+	@Override
+	public void loadFromString(String fromCmdLine)
+			throws UnsupportedOperationException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void loadFromJson(JsonValue json) throws JsonException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public JsonValue toJson() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

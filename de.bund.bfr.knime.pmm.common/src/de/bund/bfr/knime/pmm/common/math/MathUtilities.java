@@ -81,8 +81,7 @@ public class MathUtilities {
 		}
 	}
 
-	public static void removeNullValues(List<Double> targetValues,
-			List<List<Double>> argumentValues) {
+	public static void removeNullValues(List<Double> targetValues, List<List<Double>> argumentValues) {
 		for (int i = 0; i < targetValues.size(); i++) {
 			boolean remove = false;
 
@@ -150,10 +149,8 @@ public class MathUtilities {
 		parser.removeVariable("x");
 
 		try {
-			parser.addFunction("log10", new MacroFunction("log10", 1,
-					"ln(x)/ln(10)", parser));
-			parser.addDiffRule(new MacroDiffRules(parser, "log10",
-					"1/(x*ln(10))"));
+			parser.addFunction("log10", new MacroFunction("log10", 1, "ln(x)/ln(10)", parser));
+			parser.addDiffRule(new MacroDiffRules(parser, "log10", "1/(x*ln(10))"));
 
 			parser.addDiffRule(new ZeroDiffRule("<"));
 			parser.addDiffRule(new ZeroDiffRule(">"));
@@ -170,8 +167,7 @@ public class MathUtilities {
 		return parser;
 	}
 
-	public static String replaceVariable(String formula, String var,
-			String newVar) {
+	public static String replaceVariable(String formula, String var, String newVar) {
 		if (var.equals(newVar)) {
 			return formula;
 		}
@@ -179,11 +175,9 @@ public class MathUtilities {
 		String newFormular = " " + formula + " ";
 
 		for (int i = 1; i < newFormular.length() - var.length(); i++) {
-			boolean matches = newFormular.substring(i, i + var.length())
-					.equals(var);
+			boolean matches = newFormular.substring(i, i + var.length()).equals(var);
 			boolean start = !isVariableCharacter(newFormular.charAt(i - 1));
-			boolean end = !isVariableCharacter(newFormular.charAt(i
-					+ var.length()));
+			boolean end = !isVariableCharacter(newFormular.charAt(i + var.length()));
 
 			if (matches && start && end) {
 				String prefix = newFormular.substring(0, i);
@@ -197,8 +191,7 @@ public class MathUtilities {
 		return newFormular.replace(" ", "");
 	}
 
-	public static boolean isFunctionDefinedFor(String formula,
-			List<String> parameters, List<Double> parameterValues,
+	public static boolean isFunctionDefinedFor(String formula, List<String> parameters, List<Double> parameterValues,
 			String variable, double minValue, double maxValue, int steps) {
 		DJep parser = createParser();
 		Node function = null;
@@ -210,12 +203,10 @@ public class MathUtilities {
 		}
 
 		try {
-			function = parser
-					.parse(formula.substring(formula.indexOf("=") + 1));
+			function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 
 			for (int i = 0; i < steps; i++) {
-				double value = minValue + (double) i / (double) (steps - 1)
-						* (maxValue - minValue);
+				double value = minValue + (double) i / (double) (steps - 1) * (maxValue - minValue);
 
 				parser.setVarValue(variable, value);
 
@@ -230,8 +221,7 @@ public class MathUtilities {
 		return true;
 	}
 
-	public static List<Double> evaluateFunction(String formula,
-			List<String> parameters, List<Double> parameterValues,
+	public static List<Double> evaluateFunction(String formula, List<String> parameters, List<Double> parameterValues,
 			List<String> variables, List<List<Double>> variableValues) {
 		List<Double> values = new ArrayList<>();
 		DJep parser = createParser();
@@ -245,13 +235,11 @@ public class MathUtilities {
 		}
 
 		try {
-			Node function = parser
-					.parse(formula.substring(formula.indexOf("=") + 1));
+			Node function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 
 			for (int i = 0; i < variableValues.get(0).size(); i++) {
 				for (int j = 0; j < variables.size(); j++) {
-					parser.setVarValue(variables.get(j), variableValues.get(j)
-							.get(i));
+					parser.setVarValue(variables.get(j), variableValues.get(j).get(i));
 				}
 
 				values.add((Double) parser.evaluate(function));
@@ -272,8 +260,8 @@ public class MathUtilities {
 		}
 
 		@Override
-		public Node differentiate(ASTFunNode node, String var, Node[] children,
-				Node[] dchildren, DJep djep) throws ParseException {
+		public Node differentiate(ASTFunNode node, String var, Node[] children, Node[] dchildren, DJep djep)
+				throws ParseException {
 			return djep.getNodeFactory().buildConstantNode(0.0);
 		}
 
@@ -305,13 +293,11 @@ public class MathUtilities {
 	}
 
 	public static Double getRSquared(double sse, List<Double> targetValues) {
-		double targetMean = MathUtilities.computeSum(targetValues)
-				/ targetValues.size();
+		double targetMean = MathUtilities.computeSum(targetValues) / targetValues.size();
 		double targetTotalSumOfSquares = 0.0;
 
 		for (int i = 0; i < targetValues.size(); i++) {
-			targetTotalSumOfSquares += Math.pow(targetValues.get(i)
-					- targetMean, 2.0);
+			targetTotalSumOfSquares += Math.pow(targetValues.get(i) - targetMean, 2.0);
 		}
 
 		double rSquared = 1 - sse / targetTotalSumOfSquares;
@@ -321,14 +307,13 @@ public class MathUtilities {
 		return Math.max(rSquared, 0.0);
 	}
 
-	public static Double akaikeCriterion(final int numParam,
-			final int numSample, final double sse) {
+	public static Double akaikeCriterion(final int numParam, final int numSample, final double sse) {
 		if (numSample <= numParam + 2) {
 			return null;
 		}
 
-		return numSample * Math.log(sse / numSample) + 2 * (numParam + 1) + 2
-				* (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
+		return numSample * Math.log(sse / numSample) + 2 * (numParam + 1)
+				+ 2 * (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
 	}
 
 	public static double getPValue(double tValue, int degreesOfFreedom) {
@@ -378,7 +363,15 @@ public class MathUtilities {
 			int i = f.indexOf("=");
 
 			if (f.charAt(i + 1) == '(' && f.endsWith(")")) {
-				f = f.substring(0, i + 1) + f.substring(i + 2, f.length() - 1);
+				String withoutBrackets = f.substring(i + 2, f.length() - 1);
+
+				try {
+					createParser().parse(withoutBrackets);
+					f = f.substring(0, i + 1) + withoutBrackets;
+				} catch (ParseException e) {
+					// Do not remove brackets when expression without brackets
+					// cannot be parsed
+				}
 			}
 
 			return f;
@@ -391,16 +384,15 @@ public class MathUtilities {
 		if (boundaryCondition != null && !boundaryCondition.isEmpty()) {
 			int i = formula.indexOf("=");
 
-			return formula.substring(0, i + 1) + "(" + formula.substring(i + 1)
-					+ ")*(((((" + boundaryCondition + ")))))";
+			return formula.substring(0, i + 1) + "(" + formula.substring(i + 1) + ")*(((((" + boundaryCondition
+					+ ")))))";
 		} else {
 			return formula;
 		}
 	}
 
 	public static boolean isValid(Object value) {
-		return value instanceof Double && !((Double) value).isNaN()
-				&& !((Double) value).isInfinite();
+		return value instanceof Double && !((Double) value).isNaN() && !((Double) value).isInfinite();
 	}
 
 	private static int countOccurences(String s, char c) {

@@ -378,6 +378,13 @@ class PrimaryModelWDataReader implements Reader {
 		}
 		depXml.setDescription(agent.getDescription());
 
+		// Gets limits
+		if (limits.containsKey(agent.getSpecies().getId())) {
+			Limits depLimits = limits.get(agent.getSpecies().getId());
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
+		}
+
 		// Parse indep
 		Parameter indepParam = model.getParameter(Categories.getTime());
 		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
@@ -430,7 +437,6 @@ class PrimaryModelWDataReader implements Reader {
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
-		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
 
 		// Gets model literature
 		PmmXmlDoc mLitCell = new PmmXmlDoc();
@@ -463,7 +469,7 @@ class PrimaryModelWDataReader implements Reader {
 		row.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
 		row.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
 		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
-		row.setValue(Model1Schema.ATT_ESTMODEL, estModelCell);
+		row.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
 		row.setValue(Model1Schema.ATT_MLIT, mLitCell);
 		row.setValue(Model1Schema.ATT_EMLIT, emLitCell);
 		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
@@ -528,6 +534,13 @@ class PrimaryModelWODataReader implements Reader {
 			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
 		}
 		depXml.setDescription(agent.getDescription());
+
+		// Gets limits
+		if (limits.containsKey(agent.getSpecies().getId())) {
+			Limits depLimits = limits.get(agent.getSpecies().getId());
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
+		}
 
 		// Parse indep
 		Parameter indepParam = model.getParameter(Categories.getTime());
@@ -671,7 +684,6 @@ class TwoStepSecondaryModelReader implements Reader {
 		// Parses annotation
 		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
 
-		int condID = m1Annot.getCondID();
 		Agent agent = new Agent(model.getSpecies(0));
 		Matrix matrix = new Matrix(model.getCompartment(0));
 
@@ -705,7 +717,7 @@ class TwoStepSecondaryModelReader implements Reader {
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
+		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
 		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseId);
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
@@ -740,6 +752,12 @@ class TwoStepSecondaryModelReader implements Reader {
 			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
 		}
 		depXml.setDescription(agent.getDescription());
+		// Gets limits
+		if (limits.containsKey(agent.getSpecies().getId())) {
+			Limits depLimits = limits.get(agent.getSpecies().getId());
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
+		}
 
 		// Parse indep
 		Parameter indepParam = model.getParameter(Categories.getTime());
@@ -847,6 +865,12 @@ class TwoStepSecondaryModelReader implements Reader {
 			} else {
 				depXml.setCategory(Categories.getTempCategory().getName());
 			}
+		}
+		// Gets limits
+		if (limits.containsKey(depName)) {
+			Limits depLimits = limits.get(depName);
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
 		}
 
 		// Sort const and indep params
@@ -1032,7 +1056,7 @@ class OneStepSecondaryModelReader implements Reader {
 		return rows;
 	}
 
-	KnimeTuple parsePrimModel(Model model) {
+	private KnimeTuple parsePrimModel(Model model) {
 		// Parses annotation
 		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
 
@@ -1055,6 +1079,12 @@ class OneStepSecondaryModelReader implements Reader {
 			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
 		}
 		depXml.setDescription(agent.getDescription());
+		// Gets limits
+		if (limits.containsKey(agent.getSpecies().getId())) {
+			Limits depLimits = limits.get(agent.getSpecies().getId());
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
+		}
 
 		// Parse indep
 		Parameter indepParam = model.getParameter(Categories.getTime());
@@ -1135,7 +1165,7 @@ class OneStepSecondaryModelReader implements Reader {
 		return tuple;
 	}
 
-	KnimeTuple parseSecModel(ModelDefinition md) {
+	private KnimeTuple parseSecModel(ModelDefinition md) {
 
 		// Parse constraints
 		ListOf<Constraint> constraints = md.getListOfConstraints();
@@ -1161,6 +1191,12 @@ class OneStepSecondaryModelReader implements Reader {
 			} else if (unitName.equals("°C")) {
 				depXml.setCategory(Categories.getTempCategory().getName());
 			}
+		}
+		// Gets limits
+		if (limits.containsKey(depName)) {
+			Limits depLimits = limits.get(depName);
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
 		}
 
 		// Sort consts and indep params
@@ -1308,6 +1344,12 @@ class ManualSecondaryModelReader implements Reader {
 			} else if (unitName.equals("°C")) {
 				depXml.setCategory(Categories.getTempCategory().getName());
 			}
+		}
+		// Gets limits
+		if (limits.containsKey(depParam.getId())) {
+			Limits depLimits = limits.get(depParam.getId());
+			depXml.setMin(depLimits.getMin());
+			depXml.setMax(depLimits.getMax());
 		}
 
 		// Sort const and indep params
@@ -1465,6 +1507,13 @@ class TwoStepTertiaryModelReader implements Reader {
 			String depName = rule2.getRule().getVariable();
 			DepXml secDepXml = new DepXml(depName);
 
+			// Adds limits
+			if (limits.containsKey(depName)) {
+				Limits depLimits = limits.get(depName);
+				secDepXml.setMax(depLimits.getMax());
+				secDepXml.setMin(depLimits.getMin());
+			}
+
 			// Sort constant and independent parameters
 			LinkedList<Parameter> secIndepParams = new LinkedList<>();
 			LinkedList<Parameter> secConstParams = new LinkedList<>();
@@ -1617,6 +1666,12 @@ class TwoStepTertiaryModelReader implements Reader {
 				depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
 			}
 			depXml.setDescription(agent.getDescription());
+			// Gets limits
+			if (limits.containsKey(agent.getSpecies().getId())) {
+				Limits depLimits = limits.get(agent.getSpecies().getId());
+				depXml.setMax(depLimits.getMax());
+				depXml.setMin(depLimits.getMin());
+			}
 
 			// Parse indep
 			Parameter indepParam = model.getParameter(Categories.getTime());
@@ -1784,6 +1839,13 @@ class OneStepTertiaryModelReader implements Reader {
 			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
 		}
 		depXml.setDescription(organism.getDescription());
+		
+		// Gets dep limits
+		if (limits.containsKey(organism.getSpecies().getId())) {
+			Limits depLimits = limits.get(organism.getSpecies().getId());
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
+		}
 
 		// Parse indep
 		Parameter indepParam = model.getParameter(Categories.getTime());
@@ -1926,6 +1988,13 @@ class OneStepTertiaryModelReader implements Reader {
 			// Create dependent
 			String depName = rule2.getRule().getVariable();
 			DepXml depXml = new DepXml(depName);
+			
+			// Get limits
+			if (limits.containsKey(depName)) {
+				Limits depLimits = limits.get(depName);
+				depXml.setMax(depLimits.getMax());
+				depXml.setMin(depLimits.getMin());
+			}
 
 			// Sort constant and independent parameters
 			LinkedList<Parameter> indepParams = new LinkedList<>();
@@ -2119,6 +2188,13 @@ class ManualTertiaryModelReader implements Reader {
 			}
 		}
 		depXml.setDescription(organism.getDescription());
+
+		// Get limits
+		if (limits.containsKey(organism.getSpecies().getId())) {
+			Limits depLimits = limits.get(organism.getSpecies().getId());
+			depXml.setMax(depLimits.getMax());
+			depXml.setMin(depLimits.getMin());
+		}
 		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
 
 		// Parse indep
@@ -2230,6 +2306,12 @@ class ManualTertiaryModelReader implements Reader {
 		}
 		depXml.setUnit(depUnit);
 		depXml.setDescription(depCoeff.getDescription());
+		// Get limits
+		if (limits.containsKey(depName)) {
+			Limits depLimits = limits.get(depName);
+			depXml.setMin(depLimits.getMin());
+			depXml.setMax(depLimits.getMax());
+		}
 		PmmXmlDoc depCell = new PmmXmlDoc(depXml);
 
 		// Sort const and indep params

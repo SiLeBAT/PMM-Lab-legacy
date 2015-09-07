@@ -180,7 +180,7 @@ public class PMFWriterNodeModel extends NodeModel {
 		createdDate.setTimeInMillis(currentDate);
 		modifiedDate.setTimeInMillis(currentDate);
 	}
-	
+
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
 		KnimeSchema schema = null;
@@ -801,6 +801,12 @@ class PrimaryModelWDataParser implements Parser {
 		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
+
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -964,6 +970,12 @@ class PrimaryModelWODataParser implements Parser {
 		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
+
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -1082,6 +1094,11 @@ class ManualSecondaryModelParser implements Parser {
 		depParam.setValue(0.0);
 		if (dep.getUnit() != null) {
 			depParam.setUnits(Util.createId(dep.getUnit()));
+		}
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(dep.getName(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
 		}
 		model.addParameter(depParam);
 
@@ -1284,6 +1301,12 @@ class TwoStepSecondaryModelParser implements Parser {
 		Agent agent = new Agent(agentXml, depXml.getUnit(), compartment, depXml.getDescription());
 		model.addSpecies(agent.getSpecies());
 
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), depXml.getMin(), depXml.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
+
 		// Adds indep constraint
 		if (!indepXml.getName().isEmpty()) {
 			LimitsConstraint lc = new LimitsConstraint(indepXml.getName(), indepXml.getMin(), indepXml.getMax());
@@ -1405,6 +1428,11 @@ class TwoStepSecondaryModelParser implements Parser {
 			depParam.setUnits(Util.createId(dep.getUnit()));
 		}
 		model.addParameter(depParam);
+		// Adds constraint
+		LimitsConstraint depLc = new LimitsConstraint(dep.getName(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
 
 		// Add independent parameters
 		for (IndepXml indepXml : indepXmls) {
@@ -1607,6 +1635,12 @@ class OneStepSecondaryModelParser implements Parser {
 		Agent agent = new Agent(agentXml, dep.getUnit(), compartment, dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
+
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -1679,6 +1713,12 @@ class OneStepSecondaryModelParser implements Parser {
 		secDepParam.setConstant(false);
 		secDepParam.setValue(0.0);
 		secModel.addParameter(secDepParam);
+
+		// Adds dep constraint
+		LimitsConstraint secDepLc = new LimitsConstraint(secDep.getName(), secDep.getMin(), secDep.getMax());
+		if (secDepLc.getConstraint() != null) {
+			secModel.addConstraint(secDepLc.getConstraint());
+		}
 
 		for (IndepXml indepXml : secIndepXmls) {
 			// Create SBML parameter
@@ -2029,6 +2069,12 @@ class TwoStepTertiaryModelParser implements Parser {
 		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
+
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -2136,6 +2182,12 @@ class TwoStepTertiaryModelParser implements Parser {
 		secDepParam.setConstant(false);
 		secDepParam.setValue(0.0);
 		secModel.addParameter(secDepParam);
+
+		// Adds dependent constraint
+		LimitsConstraint depLc = new LimitsConstraint(secDep.getName(), secDep.getMin(), secDep.getMax());
+		if (depLc.getConstraint() != null) {
+			secModel.addConstraint(depLc.getConstraint());
+		}
 
 		for (IndepXml indepXml : secIndeps) {
 			// Create SBML parameter
@@ -2332,6 +2384,12 @@ class OneStepTertiaryModelParser implements Parser {
 		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
+		}
+
 		// Add indep constraint
 		if (!indep.getName().isEmpty()) {
 			Double min = indep.getMin();
@@ -2429,6 +2487,11 @@ class OneStepTertiaryModelParser implements Parser {
 			secDepParam.setConstant(false);
 			secDepParam.setValue(0.0);
 			secModel.addParameter(secDepParam);
+
+			LimitsConstraint secDepLc = new LimitsConstraint(secDep.getName(), secDep.getMin(), secDep.getMax());
+			if (secDepLc.getConstraint() != null) {
+				secModel.addConstraint(secDepLc.getConstraint());
+			}
 
 			for (IndepXml indepXml : secIndeps) {
 				// Create SBML parameter
@@ -2677,14 +2740,10 @@ class ManualTertiaryModelParser implements Parser {
 		Agent agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 		model.addSpecies(agent.getSpecies());
 
-		// Add indep constraint
-		if (!indep.getName().isEmpty()) {
-			Double min = indep.getMin();
-			Double max = indep.getMax();
-			LimitsConstraint lc = new LimitsConstraint(indep.getName(), min, max);
-			if (lc.getConstraint() != null) {
-				model.addConstraint(lc.getConstraint());
-			}
+		// Adds dep constraint
+		LimitsConstraint depLc = new LimitsConstraint(agent.getSpecies().getId(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			model.addConstraint(depLc.getConstraint());
 		}
 
 		// Add independent parameter
@@ -2781,6 +2840,11 @@ class ManualTertiaryModelParser implements Parser {
 			Parameter secDepParam = new Parameter(secDep.getName());
 			secDepParam.setConstant(false);
 			secDepParam.setValue(0.0);
+			// Adds constraint
+			LimitsConstraint secDepLc = new LimitsConstraint(secDep.getName(), secDep.getMin(), secDep.getMax());
+			if (secDepLc.getConstraint() != null) {
+				md.addConstraint(secDepLc.getConstraint());
+			}
 			md.addParameter(secDepParam);
 
 			for (IndepXml indepXml : secIndeps) {
@@ -2824,7 +2888,7 @@ class ManualTertiaryModelParser implements Parser {
 					md.addConstraint(lc.getConstraint());
 				}
 			}
-			
+
 			// Gets model literature
 			List<LiteratureItem> secMLits = new LinkedList<>();
 			for (PmmXmlElementConvertable item : secMLitDoc.getElementSet()) {

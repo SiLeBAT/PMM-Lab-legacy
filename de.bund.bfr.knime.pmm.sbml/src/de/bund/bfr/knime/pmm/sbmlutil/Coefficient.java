@@ -38,14 +38,16 @@ public class Coefficient {
 	public Coefficient(Parameter param) {
 		// Get fields from non RDF annotation
 		XMLNode nonRDFannotation = param.getAnnotation().getNonRDFannotation();
-		CoefficientAnnotation annot = new CoefficientAnnotation(
-				nonRDFannotation);
 
-		P = annot.getP();
-		error = annot.getError();
-		t = annot.getT();
-		correlations = annot.getCorrelations();
-		desc = annot.getDescription();
+		if (nonRDFannotation != null) {
+			CoefficientAnnotation annot = new CoefficientAnnotation(nonRDFannotation);
+
+			P = annot.getP();
+			error = annot.getError();
+			t = annot.getT();
+			correlations = annot.getCorrelations();
+			desc = annot.getDescription();
+		}
 		this.param = param;
 	}
 
@@ -86,8 +88,7 @@ public class Coefficient {
 		desc = paramXml.getDescription();
 
 		// Builds and sets non RDF annotation
-		CoefficientAnnotation annot = new CoefficientAnnotation(P, error, t,
-				correlations, desc);
+		CoefficientAnnotation annot = new CoefficientAnnotation(P, error, t, correlations, desc);
 		param.getAnnotation().setNonRDFAnnotation(annot.getNode());
 	}
 
@@ -96,8 +97,7 @@ public class Coefficient {
 	 */
 	public ParamXml toParamXml() {
 		// Creates ParamXml and adds description
-		ParamXml paramXml = new ParamXml(param.getId(), param.getValue(),
-				error, null, null, P, t);
+		ParamXml paramXml = new ParamXml(param.getId(), param.getValue(), error, null, null, P, t);
 		paramXml.setDescription(desc);
 
 		// Adds correlations
@@ -198,8 +198,7 @@ class CoefficientAnnotation {
 	 * @param correlations
 	 * @param desc
 	 */
-	public CoefficientAnnotation(Double P, Double error, Double t,
-			Map<String, Double> correlations, String desc) {
+	public CoefficientAnnotation(Double P, Double error, Double t, Map<String, Double> correlations, String desc) {
 		// Builds metadata node
 		node = new XMLNode(new XMLTriple("metadata", null, "pmf"));
 

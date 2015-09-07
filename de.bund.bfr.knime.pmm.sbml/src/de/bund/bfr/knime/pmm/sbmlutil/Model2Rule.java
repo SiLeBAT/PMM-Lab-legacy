@@ -51,7 +51,7 @@ public class Model2Rule extends ModelRule {
 	}
 
 	protected String createVariable() {
-		return "Value";
+		return rule.getVariable();
 	}
 	
 	public List<LiteratureItem> getLits() {

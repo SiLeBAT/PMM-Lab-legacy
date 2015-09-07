@@ -180,7 +180,7 @@ public class PMFWriterNodeModel extends NodeModel {
 		createdDate.setTimeInMillis(currentDate);
 		modifiedDate.setTimeInMillis(currentDate);
 	}
-
+	
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
 		KnimeSchema schema = null;
@@ -942,8 +942,8 @@ class PrimaryModelWODataParser implements Parser {
 
 		// Add model annotations
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, uncertainties, emLits, condId);
-		model.getAnnotation().setNonRDFAnnotation(primModelAnnotation.getNode());
+		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, emLits, condId);
+		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
 
 		// Create compartment and add it to the model
 		List<MiscXml> miscs = new LinkedList<>();

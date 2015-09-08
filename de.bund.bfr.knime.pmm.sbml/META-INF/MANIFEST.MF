@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SBML nodes extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: sbmlreader.jar,
  lib/CombineArchive-0.9.4.4-jar-with-dependencies.jar,
  lib/jaxb-api-2.2.7.jar,
@@ -67,4 +67,5 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.4.3",
  org.knime.js.core,
  org.knime.js.core.node
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: BfR
 

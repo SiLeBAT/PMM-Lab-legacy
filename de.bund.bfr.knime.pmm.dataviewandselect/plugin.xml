@@ -21,16 +21,5 @@
             factory-class="de.bund.bfr.knime.pmm.dataviewandselect.DataViewAndSelectNodeFactory"
             id="de.bund.bfr.knime.dataviewandselect.DataViewAndSelectNodeFactory"/>
    </extension>
-   <extension
-         point="org.knime.workbench.repository.metanode">
-      <PersistedMetaNode
-            category-path="/pmmlab/converters"
-            expert-flag="false"
-            icon="metanode_templates/NuMLCreator.png"
-            id="de.bund.bfr.knime.pmm.dataviewandselect.numlwriter"
-            name="NuML Creator"
-            workflowDir="metanode_templates/NuML Creator/">
-      </PersistedMetaNode>
-   </extension>
    
 </plugin>

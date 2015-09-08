@@ -30,7 +30,6 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
-import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -306,24 +305,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		PmmXmlDoc paramCell = new PmmXmlDoc();
 		for (Parameter constParam : constParams) {
-			ParamXml paramXml = new Coefficient(constParam).toParamXml();
-
-			// Assign unit and category
-			String unitID = constParam.getUnits();
-			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(constParam.getId())) {
-				Limits constLimits = limits.get(constParam.getId());
-				paramXml.setMax(constLimits.getMax());
-				paramXml.setMin(constLimits.getMin());
-			}
-
-			paramCell.add(paramXml);
+			paramCell.add(new Coefficient(constParam).toParamXml(model.getListOfUnitDefinitions(), limits));
 		}
 
 		Uncertainties uncertainties = m1Annot.getUncertainties();
@@ -331,11 +313,15 @@ public class SBMLReaderNodeModel extends NodeModel {
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
-		PmmXmlDoc estModelCell = new PmmXmlDoc(estModel);
+		
+		PmmXmlDoc mLitCell = new PmmXmlDoc();
+		for (LiteratureItem lit : rule.getLits()) {
+			mLitCell.add(lit);
+		}
 
-		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		PmmXmlDoc emLitCell = new PmmXmlDoc();
 		for (LiteratureItem lit : m1Annot.getLits()) {
-			emLiteratureCell.add(lit);
+			emLitCell.add(lit);
 		}
 
 		// Add cells to the row
@@ -357,9 +343,9 @@ public class SBMLReaderNodeModel extends NodeModel {
 		row.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
 		row.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
 		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
-		row.setValue(Model1Schema.ATT_ESTMODEL, estModelCell);
-		row.setValue(Model1Schema.ATT_MLIT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_EMLIT, emLiteratureCell);
+		row.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+		row.setValue(Model1Schema.ATT_MLIT, mLitCell);
+		row.setValue(Model1Schema.ATT_EMLIT, emLitCell);
 		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 		row.setValue(Model1Schema.ATT_DBUUID, "?");
 
@@ -428,24 +414,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		PmmXmlDoc paramCell = new PmmXmlDoc();
 		for (Parameter constParam : constParams) {
-			ParamXml paramXml = new Coefficient(constParam).toParamXml();
-
-			// Assign unit and category
-			String unitID = constParam.getUnits();
-			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(constParam.getId())) {
-				Limits constLimits = limits.get(constParam.getId());
-				paramXml.setMax(constLimits.getMax());
-				paramXml.setMin(constLimits.getMin());
-			}
-
-			paramCell.add(paramXml);
+			paramCell.add(new Coefficient(constParam).toParamXml(model.getListOfUnitDefinitions(), limits));
 		}
 
 		Uncertainties uncertainties = m1Annot.getUncertainties();
@@ -455,9 +424,14 @@ public class SBMLReaderNodeModel extends NodeModel {
 			estModel.setName(model.getName());
 		}
 
-		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		PmmXmlDoc mLitCell = new PmmXmlDoc();
+		for (LiteratureItem lit : rule.getLits()) {
+			mLitCell.add(lit);
+		}
+		
+		PmmXmlDoc emLitCell = new PmmXmlDoc();
 		for (LiteratureItem lit : m1Annot.getLits()) {
-			emLiteratureCell.add(lit);
+			emLitCell.add(lit);
 		}
 
 		// Add cells to the row
@@ -480,8 +454,8 @@ public class SBMLReaderNodeModel extends NodeModel {
 		row.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
 		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
 		row.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		row.setValue(Model1Schema.ATT_MLIT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_EMLIT, emLiteratureCell);
+		row.setValue(Model1Schema.ATT_MLIT, mLitCell);
+		row.setValue(Model1Schema.ATT_EMLIT, emLitCell);
 		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 		row.setValue(Model1Schema.ATT_DBUUID, "?");
 
@@ -531,47 +505,13 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// Parse indeps
 		PmmXmlDoc indepCell = new PmmXmlDoc();
 		for (Parameter param : indepParams) {
-			IndepXml indepXml = new SecIndep(param).toIndepXml();
-
-			// Assign unit and category
-			String unitID = param.getUnits();
-			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				indepXml.setUnit(unitName);
-				indepXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits indepLimits = limits.get(param.getId());
-				indepXml.setMax(indepLimits.getMax());
-				indepXml.setMin(indepLimits.getMin());
-			}
-
-			indepCell.add(indepXml);
+			indepCell.add(new SecIndep(param).toIndepXml(model.getListOfUnitDefinitions(), limits));
 		}
 
 		// Parse consts
 		PmmXmlDoc constCell = new PmmXmlDoc();
 		for (Parameter param : constParams) {
-			ParamXml paramXml = new Coefficient(param).toParamXml();
-
-			// Assign unit and category
-			String unitID = param.getUnits();
-			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits constLimits = limits.get(param.getId());
-				paramXml.setMax(constLimits.getMax());
-				paramXml.setMin(constLimits.getMin());
-			}
-
-			constCell.add(paramXml);
+			constCell.add(new Coefficient(param).toParamXml(model.getListOfUnitDefinitions(), limits));
 		}
 
 		// Get model annotation
@@ -587,10 +527,15 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// Get globalModelID from annotation
 		int globalModelID = m2Annot.getGlobalModelID();
 
+		PmmXmlDoc mLitCell = new PmmXmlDoc();
+		for (LiteratureItem lit : rule.getLits()) {
+			mLitCell.add(lit);
+		}
+		
 		// Get EM_Literature (references) from annotation
-		PmmXmlDoc emLiteratureCell = new PmmXmlDoc();
+		PmmXmlDoc emLitCell = new PmmXmlDoc();
 		for (LiteratureItem lit : m2Annot.getLiteratureItems()) {
-			emLiteratureCell.add(lit);
+			emLitCell.add(lit);
 		}
 
 		// Add cells to the row
@@ -600,8 +545,8 @@ public class SBMLReaderNodeModel extends NodeModel {
 		row.setValue(Model2Schema.ATT_INDEPENDENT, indepCell);
 		row.setValue(Model2Schema.ATT_PARAMETER, constCell);
 		row.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModelXml));
-		row.setValue(Model2Schema.ATT_MLIT, new PmmXmlDoc());
-		row.setValue(Model2Schema.ATT_EMLIT, emLiteratureCell);
+		row.setValue(Model2Schema.ATT_MLIT, mLitCell);
+		row.setValue(Model2Schema.ATT_EMLIT, emLitCell);
 		row.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
 		row.setValue(Model2Schema.ATT_DBUUID, "?");
 		row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
@@ -651,47 +596,13 @@ public class SBMLReaderNodeModel extends NodeModel {
 		// Parse indeps
 		PmmXmlDoc indepCell = new PmmXmlDoc();
 		for (Parameter param : indepParams) {
-			IndepXml indepXml = new SecIndep(param).toIndepXml();
-
-			// Assign unit and category
-			String unitID = param.getUnits();
-			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				indepXml.setUnit(unitName);
-				indepXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits indepLimits = limits.get(param.getId());
-				indepXml.setMax(indepLimits.getMax());
-				indepXml.setMin(indepLimits.getMin());
-			}
-
-			indepCell.add(indepXml);
+			indepCell.add(new SecIndep(param).toIndepXml(model.getListOfUnitDefinitions(), limits));
 		}
 		
 		// Parse consts
 		PmmXmlDoc constCell = new PmmXmlDoc();
 		for (Parameter param : constParams) {
-			ParamXml paramXml = new Coefficient(param).toParamXml();
-
-			// Assign unit and category
-			String unitID = param.getUnits();
-			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
-				String unitName = model.getUnitDefinition(unitID).getName();
-				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
-			}
-
-			// Get limits
-			if (limits.containsKey(param.getId())) {
-				Limits constLimits = limits.get(param.getId());
-				paramXml.setMax(constLimits.getMax());
-				paramXml.setMin(constLimits.getMin());
-			}
-
-			constCell.add(paramXml);
+			constCell.add(new Coefficient(param).toParamXml(model.getListOfUnitDefinitions(), limits));
 		}
 		
 		// Get model annotation
@@ -706,6 +617,11 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		// Get globalModelID from annotation
 		int globalModelID = m2Annot.getGlobalModelID();
+		
+		PmmXmlDoc secMLitCell = new PmmXmlDoc();
+		for (LiteratureItem lit : rule.getLits()) {
+			secMLitCell.add(lit);
+		}
 
 		// Get EM_Literature (references) from annotation
 		PmmXmlDoc secEmLitCell = new PmmXmlDoc();
@@ -743,7 +659,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		row.setValue(Model2Schema.ATT_INDEPENDENT, indepCell);
 		row.setValue(Model2Schema.ATT_PARAMETER, constCell);
 		row.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		row.setValue(Model2Schema.ATT_MLIT, new PmmXmlDoc());
+		row.setValue(Model2Schema.ATT_MLIT, secMLitCell);
 		row.setValue(Model2Schema.ATT_EMLIT, secEmLitCell);
 		row.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
 		row.setValue(Model2Schema.ATT_DBUUID, "?");

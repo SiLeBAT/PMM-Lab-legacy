@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Parameter;
+import org.sbml.jsbml.Unit;
+import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 
 /**
  * Coefficient that extends the SBML parameter with more data: P, error,
@@ -75,7 +79,7 @@ public class Coefficient {
 		// If paramXml has not unit then assigns "dimensionless" to SBML
 		// parameter
 		if (paramXml.getUnit() == null) {
-			param.setUnits("dimensionless");
+			param.setUnits(Unit.Kind.DIMENSIONLESS);
 		} else {
 			param.setUnits(Util.createId(paramXml.getUnit()));
 		}
@@ -95,7 +99,7 @@ public class Coefficient {
 	/**
 	 * Creates a Pmm Lab ParamXml.
 	 */
-	public ParamXml toParamXml() {
+	public ParamXml toParamXml(ListOf<UnitDefinition> unitDefs, Map<String, Limits> limits) {
 		// Creates ParamXml and adds description
 		ParamXml paramXml = new ParamXml(param.getId(), param.getValue(), error, null, null, P, t);
 		paramXml.setDescription(desc);
@@ -104,6 +108,22 @@ public class Coefficient {
 		for (Entry<String, Double> entry : correlations.entrySet()) {
 			paramXml.addCorrelation(entry.getKey(), entry.getValue());
 		}
+		
+		// Assigns unit and category
+		String unitID = param.getUnits();
+		if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
+			String unitName = unitDefs.get(unitID).getName();
+			paramXml.setUnit(unitName);
+			paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+		}
+		
+		// Adds limits
+        if (limits.containsKey(param.getId())) {
+        	Limits constLimits = limits.get(param.getId());
+        	paramXml.setMax(constLimits.getMax());
+        	paramXml.setMin(constLimits.getMin());
+		}
+
 		return paramXml;
 	}
 

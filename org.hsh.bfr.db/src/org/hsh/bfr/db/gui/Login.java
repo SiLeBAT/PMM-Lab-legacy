@@ -173,6 +173,10 @@ public class Login extends JFrame {
 			  DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false,
 			  true); DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
 			  */
+			  /*
+			  DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GlobalModel") + "=3", false);
+			  DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("GlobalModels") + " WHERE " + DBKernel.delimitL("ID") + "=3", false);
+			  */
 			/*
 			 * try { ResultSet rs = DBKernel.getResultSet("SELECT " +
 			 * DBKernel.delimitL("GeschaetzteModelle") + "." +

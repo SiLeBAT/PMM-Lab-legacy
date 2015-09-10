@@ -225,10 +225,10 @@ public class DataFile {
 
 		// Gets and sets agent name
 		agentXml.setName((String) agentNode.attribute("name"));
-
+		
 		// Gets and sets agent detail
-		if (agentXml.getName() != null) {
-			NodeList detailNodes = (NodeList) agentNode.get("detail");
+		NodeList detailNodes = (NodeList) agentNode.get("detail");
+		if (detailNodes.size() == 1) {
 			Node detailNode = (Node) detailNodes.get(0);
 			agentXml.setDetail(detailNode.text());
 		}

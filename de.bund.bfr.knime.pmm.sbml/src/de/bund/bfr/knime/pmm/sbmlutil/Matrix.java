@@ -103,7 +103,7 @@ public class Matrix {
 	// Create MatrixXml
 	public MatrixXml toMatrixXml() {
 		if (code == null) {
-			return new MatrixXml(MathUtilities.getRandomNegativeInt(), compartment.getName(), null, null);
+			return new MatrixXml(MathUtilities.getRandomNegativeInt(), compartment.getName(), details, null);
 		} else {
 			// Get matrix DB id
 			String[] colNames = { "CodeSystem", "Code" };

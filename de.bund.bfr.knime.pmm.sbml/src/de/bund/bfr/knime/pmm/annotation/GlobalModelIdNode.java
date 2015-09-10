@@ -13,4 +13,12 @@ public class GlobalModelIdNode extends SBMLNodeBase {
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(Integer.toString(id)));
 	}
+	
+	public GlobalModelIdNode(XMLNode node) {
+		this.node = node;
+	}
+	
+	public int getGlobalModelId() {
+		return Integer.parseInt(node.getChild(0).getCharacters());
+	}
 }

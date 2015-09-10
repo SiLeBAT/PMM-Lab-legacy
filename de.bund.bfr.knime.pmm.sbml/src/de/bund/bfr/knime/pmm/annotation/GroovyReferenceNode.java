@@ -14,8 +14,21 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
  */
 public class GroovyReferenceNode {
 
-	private LiteratureSpecification spec = new RIS();
 	private Node node;
+	
+	private static LiteratureSpecification spec = new RIS();
+	private static final String AUTHOR_TAG = "ref:" + spec.getAuthor();
+	private static final String YEAR_TAG = "ref:" + spec.getYear();
+	private static final String TITLE_TAG = "ref:" + spec.getTitle();
+	private static final String ABSTRACT_TAG = "ref:" + spec.getAbstract();
+	private static final String JOURNAL_TAG = "ref:" + spec.getJournal();
+	private static final String VOLUME_TAG = "ref:" + spec.getVolume();
+	private static final String ISSUE_TAG = "ref:" + spec.getIssue();
+	private static final String PAGE_TAG = "ref:" + spec.getPage();
+	private static final String APPROVAL_TAG = "ref:" + spec.getApproval();
+	private static final String WEBSITE_TAG = "ref:" + spec.getWebsite();
+	private static final String TYPE_TAG = "ref:" + spec.getType();
+	private static final String COMMENT_TAG = "ref:" + spec.getComment();
 
 	/**
 	 * Builds a GroovyReferenceNode using the RIS tag set.
@@ -31,62 +44,62 @@ public class GroovyReferenceNode {
 		
 		// author node
 		if (lit.getAuthor() != null) {
-			node.appendNode("ref:" + spec.getAuthor(), lit.getAuthor());
+			node.appendNode(AUTHOR_TAG, lit.getAuthor());
 		}
 
 		// year node
 		if (lit.getYear() != null) {
-			node.appendNode("ref:" + spec.getYear(), lit.getYear());
+			node.appendNode(YEAR_TAG, lit.getYear());
 		}
 		
 		// title node
 		if (lit.getTitle() != null) {
-			node.appendNode("ref:" + spec.getTitle(), lit.getTitle());
+			node.appendNode(TITLE_TAG, lit.getTitle());
 		}
 		
 		// abstract node
 		if (lit.getAbstractText() != null) {
-			node.appendNode("ref:" + spec.getAbstract(), lit.getAbstractText());
+			node.appendNode(ABSTRACT_TAG, lit.getAbstractText());
 		}
 		
 		// journal node
 		if (lit.getJournal() != null) {
-			node.appendNode("ref:" + spec.getJournal(), lit.getJournal());
+			node.appendNode(JOURNAL_TAG, lit.getJournal());
 		}
 		
 		// volume node
 		if (lit.getVolume() != null) {
-			node.appendNode("ref:" + spec.getVolume(), lit.getVolume());
+			node.appendNode(VOLUME_TAG, lit.getVolume());
 		}
 		
 		// issue node
 		if (lit.getIssue() != null) {
-			node.appendNode("ref:" + spec.getIssue(), lit.getIssue());
+			node.appendNode(ISSUE_TAG, lit.getIssue());
 		}
 		
 		// page node
 		if (lit.getPage() != null) {
-			node.appendNode("ref:" + spec.getPage(), lit.getPage());
+			node.appendNode(PAGE_TAG, lit.getPage());
 		}
 		
 		// approval mode node
 		if (lit.getApprovalMode() != null) {
-			node.appendNode("ref:" + spec.getApproval(), lit.getApprovalMode());
+			node.appendNode(APPROVAL_TAG, lit.getApprovalMode());
 		}
 		
 		// website node
 		if (lit.getWebsite() != null) {
-			node.appendNode("ref:" + spec.getWebsite(), lit.getWebsite());
+			node.appendNode(WEBSITE_TAG, lit.getWebsite());
 		}
 		
 		// type node
 		if (lit.getType() != null) {
-			node.appendNode("ref:" + spec.getType(), lit.getType());
+			node.appendNode(TYPE_TAG, lit.getType());
 		}
 		
 		// comment node
 		if (lit.getComment() != null) {
-			node.appendNode("ref:" + spec.getComment(), lit.getComment());
+			node.appendNode(COMMENT_TAG, lit.getComment());
 		}
 	}
 	
@@ -105,7 +118,7 @@ public class GroovyReferenceNode {
 	 * Creates PmmLab LiteratureItem.
 	 */
 	public LiteratureItem toLiteratureItem() {
-
+		
 		String author;
 		NodeList authorNodes = (NodeList) node.get(spec.getAuthor());
 		if (authorNodes.size() == 0) {

@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.annotation;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
@@ -12,13 +14,14 @@ public class DescriptionAnnotation {
 	static final String METADATA_TAG = "metadata";
 	static final String PMF_TAG = "pmf";
 	static final String DESC_TAG = "description";
-	
-	XMLNode node;
+
 	String desc;
+	XMLNode node;
 	
 	/**
 	 * Builds a DescriptionAnnotation from existing XMLNode.
 	 * @param node XMLNode with description
+	 * @throws XMLStreamException 
 	 */
 	public DescriptionAnnotation(XMLNode node) {
 		this.node = node;
@@ -33,15 +36,17 @@ public class DescriptionAnnotation {
 	 * @param desc Description.
 	 */
 	public DescriptionAnnotation(String desc) {
-		// Creates annotation node
-		node = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
-		
 		// Creates description node and adds it to the annotation node
 		XMLNode descNode = new XMLNode(new XMLTriple(DESC_TAG, null, PMF_TAG));
 		descNode.addChild(new XMLNode(desc));
-		node.addChild(descNode);
-		
-		this.desc = desc; // copies description
+		// Creates metadata node
+		XMLNode metadata = new XMLNode(new XMLTriple(METADATA_TAG, null, PMF_TAG));
+		metadata.addChild(descNode);
+		// Creates node
+		node = new XMLNode();
+		node.addChild(metadata);
+		// Copies description
+		this.desc = desc;
 	}
 
 	// Getters

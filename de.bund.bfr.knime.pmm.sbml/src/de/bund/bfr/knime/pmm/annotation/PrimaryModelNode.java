@@ -13,4 +13,12 @@ public class PrimaryModelNode extends SBMLNodeBase {
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(model));
 	}
+	
+	public PrimaryModelNode(XMLNode node) {
+		this.node = node;
+	}
+	
+	public String getPrimaryModel() {
+		return node.getChild(0).getCharacters();
+	}
 }

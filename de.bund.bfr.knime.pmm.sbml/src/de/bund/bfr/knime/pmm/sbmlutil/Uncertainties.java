@@ -8,6 +8,12 @@ public class Uncertainties {
 
 	public Uncertainties(EstModelXml estModel) {
 		this.estModel = estModel;
+		if (this.estModel.getName() == null) {
+			this.estModel.setName("");
+		}
+		if (this.estModel.getComment() == null) {
+			this.estModel.setComment("");
+		}
 	}
 
 	/**
@@ -34,17 +40,22 @@ public class Uncertainties {
 			return false;
 		if (!estModel.getComment().equals(otherEstModel.getComment()))
 			return false;
-		if (Double.compare(estModel.getR2(), otherEstModel.getR2()) != 0)
+		if (estModel.getR2() != null && otherEstModel.getR2() != null
+				&& Double.compare(estModel.getR2(), otherEstModel.getR2()) != 0)
 			return false;
-		if (Double.compare(estModel.getRms(), otherEstModel.getRms()) != 0)
+		if (estModel.getRms() != null && otherEstModel.getRms() != null
+				&& Double.compare(estModel.getRms(), otherEstModel.getRms()) != 0)
 			return false;
-		if (Double.compare(estModel.getSse(), otherEstModel.getSse()) != 0)
+		if (estModel.getSse() != null && otherEstModel.getSse() != null
+				&& Double.compare(estModel.getSse(), otherEstModel.getSse()) != 0)
 			return false;
-		if (Double.compare(estModel.getAic(), otherEstModel.getAic()) != 0)
+		if (estModel.getAic() != null && otherEstModel.getAic() != null
+				&& Double.compare(estModel.getAic(), otherEstModel.getAic()) != 0)
 			return false;
-		if (Double.compare(estModel.getBic(), otherEstModel.getBic()) != 0)
+		if (estModel.getBic() != null && otherEstModel.getBic() != null
+				&& Double.compare(estModel.getBic(), otherEstModel.getBic()) != 0)
 			return false;
-		if (estModel.getDof() != otherEstModel.getDof())
+		if (estModel.getDof() != null && otherEstModel.getDof() != null && estModel.getDof() != otherEstModel.getDof())
 			return false;
 
 		return true;

@@ -20,4 +20,12 @@ public class CreatorNode extends SBMLNodeBase {
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(creator));
 	}
+	
+	public CreatorNode(XMLNode node) {
+		this.node = node;
+	}
+	
+	public String getCreator() {
+		return node.getChild(0).getCharacters();
+	}
 }

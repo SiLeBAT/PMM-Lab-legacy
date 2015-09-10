@@ -13,4 +13,12 @@ public class CondIDNode extends SBMLNodeBase {
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(Integer.toString(id)));
 	}
+	
+	public CondIDNode(XMLNode node) {
+		this.node = node;
+	}
+	
+	public int getCondId() {
+		return Integer.parseInt(node.getChild(0).getCharacters());
+	}
 }

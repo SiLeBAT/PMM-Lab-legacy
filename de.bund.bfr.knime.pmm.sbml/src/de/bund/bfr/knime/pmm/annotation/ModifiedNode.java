@@ -22,4 +22,12 @@ public class ModifiedNode extends SBMLNodeBase {
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(modified));
 	}
+	
+	public ModifiedNode(XMLNode node) {
+		this.node = node;
+	}
+	
+	public String getModified() {
+		return node.getChild(0).getCharacters();
+	}
 }

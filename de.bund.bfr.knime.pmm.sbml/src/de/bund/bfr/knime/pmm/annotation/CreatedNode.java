@@ -16,4 +16,12 @@ public class CreatedNode extends SBMLNodeBase {
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(created));
 	}
+	
+	public CreatedNode(XMLNode node) {
+		this.node = node;
+	}
+	
+	public String getCreated() {
+		return node.getChild(0).getCharacters();
+	}
 }

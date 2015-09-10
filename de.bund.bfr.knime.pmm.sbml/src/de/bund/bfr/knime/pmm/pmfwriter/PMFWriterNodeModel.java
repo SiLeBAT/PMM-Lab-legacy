@@ -833,7 +833,6 @@ class PrimaryModelWDataParser implements Parser {
 			// Add constant parameter
 			Parameter param = new Coefficient(constXml).getParameter();
 			model.addParameter(param);
-
 			// Add constraint
 			LimitsConstraint lc = new LimitsConstraint(constXml.getName(), constXml.getMin(), constXml.getMax());
 			if (lc.getConstraint() != null) {
@@ -995,11 +994,10 @@ class PrimaryModelWODataParser implements Parser {
 		}
 
 		for (ParamXml constXml : constXmls) {
-			// Add constant parameter
+			// Adds constant parameter
 			Parameter param = new Coefficient(constXml).getParameter();
 			model.addParameter(param);
-
-			// Add constraint
+			// Adds constraint
 			LimitsConstraint lc = new LimitsConstraint(constXml.getName(), constXml.getMin(), constXml.getMax());
 			if (lc.getConstraint() != null) {
 				model.addConstraint(lc.getConstraint());
@@ -1053,13 +1051,13 @@ class ManualSecondaryModelParser implements Parser {
 		PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
 		int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 
-		// Get independent parameters
+		// Gets independent parameters
 		List<IndepXml> indepXmls = new LinkedList<>();
 		for (PmmXmlElementConvertable item : indepDoc.getElementSet()) {
 			indepXmls.add((IndepXml) item);
 		}
 
-		// Get constant parameters
+		// Gets constant parameters
 		List<ParamXml> constXmls = new LinkedList<>();
 		for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
 			constXmls.add((ParamXml) item);
@@ -1083,7 +1081,7 @@ class ManualSecondaryModelParser implements Parser {
 
 		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
-		// Add dep
+		// Adds dep
 		Parameter depParam = new SecDep(dep).getParam();
 		// Adds dep constraint
 		LimitsConstraint depLc = new LimitsConstraint(dep.getName(), dep.getMin(), dep.getMax());
@@ -1359,12 +1357,12 @@ class TwoStepSecondaryModelParser implements Parser {
 		PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
 		int globalModelId = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 
-		LinkedList<IndepXml> indepXmls = new LinkedList<>();
+		List<IndepXml> indepXmls = new LinkedList<>();
 		for (PmmXmlElementConvertable item : indepDoc.getElementSet()) {
 			indepXmls.add((IndepXml) item);
 		}
 
-		LinkedList<ParamXml> paramXmls = new LinkedList<>();
+		List<ParamXml> paramXmls = new LinkedList<>();
 		for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
 			paramXmls.add((ParamXml) item);
 		}
@@ -2030,7 +2028,7 @@ class TwoStepTertiaryModelParser implements Parser {
 			}
 		}
 
-		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
+		List<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
 		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Create rule of the model and add it to the rest of rules
@@ -2526,7 +2524,7 @@ class ManualTertiaryModelParser implements Parser {
 			ManualTertiaryModelFile.write(dir, mdName, tms, exec);
 		}
 	}
-
+	
 	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, String mdName, int modelNum,
 			Map<String, String> dlgInfo) {
 		// We'll get microbial data from the first instance
@@ -2647,29 +2645,10 @@ class ManualTertiaryModelParser implements Parser {
 		// Add submodels and model definitions
 		List<SBMLDocument> secDocs = new LinkedList<>();
 		for (KnimeTuple tuple : firstInstance) {
-			CatalogModelXml secCatModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
-			EstModelXml secEstModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-			DepXml secDep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
-			PmmXmlDoc secIndepsDoc = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-			PmmXmlDoc secParamsDoc = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
-			PmmXmlDoc secMLitDoc = tuple.getPmmXml(Model2Schema.ATT_MLIT);
-			PmmXmlDoc secEmLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
-			int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-
-			// Get independent parameters
-			LinkedList<IndepXml> secIndeps = new LinkedList<>();
-			for (PmmXmlElementConvertable item : secIndepsDoc.getElementSet()) {
-				secIndeps.add((IndepXml) item);
-			}
-
-			// Get constant parameters
-			LinkedList<ParamXml> secConsts = new LinkedList<>();
-			for (PmmXmlElementConvertable item : secParamsDoc.getElementSet()) {
-				secConsts.add((ParamXml) item);
-			}
+			SBMLDocument secDoc = parseSecDoc(tuple, dlgInfo);
 
 			// Creates ExternalModelDefinition
-			String emdId = "model_" + secDep.getName();
+			String emdId = secDoc.getModel().getId();
 			ExternalModelDefinition emd = new ExternalModelDefinition(emdId, TableReader.LEVEL, TableReader.VERSION);
 			String emdSource = String.format("%s_%s_%s.%s", mdName, modelNum, emdId, "sbml");
 			emd.setSource(emdSource);
@@ -2680,76 +2659,103 @@ class ManualTertiaryModelParser implements Parser {
 			Submodel submodel = compModelPlugin.createSubmodel(emdId);
 			submodel.setModelRef(emdId);
 
-			SBMLDocument secDoc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
-			// Enable Hierarchical Composition package
-			secDoc.enablePackage(CompConstants.shortLabel);
-			TableReader.addNamespaces(secDoc);
-
-			// Adds document annotation
-			secDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_TERTIARY_MODEL.toString()));
-
-			Model md = secDoc.createModel(emdId);
-			if (secEstModel.getName() != null) {
-				md.setName(secEstModel.getName());
-			}
-			// Add unit definitions
-			TableReader.addUnitDefinitions(md, secDep, secIndeps, secConsts);
-
-			// Add dep from sec
-			Parameter secDepParam = new SecDep(secDep).getParam();
-			// Adds constraint
-			LimitsConstraint secDepLc = new LimitsConstraint(secDep.getName(), secDep.getMin(), secDep.getMax());
-			if (secDepLc.getConstraint() != null) {
-				md.addConstraint(secDepLc.getConstraint());
-			}
-			md.addParameter(secDepParam);
-
-			for (IndepXml indepXml : secIndeps) {
-				// Creates SBML parameter
-				md.addParameter(new SecIndep(indepXml).getParam());
-				// Add constraint
-				LimitsConstraint lc = new LimitsConstraint(indepXml.getName(), indepXml.getMin(), indepXml.getMax());
-				if (lc.getConstraint() != null) {
-					md.addConstraint(lc.getConstraint());
-				}
-			}
-
-			for (ParamXml constXml : secConsts) {
-				// Creates SBML parameter
-				md.addParameter(new Coefficient(constXml).getParameter());
-				// Add constraint
-				LimitsConstraint lc = new LimitsConstraint(constXml.getName(), constXml.getMin(), constXml.getMax());
-				if (lc.getConstraint() != null) {
-					md.addConstraint(lc.getConstraint());
-				}
-			}
-
-			// Gets model literature
-			List<LiteratureItem> secMLits = new LinkedList<>();
-			for (PmmXmlElementConvertable item : secMLitDoc.getElementSet()) {
-				secMLits.add((LiteratureItem) item);
-			}
-
-			// Gets estimated model literature
-			List<LiteratureItem> secEmLits = new LinkedList<>();
-			for (PmmXmlElementConvertable item : secEmLitDoc.getElementSet()) {
-				secEmLits.add((LiteratureItem) item);
-			}
-
-			// Add uncertainties
-			uncertainties = new Uncertainties(estModel);
-
-			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, secEmLits);
-			md.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
-
-			Model2Rule rule2 = Model2Rule.convertCatalogModelXmlToModel2Rule(secCatModel, secMLits);
-			md.addRule(rule2.getRule());
-
-			// Save secondary model
-			secDocs.add(secDoc);
+			secDocs.add(secDoc);  // Save secondary model
 		}
 
 		ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, secDocs);
 		return mtm;
+	}
+	
+	private SBMLDocument parseSecDoc(KnimeTuple tuple, Map<String, String> dlgInfo) {
+		
+		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
+		EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
+		DepXml dep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
+		PmmXmlDoc indepsDoc = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+		PmmXmlDoc paramsDoc = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
+		PmmXmlDoc mLitDoc = tuple.getPmmXml(Model2Schema.ATT_MLIT);
+		PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
+		int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+		
+		// Gets independent parameters
+		List<IndepXml> indeps = new LinkedList<>();
+		for (PmmXmlElementConvertable item : indepsDoc.getElementSet()) {
+			indeps.add((IndepXml) item);
+		}
+		
+		// Gets constant parameters
+		List<ParamXml> consts = new LinkedList<>();
+		for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
+			consts.add((ParamXml) item);
+		}
+		
+		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
+		// Enable Hierarchical Composition package
+		doc.enablePackage(CompConstants.shortLabel);
+		TableReader.addNamespaces(doc);
+		
+		// Adds document annotation
+		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_TERTIARY_MODEL.toString()));
+		
+		String emdId = "model_" + dep.getName();
+		Model md = doc.createModel(emdId);
+		if (estModel.getName() != null) {
+			md.setName((estModel.getName()));
+		}
+		
+		// Adds unit definitions
+		TableReader.addUnitDefinitions(md, dep, indeps, consts);
+		
+		// Adds dep from sec
+		Parameter depParam = new SecDep(dep).getParam();
+		md.addParameter(depParam);
+		// Adds constraint
+		LimitsConstraint depLc = new LimitsConstraint(dep.getName(), dep.getMin(), dep.getMax());
+		if (depLc.getConstraint() != null) {
+			md.addConstraint(depLc.getConstraint());
+		}
+		
+		for (IndepXml indepXml : indeps) {
+			// Creates  SBML parameter
+			md.addParameter(new SecIndep(indepXml).getParam());
+			// Adds constraint
+			LimitsConstraint lc = new LimitsConstraint(indepXml.getName(), indepXml.getMin(), indepXml.getMax());
+			if (lc.getConstraint() != null) {
+				md.addConstraint(lc.getConstraint());
+			}
+		}
+		
+		for (ParamXml constXml : consts) {
+			// Creates SBML parameter
+			md.addParameter(new Coefficient(constXml).getParameter());
+			// Adds constraint
+			LimitsConstraint lc = new LimitsConstraint(constXml.getName(), constXml.getMin(), constXml.getMax());
+			if (lc.getConstraint() != null) {
+				md.addConstraint(lc.getConstraint());
+			}
+		}
+		
+		// Gets model literature
+		List<LiteratureItem> mLits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : mLitDoc.getElementSet()) {
+			mLits.add((LiteratureItem) item);
+		}
+		
+		// Gets estimated model literature
+		List<LiteratureItem> emLits = new LinkedList<>();
+		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
+			emLits.add((LiteratureItem) item);
+		}
+		
+		// Adds uncertainties
+		Uncertainties uncertainties = new Uncertainties(estModel);
+		
+		Model2Annotation m2Annotation = new Model2Annotation(globalModelID, uncertainties, emLits);
+		md.getAnnotation().setNonRDFAnnotation(m2Annotation.getNode());
+		
+		Model2Rule rule = Model2Rule.convertCatalogModelXmlToModel2Rule(catModel, mLits);
+		md.addRule(rule.getRule());
+		
+		return doc;
 	}
 }

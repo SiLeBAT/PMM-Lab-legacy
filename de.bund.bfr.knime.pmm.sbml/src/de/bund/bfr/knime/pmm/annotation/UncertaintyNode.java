@@ -18,8 +18,9 @@ public class UncertaintyNode extends SBMLNodeBase {
 
 	public final static String TAG = "modelquality";
 	public final static String NS = "pmmlab";
-	
+
 	public final static String ID_TAG = "id";
+	public final static String NAME_TAG = "name";
 	public final static String COMMENT_TAG = "dataUsage";
 	public final static String R2_TAG = "r-squared";
 	public final static String RMS_TAG = "rootMeanSquaredError";
@@ -43,10 +44,12 @@ public class UncertaintyNode extends SBMLNodeBase {
 	 */
 	public UncertaintyNode(Uncertainties uncertainties) {
 		XMLAttributes attrs = new XMLAttributes();
-		
+
 		EstModelXml estModel = uncertainties.getEstModelXml();
 		attrs.add(ID_TAG, Integer.toString(estModel.getId()));
-		if (estModel.getComment() != null)
+		if (!estModel.getName().isEmpty())
+			attrs.add(NAME_TAG, estModel.getName());
+		if (!estModel.getComment().isEmpty())
 			attrs.add(COMMENT_TAG, estModel.getComment());
 		if (estModel.getR2() != null)
 			attrs.add(R2_TAG, Double.toString(estModel.getR2()));
@@ -71,7 +74,8 @@ public class UncertaintyNode extends SBMLNodeBase {
 	public Uncertainties getMeasures() {
 
 		int id; // id
-		String comment = null; // dataUsage
+		String name = "";
+		String comment = ""; // dataUsage
 		Double r2 = null;
 		Double rms = null;
 		Double sse = null;
@@ -84,28 +88,31 @@ public class UncertaintyNode extends SBMLNodeBase {
 		// the id attribute is mandatory
 		id = Integer.parseInt(attributes.getValue(ID_TAG));
 
+		if (attributes.hasAttribute(NAME_TAG))
+			name = attributes.getValue(NAME_TAG);
+
 		if (attributes.hasAttribute(COMMENT_TAG))
 			comment = attributes.getValue(COMMENT_TAG);
-		
+
 		if (attributes.hasAttribute(R2_TAG))
 			r2 = Double.parseDouble(attributes.getValue(R2_TAG));
 
 		if (attributes.hasAttribute(RMS_TAG))
 			rms = Double.parseDouble(attributes.getValue(RMS_TAG));
-		
+
 		if (attributes.hasAttribute(SSE_TAG))
 			sse = Double.parseDouble(attributes.getValue(SSE_TAG));
-			
+
 		if (attributes.hasAttribute(AIC_TAG))
 			aic = Double.parseDouble(attributes.getValue(AIC_TAG));
-		
+
 		if (attributes.hasAttribute(BIC_TAG))
 			bic = Double.parseDouble(attributes.getValue(BIC_TAG));
-		
+
 		if (attributes.hasAttribute(DOF_TAG))
 			dof = Integer.parseInt(attributes.getValue(DOF_TAG));
-		
-		Uncertainties uncertainties = new Uncertainties(id, null, comment, r2, rms, sse, aic, bic, dof);
-		return uncertainties;	
+
+		Uncertainties uncertainties = new Uncertainties(id, name, comment, r2, rms, sse, aic, bic, dof);
+		return uncertainties;
 	}
 }

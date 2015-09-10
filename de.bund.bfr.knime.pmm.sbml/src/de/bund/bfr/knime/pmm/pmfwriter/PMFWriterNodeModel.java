@@ -74,10 +74,8 @@ import org.sbml.jsbml.ext.comp.Submodel;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.annotation.CreatedNode;
-import de.bund.bfr.knime.pmm.annotation.CreatorNode;
 import de.bund.bfr.knime.pmm.annotation.GlobalModelIdNode;
-import de.bund.bfr.knime.pmm.annotation.ModifiedNode;
+import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
 import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
 import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
@@ -128,6 +126,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
+import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
@@ -248,36 +247,34 @@ public class PMFWriterNodeModel extends NodeModel {
 		}
 
 		// Retrieve info from dialog
-		Map<String, String> dlgInfo = new HashMap<>(); // dialog info
-		String givenName = creatorGivenName.getStringValue();
-		if (givenName.isEmpty()) {
+		Metadata metadata = new Metadata();
+
+		if (creatorGivenName.getStringValue().isEmpty()) {
 			setWarningMessage("Given name missing");
 		} else {
-			dlgInfo.put("GivenName", givenName);
+			metadata.setGivenName(creatorGivenName.getStringValue());
 		}
 
-		String familyName = creatorFamilyName.getStringValue();
-		if (familyName.isEmpty()) {
+		if (creatorFamilyName.getStringValue().isEmpty()) {
 			setWarningMessage("Creator family name missing");
 		} else {
-			dlgInfo.put("FamilyName", familyName);
+			metadata.setFamilyName(creatorFamilyName.getStringValue());
 		}
 
-		String contact = creatorContact.getStringValue();
-		if (contact.isEmpty()) {
+		if (creatorContact.getStringValue().isEmpty()) {
 			setWarningMessage("Creator contact missing");
 		} else {
-			dlgInfo.put("Contact", contact);
+			metadata.setContact(creatorContact.getStringValue());
 		}
 
 		if (createdDate.getSelectedFields() == 1) {
-			dlgInfo.put("Created", createdDate.getDate().toString());
+			metadata.setCreatedDate(createdDate.getDate().toString());
 		} else {
 			setWarningMessage("Created date missing");
 		}
 
 		if (modifiedDate.getSelectedFields() == 1) {
-			dlgInfo.put("Modified", modifiedDate.getDate().toString());
+			metadata.setModifiedDate(modifiedDate.getDate().toString());
 		} else {
 			setWarningMessage("Modified date missing");
 		}
@@ -314,7 +311,7 @@ public class PMFWriterNodeModel extends NodeModel {
 			parser = new ManualTertiaryModelParser();
 		}
 
-		parser.write(tuples, dir, mdName, dlgInfo, splitModels.getBooleanValue(), exec);
+		parser.write(tuples, dir, mdName, metadata, splitModels.getBooleanValue(), exec);
 
 		return new BufferedDataTable[] {};
 	}
@@ -489,59 +486,6 @@ class TableReader {
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 
-	/**
-	 * Create a document annotation.
-	 * 
-	 * @param givenName
-	 *            . Creator given name.
-	 * @param familyName
-	 *            : Creator family name.
-	 * @param contact
-	 *            : Creator contact.
-	 * @param created
-	 *            : Created date.
-	 * @param modified
-	 *            : Modified date.
-	 */
-	public static Annotation createDocAnnotation(Map<String, String> docInfo, String modelType) {
-		Annotation annot = new Annotation();
-
-		// pmf container
-		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
-		XMLNode pmfNode = new XMLNode(pmfTriple, null, null);
-
-		String givenName = docInfo.get("GivenName");
-		String familyName = docInfo.get("FamilyName");
-		String contact = docInfo.get("Contact");
-
-		if (givenName != null || familyName != null || contact != null) {
-			CreatorNode creatorNode = new CreatorNode(givenName, familyName, contact);
-			pmfNode.addChild(creatorNode.getNode());
-		}
-
-		// Created date
-		if (docInfo.containsKey("Created")) {
-			CreatedNode createdNode = new CreatedNode(docInfo.get("Created"));
-			pmfNode.addChild(createdNode.getNode());
-		}
-
-		// modified date
-		if (docInfo.containsKey("Modified")) {
-			ModifiedNode modifiedNode = new ModifiedNode(docInfo.get("Modified"));
-			pmfNode.addChild(modifiedNode.getNode());
-		}
-
-		// model type
-		XMLNode typeNode = new XMLNode(new XMLTriple("type", null, "dc"));
-		typeNode.addChild(new XMLNode(modelType));
-		pmfNode.addChild(typeNode);
-
-		// add non-rdf annotation
-		annot.setNonRDFAnnotation(pmfNode);
-
-		return annot;
-	}
-
 	public static void addNamespaces(SBMLDocument doc) {
 		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
@@ -652,8 +596,8 @@ class TableReader {
 }
 
 interface Parser {
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception;
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception;
 }
 
 /**
@@ -662,16 +606,18 @@ interface Parser {
 class ExperimentalDataParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+		metadata.setType(ModelType.EXPERIMENTAL_DATA.toString());
+
 		List<ExperimentalData> eds = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			eds.add(parse(tuple, dlgInfo));
+			eds.add(parse(tuple, metadata));
 		}
 		ExperimentalDataFile.write(dir, mdName, eds, exec);
 	}
 
-	private ExperimentalData parse(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private ExperimentalData parse(KnimeTuple tuple, Metadata metadata) {
 
 		// Gets CondID and CombaseID
 		int condId = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
@@ -708,7 +654,7 @@ class ExperimentalDataParser implements Parser {
 			lits.add((LiteratureItem) item);
 		}
 
-		DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, dlgInfo);
+		DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, metadata);
 
 		return new ExperimentalData(dataFile.getDocument());
 	}
@@ -720,17 +666,20 @@ class ExperimentalDataParser implements Parser {
 class PrimaryModelWDataParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.PRIMARY_MODEL_WDATA.toString());
+
 		List<PrimaryModelWData> pms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			pms.add(parse(tuple, dlgInfo));
+			pms.add(parse(tuple, metadata));
 		}
 
 		PrimaryModelWDataFile.write(dir, mdName, pms, exec);
 	}
 
-	private PrimaryModelWData parse(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private PrimaryModelWData parse(KnimeTuple tuple, Metadata metadata) {
 		TableReader.replaceCelsiusAndFahrenheit(tuple);
 		TableReader.renameLog(tuple);
 
@@ -760,7 +709,7 @@ class PrimaryModelWDataParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.PRIMARY_MODEL_WDATA.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -869,7 +818,7 @@ class PrimaryModelWDataParser implements Parser {
 			String timeUnit = firstPoint.getTimeUnit();
 
 			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, mdLits,
-					dlgInfo);
+					metadata);
 			numlDoc = dataFile.getDocument();
 		}
 
@@ -883,16 +832,19 @@ class PrimaryModelWDataParser implements Parser {
 class PrimaryModelWODataParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.PRIMARY_MODEL_WODATA.toString());
+
 		List<PrimaryModelWOData> pms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			pms.add(parse(tuple, dlgInfo));
+			pms.add(parse(tuple, metadata));
 		}
 		PrimaryModelWODataFile.write(dir, mdName, pms, exec);
 	}
 
-	private PrimaryModelWOData parse(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private PrimaryModelWOData parse(KnimeTuple tuple, Metadata metadata) {
 		TableReader.replaceCelsiusAndFahrenheit(tuple);
 		TableReader.renameLog(tuple);
 
@@ -920,7 +872,7 @@ class PrimaryModelWODataParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.PRIMARY_MODEL_WODATA.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -1020,11 +972,14 @@ class PrimaryModelWODataParser implements Parser {
 class ManualSecondaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.MANUAL_SECONDARY_MODEL.toString());
+
 		List<ManualSecondaryModel> sms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			sms.add(parse(tuple, dlgInfo));
+			sms.add(parse(tuple, metadata));
 		}
 
 		if (splitModels) {
@@ -1039,7 +994,7 @@ class ManualSecondaryModelParser implements Parser {
 		}
 	}
 
-	private ManualSecondaryModel parse(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private ManualSecondaryModel parse(KnimeTuple tuple, Metadata metadata) {
 
 		// Retrieve Model2Schema cells
 		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
@@ -1068,7 +1023,7 @@ class ManualSecondaryModelParser implements Parser {
 		doc.enablePackage(CompConstants.shortLabel);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_SECONDARY_MODEL.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		TableReader.addNamespaces(doc);
 
@@ -1142,8 +1097,10 @@ class ManualSecondaryModelParser implements Parser {
 class TwoStepSecondaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.TWO_STEP_SECONDARY_MODEL.toString());
 
 		// Sort secondary models
 		Map<Integer, List<KnimeTuple>> secTuples = new HashMap<>();
@@ -1162,7 +1119,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		// For the tuples of every secondary model
 		List<TwoStepSecondaryModel> sms = new LinkedList<>();
 		for (List<KnimeTuple> tupleList : secTuples.values()) {
-			TwoStepSecondaryModel model = parse(tupleList, dlgInfo);
+			TwoStepSecondaryModel model = parse(tupleList, metadata);
 			sms.add(model);
 		}
 
@@ -1178,7 +1135,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		}
 	}
 
-	private TwoStepSecondaryModel parse(List<KnimeTuple> tuples, Map<String, String> dlgInfo) {
+	private TwoStepSecondaryModel parse(List<KnimeTuple> tuples, Metadata metadata) {
 		/**
 		 * <ol>
 		 * <li>Create n SBMLDocument for primary models</li>
@@ -1188,20 +1145,20 @@ class TwoStepSecondaryModelParser implements Parser {
 		 */
 		List<PrimaryModelWData> primModels = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
-			primModels.add(parsePrimModel(tuple, dlgInfo));
+			primModels.add(parsePrimModel(tuple, metadata));
 		}
 
 		// We get the first tuple to query the Model2 columns which are the same
 		// for all the tuples of the secondary model
 		KnimeTuple firstTuple = tuples.get(0);
-		SBMLDocument secDoc = parseSecModel(firstTuple, dlgInfo, primModels);
+		SBMLDocument secDoc = parseSecModel(firstTuple, metadata, primModels);
 
 		// Creates and return TwoStepSecondaryModel
 		TwoStepSecondaryModel model = new TwoStepSecondaryModel(secDoc, primModels);
 		return model;
 	}
 
-	private PrimaryModelWData parsePrimModel(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private PrimaryModelWData parsePrimModel(KnimeTuple tuple, Metadata metadata) {
 
 		// Retrieve TimeSeriesSchema cells
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
@@ -1227,7 +1184,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Add document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_SECONDARY_MODEL.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -1337,15 +1294,14 @@ class TwoStepSecondaryModelParser implements Parser {
 			String concUnit = firstPoint.getConcentrationUnit();
 			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, metadata);
 			pmwd = new PrimaryModelWData(doc, dataFile.getDocument());
 		}
 
 		return pmwd;
 	}
 
-	private SBMLDocument parseSecModel(KnimeTuple tuple, Map<String, String> dlgInfo,
-			List<PrimaryModelWData> primModels) {
+	private SBMLDocument parseSecModel(KnimeTuple tuple, Metadata metadata, List<PrimaryModelWData> primModels) {
 
 		// Retrieve Model2Schema cells
 		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
@@ -1374,7 +1330,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_SECONDARY_MODEL.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		// Creates model definition
 		String modelId = Util.createId("model" + estModel.getId());
@@ -1452,8 +1408,10 @@ class TwoStepSecondaryModelParser implements Parser {
 class OneStepSecondaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.ONE_STEP_SECONDARY_MODEL.toString());
 
 		// Sort tuples according to its secondary model
 		Map<Integer, List<KnimeTuple>> secMap = new HashMap<>();
@@ -1473,7 +1431,7 @@ class OneStepSecondaryModelParser implements Parser {
 		// For the tuples of every secondary model
 		List<OneStepSecondaryModel> sms = new LinkedList<>();
 		for (List<KnimeTuple> ltup : secMap.values()) {
-			OneStepSecondaryModel model = parse(ltup, dlgInfo);
+			OneStepSecondaryModel model = parse(ltup, metadata);
 			sms.add(model);
 		}
 
@@ -1489,7 +1447,7 @@ class OneStepSecondaryModelParser implements Parser {
 		}
 	}
 
-	private OneStepSecondaryModel parse(List<KnimeTuple> tuples, Map<String, String> dlgInfo) {
+	private OneStepSecondaryModel parse(List<KnimeTuple> tuples, Metadata metadata) {
 		KnimeTuple firstTuple = tuples.get(0);
 
 		// Retrieve Model2Schema cells
@@ -1501,7 +1459,7 @@ class OneStepSecondaryModelParser implements Parser {
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
 		TableReader.addNamespaces(doc);
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.ONE_STEP_SECONDARY_MODEL.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		String modelId = Util.createId("model" + secEstModel.getId());
 
@@ -1517,13 +1475,13 @@ class OneStepSecondaryModelParser implements Parser {
 		submodel.setModelRef(secModel.getId());
 
 		// Parse data sets and create NuML documents
-		List<NuMLDocument> numlDocs = parseData(tuples, dlgInfo);
+		List<NuMLDocument> numlDocs = parseData(tuples, metadata);
 
 		OneStepSecondaryModel ossm = new OneStepSecondaryModel(doc, numlDocs);
 		return ossm;
 	}
 
-	private List<NuMLDocument> parseData(List<KnimeTuple> tuples, Map<String, String> dlgInfo) {
+	private List<NuMLDocument> parseData(List<KnimeTuple> tuples, Metadata metadata) {
 
 		List<NuMLDocument> numlDocs = new LinkedList<>();
 
@@ -1577,7 +1535,7 @@ class OneStepSecondaryModelParser implements Parser {
 				lits.add((LiteratureItem) item);
 			}
 
-			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, metadata);
 			numlDocs.add(dataFile.getDocument());
 		}
 
@@ -1585,7 +1543,7 @@ class OneStepSecondaryModelParser implements Parser {
 	}
 
 	private Model parsePrimModel(KnimeTuple tuple, String modelId) {
-		
+
 		// Retrieves TimeSeriesSchema cells
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
@@ -1658,7 +1616,7 @@ class OneStepSecondaryModelParser implements Parser {
 				model.addConstraint(lc.getConstraint());
 			}
 		}
-		
+
 		// Add independent parameter
 		Parameter indepParam = new Parameter(Categories.getTime());
 		indepParam.setValue(0.0);
@@ -1681,7 +1639,7 @@ class OneStepSecondaryModelParser implements Parser {
 				model.addConstraint(lc.getConstraint());
 			}
 		}
-		
+
 		// Add unit definitions
 		List<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
 		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
@@ -1690,7 +1648,7 @@ class OneStepSecondaryModelParser implements Parser {
 		Model1Rule model1Rule = Model1Rule.convertCatalogModelXmlToModel1Rule(catModel, agent.getSpecies().getId(),
 				mLits);
 		model.addRule(model1Rule.getRule());
-		
+
 		return model;
 	}
 
@@ -1784,8 +1742,10 @@ class OneStepSecondaryModelParser implements Parser {
 class TwoStepTertiaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+		metadata.setType(ModelType.TWO_STEP_TERTIARY_MODEL.toString());
+
 		List<TwoStepTertiaryModel> tms = new LinkedList<>();
 
 		// Sort global models
@@ -1802,7 +1762,7 @@ class TwoStepTertiaryModelParser implements Parser {
 			// microbial data yet different data. Then we'll create a
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
-			TwoStepTertiaryModel tm = parse(tuplesList, modelCounter, dlgInfo);
+			TwoStepTertiaryModel tm = parse(tuplesList, modelCounter, metadata);
 			tms.add(tm);
 
 			modelCounter++;
@@ -1820,7 +1780,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 	}
 
-	private TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Map<String, String> dlgInfo) {
+	private TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Metadata metadata) {
 
 		List<PrimaryModelWData> primModels = new LinkedList<>();
 		List<SBMLDocument> secDocs = new LinkedList<>();
@@ -1831,7 +1791,7 @@ class TwoStepTertiaryModelParser implements Parser {
 			// Get first tuple: All the tuples of an instance have the same
 			// primary model
 			KnimeTuple tuple = instance.get(0);
-			PrimaryModelWData pm = parsePrimModel(tuple, dlgInfo);
+			PrimaryModelWData pm = parsePrimModel(tuple, metadata);
 			primModels.add(pm);
 		}
 
@@ -1839,7 +1799,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		// the same secondary models)
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		for (KnimeTuple tuple : firstInstance) {
-			SBMLDocument secDoc = parseSecModel(tuple, dlgInfo);
+			SBMLDocument secDoc = parseSecModel(tuple, metadata);
 			secDocs.add(secDoc);
 		}
 
@@ -1851,7 +1811,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(tertDoc);
 
 		// Adds document annotation
-		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_TERTIARY_MODEL.toString()));
+		tertDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		// Creates ExternalModelDefinition
 		for (SBMLDocument secDoc : secDocs) {
@@ -1919,7 +1879,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		return tstm;
 	}
 
-	private PrimaryModelWData parsePrimModel(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private PrimaryModelWData parsePrimModel(KnimeTuple tuple, Metadata metadata) {
 		TableReader.replaceCelsiusAndFahrenheit(tuple);
 		TableReader.renameLog(tuple);
 
@@ -1949,7 +1909,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_TERTIARY_MODEL.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		Model model = doc.createModel(modelId);
 		if (estModel.getName() != null) {
@@ -2050,14 +2010,14 @@ class TwoStepTertiaryModelParser implements Parser {
 			String concUnit = firstPoint.getConcentrationUnit();
 			String timeUnit = firstPoint.getTimeUnit();
 
-			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, dlgInfo);
+			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, metadata);
 			numlDoc = dataFile.getDocument();
 		}
 
 		return new PrimaryModelWData(doc, numlDoc);
 	}
 
-	private SBMLDocument parseSecModel(KnimeTuple tuple, Map<String, String> dlgInfo) {
+	private SBMLDocument parseSecModel(KnimeTuple tuple, Metadata metadata) {
 		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
 		EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
 		DepXml dep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
@@ -2146,7 +2106,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(doc);
 
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.TWO_STEP_TERTIARY_MODEL.toString()));
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		return doc;
 	}
@@ -2160,8 +2120,11 @@ class TwoStepTertiaryModelParser implements Parser {
 class OneStepTertiaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.ONE_STEP_TERTIARY_MODEL.toString());
+
 		List<OneStepTertiaryModel> tms = new LinkedList<>();
 
 		// Sort global models
@@ -2178,7 +2141,7 @@ class OneStepTertiaryModelParser implements Parser {
 			// microbial data yet different data. Then we'll create a
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
-			OneStepTertiaryModel tm = parse(tuplesList, modelCounter, dlgInfo);
+			OneStepTertiaryModel tm = parse(tuplesList, modelCounter, metadata);
 			tms.add(tm);
 
 			modelCounter++;
@@ -2197,7 +2160,7 @@ class OneStepTertiaryModelParser implements Parser {
 
 	}
 
-	private OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Map<String, String> dlgInfo) {
+	private OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Metadata metadata) {
 		// We'll get microbial data from the first instance
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		// and the primary model from the first tuple
@@ -2227,7 +2190,7 @@ class OneStepTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(tertDoc);
 
 		// Adds document annotation
-		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.ONE_STEP_TERTIARY_MODEL.toString()));
+		tertDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2357,8 +2320,7 @@ class OneStepTertiaryModelParser implements Parser {
 			TableReader.addNamespaces(secDoc);
 
 			// Adds document annotation
-			secDoc.setAnnotation(
-					TableReader.createDocAnnotation(dlgInfo, ModelType.ONE_STEP_TERTIARY_MODEL.toString()));
+			secDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 			String secModelId = "model_" + secDep.getName();
 			Model secModel = secDoc.createModel(secModelId);
@@ -2476,7 +2438,7 @@ class OneStepTertiaryModelParser implements Parser {
 			agent = new Agent(agentXml, dep.getUnit(), c, dep.getDescription());
 
 			DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, mdLits,
-					dlgInfo);
+					metadata);
 			numlDocs.add(dataFile.getDocument());
 		}
 
@@ -2488,8 +2450,10 @@ class OneStepTertiaryModelParser implements Parser {
 class ManualTertiaryModelParser implements Parser {
 
 	@Override
-	public void write(List<KnimeTuple> tuples, String dir, String mdName, Map<String, String> dlgInfo,
-			boolean splitModels, ExecutionContext exec) throws Exception {
+	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
+			ExecutionContext exec) throws Exception {
+
+		metadata.setType(ModelType.MANUAL_TERTIARY_MODEL.toString());
 
 		List<ManualTertiaryModel> tms = new LinkedList<>();
 
@@ -2507,7 +2471,7 @@ class ManualTertiaryModelParser implements Parser {
 			// microbial data yet different data. Then we'll create a
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
-			ManualTertiaryModel tm = parse(tuplesList, mdName, modelCounter, dlgInfo);
+			ManualTertiaryModel tm = parse(tuplesList, mdName, modelCounter, metadata);
 			tms.add(tm);
 
 			modelCounter++;
@@ -2524,9 +2488,9 @@ class ManualTertiaryModelParser implements Parser {
 			ManualTertiaryModelFile.write(dir, mdName, tms, exec);
 		}
 	}
-	
+
 	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, String mdName, int modelNum,
-			Map<String, String> dlgInfo) {
+			Metadata metadata) {
 		// We'll get microbial data from the first instance
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		// and the primary model from the first tuple
@@ -2556,7 +2520,7 @@ class ManualTertiaryModelParser implements Parser {
 		TableReader.addNamespaces(tertDoc);
 
 		// Adds document annotation
-		tertDoc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_TERTIARY_MODEL.toString()));
+		tertDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
 		String modelId = Util.createId("model" + estModel.getId());
 
@@ -2645,7 +2609,7 @@ class ManualTertiaryModelParser implements Parser {
 		// Add submodels and model definitions
 		List<SBMLDocument> secDocs = new LinkedList<>();
 		for (KnimeTuple tuple : firstInstance) {
-			SBMLDocument secDoc = parseSecDoc(tuple, dlgInfo);
+			SBMLDocument secDoc = parseSecDoc(tuple, metadata);
 
 			// Creates ExternalModelDefinition
 			String emdId = secDoc.getModel().getId();
@@ -2659,15 +2623,15 @@ class ManualTertiaryModelParser implements Parser {
 			Submodel submodel = compModelPlugin.createSubmodel(emdId);
 			submodel.setModelRef(emdId);
 
-			secDocs.add(secDoc);  // Save secondary model
+			secDocs.add(secDoc); // Save secondary model
 		}
 
 		ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, secDocs);
 		return mtm;
 	}
-	
-	private SBMLDocument parseSecDoc(KnimeTuple tuple, Map<String, String> dlgInfo) {
-		
+
+	private SBMLDocument parseSecDoc(KnimeTuple tuple, Metadata metadata) {
+
 		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
 		EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
 		DepXml dep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
@@ -2676,36 +2640,36 @@ class ManualTertiaryModelParser implements Parser {
 		PmmXmlDoc mLitDoc = tuple.getPmmXml(Model2Schema.ATT_MLIT);
 		PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
 		int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-		
+
 		// Gets independent parameters
 		List<IndepXml> indeps = new LinkedList<>();
 		for (PmmXmlElementConvertable item : indepsDoc.getElementSet()) {
 			indeps.add((IndepXml) item);
 		}
-		
+
 		// Gets constant parameters
 		List<ParamXml> consts = new LinkedList<>();
 		for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
 			consts.add((ParamXml) item);
 		}
-		
+
 		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
 		// Enable Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
 		TableReader.addNamespaces(doc);
-		
+
 		// Adds document annotation
-		doc.setAnnotation(TableReader.createDocAnnotation(dlgInfo, ModelType.MANUAL_TERTIARY_MODEL.toString()));
-		
+		doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
+
 		String emdId = "model_" + dep.getName();
 		Model md = doc.createModel(emdId);
 		if (estModel.getName() != null) {
 			md.setName((estModel.getName()));
 		}
-		
+
 		// Adds unit definitions
 		TableReader.addUnitDefinitions(md, dep, indeps, consts);
-		
+
 		// Adds dep from sec
 		Parameter depParam = new SecDep(dep).getParam();
 		md.addParameter(depParam);
@@ -2714,9 +2678,9 @@ class ManualTertiaryModelParser implements Parser {
 		if (depLc.getConstraint() != null) {
 			md.addConstraint(depLc.getConstraint());
 		}
-		
+
 		for (IndepXml indepXml : indeps) {
-			// Creates  SBML parameter
+			// Creates SBML parameter
 			md.addParameter(new SecIndep(indepXml).getParam());
 			// Adds constraint
 			LimitsConstraint lc = new LimitsConstraint(indepXml.getName(), indepXml.getMin(), indepXml.getMax());
@@ -2724,7 +2688,7 @@ class ManualTertiaryModelParser implements Parser {
 				md.addConstraint(lc.getConstraint());
 			}
 		}
-		
+
 		for (ParamXml constXml : consts) {
 			// Creates SBML parameter
 			md.addParameter(new Coefficient(constXml).getParameter());
@@ -2734,28 +2698,28 @@ class ManualTertiaryModelParser implements Parser {
 				md.addConstraint(lc.getConstraint());
 			}
 		}
-		
+
 		// Gets model literature
 		List<LiteratureItem> mLits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : mLitDoc.getElementSet()) {
 			mLits.add((LiteratureItem) item);
 		}
-		
+
 		// Gets estimated model literature
 		List<LiteratureItem> emLits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
 			emLits.add((LiteratureItem) item);
 		}
-		
+
 		// Adds uncertainties
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		
+
 		Model2Annotation m2Annotation = new Model2Annotation(globalModelID, uncertainties, emLits);
 		md.getAnnotation().setNonRDFAnnotation(m2Annotation.getNode());
-		
+
 		Model2Rule rule = Model2Rule.convertCatalogModelXmlToModel2Rule(catModel, mLits);
 		md.addRule(rule.getRule());
-		
+
 		return doc;
 	}
 }

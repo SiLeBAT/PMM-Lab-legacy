@@ -29,6 +29,7 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
+import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -71,6 +72,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
+import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
@@ -106,7 +108,7 @@ public class PMFReaderNodeModel extends NodeModel {
 	 */
 	protected PMFReaderNodeModel() {
 		// 0 input ports and 1 input port
-		super(0, 1);
+		super(0, 2);
 	}
 
 	/**
@@ -115,9 +117,9 @@ public class PMFReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		BufferedDataTable[] table = null;
-		table = loadPMF(exec);
-		return table;
+		BufferedDataTable[] tables = null;
+		tables = loadPMF(exec);
+		return tables;
 	}
 
 	/**
@@ -217,9 +219,9 @@ public class PMFReaderNodeModel extends NodeModel {
 			reader = new ManualTertiaryModelReader();
 		}
 
-		BufferedDataContainer container = reader.read(filepath, exec);
-		BufferedDataTable[] table = { container.getTable() };
-		return table;
+		BufferedDataContainer[] containers = reader.read(filepath, exec);
+		BufferedDataTable[] tables = { containers[0].getTable(), containers[1].getTable() };
+		return tables;
 	}
 }
 
@@ -234,15 +236,15 @@ interface Reader {
 	 * 
 	 * @throws Exception
 	 */
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception;
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception;
 }
 
 class ExperimentalDataReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createDataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec dataSpec = SchemaFactory.createDataSchema().createSpec();
+		BufferedDataContainer dataContainer = exec.createDataContainer(dataSpec);
 
 		// Reads in experimental data from file
 		List<ExperimentalData> eds = ExperimentalDataFile.read(filepath);
@@ -250,12 +252,32 @@ class ExperimentalDataReader implements Reader {
 		// Creates tuples and adds them to the container
 		for (ExperimentalData ed : eds) {
 			KnimeTuple tuple = parse(ed);
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / eds.size());
+			dataContainer.addRowToTable(tuple);
+			exec.setProgress((float) dataContainer.size() / eds.size());
 		}
 
-		container.close();
-		return container;
+		dataContainer.close();
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+
+		// Gets metadata from the first NuMLDocument (all the NuMLDocuments in a
+		// ExperimentalData file share the same metadata.
+		NuMLDocument numlDocument = eds.get(0).getNuMLDoc();
+		Metadata metadata = new DataFile(numlDocument).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { dataContainer, metadataContainer };
 	}
 
 	private KnimeTuple parse(ExperimentalData ed) {
@@ -302,10 +324,10 @@ class ExperimentalDataReader implements Reader {
 
 class PrimaryModelWDataReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM1DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
 		List<PrimaryModelWData> models = PrimaryModelWDataFile.read(filepath);
@@ -313,12 +335,31 @@ class PrimaryModelWDataReader implements Reader {
 		// Creates tuples and adds them to the container
 		for (PrimaryModelWData model : models) {
 			KnimeTuple tuple = parse(model);
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / models.size());
+			modelContainer.addRowToTable(tuple);
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getSBMLDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private KnimeTuple parse(PrimaryModelWData pm) {
@@ -464,10 +505,10 @@ class PrimaryModelWDataReader implements Reader {
 
 class PrimaryModelWODataReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM1DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
 		List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(filepath);
@@ -475,12 +516,31 @@ class PrimaryModelWODataReader implements Reader {
 		// Creates tuples and adds them to the container
 		for (PrimaryModelWOData model : models) {
 			KnimeTuple tuple = parse(model);
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / models.size());
+			modelContainer.addRowToTable(tuple);
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getSBMLDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private KnimeTuple parse(PrimaryModelWOData pm) {
@@ -605,10 +665,10 @@ class PrimaryModelWODataReader implements Reader {
 
 class TwoStepSecondaryModelReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
 		List<TwoStepSecondaryModel> models = TwoStepSecondaryModelFile.read(filepath);
@@ -617,13 +677,32 @@ class TwoStepSecondaryModelReader implements Reader {
 		for (TwoStepSecondaryModel tssm : models) {
 			List<KnimeTuple> tuples = parse(tssm);
 			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
+				modelContainer.addRowToTable(tuple);
 			}
-			exec.setProgress((float) container.size() / models.size());
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getSecDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private List<KnimeTuple> parse(TwoStepSecondaryModel tssm) {
@@ -865,10 +944,10 @@ class TwoStepSecondaryModelReader implements Reader {
 
 class OneStepSecondaryModelReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
 		List<OneStepSecondaryModel> models = OneStepSecondaryModelFile.read(filepath);
@@ -877,13 +956,33 @@ class OneStepSecondaryModelReader implements Reader {
 		for (OneStepSecondaryModel ossm : models) {
 			List<KnimeTuple> tuples = parse(ossm);
 			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
+				modelContainer.addRowToTable(tuple);
 			}
-			exec.setProgress((float) container.size() / models.size());
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getSBMLDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+
 	}
 
 	private List<KnimeTuple> parse(OneStepSecondaryModel ossm) {
@@ -1126,10 +1225,10 @@ class OneStepSecondaryModelReader implements Reader {
 
 class ManualSecondaryModelReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM2Schema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM2Schema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
 		List<ManualSecondaryModel> models = ManualSecondaryModelFile.read(filepath);
@@ -1137,12 +1236,31 @@ class ManualSecondaryModelReader implements Reader {
 		// Creates tuples and adds them to the container
 		for (ManualSecondaryModel model : models) {
 			KnimeTuple tuple = parse(model);
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / models.size());
+			modelContainer.addRowToTable(tuple);
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getSBMLDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private KnimeTuple parse(ManualSecondaryModel sm) {
@@ -1227,10 +1345,10 @@ class ManualSecondaryModelReader implements Reader {
 
 class TwoStepTertiaryModelReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Read in models from file
 		List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile.read(filepath);
@@ -1239,13 +1357,32 @@ class TwoStepTertiaryModelReader implements Reader {
 		for (TwoStepTertiaryModel tssm : models) {
 			List<KnimeTuple> tuples = parse(tssm);
 			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
+				modelContainer.addRowToTable(tuple);
 			}
-			exec.setProgress((float) container.size() / models.size());
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getTertDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private List<KnimeTuple> parse(TwoStepTertiaryModel tstm) {
@@ -1490,10 +1627,10 @@ class TwoStepTertiaryModelReader implements Reader {
 
 class OneStepTertiaryModelReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Read in models from file
 		List<OneStepTertiaryModel> models = OneStepTertiaryModelFile.read(filepath);
@@ -1502,13 +1639,32 @@ class OneStepTertiaryModelReader implements Reader {
 		for (OneStepTertiaryModel ostm : models) {
 			List<KnimeTuple> tuples = parse(ostm);
 			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
+				modelContainer.addRowToTable(tuple);
 			}
-			exec.setProgress((float) container.size() / models.size());
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getTertDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
@@ -1556,7 +1712,7 @@ class OneStepTertiaryModelReader implements Reader {
 			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
 		}
 		depXml.setDescription(organism.getDescription());
-		
+
 		// Gets dep limits
 		if (limits.containsKey(organism.getSpecies().getId())) {
 			Limits depLimits = limits.get(organism.getSpecies().getId());
@@ -1758,10 +1914,10 @@ class OneStepTertiaryModelReader implements Reader {
 
 class ManualTertiaryModelReader implements Reader {
 
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
+	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
 		// Creates table spec and container
-		DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(spec);
+		DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
+		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Read in models from file
 		List<ManualTertiaryModel> models = ManualTertiaryModelFile.read(filepath);
@@ -1770,13 +1926,32 @@ class ManualTertiaryModelReader implements Reader {
 		for (ManualTertiaryModel mtm : models) {
 			List<KnimeTuple> tuples = parse(mtm);
 			for (KnimeTuple tuple : tuples) {
-				container.addRowToTable(tuple);
+				modelContainer.addRowToTable(tuple);
 			}
-			exec.setProgress((float) container.size() / models.size());
+			exec.setProgress((float) modelContainer.size() / models.size());
 		}
 
-		container.close();
-		return container;
+		modelContainer.close();
+
+		// Gets metadata from the first model
+		SBMLDocument aDoc = models.get(0).getTertDoc();
+		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
+
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+
+		// Creates metadata table and container
+		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
+		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, metadataContainer };
 	}
 
 	private List<KnimeTuple> parse(ManualTertiaryModel mtm) {

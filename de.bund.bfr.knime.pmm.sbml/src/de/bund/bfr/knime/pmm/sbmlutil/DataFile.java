@@ -1,8 +1,5 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
-import groovy.util.Node;
-import groovy.util.NodeList;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -10,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.sbml.jsbml.SBMLDocument;
@@ -21,6 +19,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
+import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 import de.bund.bfr.numl.AtomicDescription;
 import de.bund.bfr.numl.CompositeDescription;
 import de.bund.bfr.numl.DataType;
@@ -29,6 +28,8 @@ import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.OntologyTerm;
 import de.bund.bfr.numl.ResultComponent;
 import de.bund.bfr.numl.TupleDescription;
+import groovy.util.Node;
+import groovy.util.NodeList;
 
 public class DataFile {
 
@@ -39,7 +40,7 @@ public class DataFile {
 	}
 
 	public DataFile(int condId, String combaseId, LinkedHashMap<Integer, List<Double>> dim, String concUnit,
-			String timeUnit, Matrix matrix, Agent agent, List<LiteratureItem> lits, Map<String, String> dlgInfo) {
+			String timeUnit, Matrix matrix, Agent agent, List<LiteratureItem> lits, Metadata metadata) {
 
 		// Creates ontologies
 		OntologyTerm time = new TimeOntology().prepareOntology(timeUnit);
@@ -98,32 +99,28 @@ public class DataFile {
 			pmfNode.appendNode("pmmlab:combaseId", combaseId);
 		}
 
-		String givenName = dlgInfo.get("GivenName");
-		String familyName = dlgInfo.get("FamilyName");
-		String contact = dlgInfo.get("Contact");
+		String givenName = metadata.getGivenName();
+		String familyName = metadata.getFamilyName();
+		String contact = metadata.getContact();
 		if (givenName != null || familyName != null || contact != null) {
-			StringBuilder sb = new StringBuilder();
-			if (givenName != null) {
-				sb.append(givenName + ". ");
-			}
-			if (familyName != null) {
-				sb.append(familyName + ". ");
-			}
-			if (contact != null) {
-				sb.append(contact);
-			}
-			String creator = sb.toString();
+			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", metadata.getGivenName(),
+					metadata.getFamilyName(), metadata.getContact());
 			pmfNode.appendNode("dc:creator", creator);
 		}
 
 		// Adds created
-		if (dlgInfo.containsKey("Created")) {
-			pmfNode.appendNode("dcterms:created", dlgInfo.get("Created"));
+		if (metadata.getCreatedDate() != null) {
+			pmfNode.appendNode("dcterms:created", metadata.getCreatedDate());
 		}
 
 		// Adds last modified
-		if (dlgInfo.containsKey("Modified")) {
-			pmfNode.appendNode("dcterms:modified", dlgInfo.get("Modified"));
+		if (metadata.getModifiedDate() != null) {
+			pmfNode.appendNode("dcterms:modified", metadata.getModifiedDate());
+		}
+		
+		// Adds type
+		if (metadata.getType() != null) {
+			pmfNode.appendNode("dc:type", metadata.getType());
 		}
 
 		// Adds annotations for literature items
@@ -225,7 +222,7 @@ public class DataFile {
 
 		// Gets and sets agent name
 		agentXml.setName((String) agentNode.attribute("name"));
-		
+
 		// Gets and sets agent detail
 		NodeList detailNodes = (NodeList) agentNode.get("detail");
 		if (detailNodes.size() == 1) {
@@ -275,6 +272,44 @@ public class DataFile {
 		return lits;
 	}
 
+	public Metadata getMetadata() {
+		Metadata metadata = new Metadata();
+
+		ResultComponent rc = doc.getResultComponents().get(0);
+
+		// Gets result component metadata
+		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
+		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+
+		NodeList creatorNodes = (NodeList) rcMetadataNode.get("creator");
+		if (creatorNodes.size() == 1) {
+			String[] tempStrings = ((Node) creatorNodes.get(0)).text().split("\\.", 3);
+			metadata.setGivenName(tempStrings[0]);
+			metadata.setFamilyName(tempStrings[1]);
+			metadata.setContact(tempStrings[2]);
+		}
+
+		// Gets created date
+		NodeList createdNodes = (NodeList) rcMetadataNode.get("created");
+		if (createdNodes.size() == 1) {
+			metadata.setCreatedDate(((Node) createdNodes.get(0)).text());
+		}
+
+		// Gets last modification date
+		NodeList modifiedNodes = (NodeList) rcMetadataNode.get("modified");
+		if (modifiedNodes.size() == 1) {
+			metadata.setModifiedDate(((Node) modifiedNodes.get(0)).text());
+		}
+		
+		// Gets type
+		NodeList typeNodes = (NodeList) rcMetadataNode.get("type");
+		if (typeNodes.size() == 1) {
+			metadata.setType(((Node) typeNodes.get(0)).text());
+		}
+
+		return metadata;
+	}
+
 	public double[][] getData() {
 
 		@SuppressWarnings("unchecked")
@@ -316,7 +351,6 @@ abstract class Ontology {
 
 		// Gets unit definition from DB
 		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
-//		UnitDefinitionWrapper udWrapper = UnitDefinitionWrapper.xmlToUnitDefinition(dbUnit.getMathML_string());
 		PMFUnitDefinition pud = PMFUnitDefinition.xmlToPMFUnitDefinition(dbUnit.getMathML_string());
 
 		// Modifies the unit definition and adds it to the pmfNode

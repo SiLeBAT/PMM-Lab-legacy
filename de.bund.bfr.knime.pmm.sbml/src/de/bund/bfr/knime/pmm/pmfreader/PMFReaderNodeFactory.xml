@@ -32,5 +32,6 @@
 
 	<ports>
 		<outPort index="0" name="Models">Read models</outPort>
+		<outPort index="1" name="Metadata">Models metadata</outPort>
 	</ports>
 </knimeNode>

@@ -932,7 +932,7 @@ public class Bfrdb {
 	}
 
 	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String agentName, final String matrixName,
-			final String combaseId, Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, PmmXmlDoc misc, final String comment, PmmXmlDoc lit,
+			final String combaseId, Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, PmmXmlDoc misc, final String comment, final Integer qs, final Boolean checked, PmmXmlDoc lit,
 			PmmTimeSeries ts) {
 
 		String warnings = "";
@@ -986,11 +986,11 @@ public class Bfrdb {
 
 			if (doUpdate) {
 				ps = conn.prepareStatement("UPDATE \"Versuchsbedingungen\" SET \"" + ATT_TEMPERATURE + "\"=?, \"" + ATT_PH + "\"=?, \"" + ATT_AW + "\"=?, \"" + ATT_AGENTID
-						+ "\"=?, \"AgensDetail\"=?, \"" + ATT_MATRIXID + "\"=?, \"MatrixDetail\"=?, \"b_f_details_CB\"=?, \"Kommentar\"=?, \"Referenz\"=? WHERE \"ID\"=?");
+						+ "\"=?, \"AgensDetail\"=?, \"" + ATT_MATRIXID + "\"=?, \"MatrixDetail\"=?, \"b_f_details_CB\"=?, \"Kommentar\"=?, \"Guetescore\"=?, \"Geprueft\"=?, \"Referenz\"=? WHERE \"ID\"=?");
 			} else {
 				ps = conn.prepareStatement("INSERT INTO \"Versuchsbedingungen\" (\"" + ATT_TEMPERATURE + "\", \"" + ATT_PH + "\", \"" + ATT_AW + "\", \"" + ATT_AGENTID
 						+ "\", \"AgensDetail\", \"" + ATT_MATRIXID
-						+ "\", \"MatrixDetail\", \"b_f_details_CB\", \"Kommentar\", \"Referenz\" ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
+						+ "\", \"MatrixDetail\", \"b_f_details_CB\", \"Kommentar\", \"Guetescore\", \"Geprueft\", \"Referenz\" ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
 			}
 
 			if (tempId >= 0) {
@@ -1048,22 +1048,35 @@ public class Bfrdb {
 			 * ps.setString( 8, misc ); }
 			 */
 			ps.setNull(8, Types.VARCHAR);
+			
 			if (comment == null) {
 				ps.setNull(9, Types.VARCHAR);
 			} else {
 				ps.setString(9, comment);
 			}
 
+			if (qs == null) {
+				ps.setNull(10, Types.INTEGER);
+			} else {
+				ps.setInt(10, qs);
+			}
+
+			if (checked == null) {
+				ps.setNull(11, Types.BOOLEAN);
+			} else {
+				ps.setBoolean(11, checked);
+			}
+
 			insertLiteratureInCase(lit);
 			List<PmmXmlElementConvertable> l = lit.getElementSet();
 			if (l.size() > 0) {
 				LiteratureItem li = (LiteratureItem) l.get(0);
-				ps.setInt(10, li.getId());
+				ps.setInt(12, li.getId());
 			} else {
-				ps.setNull(10, Types.INTEGER);
+				ps.setNull(12, Types.INTEGER);
 			}
 			if (doUpdate) {
-				ps.setInt(11, condId);
+				ps.setInt(13, condId);
 
 				ps.executeUpdate();
 				resultID = condId;
@@ -1290,6 +1303,8 @@ public class Bfrdb {
 		String agentDetail = ts.getAgentDetail();
 		String matrixDetail = ts.getMatrixDetail();
 		String comment = ts.getComment();
+		Integer qs = ts.getQualityScore();
+		Boolean checked = ts.getChecked();
 		PmmXmlDoc misc = ts.getMisc();
 		PmmXmlDoc lit = ts.getLiterature();
 		PmmXmlDoc mdData = ts.getTimeSeries();
@@ -1298,7 +1313,7 @@ public class Bfrdb {
 		int phId = insertDouble(ph);
 		int awId = insertDouble(aw);
 
-		condId = insertCondition(condId, tempId, phId, awId, agentName, matrixName, combaseId, matrixId, agentId, agentDetail, matrixDetail, misc, comment, lit, ts);
+		condId = insertCondition(condId, tempId, phId, awId, agentName, matrixName, combaseId, matrixId, agentId, agentDetail, matrixDetail, misc, comment, qs, checked, lit, ts);
 
 		ts.setLiterature(lit);
 		ts.setMisc(misc);

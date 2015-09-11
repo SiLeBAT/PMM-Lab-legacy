@@ -348,6 +348,32 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 		return null;//getString( TimeSeriesSchema.ATT_COMMENT );
 	}
+	public Integer getQualityScore() throws PmmException {
+		PmmXmlDoc mdInfoXmlDoc = getMdInfo();
+		if (mdInfoXmlDoc != null) {
+			MdInfoXml mdix = null;
+	    	for (PmmXmlElementConvertable el : mdInfoXmlDoc.getElementSet()) {
+	    		if (el instanceof MdInfoXml) {
+	    			mdix = (MdInfoXml) el;
+	    			return mdix.getQualityScore();
+	    		}
+	    	}
+		}
+		return null;//getString( TimeSeriesSchema.ATT_COMMENT );
+	}
+	public Boolean getChecked() throws PmmException {
+		PmmXmlDoc mdInfoXmlDoc = getMdInfo();
+		if (mdInfoXmlDoc != null) {
+			MdInfoXml mdix = null;
+	    	for (PmmXmlElementConvertable el : mdInfoXmlDoc.getElementSet()) {
+	    		if (el instanceof MdInfoXml) {
+	    			mdix = (MdInfoXml) el;
+	    			return mdix.getChecked();
+	    		}
+	    	}
+		}
+		return null;//getString( TimeSeriesSchema.ATT_COMMENT );
+	}
 	public String getWarning() {
 		return warningMsg;
 	}

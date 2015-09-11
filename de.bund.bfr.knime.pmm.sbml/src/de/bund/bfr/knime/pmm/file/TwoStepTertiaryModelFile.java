@@ -63,7 +63,7 @@ public class TwoStepTertiaryModelFile {
 		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
-		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
+		Map<String, NuMLDocument> dataEntries = new HashMap<>();
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);

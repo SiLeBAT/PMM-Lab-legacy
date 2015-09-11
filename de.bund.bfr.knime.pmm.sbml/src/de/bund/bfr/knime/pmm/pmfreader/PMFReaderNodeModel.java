@@ -107,7 +107,7 @@ public class PMFReaderNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected PMFReaderNodeModel() {
-		// 0 input ports and 1 input port
+		// 0 input ports and 2 input ports
 		super(0, 2);
 	}
 
@@ -134,7 +134,7 @@ public class PMFReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] { null };
+		return new DataTableSpec[] { null, null };
 	}
 
 	/**

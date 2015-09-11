@@ -68,39 +68,41 @@ public class ReaderUtils {
 	public static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
 		PmmXmlDoc cell = new PmmXmlDoc();
 
-		// First misc item has id -1 and the rest of items have negative ints
-		int counter = -1;
+		if (miscs != null) {
+			// First misc item has id -1 and the rest of items have negative
+			// ints
+			int counter = -1;
+			for (Entry<String, Double> entry : miscs.entrySet()) {
+				String name = entry.getKey();
+				Double value = entry.getValue();
 
-		for (Entry<String, Double> entry : miscs.entrySet()) {
-			String name = entry.getKey();
-			Double value = entry.getValue();
+				List<String> categories;
+				String description, unit;
 
-			List<String> categories;
-			String description, unit;
+				switch (name) {
+				case "Temperature":
+					categories = Arrays.asList(Categories.getTempCategory().getName());
+					description = name;
+					unit = Categories.getTempCategory().getStandardUnit();
 
-			switch (name) {
-			case "Temperature":
-				categories = Arrays.asList(Categories.getTempCategory().getName());
-				description = name;
-				unit = Categories.getTempCategory().getStandardUnit();
+					cell.add(new MiscXml(counter, name, description, value, categories, unit));
 
-				cell.add(new MiscXml(counter, name, description, value, categories, unit));
+					counter -= 1;
+					break;
 
-				counter -= 1;
-				break;
+				case "pH":
+					categories = Arrays.asList(Categories.getPhCategory().getName());
+					description = name;
+					unit = Categories.getPhUnit();
 
-			case "pH":
-				categories = Arrays.asList(Categories.getPhCategory().getName());
-				description = name;
-				unit = Categories.getPhUnit();
+					cell.add(new MiscXml(counter, name, description, value, categories, unit));
 
-				cell.add(new MiscXml(counter, name, description, value, categories, unit));
-
-				counter -= 1;
-				break;
+					counter -= 1;
+					break;
+				}
 			}
-		}
 
+		}
 		return cell;
 	}
 }

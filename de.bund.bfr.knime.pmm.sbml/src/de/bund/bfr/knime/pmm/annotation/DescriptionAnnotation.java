@@ -23,7 +23,7 @@ public class DescriptionAnnotation {
 	 * @param node XMLNode with description
 	 * @throws XMLStreamException 
 	 */
-	public DescriptionAnnotation(XMLNode node) {
+	public DescriptionAnnotation(final XMLNode node) {
 		this.node = node;
 		
 		XMLNode metadata = node.getChildElement(METADATA_TAG, "");
@@ -35,7 +35,7 @@ public class DescriptionAnnotation {
 	 * Builds new DescriptionAnnotation.
 	 * @param desc Description.
 	 */
-	public DescriptionAnnotation(String desc) {
+	public DescriptionAnnotation(final String desc) {
 		// Creates description node and adds it to the annotation node
 		XMLNode descNode = new XMLNode(new XMLTriple(DESC_TAG, null, PMF_TAG));
 		descNode.addChild(new XMLNode(desc));

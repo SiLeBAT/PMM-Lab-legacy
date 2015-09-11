@@ -127,9 +127,9 @@ import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.LimitsConstraint;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
-import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
+import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.PMFUnitDefinition;
@@ -716,9 +716,6 @@ class PrimaryModelWDataParser implements Parser {
 			model.setName(estModel.getName());
 		}
 
-		// Annotation
-		String modelTitle = estModel.getName();
-
 		// Gets model references
 		List<LiteratureItem> mLits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : mLitDoc.getElementSet()) {
@@ -731,10 +728,9 @@ class PrimaryModelWDataParser implements Parser {
 			emLits.add((LiteratureItem) item);
 		}
 
-		// Add model annotations
+		// Adds model annotations
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, emLits, condId);
-		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, emLits, condId).getAnnotation());
 
 		// Creates and adds compartment to model
 		Map<String, Double> miscsMap = new HashMap<>();
@@ -789,7 +785,7 @@ class PrimaryModelWDataParser implements Parser {
 			}
 		}
 
-		LinkedList<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
+		List<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
 		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
 
 		// Creates rule of the model and add it to the rest of rules
@@ -879,9 +875,6 @@ class PrimaryModelWODataParser implements Parser {
 			model.setName(estModel.getName());
 		}
 
-		// Annotation
-		String modelTitle = estModel.getName();
-
 		// Gets model literature
 		List<LiteratureItem> mLits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : mLitDoc.getElementSet()) {
@@ -896,8 +889,7 @@ class PrimaryModelWODataParser implements Parser {
 
 		// Add model annotations
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, emLits, condId);
-		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, emLits, condId).getAnnotation());
 
 		// Creates compartment and adds it to the model
 		List<MiscXml> miscs = new LinkedList<>();
@@ -940,7 +932,7 @@ class PrimaryModelWODataParser implements Parser {
 		model.addParameter(indepParam);
 
 		// Add constant parameters
-		LinkedList<ParamXml> constXmls = new LinkedList<>();
+		List<ParamXml> constXmls = new LinkedList<>();
 		for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
 			constXmls.add((ParamXml) item);
 		}
@@ -1084,8 +1076,7 @@ class ManualSecondaryModelParser implements Parser {
 
 		// Add annotation
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		Model2Annotation m2Annot = new Model2Annotation(globalModelID, uncertainties, emLits);
-		model.getAnnotation().setNonRDFAnnotation(m2Annot.getNode());
+		model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
 
 		return new ManualSecondaryModel(doc);
 	}
@@ -1195,8 +1186,6 @@ class TwoStepSecondaryModelParser implements Parser {
 		}
 
 		// Builds and adds model annotation
-		// a) Model title
-		String modelTitle = estModel.getName();
 		// b) Literature references
 		List<LiteratureItem> lits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
@@ -1204,10 +1193,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		}
 		// c) Parse quality measures
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		// d) Builds annotation
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
-		// e) Adds annotation to the model
-		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, lits, condId).getAnnotation());
 
 		// Creates and adds compartment to the model
 		// a) Gather misc values
@@ -1388,11 +1374,10 @@ class TwoStepSecondaryModelParser implements Parser {
 
 		// Adds annotation
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		Model2Annotation annot = new Model2Annotation(globalModelId, uncertainties, emLits);
-		model.getAnnotation().setNonRDFAnnotation(annot.getNode());
+		model.setAnnotation(new Model2Annotation(globalModelId, uncertainties, emLits).getAnnotation());
 
 		// Adds annotation for the primary models
-		XMLNode metadataNode = annot.getNode();
+		XMLNode metadataNode = model.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 		for (PrimaryModelWData pmwd : primModels) {
 			String primModelId = pmwd.getSBMLDoc().getModel().getId();
 			metadataNode.addChild(new PrimaryModelNode(primModelId + ".sbml").getNode());
@@ -1565,7 +1550,6 @@ class OneStepSecondaryModelParser implements Parser {
 		}
 
 		// Annotation
-		String modelTitle = estModel.getName();
 		Integer modelClassNum = catModel.getModelClass();
 		if (modelClassNum == null) {
 			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
@@ -1585,8 +1569,7 @@ class OneStepSecondaryModelParser implements Parser {
 
 		// Adds model annotations
 		Uncertainties uncertainties = new Uncertainties(estModel);
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, emLits, condId);
-		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, emLits, condId).getAnnotation());
 
 		// Creates a compartment and adds it to the model
 		Map<String, Double> miscs = new HashMap<>();
@@ -1729,8 +1712,7 @@ class OneStepSecondaryModelParser implements Parser {
 		// Add uncertainties
 		Uncertainties uncertainties = new Uncertainties(estModel);
 
-		Model2Annotation secModelAnnotation = new Model2Annotation(globalModelId, uncertainties, emLits);
-		secModel.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
+		secModel.setAnnotation(new Model2Annotation(globalModelId, uncertainties, emLits).getAnnotation());
 
 		Model2Rule rule2 = Model2Rule.convertCatalogModelXmlToModel2Rule(catModel, mLits);
 		secModel.addRule(rule2.getRule());
@@ -1917,7 +1899,6 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 
 		// Annotation
-		String modelTitle = estModel.getName();
 		Uncertainties uncertainties = new Uncertainties(estModel);
 
 		// Get model literature
@@ -1933,8 +1914,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 
 		// Add model annotations
-		Model1Annotation primModelAnnotation = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
-		model.getAnnotation().setNonRDFAnnotation(primModelAnnotation.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, lits, condId).getAnnotation());
 
 		// Create and add compartment to model
 		Map<String, Double> miscsMap = new HashMap<>();
@@ -2097,8 +2077,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		// Add uncertainties
 		Uncertainties uncertainties = new Uncertainties(estModel);
 
-		Model2Annotation m2Annot = new Model2Annotation(globalModelID, uncertainties, emLits);
-		model.getAnnotation().setNonRDFAnnotation(m2Annot.getNode());
+		model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
 
 		Model2Rule rule = Model2Rule.convertCatalogModelXmlToModel2Rule(catModel, mLits);
 		model.addRule(rule.getRule());
@@ -2201,9 +2180,6 @@ class OneStepTertiaryModelParser implements Parser {
 		}
 
 		// Builds and adds model annotation
-		// a) Model title
-		String modelTitle = estModel.getName();
-
 		// b) Literature references
 		List<LiteratureItem> lits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
@@ -2214,10 +2190,7 @@ class OneStepTertiaryModelParser implements Parser {
 		Uncertainties uncertainties = new Uncertainties(estModel);
 
 		// d) Builds annotation
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
-
-		// e) Adds annotation to the model
-		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, lits, condId).getAnnotation());
 
 		// Creates and adds compartment to the model
 		// a) Gather misc values
@@ -2367,8 +2340,7 @@ class OneStepTertiaryModelParser implements Parser {
 			// Add uncertainties
 			uncertainties = new Uncertainties(secEstModel);
 
-			Model2Annotation secModelAnnotation = new Model2Annotation(globalModelID, uncertainties, secEmLits);
-			secModel.getAnnotation().setNonRDFAnnotation(secModelAnnotation.getNode());
+			secModel.setAnnotation(new Model2Annotation(globalModelID, uncertainties, secEmLits).getAnnotation());
 
 			// Gets model literature
 			List<LiteratureItem> secMLits = new LinkedList<>();
@@ -2385,7 +2357,7 @@ class OneStepTertiaryModelParser implements Parser {
 			emd.setModelRef(secModelId);
 
 			// Add annotation for the primary model
-			XMLNode metadataNode = secModelAnnotation.getNode();
+			XMLNode metadataNode = secModel.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 			metadataNode.addChild(new PrimaryModelNode(modelId + ".sbml").getNode());
 
 			// Save secondary model
@@ -2532,8 +2504,6 @@ class ManualTertiaryModelParser implements Parser {
 		CompModelPlugin compModelPlugin = (CompModelPlugin) model.getPlugin(CompConstants.shortLabel);
 
 		// Builds and adds model annotation
-		// a) Model title
-		String modelTitle = estModel.getName();
 		// b) Literature references
 		List<LiteratureItem> lits = new LinkedList<>();
 		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
@@ -2542,9 +2512,7 @@ class ManualTertiaryModelParser implements Parser {
 		// c) Parse quality measures
 		Uncertainties uncertainties = new Uncertainties(estModel);
 		// d) Builds annotation
-		Model1Annotation m1Annot = new Model1Annotation(modelId, modelTitle, uncertainties, lits, condId);
-		// e) Adds annotation to the model
-		model.getAnnotation().setNonRDFAnnotation(m1Annot.getNode());
+		model.setAnnotation(new Model1Annotation(uncertainties, lits, condId).getAnnotation());
 
 		// Creates and adds compartment to the model
 		// a) Gather misc values
@@ -2714,8 +2682,7 @@ class ManualTertiaryModelParser implements Parser {
 		// Adds uncertainties
 		Uncertainties uncertainties = new Uncertainties(estModel);
 
-		Model2Annotation m2Annotation = new Model2Annotation(globalModelID, uncertainties, emLits);
-		md.getAnnotation().setNonRDFAnnotation(m2Annotation.getNode());
+		md.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
 
 		Model2Rule rule = Model2Rule.convertCatalogModelXmlToModel2Rule(catModel, mLits);
 		md.addRule(rule.getRule());

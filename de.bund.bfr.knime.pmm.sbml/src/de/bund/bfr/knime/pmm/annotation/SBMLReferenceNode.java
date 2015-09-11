@@ -21,7 +21,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 	 * @param lit
 	 *            : PmmLab LiteratureItem
 	 */
-	public SBMLReferenceNode(LiteratureItem lit) {
+	public SBMLReferenceNode(final LiteratureItem lit) {
 		// reference container
 		XMLTriple refTriple = new XMLTriple("reference", null, "dc");
 		XMLNamespaces refNS = new XMLNamespaces();
@@ -30,8 +30,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 
 		// author node
 		if (lit.getAuthor() != null) {
-			XMLTriple authorTriple = new XMLTriple(spec.getAuthor(), null,
-					"ref");
+			XMLTriple authorTriple = new XMLTriple(spec.getAuthor(), null, "ref");
 			XMLNode authorNode = new XMLNode(authorTriple);
 			authorNode.addChild(new XMLNode(lit.getAuthor()));
 			node.addChild(authorNode);
@@ -55,8 +54,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 
 		// abstract node
 		if (lit.getAbstractText() != null) {
-			XMLTriple abstractTriple = new XMLTriple(spec.getAbstract(), null,
-					"ref");
+			XMLTriple abstractTriple = new XMLTriple(spec.getAbstract(), null, "ref");
 			XMLNode abstractNode = new XMLNode(abstractTriple);
 			abstractNode.addChild(new XMLNode(lit.getAbstractText()));
 			node.addChild(abstractNode);
@@ -64,8 +62,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 
 		// journal node
 		if (lit.getJournal() != null) {
-			XMLTriple journalTriple = new XMLTriple(spec.getJournal(), null,
-					"ref");
+			XMLTriple journalTriple = new XMLTriple(spec.getJournal(), null, "ref");
 			XMLNode journalNode = new XMLNode(journalTriple);
 			journalNode.addChild(new XMLNode(lit.getJournal()));
 			node.addChild(journalNode);
@@ -73,8 +70,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 
 		// volume node
 		if (lit.getVolume() != null) {
-			XMLTriple volumeTriple = new XMLTriple(spec.getVolume(), null,
-					"ref");
+			XMLTriple volumeTriple = new XMLTriple(spec.getVolume(), null, "ref");
 			XMLNode volumeNode = new XMLNode(volumeTriple);
 			volumeNode.addChild(new XMLNode(lit.getVolume()));
 			node.addChild(volumeNode);
@@ -98,18 +94,15 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 
 		// approval mode node
 		if (lit.getApprovalMode() != null) {
-			XMLTriple approvalTriple = new XMLTriple(spec.getApproval(), null,
-					"ref");
+			XMLTriple approvalTriple = new XMLTriple(spec.getApproval(), null, "ref");
 			XMLNode approvalNode = new XMLNode(approvalTriple);
-			approvalNode
-					.addChild(new XMLNode(lit.getApprovalMode().toString()));
+			approvalNode.addChild(new XMLNode(lit.getApprovalMode().toString()));
 			node.addChild(approvalNode);
 		}
 
 		// website node
 		if (lit.getWebsite() != null) {
-			XMLTriple websiteTriple = new XMLTriple(spec.getWebsite(), null,
-					"ref");
+			XMLTriple websiteTriple = new XMLTriple(spec.getWebsite(), null, "ref");
 			XMLNode websiteNode = new XMLNode(websiteTriple);
 			websiteNode.addChild(new XMLNode(lit.getWebsite()));
 			node.addChild(websiteNode);
@@ -125,8 +118,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 
 		// comment node
 		if (lit.getComment() != null) {
-			XMLTriple commentTriple = new XMLTriple(spec.getComment(), null,
-					"ref");
+			XMLTriple commentTriple = new XMLTriple(spec.getComment(), null, "ref");
 			XMLNode commentNode = new XMLNode(commentTriple);
 			commentNode.addChild(new XMLNode(lit.getComment()));
 			node.addChild(commentNode);
@@ -139,7 +131,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 	 * @param node
 	 *            XMLNode
 	 */
-	public SBMLReferenceNode(XMLNode node) {
+	public SBMLReferenceNode(final XMLNode node) {
 		this.node = node;
 	}
 
@@ -148,106 +140,45 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 	 */
 	public LiteratureItem toLiteratureItem() {
 
-		String author;
 		XMLNode authorNode = node.getChildElement(spec.getAuthor(), "");
-		if (authorNode != null) {
-			author = authorNode.getChildAt(0).getCharacters();
-		} else {
-			author = null;
-		}
+		String author = (authorNode == null) ? null : authorNode.getChild(0).getCharacters();
 
-		String title;
 		XMLNode titleNode = node.getChildElement(spec.getTitle(), "");
-		if (titleNode != null) {
-			title = titleNode.getChildAt(0).getCharacters();
-		} else {
-			title = null;
-		}
+		String title = (titleNode == null) ? null : titleNode.getChild(0).getCharacters();
 
-		String abstractText;
 		XMLNode abstractNode = node.getChildElement(spec.getAbstract(), "");
-		if (abstractNode != null) {
-			abstractText = abstractNode.getChildAt(0).getCharacters();
-		} else {
-			abstractText = null;
-		}
+		String abstractText = (abstractNode == null) ? null : abstractNode.getChild(0).getCharacters();
 
-		Integer year;
 		XMLNode yearNode = node.getChildElement(spec.getYear(), "");
-		if (yearNode != null) {
-			year = Integer.parseInt(yearNode.getChild(0).getCharacters());
-		} else {
-			year = null;
-		}
+		Integer year = (yearNode == null) ? null : Integer.parseInt(yearNode.getChild(0).getCharacters());
 
-		String journal;
 		XMLNode journalNode = node.getChildElement(spec.getJournal(), "");
-		if (journalNode != null) {
-			journal = journalNode.getChildAt(0).getCharacters();
-		} else {
-			journal = null;
-		}
+		String journal = (journalNode == null) ? null : journalNode.getChild(0).getCharacters();
 
-		String volume;
 		XMLNode volumeNode = node.getChildElement(spec.getVolume(), "");
-		if (volumeNode != null) {
-			volume = volumeNode.getChildAt(0).getCharacters();
-		} else {
-			volume = null;
-		}
+		String volume = (volumeNode == null) ? null : volumeNode.getChild(0).getCharacters();
 
-		String issue;
 		XMLNode issueNode = node.getChildElement(spec.getIssue(), "");
-		if (issueNode != null) {
-			issue = issueNode.getChildAt(0).getCharacters();
-		} else {
-			issue = null;
-		}
+		String issue = (issueNode == null) ? null : issueNode.getChild(0).getCharacters();
 
-		Integer page;
 		XMLNode pageNode = node.getChildElement(spec.getPage(), "");
-		if (pageNode != null) {
-			page = Integer.parseInt(pageNode.getChildAt(0).getCharacters());
-		} else {
-			page = null;
-		}
+		Integer page = (pageNode == null) ? null : Integer.parseInt(pageNode.getChild(0).getCharacters());
 
-		Integer approvalMode;
 		XMLNode approvalNode = node.getChildElement(spec.getApproval(), "");
-		if (approvalNode != null) {
-			approvalMode = Integer.parseInt(approvalNode.getChildAt(0)
-					.getCharacters());
-		} else {
-			approvalMode = null;
-		}
+		Integer approvalMode = (approvalNode == null) ? null
+				: Integer.parseInt(approvalNode.getChild(0).getCharacters());
 
-		String website = null;
 		XMLNode websiteNode = node.getChildElement(spec.getWebsite(), "");
-		if (websiteNode != null) {
-			website = websiteNode.getChildAt(0).getCharacters();
-		} else {
-			website = null;
-		}
+		String website = (websiteNode == null) ? null : websiteNode.getChild(0).getCharacters();
 
-		Integer type;
 		XMLNode typeNode = node.getChildElement(spec.getType(), "");
-		if (typeNode != null) {
-			type = Integer.parseInt(typeNode.getChildAt(0).getCharacters());
-		} else {
-			type = null;
-		}
+		Integer type = (typeNode == null) ? null : Integer.parseInt(typeNode.getChild(0).getCharacters());
 
-		String comment;
 		XMLNode commentNode = node.getChildElement(spec.getComment(), "");
-		if (commentNode != null) {
-			comment = commentNode.getChildAt(0).getCharacters();
-		} else {
-			comment = null;
-		}
+		String comment = (commentNode == null) ? null : commentNode.getChild(0).getCharacters();
 
-		LiteratureItem lit = new LiteratureItem(author, year, title,
-				abstractText, journal, volume, issue, page, approvalMode,
-				website, type, comment);
+		LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page,
+				approvalMode, website, type, comment);
 		return lit;
 	}
 }

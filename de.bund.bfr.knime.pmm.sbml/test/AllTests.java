@@ -11,6 +11,8 @@ import de.bund.bfr.knime.pmm.annotation.GlobalModelIdNodeTest;
 import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNodeTest;
 import de.bund.bfr.knime.pmm.annotation.MatrixAnnotationTest;
 import de.bund.bfr.knime.pmm.annotation.MetadataAnnotationTest;
+import de.bund.bfr.knime.pmm.annotation.Model1AnnotationTest;
+import de.bund.bfr.knime.pmm.annotation.Model2AnnotationTest;
 import de.bund.bfr.knime.pmm.annotation.PrimaryModelNodeTest;
 import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNodeTest;
 import de.bund.bfr.knime.pmm.annotation.UncertaintyNodeTest;
@@ -24,12 +26,14 @@ import de.bund.bfr.knime.pmm.sbmlutil.MetadataTest;
 	AgentAnnotationTest.class,
 	CoefficientAnnotationTest.class,
 	CondIDNodeTest.class,
-	DescriptionAnnotationTest.class,
 	DataSourceNodeTest.class,
+	DescriptionAnnotationTest.class,
 	GlobalModelIdNodeTest.class,
 	GroovyReferenceNodeTest.class,
 	MatrixAnnotationTest.class,
 	MetadataAnnotationTest.class,
+	Model1AnnotationTest.class,
+	Model2AnnotationTest.class,
 	PrimaryModelNodeTest.class,
 	SBMLReferenceNodeTest.class,
 	UncertaintyNodeTest.class,

@@ -33,7 +33,7 @@ public class AgentAnnotation {
 	 * @param annot
 	 *            Annotation.
 	 */
-	public AgentAnnotation(Annotation annotation) {
+	public AgentAnnotation(final Annotation annotation) {
 		this.annotation = annotation;
 
 		// Parses annotation
@@ -71,7 +71,7 @@ public class AgentAnnotation {
 	 * @param description
 	 *            Description of the dependent variable
 	 */
-	public AgentAnnotation(String casNumber, String detail, String depDesc) {
+	public AgentAnnotation(final String casNumber, final String detail, final String depDesc) {
 
 		annotation = new Annotation();
 

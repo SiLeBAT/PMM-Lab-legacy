@@ -37,11 +37,13 @@ public class Matrix {
 	 */
 	public Matrix(Compartment compartment) {
 		this.compartment = compartment;
-		
-		MatrixAnnotation annot = new MatrixAnnotation(compartment.getAnnotation());
-		code = annot.getPmfCode();
-		miscs = annot.getVars();
-		details = annot.getDetails();
+
+		if (compartment.isSetAnnotation()) {
+			MatrixAnnotation annot = new MatrixAnnotation(compartment.getAnnotation());
+			code = annot.getPmfCode();
+			miscs = annot.getVars();
+			details = annot.getDetails();
+		}
 	}
 
 	/**

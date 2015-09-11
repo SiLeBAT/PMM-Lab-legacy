@@ -12,7 +12,9 @@ import org.sbml.jsbml.ListOf;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.pmfreader.MetadataSchema;
 
 public class ReaderUtils {
 
@@ -104,5 +106,16 @@ public class ReaderUtils {
 
 		}
 		return cell;
+	}
+	
+	public static KnimeTuple createMetadataTuple(Metadata metadata) {
+		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
+		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
+		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
+		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
+		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
+		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
+		return metadataTuple;
 	}
 }

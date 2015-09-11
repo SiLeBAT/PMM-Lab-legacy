@@ -35,7 +35,7 @@ public class MatrixAnnotation {
 	 * @param annotation
 	 *            Annotation
 	 */
-	public MatrixAnnotation(Annotation annotation) {
+	public MatrixAnnotation(final Annotation annotation) {
 
 		this.annotation = annotation;
 
@@ -78,7 +78,7 @@ public class MatrixAnnotation {
 	/**
 	 * Creates a MatrixAnnotation for a code, description and model variables.
 	 */
-	public MatrixAnnotation(String pmfCode, Map<String, Double> miscs, String details) {
+	public MatrixAnnotation(final String pmfCode, final Map<String, Double> miscs, final String details) {
 
 		this.pmfCode = pmfCode;
 		this.miscs = miscs;

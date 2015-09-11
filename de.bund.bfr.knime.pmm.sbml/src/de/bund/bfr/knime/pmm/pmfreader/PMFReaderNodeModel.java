@@ -30,6 +30,8 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
 import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
+import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -73,9 +75,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
-import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.ReaderUtils;
@@ -266,15 +266,7 @@ class ExperimentalDataReader implements Reader {
 		// ExperimentalData file share the same metadata.
 		NuMLDocument numlDocument = eds.get(0).getNuMLDoc();
 		Metadata metadata = new DataFile(numlDocument).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { dataContainer, metadataContainer };
@@ -348,15 +340,7 @@ class PrimaryModelWDataReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getSBMLDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -369,7 +353,7 @@ class PrimaryModelWDataReader implements Reader {
 		Model model = sbmlDoc.getModel();
 
 		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -525,19 +509,10 @@ class PrimaryModelWODataReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getSBMLDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -548,7 +523,7 @@ class PrimaryModelWODataReader implements Reader {
 		Model model = sbmlDoc.getModel();
 
 		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -687,19 +662,10 @@ class TwoStepSecondaryModelReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getSecDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -727,7 +693,7 @@ class TwoStepSecondaryModelReader implements Reader {
 		Model model = pmwd.getSBMLDoc().getModel();
 
 		// Parses annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Agent agent = new Agent(model.getSpecies(0));
 		Matrix matrix = new Matrix(model.getCompartment(0));
@@ -779,7 +745,7 @@ class TwoStepSecondaryModelReader implements Reader {
 		Model model = pmwd.getSBMLDoc().getModel();
 
 		// parse annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -906,7 +872,7 @@ class TwoStepSecondaryModelReader implements Reader {
 		}
 
 		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation().getNonRDFannotation());
+		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
 		Uncertainties uncertainties = m2Annot.getUncertainties();
@@ -966,19 +932,10 @@ class OneStepSecondaryModelReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getSBMLDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -1053,7 +1010,7 @@ class OneStepSecondaryModelReader implements Reader {
 
 	private KnimeTuple parsePrimModel(Model model) {
 		// Parses annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -1182,7 +1139,7 @@ class OneStepSecondaryModelReader implements Reader {
 		}
 
 		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(md.getAnnotation().getNonRDFannotation());
+		Model2Annotation m2Annot = new Model2Annotation(md.getAnnotation());
 
 		// EstModel
 		Uncertainties uncertainties = m2Annot.getUncertainties();
@@ -1245,19 +1202,10 @@ class ManualSecondaryModelReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getSBMLDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -1303,7 +1251,7 @@ class ManualSecondaryModelReader implements Reader {
 		}
 
 		// Get model annotation
-		Model2Annotation modelAnnotation = new Model2Annotation(model.getAnnotation().getNonRDFannotation());
+		Model2Annotation modelAnnotation = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
 		Uncertainties uncertainties = modelAnnotation.getUncertainties();
@@ -1367,19 +1315,10 @@ class TwoStepTertiaryModelReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getTertDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -1442,7 +1381,7 @@ class TwoStepTertiaryModelReader implements Reader {
 				constCell.add(new Coefficient(param).toParamXml(md.getListOfUnitDefinitions(), limits));
 			}
 
-			Model2Annotation m2Annot = new Model2Annotation(md.getAnnotation().getNonRDFannotation());
+			Model2Annotation m2Annot = new Model2Annotation(md.getAnnotation());
 
 			// EstModel
 			Uncertainties uncertainties = m2Annot.getUncertainties();
@@ -1495,7 +1434,7 @@ class TwoStepTertiaryModelReader implements Reader {
 			Model model = sbmlDoc.getModel();
 
 			// Parse model annotations
-			Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+			Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 			Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 			CatalogModelXml catModel = rule.toCatModel();
@@ -1649,19 +1588,10 @@ class OneStepTertiaryModelReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getTertDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -1693,7 +1623,7 @@ class OneStepTertiaryModelReader implements Reader {
 		Model model = sbmlDoc.getModel();
 
 		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -1869,7 +1799,7 @@ class OneStepTertiaryModelReader implements Reader {
 				constCell.add(new Coefficient(param).toParamXml(md.getListOfUnitDefinitions(), limits));
 			}
 
-			Model2Annotation m2Annot = new Model2Annotation(md.getAnnotation().getNonRDFannotation());
+			Model2Annotation m2Annot = new Model2Annotation(md.getAnnotation());
 
 			// EstModel
 			Uncertainties uncertainties = m2Annot.getUncertainties();
@@ -1936,19 +1866,10 @@ class ManualTertiaryModelReader implements Reader {
 		// Gets metadata from the first model
 		SBMLDocument aDoc = models.get(0).getTertDoc();
 		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-
-		KnimeTuple metadataTuple = new KnimeTuple(new MetadataSchema());
-		metadataTuple.setValue(MetadataSchema.ATT_GIVEN_NAME, metadata.getGivenName());
-		metadataTuple.setValue(MetadataSchema.ATT_FAMILY_NAME, metadata.getFamilyName());
-		metadataTuple.setValue(MetadataSchema.ATT_CONTACT, metadata.getContact());
-		metadataTuple.setValue(MetadataSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_MODIFIED_DATE, metadata.getModifiedDate());
-		metadataTuple.setValue(MetadataSchema.ATT_TYPE, metadata.getType());
-
 		// Creates metadata table and container
 		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
 		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(metadataTuple);
+		metadataContainer.addRowToTable(ReaderUtils.createMetadataTuple(metadata));
 		metadataContainer.close();
 
 		return new BufferedDataContainer[] { modelContainer, metadataContainer };
@@ -1973,7 +1894,7 @@ class ManualTertiaryModelReader implements Reader {
 		Model model = doc.getModel();
 
 		// Parse annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Agent organism = new Agent(model.getSpecies(0));
 		Matrix matrix = new Matrix(model.getCompartment(0));
@@ -1999,7 +1920,7 @@ class ManualTertiaryModelReader implements Reader {
 		Model model = doc.getModel();
 
 		// Parses annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		// Parse constraints
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
@@ -2143,7 +2064,7 @@ class ManualTertiaryModelReader implements Reader {
 			mLitCell.add(lit);
 		}
 
-		Model2Annotation secModelAnnotation = new Model2Annotation(model.getAnnotation().getNonRDFannotation());
+		Model2Annotation secModelAnnotation = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
 		Uncertainties uncertainties = secModelAnnotation.getUncertainties();

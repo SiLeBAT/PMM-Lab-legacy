@@ -14,7 +14,7 @@ public class GlobalModelIdNode extends SBMLNodeBase {
 		node.addChild(new XMLNode(Integer.toString(id)));
 	}
 	
-	public GlobalModelIdNode(XMLNode node) {
+	public GlobalModelIdNode(final XMLNode node) {
 		this.node = node;
 	}
 	

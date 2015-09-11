@@ -19,5 +19,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jtidy-r938.jar"/>
+	<classpathentry kind="lib" path="lib/opencsv-3.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -8,13 +8,13 @@ public class PrimaryModelNode extends SBMLNodeBase {
 	public static final String TAG = "primaryModel";
 	public static final String NS = "pmmlab";
 	
-	public PrimaryModelNode(String model) {
+	public PrimaryModelNode(final String model) {
 		XMLTriple triple = new XMLTriple(TAG, "", NS);
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(model));
 	}
 	
-	public PrimaryModelNode(XMLNode node) {
+	public PrimaryModelNode(final XMLNode node) {
 		this.node = node;
 	}
 	

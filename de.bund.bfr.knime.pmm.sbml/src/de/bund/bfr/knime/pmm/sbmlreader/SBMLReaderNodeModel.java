@@ -30,6 +30,8 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
+import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -49,9 +51,7 @@ import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
 import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
-import de.bund.bfr.knime.pmm.sbmlutil.Model1Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Model2Annotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
 import de.bund.bfr.knime.pmm.sbmlutil.ReaderUtils;
@@ -254,7 +254,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		Model model = doc.getModel();
 
 		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -363,7 +363,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		Model model = doc.getModel();
 
 		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -521,7 +521,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		}
 
 		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation().getNonRDFannotation());
+		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
 		Uncertainties uncertainties = m2Annot.getUncertainties();
@@ -612,7 +612,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		}
 
 		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation().getNonRDFannotation());
+		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
 		Uncertainties uncertainties = m2Annot.getUncertainties();
@@ -678,7 +678,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		Model model = doc.getModel();
 		// Parses annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation().getNonRDFannotation());
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
 		CatalogModelXml catModel = rule.toCatModel();
@@ -805,7 +805,7 @@ public class SBMLReaderNodeModel extends NodeModel {
 		}
 
 		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(secModel.getAnnotation().getNonRDFannotation());
+		Model2Annotation m2Annot = new Model2Annotation(secModel.getAnnotation());
 
 		// EstModel
 		Uncertainties secUncertainties = m2Annot.getUncertainties();

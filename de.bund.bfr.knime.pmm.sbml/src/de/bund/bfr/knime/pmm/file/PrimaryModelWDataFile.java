@@ -65,6 +65,8 @@ public class PrimaryModelWDataFile {
 		// Parse models in the PMF file
 		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(sbmlURI);
 		for (ArchiveEntry modelEntry : modelEntries) {
+			System.out.println(modelEntry.getFileName()); // TODO: remove me !!
+
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
 			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
@@ -77,15 +79,21 @@ public class PrimaryModelWDataFile {
 			} else {
 				XMLNode metadataNode = modelAnnotation.getChildElement("metadata", "");
 				XMLNode node = metadataNode.getChildElement("dataSource", "");
-				DataSourceNode dataSourceNode = new DataSourceNode(node);
-				String dataFileName = dataSourceNode.getFile();
-				ArchiveEntry dataEntry = dataEntries.get(dataFileName);
-				if (dataEntry == null) {
+
+				// this model has no data
+				if (node == null) {
 					model = new PrimaryModelWData(sbmlDoc, null);
 				} else {
-					stream = Files.newInputStream(dataEntry.getPath(), StandardOpenOption.READ);
-					NuMLDocument numlDoc = numlReader.read(stream);
-					model = new PrimaryModelWData(sbmlDoc, numlDoc);
+					DataSourceNode dataSourceNode = new DataSourceNode(node);
+					String dataFileName = dataSourceNode.getFile();
+					ArchiveEntry dataEntry = dataEntries.get(dataFileName);
+					if (dataEntry == null) {
+						model = new PrimaryModelWData(sbmlDoc, null);
+					} else {
+						stream = Files.newInputStream(dataEntry.getPath(), StandardOpenOption.READ);
+						NuMLDocument numlDoc = numlReader.read(stream);
+						model = new PrimaryModelWData(sbmlDoc, numlDoc);
+					}
 				}
 			}
 			models.add(model);

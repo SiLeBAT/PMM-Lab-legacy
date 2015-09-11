@@ -18,7 +18,7 @@ public class DataSourceNode extends SBMLNodeBase {
 	 * @param node
 	 *            XMLNode
 	 */
-	public DataSourceNode(XMLNode node) {
+	public DataSourceNode(final XMLNode node) {
 		this.node = node;
 	}
 
@@ -28,7 +28,7 @@ public class DataSourceNode extends SBMLNodeBase {
 	 * @param dataName
 	 *            Reference to data file.
 	 */
-	public DataSourceNode(String dataName) {
+	public DataSourceNode(final String dataName) {
 		XMLTriple triple = new XMLTriple("dataSource", null, "pmmlab");
 		XMLAttributes attrs = new XMLAttributes();
 		attrs.add("id", "source1");

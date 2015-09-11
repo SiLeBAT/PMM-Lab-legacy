@@ -36,7 +36,7 @@ public class GroovyReferenceNode {
 	 * @param lit
 	 *            : PmmLab LiteratureItem
 	 */
-	public GroovyReferenceNode(LiteratureItem lit) {
+	public GroovyReferenceNode(final LiteratureItem lit) {
 		// reference container
 		Map<String, String> refNS = new HashMap<>();
 		refNS.put("xmlns:ref", "http://foo.bar.com");
@@ -106,7 +106,7 @@ public class GroovyReferenceNode {
 	/**
 	 * Builds a GroovyReferenceNode from an existing XMLNode
 	 */
-	public GroovyReferenceNode(Node node) {
+	public GroovyReferenceNode(final Node node) {
 		this.node = node;
 	}
 	

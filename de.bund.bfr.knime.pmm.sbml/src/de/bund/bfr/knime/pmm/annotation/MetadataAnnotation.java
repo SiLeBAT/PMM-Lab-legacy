@@ -26,7 +26,7 @@ public class MetadataAnnotation {
 	Annotation annotation;
 
 	// Builds a MetadataAnntotation from a given metadata object.
-	public MetadataAnnotation(Metadata metadata) {
+	public MetadataAnnotation(final Metadata metadata) {
 
 
 		XMLTriple pmfTriple = new XMLTriple("metadata", null, "pmf");
@@ -79,7 +79,7 @@ public class MetadataAnnotation {
 		annotation.setNonRDFAnnotation(pmfNode);
 	}
 	
-	public MetadataAnnotation(Annotation annotation) {
+	public MetadataAnnotation(final Annotation annotation) {
 		XMLNode pmfNode = annotation.getNonRDFannotation().getChildElement("metadata", "");
 		
 		metadata = new Metadata();

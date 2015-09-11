@@ -45,7 +45,7 @@ public class CoefficientAnnotation {
 	/**
 	 * Builds a CoefficientAnnotation from existing annotation.
 	 */
-	public CoefficientAnnotation(Annotation annotation) {
+	public CoefficientAnnotation(final Annotation annotation) {
 
 		this.annotation = annotation;
 
@@ -92,7 +92,8 @@ public class CoefficientAnnotation {
 	/**
 	 * Builds new CoefficientAnnotation
 	 */
-	public CoefficientAnnotation(Double P, Double error, Double t, Map<String, Double> correlations, String desc) {
+	public CoefficientAnnotation(final Double P, final Double error, final Double t,
+			final Map<String, Double> correlations, final String desc) {
 
 		// Copies data
 		this.P = P;

@@ -95,8 +95,10 @@ public class Coefficient {
 		paramXml.setDescription(desc);
 
 		// Adds correlations
-		for (Entry<String, Double> entry : correlations.entrySet()) {
-			paramXml.addCorrelation(entry.getKey(), entry.getValue());
+		if (correlations != null) {
+			for (Entry<String, Double> entry : correlations.entrySet()) {
+				paramXml.addCorrelation(entry.getKey(), entry.getValue());
+			}
 		}
 
 		// Assigns unit and category

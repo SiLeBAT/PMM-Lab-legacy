@@ -19,7 +19,7 @@ public class Uncertainties {
 	/**
 	 * Inits uncertainties
 	 */
-	public Uncertainties(int id, String name, String comment, Double r2, Double rms, Double sse, Double aic, Double bic,
+	public Uncertainties(Integer id, String name, String comment, Double r2, Double rms, Double sse, Double aic, Double bic,
 			Integer dof) {
 		estModel = new EstModelXml(id, name, sse, rms, r2, aic, bic, dof);
 		estModel.setComment(comment);

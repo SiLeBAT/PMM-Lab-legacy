@@ -380,7 +380,7 @@ class PrimaryModelWDataReader implements Reader {
 		// Gets data
 		PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
 
-		// Gets microbiological data literature
+		// Gets microbial data literature
 		PmmXmlDoc mdLitCell = new PmmXmlDoc();
 		for (LiteratureItem lit : df.getLits()) {
 			mdLitCell.add(lit);
@@ -428,7 +428,7 @@ class PrimaryModelWDataReader implements Reader {
 		}
 
 		// Parse Consts
-		LinkedList<Parameter> constParams = new LinkedList<>();
+		List<Parameter> constParams = new LinkedList<>();
 		for (Parameter param : model.getListOfParameters()) {
 			if (param.isConstant()) {
 				constParams.add(param);

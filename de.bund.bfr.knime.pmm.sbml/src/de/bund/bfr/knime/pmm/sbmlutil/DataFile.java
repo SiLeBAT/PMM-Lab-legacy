@@ -117,7 +117,7 @@ public class DataFile {
 		if (metadata.getModifiedDate() != null) {
 			pmfNode.appendNode("dcterms:modified", metadata.getModifiedDate());
 		}
-		
+
 		// Adds type
 		if (metadata.getType() != null) {
 			pmfNode.appendNode("dc:type", metadata.getType());
@@ -202,8 +202,10 @@ public class DataFile {
 		// Gets and sets matrix detail for not missing compartments
 		if (!matrixXml.getName().equals("MISSING_COMPARTMENT")) {
 			NodeList detailNodes = (NodeList) matrixNode.get("detail");
-			Node detailNode = (Node) detailNodes.get(0);
-			matrixXml.setDetail(detailNode.text());
+			if (detailNodes.size() == 1) {
+				Node detailNode = (Node) detailNodes.get(0);
+				matrixXml.setDetail(detailNode.text());
+			}
 		}
 
 		return matrixXml;
@@ -300,7 +302,7 @@ public class DataFile {
 		if (modifiedNodes.size() == 1) {
 			metadata.setModifiedDate(((Node) modifiedNodes.get(0)).text());
 		}
-		
+
 		// Gets type
 		NodeList typeNodes = (NodeList) rcMetadataNode.get("type");
 		if (typeNodes.size() == 1) {

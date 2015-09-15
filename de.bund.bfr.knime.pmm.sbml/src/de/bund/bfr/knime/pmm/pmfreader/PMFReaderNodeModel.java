@@ -32,14 +32,11 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
 import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
 import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
-import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
-import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -49,7 +46,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.knime.pmm.file.ExperimentalDataFile;
 import de.bund.bfr.knime.pmm.file.ManualSecondaryModelFile;
@@ -72,8 +68,8 @@ import de.bund.bfr.knime.pmm.model.TwoStepTertiaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.Agent;
 import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
 import de.bund.bfr.knime.pmm.sbmlutil.DataFile;
+import de.bund.bfr.knime.pmm.sbmlutil.DataTuple;
 import de.bund.bfr.knime.pmm.sbmlutil.Limits;
-import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
 import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
 import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
@@ -273,44 +269,7 @@ class ExperimentalDataReader implements Reader {
 	}
 
 	private KnimeTuple parse(ExperimentalData ed) {
-		NuMLDocument numlDoc = ed.getNuMLDoc();
-
-		DataFile df = new DataFile(numlDoc);
-		String timeUnit = df.getTimeUnit();
-		String concUnit = df.getConcUnit();
-
-		// Gets concentration unit object type from DB
-		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-		String concUnitObjectType = ufdb.getObject_type();
-
-		MatrixXml matrixXml = df.getMatrix();
-		AgentXml agentXml = df.getAgent();
-
-		// Gets time series
-		PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
-
-		PmmXmlDoc miscDoc = ReaderUtils.parseMiscs(df.getMiscs());
-
-		PmmXmlDoc litDoc = new PmmXmlDoc();
-		for (LiteratureItem lit : df.getLits()) {
-			litDoc.add(lit);
-		}
-
-		// Creates empty model info
-		MdInfoXml mdInfo = new MdInfoXml(null, "", "", null, false);
-
-		// Creates and fills tuple
-		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, df.getCondID());
-		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, df.getCombaseID());
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
-		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
-		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
-		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-		return tuple;
+		return new DataTuple(ed.getNuMLDoc()).getTuple();
 	}
 }
 
@@ -347,10 +306,8 @@ class PrimaryModelWDataReader implements Reader {
 	}
 
 	private KnimeTuple parse(PrimaryModelWData pm) {
-		SBMLDocument sbmlDoc = pm.getSBMLDoc();
-		NuMLDocument numlDoc = pm.getNuMLDoc();
 
-		Model model = sbmlDoc.getModel();
+		Model model = pm.getSBMLDoc().getModel();
 
 		// Parse model annotations
 		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
@@ -361,35 +318,7 @@ class PrimaryModelWDataReader implements Reader {
 		// Parse constraints
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
-		// time series cells
-		int condID = m1Annot.getCondID();
 		Agent agent = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		DataFile df = new DataFile(numlDoc);
-		condID = df.getCondID();
-		String combaseId = df.getCombaseID();
-
-		String timeUnit = df.getTimeUnit();
-		String concUnit = df.getConcUnit();
-
-		// Gets concentration unit object type from DB
-		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-		String concUnitObjectType = ufdb.getObject_type();
-
-		// Gets data
-		PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
-
-		// Gets microbial data literature
-		PmmXmlDoc mdLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : df.getLits()) {
-			mdLitCell.add(lit);
-		}
-
-		// Parse model variables: Temperature, pH and water activity
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
 		// primary model cells
 		// Parse dependent parameter (primary models only have one dependent
@@ -462,15 +391,16 @@ class PrimaryModelWDataReader implements Reader {
 		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
 		// time series cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		row.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseId);
-		row.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-		row.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);
-		row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		row.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		row.setValue(TimeSeriesSchema.ATT_LITMD, mdLitCell);
-		row.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		KnimeTuple dataTuple = new DataTuple(pm.getNuMLDoc()).getTuple();
+		row.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.getInt(TimeSeriesSchema.ATT_CONDID));
+		row.setValue(TimeSeriesSchema.ATT_COMBASEID, dataTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
+		row.setValue(TimeSeriesSchema.ATT_AGENT, dataTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+		row.setValue(TimeSeriesSchema.ATT_MATRIX, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, dataTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+		row.setValue(TimeSeriesSchema.ATT_MISC, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+		row.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+		row.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+		row.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
 
 		// primary model cells
 		row.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
@@ -532,14 +462,7 @@ class PrimaryModelWODataReader implements Reader {
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
 		// time series cells
-		final int condID = m1Annot.getCondID();
 		Agent agent = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		// Parse model variables: Temperature, pH and water activity
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
 		// primary model cells
 		// Parse dependent parameter (primary models only have one dependent
@@ -578,7 +501,7 @@ class PrimaryModelWODataReader implements Reader {
 		}
 
 		// Parse Consts
-		LinkedList<Parameter> constParams = new LinkedList<>();
+		List<Parameter> constParams = new LinkedList<>();
 		for (Parameter param : model.getListOfParameters()) {
 			if (param.isConstant()) {
 				constParams.add(param);
@@ -613,15 +536,16 @@ class PrimaryModelWODataReader implements Reader {
 		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
 		// time series cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		row.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		row.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-		row.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		row.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		row.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		KnimeTuple dataTuple = new DataTuple(pm.getSBMLDoc()).getTuple();
+		row.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.getInt(TimeSeriesSchema.ATT_CONDID));
+		row.setValue(TimeSeriesSchema.ATT_COMBASEID, dataTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
+		row.setValue(TimeSeriesSchema.ATT_AGENT, dataTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+		row.setValue(TimeSeriesSchema.ATT_MATRIX, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, dataTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+		row.setValue(TimeSeriesSchema.ATT_MISC, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+		row.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+		row.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+		row.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
 
 		// primary model cells
 		row.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
@@ -678,7 +602,12 @@ class TwoStepSecondaryModelReader implements Reader {
 		KnimeTuple m2Tuple = parseSecModel(tssm.getSecDoc());
 
 		for (PrimaryModelWData pmwd : tssm.getPrimModels()) {
-			KnimeTuple dataTuple = parseData(pmwd);
+			KnimeTuple dataTuple;
+			if (pmwd.getNuMLDoc() != null) {
+				dataTuple = new DataTuple(pmwd.getNuMLDoc()).getTuple();
+			} else {
+				dataTuple = new DataTuple(pmwd.getSBMLDoc()).getTuple();
+			}
 			KnimeTuple m1Tuple = parsePrimModel(pmwd);
 
 			KnimeTuple row = new M12DataTuple(dataTuple, m1Tuple, m2Tuple).getTuple();
@@ -687,59 +616,7 @@ class TwoStepSecondaryModelReader implements Reader {
 
 		return rows;
 	}
-
-	private KnimeTuple parseData(PrimaryModelWData pmwd) {
-
-		Model model = pmwd.getSBMLDoc().getModel();
-
-		// Parses annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
-
-		Agent agent = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		// Gets data and its literature
-		PmmXmlDoc mdData = new PmmXmlDoc();
-		PmmXmlDoc mdLit = new PmmXmlDoc();
-
-		String combaseId = "?";
-
-		if (pmwd.getNuMLDoc() != null) {
-			DataFile df = new DataFile(pmwd.getNuMLDoc());
-			combaseId = df.getCombaseID();
-			String timeUnit = df.getTimeUnit();
-			String concUnit = df.getConcUnit();
-
-			// Gets concentration unit object type from DB
-			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-			String concUnitObjectType = ufdb.getObject_type();
-
-			// Gets data
-			mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
-
-			for (LiteratureItem lit : df.getLits()) {
-				mdLit.add((LiteratureItem) lit);
-			}
-		}
-
-		// Parse model variables
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-
-		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
-		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseId);
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, mdLit);
-		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-		return tuple;
-	}
-
+	
 	private KnimeTuple parsePrimModel(PrimaryModelWData pmwd) {
 
 		Model model = pmwd.getSBMLDoc().getModel();
@@ -955,54 +832,9 @@ class OneStepSecondaryModelReader implements Reader {
 		KnimeTuple secTuple = parseSecModel(secModel);
 
 		// Parses data files
-		List<KnimeTuple> dataTuples = parseData(ossm.getNuMLDocs());
-
-		for (KnimeTuple dataTuple : dataTuples) {
-			// Creates and adds tuple
-			KnimeTuple tuple = new M12DataTuple(dataTuple, primTuple, secTuple).getTuple();
-			rows.add(tuple);
-		}
-
-		return rows;
-	}
-
-	private List<KnimeTuple> parseData(List<NuMLDocument> numlDocs) {
-
-		List<KnimeTuple> rows = new LinkedList<>();
-		for (NuMLDocument numlDoc : numlDocs) {
-
-			DataFile df = new DataFile(numlDoc);
-			String timeUnit = df.getTimeUnit();
-			String concUnit = df.getConcUnit();
-
-			// Gets concentration unit object type from DB
-			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-			String concUnitObjectType = ufdb.getObject_type();
-
-			PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
-
-			PmmXmlDoc miscCell = ReaderUtils.parseMiscs(df.getMiscs());
-
-			// Gets lits
-			PmmXmlDoc litDoc = new PmmXmlDoc();
-			for (LiteratureItem lit : df.getLits()) {
-				litDoc.add(lit);
-			}
-
-			MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-
-			KnimeTuple row = new KnimeTuple(SchemaFactory.createDataSchema());
-			row.setValue(TimeSeriesSchema.ATT_CONDID, df.getCondID());
-			row.setValue(TimeSeriesSchema.ATT_COMBASEID, df.getCombaseID());
-			row.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(df.getAgent()));
-			row.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(df.getMatrix()));
-			row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-			row.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-			row.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
-			row.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-			row.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-
-			rows.add(row);
+		for (NuMLDocument numlDoc : ossm.getNuMLDocs()) {
+			KnimeTuple dataTuple = new DataTuple(numlDoc).getTuple();
+			rows.add(new M12DataTuple(dataTuple, primTuple, secTuple).getTuple());
 		}
 
 		return rows;
@@ -1428,10 +1260,7 @@ class TwoStepTertiaryModelReader implements Reader {
 		List<KnimeTuple> primTuples = new LinkedList<>();
 
 		for (PrimaryModelWData pm : primModels) {
-			SBMLDocument sbmlDoc = pm.getSBMLDoc();
-			NuMLDocument numlDoc = pm.getNuMLDoc();
-
-			Model model = sbmlDoc.getModel();
+			Model model = pm.getSBMLDoc().getModel();
 
 			// Parse model annotations
 			Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
@@ -1443,26 +1272,7 @@ class TwoStepTertiaryModelReader implements Reader {
 			Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
 			// time series cells
-			final int condID = MathUtilities.getRandomNegativeInt();
 			Agent agent = new Agent(model.getSpecies(0));
-			Matrix matrix = new Matrix(model.getCompartment(0));
-
-			DataFile df = new DataFile(numlDoc);
-			String combaseId = df.getCombaseID();
-			String timeUnit = df.getTimeUnit();
-			String concUnit = df.getConcUnit();
-
-			// Gets concentration unit object type from DB
-			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-			String concUnitObjectType = ufdb.getObject_type();
-
-			PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
-
-			// Parse model variables: Temperature, pH and water activity
-			PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-			// Creates empty model info
-			MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
 			// primary model cells
 			// Parse dependent parameter (primary models only have one
@@ -1502,7 +1312,7 @@ class TwoStepTertiaryModelReader implements Reader {
 			PmmXmlDoc indepCell = new PmmXmlDoc(indepXml);
 
 			// Parse Consts
-			LinkedList<Parameter> constParams = new LinkedList<>();
+			List<Parameter> constParams = new LinkedList<>();
 			for (Parameter param : model.getListOfParameters()) {
 				if (param.isConstant()) {
 					constParams.add(param);
@@ -1536,15 +1346,16 @@ class TwoStepTertiaryModelReader implements Reader {
 			KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
 			// time series cells
-			tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseId);
-			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);
-			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-			tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-			tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+			KnimeTuple dataTuple = new DataTuple(pm.getNuMLDoc()).getTuple();
+			tuple.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.getInt(TimeSeriesSchema.ATT_CONDID));
+			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, dataTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, dataTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, dataTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+			tuple.setValue(TimeSeriesSchema.ATT_MISC, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+			tuple.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+			tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
 
 			// primary model cells
 			tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
@@ -1600,15 +1411,15 @@ class OneStepTertiaryModelReader implements Reader {
 	private List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
 
 		KnimeTuple primTuple = parsePrimModel(ostm.getTertDoc());
-		List<KnimeTuple> dataTuples = parseData(ostm.getTertDoc(), ostm.getDataDocs());
 		List<KnimeTuple> secTuples = parseSecModels(ostm.getSecDocs());
 
 		List<KnimeTuple> tuples = new LinkedList<>();
 
 		int instanceCounter = 1;
-		for (KnimeTuple dataTuple : dataTuples) {
+		
+		for (NuMLDocument numlDoc : ostm.getDataDocs()) {
+			KnimeTuple dataTuple = new DataTuple(numlDoc).getTuple();
 			for (KnimeTuple secTuple : secTuples) {
-				// Creates and adds tuple
 				KnimeTuple tuple = new M12DataTuple(dataTuple, primTuple, secTuple).getTuple();
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID, instanceCounter);
 				tuples.add(tuple);
@@ -1709,53 +1520,6 @@ class OneStepTertiaryModelReader implements Reader {
 		tuple.setValue(Model1Schema.ATT_DBUUID, "?");
 
 		return tuple;
-	}
-
-	private List<KnimeTuple> parseData(SBMLDocument tertDoc, List<NuMLDocument> dataDocs) {
-
-		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-
-		List<KnimeTuple> tuples = new LinkedList<>();
-		for (NuMLDocument dataDoc : dataDocs) {
-			DataFile df = new DataFile(dataDoc);
-			String timeUnit = df.getTimeUnit();
-			String concUnit = df.getConcUnit();
-
-			// Gets concentration unit object type from DB
-			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-			String concUnitObjectType = ufdb.getObject_type();
-
-			// Gets matrix and agent
-			AgentXml agentXml = df.getAgent();
-			MatrixXml matrixXml = df.getMatrix();
-
-			// Gets miscs
-			PmmXmlDoc miscCell = ReaderUtils.parseMiscs(df.getMiscs());
-
-			// Gets data
-			PmmXmlDoc mdDataCell = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
-
-			// Gets literature
-			PmmXmlDoc litDoc = new PmmXmlDoc();
-			for (LiteratureItem lit : df.getLits()) {
-				litDoc.add(lit);
-			}
-
-			KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
-			tuple.setValue(TimeSeriesSchema.ATT_CONDID, df.getCondID());
-			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, df.getCombaseID());
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
-			tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
-			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdDataCell);
-			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-			tuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
-			tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-
-			tuples.add(tuple);
-		}
-
-		return tuples;
 	}
 
 	private List<KnimeTuple> parseSecModels(List<SBMLDocument> secDocs) {
@@ -1877,7 +1641,7 @@ class ManualTertiaryModelReader implements Reader {
 
 	private List<KnimeTuple> parse(ManualTertiaryModel mtm) {
 
-		KnimeTuple dataTuple = parseData(mtm.getTertDoc());
+		KnimeTuple dataTuple = new DataTuple(mtm.getTertDoc()).getTuple();
 		KnimeTuple m1Tuple = parsePrimModel(mtm.getTertDoc());
 
 		List<KnimeTuple> rows = new LinkedList<>();
@@ -1887,32 +1651,6 @@ class ManualTertiaryModelReader implements Reader {
 		}
 
 		return rows;
-	}
-
-	private KnimeTuple parseData(SBMLDocument doc) {
-
-		Model model = doc.getModel();
-
-		// Parse annotation
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
-
-		Agent organism = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-		MdInfoXml mdInfoXml = new MdInfoXml(null, null, null, null, null);
-
-		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
-		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(organism.toAgentXml()));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfoXml));
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-
-		return tuple;
 	}
 
 	private KnimeTuple parsePrimModel(SBMLDocument doc) {

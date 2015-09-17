@@ -12,6 +12,9 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
  * @author Miguel Alba
  */
 public class SBMLReferenceNode extends SBMLNodeBase {
+	
+	static final String TAG = "reference";
+	static final String NS = "dc";
 
 	private LiteratureSpecification spec = new RIS();
 
@@ -23,7 +26,7 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 	 */
 	public SBMLReferenceNode(final LiteratureItem lit) {
 		// reference container
-		XMLTriple refTriple = new XMLTriple("reference", null, "dc");
+		XMLTriple refTriple = new XMLTriple(TAG, null, NS);
 		XMLNamespaces refNS = new XMLNamespaces();
 		refNS.add("http://foo.bar.com", "ref");
 		node = new XMLNode(refTriple, null, refNS);

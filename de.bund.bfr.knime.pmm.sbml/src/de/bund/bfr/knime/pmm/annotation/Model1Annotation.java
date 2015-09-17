@@ -19,8 +19,6 @@ import de.bund.bfr.knime.pmm.sbmlutil.Uncertainties;
 public class Model1Annotation {
 
 	static final String METADATA_TAG = "metadata";
-	static final String CONDID_TAG = "condID";
-	static final String REFERENCE_TAG = "reference";
 
 	Annotation annotation;
 	Uncertainties uncertainties;
@@ -37,8 +35,7 @@ public class Model1Annotation {
 		XMLNode metadataNode = annotation.getNonRDFannotation().getChildElement(METADATA_TAG, "");
 
 		// Gets condID
-		XMLNode condIDNode = metadataNode.getChildElement(CONDID_TAG, "");
-		condID = Integer.parseInt(condIDNode.getChild(0).getCharacters());
+		condID = new CondIDNode(metadataNode.getChildElement(CondIDNode.TAG, "")).getCondId();
 
 		// Gets model quality annotation
 		XMLNode modelQualityNode = metadataNode.getChildElement(UncertaintyNode.TAG, "");
@@ -48,7 +45,7 @@ public class Model1Annotation {
 
 		// Gets references
 		lits = new LinkedList<>();
-		for (XMLNode refNode : metadataNode.getChildElements(REFERENCE_TAG, "")) {
+		for (XMLNode refNode : metadataNode.getChildElements(SBMLReferenceNode.TAG, "")) {
 			lits.add(new SBMLReferenceNode(refNode).toLiteratureItem());
 		}
 	}

@@ -753,10 +753,18 @@ class M12DataTuple {
 	}
 }
 
-class DataTuple {
+abstract class TupleBase {
+	
+	protected KnimeTuple tuple;
+	
+	public KnimeTuple getTuple() {
+		return tuple;
+	}
+}
+
+class DataTuple extends TupleBase {
 
 	static KnimeSchema schema = SchemaFactory.createDataSchema(); // time series schema
-	KnimeTuple tuple;
 
 	public DataTuple(NuMLDocument numlDocument) {
 
@@ -821,15 +829,9 @@ class DataTuple {
 		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
 		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
 	}
-
-	public KnimeTuple getTuple() {
-		return tuple;
-	}
 }
 
-class Model1Tuple {
-
-	KnimeTuple tuple;
+class Model1Tuple extends TupleBase {
 
 	static KnimeSchema schema = SchemaFactory.createM1Schema();  // model1 schema
 
@@ -929,15 +931,9 @@ class Model1Tuple {
 		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 		tuple.setValue(Model1Schema.ATT_DBUUID, "?");
 	}
-
-	public KnimeTuple getTuple() {
-		return tuple;
-	}
 }
 
-class Model2Tuple {
-
-	KnimeTuple tuple;
+class Model2Tuple extends TupleBase {
 
 	static KnimeSchema schema = SchemaFactory.createM2Schema();
 
@@ -997,9 +993,5 @@ class Model2Tuple {
 		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
 		tuple.setValue(Model2Schema.ATT_DBUUID, "?");
 		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
-	}
-
-	public KnimeTuple getTuple() {
-		return tuple;
 	}
 }

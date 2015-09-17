@@ -22,8 +22,6 @@ public class Model2Annotation {
 
 	static final String PMF_TAG = "pmf";
 
-	static final String REFERENCE_TAG = "reference";
-
 	Annotation annotation;
 	List<LiteratureItem> literatureItems;
 	int globalModelID;
@@ -38,8 +36,7 @@ public class Model2Annotation {
 		XMLNode metadata = annotation.getNonRDFannotation().getChildElement(METADATA_TAG, "");
 
 		// Gets globalModelID
-		XMLNode globalModelIDNode = metadata.getChildElement(GlobalModelIdNode.TAG, "");
-		globalModelID = Integer.parseInt(globalModelIDNode.getChild(0).getCharacters());
+		globalModelID = new GlobalModelIdNode(metadata.getChildElement(GlobalModelIdNode.TAG, "")).getGlobalModelId();
 
 		// Gets model quality annotation
 		XMLNode qualityNode = metadata.getChildElement(UncertaintyNode.TAG, "");
@@ -49,7 +46,7 @@ public class Model2Annotation {
 
 		// Gets references
 		literatureItems = new LinkedList<>();
-		for (XMLNode ref : metadata.getChildElements(REFERENCE_TAG, "")) {
+		for (XMLNode ref : metadata.getChildElements(SBMLReferenceNode.TAG, "")) {
 			SBMLReferenceNode refNode = new SBMLReferenceNode(ref);
 			literatureItems.add(refNode.toLiteratureItem());
 		}

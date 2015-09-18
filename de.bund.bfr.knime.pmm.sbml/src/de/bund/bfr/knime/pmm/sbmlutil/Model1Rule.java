@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.sbml.jsbml.AssignmentRule;
 
+import de.bund.bfr.knime.pmm.annotation.ModelRuleAnnotation;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -41,7 +42,7 @@ public class Model1Rule extends ModelRule {
 	public Model1Rule(AssignmentRule rule) {
 		this.rule = rule;
 		if (rule.isSetAnnotation()) {
-			ModelRuleAnnotation ruleAnnotation = new ModelRuleAnnotation(rule.getAnnotation().getNonRDFannotation());
+			ModelRuleAnnotation ruleAnnotation = new ModelRuleAnnotation(rule.getAnnotation());
 			lits = ruleAnnotation.getLits();
 		}
 	}

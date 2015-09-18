@@ -15,9 +15,8 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel de Alba
  */
-public class CoefficientAnnotation {
+public class CoefficientAnnotation extends AnnotationBase {
 
-	Annotation annotation;
 	Double P;
 	Double error;
 	Double t;
@@ -50,7 +49,7 @@ public class CoefficientAnnotation {
 		this.annotation = annotation;
 
 		// Parses annotation
-		XMLNode metadataNode = annotation.getNonRDFannotation().getChildElement("metadata", "");
+		XMLNode metadataNode = annotation.getNonRDFannotation().getChildElement(METADATA_TAG, "");
 
 		// Gets P
 		XMLNode pNode = metadataNode.getChildElement(P_TAG, "");
@@ -103,7 +102,7 @@ public class CoefficientAnnotation {
 		this.desc = desc;
 
 		// Builds metadata node
-		XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
+		XMLNode metadataNode = new XMLNode(new XMLTriple(METADATA_TAG, null, METADATA_NS));
 
 		// Creates P annotation
 		if (P != null) {
@@ -157,10 +156,6 @@ public class CoefficientAnnotation {
 	}
 
 	// Getters
-	public Annotation getAnnotation() {
-		return annotation;
-	}
-
 	public Double getP() {
 		return P;
 	}

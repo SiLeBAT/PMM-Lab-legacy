@@ -35,7 +35,7 @@ public class SecIndep {
 	public SecIndep(Parameter param) {
 		// If param has annotation, processes it
 		if (param.getAnnotation().getNonRDFannotation() != null) {
-			DescriptionAnnotation annot = new DescriptionAnnotation(param.getAnnotation().getNonRDFannotation());
+			DescriptionAnnotation annot = new DescriptionAnnotation(param.getAnnotation());
 			desc = annot.getDescription();
 		}
 
@@ -56,8 +56,7 @@ public class SecIndep {
 		// If indepXml has a description, saves it within a SecIndepAnnotation
 		if (indepXml.getDescription() != null) {
 			// Builds and sets non RDF annotation
-			DescriptionAnnotation annot = new DescriptionAnnotation(indepXml.getDescription());
-			param.getAnnotation().setNonRDFAnnotation(annot.getNode());
+			param.setAnnotation(new DescriptionAnnotation(indepXml.getDescription()).getAnnotation());
 		}
 		param.setValue(0.0);
 		

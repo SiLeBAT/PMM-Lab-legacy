@@ -10,12 +10,7 @@ import org.sbml.jsbml.xml.XMLAttributes;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-public class MatrixAnnotation {
-
-	Annotation annotation;
-	String pmfCode;
-	String details; // matrix details
-	Map<String, Double> miscs; // model variables
+public class MatrixAnnotation extends AnnotationBase {
 
 	static final String CODE_TAG = "source"; // PMF code tag
 	static final String CODE_NS = "dc"; // PMF code namespace
@@ -29,6 +24,10 @@ public class MatrixAnnotation {
 	static final String ATTRIBUTE_NAME = "name";
 	static final String ATTRIBUTE_VALUE = "value";
 
+	String pmfCode;
+	String details; // matrix details
+	Map<String, Double> miscs; // model variables
+
 	/**
 	 * Gets PMF code, description and model variables from a matrix annotation.
 	 * 
@@ -40,7 +39,7 @@ public class MatrixAnnotation {
 		this.annotation = annotation;
 
 		// Parses annotation
-		XMLNode metadata = annotation.getNonRDFannotation().getChildElement("metadata", "");
+		XMLNode metadata = annotation.getNonRDFannotation().getChildElement(METADATA_TAG, "");
 
 		// Gets PMF code
 		XMLNode codeNode = metadata.getChildElement(CODE_TAG, "");
@@ -85,7 +84,8 @@ public class MatrixAnnotation {
 		this.details = details;
 
 		// Builds metadata node
-		XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
+		XMLTriple metadataTriple = new XMLTriple(METADATA_TAG, "", METADATA_NS);
+		XMLNode metadataNode = new XMLNode(metadataTriple);
 
 		// Creates annotation for the PMF code
 		if (pmfCode != null) {
@@ -120,10 +120,6 @@ public class MatrixAnnotation {
 	}
 
 	// Getters
-	public Annotation getAnnotation() {
-		return annotation;
-	}
-
 	public String getPmfCode() {
 		return pmfCode;
 	}

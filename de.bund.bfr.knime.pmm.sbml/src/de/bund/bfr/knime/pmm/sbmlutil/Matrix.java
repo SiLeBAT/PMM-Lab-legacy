@@ -5,9 +5,7 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Compartment;
@@ -15,7 +13,6 @@ import org.sbml.jsbml.Compartment;
 import de.bund.bfr.knime.pmm.annotation.MatrixAnnotation;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-import groovy.util.Node;
 
 /**
  * Matrix with PMF code, description and model variables.
@@ -88,6 +85,10 @@ public class Matrix {
 	public String getCode() {
 		return code;
 	}
+	
+	public String getDetails() {
+		return details;
+	}
 
 	public Map<String, Double> getMiscs() {
 		return miscs;
@@ -107,29 +108,5 @@ public class Matrix {
 			String dbuuid = DBKernel.getLocalDBUUID();
 			return new MatrixXml(id, compartment.getName(), details, dbuuid);
 		}
-	}
-
-	/**
-	 * Creates Groovy node.
-	 */
-	public Node toGroovyNode() {
-		Map<String, String> attrs = compartment.writeXMLAttributes();
-		attrs.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-		attrs.put("xmlns:pmmlab", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-
-		Node node = new Node(null, "sbml:compartment", attrs);
-		if (node != null) {
-			node.appendNode("dc:source", code);
-		}
-		if (details != null) {
-			node.appendNode("pmmlab:detail", details);
-		}
-		for (Entry<String, Double> entry : miscs.entrySet()) {
-			Map<String, String> modelVariable = new HashMap<>();
-			modelVariable.put("name", entry.getKey());
-			modelVariable.put("value", entry.getValue().toString());
-			node.appendNode("pmmlab:modelvariable", modelVariable);
-		}
-		return node;
 	}
 }

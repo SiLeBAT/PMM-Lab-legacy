@@ -17,8 +17,8 @@ public class GroovyReferenceNodeTest {
 				"International Journal of Food Microbiology", "23", "3", 277, 1,
 				"http://www.sciencedirect.com/science/article/pii/0168160594901570", 1, "");
 		
-		GroovyReferenceNode rn = new GroovyReferenceNode(lit);
-		GroovyReferenceNode rn2 = new GroovyReferenceNode(rn.getNode());
+		ReferenceNuMLNode rn = new ReferenceNuMLNode(lit);
+		ReferenceNuMLNode rn2 = new ReferenceNuMLNode(rn.getNode());
 		LiteratureItem lit2 = rn2.toLiteratureItem();
 
 		assertEquals(lit.getAuthor(), lit2.getAuthor());
@@ -40,7 +40,7 @@ public class GroovyReferenceNodeTest {
 	public void testNullLit() {
 		LiteratureItem lit = new LiteratureItem(null, null, null, null, null, null, null, null, null, null, null, null);
 		
-		GroovyReferenceNode rn = new GroovyReferenceNode(lit);
+		ReferenceNuMLNode rn = new ReferenceNuMLNode(lit);
 		LiteratureItem lit2 = rn.toLiteratureItem();
 		
 		assertNull(lit2.getAuthor());

@@ -10,7 +10,7 @@ import org.sbml.jsbml.xml.XMLTriple;
  * 
  * @author Miguel de Alba
  */
-public class AgentAnnotation {
+public class AgentAnnotation extends AnnotationBase {
 
 	static final String SOURCE_TAG = "source";
 	static final String SOURCE_NS = "dc";
@@ -21,7 +21,6 @@ public class AgentAnnotation {
 	static final String DESC_TAG = "desc";
 	static final String DESC_NS = "pmmlab";
 
-	Annotation annotation;
 	String casNumber;
 	String detail; // Agent detail
 	String depDesc; // Description of the dependent variable
@@ -37,7 +36,7 @@ public class AgentAnnotation {
 		this.annotation = annotation;
 
 		// Parses annotation
-		XMLNode metadata = annotation.getNonRDFannotation().getChildElement("metadata", "");
+		XMLNode metadata = annotation.getNonRDFannotation().getChildElement(METADATA_TAG, "");
 
 		// Gets CAS number
 		XMLNode sourceNode = metadata.getChildElement(SOURCE_TAG, "");
@@ -76,7 +75,7 @@ public class AgentAnnotation {
 		annotation = new Annotation();
 
 		// Builds PMF container
-		XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
+		XMLNode metadataNode = new XMLNode(new XMLTriple(METADATA_TAG, null, METADATA_NS));
 		annotation.setNonRDFAnnotation(metadataNode);
 
 		// Builds reference tag
@@ -108,10 +107,6 @@ public class AgentAnnotation {
 	}
 
 	// Getters
-	public Annotation getAnnotation() {
-		return annotation;
-	}
-
 	public String getCasNumber() {
 		return casNumber;
 	}

@@ -11,7 +11,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
  * 
  * @author Miguel Alba
  */
-public class SBMLReferenceNode extends SBMLNodeBase {
+public class ReferenceSBMLNode extends SBMLNodeBase {
 	
 	static final String TAG = "reference";
 	static final String NS = "dc";
@@ -19,12 +19,12 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 	private LiteratureSpecification spec = new RIS();
 
 	/**
-	 * Builds a SBMLReferenceNode using the RIS tag set.
+	 * Builds a ReferenceSBMLNode using the RIS tag set.
 	 * 
 	 * @param lit
 	 *            : PmmLab LiteratureItem
 	 */
-	public SBMLReferenceNode(final LiteratureItem lit) {
+	public ReferenceSBMLNode(final LiteratureItem lit) {
 		// reference container
 		XMLTriple refTriple = new XMLTriple(TAG, null, NS);
 		XMLNamespaces refNS = new XMLNamespaces();
@@ -129,12 +129,12 @@ public class SBMLReferenceNode extends SBMLNodeBase {
 	}
 
 	/**
-	 * Builds a SBMLReferenceNode from an existing XMLNode
+	 * Builds a ReferenceSBMLNode from an existing XMLNode
 	 * 
 	 * @param node
 	 *            XMLNode
 	 */
-	public SBMLReferenceNode(final XMLNode node) {
+	public ReferenceSBMLNode(final XMLNode node) {
 		this.node = node;
 	}
 

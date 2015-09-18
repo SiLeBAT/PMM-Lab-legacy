@@ -12,9 +12,10 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
  * 
  * @author Miguel Alba
  */
-public class GroovyReferenceNode {
+public class ReferenceNuMLNode extends NuMLNodeBase {
 
-	private Node node;
+	public static final String TAG = "reference";
+	public static final String NS = "dc";
 	
 	private static LiteratureSpecification spec = new RIS();
 	private static final String AUTHOR_TAG = "ref:" + spec.getAuthor();
@@ -31,16 +32,17 @@ public class GroovyReferenceNode {
 	private static final String COMMENT_TAG = "ref:" + spec.getComment();
 
 	/**
-	 * Builds a GroovyReferenceNode using the RIS tag set.
+	 * Builds a ReferenceNuMLNode using the RIS tag set.
 	 * 
 	 * @param lit
 	 *            : PmmLab LiteratureItem
 	 */
-	public GroovyReferenceNode(final LiteratureItem lit) {
+	public ReferenceNuMLNode(final LiteratureItem lit) {
 		// reference container
 		Map<String, String> refNS = new HashMap<>();
 		refNS.put("xmlns:ref", "http://foo.bar.com");
-		node = new Node(null, "dc:reference", refNS);
+		String name = String.format("%s:%s", NS, TAG);
+		node = new Node(null, name, refNS);
 		
 		// author node
 		if (lit.getAuthor() != null) {
@@ -104,14 +106,10 @@ public class GroovyReferenceNode {
 	}
 	
 	/**
-	 * Builds a GroovyReferenceNode from an existing XMLNode
+	 * Builds a ReferenceNuMLNode from an existing XMLNode
 	 */
-	public GroovyReferenceNode(final Node node) {
+	public ReferenceNuMLNode(final Node node) {
 		this.node = node;
-	}
-	
-	public Node getNode() {
-		return node;
 	}
 	
 	/**

@@ -12,8 +12,10 @@ import java.util.Map;
 
 import org.sbml.jsbml.SBMLDocument;
 
+import de.bund.bfr.knime.pmm.annotation.AgentNuMLNode;
 import de.bund.bfr.knime.pmm.annotation.CondIDNode;
-import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNode;
+import de.bund.bfr.knime.pmm.annotation.MatrixNuMLNode;
+import de.bund.bfr.knime.pmm.annotation.ReferenceNuMLNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
@@ -48,8 +50,8 @@ public class DataFile {
 
 		// Adds matrix and agent to the concentration metadata
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
-		concMetadata.append(matrix.toGroovyNode());
-		concMetadata.append(agent.toGroovyNode());
+		concMetadata.append(new MatrixNuMLNode(matrix).getNode());
+		concMetadata.append(new AgentNuMLNode(agent).getNode());
 
 		// Creates concentration description
 		AtomicDescription concDesc = new AtomicDescription();
@@ -125,7 +127,7 @@ public class DataFile {
 
 		// Adds annotations for literature items
 		for (LiteratureItem lit : lits) {
-			Node litNode = new GroovyReferenceNode(lit).getNode();
+			Node litNode = new ReferenceNuMLNode(lit).getNode();
 			pmfNode.append(litNode);
 		}
 
@@ -190,25 +192,10 @@ public class DataFile {
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
 
 		// Gets matrix node
-		NodeList matrixNodes = (NodeList) concMetadata.get("compartment");
+		NodeList matrixNodes = (NodeList) concMetadata.get(MatrixNuMLNode.TAG);
 		Node matrixNode = (Node) matrixNodes.get(0);
-
-		// Creates matrix
-		MatrixXml matrixXml = new MatrixXml();
-
-		// Gets and sets matrix name
-		matrixXml.setName((String) matrixNode.attribute("name"));
-
-		// Gets and sets matrix detail for not missing compartments
-		if (!matrixXml.getName().equals("MISSING_COMPARTMENT")) {
-			NodeList detailNodes = (NodeList) matrixNode.get("detail");
-			if (detailNodes.size() == 1) {
-				Node detailNode = (Node) detailNodes.get(0);
-				matrixXml.setDetail(detailNode.text());
-			}
-		}
-
-		return matrixXml;
+		
+		return new MatrixNuMLNode(matrixNode).toMatrixXml();
 	}
 
 	public AgentXml getAgent() {
@@ -216,23 +203,10 @@ public class DataFile {
 		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
 
 		// Gets agent node
-		NodeList agentNodes = (NodeList) concMetadata.get("species");
+		NodeList agentNodes = (NodeList) concMetadata.get(AgentNuMLNode.TAG);
 		Node agentNode = (Node) agentNodes.get(0);
 
-		// Creates agent
-		AgentXml agentXml = new AgentXml();
-
-		// Gets and sets agent name
-		agentXml.setName((String) agentNode.attribute("name"));
-
-		// Gets and sets agent detail
-		NodeList detailNodes = (NodeList) agentNode.get("detail");
-		if (detailNodes.size() == 1) {
-			Node detailNode = (Node) detailNodes.get(0);
-			agentXml.setDetail(detailNode.text());
-		}
-
-		return agentXml;
+		return new AgentNuMLNode(agentNode).toAgentXml();
 	}
 
 	public Map<String, Double> getMiscs() {
@@ -264,11 +238,11 @@ public class DataFile {
 		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
 
 		// Gets literature items
-		NodeList litNodes = (NodeList) rcMetadataNode.get("reference");
 		List<LiteratureItem> lits = new LinkedList<>();
+		NodeList litNodes = (NodeList) rcMetadataNode.get(ReferenceNuMLNode.TAG);
 		for (int i = 0; i < litNodes.size(); i++) {
 			Node litNode = (Node) litNodes.get(i);
-			lits.add(new GroovyReferenceNode(litNode).toLiteratureItem());
+			lits.add(new ReferenceNuMLNode(litNode).toLiteratureItem());
 		}
 
 		return lits;

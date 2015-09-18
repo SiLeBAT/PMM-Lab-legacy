@@ -16,11 +16,8 @@ import de.bund.bfr.knime.pmm.sbmlutil.Uncertainties;
  * 
  * @author Miguel de Alba
  */
-public class Model1Annotation {
+public class Model1Annotation extends AnnotationBase {
 
-	static final String METADATA_TAG = "metadata";
-
-	Annotation annotation;
 	Uncertainties uncertainties;
 	List<LiteratureItem> lits;
 	int condID;
@@ -45,22 +42,23 @@ public class Model1Annotation {
 
 		// Gets references
 		lits = new LinkedList<>();
-		for (XMLNode refNode : metadataNode.getChildElements(SBMLReferenceNode.TAG, "")) {
-			lits.add(new SBMLReferenceNode(refNode).toLiteratureItem());
+		for (XMLNode refNode : metadataNode.getChildElements(ReferenceSBMLNode.TAG, "")) {
+			lits.add(new ReferenceSBMLNode(refNode).toLiteratureItem());
 		}
 	}
 
 	public Model1Annotation(Uncertainties uncertainties, List<LiteratureItem> literatureItems, int condID) {
 
 		// Builds metadata node
-		XMLNode metadataNode = new XMLNode(new XMLTriple(METADATA_TAG, null, "pmf"));
+		XMLTriple metadataTriple = new XMLTriple(METADATA_TAG, "", METADATA_NS);
+		XMLNode metadataNode = new XMLNode(metadataTriple);
 
 		// Builds uncertainties node
 		metadataNode.addChild(new UncertaintyNode(uncertainties).getNode());
 
 		// Builds reference nodes
 		for (LiteratureItem lit : literatureItems) {
-			metadataNode.addChild(new SBMLReferenceNode(lit).getNode());
+			metadataNode.addChild(new ReferenceSBMLNode(lit).getNode());
 		}
 
 		// Builds condID node
@@ -76,10 +74,6 @@ public class Model1Annotation {
 	}
 
 	// Getters
-	public Annotation getAnnotation() {
-		return annotation;
-	}
-
 	public Uncertainties getUncertainties() {
 		return uncertainties;
 	}

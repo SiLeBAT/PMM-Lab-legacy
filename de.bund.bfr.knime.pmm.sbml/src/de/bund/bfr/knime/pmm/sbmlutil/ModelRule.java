@@ -12,6 +12,7 @@ import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.text.parser.ParseException;
 
+import de.bund.bfr.knime.pmm.annotation.ModelRuleAnnotation;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
@@ -37,12 +38,12 @@ public abstract class ModelRule {
 			subject = Util.MODELCLASS_STRS.get(type);
 		}
 		ModelRuleAnnotation annot = new ModelRuleAnnotation(name, subject, id, lits);
-		rule.getAnnotation().setNonRDFAnnotation(annot.getNode());
+		rule.setAnnotation(annot.getAnnotation());
 	}
 
 	/** Get CatalogModelXml from ModelRule */
 	public CatalogModelXml toCatModel() {
-		ModelRuleAnnotation annot = new ModelRuleAnnotation(rule.getAnnotation().getNonRDFannotation());
+		ModelRuleAnnotation annot = new ModelRuleAnnotation(rule.getAnnotation());
 		String formulaName = annot.getName();
 		int type = Util.MODELCLASS_NUMS.get(annot.getSubject());
 		int pmmlabID = annot.getID();

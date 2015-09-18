@@ -12,7 +12,7 @@ public class DescriptionAnnotationTest {
 	public void test() throws XMLStreamException {
 		String description = "decimal reduction time";
 		DescriptionAnnotation dn = new DescriptionAnnotation(description);		
-		DescriptionAnnotation dn2 = new DescriptionAnnotation(dn.getNode());
+		DescriptionAnnotation dn2 = new DescriptionAnnotation(dn.getAnnotation());
 		assertEquals(description, dn2.getDescription());
 	}
 }

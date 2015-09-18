@@ -5,8 +5,6 @@
  */
 package de.bund.bfr.knime.pmm.sbmlutil;
 
-import java.util.Map;
-
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Species;
@@ -14,7 +12,6 @@ import org.sbml.jsbml.Unit;
 
 import de.bund.bfr.knime.pmm.annotation.AgentAnnotation;
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import groovy.util.Node;
 
 /** Wrapper class for a Pmm Lab organism that holds a SBML species. */
 public class Agent {
@@ -130,23 +127,5 @@ public class Agent {
 
 	public String getDescription() {
 		return description;
-	}
-
-	public Node toGroovyNode() {
-		Map<String, String> attrs = species.writeXMLAttributes();
-		attrs.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-		attrs.put("xmlns:pmmlab", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-
-		Node node = new Node(null, "sbml:species", attrs);
-		if (casNumber != null) {
-			node.appendNode("dc:source", casNumber);
-		}
-		if (detail != null) {
-			node.appendNode("pmmlab:detail", detail);
-		}
-		if (description != null) {
-			node.appendNode("pmmlab:description", description);
-		}
-		return node;
 	}
 }

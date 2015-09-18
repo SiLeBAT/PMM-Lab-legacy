@@ -12,6 +12,9 @@ import org.sbml.jsbml.xml.XMLTriple;
  */
 public class DataSourceNode extends SBMLNodeBase {
 
+	public final static String TAG = "dataSource";
+	public final static String NS = "pmmlab";
+
 	/**
 	 * Builds a DataSourceNode from an existing XMLNode.
 	 * 
@@ -29,7 +32,7 @@ public class DataSourceNode extends SBMLNodeBase {
 	 *            Reference to data file.
 	 */
 	public DataSourceNode(final String dataName) {
-		XMLTriple triple = new XMLTriple("dataSource", null, "pmmlab");
+		XMLTriple triple = new XMLTriple(TAG, null, NS);
 		XMLAttributes attrs = new XMLAttributes();
 		attrs.add("id", "source1");
 		attrs.add("href", dataName);

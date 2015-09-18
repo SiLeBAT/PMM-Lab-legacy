@@ -31,7 +31,7 @@ public class SecDep {
 	public SecDep(Parameter param) {
 		// If param has annotation, processes it
 		if (param.getAnnotation().getNonRDFannotation() != null) {
-			DescriptionAnnotation annot = new DescriptionAnnotation(param.getAnnotation().getNonRDFannotation());
+			DescriptionAnnotation annot = new DescriptionAnnotation(param.getAnnotation());
 			desc = annot.getDescription();
 		}
 		// Copies parameter
@@ -53,8 +53,7 @@ public class SecDep {
 		// If depXml has a description, saves it within a SecDepAnnotation
 		if (depXml.getDescription() != null) {
 			// Builds and sets a non RDF annotation
-			DescriptionAnnotation annot = new DescriptionAnnotation(depXml.getDescription());
-			param.getAnnotation().setNonRDFAnnotation(annot.getNode());
+			param.setAnnotation(new DescriptionAnnotation(depXml.getDescription()).getAnnotation());
 		}
 		
 		// Adds unit

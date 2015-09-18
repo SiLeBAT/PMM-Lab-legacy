@@ -16,8 +16,8 @@ public class SBMLReferenceNodeTest {
 				"International Journal of Food Microbiology", "23", "3", 277, 1,
 				"http://www.sciencedirect.com/science/article/pii/0168160594901570", 1, "");
 		
-		SBMLReferenceNode rn = new SBMLReferenceNode(lit);
-		SBMLReferenceNode rn2 = new SBMLReferenceNode(rn.getNode());
+		ReferenceSBMLNode rn = new ReferenceSBMLNode(lit);
+		ReferenceSBMLNode rn2 = new ReferenceSBMLNode(rn.getNode());
 		LiteratureItem lit2 = rn2.toLiteratureItem();
 
 		assertEquals(lit.getAuthor(), lit2.getAuthor());
@@ -39,7 +39,7 @@ public class SBMLReferenceNodeTest {
 	public void testNullLit() {
 		LiteratureItem lit = new LiteratureItem(null, null, null, null, null, null, null, null, null, null, null, null);
 		
-		SBMLReferenceNode rn = new SBMLReferenceNode(lit);
+		ReferenceSBMLNode rn = new ReferenceSBMLNode(lit);
 		LiteratureItem lit2 = rn.toLiteratureItem();
 		
 		assertNull(lit2.getAuthor());

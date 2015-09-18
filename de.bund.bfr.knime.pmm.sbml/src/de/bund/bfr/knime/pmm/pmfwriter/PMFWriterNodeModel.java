@@ -80,7 +80,7 @@ import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
 import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
 import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
 import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
-import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
+import de.bund.bfr.knime.pmm.annotation.ReferenceSBMLNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -1055,7 +1055,7 @@ class TwoStepTertiaryModelParser implements Parser {
 
 		// Builds reference nodes
 		for (LiteratureItem lit : lits) {
-			metadataNode.addChild(new SBMLReferenceNode(lit).getNode());
+			metadataNode.addChild(new ReferenceSBMLNode(lit).getNode());
 		}
 
 		// Gets a primary model
@@ -1363,13 +1363,6 @@ class Model1Parser {
 		PmmXmlDoc emLitDoc = tuple.getPmmXml(Model1Schema.ATT_EMLIT);
 		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
 			emLits.add((LiteratureItem) item);
-		}
-
-		// Adds model annotations
-		Integer modelClassNum = catModel.getModelClass(); // TODO: model class
-															// (type)
-		if (modelClassNum == null) {
-			modelClassNum = Util.MODELCLASS_NUMS.get("unknown");
 		}
 
 		Uncertainties uncertainties = new Uncertainties(estModel);

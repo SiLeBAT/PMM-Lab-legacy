@@ -1,18 +1,17 @@
-package de.bund.bfr.knime.pmm.sbmlutil;
+package de.bund.bfr.knime.pmm.annotation;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.annotation.SBMLReferenceNode;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 // Model rule annotation. Holds formula name, subject, and its PmmLab ID
-public class ModelRuleAnnotation {
+public class ModelRuleAnnotation extends AnnotationBase {
 
-	XMLNode node;
 	String formulaName;
 	String subject;
 	int pmmlabID;
@@ -24,9 +23,9 @@ public class ModelRuleAnnotation {
 	static final String PmmLabID_TAG = "pmmlabID";
 
 	// Get formula name, subject, and PmmLab id from existing rule annotation
-	public ModelRuleAnnotation(XMLNode node) {
-		this.node = node;
-		XMLNode metadata = node.getChildElement("metadata", "");
+	public ModelRuleAnnotation(Annotation annotation) {
+		this.annotation = annotation;
+		XMLNode metadata = annotation.getNonRDFannotation().getChildElement(METADATA_TAG, "");
 
 		// Get formula name
 		XMLNode nameNode = metadata.getChildElement(FORMULA_TAG, "");
@@ -51,33 +50,35 @@ public class ModelRuleAnnotation {
 		// Gets references
 		lits = new LinkedList<>();
 		for (XMLNode refNode : metadata.getChildElements(REFERENCE_TAG, "")) {
-			lits.add(new SBMLReferenceNode(refNode).toLiteratureItem());
+			lits.add(new ReferenceSBMLNode(refNode).toLiteratureItem());
 		}
 	}
 
 	// Build new model rule annotation for formulaName, subject, and pmmlabID
 	public ModelRuleAnnotation(String formulaName, String subject, int pmmlabID, List<LiteratureItem> lits) {
 		// Build metadata node
-		node = new XMLNode(new XMLTriple("metadata", null, "pmf"));
+		XMLNode metadataNode = new XMLNode(new XMLTriple(METADATA_TAG, null, METADATA_NS));
+		annotation = new Annotation();
+		annotation.setNonRDFAnnotation(metadataNode);
 
 		// Create annotation for formulaName
 		XMLNode nameNode = new XMLNode(new XMLTriple(FORMULA_TAG, null, "pmmlab"));
 		nameNode.addChild(new XMLNode(formulaName));
-		node.addChild(nameNode);
+		metadataNode.addChild(nameNode);
 
 		// Create annotation for subject
 		XMLNode subjectNode = new XMLNode(new XMLTriple(SUBJECT_TAG, null, "pmmlab"));
 		subjectNode.addChild(new XMLNode(subject));
-		node.addChild(subjectNode);
+		metadataNode.addChild(subjectNode);
 
 		// Create annotation for pmmlabID
 		XMLNode idNode = new XMLNode(new XMLTriple(PmmLabID_TAG, null, "pmmlab"));
 		idNode.addChild(new XMLNode(new Integer(pmmlabID).toString()));
-		node.addChild(idNode);
+		metadataNode.addChild(idNode);
 
 		// Builds reference nodes
 		for (LiteratureItem lit : lits) {
-			node.addChild(new SBMLReferenceNode(lit).getNode());
+			metadataNode.addChild(new ReferenceSBMLNode(lit).getNode());
 		}
 
 		// Save formulaName, subject, pmmlabID and model literature
@@ -88,10 +89,6 @@ public class ModelRuleAnnotation {
 	}
 
 	// Getters
-	public XMLNode getNode() {
-		return node;
-	}
-
 	public String getName() {
 		return formulaName;
 	}
@@ -103,7 +100,7 @@ public class ModelRuleAnnotation {
 	public int getID() {
 		return pmmlabID;
 	}
-	
+
 	public List<LiteratureItem> getLits() {
 		return lits;
 	}

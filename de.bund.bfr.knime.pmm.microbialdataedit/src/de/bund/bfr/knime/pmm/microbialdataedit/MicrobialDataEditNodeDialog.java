@@ -108,8 +108,7 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
  * 
  * @author Christian Thoens
  */
-public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, MouseListener {
+public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane implements ActionListener, MouseListener {
 
 	private JButton addButton;
 	private JButton removeButton;
@@ -143,13 +142,11 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		JScrollPane scrollPane = new JScrollPane(addedConditionsList);
 
-		scrollPane.setPreferredSize(new Dimension(
-				scrollPane.getPreferredSize().width, 50));
+		scrollPane.setPreferredSize(new Dimension(scrollPane.getPreferredSize().width, 50));
 
 		JPanel listPanel = new JPanel();
 
-		listPanel.setBorder(BorderFactory
-				.createTitledBorder("Conditions to Add"));
+		listPanel.setBorder(BorderFactory.createTitledBorder("Conditions to Add"));
 		listPanel.setLayout(new BorderLayout());
 		listPanel.add(buttonPanel, BorderLayout.NORTH);
 		listPanel.add(scrollPane, BorderLayout.CENTER);
@@ -164,14 +161,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			BufferedDataTable[] input) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, BufferedDataTable[] input)
+			throws NotConfigurableException {
 		SettingsHelper set = new SettingsHelper();
 
 		set.loadSettings(settings);
 
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), input[0]);
+		KnimeRelationReader reader = new KnimeRelationReader(SchemaFactory.createDataSchema(), input[0]);
 		List<KnimeTuple> tuples = new ArrayList<>();
 		List<String> ids = new ArrayList<>();
 		List<AgentXml> agentList = new ArrayList<>();
@@ -183,6 +179,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		List<Boolean> checkedList = new ArrayList<>();
 		List<List<TimeSeriesXml>> timeSeriesList = new ArrayList<>();
 		List<List<LiteratureItem>> referenceList = new ArrayList<>();
+
+		Set<Integer> usedMiscIds = new LinkedHashSet<>();
 		List<MiscXml> usedMiscs = new ArrayList<>();
 		List<List<Double>> usedMiscValues = new ArrayList<>();
 		List<List<String>> usedMiscUnits = new ArrayList<>();
@@ -196,38 +194,70 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			tuples.add(reader.nextElement());
 		}
 
+		boolean tempMissing = true;
+		boolean phMissing = true;
+		boolean awMissing = true;
+
 		for (KnimeTuple tuple : tuples) {
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					TimeSeriesSchema.ATT_MISC).getElementSet()) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(TimeSeriesSchema.ATT_MISC).getElementSet()) {
 				MiscXml misc = (MiscXml) el;
 
-				if (!usedConditionNames.containsKey(misc.getId())) {
-					usedConditionNames.put(misc.getId(), misc.getName());
-					usedConditionCategories.put(misc.getId(),
-							misc.getCategories());
+				if (usedMiscIds.add(misc.getId())) {
 					usedMiscs.add(misc);
-					usedMiscValues.add(new ArrayList<Double>());
-					usedMiscUnits.add(new ArrayList<String>());
+
+					switch (misc.getId()) {
+					case AttributeUtilities.ATT_TEMPERATURE_ID:
+						tempMissing = false;
+						break;
+					case AttributeUtilities.ATT_PH_ID:
+						phMissing = false;
+						break;
+					case AttributeUtilities.ATT_AW_ID:
+						awMissing = false;
+						break;
+					}
 				}
 			}
+		}
+
+		if (tempMissing) {
+			usedMiscs.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE,
+					AttributeUtilities.ATT_TEMPERATURE, null, Arrays.asList(Categories.getTempCategory().getName()),
+					Categories.getTempCategory().getStandardUnit()));
+		}
+
+		if (phMissing) {
+			usedMiscs
+					.add(new MiscXml(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH,
+							null, Arrays.asList(Categories.getPhCategory().getName()), Categories.getPhUnit()));
+		}
+
+		if (awMissing) {
+			usedMiscs
+					.add(new MiscXml(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_AW, AttributeUtilities.ATT_AW,
+							null, Arrays.asList(Categories.getAwCategory().getName()), Categories.getAwUnit()));
+		}
+
+		for (MiscXml misc : usedMiscs) {
+			usedConditionNames.put(misc.getId(), misc.getName());
+			usedConditionCategories.put(misc.getId(), misc.getCategories());
+			usedMiscValues.add(new ArrayList<Double>());
+			usedMiscUnits.add(new ArrayList<String>());
 		}
 
 		for (KnimeTuple tuple : tuples) {
 			String combaseID = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 			int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
-			MdInfoXml infoXml = (MdInfoXml) tuple.getPmmXml(
-					TimeSeriesSchema.ATT_MDINFO).get(0);
+			MdInfoXml infoXml = (MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0);
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			List<TimeSeriesXml> series = new ArrayList<>();
 			List<LiteratureItem> ref = new ArrayList<>();
 
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					TimeSeriesSchema.ATT_TIMESERIES).getElementSet()) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).getElementSet()) {
 				series.add((TimeSeriesXml) el);
 			}
 
-			for (PmmXmlElementConvertable el : tuple.getPmmXml(
-					TimeSeriesSchema.ATT_LITMD).getElementSet()) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD).getElementSet()) {
 				ref.add((LiteratureItem) el);
 			}
 
@@ -244,29 +274,25 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			if (set.getAgents().containsKey(id)) {
 				agentList.add(set.getAgents().get(id));
 			} else {
-				agentList.add((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0));
+				agentList.add((AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0));
 			}
 
 			if (set.getAgentDetails().containsKey(id)) {
 				agentDetailList.add(set.getAgentDetails().get(id));
 			} else {
-				agentDetailList.add(((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail());
+				agentDetailList.add(((AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0)).getDetail());
 			}
 
 			if (set.getMatrices().containsKey(id)) {
 				matrixList.add(set.getMatrices().get(id));
 			} else {
-				matrixList.add((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0));
+				matrixList.add((MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0));
 			}
 
 			if (set.getMatrixDetails().containsKey(id)) {
 				matrixDetailList.add(set.getMatrixDetails().get(id));
 			} else {
-				matrixDetailList.add(((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail());
+				matrixDetailList.add(((MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail());
 			}
 
 			if (set.getComments().containsKey(id)) {
@@ -304,8 +330,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				String unit = null;
 				int miscID = usedMiscs.get(i).getId();
 
-				if (set.getConditions().containsKey(miscID)
-						&& set.getConditionValues().get(miscID).containsKey(id)) {
+				if (set.getConditions().containsKey(miscID) && set.getConditionValues().get(miscID).containsKey(id)) {
 					value = set.getConditionValues().get(miscID).get(id);
 					unit = set.getConditionUnits().get(miscID).get(id);
 				} else {
@@ -332,24 +357,18 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		for (int miscID : set.getAddedConditions().keySet()) {
-			addedConditionNames.put(miscID, set.getAddedConditions()
-					.get(miscID).getName());
-			addedConditionCategories.put(miscID,
-					set.getAddedConditions().get(miscID).getCategories());
+			addedConditionNames.put(miscID, set.getAddedConditions().get(miscID).getName());
+			addedConditionCategories.put(miscID, set.getAddedConditions().get(miscID).getCategories());
 		}
 
-		addedConditionsList.setListData(addedConditionNames.values().toArray(
-				new String[0]));
+		addedConditionsList.setListData(addedConditionNames.values().toArray(new String[0]));
 
-		EditTable tableModel = new EditTable(ids, agentList, agentDetailList,
-				matrixList, matrixDetailList, commentList, qualityScoreList,
-				checkedList, timeSeriesList, referenceList, usedMiscs,
-				usedMiscValues, usedMiscUnits);
+		EditTable tableModel = new EditTable(ids, agentList, agentDetailList, matrixList, matrixDetailList, commentList,
+				qualityScoreList, checkedList, timeSeriesList, referenceList, usedMiscs, usedMiscValues, usedMiscUnits);
 
 		for (int miscID : set.getAddedConditions().keySet()) {
-			tableModel.addCondition(set.getAddedConditions().get(miscID), set
-					.getAddedConditionValues().get(miscID), set
-					.getAddedConditionUnits().get(miscID));
+			tableModel.addCondition(set.getAddedConditions().get(miscID), set.getAddedConditionValues().get(miscID),
+					set.getAddedConditionUnits().get(miscID));
 		}
 
 		table.setModel(tableModel);
@@ -358,8 +377,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		EditTable model = (EditTable) table.getModel();
 		SettingsHelper set = new SettingsHelper();
 
@@ -382,44 +400,31 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void setEditorsAndRenderers() {
-		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellRenderer(
-				new AgentRenderer());
-		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellEditor(
-				new AgentEditor());
-		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellRenderer(
-				new MatrixRenderer());
-		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellEditor(
-				new MatrixEditor());
-		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellRenderer(
-				new QualityScoreRenderer());
-		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellEditor(
-				new QualityScoreEditor());
-		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellRenderer(
-				new ButtonRenderer("View"));
-		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(
-				new TimeSeriesEditor());
+		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellRenderer(new AgentRenderer());
+		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellEditor(new AgentEditor());
+		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellRenderer(new MatrixRenderer());
+		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellEditor(new MatrixEditor());
+		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellRenderer(new QualityScoreRenderer());
+		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellEditor(new QualityScoreEditor());
+		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellRenderer(new ButtonRenderer("View"));
+		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(new TimeSeriesEditor());
 		table.getColumn(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD))
 				.setCellRenderer(new ButtonRenderer("Edit"));
-		table.getColumn(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD))
-				.setCellEditor(new ReferencesEditor());
+		table.getColumn(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD)).setCellEditor(new ReferencesEditor());
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 
 		for (int id : usedConditionNames.keySet()) {
 			List<String> units = getUnits(usedConditionCategories.get(id));
 
 			table.getColumn(usedConditionNames.get(id) + " Unit")
-					.setCellEditor(
-							new DefaultCellEditor(new JComboBox<>(units
-									.toArray(new String[0]))));
+					.setCellEditor(new DefaultCellEditor(new JComboBox<>(units.toArray(new String[0]))));
 		}
 
 		for (int id : addedConditionNames.keySet()) {
 			List<String> units = getUnits(addedConditionCategories.get(id));
 
 			table.getColumn(addedConditionNames.get(id) + " Unit")
-					.setCellEditor(
-							new DefaultCellEditor(new JComboBox<>(units
-									.toArray(new String[0]))));
+					.setCellEditor(new DefaultCellEditor(new JComboBox<>(units.toArray(new String[0]))));
 		}
 	}
 
@@ -429,42 +434,30 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Integer id = DBKernel.openMiscDBWindow(addButton, null);
 
 			if (id != null) {
-				String name = DBKernel.getValue("SonstigeParameter", "ID", id
-						+ "", "Parameter")
-						+ "";
-				String description = DBKernel.getValue("SonstigeParameter",
-						"ID", id + "", "Beschreibung") + "";
-				List<String> categories = Arrays.asList(DBKernel
-						.getValue("SonstigeParameter", "ID", id + "",
-								"Kategorie").toString().split(","));
+				String name = DBKernel.getValue("SonstigeParameter", "ID", id + "", "Parameter") + "";
+				String description = DBKernel.getValue("SonstigeParameter", "ID", id + "", "Beschreibung") + "";
+				List<String> categories = Arrays.asList(
+						DBKernel.getValue("SonstigeParameter", "ID", id + "", "Kategorie").toString().split(","));
 
-				if (!usedConditionNames.keySet().contains(id)
-						&& !addedConditionNames.keySet().contains(id)) {
+				if (!usedConditionNames.keySet().contains(id) && !addedConditionNames.keySet().contains(id)) {
 					addedConditionNames.put(id, name);
 					addedConditionCategories.put(id, categories);
-					addedConditionsList.setListData(addedConditionNames
-							.values().toArray(new String[0]));
-					((EditTable) table.getModel())
-							.addCondition(
-									new MiscXml(id, name, description, null,
-											categories, null, DBKernel
-													.getLocalDBUUID()),
-									new LinkedHashMap<String, Double>(),
-									new LinkedHashMap<String, String>());
+					addedConditionsList.setListData(addedConditionNames.values().toArray(new String[0]));
+					((EditTable) table.getModel()).addCondition(
+							new MiscXml(id, name, description, null, categories, null, DBKernel.getLocalDBUUID()),
+							new LinkedHashMap<String, Double>(), new LinkedHashMap<String, String>());
 					setEditorsAndRenderers();
 					UI.packColumns(table);
 					table.repaint();
 				} else {
-					JOptionPane.showMessageDialog(addButton,
-							"Data already contains " + name, "Error",
+					JOptionPane.showMessageDialog(addButton, "Data already contains " + name, "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		} else if (e.getSource() == removeButton) {
 			Set<Integer> removedIDs = new LinkedHashSet<>();
 
-			for (String nameToRemove : addedConditionsList
-					.getSelectedValuesList()) {
+			for (String nameToRemove : addedConditionsList.getSelectedValuesList()) {
 				for (int id : addedConditionNames.keySet()) {
 					String name = addedConditionNames.get(id);
 
@@ -480,8 +473,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				((EditTable) table.getModel()).removeCondition(id);
 			}
 
-			addedConditionsList.setListData(addedConditionNames.values()
-					.toArray(new String[0]));
+			addedConditionsList.setListData(addedConditionNames.values().toArray(new String[0]));
 			setEditorsAndRenderers();
 			UI.packColumns(table);
 			table.repaint();
@@ -490,25 +482,21 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3
-				&& e.getSource() == table.getTableHeader()) {
+		if (e.getButton() == MouseEvent.BUTTON3 && e.getSource() == table.getTableHeader()) {
 			int index = table.columnAtPoint(e.getPoint());
 			String column = table.getColumnName(index);
-			Integer condId = getKey(usedConditionNames, column) != null ? getKey(
-					usedConditionNames, column) : getKey(addedConditionNames,
-					column);
+			Integer condId = getKey(usedConditionNames, column) != null ? getKey(usedConditionNames, column)
+					: getKey(addedConditionNames, column);
 
 			if (condId != null) {
-				Object result = JOptionPane.showInputDialog(
-						table.getTableHeader(), "Set All Values to?", column,
+				Object result = JOptionPane.showInputDialog(table.getTableHeader(), "Set All Values to?", column,
 						JOptionPane.QUESTION_MESSAGE, null, null, 0.0);
 				Double value = null;
 
 				try {
 					value = Double.parseDouble(result.toString());
 				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(table.getTableHeader(),
-							"Invalid Input!", "Error",
+					JOptionPane.showMessageDialog(table.getTableHeader(), "Invalid Input!", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				} catch (NullPointerException ex) {
 				}
@@ -523,17 +511,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				List<String> units = null;
 
 				if (getKey(usedConditionNames, c) != null) {
-					units = getUnits(usedConditionCategories.get(getKey(
-							usedConditionNames, c)));
+					units = getUnits(usedConditionCategories.get(getKey(usedConditionNames, c)));
 				} else if (getKey(addedConditionNames, c) != null) {
-					units = getUnits(addedConditionCategories.get(getKey(
-							addedConditionNames, c)));
+					units = getUnits(addedConditionCategories.get(getKey(addedConditionNames, c)));
 				}
 
-				String unit = (String) JOptionPane.showInputDialog(
-						table.getTableHeader(), "Set All Values to?", column,
-						JOptionPane.QUESTION_MESSAGE, null, units.toArray(),
-						units.get(0));
+				String unit = (String) JOptionPane.showInputDialog(table.getTableHeader(), "Set All Values to?", column,
+						JOptionPane.QUESTION_MESSAGE, null, units.toArray(), units.get(0));
 
 				if (unit != null) {
 					for (int i = 0; i < table.getRowCount(); i++) {
@@ -541,39 +525,31 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					}
 				}
 			} else if (column.equals(TimeSeriesSchema.ATT_AGENT)) {
-				Integer id = DBKernel.openAgentDBWindow(table.getTableHeader(),
-						null);
+				Integer id = DBKernel.openAgentDBWindow(table.getTableHeader(), null);
 
 				if (id != null) {
-					String name = DBKernel.getValue("Agenzien", "ID", id + "",
-							"Agensname") + "";
-					AgentXml agent = new AgentXml(id, name, null,
-							DBKernel.getLocalDBUUID());
+					String name = DBKernel.getValue("Agenzien", "ID", id + "", "Agensname") + "";
+					AgentXml agent = new AgentXml(id, name, null, DBKernel.getLocalDBUUID());
 
 					for (int i = 0; i < table.getRowCount(); i++) {
 						table.setValueAt(agent, i, index);
 					}
 				}
 			} else if (column.equals(TimeSeriesSchema.ATT_MATRIX)) {
-				Integer id = DBKernel.openMatrixDBWindow(
-						table.getTableHeader(), null);
+				Integer id = DBKernel.openMatrixDBWindow(table.getTableHeader(), null);
 
 				if (id != null) {
-					String name = DBKernel.getValue("Matrices", "ID", id + "",
-							"Matrixname") + "";
-					MatrixXml matrix = new MatrixXml(id, name, null,
-							DBKernel.getLocalDBUUID());
+					String name = DBKernel.getValue("Matrices", "ID", id + "", "Matrixname") + "";
+					MatrixXml matrix = new MatrixXml(id, name, null, DBKernel.getLocalDBUUID());
 
 					for (int i = 0; i < table.getRowCount(); i++) {
 						table.setValueAt(matrix, i, index);
 					}
 				}
-			} else if (column.equals(MdInfoXml.ATT_COMMENT)
-					|| column.equals(AttributeUtilities.AGENT_DETAILS)
+			} else if (column.equals(MdInfoXml.ATT_COMMENT) || column.equals(AttributeUtilities.AGENT_DETAILS)
 					|| column.equals(AttributeUtilities.MATRIX_DETAILS)) {
-				String value = (String) JOptionPane.showInputDialog(
-						table.getTableHeader(), "Set All Values to?", column,
-						JOptionPane.QUESTION_MESSAGE, null, null, "");
+				String value = (String) JOptionPane.showInputDialog(table.getTableHeader(), "Set All Values to?",
+						column, JOptionPane.QUESTION_MESSAGE, null, null, "");
 
 				if (value != null) {
 					for (int i = 0; i < table.getRowCount(); i++) {
@@ -581,10 +557,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					}
 				}
 			} else if (column.equals(MdInfoXml.ATT_CHECKED)) {
-				Boolean value = (Boolean) JOptionPane.showInputDialog(
-						table.getTableHeader(), "Set All Values to?", column,
-						JOptionPane.QUESTION_MESSAGE, null, new Object[] {
-								Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
+				Boolean value = (Boolean) JOptionPane.showInputDialog(table.getTableHeader(), "Set All Values to?",
+						column, JOptionPane.QUESTION_MESSAGE, null, new Object[] { Boolean.TRUE, Boolean.FALSE },
+						Boolean.TRUE);
 
 				if (value != null) {
 					for (int i = 0; i < table.getRowCount(); i++) {
@@ -592,8 +567,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					}
 				}
 			} else if (column.equals(MdInfoXml.ATT_QUALITYSCORE)) {
-				QualityScoreDialog dialog = new QualityScoreDialog(
-						table.getTableHeader());
+				QualityScoreDialog dialog = new QualityScoreDialog(table.getTableHeader());
 
 				dialog.setVisible(true);
 
@@ -602,10 +576,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						table.setValueAt(dialog.getScore(), i, index);
 					}
 				}
-			} else if (column.equals(AttributeUtilities
-					.getName(TimeSeriesSchema.ATT_LITMD))) {
-				ReferencesDialog dialog = new ReferencesDialog(
-						table.getTableHeader(), new ArrayList<LiteratureItem>());
+			} else if (column.equals(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD))) {
+				ReferencesDialog dialog = new ReferencesDialog(table.getTableHeader(), new ArrayList<LiteratureItem>());
 
 				dialog.setVisible(true);
 
@@ -675,14 +647,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<List<Double>> addedConditionValues;
 		private List<List<String>> addedConditionUnits;
 
-		public EditTable(List<String> ids, List<AgentXml> agents,
-				List<String> agentDetails, List<MatrixXml> matrices,
-				List<String> matrixDetails, List<String> comments,
-				List<Integer> qualityScores, List<Boolean> checks,
-				List<List<TimeSeriesXml>> timeSeries,
-				List<List<LiteratureItem>> references,
-				List<MiscXml> conditions, List<List<Double>> conditionValues,
-				List<List<String>> conditionUnits) {
+		public EditTable(List<String> ids, List<AgentXml> agents, List<String> agentDetails, List<MatrixXml> matrices,
+				List<String> matrixDetails, List<String> comments, List<Integer> qualityScores, List<Boolean> checks,
+				List<List<TimeSeriesXml>> timeSeries, List<List<LiteratureItem>> references, List<MiscXml> conditions,
+				List<List<Double>> conditionValues, List<List<String>> conditionUnits) {
 			this.ids = ids;
 			this.agents = agents;
 			this.agentDetails = agentDetails;
@@ -701,15 +669,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			addedConditionUnits = new ArrayList<>();
 		}
 
-		public void addCondition(MiscXml condition, Map<String, Double> values,
-				Map<String, String> units) {
+		public void addCondition(MiscXml condition, Map<String, Double> values, Map<String, String> units) {
 			List<Double> valueList = new ArrayList<>();
 			List<String> unitList = new ArrayList<>();
 			String standardUnit = null;
 
 			if (!condition.getCategories().isEmpty()) {
-				standardUnit = Categories.getCategory(
-						condition.getCategories().get(0)).getStandardUnit();
+				standardUnit = Categories.getCategory(condition.getCategories().get(0)).getStandardUnit();
 			}
 
 			for (String id : ids) {
@@ -755,12 +721,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Map<Integer, Map<String, Double>> valueMap = new LinkedHashMap<>();
 
 			for (int i = 0; i < addedConditions.size(); i++) {
-				valueMap.put(addedConditions.get(i).getId(),
-						new LinkedHashMap<String, Double>());
+				valueMap.put(addedConditions.get(i).getId(), new LinkedHashMap<String, Double>());
 
 				for (int j = 0; j < ids.size(); j++) {
-					valueMap.get(addedConditions.get(i).getId()).put(
-							ids.get(j), addedConditionValues.get(i).get(j));
+					valueMap.get(addedConditions.get(i).getId()).put(ids.get(j), addedConditionValues.get(i).get(j));
 				}
 			}
 
@@ -771,12 +735,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Map<Integer, Map<String, String>> unitMap = new LinkedHashMap<>();
 
 			for (int i = 0; i < addedConditions.size(); i++) {
-				unitMap.put(addedConditions.get(i).getId(),
-						new LinkedHashMap<String, String>());
+				unitMap.put(addedConditions.get(i).getId(), new LinkedHashMap<String, String>());
 
 				for (int j = 0; j < ids.size(); j++) {
-					unitMap.get(addedConditions.get(i).getId()).put(ids.get(j),
-							addedConditionUnits.get(i).get(j));
+					unitMap.get(addedConditions.get(i).getId()).put(ids.get(j), addedConditionUnits.get(i).get(j));
 				}
 			}
 
@@ -797,12 +759,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Map<Integer, Map<String, Double>> valueMap = new LinkedHashMap<>();
 
 			for (int i = 0; i < conditions.size(); i++) {
-				valueMap.put(conditions.get(i).getId(),
-						new LinkedHashMap<String, Double>());
+				valueMap.put(conditions.get(i).getId(), new LinkedHashMap<String, Double>());
 
 				for (int j = 0; j < ids.size(); j++) {
-					valueMap.get(conditions.get(i).getId()).put(ids.get(j),
-							conditionValues.get(i).get(j));
+					valueMap.get(conditions.get(i).getId()).put(ids.get(j), conditionValues.get(i).get(j));
 				}
 			}
 
@@ -813,12 +773,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Map<Integer, Map<String, String>> unitMap = new LinkedHashMap<>();
 
 			for (int i = 0; i < conditions.size(); i++) {
-				unitMap.put(conditions.get(i).getId(),
-						new LinkedHashMap<String, String>());
+				unitMap.put(conditions.get(i).getId(), new LinkedHashMap<String, String>());
 
 				for (int j = 0; j < ids.size(); j++) {
-					unitMap.get(conditions.get(i).getId()).put(ids.get(j),
-							conditionUnits.get(i).get(j));
+					unitMap.get(conditions.get(i).getId()).put(ids.get(j), conditionUnits.get(i).get(j));
 				}
 			}
 
@@ -1094,21 +1052,17 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 				if (i < conditions.size() * 2) {
 					if (i % 2 == 0) {
-						conditionValues.get(i / 2).set(rowIndex,
-								(Double) aValue);
+						conditionValues.get(i / 2).set(rowIndex, (Double) aValue);
 					} else {
-						conditionUnits.get(i / 2)
-								.set(rowIndex, (String) aValue);
+						conditionUnits.get(i / 2).set(rowIndex, (String) aValue);
 					}
 				} else {
 					i -= conditions.size() * 2;
 
 					if (i % 2 == 0) {
-						addedConditionValues.get(i / 2).set(rowIndex,
-								(Double) aValue);
+						addedConditionValues.get(i / 2).set(rowIndex, (Double) aValue);
 					} else {
-						addedConditionUnits.get(i / 2).set(rowIndex,
-								(String) aValue);
+						addedConditionUnits.get(i / 2).set(rowIndex, (String) aValue);
 					}
 				}
 			}
@@ -1127,9 +1081,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 			AgentXml agent = (AgentXml) value;
 
 			if (agent != null) {
@@ -1142,8 +1095,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private static class AgentEditor extends AbstractCellEditor implements
-			TableCellEditor, ActionListener {
+	private static class AgentEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1157,8 +1109,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			agent = (AgentXml) value;
 
 			return button;
@@ -1180,8 +1132,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			}
 
 			if (id != null) {
-				String name = DBKernel.getValue("Agenzien", "ID", id + "",
-						"Agensname") + "";
+				String name = DBKernel.getValue("Agenzien", "ID", id + "", "Agensname") + "";
 
 				agent = new AgentXml(id, name, null, DBKernel.getLocalDBUUID());
 				stopCellEditing();
@@ -1198,9 +1149,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 			MatrixXml matrix = (MatrixXml) value;
 
 			if (matrix != null) {
@@ -1213,8 +1163,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private static class MatrixEditor extends AbstractCellEditor implements
-			TableCellEditor, ActionListener {
+	private static class MatrixEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1228,8 +1177,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			matrix = (MatrixXml) value;
 
 			return button;
@@ -1251,18 +1200,15 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			}
 
 			if (id != null) {
-				String name = DBKernel.getValue("Matrices", "ID", id + "",
-						"Matrixname") + "";
+				String name = DBKernel.getValue("Matrices", "ID", id + "", "Matrixname") + "";
 
-				matrix = new MatrixXml(id, name, null,
-						DBKernel.getLocalDBUUID());
+				matrix = new MatrixXml(id, name, null, DBKernel.getLocalDBUUID());
 				stopCellEditing();
 			}
 		}
 	}
 
-	private static class QualityScoreRenderer extends JComponent implements
-			TableCellRenderer {
+	private static class QualityScoreRenderer extends JComponent implements TableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1273,9 +1219,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 			Integer score = (Integer) value;
 
 			if (score == null) {
@@ -1302,8 +1247,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private static class QualityScoreEditor extends AbstractCellEditor
-			implements TableCellEditor, ActionListener {
+	private static class QualityScoreEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1314,8 +1258,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			QualityComboBox box = new QualityComboBox();
 
 			box.setQuality((Integer) value);
@@ -1345,15 +1289,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 			return new JButton(name);
 		}
 	}
 
-	private static class TimeSeriesEditor extends AbstractCellEditor implements
-			TableCellEditor, ActionListener {
+	private static class TimeSeriesEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1368,8 +1310,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			timeSeries = (List<TimeSeriesXml>) value;
 
 			return button;
@@ -1382,15 +1324,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries,
-					true);
+			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries, true);
 
 			dialog.setVisible(true);
 		}
 	}
 
-	private static class ReferencesEditor extends AbstractCellEditor implements
-			TableCellEditor, ActionListener {
+	private static class ReferencesEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1405,8 +1345,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			references = (List<LiteratureItem>) value;
 
 			return button;
@@ -1430,8 +1370,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private static class ReferencesDialog extends JDialog implements
-			ActionListener {
+	private static class ReferencesDialog extends JDialog implements ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1446,8 +1385,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<LiteratureItem> ref;
 
 		public ReferencesDialog(Component owner, List<LiteratureItem> initRef) {
-			super(JOptionPane.getFrameForComponent(owner), AttributeUtilities
-					.getName(TimeSeriesSchema.ATT_LITMD), true);
+			super(JOptionPane.getFrameForComponent(owner), AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD),
+					true);
 
 			approved = false;
 			ref = new ArrayList<>(initRef);
@@ -1508,8 +1447,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				approved = false;
 				dispose();
 			} else if (e.getSource() == addLiteratureButton) {
-				Integer id = DBKernel.openLiteratureDBWindow(
-						addLiteratureButton, null);
+				Integer id = DBKernel.openLiteratureDBWindow(addLiteratureButton, null);
 				Set<Integer> ids = new LinkedHashSet<>();
 
 				for (LiteratureItem item : ref) {
@@ -1520,8 +1458,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					LiteratureItem l = DBUtilities.getLiteratureItem(id);
 
 					ref.add(l);
-					literatureList.setListData(ref
-							.toArray(new LiteratureItem[0]));
+					literatureList.setListData(ref.toArray(new LiteratureItem[0]));
 				}
 			} else if (e.getSource() == removeLiteratureButton) {
 				if (literatureList.getSelectedIndices().length > 0) {
@@ -1533,15 +1470,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						ref.remove(indices[i]);
 					}
 
-					literatureList.setListData(ref
-							.toArray(new LiteratureItem[0]));
+					literatureList.setListData(ref.toArray(new LiteratureItem[0]));
 				}
 			}
 		}
 	}
 
-	private static class QualityScoreDialog extends JDialog implements
-			ActionListener {
+	private static class QualityScoreDialog extends JDialog implements ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1553,8 +1488,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private Integer score;
 
 		public QualityScoreDialog(Component owner) {
-			super(JOptionPane.getFrameForComponent(owner),
-					MdInfoXml.ATT_QUALITYSCORE, true);
+			super(JOptionPane.getFrameForComponent(owner), MdInfoXml.ATT_QUALITYSCORE, true);
 			box = new QualityComboBox();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);

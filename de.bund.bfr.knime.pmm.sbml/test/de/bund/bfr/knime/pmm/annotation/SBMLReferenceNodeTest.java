@@ -8,6 +8,9 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 public class SBMLReferenceNodeTest {
 
+	/**
+	 * Tests equality for a non null LiteratureItem.
+	 */
 	@Test
 	public void test() {
 		LiteratureItem lit = new LiteratureItem("Baranyi, J.", 1994,
@@ -35,6 +38,9 @@ public class SBMLReferenceNodeTest {
 		assertEquals(lit.getDbuuid(), lit2.getDbuuid());
 	}
 	
+	/**
+	 * Tests equality for a null LiteratureItem.
+	 */
 	@Test
 	public void testNullLit() {
 		LiteratureItem lit = new LiteratureItem(null, null, null, null, null, null, null, null, null, null, null, null);

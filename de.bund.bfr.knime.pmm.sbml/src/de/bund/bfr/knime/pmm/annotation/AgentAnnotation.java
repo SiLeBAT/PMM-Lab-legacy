@@ -6,7 +6,7 @@ import org.sbml.jsbml.xml.XMLTriple;
 
 /**
  * Holds an JSBML annotation of a SBML species. Describes a species with a CAS
- * number, detaisl and description of the dependent variable.
+ * number, details and description of the dependent variable.
  * 
  * @author Miguel de Alba
  */

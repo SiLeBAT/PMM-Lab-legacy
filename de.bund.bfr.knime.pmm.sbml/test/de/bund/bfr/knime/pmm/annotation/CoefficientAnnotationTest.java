@@ -9,6 +9,9 @@ import org.junit.Test;
 
 public class CoefficientAnnotationTest {
 
+	/**
+	 * Tests equality for a non null CoefficientAnnotation.
+	 */
 	@Test
 	public void test() {
 		double P = 2.0454252780410798E-7;
@@ -31,6 +34,9 @@ public class CoefficientAnnotationTest {
 		assertEquals(desc, ca2.getDescription());
 	}
 	
+	/**
+	 * Tests equality for a null CoefficientAnnotation.
+	 */
 	@Test
 	public void testMissing() {
 		CoefficientAnnotation ca = new CoefficientAnnotation(null, null, null, null, null);

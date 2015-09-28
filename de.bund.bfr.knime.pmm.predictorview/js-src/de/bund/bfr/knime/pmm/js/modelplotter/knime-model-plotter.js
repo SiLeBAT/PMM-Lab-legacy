@@ -8,6 +8,7 @@ bfr_model_plotter = function() {
 	var plotterValue;
 	var plotterRep;
 	var variableSliders;
+	var variableIndices;
 	var functionGraph;
 	var jsxBoard;
 	
@@ -67,7 +68,7 @@ bfr_model_plotter = function() {
 		constantsBox.appendChild(applyButton);
 		
 		var h = document.createElement("h1");
-		h.innerHTML = plotterRep.chartTitle;
+		h.innerHTML = plotterValue.chartTitle;
 		layoutContainer.appendChild(h);
 		
 		var div = document.createElement("div");
@@ -78,7 +79,7 @@ bfr_model_plotter = function() {
 		
 	    // add constants in view representation to select box as options
 	    var constantsSelectBox = document.getElementById('funcConstants');
-		for (var c in plotterRep.constants) {
+		for (var c in plotterValue.constants) {
 		    var opt = document.createElement('option');
 			opt.value = c;
 			opt.innerHTML = c;
@@ -89,14 +90,14 @@ bfr_model_plotter = function() {
 		constantSelected();
 		
 		// Initialize JSX board to draw function graphs, etc.
-		var minXAxis = plotterRep.minXAxis;
-		var maxXAxis = plotterRep.maxXAxis;
-		var minYAxis = plotterRep.minYAxis;
-		var maxYAxis = plotterRep.maxYAxis;		
+		var minXAxis = plotterValue.minXAxis;
+		var maxXAxis = plotterValue.maxXAxis;
+		var minYAxis = plotterValue.minYAxis;
+		var maxYAxis = plotterValue.maxYAxis;		
 		jsxBoard = JXG.JSXGraph.initBoard('box', {boundingbox: [minXAxis, maxYAxis, maxXAxis, minYAxis], axis:false});
 		
-		var xunit = "[" + plotterRep.xUnit + "]";
-		var yunit = "[" + plotterRep.yUnit + "]";
+		var xunit = "[" + plotterValue.xUnit + "]";
+		var yunit = "[" + plotterValue.yUnit + "]";
 		
 		// Set Y axis, ticks, labels
 		var yaxis = jsxBoard.create('axis', [[0, 0], [0, 1]], {name:yunit, withLabel: true, 
@@ -109,16 +110,18 @@ bfr_model_plotter = function() {
 			 xaxis.defaultTicks.ticksFunction = function () { return 5; };
 			 
 		variableSliders = [];
+		variableIndices = [];
 		// Append one slider for each function variable		
-		for (var i = 0; i < plotterRep.variables.length; i++) {
-			var v = plotterRep.variables[i];
+		for (var i = 0; i < plotterValue.variables.length; i++) {
+			var v = plotterValue.variables[i];
 			if (v.name != 'Time') {				
 				variableSliders.push(jsxBoard.create('slider', [[50,-2 - i], [80,-2 - i], [v.min, v.def, v.max]],
 						{name:v.name, point1: {frozen: true}, point2: {frozen: true}}));
+				variableIndices.push(i);
 			}
 		}		
 				
-		plotterRep.constants.Y0 = plotterRep.y0;
+		plotterValue.constants.Y0 = plotterValue.y0;
 		
 		// Creates time based function and updates plottable model graph 
 		updateFunctionGraph();
@@ -141,7 +144,7 @@ bfr_model_plotter = function() {
 	constantSelected = function() {
 		var constantsSelectBox = document.getElementById('funcConstants');
 		var constant = constantsSelectBox.options[constantsSelectBox.selectedIndex].value;
-		document.getElementById('funcConstantValue').value = plotterRep.constants[constant];
+		document.getElementById('funcConstantValue').value = plotterValue.constants[constant];
 	}
 	
 	// checks if input of text field is number
@@ -166,23 +169,28 @@ bfr_model_plotter = function() {
 		
 		var newNumberValue = parseFloat(newValue);
 		if (!isNaN(newNumberValue)) {
-			plotterRep.constants[constant] = newNumberValue;			
+			plotterValue.constants[constant] = newNumberValue;
+			if (constant == "Y0") {
+				// set new Y0 value to view value
+				plotterValue.y0 = newNumberValue;
+			}
+			
 			jsxBoard.removeObject(functionGraph);
-			updateFunctionGraph();	
+			updateFunctionGraph();
 		}
 	}
 	
 	function createFunctionStr() {
 		var functionStr = 'f(Time';
 		// Append variable name to function string, separated by ","		
-		for (var i = 0; i < plotterRep.variables.length; i++) {
-			var v = plotterRep.variables[i];
+		for (var i = 0; i < plotterValue.variables.length; i++) {
+			var v = plotterValue.variables[i];
 			if (v.name != 'Time') {				
 				functionStr += ", " + v.name;
 			}
 		}
 		// Close parameter brackets of function and add function term
-		functionStr += ") = " + plotterRep.func;
+		functionStr += ") = " + plotterValue.func;
 		
 		return functionStr;
 	}
@@ -198,7 +206,7 @@ bfr_model_plotter = function() {
 		}
 		
 		// Set all constants of the given model representation
-		myMath.import(plotterRep.constants, { override: true });
+		myMath.import(plotterValue.constants, { override: true });
 		
 		// CUSTOMIZED FUNCTIONS
 		myMath.import({
@@ -226,6 +234,7 @@ bfr_model_plotter = function() {
 		
 		// Prepare string of function f of time
 		var functionStr = createFunctionStr();
+		plotterValue.functionFull = functionStr;
 		
 		// Prepare myMath object to call math functions 		
 		var myMath = createMath();
@@ -237,7 +246,7 @@ bfr_model_plotter = function() {
 		// Create js function ONLY WITH TIME as input variable of the function. As values of all
 		// other input variables the slider values are set
 		var timeModelFunction = createTimeBasedModelFunction(baseModelFunction);
-			
+		
 	 	// Create graph of function with time parameter only
 		functionGraph = jsxBoard.create('functiongraph', [timeModelFunction, 0, maxXValue]);
 	}
@@ -248,7 +257,13 @@ bfr_model_plotter = function() {
 	
 	modelPlotter.setValidationError = function() { }
 	
-	modelPlotter.getComponentValue = function() { 
+	modelPlotter.getComponentValue = function() {
+		// set current slider values as variables values
+		for (var i = 0; i < variableIndices.length; i++) {
+			var v = plotterValue.variables[variableIndices[i]];
+			v.def = variableSliders[i].Value();
+			plotterValue.variables[variableIndices[i]] = v;
+		}
 		return plotterValue;
 	}
 	

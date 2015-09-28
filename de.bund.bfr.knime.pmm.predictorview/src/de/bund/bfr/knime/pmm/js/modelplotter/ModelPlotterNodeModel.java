@@ -5,9 +5,17 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.RowKey;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -23,7 +31,8 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewRepresentation.Variable;
+import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewValue.Variable;
+//import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewRepresentation.Variable;
 import de.bund.bfr.knime.pmm.predictorview.TableReader;
 
 /**
@@ -38,6 +47,10 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(ModelPlotterNodeModel.class);
 	
+	static final String FLOWVAR_FUNCTION_ORIG = "Original Function";
+	static final String FLOWVAR_FUNCTION_FULL = "Full Function";
+	static final String FLOWVAR_FUNCTION_APPLIED = "Applied Function";
+	
 	private static final String PMM_MODEL_ARG_TIME = "Time";
 	private static final String PMM_MODEL_ARG_TEMP = "temp";
 	private static final String PMM_MODEL_ARG_AW = "aw";
@@ -47,12 +60,14 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	
 	private final ModelPlotterViewConfig m_config;
 	
+	private boolean m_executed = false;
 	
     /**
      * Constructor of {@code ModelPlotterNodeModel}.
      */
     protected ModelPlotterNodeModel() {
-		super(new PortType[]{ BufferedDataTable.TYPE }, new PortType[]{ });
+		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE });
         m_config = new ModelPlotterViewConfig();
 	}
 
@@ -103,7 +118,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			throw new InvalidSettingsException("Wrong input!");
 		}
 		
-		return null;
+		return createOutputDataTableSpecs();
 	}
 	
 	/* (non-Javadoc)
@@ -136,98 +151,149 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 		// get first plotable
 		p = plotables.entrySet().iterator().next().getValue();
 		
-		ModelPlotterViewRepresentation vR = getViewRepresentation();
-		if (vR == null) {
-			vR = createEmptyViewRepresentation();
-			setViewRepresentation(vR);
+		ModelPlotterViewValue viewValue = getViewValue();
+		if (viewValue == null) {
+			viewValue = createEmptyViewValue();
+			setViewValue(viewValue);
 		}
-		
-		// CONFIG of JavaScript view
-		vR.setChartTitle(m_config.getChartTitle());
-		vR.setY0(m_config.getY0());
-		vR.setMinXAxis(m_config.getMinXAxis());
-		vR.setMaxXAxis(m_config.getMaxXAxis());
-		vR.setMinYAxis(m_config.getMinYAxis());
-		vR.setMaxYAxis(m_config.getMaxYAxis());
-		
-		// set units
-		vR.setxUnit(p.getUnits().get("Time"));
-		vR.setyUnit(p.getUnits().get("Value"));
-		
-		// DATA: specify function (substring after '=')
-		vR.setFunc(p.getFunction().substring(p.getFunction().indexOf("=") + 1));
+		if (!m_executed) {
+			// CONFIG of JavaScript view
+			viewValue.setChartTitle(m_config.getChartTitle());
+			viewValue.setY0(m_config.getY0());
+			viewValue.setMinXAxis(m_config.getMinXAxis());
+			viewValue.setMaxXAxis(m_config.getMaxXAxis());
+			viewValue.setMinYAxis(m_config.getMinYAxis());
+			viewValue.setMaxYAxis(m_config.getMaxYAxis());
 
-		// DATA: specify arguments that can be adjusted via sliders in JavaScript view
-		List<Variable> variables = new LinkedList<>();	
-		Map<String, List<Double>> args = p.getFunctionArguments();
-		for (Map.Entry<String, List<Double>> a : args.entrySet()) {
-			// ignore time argument
-			if (!a.getKey().equals(PMM_MODEL_ARG_TIME)) {
-				Variable v = new Variable();
-				v.setName(a.getKey());
-				
-				// set min value
-				Double min = p.getMinArguments().get(a.getKey());
-				if (min == null) {
-					min = 0.0;
+			// set units
+			viewValue.setxUnit(p.getUnits().get("Time"));
+			viewValue.setyUnit(p.getUnits().get("Value"));
+
+			// DATA: specify function (substring after '=')
+			viewValue.setFunc(p.getFunction().substring(
+					p.getFunction().indexOf("=") + 1));
+
+			// DATA: specify arguments that can be adjusted via sliders in
+			// JavaScript view
+			List<Variable> variables = new LinkedList<>();
+			Map<String, List<Double>> args = p.getFunctionArguments();
+			for (Map.Entry<String, List<Double>> a : args.entrySet()) {
+				// ignore time argument
+				if (!a.getKey().equals(PMM_MODEL_ARG_TIME)) {
+					Variable v = new Variable();
+					v.setName(a.getKey());
+
+					// set min value
+					Double min = p.getMinArguments().get(a.getKey());
+					if (min == null) {
+						min = 0.0;
+					}
+					v.setMin(min);
+
+					// set max value
+					Double max = p.getMaxArguments().get(a.getKey());
+					if (max == null) {
+						max = 0.0;
+					}
+					v.setMax(max);
+
+					// set default value (different for each argument)
+					if (a.getKey().equals(PMM_MODEL_ARG_AW)) {
+						v.setDef(0.997);
+					} else if (a.getKey().equals(PMM_MODEL_ARG_CO2)) {
+						v.setDef(0);
+					} else if (a.getKey().equals(PMM_MODEL_ARG_PH)) {
+						v.setDef(7.0);
+					} else if (a.getKey().equals(PMM_MODEL_ARG_PS)) {
+						v.setDef(0.0005);
+					} else if (a.getKey().equals(PMM_MODEL_ARG_TEMP)) {
+						v.setDef(20);
+					}
+
+					// add variable
+					variables.add(v);
 				}
-				v.setMin(min);
-				
-				// set max value
-				Double max = p.getMaxArguments().get(a.getKey());
-				if (max == null) {
-					max = 0.0;
-				}
-				v.setMax(max);
-				
-				// set default value (different for each argument)
-				if (a.getKey().equals(PMM_MODEL_ARG_AW)) {
-					v.setDef(0.997);
-				}
-				else if (a.getKey().equals(PMM_MODEL_ARG_CO2)) {
-					v.setDef(0);
-				}
-				else if (a.getKey().equals(PMM_MODEL_ARG_PH)) {
-					v.setDef(7.0);
-				}
-				else if (a.getKey().equals(PMM_MODEL_ARG_PS)) {
-					v.setDef(0.0005);
-				}
-				else if (a.getKey().equals(PMM_MODEL_ARG_TEMP)) {
-					v.setDef(20);
-				}
-				
-				// add variable
-				variables.add(v);
 			}
-		}
-		vR.setVariables(variables);
-		
-		// DATA: specify constants and values
-		Map<String, Double> constants = new HashMap<>();	
-		Map<String, Double> params = p.getFunctionParameters();
-		for (Map.Entry<String, Double> param : params.entrySet()) {
-			Double val = param.getValue();
-			if (val == null) {
-				val = 0.0;
+			viewValue.setVariables(variables);
+
+			// DATA: specify constants and values
+			Map<String, Double> constants = new HashMap<>();
+			Map<String, Double> params = p.getFunctionParameters();
+			for (Map.Entry<String, Double> param : params.entrySet()) {
+				Double val = param.getValue();
+				if (val == null) {
+					val = 0.0;
+				}
+				constants.put(param.getKey(), val);
 			}
-			constants.put(param.getKey(), val);
-		}
-		vR.setConstants(constants);
-		
-		setViewRepresentation(vR);
+			viewValue.setConstants(constants);
+			
+			setViewValue(viewValue);
+			m_executed = true;
+		}		
 		
 		exec.setProgress(1);
 		
-		// View VALUE
-		//getViewValue();
-		
-		return null;
+		pushFlowVariableString(FLOWVAR_FUNCTION_ORIG, getViewValue().getFunc());
+		pushFlowVariableString(FLOWVAR_FUNCTION_FULL, getViewValue().getFunctionFull());		
+		return createOutputDataTables(exec);
 	}
 
+	private DataTableSpec[] createOutputDataTableSpecs() {
+		DataColumnSpec constantName = new DataColumnSpecCreator(
+				"Constant name", StringCell.TYPE).createSpec();
+		DataColumnSpec constantValue = new DataColumnSpecCreator(
+				"Constant value", DoubleCell.TYPE).createSpec();
+		DataTableSpec constantSpec = new DataTableSpec(constantName, constantValue);
+		
+		DataColumnSpec varName = new DataColumnSpecCreator(
+				"Variable name", StringCell.TYPE).createSpec();
+		DataColumnSpec varValue = new DataColumnSpecCreator(
+				"Variable value", DoubleCell.TYPE).createSpec();
+		DataColumnSpec varMin = new DataColumnSpecCreator(
+				"Variable min ", DoubleCell.TYPE).createSpec();		
+		DataColumnSpec varMax = new DataColumnSpecCreator(
+				"Variable max", DoubleCell.TYPE).createSpec();		
+		DataTableSpec varSpec = new DataTableSpec(varName, varValue, varMin, varMax);		
+		
+		return new DataTableSpec[]{ constantSpec, varSpec };		
+	}
+	
+	private BufferedDataTable[] createOutputDataTables(final ExecutionContext exec) {
+		ModelPlotterViewValue value = getViewValue();
+		DataTableSpec[] outSpces = createOutputDataTableSpecs();
+		
+		BufferedDataContainer constBC = exec.createDataContainer(outSpces[0]);
+		int i = 0;
+		if (value.getConstants() != null) {
+			for (Entry<String, Double> e : value.getConstants().entrySet()) {
+				RowKey key = RowKey.createRowKey(i);
+				constBC.addRowToTable(new DefaultRow(key, new StringCell(e
+						.getKey()), new DoubleCell(e.getValue())));
+				i++;
+			}
+		}
+		constBC.close();
+		
+		BufferedDataContainer varBC = exec.createDataContainer(outSpces[1]);
+		i = 0;
+		if (value.getVariables() != null) {
+			for (Variable v : value.getVariables()) {
+				RowKey key = RowKey.createRowKey(i);
+				varBC.addRowToTable(new DefaultRow(key, new StringCell(v
+						.getName()), new DoubleCell(v.getDef()),
+						new DoubleCell(v.getMin()), new DoubleCell(v.getMax())));
+				i++;
+			}
+		}
+		varBC.close();
+		
+		return new BufferedDataTable[]{ constBC.getTable(), varBC.getTable() };
+	}
+	
 	@Override
 	protected void performReset() {
-		// Nothing to do.
+		m_executed = false;
 	}
 
 	@Override

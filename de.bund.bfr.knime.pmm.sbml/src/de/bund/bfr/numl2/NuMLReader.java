@@ -19,33 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.numl2;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class NuMLReader {
-
-	public static void main(String[] args) throws FileNotFoundException, SAXException, IOException,
-			ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException {
-		NuMLDocument doc = new NuMLReader().read(new InputSource(new FileReader("C:/Users/thoens/Downloads/numl.xml")));
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-		new NuMLWriter().write(doc, new StreamResult(stream));
-
-		System.out.println(stream.toString(StandardCharsets.UTF_8.name()));
-	}
+public class NuMLReader {	
 
 	public NuMLReader() {
 	}

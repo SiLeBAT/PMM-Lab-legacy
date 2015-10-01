@@ -19,7 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.numl2;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,5 +52,14 @@ public class NuMLWriter {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		transformer.transform(new DOMSource(xmlDoc), out);
+	}
+
+	public String toString(NuMLDocument doc) throws IOException, SAXException, ParserConfigurationException,
+			TransformerFactoryConfigurationError, TransformerException {
+		try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+			new NuMLWriter().write(doc, new StreamResult(stream));
+
+			return stream.toString(StandardCharsets.UTF_8.name());
+		}
 	}
 }

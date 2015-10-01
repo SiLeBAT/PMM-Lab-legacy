@@ -25,6 +25,8 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.collect.Iterables;
+
 public class NuMLDocument extends NMBase {
 
 	public static final String NUML_NAMESPACE = "http://www.numl.org/numl/level1/version1";
@@ -71,6 +73,11 @@ public class NuMLDocument extends NMBase {
 
 	public List<ResultComponent> getResultComponents() {
 		return new ArrayList<>(resultComponents);
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return Iterables.concat(ontologyTerms, resultComponents);
 	}
 
 	@Override

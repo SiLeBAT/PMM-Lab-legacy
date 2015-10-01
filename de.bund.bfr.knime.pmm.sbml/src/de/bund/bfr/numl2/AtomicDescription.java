@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 public class AtomicDescription extends DimensionDescription {
 
@@ -62,6 +63,11 @@ public class AtomicDescription extends DimensionDescription {
 
 	public DataType getValueType() {
 		return valueType;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return ImmutableList.of();
 	}
 
 	@Override

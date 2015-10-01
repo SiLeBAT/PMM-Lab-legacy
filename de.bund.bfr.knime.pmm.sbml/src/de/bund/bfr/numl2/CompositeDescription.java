@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 public class CompositeDescription extends DimensionDescription {
 
@@ -79,6 +80,11 @@ public class CompositeDescription extends DimensionDescription {
 
 	public DimensionDescription getDescription() {
 		return description;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return ImmutableList.of(description);
 	}
 
 	@Override

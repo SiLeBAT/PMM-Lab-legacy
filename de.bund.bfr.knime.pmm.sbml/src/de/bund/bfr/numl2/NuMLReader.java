@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class NuMLReader {	
+public class NuMLReader {
 
 	public NuMLReader() {
 	}

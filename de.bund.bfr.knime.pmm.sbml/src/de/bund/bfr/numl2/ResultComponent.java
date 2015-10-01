@@ -26,6 +26,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 public class ResultComponent extends NMBase {
 
@@ -87,6 +89,11 @@ public class ResultComponent extends NMBase {
 
 	public List<DimensionValue> getDimension() {
 		return dimension;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return Iterables.concat(ImmutableList.of(dimensionDescription), dimension);
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 public class AtomicValue extends DimensionValue {
 
@@ -42,6 +43,11 @@ public class AtomicValue extends DimensionValue {
 
 	public Object getValue() {
 		return value;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return ImmutableList.of();
 	}
 
 	@Override

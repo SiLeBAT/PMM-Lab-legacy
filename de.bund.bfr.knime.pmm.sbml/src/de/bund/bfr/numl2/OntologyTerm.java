@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 public class OntologyTerm extends NMBase {
 
@@ -68,6 +69,11 @@ public class OntologyTerm extends NMBase {
 
 	public String getOntologyURI() {
 		return ontologyURI;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return ImmutableList.of();
 	}
 
 	@Override

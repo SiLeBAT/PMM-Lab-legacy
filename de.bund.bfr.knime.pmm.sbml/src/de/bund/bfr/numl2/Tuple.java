@@ -54,6 +54,11 @@ public class Tuple extends DimensionValue {
 	}
 
 	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return atomicValues;
+	}
+
+	@Override
 	public String toString() {
 		return "Tuple [atomicValues=" + atomicValues + ", metaId=" + metaId + "]";
 	}

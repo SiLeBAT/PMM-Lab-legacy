@@ -46,6 +46,8 @@ public abstract class NMBase {
 		this.metaId = metaId;
 	}
 
+	public abstract Iterable<? extends NMBase> getChildren();
+
 	protected abstract Element toNode(Document doc);
 
 	protected void updateNode(Element node) {

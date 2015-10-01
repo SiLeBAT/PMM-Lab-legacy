@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 public class CompositeValue extends DimensionValue {
 
@@ -60,6 +61,11 @@ public class CompositeValue extends DimensionValue {
 
 	public DimensionValue getValue() {
 		return value;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return ImmutableList.of(value);
 	}
 
 	@Override

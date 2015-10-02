@@ -14,11 +14,7 @@
            category-path="/pmmlab/reader"
            factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory"
            id="sbmlreader.SBMLReaderNodeFactory">
-     </node>
-     <node
-            category-path="/pmmlab/writer"
-            factory-class="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory"
-            id="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory"/>
+     </node>     
 	</extension>	
    
    <extension

@@ -15,7 +15,11 @@
            factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory"
            id="sbmlreader.SBMLReaderNodeFactory">
      </node>
-	</extension>
+     <node
+            category-path="/pmmlab/writer"
+            factory-class="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory"
+            id="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory"/>
+	</extension>	
    
    <extension
          point="org.knime.js.core.javascriptComponents">

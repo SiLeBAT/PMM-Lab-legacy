@@ -11,8 +11,8 @@ import java.util.List;
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
+import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWOData;
@@ -53,7 +53,7 @@ public class PrimaryModelWODataFile {
 		for (ArchiveEntry modelEntry : modelEntries) {
 			InputStream stream = Files.newInputStream(modelEntry.getPath(),
 					StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
+			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			stream.close();
 			PrimaryModelWOData model = new PrimaryModelWOData(sbmlDoc);
 			models.add(model);

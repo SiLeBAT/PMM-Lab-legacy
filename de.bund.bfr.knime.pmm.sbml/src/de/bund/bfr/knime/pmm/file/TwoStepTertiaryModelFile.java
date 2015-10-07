@@ -15,12 +15,12 @@ import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
@@ -78,7 +78,7 @@ public class TwoStepTertiaryModelFile {
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
+			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
 			stream.close();
 			

@@ -21,11 +21,11 @@ import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
+import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.ManualTertiaryModel;
@@ -65,7 +65,7 @@ public class ManualTertiaryModelFile {
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
+			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			stream.close();
 
 			if (doc.getModel().getListOfSpecies().size() == 0) {

@@ -13,9 +13,9 @@ import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
@@ -76,7 +76,7 @@ public class TwoStepSecondaryModelFile {
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
+			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			stream.close();
 
 			// Secondary models do not have species

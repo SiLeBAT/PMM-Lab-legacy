@@ -12,9 +12,9 @@ import java.util.List;
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
@@ -68,7 +68,7 @@ public class PrimaryModelWDataFile {
 			System.out.println(modelEntry.getFileName()); // TODO: remove me !!
 
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
+			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			stream.close();
 
 			// Parse data

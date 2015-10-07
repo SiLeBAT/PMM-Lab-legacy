@@ -483,8 +483,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON3 && e.getSource() == table.getTableHeader()) {
-			int index = table.columnAtPoint(e.getPoint());
-			String column = table.getColumnName(index);
+			int index = table.convertColumnIndexToModel(table.columnAtPoint(e.getPoint()));
+			String column = table.getModel().getColumnName(index);
 			Integer condId = getKey(usedConditionNames, column) != null ? getKey(usedConditionNames, column)
 					: getKey(addedConditionNames, column);
 
@@ -502,8 +502,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 				}
 
 				if (value != null) {
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(value, i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(value, i, index);
 					}
 				}
 			} else if (column.endsWith(" Unit")) {
@@ -520,8 +520,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 						JOptionPane.QUESTION_MESSAGE, null, units.toArray(), units.get(0));
 
 				if (unit != null) {
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(unit, i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(unit, i, index);
 					}
 				}
 			} else if (column.equals(TimeSeriesSchema.ATT_AGENT)) {
@@ -531,8 +531,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 					String name = DBKernel.getValue("Agenzien", "ID", id + "", "Agensname") + "";
 					AgentXml agent = new AgentXml(id, name, null, DBKernel.getLocalDBUUID());
 
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(agent, i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(agent, i, index);
 					}
 				}
 			} else if (column.equals(TimeSeriesSchema.ATT_MATRIX)) {
@@ -542,8 +542,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 					String name = DBKernel.getValue("Matrices", "ID", id + "", "Matrixname") + "";
 					MatrixXml matrix = new MatrixXml(id, name, null, DBKernel.getLocalDBUUID());
 
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(matrix, i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(matrix, i, index);
 					}
 				}
 			} else if (column.equals(MdInfoXml.ATT_COMMENT) || column.equals(AttributeUtilities.AGENT_DETAILS)
@@ -552,8 +552,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 						column, JOptionPane.QUESTION_MESSAGE, null, null, "");
 
 				if (value != null) {
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(value, i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(value, i, index);
 					}
 				}
 			} else if (column.equals(MdInfoXml.ATT_CHECKED)) {
@@ -562,8 +562,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 						Boolean.TRUE);
 
 				if (value != null) {
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(value, i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(value, i, index);
 					}
 				}
 			} else if (column.equals(MdInfoXml.ATT_QUALITYSCORE)) {
@@ -572,8 +572,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 				dialog.setVisible(true);
 
 				if (dialog.isApproved()) {
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(dialog.getScore(), i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(dialog.getScore(), i, index);
 					}
 				}
 			} else if (column.equals(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD))) {
@@ -582,8 +582,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane impleme
 				dialog.setVisible(true);
 
 				if (dialog.isApproved()) {
-					for (int i = 0; i < table.getRowCount(); i++) {
-						table.setValueAt(dialog.getRef(), i, index);
+					for (int i = 0; i < table.getModel().getRowCount(); i++) {
+						table.getModel().setValueAt(dialog.getRef(), i, index);
 					}
 				}
 			}

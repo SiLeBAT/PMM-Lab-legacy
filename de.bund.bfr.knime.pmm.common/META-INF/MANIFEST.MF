@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.ui,
  com.thoughtworks.xstream;visibility:=reexport,
  org.knime.ext.jep;visibility:=reexport,
  org.apache.commons.math3;visibility:=reexport,
- com.jgoodies;visibility:=reexport
+ com.jgoodies;visibility:=reexport,
+ com.google.guava
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .

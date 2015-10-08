@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 
+/**
+ * JSON object with a PmmLab matrix.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONMatrix {
 
 	JSONObject obj; // Json object

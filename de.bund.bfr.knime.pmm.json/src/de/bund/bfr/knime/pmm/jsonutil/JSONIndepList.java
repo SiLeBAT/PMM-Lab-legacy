@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.IndepXml;
 
+/**
+ * JSON object with a list of PmmLab IndepXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONIndepList {
 
 	JSONArray obj;

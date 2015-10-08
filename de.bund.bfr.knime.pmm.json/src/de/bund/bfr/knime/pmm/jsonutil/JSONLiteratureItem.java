@@ -60,17 +60,23 @@ public class JSONLiteratureItem {
 	public LiteratureItem toLiteratureItem() {
 		String author = (String) obj.get(ATT_AUTHOR);
 
-		Long lyear = (Long) obj.get(ATT_YEAR);
-		Integer year = (lyear == null) ? null : lyear.intValue();
+//		Long lyear = (Long) obj.get(ATT_YEAR);
+//		Integer year = (lyear == null) ? null : lyear.intValue();
+
+		Object yearObj = obj.get(ATT_YEAR);
+		Integer year;
+		if (yearObj == null) {
+			year = null;
+		} else if (yearObj instanceof Long) {
+			year = ((Long) yearObj).intValue();
+		} else {
+			year = (Integer) yearObj;
+		}
 
 		String title = (String) obj.get(ATT_TITLE);
-
 		String abstractText = (String) obj.get(ATT_ABSTRACT);
-
 		String journal = (String) obj.get(ATT_JOURNAL);
-
 		String volume = (String) obj.get(ATT_VOLUME);
-
 		String issue = (String) obj.get(ATT_ISSUE);
 
 		Long lpage = (Long) obj.get(ATT_PAGE);
@@ -86,8 +92,15 @@ public class JSONLiteratureItem {
 
 		String comment = (String) obj.get(ATT_COMMENT);
 
-		Long lid = (Long) obj.get(ATT_ID);
-		Integer id = (lid == null) ? null : lid.intValue();
+		Object idObj = obj.get(ATT_ID);
+		Integer id;
+		if (idObj == null) {
+			id = null;
+		} else if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
 
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 

@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 
+/**
+ * JSON object with a PmmLab AgentXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONAgent {
 
 	JSONObject obj; // Json object
@@ -21,7 +26,7 @@ public class JSONAgent {
 	public JSONAgent(JSONObject obj) {
 		this.obj = obj;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public JSONAgent(AgentXml agent) {
 		obj = new JSONObject();
@@ -35,9 +40,17 @@ public class JSONAgent {
 	public JSONObject getObj() {
 		return obj;
 	}
-	
+
 	public AgentXml toAgentXml() {
-		int id = ((Long)obj.get(ATT_ID)).intValue();
+		
+		Object idObj = obj.get(ATT_ID);
+		Integer id;
+		if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
+		
 		String name = (String) obj.get(ATT_NAME);
 		String detail = (String) obj.get(ATT_DETAIL);
 		String dbuuid = (String) obj.get(ATT_DBUUID);

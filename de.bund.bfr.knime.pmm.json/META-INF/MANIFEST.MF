@@ -24,6 +24,9 @@ Import-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
  de.bund.bfr.knime.pmm.common.pmmtablemodel,
  de.bund.bfr.knime.pmm.dbutil,
  de.bund.bfr.knime.pmm.sbmlutil,
- org.hsh.bfr.db
+ org.hsh.bfr.db,
+ org.junit,
+ org.junit.runner,
+ org.junit.runners;version="4.8.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

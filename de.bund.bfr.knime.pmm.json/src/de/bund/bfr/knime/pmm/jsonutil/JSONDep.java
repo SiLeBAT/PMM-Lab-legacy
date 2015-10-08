@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.DepXml;
 
+/**
+ * JSON object with a PmmLab DepXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONDep {
 	JSONObject obj; // Json object
 

@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 
+/**
+ * JSON object with a PmmLab CatalogModelXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONCatalogModel {
 	JSONObject obj; // Json object
 
@@ -40,10 +45,26 @@ public class JSONCatalogModel {
 	}
 
 	public CatalogModelXml toCatalogModelXml() {
-		int id = ((Long) obj.get(ATT_ID)).intValue();
+		
+		Object idObj = obj.get(ATT_ID);
+		int id;
+		if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
+		
 		String name = (String) obj.get(ATT_NAME);
 		String formula = (String) obj.get(ATT_FORMULA);
-		int modelClass = ((Long) obj.get(ATT_MODEL_CLASS)).intValue();
+
+		int modelClass;
+		Object modelClassObj = obj.get(ATT_MODEL_CLASS);
+		if (modelClassObj instanceof Long) {
+			modelClass = ((Long) modelClassObj).intValue();
+		} else {
+			modelClass = (Integer) modelClassObj;
+		}
+
 		String comment = (String) obj.get(ATT_COMMENT);
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 

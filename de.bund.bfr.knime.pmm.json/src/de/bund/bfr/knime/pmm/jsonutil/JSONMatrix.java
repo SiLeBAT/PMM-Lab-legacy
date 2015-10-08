@@ -37,7 +37,13 @@ public class JSONMatrix {
 	}
 	
 	public MatrixXml toMatrixXml() {
-		int id = ((Long) obj.get(ATT_ID)).intValue();
+		Object idObj = obj.get(ATT_ID);
+		Integer id;
+		if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
 		String name = (String) obj.get(ATT_NAME);
 		String detail = (String) obj.get(ATT_DETAIL);
 		String dbuuid = (String) obj.get(ATT_DBUUID);

@@ -15,7 +15,7 @@ public class MatrixAnnotation extends AnnotationBase {
 	static final String CODE_TAG = "source"; // PMF code tag
 	static final String CODE_NS = "dc"; // PMF code namespace
 
-	static final String DETAIL_TAG = "pmmlab"; // Matrix detail tag
+	static final String DETAIL_TAG = "detail"; // Matrix detail tag
 	static final String DETAIL_NS = "pmmlab"; // Matrix detail namespace
 
 	static final String VAR_TAG = "environment"; // Model variable tag

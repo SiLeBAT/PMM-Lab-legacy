@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./OpenFSMRConverter.png" type="Source"
+	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+	<name>OpenFSMR Converter</name>
+
+	<shortDescription>This node creates a OpenFSMR template from a PMF file</shortDescription>
+
+	<fullDescription>
+		<intro></intro>
+
+		<option name="Selected File">
+			Path of the file to read.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Templates">Templates</outPort>
+	</ports>
+</knimeNode>

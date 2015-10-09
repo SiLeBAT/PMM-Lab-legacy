@@ -279,12 +279,13 @@ public class PMFWriterNodeModel extends NodeModel {
 		} else {
 			setWarningMessage("Modified date missing");
 		}
+		metadata.setType(modelType.name());
 
 		String dir = outPath.getStringValue();
 		String mdName = modelName.getStringValue();
 
 		// Check for existing file -> shows warning if despite overwrite being
-		// false the user still executes the node
+		// false the user still executes the nod
 		String filepath = String.format("%s/%s.pmf", dir, mdName);
 		File f = new File(filepath);
 		if (f.exists() && !f.isDirectory() && !overwrite.getBooleanValue()) {
@@ -609,7 +610,6 @@ class ExperimentalDataParser implements Parser {
 	@Override
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
-		metadata.setType(ModelType.EXPERIMENTAL_DATA.toString());
 
 		List<ExperimentalData> eds = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
@@ -628,8 +628,6 @@ class PrimaryModelWDataParser implements Parser {
 	@Override
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
-
-		metadata.setType(ModelType.PRIMARY_MODEL_WDATA.toString());
 
 		List<PrimaryModelWData> pms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
@@ -655,8 +653,6 @@ class PrimaryModelWODataParser implements Parser {
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
 
-		metadata.setType(ModelType.PRIMARY_MODEL_WODATA.toString());
-
 		List<PrimaryModelWOData> pms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
 			SBMLDocument sbmlDoc = new Model1Parser(tuple, metadata).getDocument();
@@ -674,8 +670,6 @@ class ManualSecondaryModelParser implements Parser {
 	@Override
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
-
-		metadata.setType(ModelType.MANUAL_SECONDARY_MODEL.toString());
 
 		List<ManualSecondaryModel> sms = new LinkedList<>();
 		for (KnimeTuple tuple : tuples) {
@@ -799,8 +793,6 @@ class TwoStepSecondaryModelParser implements Parser {
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
 
-		metadata.setType(ModelType.TWO_STEP_SECONDARY_MODEL.toString());
-
 		// Sort secondary models
 		Map<Integer, List<KnimeTuple>> secTuples = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
@@ -878,8 +870,6 @@ class OneStepSecondaryModelParser implements Parser {
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
 
-		metadata.setType(ModelType.ONE_STEP_SECONDARY_MODEL.toString());
-
 		// Sort tuples according to its secondary model
 		Map<Integer, List<KnimeTuple>> secMap = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
@@ -949,7 +939,6 @@ class TwoStepTertiaryModelParser implements Parser {
 	@Override
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
-		metadata.setType(ModelType.TWO_STEP_TERTIARY_MODEL.toString());
 
 		List<TwoStepTertiaryModel> tms = new LinkedList<>();
 
@@ -1101,8 +1090,6 @@ class OneStepTertiaryModelParser implements Parser {
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
 
-		metadata.setType(ModelType.ONE_STEP_TERTIARY_MODEL.toString());
-
 		List<OneStepTertiaryModel> tms = new LinkedList<>();
 
 		// Sort global models
@@ -1187,8 +1174,6 @@ class ManualTertiaryModelParser implements Parser {
 	@Override
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			ExecutionContext exec) throws Exception {
-
-		metadata.setType(ModelType.MANUAL_TERTIARY_MODEL.toString());
 
 		List<ManualTertiaryModel> tms = new LinkedList<>();
 

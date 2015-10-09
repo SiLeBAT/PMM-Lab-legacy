@@ -61,7 +61,7 @@ public class MetadataAnnotation extends AnnotationBase {
 		}
 
 		// Builds type node
-		if (metadata.getType().isEmpty()) {
+		if (!metadata.getType().isEmpty()) {
 			XMLTriple typeTriple = new XMLTriple(TYPE_TAG, "", TYPE_NS);
 			XMLNode typeNode = new XMLNode(typeTriple);
 			typeNode.addChild(new XMLNode(metadata.getType()));

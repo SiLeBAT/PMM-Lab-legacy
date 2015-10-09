@@ -79,4 +79,8 @@ public abstract class ModelRule {
 
 		return assignmentRule;
 	}
+	
+	public String getSubject() {
+		return new ModelRuleAnnotation(rule.getAnnotation()).getSubject();
+	}
 }

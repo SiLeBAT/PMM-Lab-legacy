@@ -65,7 +65,6 @@ public class PrimaryModelWDataFile {
 		// Parse models in the PMF file
 		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(sbmlURI);
 		for (ArchiveEntry modelEntry : modelEntries) {
-			System.out.println(modelEntry.getFileName()); // TODO: remove me !!
 
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
 			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream, new NoLogging());

@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
+/**
+ * JSON object with a PmmLab LiteratureItem.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONLiteratureItem {
 
 	JSONObject obj; // Json object
@@ -60,34 +65,65 @@ public class JSONLiteratureItem {
 	public LiteratureItem toLiteratureItem() {
 		String author = (String) obj.get(ATT_AUTHOR);
 
-		Long lyear = (Long) obj.get(ATT_YEAR);
-		Integer year = (lyear == null) ? null : lyear.intValue();
+		Object yearObj = obj.get(ATT_YEAR);
+		Integer year;
+		if (yearObj == null) {
+			year = null;
+		} else if (yearObj instanceof Long) {
+			year = ((Long) yearObj).intValue();
+		} else {
+			year = (Integer) yearObj;
+		}
 
 		String title = (String) obj.get(ATT_TITLE);
-
 		String abstractText = (String) obj.get(ATT_ABSTRACT);
-
 		String journal = (String) obj.get(ATT_JOURNAL);
-
 		String volume = (String) obj.get(ATT_VOLUME);
-
 		String issue = (String) obj.get(ATT_ISSUE);
 
-		Long lpage = (Long) obj.get(ATT_PAGE);
-		Integer page = (lpage == null) ? null : lpage.intValue();
-
-		Long lApprovalMode = (Long) obj.get(ATT_APPROVAL_MODE);
-		Integer approvalMode = (lApprovalMode == null) ? null : lApprovalMode.intValue();
+		Object pageObj = obj.get(ATT_PAGE);
+		Integer page;
+		if (pageObj == null) {
+			page = null;
+		} else if (pageObj instanceof Long) {
+			page = ((Long) pageObj).intValue();
+		} else {
+			page = (Integer) pageObj;
+		}
+		
+		Object approvalModeObj = obj.get(ATT_APPROVAL_MODE);
+		Integer approvalMode;
+		if (approvalModeObj == null) {
+			approvalMode = null;
+		} else if (approvalModeObj instanceof Long) {
+			approvalMode = ((Long) approvalModeObj).intValue();
+		} else {
+			approvalMode = (Integer) approvalModeObj;
+		}
 
 		String website = (String) obj.get(ATT_WEBSITE);
 
-		Long lType = (Long) obj.get(ATT_TYPE);
-		Integer type = (lType == null) ? null : lType.intValue();
+		Object typeObj = obj.get(ATT_TYPE);
+		Integer type;
+		if (typeObj == null) {
+			type = null;
+		} else if (typeObj instanceof Long) {
+			type = ((Long) typeObj).intValue();
+		} else {
+			type = (Integer) typeObj;
+		}
 
 		String comment = (String) obj.get(ATT_COMMENT);
 
-		Long lid = (Long) obj.get(ATT_ID);
-		Integer id = (lid == null) ? null : lid.intValue();
+		Object idObj = obj.get(ATT_ID);
+		Integer id;
+		if (idObj == null) {
+			id = null;
+		} else if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
 
 		String dbuuid = (String) obj.get(ATT_DBUUID);
 

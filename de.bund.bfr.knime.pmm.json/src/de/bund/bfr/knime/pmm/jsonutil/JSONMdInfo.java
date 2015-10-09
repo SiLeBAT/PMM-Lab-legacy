@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 
+/**
+ * JSON object with a PmmLab MdInfoXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONMdInfo {
 
 	JSONObject obj; // JSON object
@@ -39,8 +44,16 @@ public class JSONMdInfo {
 	}
 	
 	public MdInfoXml toMdInfoXml() {
-		Long lid = (Long) obj.get("id");
-		Integer id = (lid == null) ? null : lid.intValue();
+		Object idObj = obj.get(ATT_ID);
+		Integer id;
+		if (idObj == null) {
+			id = null;
+		} else if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
+
 		String name = (String) obj.get(ATT_NAME);
 		String comment = (String) obj.get(ATT_COMMENT);
 		Integer qualityScore = (Integer) obj.get(ATT_QUALITYSCORE);

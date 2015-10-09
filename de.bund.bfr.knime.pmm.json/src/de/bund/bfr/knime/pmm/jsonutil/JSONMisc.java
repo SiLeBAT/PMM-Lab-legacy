@@ -10,6 +10,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
 
+/**
+ * JSON object with a PmmLab MiscXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONMisc {
 	JSONObject obj; // Json object
 	

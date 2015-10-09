@@ -8,6 +8,11 @@ import org.json.simple.JSONObject;
 
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 
+/**
+ * JSON object with a PmmLab EstModelXml.
+ * 
+ * @author Miguel Alba
+ */
 public class JSONEstModel {
 	JSONObject obj; // Json object
 
@@ -52,7 +57,13 @@ public class JSONEstModel {
 	}
 	
 	public EstModelXml toEstModelXml() {
-		int id = ((Long) obj.get(ATT_ID)).intValue();
+		Object idObj = obj.get(ATT_ID);
+		int id;
+		if (idObj instanceof Long) {
+			id = ((Long) idObj).intValue();
+		} else {
+			id = (Integer) idObj;
+		}
 		String name = (String) obj.get(ATT_NAME);
 		Double sse = (Double) obj.get(ATT_SSE);
 		Double rms = (Double) obj.get(ATT_RMS);

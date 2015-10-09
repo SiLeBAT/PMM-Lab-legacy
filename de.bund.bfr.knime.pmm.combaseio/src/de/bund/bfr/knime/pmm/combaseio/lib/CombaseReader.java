@@ -140,7 +140,7 @@ public class CombaseReader {
 			}
 
 			// fetch temperature
-			if (key.equals("Temperature(°C)")) {
+			if (key.startsWith("Temperature(")) {
 				Double value = parse(data);
 				// next.setTemperature(value);
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE,

@@ -29,4 +29,7 @@ Export-Package: de.bund.bfr.knime.pmm.common,
  de.bund.bfr.knime.pmm.common.resources,
  de.bund.bfr.knime.pmm.common.test,
  de.bund.bfr.knime.pmm.common.ui,
- de.bund.bfr.knime.pmm.common.units
+ de.bund.bfr.knime.pmm.common.units,
+ de.bund.bfr.knime.pmm.extendedtable,
+ de.bund.bfr.knime.pmm.extendedtable.generictablemodel,
+ de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel

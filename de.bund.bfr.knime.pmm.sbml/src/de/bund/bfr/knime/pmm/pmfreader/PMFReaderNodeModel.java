@@ -30,19 +30,25 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
 import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
 import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.extendedtable.EstimatedModelLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.ModelLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.ModelMetadata;
+import de.bund.bfr.knime.pmm.extendedtable.TimeSeriesMetadata;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
@@ -319,6 +325,7 @@ class PrimaryModelWDataReader implements Reader {
 		row.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
 		row.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
 		row.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+		row.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
 		// primary model cells
 		KnimeTuple m1Tuple = new Model1Tuple(pm.getSBMLDoc()).getTuple();
@@ -331,6 +338,7 @@ class PrimaryModelWDataReader implements Reader {
 		row.setValue(Model1Schema.ATT_EMLIT, m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
 		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
 		row.setValue(Model1Schema.ATT_DBUUID, m1Tuple.getString(Model1Schema.ATT_DBUUID));
+		row.setValue(Model1Schema.ATT_METADATA, m1Tuple.getPmmXml(Model1Schema.ATT_METADATA));
 		return row;
 	}
 }
@@ -381,6 +389,7 @@ class PrimaryModelWODataReader implements Reader {
 		row.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
 		row.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
 		row.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+		row.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
 		// primary model cells
 		KnimeTuple m1Tuple = new Model1Tuple(pm.getSBMLDoc()).getTuple();
@@ -393,6 +402,7 @@ class PrimaryModelWODataReader implements Reader {
 		row.setValue(Model1Schema.ATT_EMLIT, m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
 		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
 		row.setValue(Model1Schema.ATT_DBUUID, m1Tuple.getString(Model1Schema.ATT_DBUUID));
+		row.setValue(Model1Schema.ATT_METADATA, m1Tuple.getPmmXml(Model1Schema.ATT_METADATA));
 
 		return row;
 	}
@@ -510,7 +520,6 @@ class OneStepSecondaryModelReader implements Reader {
 	}
 }
 
-
 class ManualSecondaryModelReader implements Reader {
 
 	public BufferedDataContainer[] read(String filepath, ExecutionContext exec) throws Exception {
@@ -582,7 +591,7 @@ class TwoStepTertiaryModelReader implements Reader {
 		for (SBMLDocument secDoc : tstm.getSecDocs()) {
 			secTuples.add(new Model2Tuple(secDoc.getModel()).getTuple());
 		}
-		
+
 		List<KnimeTuple> tuples = new LinkedList<>();
 		for (PrimaryModelWData pm : tstm.getPrimModels()) {
 			KnimeTuple dataTuple = new DataTuple(pm.getNuMLDoc()).getTuple();
@@ -640,7 +649,7 @@ class OneStepTertiaryModelReader implements Reader {
 		List<KnimeTuple> tuples = new LinkedList<>();
 
 		int instanceCounter = 1;
-		
+
 		for (NuMLDocument numlDoc : ostm.getDataDocs()) {
 			KnimeTuple dataTuple = new DataTuple(numlDoc).getTuple();
 			for (KnimeTuple secTuple : secTuples) {
@@ -723,6 +732,7 @@ class M12DataTuple {
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
 		tuple.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
 		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+		tuple.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
 		// Copies model1 columns
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
@@ -734,6 +744,7 @@ class M12DataTuple {
 		tuple.setValue(Model1Schema.ATT_EMLIT, m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
 		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
 		tuple.setValue(Model1Schema.ATT_DBUUID, m1Tuple.getString(Model1Schema.ATT_DBUUID));
+		tuple.setValue(Model1Schema.ATT_METADATA, m1Tuple.getPmmXml(Model1Schema.ATT_METADATA));
 
 		// Copies model2 columns
 		tuple.setValue(Model2Schema.ATT_MODELCATALOG, m2Tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG));
@@ -746,6 +757,7 @@ class M12DataTuple {
 		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, m2Tuple.getInt(Model2Schema.ATT_DATABASEWRITABLE));
 		tuple.setValue(Model2Schema.ATT_DBUUID, m2Tuple.getString(Model2Schema.ATT_DBUUID));
 		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
+		tuple.setValue(Model2Schema.ATT_METADATA, m2Tuple.getPmmXml(Model2Schema.ATT_METADATA));
 	}
 
 	public KnimeTuple getTuple() {
@@ -754,9 +766,9 @@ class M12DataTuple {
 }
 
 abstract class TupleBase {
-	
+
 	protected KnimeTuple tuple;
-	
+
 	public KnimeTuple getTuple() {
 		return tuple;
 	}
@@ -764,7 +776,8 @@ abstract class TupleBase {
 
 class DataTuple extends TupleBase {
 
-	static KnimeSchema schema = SchemaFactory.createDataSchema(); // time series schema
+	static KnimeSchema schema = SchemaFactory.createDataSchema(); // time series
+																	// schema
 
 	public DataTuple(NuMLDocument numlDocument) {
 
@@ -776,6 +789,9 @@ class DataTuple extends TupleBase {
 		// Gets concentration unit object type from DB
 		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
 		String concUnitObjectType = ufdb.getObject_type();
+
+		AgentXml agentXml = df.getAgent();
+		MatrixXml matrixXml = df.getMatrix();
 
 		// Gets time series
 		PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
@@ -792,32 +808,47 @@ class DataTuple extends TupleBase {
 		// Creates empty model info
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
+		TimeSeriesMetadata metadata = new TimeSeriesMetadata();
+		metadata.setAgentXml(agentXml);
+		metadata.setMatrixXml(matrixXml);
+		for (LiteratureItem literatureItem : df.getLits()) {
+			metadata.addLiteratureItem(literatureItem);
+		}
+
 		// Creates and fills tuple
 		tuple = new KnimeTuple(schema);
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, df.getCondID());
 		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, df.getCombaseID());
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(df.getAgent()));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(df.getMatrix()));
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
 		tuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
 		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		tuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
 	}
-	
+
 	public DataTuple(SBMLDocument sbmlDoc) {
 
 		Model model = sbmlDoc.getModel();
 
 		// Parses annotation
 		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
-		
+
 		Agent agent = new Agent(model.getSpecies(0));
+		AgentXml agentXml = agent.toAgentXml();
+
 		Matrix matrix = new Matrix(model.getCompartment(0));
-		
+		MatrixXml matrixXml = matrix.toMatrixXml();
+
+		TimeSeriesMetadata metadata = new TimeSeriesMetadata();
+		metadata.setAgentXml(agentXml);
+		metadata.setMatrixXml(matrixXml);
+
 		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-		
+
 		tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
 		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
@@ -828,12 +859,13 @@ class DataTuple extends TupleBase {
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
 		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
 		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		tuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
 	}
 }
 
 class Model1Tuple extends TupleBase {
 
-	static KnimeSchema schema = SchemaFactory.createM1Schema();  // model1 schema
+	static KnimeSchema schema = SchemaFactory.createM1Schema(); // model1 schema
 
 	public Model1Tuple(SBMLDocument doc) {
 
@@ -920,6 +952,20 @@ class Model1Tuple extends TupleBase {
 			emLit.add(lit);
 		}
 
+		AgentXml agentXml = agent.toAgentXml();
+		Matrix matrix = new Matrix(model.getCompartment(0));
+		MatrixXml matrixXml = matrix.toMatrixXml();
+
+		ModelMetadata metadata = new ModelMetadata();
+		metadata.setAgentXml(agentXml);
+		metadata.setMatrixXml(matrixXml);
+		for (LiteratureItem literatureItem : rule.getLits()) {
+			metadata.addLiteratureItem(new ModelLiteratureItem(literatureItem));
+		}
+		for (LiteratureItem literatureItem : m1Annot.getLits()) {
+			metadata.addLiteratureItem(new EstimatedModelLiteratureItem(literatureItem));
+		}
+
 		tuple = new KnimeTuple(schema);
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
 		tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
@@ -930,6 +976,7 @@ class Model1Tuple extends TupleBase {
 		tuple.setValue(Model1Schema.ATT_EMLIT, emLit);
 		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 		tuple.setValue(Model1Schema.ATT_DBUUID, "?");
+		tuple.setValue(Model1Schema.ATT_METADATA, metadata);
 	}
 }
 
@@ -982,6 +1029,23 @@ class Model2Tuple extends TupleBase {
 			emLits.add(lit);
 		}
 
+		ModelMetadata metadata = new ModelMetadata();
+
+		if (model.getListOfSpecies().size() == 1) {
+			metadata.setAgentXml(new Agent(model.getSpecies(0)).toAgentXml());
+		}
+
+		if (model.getListOfCompartments().size() == 1) {
+			metadata.setMatrixXml(new Matrix(model.getCompartment(0)).toMatrixXml());
+		}
+
+		for (LiteratureItem literatureItem : rule.getLits()) {
+			metadata.addLiteratureItem(new ModelLiteratureItem(literatureItem));
+		}
+		for (LiteratureItem literatureItem : m2Annot.getLiteratureItems()) {
+			metadata.addLiteratureItem(new EstimatedModelLiteratureItem(literatureItem));
+		}
+
 		tuple = new KnimeTuple(SchemaFactory.createM2Schema());
 		tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
 		tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
@@ -993,5 +1057,6 @@ class Model2Tuple extends TupleBase {
 		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
 		tuple.setValue(Model2Schema.ATT_DBUUID, "?");
 		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
+		tuple.setValue(Model2Schema.ATT_METADATA, metadata);
 	}
 }

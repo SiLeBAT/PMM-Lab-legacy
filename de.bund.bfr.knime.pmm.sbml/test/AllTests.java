@@ -8,7 +8,6 @@ import de.bund.bfr.knime.pmm.annotation.CondIDNodeTest;
 import de.bund.bfr.knime.pmm.annotation.DataSourceNodeTest;
 import de.bund.bfr.knime.pmm.annotation.DescriptionAnnotationTest;
 import de.bund.bfr.knime.pmm.annotation.GlobalModelIdNodeTest;
-import de.bund.bfr.knime.pmm.annotation.GroovyReferenceNodeTest;
 import de.bund.bfr.knime.pmm.annotation.MatrixAnnotationTest;
 import de.bund.bfr.knime.pmm.annotation.MetadataAnnotationTest;
 import de.bund.bfr.knime.pmm.annotation.Model1AnnotationTest;
@@ -29,7 +28,6 @@ import de.bund.bfr.knime.pmm.sbmlutil.MetadataTest;
 	DataSourceNodeTest.class,
 	DescriptionAnnotationTest.class,
 	GlobalModelIdNodeTest.class,
-	GroovyReferenceNodeTest.class,
 	MatrixAnnotationTest.class,
 	MetadataAnnotationTest.class,
 	Model1AnnotationTest.class,

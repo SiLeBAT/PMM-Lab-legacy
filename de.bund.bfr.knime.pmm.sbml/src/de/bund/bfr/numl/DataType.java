@@ -17,33 +17,60 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
-import java.util.ArrayList;
-import java.util.List;
+public enum DataType {
+	STRING("string"), FLOAT("float"), DOUBLE("double"), INTEGER("integer");
 
-import org.w3c.dom.Element;
+	private String name;
 
-class Utils {
-
-	private Utils() {
+	private DataType(String name) {
+		this.name = name;
 	}
 
-	public static List<Element> getChildren(Element node) {
-		List<Element> children = new ArrayList<>();
+	public Object parse(String value) {
+		if (value == null || value.isEmpty()) {
+			return null;
+		}
 
-		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
-			if (node.getChildNodes().item(i) instanceof Element) {
-				children.add((Element) node.getChildNodes().item(i));
+		switch (this) {
+		case STRING:
+			return value;
+		case FLOAT:
+			try {
+				return Float.parseFloat(value);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		case DOUBLE:
+			try {
+				return Double.parseDouble(value);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		case INTEGER:
+			try {
+				return Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+				return null;
 			}
 		}
 
-		return children;
+		return null;
 	}
 
-	public static void setAttributeValue(Element node, String name, String value) {
-		if (value != null) {
-			node.setAttribute(name, value);
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	public static DataType fromName(String name) {
+		for (DataType type : values()) {
+			if (type.toString().equals(name)) {
+				return type;
+			}
 		}
+
+		return null;
 	}
 }

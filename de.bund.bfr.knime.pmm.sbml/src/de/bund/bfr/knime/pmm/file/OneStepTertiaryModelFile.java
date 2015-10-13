@@ -12,8 +12,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -28,6 +30,7 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.stax.SBMLReader;
+import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
@@ -54,7 +57,7 @@ public class OneStepTertiaryModelFile {
 	final static String PMF_EXTENSION = "pmf";
 
 	public static List<OneStepTertiaryModel> read(String filename)
-			throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
+			throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException, ParserConfigurationException, SAXException {
 
 		List<OneStepTertiaryModel> models = new LinkedList<>();
 
@@ -131,8 +134,11 @@ public class OneStepTertiaryModelFile {
 	 * @throws XMLStreamException 
 	 * @throws SBMLException 
 	 * @throws TransformerException 
+	 * @throws TransformerFactoryConfigurationError 
+	 * @throws ParserConfigurationException 
+	 * @throws SAXException 
 	 */
-	public static void write(String dir, String filename, List<OneStepTertiaryModel> models, ExecutionContext exec) throws IOException, JDOMException, ParseException, CombineArchiveException, SBMLException, XMLStreamException, TransformerException {
+	public static void write(String dir, String filename, List<OneStepTertiaryModel> models, ExecutionContext exec) throws IOException, JDOMException, ParseException, CombineArchiveException, SBMLException, XMLStreamException, TransformerException, SAXException, ParserConfigurationException, TransformerFactoryConfigurationError {
 
 		// Creates CombineArchive name
 		String caName = String.format("%s/%s.%s", dir, filename, PMF_EXTENSION);

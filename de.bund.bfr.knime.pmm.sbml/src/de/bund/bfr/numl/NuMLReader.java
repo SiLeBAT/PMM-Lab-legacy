@@ -17,10 +17,14 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -36,7 +40,21 @@ public class NuMLReader {
 	public NuMLDocument read(InputSource in) throws SAXException, IOException, ParserConfigurationException {
 		Document xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
 		NuMLDocument doc = new NuMLDocument(xmlDoc.getDocumentElement());
+		return doc;
+	}
+	
+	public NuMLDocument read(InputStream is) throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document xmlDoc = docBuilder.parse(is);
+		NuMLDocument doc = new NuMLDocument(xmlDoc.getDocumentElement());
+		return doc;
+	}
 
+	public NuMLDocument read(File file) throws ParserConfigurationException, SAXException, IOException {
+	    InputStream is = new FileInputStream(file);
+		DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document xmlDoc = docBuilder.parse(is);
+		NuMLDocument doc = new NuMLDocument(xmlDoc.getDocumentElement());
 		return doc;
 	}
 }

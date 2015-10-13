@@ -1,8 +1,10 @@
 package de.bund.bfr.knime.pmm.sbmlutil;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.sbml.jsbml.Model;
@@ -12,8 +14,8 @@ import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
-
-import groovy.util.Node;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * PMF Unit Definition
@@ -60,7 +62,7 @@ public class PMFUnitDefinition {
 			int firstQuotePos = xml.indexOf("\"", transformationIndex);
 			int secQuotePos = xml.indexOf("\"", firstQuotePos + 1);
 			transformation = xml.substring(firstQuotePos + 1, secQuotePos);
-			
+
 			// Removes the transformation annotation (this annotation has a name
 			// which is not prefixed and then cannot be parsed properly)
 			xml = xml.substring(0, transformationIndex) + xml.substring(endTransformationIndex);
@@ -126,28 +128,34 @@ public class PMFUnitDefinition {
 		return transformationName;
 	}
 
-	// Create Groovy node
-	public Node toGroovyNode() {
-		Node node = new Node(null, "sbml:unitDefinition", unitDefinition.writeXMLAttributes());
+	// Creates NuML node
+	public Element toNuMLNode() throws ParserConfigurationException {
+
+		// Creates utility w3c Document
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+		Document utilDoc = documentBuilder.newDocument();
+
+		Element node = utilDoc.createElement("sbml:unitDefinition");
+		for (Map.Entry<String, String> attributeEntry : unitDefinition.writeXMLAttributes().entrySet()) {
+			node.setAttribute(attributeEntry.getKey(), attributeEntry.getValue());
+		}
 
 		if (transformationName != null) {
-			Map<String, String> annotAttrs = new HashMap<>();
-			annotAttrs.put("xmlns", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-			Node annot = new Node(node, "annotation", annotAttrs);
-
-			Map<String, String> metadataAttrs = new HashMap<>();
-			Node metadataNode = new Node(annot, "pmf:metadata", metadataAttrs);
-
-			Map<String, String> transformationAttrs = new HashMap<>();
-			Node transformationNode = new Node(metadataNode, "pmf:transformation", transformationAttrs);
-			transformationNode.setValue(transformationName);
+			Element transformationNode = utilDoc.createElement("pmf:transformation");
+			transformationNode.setTextContent(transformationName);
+			node.appendChild(transformationNode);
 		}
-
+		
 		// Add units
 		for (Unit u : unitDefinition.getListOfUnits()) {
-			node.appendNode("sbml:unit", u.writeXMLAttributes());
+			Element unitNode = utilDoc.createElement("sbml:unit");
+			for (Map.Entry<String, String> attributeEntry : u.writeXMLAttributes().entrySet()) {
+				unitNode.setAttribute(attributeEntry.getKey(), attributeEntry.getValue());
+			}
+			node.appendChild(unitNode);
 		}
-
+		
 		return node;
 	}
 }

@@ -17,10 +17,12 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -52,6 +54,22 @@ public class NuMLWriter {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		transformer.transform(new DOMSource(xmlDoc), out);
+	}
+
+	public void write(NuMLDocument doc, File file) throws IOException, ParserConfigurationException,
+			TransformerFactoryConfigurationError, TransformerException {
+		Document xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+		xmlDoc.appendChild(doc.toNode(xmlDoc));
+
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		
+//		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		StreamResult sr = new StreamResult(file);
+
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		transformer.transform(new DOMSource(xmlDoc), sr);
 	}
 
 	public String toString(NuMLDocument doc) throws IOException, SAXException, ParserConfigurationException,

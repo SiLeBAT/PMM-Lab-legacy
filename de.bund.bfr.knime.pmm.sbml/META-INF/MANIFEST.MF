@@ -5,15 +5,9 @@ Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: sbmlreader.jar,
  lib/CombineArchive-0.9.4.4-jar-with-dependencies.jar,
- lib/jaxb-api-2.2.7.jar,
- lib/jaxb-core-2.2.7.jar,
- lib/jaxb-impl-2.2.7.jar,
  lib/jsbml-1.1-dev-with-dependencies.jar,
- lib/pmml-model-1.1.8.jar,
- lib/pmml-schema-1.1.8.jar,
  lib/jsbml-tidy-1.0.jar,
- lib/jtidy-r938.jar,
- lib/pmf.jar
+ lib/jtidy-r938.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodePlugin
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,

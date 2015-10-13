@@ -17,50 +17,63 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+public class Tuple extends DimensionValue {
 
-public class AtomicValue extends DimensionValue {
+	protected static final String ELEMENT_NAME = "tuple";
 
-	protected static final String ELEMENT_NAME = "atomicValue";
+	private List<AtomicValue> atomicValues;
 
-	private Object value;
-
-	public AtomicValue(Object value) {
-		this.value = value;
+	public Tuple(List<AtomicValue> atomicValues) {
+		this.atomicValues = atomicValues;
 	}
 
-	protected AtomicValue(Element node, AtomicDescription description) {
+	protected Tuple(Element node, TupleDescription description) {
 		super(node);
 
-		value = description.getValueType().parse(Strings.emptyToNull(node.getTextContent()));
+		atomicValues = new ArrayList<>();
+
+		int index = 0;
+
+		for (Element child : Utils.getChildren(node)) {
+			if (child.getNodeName().equals(AtomicValue.ELEMENT_NAME)) {
+				atomicValues.add(new AtomicValue(child, description.getAtomicDescriptions().get(index++)));
+			}
+		}
 	}
 
-	public Object getValue() {
-		return value;
+	public List<AtomicValue> getAtomicValues() {
+		return new ArrayList<>(atomicValues);
 	}
 
 	@Override
 	public Iterable<? extends NMBase> getChildren() {
-		return ImmutableList.of();
+		return atomicValues;
 	}
 
 	@Override
 	public String toString() {
-		return "AtomicValue [value=" + value + ", metaId=" + metaId + "]";
+		return "Tuple [atomicValues=" + atomicValues + ", metaId=" + metaId + "]";
 	}
 
 	@Override
 	protected Element toNode(Document doc) {
 		Element node = doc.createElement(ELEMENT_NAME);
 
-		node.setTextContent(value.toString());
+		for (AtomicValue value : atomicValues) {
+			node.appendChild(value.toNode(doc));
+		}
+
 		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

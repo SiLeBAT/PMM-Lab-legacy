@@ -17,27 +17,41 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
+
+import java.util.List;
 
 import org.w3c.dom.Element;
 
-public abstract class DimensionValue extends NMBase {
+public abstract class DimensionDescription extends NMBase {
 
-	public DimensionValue() {
+	public DimensionDescription() {
 	}
 
-	protected DimensionValue(Element node) {
+	protected DimensionDescription(Element node) {
 		super(node);
 	}
 
-	protected static DimensionValue createValue(Element node, DimensionDescription description) {
+	protected static DimensionDescription createDescription(Element node, List<OntologyTerm> ontologyTerms) {
 		switch (node.getNodeName()) {
-		case AtomicValue.ELEMENT_NAME:
-			return new AtomicValue(node, (AtomicDescription) description);
-		case CompositeValue.ELEMENT_NAME:
-			return new CompositeValue(node, (CompositeDescription) description);
-		case Tuple.ELEMENT_NAME:
-			return new Tuple(node, (TupleDescription) description);
+		case AtomicDescription.ELEMENT_NAME:
+			return new AtomicDescription(node, ontologyTerms);
+		case CompositeDescription.ELEMENT_NAME:
+			return new CompositeDescription(node, ontologyTerms);
+		case TupleDescription.ELEMENT_NAME:
+			return new TupleDescription(node, ontologyTerms);
+		}
+
+		return null;
+	}
+
+	protected static OntologyTerm findOntologyTerm(String id, List<OntologyTerm> ontologyTerms) {
+		if (id != null && ontologyTerms != null) {
+			for (OntologyTerm term : ontologyTerms) {
+				if (id.equals(term.getId())) {
+					return term;
+				}
+			}
 		}
 
 		return null;

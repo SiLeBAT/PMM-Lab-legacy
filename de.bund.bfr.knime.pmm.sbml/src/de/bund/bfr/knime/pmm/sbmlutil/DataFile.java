@@ -2,6 +2,7 @@ package de.bund.bfr.knime.pmm.sbmlutil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,28 +11,32 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.sbml.jsbml.SBMLDocument;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import de.bund.bfr.knime.pmm.annotation.AgentNuMLNode;
-import de.bund.bfr.knime.pmm.annotation.CondIDNode;
-import de.bund.bfr.knime.pmm.annotation.MatrixNuMLNode;
-import de.bund.bfr.knime.pmm.annotation.ReferenceNuMLNode;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import de.bund.bfr.knime.pmm.annotation.numl.AgentNuMLNode;
+import de.bund.bfr.knime.pmm.annotation.numl.MatrixNuMLNode;
+import de.bund.bfr.knime.pmm.annotation.numl.ReferenceNuMLNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
-import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 import de.bund.bfr.numl.AtomicDescription;
-import de.bund.bfr.numl.CompositeDescription;
+import de.bund.bfr.numl.AtomicValue;
 import de.bund.bfr.numl.DataType;
-import de.bund.bfr.numl.Description;
+import de.bund.bfr.numl.DimensionValue;
 import de.bund.bfr.numl.NuMLDocument;
 import de.bund.bfr.numl.OntologyTerm;
 import de.bund.bfr.numl.ResultComponent;
+import de.bund.bfr.numl.Tuple;
 import de.bund.bfr.numl.TupleDescription;
-import groovy.util.Node;
-import groovy.util.NodeList;
 
 public class DataFile {
 
@@ -44,61 +49,48 @@ public class DataFile {
 	public DataFile(int condId, String combaseId, LinkedHashMap<Integer, List<Double>> dim, String concUnit,
 			String timeUnit, Matrix matrix, Agent agent, List<LiteratureItem> lits, Metadata metadata) {
 
+		// Creates utility w3c Document
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = null;
+		try {
+			documentBuilder = factory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		Document utilDoc = documentBuilder.newDocument();
+
 		// Creates ontologies
 		OntologyTerm time = new TimeOntology().prepareOntology(timeUnit);
-		OntologyTerm conc = new ConcentrationOntology().prepareOntology(concUnit);
+		OntologyTerm conc = createConcOntology(concUnit, matrix, agent);
 
-		// Adds matrix and agent to the concentration metadata
-		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
-		concMetadata.append(new MatrixNuMLNode(matrix).getNode());
-		concMetadata.append(new AgentNuMLNode(agent).getNode());
+		AtomicDescription concDesc = new AtomicDescription("concentration", conc, DataType.DOUBLE);
+		AtomicDescription timeDesc = new AtomicDescription("Time", time, DataType.DOUBLE);
+		TupleDescription td = new TupleDescription(Arrays.asList(timeDesc, concDesc));
 
-		// Creates concentration description
-		AtomicDescription concDesc = new AtomicDescription();
-		concDesc.setName("concentration");
-		concDesc.setOntologyTerm(conc);
-		concDesc.setValueType(DataType.Double);
+		List<DimensionValue> values = new ArrayList<>();
+		for (List<Double> dimPair : dim.values()) {
+			AtomicValue timeValue = new AtomicValue(dimPair.get(0));
+			AtomicValue concValue = new AtomicValue(dimPair.get(1));
+			values.add(new Tuple(Arrays.asList(timeValue, concValue)));
+		}
 
-		// Creates time description
-		AtomicDescription timeDesc = new AtomicDescription();
-		timeDesc.setName("Time");
-		timeDesc.setOntologyTerm(time);
-		timeDesc.setValueType(DataType.Double);
-
-		TupleDescription td = new TupleDescription();
-		List<Description> descriptions = new LinkedList<>();
-		descriptions.add((Description) timeDesc);
-		descriptions.add((Description) concDesc);
-		td.setDescriptions(descriptions);
-
-		CompositeDescription cd = new CompositeDescription();
-		cd.setName("index");
-		cd.setIndexType(DataType.Integer);
-		cd.setDescription(td);
-
-		ResultComponent result = new ResultComponent();
-		result.setId("exp1");
-		result.setDimensionDescription(cd);
-		result.setDimension(dim);
+		ResultComponent result = new ResultComponent("exp1", td, values);
 
 		// Adds PMF namespace to resultComponent's annotation
-		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf", "http://sourceforge.net/microbialmodelingexchange/files/PMF-ML");
-		Node resultNode = new Node(null, "annotation", pmfNS);
-		result.setAnnotation(resultNode);
+		Element rcAnnotation = utilDoc.createElement("annotation");
+		result.setAnnotation(rcAnnotation);
 
-		// Adds PMF annotation
-		Map<String, String> dcNS = new HashMap<>(); // dc and dcterms namespaces
-		dcNS.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-		dcNS.put("xmlns:dcterms", "http://purl.org/dc/terms/");
-		dcNS.put("xmlns:pmmlab", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-		Node pmfNode = new Node(resultNode, "pmf:metadata", dcNS);
+		Element rcMetadata = utilDoc.createElement("pmf:metadata");
+		rcAnnotation.appendChild(rcMetadata);
 
-		// Adds CondId node
-		pmfNode.appendNode("pmmlab:condID", condId);
-		// Adds CombaseId node
+		Element condIdNode = utilDoc.createElement("pmmlab:condID");
+		condIdNode.setTextContent(Integer.toString(condId));
+		rcMetadata.appendChild(condIdNode);
+
 		if (combaseId != null) {
-			pmfNode.appendNode("pmmlab:combaseId", combaseId);
+			Element combaseIdNode = utilDoc.createElement("pmmlab:combaseId");
+			combaseIdNode.setTextContent(combaseId);
+			rcMetadata.appendChild(combaseIdNode);
 		}
 
 		String givenName = metadata.getGivenName();
@@ -107,32 +99,44 @@ public class DataFile {
 		if (givenName != null || familyName != null || contact != null) {
 			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", metadata.getGivenName(),
 					metadata.getFamilyName(), metadata.getContact());
-			pmfNode.appendNode("dc:creator", creator);
+
+			Element creatorNode = utilDoc.createElement("dc:creator");
+			creatorNode.setTextContent(creator);
+			rcMetadata.appendChild(creatorNode);
 		}
 
 		// Adds created
 		if (metadata.getCreatedDate() != null) {
-			pmfNode.appendNode("dcterms:created", metadata.getCreatedDate());
+			Element createdNode = utilDoc.createElement("dcterms:created");
+			createdNode.setTextContent(metadata.getCreatedDate());
+			rcMetadata.appendChild(createdNode);
 		}
 
 		// Adds last modified
 		if (metadata.getModifiedDate() != null) {
-			pmfNode.appendNode("dcterms:modified", metadata.getModifiedDate());
+			Element modifiedNode = utilDoc.createElement("dc:modified");
+			modifiedNode.setTextContent(metadata.getModifiedDate());
+			rcMetadata.appendChild(utilDoc.importNode(modifiedNode, true));
 		}
 
 		// Adds type
 		if (metadata.getType() != null) {
-			pmfNode.appendNode("dc:type", metadata.getType());
+			Element typeNode = utilDoc.createElement("dc:type");
+			typeNode.setTextContent(metadata.getType());
+			rcMetadata.appendChild(utilDoc.importNode(typeNode, true));
 		}
 
 		// Adds annotations for literature items
 		for (LiteratureItem lit : lits) {
-			Node litNode = new ReferenceNuMLNode(lit).getNode();
-			pmfNode.append(litNode);
+			try {
+				Element refNode = new ReferenceNuMLNode(lit).getNode();
+				rcMetadata.appendChild(utilDoc.importNode(refNode, true));
+			} catch (DOMException | ParserConfigurationException e) {
+				e.printStackTrace();
+			}
 		}
 
-		doc = new NuMLDocument();
-		doc.setResultComponents(Arrays.asList(result));
+		doc = new NuMLDocument(Arrays.asList(time, conc), Arrays.asList(result));
 	}
 
 	public NuMLDocument getDocument() {
@@ -142,15 +146,16 @@ public class DataFile {
 	public int getCondID() {
 		// Gets result component metadata
 		ResultComponent rc = doc.getResultComponents().get(0);
-		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
-		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+		Element annotation = rc.getAnnotation();
+		NodeList rcMetadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element rcMetadataElement = (Element) rcMetadataNodes.item(0);
 
-		// Gets CondID
-		NodeList condIDNodes = (NodeList) rcMetadataNode.get(CondIDNode.TAG);
-		Node condIdNode = (Node) condIDNodes.get(0);
-		int condID = Integer.parseInt(condIdNode.text());
+		// Gets CondId
+		NodeList condIdNodes = rcMetadataElement.getElementsByTagName("pmmlab:condID");
+		Element condIdNode = (Element) condIdNodes.item(0);
+		int condId = Integer.parseInt(condIdNode.getTextContent());
 
-		return condID;
+		return condId;
 	}
 
 	/**
@@ -161,69 +166,87 @@ public class DataFile {
 	public String getCombaseID() {
 		// Gets result component metadata
 		ResultComponent rc = doc.getResultComponents().get(0);
-		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
-		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+		Element annotation = rc.getAnnotation();
+		NodeList rcMetadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element rcMetadataElement = (Element) rcMetadataNodes.item(0);
 
 		// Gets CombaseID
-		NodeList combaseIDNodes = (NodeList) rcMetadataNode.get("combaseId");
-		if (combaseIDNodes.size() == 1) {
-			return ((Node) combaseIDNodes.get(0)).text();
-		} else {
-			return "?";
+		NodeList combaseIdNodes = rcMetadataElement.getElementsByTagName("pmmlab:combaseId");
+		if (combaseIdNodes.getLength() == 1) {
+			return ((Element) combaseIdNodes.item(0)).getTextContent();
 		}
+		return "?";
 	}
 
 	public String getConcUnit() {
 		OntologyTerm ot = doc.getOntologyTerms().get(1);
-		Node metadata = (Node) ot.getAnnotation().children().get(0);
-		Node unitDef = (Node) metadata.children().get(0);
-		return (String) unitDef.attribute("name");
+		Element annotation = ot.getAnnotation();
+
+		NodeList metadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element metadataNode = (Element) metadataNodes.item(0);
+		
+		NodeList unitDefNodes = metadataNode.getElementsByTagName("sbml:unitDefinition");
+		Element unitDefNode = (Element) unitDefNodes.item(0);
+		return unitDefNode.getAttribute("name");
 	}
 
 	public String getTimeUnit() {
 		OntologyTerm ot = doc.getOntologyTerms().get(0);
-		Node metadata = (Node) ot.getAnnotation().children().get(0);
-		Node unitDef = (Node) metadata.children().get(0);
-		return (String) unitDef.attribute("name");
+		Element annotation = ot.getAnnotation();
+
+		NodeList metadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element metadataNode = (Element) metadataNodes.item(0);
+
+		NodeList unitDefNodes = metadataNode.getElementsByTagName("sbml:unitDefinition");
+		Element unitDefNode = (Element) unitDefNodes.item(0);
+		return unitDefNode.getAttribute("name");
 	}
 
 	public MatrixXml getMatrix() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
-		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
-
-		// Gets matrix node
-		NodeList matrixNodes = (NodeList) concMetadata.get(MatrixNuMLNode.TAG);
-		Node matrixNode = (Node) matrixNodes.get(0);
+		Element annotation = conc.getAnnotation();
 		
+		NodeList metadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element metadataNode = (Element) metadataNodes.item(0);
+		
+		// Gets matrix node
+		NodeList matrixNodes = metadataNode.getElementsByTagName("sbml:compartment");
+		Element matrixNode = (Element) matrixNodes.item(0);
+
 		return new MatrixNuMLNode(matrixNode).toMatrixXml();
 	}
 
 	public AgentXml getAgent() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
-		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		Element annotation = conc.getAnnotation();
+
+		NodeList metadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element metadataNode = (Element) metadataNodes.item(0);
 
 		// Gets agent node
-		NodeList agentNodes = (NodeList) concMetadata.get(AgentNuMLNode.TAG);
-		Node agentNode = (Node) agentNodes.get(0);
+		NodeList agentNodes = metadataNode.getElementsByTagName("sbml:species");
+		Element agentNode = (Element) agentNodes.item(0);
 
 		return new AgentNuMLNode(agentNode).toAgentXml();
 	}
 
 	public Map<String, Double> getMiscs() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
-		Node concMetadata = (Node) conc.getAnnotation().children().get(0);
+		Element annotation = conc.getAnnotation();
 
+		NodeList metadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element metadataNode = (Element) metadataNodes.item(0);
+		
 		// Gets matrix node
-		NodeList matrixNodes = (NodeList) concMetadata.get("compartment");
-		Node matrixNode = (Node) matrixNodes.get(0);
+		NodeList matrixNodes = metadataNode.getElementsByTagName("sbml:compartment");
+		Element matrixNode = (Element) matrixNodes.item(0);
 
 		Map<String, Double> miscs = new HashMap<>();
-		NodeList miscNodes = (NodeList) matrixNode.get("modelvariable");
-		for (int i = 0; i < miscNodes.size(); i++) {
-			Node miscNode = (Node) miscNodes.get(i);
-			Map<?, ?> attrs = miscNode.attributes();
-			String name = (String) attrs.get("name");
-			Double value = Double.parseDouble((String) attrs.get("value"));
+		NodeList miscNodes = matrixNode.getElementsByTagName("pmmlab:modelVariable");
+		for (int i = 0; i < miscNodes.getLength(); i++) {
+			Element miscNode = (Element) miscNodes.item(i);
+			String name = miscNode.getAttribute("name");
+			Double value = Double.parseDouble(miscNode.getAttribute("value"));
 			miscs.put(name, value);
 		}
 
@@ -232,16 +255,17 @@ public class DataFile {
 
 	public List<LiteratureItem> getLits() {
 		ResultComponent rc = doc.getResultComponents().get(0);
+		Element annotation = rc.getAnnotation();
 
 		// Gets result component metadata
-		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
-		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+		NodeList rcMetadataNodes = annotation.getElementsByTagName("pmf:metadata");
+		Element rcMetadataNode = (Element) rcMetadataNodes.item(0);
 
 		// Gets literature items
 		List<LiteratureItem> lits = new LinkedList<>();
-		NodeList litNodes = (NodeList) rcMetadataNode.get(ReferenceNuMLNode.TAG);
-		for (int i = 0; i < litNodes.size(); i++) {
-			Node litNode = (Node) litNodes.get(i);
+		NodeList litNodes = rcMetadataNode.getElementsByTagName("dc:reference");
+		for (int i = 0; i < litNodes.getLength(); i++) {
+			Element litNode = (Element) litNodes.item(i);
 			lits.add(new ReferenceNuMLNode(litNode).toLiteratureItem());
 		}
 
@@ -254,76 +278,90 @@ public class DataFile {
 		ResultComponent rc = doc.getResultComponents().get(0);
 
 		// Gets result component metadata
-		NodeList rcMetadataNodes = (NodeList) rc.getAnnotation().get("metadata");
-		Node rcMetadataNode = (Node) rcMetadataNodes.get(0);
+		NodeList rcMetadataNodes = rc.getAnnotation().getElementsByTagName("pmf:metadata");
+		Element rcMetadataNode = (Element) rcMetadataNodes.item(0);
 
-		NodeList creatorNodes = (NodeList) rcMetadataNode.get("creator");
-		if (creatorNodes.size() == 1) {
-			String[] tempStrings = ((Node) creatorNodes.get(0)).text().split("\\.", 3);
+		NodeList creatorNodes = rcMetadataNode.getElementsByTagName("dc:creator");
+		if (creatorNodes.getLength() == 1) {
+			Element creatorNode = (Element) creatorNodes.item(0);
+			String[] tempStrings = creatorNode.getTextContent().split("\\.", 3);
 			metadata.setGivenName(tempStrings[0]);
 			metadata.setFamilyName(tempStrings[1]);
 			metadata.setContact(tempStrings[2]);
 		}
 
 		// Gets created date
-		NodeList createdNodes = (NodeList) rcMetadataNode.get("created");
-		if (createdNodes.size() == 1) {
-			metadata.setCreatedDate(((Node) createdNodes.get(0)).text());
+		NodeList createdNodes = rcMetadataNode.getElementsByTagName("dc:created");
+		if (createdNodes.getLength() == 1) {
+			Element createdNode = (Element) createdNodes.item(0);
+			metadata.setCreatedDate(createdNode.getTextContent());
 		}
 
 		// Gets last modification date
-		NodeList modifiedNodes = (NodeList) rcMetadataNode.get("modified");
-		if (modifiedNodes.size() == 1) {
-			metadata.setModifiedDate(((Node) modifiedNodes.get(0)).text());
+		NodeList modifiedNodes = rcMetadataNode.getElementsByTagName("dc:modified");
+		if (modifiedNodes.getLength() == 1) {
+			Element modifiedNode = (Element) modifiedNodes.item(0);
+			metadata.setModifiedDate(modifiedNode.getTextContent());
 		}
 
-		// Gets type
-		NodeList typeNodes = (NodeList) rcMetadataNode.get("type");
-		if (typeNodes.size() == 1) {
-			metadata.setType(((Node) typeNodes.get(0)).text());
+		NodeList typeNodes = rcMetadataNode.getElementsByTagName("dc:type");
+		if (typeNodes.getLength() == 1) {
+			Element typeNode = (Element) typeNodes.item(0);
+			metadata.setType(typeNode.getTextContent());
 		}
 
 		return metadata;
 	}
 
 	public double[][] getData() {
+		
+		List<DimensionValue> tuples = doc.getResultComponents().get(0).getDimension();
+		double[][] data = new double[tuples.size()][2];
 
-		@SuppressWarnings("unchecked")
-		LinkedHashMap<Integer, List<Double>> dim = (LinkedHashMap<Integer, List<Double>>) doc.getResultComponents()
-				.get(0).getDimension();
-
-		double[][] data = new double[dim.size()][2];
 		int i = 0;
-		for (List<Double> list : dim.values()) {
-			data[i][0] = list.get(0); // Assigns time
-			data[i][1] = list.get(1); // Assigns concentration
+		for (DimensionValue dv : tuples) {
+			@SuppressWarnings("unchecked")
+			List<AtomicValue> atomicValues = (List<AtomicValue>) dv.getChildren();
+			AtomicValue concValue = atomicValues.get(0);
+			AtomicValue timeValue = atomicValues.get(1);
+			
+			data[i][0] = (double) concValue.getValue();
+			data[i][1] = (double) timeValue.getValue();
+			
 			i++;
 		}
 
 		return data;
 	}
-}
 
-abstract class Ontology {
+	private static OntologyTerm createConcOntology(String unit, Matrix matrix, Agent agent) {
+		// Creates utility w3c Document
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = null;
+		try {
+			documentBuilder = factory.newDocumentBuilder();
+		} catch (ParserConfigurationException e1) {
+			e1.printStackTrace();
+		}
+		Document utilDoc = documentBuilder.newDocument();
 
-	final public OntologyTerm prepareOntology(String unit) {
-		OntologyTerm ontology = createOntology();
-		ontology.setAnnotation(createAnnotation(unit));
-		return ontology;
-	}
+		URI uri = null;
+		try {
+			uri = new URI("http://www.ebi.ac.uk/sbo/");
+		} catch (URISyntaxException e) {
+			// The URI assigned is valid so there is no need to do something
+			// here
+			e.printStackTrace();
+		}
 
-	protected abstract OntologyTerm createOntology();
+		OntologyTerm ontologyTerm = new OntologyTerm("concentration", "concentration", "SBO:0000196", uri.toString());
 
-	protected Node createAnnotation(String unit) {
-		// Creates annotation with the PMF namespace
-		Map<String, String> pmfNS = new HashMap<>();
-		pmfNS.put("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
-		Node annot = new Node(null, "annotation", pmfNS);
+		// Creates annotation
+		Element annot = utilDoc.createElement("annotation");
 
 		// Creates and adds PMF annotation
-		Map<String, String> sbmlNS = new HashMap<>();
-		sbmlNS.put("xmlns:sbml", SBMLDocument.URI_NAMESPACE_L3V1Core);
-		Node pmfNode = new Node(annot, "pmf:metadata", sbmlNS);
+		Element pmfNode = utilDoc.createElement("pmf:metadata");
+		annot.appendChild(pmfNode);
 
 		// Gets unit definition from DB
 		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
@@ -332,7 +370,70 @@ abstract class Ontology {
 		// Modifies the unit definition and adds it to the pmfNode
 		pud.getUnitDefinition().setId(Util.createId(unit));
 		pud.getUnitDefinition().setName(unit);
-		pmfNode.append(pud.toGroovyNode());
+		Element pudNode = null;
+		try {
+			pudNode = (Element) utilDoc.importNode(pud.toNuMLNode(), true);
+		} catch (DOMException | ParserConfigurationException e1) {
+			e1.printStackTrace();
+		}
+		pmfNode.appendChild(pudNode);
+		
+		try {
+			Element matrixNode = new MatrixNuMLNode(matrix).getNode();
+			pmfNode.appendChild(utilDoc.importNode(matrixNode, true));
+		} catch (DOMException | ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		try {
+			Element agentNode = new AgentNuMLNode(agent).getNode();
+			pmfNode.appendChild(utilDoc.importNode(agentNode, true));
+		} catch (DOMException | ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+
+		ontologyTerm.setAnnotation(annot);
+		return ontologyTerm;
+
+	}
+}
+
+abstract class Ontology {
+
+	final public OntologyTerm prepareOntology(String unit) {
+		OntologyTerm ontology = createOntology();
+		try {
+			ontology.setAnnotation(createAnnotation(unit));
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		return ontology;
+	}
+
+	protected abstract OntologyTerm createOntology();
+
+	protected static Element createAnnotation(String unit) throws ParserConfigurationException {
+
+		// Creates utility w3c Document
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+		Document utilDoc = documentBuilder.newDocument();
+
+		// Creates annotation
+		Element annot = utilDoc.createElement("annotation");
+
+		// Creates and adds PMF annotation
+		Element pmfNode = utilDoc.createElement("pmf:metadata");
+		annot.appendChild(pmfNode);
+
+		// Gets unit definition from DB
+		UnitsFromDB dbUnit = DBUnits.getDBUnits().get(unit);
+		PMFUnitDefinition pud = PMFUnitDefinition.xmlToPMFUnitDefinition(dbUnit.getMathML_string());
+
+		// Modifies the unit definition and adds it to the pmfNode
+		pud.getUnitDefinition().setId(Util.createId(unit));
+		pud.getUnitDefinition().setName(unit);
+		Element pudNode = (Element) utilDoc.importNode(pud.toNuMLNode(), true);
+		pmfNode.appendChild(pudNode);
 
 		return annot;
 	}
@@ -341,32 +442,34 @@ abstract class Ontology {
 class TimeOntology extends Ontology {
 
 	protected OntologyTerm createOntology() {
-		OntologyTerm ontology = new OntologyTerm();
-		ontology.setTerm("time");
-		ontology.setSourceTermId("SBO:0000345");
+		URI uri = null;
 		try {
-			ontology.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
+			uri = new URI("http://www.ebi.ac.uk/sbo/");
 		} catch (URISyntaxException e) {
 			// The URI assigned is valid so there is no need to do something
 			// here
+			e.printStackTrace();
 		}
 
-		return ontology;
+		OntologyTerm ontologyTerm = new OntologyTerm("time", "time", "SBO:0000345", uri.toString());
+		return ontologyTerm;
 	}
 }
 
 class ConcentrationOntology extends Ontology {
 
 	protected OntologyTerm createOntology() {
-		OntologyTerm ontology = new OntologyTerm();
-		ontology.setTerm("concentration");
-		ontology.setSourceTermId("SBO:0000196");
+		URI uri = null;
 		try {
-			ontology.setOntologyURI(new URI("http://www.ebi.ac.uk/sbo/"));
+			uri = new URI("http://www.ebi.ac.uk/sbo/");
 		} catch (URISyntaxException e) {
-			// The URI assigned is valid so there is no need to something here
+			// The URI assigned is valid so there is no need to do something
+			// here
+			e.printStackTrace();
 		}
 
-		return ontology;
+		OntologyTerm ontologyTerm = new OntologyTerm("concentration", "concentration", "SBO:0000196", uri.toString());
+		return ontologyTerm;
 	}
+
 }

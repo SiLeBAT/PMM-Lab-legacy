@@ -17,43 +17,33 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Element;
 
-public abstract class DimensionDescription extends NMBase {
+class Utils {
 
-	public DimensionDescription() {
+	private Utils() {
 	}
 
-	protected DimensionDescription(Element node) {
-		super(node);
-	}
+	public static List<Element> getChildren(Element node) {
+		List<Element> children = new ArrayList<>();
 
-	protected static DimensionDescription createDescription(Element node, List<OntologyTerm> ontologyTerms) {
-		switch (node.getNodeName()) {
-		case AtomicDescription.ELEMENT_NAME:
-			return new AtomicDescription(node, ontologyTerms);
-		case CompositeDescription.ELEMENT_NAME:
-			return new CompositeDescription(node, ontologyTerms);
-		case TupleDescription.ELEMENT_NAME:
-			return new TupleDescription(node, ontologyTerms);
-		}
-
-		return null;
-	}
-
-	protected static OntologyTerm findOntologyTerm(String id, List<OntologyTerm> ontologyTerms) {
-		if (id != null && ontologyTerms != null) {
-			for (OntologyTerm term : ontologyTerms) {
-				if (id.equals(term.getId())) {
-					return term;
-				}
+		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+			if (node.getChildNodes().item(i) instanceof Element) {
+				children.add((Element) node.getChildNodes().item(i));
 			}
 		}
 
-		return null;
+		return children;
+	}
+
+	public static void setAttributeValue(Element node, String name, String value) {
+		if (value != null) {
+			node.setAttribute(name, value);
+		}
 	}
 }

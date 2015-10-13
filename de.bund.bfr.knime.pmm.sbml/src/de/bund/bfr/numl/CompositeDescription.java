@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
 import java.util.List;
 
@@ -27,30 +27,43 @@ import org.w3c.dom.Element;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-public class AtomicDescription extends DimensionDescription {
+public class CompositeDescription extends DimensionDescription {
 
-	protected static final String ELEMENT_NAME = "atomicDescription";
+	protected static final String ELEMENT_NAME = "compositeDescription";
 
 	private static final String NAME = "name";
 	private static final String ONTOLOGY_TERM = "ontologyTerm";
-	private static final String VALUE_TYPE = "valueType";
+	private static final String INDEX_TYPE = "indexType";
 
 	private String name;
 	private OntologyTerm ontologyTerm;
-	private DataType valueType;
+	private DataType indexType;
+	private DimensionDescription description;
 
-	public AtomicDescription(String name, OntologyTerm ontologyTerm, DataType valueType) {
+	public CompositeDescription(String name, OntologyTerm ontologyTerm, DataType indexType,
+			DimensionDescription description) {
 		this.name = name;
 		this.ontologyTerm = ontologyTerm;
-		this.valueType = valueType;
+		this.indexType = indexType;
+		this.description = description;
 	}
 
-	protected AtomicDescription(Element node, List<OntologyTerm> ontologyTerms) {
+	protected CompositeDescription(Element node, List<OntologyTerm> ontologyTerms) {
 		super(node);
 
 		name = Strings.emptyToNull(node.getAttribute(NAME));
 		ontologyTerm = findOntologyTerm(Strings.emptyToNull(node.getAttribute(ONTOLOGY_TERM)), ontologyTerms);
-		valueType = DataType.fromName(Strings.emptyToNull(node.getAttribute(VALUE_TYPE)));
+		indexType = DataType.fromName(Strings.emptyToNull(node.getAttribute(INDEX_TYPE)));
+		description = null;
+
+		for (Element child : Utils.getChildren(node)) {
+			DimensionDescription description = createDescription(child, ontologyTerms);
+
+			if (description != null) {
+				this.description = description;
+				break;
+			}
+		}
 	}
 
 	public String getName() {
@@ -61,19 +74,23 @@ public class AtomicDescription extends DimensionDescription {
 		return ontologyTerm;
 	}
 
-	public DataType getValueType() {
-		return valueType;
+	public DataType getIndexType() {
+		return indexType;
+	}
+
+	public DimensionDescription getDescription() {
+		return description;
 	}
 
 	@Override
 	public Iterable<? extends NMBase> getChildren() {
-		return ImmutableList.of();
+		return ImmutableList.of(description);
 	}
 
 	@Override
 	public String toString() {
-		return "AtomicDescription [name=" + name + ", ontologyTerm=" + ontologyTerm.getId() + ", valueType=" + valueType
-				+ ", metaId=" + metaId + "]";
+		return "CompositeDescription [name=" + name + ", ontologyTerm=" + ontologyTerm.getId() + ", indexType="
+				+ indexType + ", description=" + description + ", metaId=" + metaId + "]";
 	}
 
 	@Override
@@ -82,8 +99,11 @@ public class AtomicDescription extends DimensionDescription {
 
 		Utils.setAttributeValue(node, NAME, name);
 		Utils.setAttributeValue(node, ONTOLOGY_TERM, ontologyTerm.getId());
-		Utils.setAttributeValue(node, VALUE_TYPE, valueType.toString());
+		Utils.setAttributeValue(node, INDEX_TYPE, indexType.toString());
+		node.appendChild(description.toNode(doc));
 		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +118,8 @@ public class ResultComponent extends NMBase {
 		node.appendChild(descriptionNode);
 		node.appendChild(dimensionNode);
 		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

@@ -17,60 +17,53 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
-public enum DataType {
-	STRING("string"), FLOAT("float"), DOUBLE("double"), INTEGER("integer");
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-	private String name;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
-	private DataType(String name) {
-		this.name = name;
+public class AtomicValue extends DimensionValue {
+
+	protected static final String ELEMENT_NAME = "atomicValue";
+
+	private Object value;
+
+	public AtomicValue(Object value) {
+		this.value = value;
 	}
 
-	public Object parse(String value) {
-		if (value == null || value.isEmpty()) {
-			return null;
-		}
+	protected AtomicValue(Element node, AtomicDescription description) {
+		super(node);
 
-		switch (this) {
-		case STRING:
-			return value;
-		case FLOAT:
-			try {
-				return Float.parseFloat(value);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		case DOUBLE:
-			try {
-				return Double.parseDouble(value);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		case INTEGER:
-			try {
-				return Integer.parseInt(value);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
+		value = description.getValueType().parse(Strings.emptyToNull(node.getTextContent()));
+	}
 
-		return null;
+	public Object getValue() {
+		return value;
+	}
+
+	@Override
+	public Iterable<? extends NMBase> getChildren() {
+		return ImmutableList.of();
 	}
 
 	@Override
 	public String toString() {
-		return name;
+		return "AtomicValue [value=" + value + ", metaId=" + metaId + "]";
 	}
 
-	public static DataType fromName(String name) {
-		for (DataType type : values()) {
-			if (type.toString().equals(name)) {
-				return type;
-			}
-		}
+	@Override
+	protected Element toNode(Document doc) {
+		Element node = doc.createElement(ELEMENT_NAME);
 
-		return null;
+		node.setTextContent(value.toString());
+		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
+
+		return node;
 	}
 }

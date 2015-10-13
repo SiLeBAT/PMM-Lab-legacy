@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.jdom2.Element;
@@ -23,6 +24,7 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.stax.SBMLReader;
+import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
@@ -51,13 +53,17 @@ public class OneStepSecondaryModelFile {
 
 	/**
 	 * TODO ...
-	 * @throws IOException 
-	 * @throws CombineArchiveException 
-	 * @throws ParseException 
-	 * @throws JDOMException 
-	 * @throws XMLStreamException 
+	 * 
+	 * @throws IOException
+	 * @throws CombineArchiveException
+	 * @throws ParseException
+	 * @throws JDOMException
+	 * @throws XMLStreamException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
 	 */
-	public static List<OneStepSecondaryModel> read(String filename) throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
+	public static List<OneStepSecondaryModel> read(String filename) throws IOException, JDOMException, ParseException,
+			CombineArchiveException, XMLStreamException, ParserConfigurationException, SAXException {
 
 		List<OneStepSecondaryModel> models = new LinkedList<>();
 
@@ -140,7 +146,7 @@ public class OneStepSecondaryModelFile {
 			CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) model.getSBMLDoc()
 					.getPlugin(CompConstants.shortLabel);
 			ModelDefinition md = compDocPlugin.getModelDefinition(0);
-			
+
 			// Gets metadata node
 			XMLNode metadataNode = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 

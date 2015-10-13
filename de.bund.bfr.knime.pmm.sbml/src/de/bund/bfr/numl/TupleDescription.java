@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,53 +25,51 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class Tuple extends DimensionValue {
+public class TupleDescription extends DimensionDescription {
 
-	protected static final String ELEMENT_NAME = "tuple";
+	protected static final String ELEMENT_NAME = "tupleDescription";
 
-	private List<AtomicValue> atomicValues;
+	private List<AtomicDescription> atomicDescriptions;
 
-	public Tuple(List<AtomicValue> atomicValues) {
-		this.atomicValues = atomicValues;
+	public TupleDescription(List<AtomicDescription> atomicDescriptions) {
+		this.atomicDescriptions = atomicDescriptions;
 	}
 
-	protected Tuple(Element node, TupleDescription description) {
+	protected TupleDescription(Element node, List<OntologyTerm> ontologyTerms) {
 		super(node);
 
-		atomicValues = new ArrayList<>();
-
-		int index = 0;
+		atomicDescriptions = new ArrayList<>();
 
 		for (Element child : Utils.getChildren(node)) {
-			if (child.getNodeName().equals(AtomicValue.ELEMENT_NAME)) {
-				atomicValues.add(new AtomicValue(child, description.getAtomicDescriptions().get(index++)));
+			if (child.getNodeName().equals(AtomicDescription.ELEMENT_NAME)) {
+				atomicDescriptions.add(new AtomicDescription(child, ontologyTerms));
 			}
 		}
 	}
 
-	public List<AtomicValue> getAtomicValues() {
-		return new ArrayList<>(atomicValues);
+	public List<AtomicDescription> getAtomicDescriptions() {
+		return new ArrayList<>(atomicDescriptions);
 	}
 
 	@Override
 	public Iterable<? extends NMBase> getChildren() {
-		return atomicValues;
+		return atomicDescriptions;
 	}
 
 	@Override
 	public String toString() {
-		return "Tuple [atomicValues=" + atomicValues + ", metaId=" + metaId + "]";
+		return "TupleDescription [atomicDescriptions=" + atomicDescriptions + ", metaId=" + metaId + "]";
 	}
 
 	@Override
 	protected Element toNode(Document doc) {
 		Element node = doc.createElement(ELEMENT_NAME);
 
-		for (AtomicValue value : atomicValues) {
-			node.appendChild(value.toNode(doc));
+		for (AtomicDescription desc : atomicDescriptions) {
+			node.appendChild(desc.toNode(doc));
 		}
-
-		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

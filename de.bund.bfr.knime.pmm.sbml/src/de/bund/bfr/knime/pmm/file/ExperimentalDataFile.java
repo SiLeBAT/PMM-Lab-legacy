@@ -10,11 +10,14 @@ import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
+import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.ExperimentalData;
@@ -46,8 +49,7 @@ public class ExperimentalDataFile {
 	 * @throws JDOMException
 	 * @throws IOException
 	 */
-	public static List<ExperimentalData> read(String filename)
-			throws Exception {
+	public static List<ExperimentalData> read(String filename) throws Exception {
 		List<ExperimentalData> dataRecords = new LinkedList<>();
 
 		// Create Combine Archive
@@ -61,6 +63,7 @@ public class ExperimentalDataFile {
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument numlDoc = numlReader.read(stream);
+			stream.close();
 			dataRecords.add(new ExperimentalData(numlDoc));
 		}
 
@@ -76,9 +79,13 @@ public class ExperimentalDataFile {
 	 * @throws JDOMException
 	 * @throws IOException
 	 * @throws TransformerException
+	 * @throws TransformerFactoryConfigurationError
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
 	 */
 	public static void write(String dir, String filename, List<ExperimentalData> dataRecords, ExecutionContext exec)
-			throws IOException, JDOMException, ParseException, CombineArchiveException, TransformerException {
+			throws IOException, JDOMException, ParseException, CombineArchiveException, TransformerException,
+			SAXException, ParserConfigurationException, TransformerFactoryConfigurationError {
 
 		// Creates CombineArchive name
 		String caName = String.format("%s/%s.%s", dir, filename, PMF_EXTENSION);

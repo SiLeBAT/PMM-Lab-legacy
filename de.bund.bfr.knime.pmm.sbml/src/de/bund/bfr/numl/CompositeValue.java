@@ -17,57 +17,71 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
-
-import java.util.ArrayList;
-import java.util.List;
+package de.bund.bfr.numl;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class TupleDescription extends DimensionDescription {
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
-	protected static final String ELEMENT_NAME = "tupleDescription";
+public class CompositeValue extends DimensionValue {
 
-	private List<AtomicDescription> atomicDescriptions;
+	protected static final String ELEMENT_NAME = "compositeValue";
 
-	public TupleDescription(List<AtomicDescription> atomicDescriptions) {
-		this.atomicDescriptions = atomicDescriptions;
+	private static final String INDEX_VALUE = "indexValue";
+
+	private Object indexValue;
+	private DimensionValue value;
+
+	public CompositeValue(Object indexValue, DimensionValue value) {
+		this.indexValue = indexValue;
+		this.value = value;
 	}
 
-	protected TupleDescription(Element node, List<OntologyTerm> ontologyTerms) {
+	protected CompositeValue(Element node, CompositeDescription description) {
 		super(node);
 
-		atomicDescriptions = new ArrayList<>();
+		indexValue = description.getIndexType().parse(Strings.emptyToNull(node.getAttribute(INDEX_VALUE)));
+		value = null;
 
 		for (Element child : Utils.getChildren(node)) {
-			if (child.getNodeName().equals(AtomicDescription.ELEMENT_NAME)) {
-				atomicDescriptions.add(new AtomicDescription(child, ontologyTerms));
+			DimensionValue value = createValue(child, description.getDescription());
+
+			if (value != null) {
+				this.value = value;
+				break;
 			}
 		}
 	}
 
-	public List<AtomicDescription> getAtomicDescriptions() {
-		return new ArrayList<>(atomicDescriptions);
+	public Object getIndexValue() {
+		return indexValue;
+	}
+
+	public DimensionValue getValue() {
+		return value;
 	}
 
 	@Override
 	public Iterable<? extends NMBase> getChildren() {
-		return atomicDescriptions;
+		return ImmutableList.of(value);
 	}
 
 	@Override
 	public String toString() {
-		return "TupleDescription [atomicDescriptions=" + atomicDescriptions + ", metaId=" + metaId + "]";
+		return "CompositeValue [indexValue=" + indexValue + ", value=" + value + ", metaId=" + metaId + "]";
 	}
 
 	@Override
 	protected Element toNode(Document doc) {
 		Element node = doc.createElement(ELEMENT_NAME);
 
-		for (AtomicDescription desc : atomicDescriptions) {
-			node.appendChild(desc.toNode(doc));
-		}
+		Utils.setAttributeValue(node, INDEX_VALUE, indexValue.toString());
+		node.appendChild(value.toNode(doc));
+		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

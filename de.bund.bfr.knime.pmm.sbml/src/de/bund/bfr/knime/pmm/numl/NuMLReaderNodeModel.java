@@ -56,7 +56,8 @@ public class NuMLReaderNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
 		
-		NuMLDocument doc = new NuMLReader().read(filename.getStringValue());
+	    File file = new File(filename.getStringValue());
+	    NuMLDocument doc = new NuMLReader().read(file);
 
 		DataFile df = new DataFile(doc);
 		String timeUnit = df.getTimeUnit();

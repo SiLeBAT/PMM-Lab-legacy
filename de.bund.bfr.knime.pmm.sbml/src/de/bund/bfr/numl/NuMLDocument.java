@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +92,11 @@ public class NuMLDocument extends NMBase {
 
 		node.setAttribute("version", String.valueOf(VERSION));
 		node.setAttribute("level", String.valueOf(LEVEL));
+		node.setAttribute("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		node.setAttribute("xmlns:sbml", "http://www.sbml.org/sbml/level3/version1/core");
+		node.setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+		node.setAttribute("xmlns:dcterms", "http://purl.org/dc/terms/");
+		node.setAttribute("xmlns:pmmlab", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
 
 		Element ontologyTermsNode = doc.createElement(ONTOLOGY_TERMS);
 
@@ -106,6 +111,8 @@ public class NuMLDocument extends NMBase {
 		}
 
 		updateNode(node);
+
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

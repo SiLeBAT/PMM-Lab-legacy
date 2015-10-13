@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -91,6 +91,8 @@ public class OntologyTerm extends NMBase {
 		Utils.setAttributeValue(node, SOURCE_TERM_ID, sourceTermId);
 		Utils.setAttributeValue(node, ONTOLOGY_URI, ontologyURI);
 		updateNode(node);
+		
+		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

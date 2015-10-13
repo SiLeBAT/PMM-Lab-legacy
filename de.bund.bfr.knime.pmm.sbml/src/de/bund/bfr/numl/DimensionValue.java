@@ -17,40 +17,29 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.numl2;
+package de.bund.bfr.numl;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.common.base.Strings;
+public abstract class DimensionValue extends NMBase {
 
-public abstract class NMBase {
-
-	private static final String META_ID = "metaId";
-
-	protected String metaId;
-
-	public NMBase() {
-		metaId = null;
+	public DimensionValue() {
 	}
 
-	protected NMBase(Element node) {
-		metaId = Strings.emptyToNull(node.getAttribute(META_ID));
+	protected DimensionValue(Element node) {
+		super(node);
 	}
 
-	public String getMetaId() {
-		return metaId;
-	}
+	protected static DimensionValue createValue(Element node, DimensionDescription description) {
+		switch (node.getNodeName()) {
+		case AtomicValue.ELEMENT_NAME:
+			return new AtomicValue(node, (AtomicDescription) description);
+		case CompositeValue.ELEMENT_NAME:
+			return new CompositeValue(node, (CompositeDescription) description);
+		case Tuple.ELEMENT_NAME:
+			return new Tuple(node, (TupleDescription) description);
+		}
 
-	public void setMetaId(String metaId) {
-		this.metaId = metaId;
-	}
-
-	public abstract Iterable<? extends NMBase> getChildren();
-
-	protected abstract Element toNode(Document doc);
-
-	protected void updateNode(Element node) {
-		Utils.setAttributeValue(node, META_ID, metaId);
+		return null;
 	}
 }

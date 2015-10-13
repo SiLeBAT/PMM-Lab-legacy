@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 2.12 TP" sequenceNumber="3">
+<?pde version="3.8"?><target name="KNIME 2.12 TP" sequenceNumber="4">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
 <unit id="org.knime.features.base.feature.group" version="0.0.0"/>
 <repository location="http://www.knime.org/update/2.12"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.codehaus.groovy23.feature.feature.group" version="2.9.1.xx-201411061404-e37-RELEASE"/>
-<repository location="http://dist.springsource.org/release/GRECLIPSE/e3.7/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.knime.features.reporting.designer.feature.group" version="2.12.0.0047514"/>

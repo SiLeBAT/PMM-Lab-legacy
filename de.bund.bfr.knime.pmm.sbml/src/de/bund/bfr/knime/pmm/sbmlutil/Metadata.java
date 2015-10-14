@@ -9,6 +9,8 @@ public class Metadata {
 	String createdDate;
 	String modifiedDate;
 	String type;
+	String rights;
+	String referenceLink;
 
 	public Metadata() {
 		givenName = "";
@@ -17,16 +19,20 @@ public class Metadata {
 		createdDate = "";
 		modifiedDate = "";
 		type = "";
+		rights = "";
+		referenceLink = "";
 	}
 
 	public Metadata(String givenName, String familyName, String contact, String createdDate, String modifiedDate,
-			String type) {
+			String type, String rights, String referenceLink) {
 		this.givenName = givenName;
 		this.familyName = familyName;
 		this.contact = contact;
 		this.createdDate = createdDate;
 		this.modifiedDate = modifiedDate;
 		this.type = type;
+		this.rights = rights;
+		this.referenceLink = referenceLink;
 	}
 
 	public String getGivenName() {
@@ -76,6 +82,22 @@ public class Metadata {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	public String getRights() {
+		return rights;
+	}
+	
+	public void setRights(String rights) {
+		this.rights = rights;
+	}
+	
+	public String getReferenceLink() {
+		return referenceLink;
+	}
+	
+	public void setReferenceLink(String referenceLink) {
+		this.referenceLink = referenceLink;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -92,6 +114,10 @@ public class Metadata {
 		if (!modifiedDate.equals(other.modifiedDate))
 			return false;
 		if (!type.equals(other.type))
+			return false;
+		if (!rights.equals(other.rights))
+			return false;
+		if (!referenceLink.equals(other.referenceLink))
 			return false;
 		return true;
 

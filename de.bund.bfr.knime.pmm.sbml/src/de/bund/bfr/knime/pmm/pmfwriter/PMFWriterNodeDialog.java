@@ -38,6 +38,7 @@ import javax.swing.JFileChooser;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
@@ -85,9 +86,18 @@ public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
 
 		SettingsModelBoolean overwrite = new SettingsModelBoolean(PMFWriterNodeModel.CFG_OVERWRITE, true);
 		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(overwrite, "Overwrite, ok?");
-		
+
 		SettingsModelBoolean splitModels = new SettingsModelBoolean(PMFWriterNodeModel.CFG_SPLITMODELS, false);
 		DialogComponentBoolean splitCheckbox = new DialogComponentBoolean(splitModels, "Split top level models?");
+		
+		SettingsModelString referenceLink = new SettingsModelString(PMFWriterNodeModel.CFG_REFERENCE_LINK, null);
+		DialogComponentString referenceLinkComp = new DialogComponentString(referenceLink, "Model reference description link");
+
+		SettingsModelString license = new SettingsModelString(PMFWriterNodeModel.CFG_LIC, null);
+		DialogComponentString licenseComp = new DialogComponentString(license, "License");
+		
+		SettingsModelString notes = new SettingsModelString(PMFWriterNodeModel.CFG_NOTES, null);
+		DialogComponentMultiLineString notesComp = new DialogComponentMultiLineString(notes, "Notes");
 
 		outComp.setBorderTitle("Output Path");
 
@@ -99,6 +109,9 @@ public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(givenNameComp);
 		addDialogComponent(familyNameComp);
 		addDialogComponent(creatorContactComp);
+		addDialogComponent(referenceLinkComp);
+		addDialogComponent(licenseComp);
+		addDialogComponent(notesComp);
 		addDialogComponent(createdComp);
 		addDialogComponent(modifiedComp);
 	}

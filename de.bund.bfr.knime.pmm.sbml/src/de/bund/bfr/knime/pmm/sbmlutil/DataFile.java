@@ -42,7 +42,7 @@ import de.bund.bfr.numl.TupleDescription;
 public class DataFile {
 
 	NuMLDocument doc;
-	
+
 	private static final String ANNOTATION_TAG = "annotation";
 	private static final String METADATA_TAG = "pmf:metadata";
 	private static final String COMBASEID_TAG = "pmmlab:combaseId";
@@ -53,7 +53,7 @@ public class DataFile {
 	}
 
 	public DataFile(int condId, String combaseId, LinkedHashMap<Integer, List<Double>> dim, String concUnit,
-			String timeUnit, Matrix matrix, Agent agent, List<LiteratureItem> lits, Metadata metadata) {
+			String timeUnit, Matrix matrix, Agent agent, List<LiteratureItem> lits, Metadata metadata, String notes) {
 
 		// Creates utility w3c Document
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -85,6 +85,10 @@ public class DataFile {
 		// Adds PMF namespace to resultComponent's annotation
 		Element rcAnnotation = utilDoc.createElement(ANNOTATION_TAG);
 		result.setAnnotation(rcAnnotation);
+		
+		Element rcNotes = utilDoc.createElement("notes");
+		rcNotes.setTextContent(notes);
+		result.setNotes(rcNotes);
 
 		Element rcMetadata = utilDoc.createElement(METADATA_TAG);
 		rcAnnotation.appendChild(rcMetadata);
@@ -119,6 +123,14 @@ public class DataFile {
 		if (metadataNodes.isTypeSet()) {
 			Element typeNode = metadataNodes.getTypeNode();
 			rcMetadata.appendChild(utilDoc.importNode(typeNode, true));
+		}
+		if (metadataNodes.isLicenseSet()) {
+			Element rightsNode = metadataNodes.getRightsNode();
+			rcMetadata.appendChild(utilDoc.importNode(rightsNode, true));
+		}
+		if (metadataNodes.isReferenceSet()) {
+			Element referenceNode = metadataNodes.getReferenceNode();
+			rcMetadata.appendChild(utilDoc.importNode(referenceNode, true));
 		}
 
 		// Adds annotations for literature items
@@ -179,7 +191,7 @@ public class DataFile {
 
 		NodeList metadataNodes = annotation.getElementsByTagName(METADATA_TAG);
 		Element metadataNode = (Element) metadataNodes.item(0);
-		
+
 		NodeList unitDefNodes = metadataNode.getElementsByTagName(UNIT_DEFINITION_TAG);
 		Element unitDefNode = (Element) unitDefNodes.item(0);
 		return unitDefNode.getAttribute("name");
@@ -200,10 +212,10 @@ public class DataFile {
 	public MatrixXml getMatrix() {
 		OntologyTerm conc = doc.getOntologyTerms().get(1);
 		Element annotation = conc.getAnnotation();
-		
+
 		NodeList metadataNodes = annotation.getElementsByTagName(METADATA_TAG);
 		Element metadataNode = (Element) metadataNodes.item(0);
-		
+
 		// Gets matrix node
 		NodeList matrixNodes = metadataNode.getElementsByTagName(MatrixNuMLNode.TAG);
 		Element matrixNode = (Element) matrixNodes.item(0);
@@ -231,7 +243,7 @@ public class DataFile {
 
 		NodeList metadataNodes = annotation.getElementsByTagName(METADATA_TAG);
 		Element metadataNode = (Element) metadataNodes.item(0);
-		
+
 		// Gets matrix node
 		NodeList matrixNodes = metadataNode.getElementsByTagName(MatrixNuMLNode.TAG);
 		Element matrixNode = (Element) matrixNodes.item(0);
@@ -281,7 +293,7 @@ public class DataFile {
 		} else {
 			creatorNode = null;
 		}
-		
+
 		NodeList createdNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.CREATED_TAG);
 		Element createdNode;
 		if (createdNodes.getLength() == 1) {
@@ -289,7 +301,7 @@ public class DataFile {
 		} else {
 			createdNode = null;
 		}
-		
+
 		NodeList modifiedNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.MODIFIED_TAG);
 		Element modifiedNode;
 		if (modifiedNodes.getLength() == 1) {
@@ -297,7 +309,7 @@ public class DataFile {
 		} else {
 			modifiedNode = null;
 		}
-		
+
 		NodeList typeNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.TYPE_TAG);
 		Element typeNode;
 		if (typeNodes.getLength() == 1) {
@@ -305,14 +317,31 @@ public class DataFile {
 		} else {
 			typeNode = null;
 		}
+
+		NodeList rightsNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.LICENSE_TAG);
+		Element rightsNode;
+		if (rightsNodes.getLength() == 1) {
+			rightsNode = (Element) rightsNodes.item(0);
+		} else {
+			rightsNode = null;
+		}
 		
-		MetadataNuMLNodes metadataNodes = new MetadataNuMLNodes(creatorNode, createdNode, modifiedNode, typeNode);
+		NodeList referenceNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.REFERENCE_TAG);
+		Element referenceNode;
+		if (referenceNodes.getLength() == 1) {
+			referenceNode = (Element) referenceNodes.item(0);
+		} else {
+			referenceNode = null;
+		}
+
+		MetadataNuMLNodes metadataNodes = new MetadataNuMLNodes(creatorNode, createdNode, modifiedNode, typeNode,
+				rightsNode, referenceNode);
 		Metadata metadata = metadataNodes.toMetadata();
 		return metadata;
 	}
 
 	public double[][] getData() {
-		
+
 		List<DimensionValue> tuples = doc.getResultComponents().get(0).getDimension();
 		double[][] data = new double[tuples.size()][2];
 
@@ -322,10 +351,10 @@ public class DataFile {
 			List<AtomicValue> atomicValues = (List<AtomicValue>) dv.getChildren();
 			AtomicValue concValue = atomicValues.get(0);
 			AtomicValue timeValue = atomicValues.get(1);
-			
+
 			data[i][0] = (double) concValue.getValue();
 			data[i][1] = (double) timeValue.getValue();
-			
+
 			i++;
 		}
 
@@ -375,7 +404,7 @@ public class DataFile {
 			e1.printStackTrace();
 		}
 		pmfNode.appendChild(pudNode);
-		
+
 		try {
 			Element matrixNode = new MatrixNuMLNode(matrix).getNode();
 			pmfNode.appendChild(utilDoc.importNode(matrixNode, true));
@@ -393,7 +422,7 @@ public class DataFile {
 		return ontologyTerm;
 
 	}
-	
+
 	private static OntologyTerm createTimeOntology(String unit) {
 		// Creates utility w3c Document
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -404,7 +433,7 @@ public class DataFile {
 			e.printStackTrace();
 		}
 		Document utilDoc = documentBuilder.newDocument();
-		
+
 		URI uri = null;
 		try {
 			uri = new URI("http://www.ebi.ac.uk/sbo/");

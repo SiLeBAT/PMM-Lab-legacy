@@ -104,7 +104,10 @@ public class ResultComponent extends NMBase {
 
 	@Override
 	protected Element toNode(Document doc) {
+
 		Element node = doc.createElement(ELEMENT_NAME);
+		addAnnotationAndNotes(doc, node);
+
 		Element descriptionNode = doc.createElement(DIMENSION_DESCRIPTION);
 		Element dimensionNode = doc.createElement(DIMENSION);
 
@@ -118,8 +121,6 @@ public class ResultComponent extends NMBase {
 		node.appendChild(descriptionNode);
 		node.appendChild(dimensionNode);
 		updateNode(node);
-		
-		addAnnotationAndNotes(doc, node);
 
 		return node;
 	}

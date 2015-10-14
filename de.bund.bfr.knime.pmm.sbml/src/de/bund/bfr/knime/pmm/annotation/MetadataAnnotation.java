@@ -10,17 +10,23 @@ import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 
 public class MetadataAnnotation extends AnnotationBase {
 
-	static final String CREATOR_TAG = "creator";
-	static final String CREATOR_NS = "dc";
+	private final static String CREATOR_NS = "dc";
+	private final static String CREATOR_TAG = "creator";
 
-	static final String CREATED_TAG = "created";
-	static final String CREATED_NS = "dcterms";
+	private final static String CREATED_NS = "dcterms";
+	private final static String CREATED_TAG = "created";
 
-	static final String MODIFIED_TAG = "modified";
-	static final String MODIFIED_NS = "dcterms";
+	private final static String MODIFIED_NS = "dcterms";
+	private final static String MODIFIED_TAG = "modified";
 
-	static final String TYPE_TAG = "type";
-	static final String TYPE_NS = "dc";
+	private final static String TYPE_NS = "dc";
+	private final static String TYPE_TAG = "type";
+	
+	private final static String RIGHTS_NS = "dc";
+	private final static String RIGHTS_TAG = "rights";
+	
+	private final static String REFERENCE_NS = "dc";
+	private final static String REFERENCE_TAG = "source";
 
 	Metadata metadata;
 
@@ -68,6 +74,22 @@ public class MetadataAnnotation extends AnnotationBase {
 
 			pmfNode.addChild(typeNode);
 		}
+		
+		if (!metadata.getRights().isEmpty()) {
+			XMLTriple rightsTriple = new XMLTriple(RIGHTS_TAG, "", RIGHTS_NS);
+			XMLNode rightsNode = new XMLNode(rightsTriple);
+			rightsNode.addChild(new XMLNode(metadata.getRights()));
+			
+			pmfNode.addChild(rightsNode);
+		}
+		
+		if (!metadata.getReferenceLink().isEmpty()) {
+			XMLTriple refTriple = new XMLTriple(REFERENCE_TAG, "", REFERENCE_NS);
+			XMLNode refNode = new XMLNode(refTriple);
+			refNode.addChild(new XMLNode(metadata.getReferenceLink()));
+			
+			pmfNode.addChild(refNode);
+		}
 
 		// Copies metadata
 		this.metadata = metadata;
@@ -103,6 +125,16 @@ public class MetadataAnnotation extends AnnotationBase {
 		XMLNode typeNode = pmfNode.getChildElement(TYPE_TAG, "");
 		if (typeNode != null) {
 			metadata.setType(typeNode.getChild(0).getCharacters());
+		}
+		
+		XMLNode rightsNode = pmfNode.getChildElement(RIGHTS_TAG, "");
+		if (rightsNode != null) {
+			metadata.setRights(rightsNode.getChild(0).getCharacters());
+		}
+		
+		XMLNode refNode = pmfNode.getChildElement(REFERENCE_TAG, "");
+		if (refNode != null) {
+			metadata.setReferenceLink(refNode.getChild(0).getCharacters());
 		}
 
 		// Copies annotation

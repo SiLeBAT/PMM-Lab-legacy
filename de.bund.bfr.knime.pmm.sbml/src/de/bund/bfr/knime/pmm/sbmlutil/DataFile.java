@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,9 +19,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import de.bund.bfr.knime.pmm.annotation.CondIDNode;
 import de.bund.bfr.knime.pmm.annotation.numl.AgentNuMLNode;
+import de.bund.bfr.knime.pmm.annotation.numl.CondIDNuMLNode;
 import de.bund.bfr.knime.pmm.annotation.numl.MatrixNuMLNode;
+import de.bund.bfr.knime.pmm.annotation.numl.MetadataNuMLNodes;
 import de.bund.bfr.knime.pmm.annotation.numl.ReferenceNuMLNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
@@ -45,16 +45,8 @@ public class DataFile {
 	
 	private static final String ANNOTATION_TAG = "annotation";
 	private static final String METADATA_TAG = "pmf:metadata";
-	private static final String CONDID_TAG = String.format("%s:%s", CondIDNode.NS, CondIDNode.TAG);
 	private static final String COMBASEID_TAG = "pmmlab:combaseId";
-	private static final String COMPARTMENT_TAG = String.format("%s:%s", MatrixNuMLNode.NS, MatrixNuMLNode.TAG);
-	private static final String SPECIES_TAG = String.format("%s:%s", AgentNuMLNode.NS, AgentNuMLNode.TAG);
-	private static final String CREATOR_TAG = "dc:creator";
-	private static final String CREATED_TAG = "dc:created";
-	private static final String MODIFIED_TAG = "dc:modified";
-	private static final String TYPE_TAG = "dc:type";
 	private static final String UNIT_DEFINITION_TAG = "sbml:unitDefinition";
-	private static final String REFERENCE_TAG = "dc:reference";
 
 	public DataFile(NuMLDocument doc) {
 		this.doc = doc;
@@ -97,9 +89,13 @@ public class DataFile {
 		Element rcMetadata = utilDoc.createElement(METADATA_TAG);
 		rcAnnotation.appendChild(rcMetadata);
 
-		Element condIdNode = utilDoc.createElement(CONDID_TAG);
-		condIdNode.setTextContent(Integer.toString(condId));
-		rcMetadata.appendChild(condIdNode);
+		Element condIdNode = null;
+		try {
+			condIdNode = new CondIDNuMLNode(condId).getNode();
+		} catch (ParserConfigurationException e1) {
+			e1.printStackTrace();
+		}
+		rcMetadata.appendChild(utilDoc.importNode(condIdNode, true));
 
 		if (combaseId != null) {
 			Element combaseIdNode = utilDoc.createElement(COMBASEID_TAG);
@@ -107,36 +103,21 @@ public class DataFile {
 			rcMetadata.appendChild(combaseIdNode);
 		}
 
-		String givenName = metadata.getGivenName();
-		String familyName = metadata.getFamilyName();
-		String contact = metadata.getContact();
-		if (givenName != null || familyName != null || contact != null) {
-			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", metadata.getGivenName(),
-					metadata.getFamilyName(), metadata.getContact());
-
-			Element creatorNode = utilDoc.createElement(CREATOR_TAG);
-			creatorNode.setTextContent(creator);
-			rcMetadata.appendChild(creatorNode);
+		MetadataNuMLNodes metadataNodes = new MetadataNuMLNodes(metadata);
+		if (metadataNodes.isCreatorSet()) {
+			Element creatorNode = metadataNodes.getCreatorNode();
+			rcMetadata.appendChild(utilDoc.importNode(creatorNode, true));
 		}
-
-		// Adds created
-		if (metadata.getCreatedDate() != null) {
-			Element createdNode = utilDoc.createElement(CREATED_TAG);
-			createdNode.setTextContent(metadata.getCreatedDate());
-			rcMetadata.appendChild(createdNode);
+		if (metadataNodes.isCreatedSet()) {
+			Element createdNode = metadataNodes.getCreatedNode();
+			rcMetadata.appendChild(utilDoc.importNode(createdNode, true));
 		}
-
-		// Adds last modified
-		if (metadata.getModifiedDate() != null) {
-			Element modifiedNode = utilDoc.createElement(MODIFIED_TAG);
-			modifiedNode.setTextContent(metadata.getModifiedDate());
+		if (metadataNodes.isModifiedSet()) {
+			Element modifiedNode = metadataNodes.getModifiedNode();
 			rcMetadata.appendChild(utilDoc.importNode(modifiedNode, true));
 		}
-
-		// Adds type
-		if (metadata.getType() != null) {
-			Element typeNode = utilDoc.createElement(TYPE_TAG);
-			typeNode.setTextContent(metadata.getType());
+		if (metadataNodes.isTypeSet()) {
+			Element typeNode = metadataNodes.getTypeNode();
 			rcMetadata.appendChild(utilDoc.importNode(typeNode, true));
 		}
 
@@ -164,10 +145,10 @@ public class DataFile {
 		NodeList rcMetadataNodes = annotation.getElementsByTagName(METADATA_TAG);
 		Element rcMetadataElement = (Element) rcMetadataNodes.item(0);
 
-		// Gets CondId
-		NodeList condIdNodes = rcMetadataElement.getElementsByTagName(CONDID_TAG);
-		Element condIdNode = (Element) condIdNodes.item(0);
-		int condId = Integer.parseInt(condIdNode.getTextContent());
+		NodeList nodeList = rcMetadataElement.getElementsByTagName(CondIDNuMLNode.TAG);
+		Element element = (Element) nodeList.item(0);
+		CondIDNuMLNode condIdNode = new CondIDNuMLNode(element);
+		int condId = condIdNode.getCondId();
 
 		return condId;
 	}
@@ -224,7 +205,7 @@ public class DataFile {
 		Element metadataNode = (Element) metadataNodes.item(0);
 		
 		// Gets matrix node
-		NodeList matrixNodes = metadataNode.getElementsByTagName(COMPARTMENT_TAG);
+		NodeList matrixNodes = metadataNode.getElementsByTagName(MatrixNuMLNode.TAG);
 		Element matrixNode = (Element) matrixNodes.item(0);
 
 		return new MatrixNuMLNode(matrixNode).toMatrixXml();
@@ -238,7 +219,7 @@ public class DataFile {
 		Element metadataNode = (Element) metadataNodes.item(0);
 
 		// Gets agent node
-		NodeList agentNodes = metadataNode.getElementsByTagName(SPECIES_TAG);
+		NodeList agentNodes = metadataNode.getElementsByTagName(AgentNuMLNode.TAG);
 		Element agentNode = (Element) agentNodes.item(0);
 
 		return new AgentNuMLNode(agentNode).toAgentXml();
@@ -252,7 +233,7 @@ public class DataFile {
 		Element metadataNode = (Element) metadataNodes.item(0);
 		
 		// Gets matrix node
-		NodeList matrixNodes = metadataNode.getElementsByTagName(COMPARTMENT_TAG);
+		NodeList matrixNodes = metadataNode.getElementsByTagName(MatrixNuMLNode.TAG);
 		Element matrixNode = (Element) matrixNodes.item(0);
 
 		Map<String, Double> miscs = new HashMap<>();
@@ -277,7 +258,7 @@ public class DataFile {
 
 		// Gets literature items
 		List<LiteratureItem> lits = new LinkedList<>();
-		NodeList litNodes = rcMetadataNode.getElementsByTagName(REFERENCE_TAG);
+		NodeList litNodes = rcMetadataNode.getElementsByTagName(ReferenceNuMLNode.TAG);
 		for (int i = 0; i < litNodes.getLength(); i++) {
 			Element litNode = (Element) litNodes.item(i);
 			lits.add(new ReferenceNuMLNode(litNode).toLiteratureItem());
@@ -287,43 +268,46 @@ public class DataFile {
 	}
 
 	public Metadata getMetadata() {
-		Metadata metadata = new Metadata();
-
 		ResultComponent rc = doc.getResultComponents().get(0);
 
 		// Gets result component metadata
 		NodeList rcMetadataNodes = rc.getAnnotation().getElementsByTagName(METADATA_TAG);
 		Element rcMetadataNode = (Element) rcMetadataNodes.item(0);
 
-		NodeList creatorNodes = rcMetadataNode.getElementsByTagName(CREATOR_TAG);
+		NodeList creatorNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.CREATOR_TAG);
+		Element creatorNode;
 		if (creatorNodes.getLength() == 1) {
-			Element creatorNode = (Element) creatorNodes.item(0);
-			String[] tempStrings = creatorNode.getTextContent().split("\\.", 3);
-			metadata.setGivenName(tempStrings[0]);
-			metadata.setFamilyName(tempStrings[1]);
-			metadata.setContact(tempStrings[2]);
+			creatorNode = (Element) creatorNodes.item(0);
+		} else {
+			creatorNode = null;
 		}
-
-		// Gets created date
-		NodeList createdNodes = rcMetadataNode.getElementsByTagName(CREATED_TAG);
+		
+		NodeList createdNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.CREATED_TAG);
+		Element createdNode;
 		if (createdNodes.getLength() == 1) {
-			Element createdNode = (Element) createdNodes.item(0);
-			metadata.setCreatedDate(createdNode.getTextContent());
+			createdNode = (Element) createdNodes.item(0);
+		} else {
+			createdNode = null;
 		}
-
-		// Gets last modification date
-		NodeList modifiedNodes = rcMetadataNode.getElementsByTagName(MODIFIED_TAG);
+		
+		NodeList modifiedNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.MODIFIED_TAG);
+		Element modifiedNode;
 		if (modifiedNodes.getLength() == 1) {
-			Element modifiedNode = (Element) modifiedNodes.item(0);
-			metadata.setModifiedDate(modifiedNode.getTextContent());
+			modifiedNode = (Element) modifiedNodes.item(0);
+		} else {
+			modifiedNode = null;
 		}
-
-		NodeList typeNodes = rcMetadataNode.getElementsByTagName(TYPE_TAG);
+		
+		NodeList typeNodes = rcMetadataNode.getElementsByTagName(MetadataNuMLNodes.TYPE_TAG);
+		Element typeNode;
 		if (typeNodes.getLength() == 1) {
-			Element typeNode = (Element) typeNodes.item(0);
-			metadata.setType(typeNode.getTextContent());
+			typeNode = (Element) typeNodes.item(0);
+		} else {
+			typeNode = null;
 		}
-
+		
+		MetadataNuMLNodes metadataNodes = new MetadataNuMLNodes(creatorNode, createdNode, modifiedNode, typeNode);
+		Metadata metadata = metadataNodes.toMetadata();
 		return metadata;
 	}
 

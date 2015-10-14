@@ -13,8 +13,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 public class ReferenceNuMLNode extends NuMLNodeBase {
 
-	public static final String TAG = "reference";
-	public static final String NS = "dc";
+	public static final String TAG = "dc:reference";
 
 	private static final LiteratureSpecification SPEC = new RIS();
 
@@ -28,7 +27,7 @@ public class ReferenceNuMLNode extends NuMLNodeBase {
 	public ReferenceNuMLNode(final LiteratureItem lit) throws ParserConfigurationException {
 		// reference container
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		node = doc.createElement("dc:reference");
+		node = doc.createElement(TAG);
 		node.setAttribute("xmlns:ref", "http://foo.bar.com");
 
 		if (lit.getAuthor() != null) {

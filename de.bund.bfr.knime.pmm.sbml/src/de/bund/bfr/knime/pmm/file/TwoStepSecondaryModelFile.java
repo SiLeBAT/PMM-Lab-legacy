@@ -154,6 +154,8 @@ public class TwoStepSecondaryModelFile {
 		URI sbmlURI = new SBMLURI().createURI();
 		URI numlURI = new NuMLURI().createURI();
 
+		Element metaParent = new Element("metaParent");
+
 		// Add models and data
 		short modelCounter = 0;
 		for (TwoStepSecondaryModel model : models) {
@@ -166,7 +168,11 @@ public class TwoStepSecondaryModelFile {
 
 			// Writes model to secTmp and adds it to the file
 			sbmlWriter.write(model.getSecDoc(), secTmp);
-			ca.addEntry(secTmp, mdName, sbmlURI);
+			ArchiveEntry masterEntry = ca.addEntry(secTmp, mdName, sbmlURI);
+
+			Element masterFileElement = new Element("masterFile");
+			masterFileElement.addContent(masterEntry.getPath().getFileName().toString());
+			metaParent.addContent(masterFileElement);
 
 			for (PrimaryModelWData primModel : model.getPrimModels()) {
 
@@ -209,8 +215,8 @@ public class TwoStepSecondaryModelFile {
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
 		metaElement.addContent(ModelType.TWO_STEP_SECONDARY_MODEL.name());
-		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
+		
 		ca.addDescription(new DefaultMetaDataObject(metaParent));
 
 		ca.pack();

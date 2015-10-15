@@ -125,6 +125,8 @@ public class ManualTertiaryModelFile {
 		// Creates SBML URI
 		URI sbmlURI = URIFactory.createSBMLURI();
 
+		Element metaParent = new Element("metaParent");
+		
 		// Add models and data
 		short modelCounter = 0;
 		for (ManualTertiaryModel model : models) {
@@ -137,7 +139,11 @@ public class ManualTertiaryModelFile {
 
 			// Writes tertiary model to tertTmp and adds it to the file
 			sbmlWriter.write(model.getTertDoc(), tertTmp);
-			ca.addEntry(tertTmp, mdName, sbmlURI);
+			ArchiveEntry masterEntry = ca.addEntry(tertTmp, mdName, sbmlURI);
+			
+			Element masterFileElement = new Element("masterFile");
+			masterFileElement.addContent(masterEntry.getPath().getFileName().toString());
+			metaParent.addContent(masterFileElement);
 
 			for (SBMLDocument secDoc : model.getSecDocs()) {
 				// Creates tmp file for the secondary model
@@ -158,11 +164,12 @@ public class ManualTertiaryModelFile {
 			exec.setProgress((float) modelCounter / models.size());
 		}
 
+
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
 		metaElement.addContent(ModelType.MANUAL_TERTIARY_MODEL.name());
-		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
+		
 		ca.addDescription(new DefaultMetaDataObject(metaParent));
 
 		ca.pack();

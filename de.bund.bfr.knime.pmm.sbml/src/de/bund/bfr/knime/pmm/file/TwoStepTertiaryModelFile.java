@@ -168,6 +168,8 @@ public class TwoStepTertiaryModelFile {
 		URI sbmlURI = URIFactory.createSBMLURI();
 		URI numlURI = URIFactory.createNuMLURI();
 
+		Element metaParent = new Element("metaParent");
+
 		// Add models and data
 		short modelCounter = 0;
 		for (TwoStepTertiaryModel model : models) {
@@ -238,7 +240,11 @@ public class TwoStepTertiaryModelFile {
 
 			// Writes tertiary model to tertTmp and adds it to the file
 			sbmlWriter.write(model.getTertDoc(), tertTmp);
-			ca.addEntry(tertTmp, mdName, sbmlURI);
+			ArchiveEntry masterEntry = ca.addEntry(tertTmp, mdName, sbmlURI);
+
+			Element masterFileElement = new Element("masterFile");
+			masterFileElement.addContent(masterEntry.getPath().getFileName().toString());
+			metaParent.addContent(masterFileElement);
 
 			// Increments counter and update progress bar
 			modelCounter++;
@@ -248,8 +254,8 @@ public class TwoStepTertiaryModelFile {
 		// Adds description with model type
 		Element metaElement = new Element("modeltype");
 		metaElement.addContent(ModelType.TWO_STEP_TERTIARY_MODEL.name());
-		Element metaParent = new Element("metaParent");
 		metaParent.addContent(metaElement);
+		
 		ca.addDescription(new DefaultMetaDataObject(metaParent));
 
 		ca.pack();

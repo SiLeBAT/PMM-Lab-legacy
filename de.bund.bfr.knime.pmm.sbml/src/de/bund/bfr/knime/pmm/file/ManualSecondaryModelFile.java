@@ -7,6 +7,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -126,11 +127,9 @@ public class ManualSecondaryModelFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.MANUAL_SECONDARY_MODEL.name());
-		Element metaParent = new Element("metaParent");
-		metaParent.addContent(metaElement);
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.MANUAL_SECONDARY_MODEL.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

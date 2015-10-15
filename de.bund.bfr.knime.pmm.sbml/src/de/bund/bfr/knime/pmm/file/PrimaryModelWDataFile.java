@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -57,9 +58,10 @@ public class PrimaryModelWDataFile {
 		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
-		HashMap<String, ArchiveEntry> dataEntries = new HashMap<>();
-		for (ArchiveEntry dataEntry : ca.getEntriesWithFormat(numlURI)) {
-			dataEntries.put(dataEntry.getFileName(), dataEntry);
+		List<ArchiveEntry> dataEntries = ca.getEntriesWithFormat(numlURI);
+		HashMap<String, ArchiveEntry> dataEntriesMap = new HashMap<>(dataEntries.size());
+		for (ArchiveEntry dataEntry : dataEntries) {
+			dataEntriesMap.put(dataEntry.getFileName(), dataEntry);
 		}
 
 		// Parse models in the PMF file
@@ -85,12 +87,13 @@ public class PrimaryModelWDataFile {
 				} else {
 					DataSourceNode dataSourceNode = new DataSourceNode(node);
 					String dataFileName = dataSourceNode.getFile();
-					ArchiveEntry dataEntry = dataEntries.get(dataFileName);
+					ArchiveEntry dataEntry = dataEntriesMap.get(dataFileName);
 					if (dataEntry == null) {
 						model = new PrimaryModelWData(sbmlDoc, null);
 					} else {
 						stream = Files.newInputStream(dataEntry.getPath(), StandardOpenOption.READ);
 						NuMLDocument numlDoc = numlReader.read(stream);
+						stream.close();
 						model = new PrimaryModelWData(sbmlDoc, numlDoc);
 					}
 				}
@@ -172,11 +175,9 @@ public class PrimaryModelWDataFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.PRIMARY_MODEL_WDATA.name());
-		Element metaParent = new Element("metaParent");
-		metaParent.addContent(metaElement);
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.PRIMARY_MODEL_WDATA.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

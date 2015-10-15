@@ -8,8 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -79,12 +81,13 @@ public class OneStepSecondaryModelFile {
 		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
-		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
+		List<ArchiveEntry> dataEntries = ca.getEntriesWithFormat(numlURI);
+		Map<String, NuMLDocument> dataEntriesMap = new HashMap<>(dataEntries.size());
+		for (ArchiveEntry entry : dataEntries) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			stream.close();
-			dataEntries.put(entry.getFileName(), doc);
+			dataEntriesMap.put(entry.getFileName(), doc);
 		}
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
@@ -101,7 +104,7 @@ public class OneStepSecondaryModelFile {
 			for (XMLNode node : metadata.getChildElements("dataSource", "")) {
 				DataSourceNode dsn = new DataSourceNode(node);
 				String dataFileName = dsn.getFile();
-				numlDocs.add(dataEntries.get(dataFileName));
+				numlDocs.add(dataEntriesMap.get(dataFileName));
 			}
 
 			OneStepSecondaryModel ossm = new OneStepSecondaryModel(doc, numlDocs);
@@ -185,11 +188,9 @@ public class OneStepSecondaryModelFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.ONE_STEP_SECONDARY_MODEL.name());
-		Element metaParent = new Element("metaParent");
-		metaParent.addContent(metaElement);
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.ONE_STEP_SECONDARY_MODEL.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

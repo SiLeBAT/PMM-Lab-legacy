@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -111,11 +112,9 @@ public class PrimaryModelWODataFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.PRIMARY_MODEL_WODATA.name());
-		Element metaParent = new Element("metaParent");
-		metaParent.addContent(metaElement);
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.PRIMARY_MODEL_WODATA.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

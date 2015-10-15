@@ -8,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -43,6 +45,7 @@ import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
+import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 /**
  * Case 3b: File with tertiary model generated with 1-step fit approach.
@@ -73,28 +76,33 @@ public class OneStepTertiaryModelFile {
 		URI numlURI = URIFactory.createNuMLURI();
 
 		// Get data entries
-		HashMap<String, NuMLDocument> dataEntries = new HashMap<>();
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
+		List<ArchiveEntry> dataEntries = ca.getEntriesWithFormat(numlURI);
+		HashMap<String, NuMLDocument> dataEntriesMap = new HashMap<>(dataEntries.size());
+		for (ArchiveEntry entry : dataEntries) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
 			stream.close();
-			dataEntries.put(entry.getFileName(), doc);
+			dataEntriesMap.put(entry.getFileName(), doc);
 		}
 
 		// Classify models into tertiary or secondary models
 		Map<String, SBMLDocument> tertDocs = new HashMap<>();
 		Map<String, SBMLDocument> secDocs = new HashMap<>();
+		
+		MetaDataObject mdo = ca.getDescriptions().get(0);
+		Element metaParent = mdo.getXmlDescription();
+		PMFMetadataNode metadataAnnotation = new PMFMetadataNode(metaParent);
+		Set<String> masterFiles = metadataAnnotation.getMasterFiles();
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			stream.close();
-
-			// Secondary model -> Has no primary model
-			if (doc.getModel().getListOfSpecies().size() == 0) {
-				secDocs.put(entry.getFileName(), doc);
-			} else {
+			
+			if (masterFiles.contains(entry.getFileName())) {
 				tertDocs.put(entry.getFileName(), doc);
+			} else {
+				secDocs.put(entry.getFileName(), doc);
 			}
 		}
 
@@ -117,7 +125,7 @@ public class OneStepTertiaryModelFile {
 			XMLNode tertAnnotMetadata = tertAnnot.getChildElement("metadata", "");
 			for (XMLNode node : tertAnnotMetadata.getChildElements("dataSource", "")) {
 				DataSourceNode dsn = new DataSourceNode(node);
-				numlDocs.add(dataEntries.get(dsn.getFile()));
+				numlDocs.add(dataEntriesMap.get(dsn.getFile()));
 			}
 			OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDoc, secModels, numlDocs);
 			models.add(tstm);
@@ -164,8 +172,7 @@ public class OneStepTertiaryModelFile {
 		URI sbmlURI = URIFactory.createSBMLURI();
 		URI numlURI = URIFactory.createNuMLURI();
 
-		Element metaParent = new Element("metaParent");
-
+		Set<String> masterFiles = new HashSet<>(models.size());
 		// Add models and data
 		short modelCounter = 0;
 		for (OneStepTertiaryModel model : models) {
@@ -207,10 +214,7 @@ public class OneStepTertiaryModelFile {
 			// Writes tertiary model to tertTmp and adds it to the file
 			sbmlWriter.write(model.getTertDoc(), tertTmp);
 			ArchiveEntry masterEntry = ca.addEntry(tertTmp, mdName, sbmlURI);
-
-			Element masterFileElement = new Element("masterFile");
-			masterFileElement.addContent(masterEntry.getPath().getFileName().toString());
-			metaParent.addContent(masterFileElement);
+			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
 			for (SBMLDocument secDoc : model.getSecDocs()) {
 				// Creates tmp file for the secondary model
@@ -239,11 +243,9 @@ public class OneStepTertiaryModelFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.ONE_STEP_TERTIARY_MODEL.name());
-		metaParent.addContent(metaElement);
-		
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.ONE_STEP_TERTIARY_MODEL.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, masterFiles).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

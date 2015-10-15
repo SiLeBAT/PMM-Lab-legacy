@@ -6,9 +6,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
@@ -34,6 +36,7 @@ import de.bund.bfr.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
+import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 /**
  * Case 3a: File with tertiary model generated with 2-step fit approach.
@@ -71,29 +74,26 @@ public class TwoStepTertiaryModelFile {
 			dataEntries.put(entry.getFileName(), doc);
 		}
 
+		MetaDataObject mdo = ca.getDescriptions().get(0);
+		Element metaParent = mdo.getXmlDescription();
+		PMFMetadataNode metadataAnnotation = new PMFMetadataNode(metaParent);
+		Set<String> masterFiles = metadataAnnotation.getMasterFiles();
+
 		// Classify models into tertiary or secondary models
-		Map<String, SBMLDocument> tertDocs = new HashMap<>();
+		Map<String, SBMLDocument> tertDocs = new HashMap<>(masterFiles.size());
 		Map<String, SBMLDocument> primDocs = new HashMap<>();
 		Map<String, SBMLDocument> secDocs = new HashMap<>();
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
-			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
 			stream.close();
-			
-			// Tertiary model -> has external model definitions
-			if (plugin.getNumExternalModelDefinitions() > 0) {
-				tertDocs.put(entry.getFileName(), doc);
-			}
 
-			// Secondary model
-			else if (doc.getModel().getListOfSpecies().size() == 0) {
+			if (masterFiles.contains(entry.getFileName())) {
+				tertDocs.put(entry.getFileName(), doc);
+			} else if (doc.getModel().getListOfSpecies().size() == 0) {
 				secDocs.put(entry.getFileName(), doc);
-			}
-			
-			// Primary model -> Has no model definitions
-			else {
+			} else {
 				primDocs.put(entry.getFileName(), doc);
 			}
 		}
@@ -122,7 +122,8 @@ public class TwoStepTertiaryModelFile {
 				// Gets primary model
 				SBMLDocument mdDoc = primDocs.get(mdName);
 				// Gets data source annotation of the primary model
-				XMLNode mdDocMetadata = mdDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+				XMLNode mdDocMetadata = mdDoc.getModel().getAnnotation().getNonRDFannotation()
+						.getChildElement("metadata", "");
 				XMLNode node = mdDocMetadata.getChildElement("dataSource", "");
 				// Gets data name from this annotation
 				String dataName = new DataSourceNode(node).getFile();
@@ -168,7 +169,7 @@ public class TwoStepTertiaryModelFile {
 		URI sbmlURI = URIFactory.createSBMLURI();
 		URI numlURI = URIFactory.createNuMLURI();
 
-		Element metaParent = new Element("metaParent");
+		Set<String> masterFiles = new HashSet<>(models.size());
 
 		// Add models and data
 		short modelCounter = 0;
@@ -192,7 +193,8 @@ public class TwoStepTertiaryModelFile {
 				ca.addEntry(numlTmp, dataName, numlURI);
 
 				// Adds DataSourceNode to the model
-				XMLNode metadataNode = pm.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+				XMLNode metadataNode = pm.getSBMLDoc().getModel().getAnnotation().getNonRDFannotation()
+						.getChildElement("metadata", "");
 				metadataNode.addChild(new DataSourceNode(dataName).getNode());
 
 				// Creates tmp file for the model
@@ -241,10 +243,7 @@ public class TwoStepTertiaryModelFile {
 			// Writes tertiary model to tertTmp and adds it to the file
 			sbmlWriter.write(model.getTertDoc(), tertTmp);
 			ArchiveEntry masterEntry = ca.addEntry(tertTmp, mdName, sbmlURI);
-
-			Element masterFileElement = new Element("masterFile");
-			masterFileElement.addContent(masterEntry.getPath().getFileName().toString());
-			metaParent.addContent(masterFileElement);
+			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
 			// Increments counter and update progress bar
 			modelCounter++;
@@ -252,11 +251,9 @@ public class TwoStepTertiaryModelFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.TWO_STEP_TERTIARY_MODEL.name());
-		metaParent.addContent(metaElement);
-		
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.TWO_STEP_TERTIARY_MODEL.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, masterFiles).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

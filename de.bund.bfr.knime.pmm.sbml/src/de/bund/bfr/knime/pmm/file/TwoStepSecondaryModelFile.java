@@ -6,8 +6,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jdom2.Element;
 import org.knime.core.node.ExecutionContext;
@@ -30,6 +32,7 @@ import de.bund.bfr.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
+import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 /**
  * Case 2a: Two step secondary model file. Secondary models generated with the
@@ -67,24 +70,34 @@ public class TwoStepSecondaryModelFile {
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			NuMLDocument doc = numlReader.read(stream);
+			stream.close();
 			dataEntries.put(entry.getFileName(), doc);
 		}
 
-		// Classify models into primary or secondary models
-		HashMap<String, SBMLDocument> secModels = new HashMap<>();
-		HashMap<String, SBMLDocument> primModels = new HashMap<>();
+		
+		// Gets master files
+		MetaDataObject mdo = ca.getDescriptions().get(0);
+		Element metaParent = mdo.getXmlDescription();
+		PMFMetadataNode metadataAnnotation = new PMFMetadataNode(metaParent);
+		Set<String> masterFiles = metadataAnnotation.getMasterFiles();
+		
+		// List of SBML entries
+		List<ArchiveEntry> sbmlEntries = ca.getEntriesWithFormat(sbmlURI);
 
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
+		// Classify models into primary or secondary models
+		int numSecModels = masterFiles.size();
+		int numPrimModels = sbmlEntries.size() - masterFiles.size();
+		HashMap<String, SBMLDocument> secModels = new HashMap<>(numSecModels);
+		HashMap<String, SBMLDocument> primModels = new HashMap<>(numPrimModels);
+
+		for (ArchiveEntry entry : sbmlEntries) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
 			stream.close();
-
-			// Secondary models do not have species
-			if (doc.getModel().getListOfSpecies().size() == 0) {
+			
+			if (masterFiles.contains(entry.getFileName())) {
 				secModels.put(entry.getFileName(), doc);
-			}
-			// Primary models have species
-			else {
+			} else {
 				primModels.put(entry.getFileName(), doc);
 			}
 		}
@@ -154,7 +167,7 @@ public class TwoStepSecondaryModelFile {
 		URI sbmlURI = new SBMLURI().createURI();
 		URI numlURI = new NuMLURI().createURI();
 
-		Element metaParent = new Element("metaParent");
+		Set<String> masterFiles = new HashSet<>(models.size());
 
 		// Add models and data
 		short modelCounter = 0;
@@ -169,10 +182,7 @@ public class TwoStepSecondaryModelFile {
 			// Writes model to secTmp and adds it to the file
 			sbmlWriter.write(model.getSecDoc(), secTmp);
 			ArchiveEntry masterEntry = ca.addEntry(secTmp, mdName, sbmlURI);
-
-			Element masterFileElement = new Element("masterFile");
-			masterFileElement.addContent(masterEntry.getPath().getFileName().toString());
-			metaParent.addContent(masterFileElement);
+			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
 			for (PrimaryModelWData primModel : model.getPrimModels()) {
 
@@ -213,11 +223,9 @@ public class TwoStepSecondaryModelFile {
 		}
 
 		// Adds description with model type
-		Element metaElement = new Element("modeltype");
-		metaElement.addContent(ModelType.TWO_STEP_SECONDARY_MODEL.name());
-		metaParent.addContent(metaElement);
-		
-		ca.addDescription(new DefaultMetaDataObject(metaParent));
+		String modelType = ModelType.TWO_STEP_SECONDARY_MODEL.name();
+		Element metadataAnnotation = new PMFMetadataNode(modelType, masterFiles).getNode();
+		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
 		ca.pack();
 		ca.close();

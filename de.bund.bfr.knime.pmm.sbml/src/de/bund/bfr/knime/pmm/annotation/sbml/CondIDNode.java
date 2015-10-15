@@ -1,24 +1,24 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-public class GlobalModelIdNode extends SBMLNodeBase {
-	
-	public final static String TAG = "globalModelID";
+public class CondIDNode extends SBMLNodeBase {
+
+	public final static String TAG = "condID";
 	public final static String NS = "pmmlab";
 	
-	public GlobalModelIdNode(int id) {
+	public CondIDNode(final int id) {
 		XMLTriple triple = new XMLTriple(TAG, null, NS);
 		node = new XMLNode(triple);
 		node.addChild(new XMLNode(Integer.toString(id)));
 	}
 	
-	public GlobalModelIdNode(final XMLNode node) {
+	public CondIDNode(final XMLNode node) {
 		this.node = node;
 	}
 	
-	public int getGlobalModelId() {
+	public int getCondId() {
 		return Integer.parseInt(node.getChild(0).getCharacters());
 	}
 }

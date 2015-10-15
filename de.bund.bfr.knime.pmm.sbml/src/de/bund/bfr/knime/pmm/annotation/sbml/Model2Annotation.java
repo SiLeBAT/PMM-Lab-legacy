@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import java.util.LinkedList;
 import java.util.List;

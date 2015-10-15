@@ -10,7 +10,7 @@ import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.Unit;
 
-import de.bund.bfr.knime.pmm.annotation.AgentAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.AgentAnnotation;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 
 /** Wrapper class for a Pmm Lab organism that holds a SBML species. */

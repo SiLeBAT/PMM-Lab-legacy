@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.*;
 
@@ -7,11 +7,14 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import de.bund.bfr.knime.pmm.annotation.sbml.CoefficientAnnotation;
+
 public class CoefficientAnnotationTest {
 
 	/**
 	 * Tests equality for a non null CoefficientAnnotation.
 	 */
+	@SuppressWarnings("static-method")
 	@Test
 	public void test() {
 		double P = 2.0454252780410798E-7;
@@ -37,6 +40,7 @@ public class CoefficientAnnotationTest {
 	/**
 	 * Tests equality for a null CoefficientAnnotation.
 	 */
+	@SuppressWarnings("static-method")
 	@Test
 	public void testMissing() {
 		CoefficientAnnotation ca = new CoefficientAnnotation(null, null, null, null, null);

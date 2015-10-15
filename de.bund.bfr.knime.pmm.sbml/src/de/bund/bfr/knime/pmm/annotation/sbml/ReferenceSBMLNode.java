@@ -1,9 +1,11 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import org.sbml.jsbml.xml.XMLNamespaces;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import de.bund.bfr.knime.pmm.annotation.LiteratureSpecification;
+import de.bund.bfr.knime.pmm.annotation.RIS;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 
 /**

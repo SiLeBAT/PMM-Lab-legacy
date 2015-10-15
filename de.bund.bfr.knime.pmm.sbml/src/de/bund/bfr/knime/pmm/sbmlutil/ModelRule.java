@@ -12,7 +12,7 @@ import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.text.parser.ParseException;
 
-import de.bund.bfr.knime.pmm.annotation.ModelRuleAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.ModelRuleAnnotation;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 

@@ -21,8 +21,8 @@ import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 
-import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
-import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.MetadataAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model1Annotation;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.units.Categories;

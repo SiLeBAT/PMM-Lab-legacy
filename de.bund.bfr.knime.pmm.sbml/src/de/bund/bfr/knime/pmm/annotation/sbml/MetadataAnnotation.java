@@ -1,10 +1,12 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import java.util.Locale;
 
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
+
+import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 
@@ -21,10 +23,10 @@ public class MetadataAnnotation extends AnnotationBase {
 
 	private final static String TYPE_NS = "dc";
 	private final static String TYPE_TAG = "type";
-	
+
 	private final static String RIGHTS_NS = "dc";
 	private final static String RIGHTS_TAG = "rights";
-	
+
 	private final static String REFERENCE_NS = "dc";
 	private final static String REFERENCE_TAG = "source";
 
@@ -37,19 +39,23 @@ public class MetadataAnnotation extends AnnotationBase {
 		XMLNode pmfNode = new XMLNode(pmfTriple);
 
 		// Builds creator node
-		if (!metadata.getGivenName().isEmpty() || !metadata.getFamilyName().isEmpty() || !metadata.getContact().isEmpty()) {
+		if (metadata.isGivenNameSet() || metadata.isFamilyNameSet() || metadata.isContactSet()) {
+
+			String givenName = Strings.nullToEmpty(metadata.getGivenName());
+			String familyName = Strings.nullToEmpty(metadata.getFamilyName());
+			String contact = Strings.nullToEmpty(metadata.getContact());
+
+			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", givenName, familyName, contact);
+
 			XMLTriple creatorTriple = new XMLTriple(CREATOR_TAG, null, CREATOR_NS);
 			XMLNode creatorNode = new XMLNode(creatorTriple);
-
-			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", metadata.getGivenName(),
-					metadata.getFamilyName(), metadata.getContact());
 			creatorNode.addChild(new XMLNode(creator));
 
 			pmfNode.addChild(creatorNode);
 		}
 
 		// Builds created date node
-		if (!metadata.getCreatedDate().isEmpty()) {
+		if (metadata.isCreatedDateSet()) {
 			XMLTriple createdTriple = new XMLTriple(CREATED_TAG, "", CREATED_NS);
 			XMLNode createdNode = new XMLNode(createdTriple);
 			createdNode.addChild(new XMLNode(metadata.getCreatedDate()));
@@ -58,7 +64,7 @@ public class MetadataAnnotation extends AnnotationBase {
 		}
 
 		// Builds modified date node
-		if (!metadata.getModifiedDate().isEmpty()) {
+		if (metadata.isModifiedDateSet()) {
 			XMLTriple modifiedTriple = new XMLTriple(MODIFIED_TAG, "", MODIFIED_NS);
 			XMLNode modifiedNode = new XMLNode(modifiedTriple);
 			modifiedNode.addChild(new XMLNode(metadata.getModifiedDate()));
@@ -67,27 +73,29 @@ public class MetadataAnnotation extends AnnotationBase {
 		}
 
 		// Builds type node
-		if (!metadata.getType().isEmpty()) {
+		if (metadata.isTypeSet()) {
 			XMLTriple typeTriple = new XMLTriple(TYPE_TAG, "", TYPE_NS);
 			XMLNode typeNode = new XMLNode(typeTriple);
 			typeNode.addChild(new XMLNode(metadata.getType()));
 
 			pmfNode.addChild(typeNode);
 		}
-		
-		if (!metadata.getRights().isEmpty()) {
+
+		// Builds rights node
+		if (metadata.areRightsSet()) {
 			XMLTriple rightsTriple = new XMLTriple(RIGHTS_TAG, "", RIGHTS_NS);
 			XMLNode rightsNode = new XMLNode(rightsTriple);
 			rightsNode.addChild(new XMLNode(metadata.getRights()));
-			
+
 			pmfNode.addChild(rightsNode);
 		}
-		
-		if (!metadata.getReferenceLink().isEmpty()) {
+
+		// Builds reference node
+		if (metadata.isReferenceLinkSet()) {
 			XMLTriple refTriple = new XMLTriple(REFERENCE_TAG, "", REFERENCE_NS);
 			XMLNode refNode = new XMLNode(refTriple);
 			refNode.addChild(new XMLNode(metadata.getReferenceLink()));
-			
+
 			pmfNode.addChild(refNode);
 		}
 
@@ -107,9 +115,9 @@ public class MetadataAnnotation extends AnnotationBase {
 		XMLNode creatorNode = pmfNode.getChildElement(CREATOR_TAG, "");
 		if (creatorNode != null) {
 			String[] tempStrings = creatorNode.getChild(0).getCharacters().split("\\.", 3);
-			metadata.setGivenName(tempStrings[0]);
-			metadata.setFamilyName(tempStrings[1]);
-			metadata.setContact(tempStrings[2]);
+			metadata.setGivenName(Strings.emptyToNull(tempStrings[0]));
+			metadata.setFamilyName(Strings.emptyToNull(tempStrings[1]));
+			metadata.setContact(Strings.emptyToNull(tempStrings[2]));
 		}
 
 		XMLNode createdNode = pmfNode.getChildElement(CREATED_TAG, "");
@@ -126,12 +134,12 @@ public class MetadataAnnotation extends AnnotationBase {
 		if (typeNode != null) {
 			metadata.setType(typeNode.getChild(0).getCharacters());
 		}
-		
+
 		XMLNode rightsNode = pmfNode.getChildElement(RIGHTS_TAG, "");
 		if (rightsNode != null) {
 			metadata.setRights(rightsNode.getChild(0).getCharacters());
 		}
-		
+
 		XMLNode refNode = pmfNode.getChildElement(REFERENCE_TAG, "");
 		if (refNode != null) {
 			metadata.setReferenceLink(refNode.getChild(0).getCharacters());

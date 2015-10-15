@@ -1,10 +1,12 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.assertEquals;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.junit.Test;
+
+import de.bund.bfr.knime.pmm.annotation.sbml.DescriptionAnnotation;
 
 public class DescriptionAnnotationTest {
 

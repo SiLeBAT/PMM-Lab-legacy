@@ -77,12 +77,14 @@ import org.sbml.jsbml.ext.comp.Submodel;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.annotation.GlobalModelIdNode;
-import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
-import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
-import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
-import de.bund.bfr.knime.pmm.annotation.PrimaryModelNode;
-import de.bund.bfr.knime.pmm.annotation.ReferenceSBMLNode;
+import com.google.common.base.Strings;
+
+import de.bund.bfr.knime.pmm.annotation.sbml.GlobalModelIdNode;
+import de.bund.bfr.knime.pmm.annotation.sbml.MetadataAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model2Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.PrimaryModelNode;
+import de.bund.bfr.knime.pmm.annotation.sbml.ReferenceSBMLNode;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -287,10 +289,10 @@ public class PMFWriterNodeModel extends NodeModel {
 		} else {
 			setWarningMessage("Modified date missing");
 		}
-		metadata.setType(modelType.name());
-		metadata.setRights(license.getStringValue());
-		metadata.setReferenceLink(referenceLink.getStringValue());
-		String modelNotes = notes.getStringValue();
+		metadata.setType(Strings.emptyToNull(modelType.name()));
+		metadata.setRights(Strings.emptyToNull(license.getStringValue()));
+		metadata.setReferenceLink(Strings.emptyToNull(referenceLink.getStringValue()));
+		String modelNotes = Strings.emptyToNull(notes.getStringValue());
 
 		String dir = outPath.getStringValue();
 		String mdName = modelName.getStringValue();
@@ -443,9 +445,9 @@ public class PMFWriterNodeModel extends NodeModel {
 		return true;
 	}
 
-	public boolean hasData(List<KnimeTuple> tuples) {
+	public static boolean hasData(List<KnimeTuple> tuples) {
 		for (KnimeTuple tuple : tuples) {
-			PmmXmlDoc mdData = (PmmXmlDoc) tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+			PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			if (mdData != null && mdData.size() > 0) {
 				return true;
 			}
@@ -708,7 +710,7 @@ class ManualSecondaryModelParser implements Parser {
 		}
 	}
 
-	private ManualSecondaryModel parse(KnimeTuple tuple, Metadata metadata, String notes) {
+	private static ManualSecondaryModel parse(KnimeTuple tuple, Metadata metadata, String notes) {
 
 		// Retrieve Model2Schema cells
 		CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
@@ -748,10 +750,12 @@ class ManualSecondaryModelParser implements Parser {
 			model.setName(estModel.getName());
 		}
 
-		try {
-			model.setNotes(notes);
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
+		if (notes != null) {
+			try {
+				model.setNotes(notes);
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
 		}
 
 		TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
@@ -852,7 +856,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		}
 	}
 
-	private TwoStepSecondaryModel parse(List<KnimeTuple> tuples, Metadata metadata, String notes) {
+	private static TwoStepSecondaryModel parse(List<KnimeTuple> tuples, Metadata metadata, String notes) {
 		/**
 		 * <ol>
 		 * <li>Create n SBMLDocument for primary models</li>
@@ -930,7 +934,7 @@ class OneStepSecondaryModelParser implements Parser {
 		}
 	}
 
-	private OneStepSecondaryModel parse(List<KnimeTuple> tuples, Metadata metadata, String notes) {
+	private static OneStepSecondaryModel parse(List<KnimeTuple> tuples, Metadata metadata, String notes) {
 		KnimeTuple firstTuple = tuples.get(0);
 
 		// Retrieve Model2Schema cells
@@ -971,8 +975,6 @@ class TwoStepTertiaryModelParser implements Parser {
 		// Sort global models
 		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader.sortGlobalModels(tuples);
 
-		// Parse tertiary models
-		int modelCounter = 0;
 		for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
 			List<List<KnimeTuple>> tuplesList = new LinkedList<>();
 			for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
@@ -982,10 +984,8 @@ class TwoStepTertiaryModelParser implements Parser {
 			// microbial data yet different data. Then we'll create a
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
-			TwoStepTertiaryModel tm = parse(tuplesList, modelCounter, metadata, notes);
+			TwoStepTertiaryModel tm = parse(tuplesList, metadata, notes);
 			tms.add(tm);
-
-			modelCounter++;
 		}
 
 		if (splitModels) {
@@ -1000,8 +1000,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 	}
 
-	private TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Metadata metadata,
-			String notes) {
+	private static TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, Metadata metadata, String notes) {
 
 		List<PrimaryModelWData> primModels = new LinkedList<>();
 		List<SBMLDocument> secDocs = new LinkedList<>();
@@ -1123,7 +1122,6 @@ class OneStepTertiaryModelParser implements Parser {
 		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader.sortGlobalModels(tuples);
 
 		// Parse tertiary models
-		int modelCounter = 0;
 		for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
 			List<List<KnimeTuple>> tuplesList = new LinkedList<>();
 			for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
@@ -1133,10 +1131,8 @@ class OneStepTertiaryModelParser implements Parser {
 			// microbial data yet different data. Then we'll create a
 			// TwoTertiaryModel from the first instance and create the data from
 			// every instance.
-			OneStepTertiaryModel tm = parse(tuplesList, modelCounter, metadata, notes);
+			OneStepTertiaryModel tm = parse(tuplesList, metadata, notes);
 			tms.add(tm);
-
-			modelCounter++;
 		}
 
 		if (splitModels) {
@@ -1152,7 +1148,7 @@ class OneStepTertiaryModelParser implements Parser {
 
 	}
 
-	private OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, int modelNum, Metadata metadata, String notes) {
+	private static OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, Metadata metadata, String notes) {
 		// We'll get microbial data from the first instance
 		List<KnimeTuple> firstInstance = tupleList.get(0);
 		// and the primary model from the first tuple
@@ -1236,7 +1232,7 @@ class ManualTertiaryModelParser implements Parser {
 		}
 	}
 
-	private ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, String mdName, int modelNum,
+	private static ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, String mdName, int modelNum,
 			Metadata metadata, String notes) {
 		// We'll get microbial data from the first instance
 		List<KnimeTuple> firstInstance = tupleList.get(0);
@@ -1314,7 +1310,8 @@ class DataParser {
 			lits.add((LiteratureItem) item);
 		}
 
-		DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, metadata, notes);
+		DataFile dataFile = new DataFile(condId, combaseId, dim, concUnit, timeUnit, matrix, agent, lits, metadata,
+				notes);
 		numlDocument = dataFile.getDocument();
 	}
 
@@ -1363,10 +1360,12 @@ class Model1Parser {
 			model.setName(estModel.getName());
 		}
 
-		try {
-			model.setNotes(notes);
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
+		if (notes != null) {
+			try {
+				model.setNotes(notes);
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
 		}
 
 		// Gets model references
@@ -1483,6 +1482,13 @@ class Model2Parser {
 
 		// Adds document annotation
 		sbmlDocument.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
+		if (notes != null) {
+			try {
+				sbmlDocument.setNotes(notes);
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+		}
 
 		// Creates model and names it
 		Model model = sbmlDocument.createModel("model_" + dep.getName());

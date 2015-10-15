@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import de.bund.bfr.knime.pmm.annotation.sbml.Model2Annotation;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.sbmlutil.Uncertainties;

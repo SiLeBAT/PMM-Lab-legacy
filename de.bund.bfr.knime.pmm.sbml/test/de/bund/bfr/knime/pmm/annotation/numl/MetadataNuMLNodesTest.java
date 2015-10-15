@@ -14,7 +14,7 @@ public class MetadataNuMLNodesTest {
 		Metadata metadata = new Metadata("doe", "doe", "doe", "Tue Sep 01 02:00:00 CEST 2015",
 				"Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA", "CC BY", "areference.com");
 		MetadataNuMLNodes nodes = new MetadataNuMLNodes(metadata);
-		Metadata metadata2 = nodes.toMetadata();
+		Metadata metadata2 = nodes.getMetadata();
 		assertEquals(metadata, metadata2);
 	}
 

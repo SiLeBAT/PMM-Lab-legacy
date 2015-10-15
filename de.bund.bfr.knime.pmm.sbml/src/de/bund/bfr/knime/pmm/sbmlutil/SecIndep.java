@@ -11,7 +11,7 @@ import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 
-import de.bund.bfr.knime.pmm.annotation.DescriptionAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.DescriptionAnnotation;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 

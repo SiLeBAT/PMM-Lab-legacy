@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import de.bund.bfr.knime.pmm.annotation.sbml.MatrixAnnotation;
 
 public class MatrixAnnotationTest {
 

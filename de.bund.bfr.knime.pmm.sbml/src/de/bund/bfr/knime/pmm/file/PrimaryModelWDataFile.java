@@ -16,7 +16,7 @@ import org.sbml.jsbml.TidySBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
-import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.annotation.sbml.DataSourceNode;
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.PrimaryModelWData;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;

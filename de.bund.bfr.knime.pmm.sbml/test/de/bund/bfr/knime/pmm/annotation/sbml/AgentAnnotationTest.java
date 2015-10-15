@@ -1,9 +1,11 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import de.bund.bfr.knime.pmm.annotation.sbml.AgentAnnotation;
 
 public class AgentAnnotationTest {
 	

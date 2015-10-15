@@ -10,7 +10,7 @@ import java.util.Map;
 import org.hsh.bfr.db.DBKernel;
 import org.sbml.jsbml.Compartment;
 
-import de.bund.bfr.knime.pmm.annotation.MatrixAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.MatrixAnnotation;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 

@@ -1,28 +1,39 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
+import de.bund.bfr.knime.pmm.annotation.sbml.Model1Annotation;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.sbmlutil.Uncertainties;
 
-public class SBMLReferenceNodeTest {
+public class Model1AnnotationTest {
 
-	/**
-	 * Tests equality for a non null LiteratureItem.
-	 */
 	@Test
 	public void test() {
+
+		EstModelXml estModel = new EstModelXml(1, "myexp", 0.5, 0.8, 0.2, 0.3, 0.2, 2);
+		estModel.setComment("old experiment");
+		Uncertainties uncertainties = new Uncertainties(estModel);
+
 		LiteratureItem lit = new LiteratureItem("Baranyi, J.", 1994,
 				"A dynamic approach to predicting bacterial growth in food",
 				"A new member of the family of growth models described by Baranyi et al. (1993a)...",
 				"International Journal of Food Microbiology", "23", "3", 277, 1,
 				"http://www.sciencedirect.com/science/article/pii/0168160594901570", 1, "");
-		
-		ReferenceSBMLNode rn = new ReferenceSBMLNode(lit);
-		ReferenceSBMLNode rn2 = new ReferenceSBMLNode(rn.getNode());
-		LiteratureItem lit2 = rn2.toLiteratureItem();
 
+		int condID = -1968201666;
+		
+		Model1Annotation ma = new Model1Annotation(uncertainties, Arrays.asList(lit), condID);
+		Model1Annotation ma2 = new Model1Annotation(ma.getAnnotation());
+
+		assertEquals(uncertainties, ma2.getUncertainties());
+
+		LiteratureItem lit2 = ma2.getLits().get(0);
 		assertEquals(lit.getAuthor(), lit2.getAuthor());
 		assertEquals(lit.getTitle(), lit2.getTitle());
 		assertEquals(lit.getAbstractText(), lit2.getAbstractText());
@@ -36,30 +47,7 @@ public class SBMLReferenceNodeTest {
 		assertEquals(lit.getType(), lit2.getType());
 		assertEquals(lit.getComment(), lit2.getComment());
 		assertEquals(lit.getDbuuid(), lit2.getDbuuid());
-	}
-	
-	/**
-	 * Tests equality for a null LiteratureItem.
-	 */
-	@Test
-	public void testNullLit() {
-		LiteratureItem lit = new LiteratureItem(null, null, null, null, null, null, null, null, null, null, null, null);
-		
-		ReferenceSBMLNode rn = new ReferenceSBMLNode(lit);
-		LiteratureItem lit2 = rn.toLiteratureItem();
-		
-		assertNull(lit2.getAuthor());
-		assertNull(lit2.getTitle());
-		assertNull(lit2.getAbstractText());
-		assertNull(lit2.getYear());
-		assertNull(lit2.getJournal());
-		assertNull(lit2.getVolume());
-		assertNull(lit2.getIssue());
-		assertNull(lit2.getPage());
-		assertNull(lit2.getApprovalMode());
-		assertNull(lit2.getWebsite());
-		assertNull(lit2.getType());
-		assertNull(lit2.getComment());
-		assertNull(lit2.getDbuuid());
+
+		assertEquals(condID, ma2.getCondID());
 	}
 }

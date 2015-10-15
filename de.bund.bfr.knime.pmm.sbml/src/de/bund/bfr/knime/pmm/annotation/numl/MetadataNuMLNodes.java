@@ -8,6 +8,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Strings;
+
 import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 
 public class MetadataNuMLNodes {
@@ -39,45 +41,80 @@ public class MetadataNuMLNodes {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-
-		String givenName = metadata.getGivenName();
-		String familyName = metadata.getFamilyName();
-		String contact = metadata.getContact();
-		if (givenName != null || familyName != null || contact != null) {
-			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", metadata.getGivenName(),
-					metadata.getFamilyName(), metadata.getContact());
+		
+		if (metadata.isGivenNameSet() || metadata.isFamilyNameSet() || metadata.isContactSet()) {
+			String givenName = Strings.emptyToNull(metadata.getGivenName());
+			String familyName = Strings.emptyToNull(metadata.getFamilyName());
+			String contact = Strings.emptyToNull(metadata.getContact());
+			
+			String creator = String.format(Locale.ENGLISH, "%s.%s.%s", givenName,
+					familyName, contact);
 			creatorNode = doc.createElement(CREATOR_TAG);
 			creatorNode.setTextContent(creator);
 		}
 
-		if (metadata.getCreatedDate() != null) {
+		if (metadata.isCreatedDateSet()) {
 			createdNode = doc.createElement(CREATED_TAG);
 			createdNode.setTextContent(metadata.getCreatedDate());
 		}
 
-		if (metadata.getModifiedDate() != null) {
+		if (metadata.isModifiedDateSet()) {
 			modifiedNode = doc.createElement(MODIFIED_TAG);
 			modifiedNode.setTextContent(metadata.getModifiedDate());
 		}
 
-		if (metadata.getType() != null) {
+		if (metadata.isTypeSet()) {
 			typeNode = doc.createElement(TYPE_TAG);
 			typeNode.setTextContent(metadata.getType());
 		}
 
-		if (metadata.getRights() != null) {
+		if (metadata.areRightsSet()) {
 			rightsNode = doc.createElement(LICENSE_TAG);
 			rightsNode.setTextContent(metadata.getRights());
 		}
 		
-		if (metadata.getReferenceLink() != null) {
+		if (metadata.isReferenceLinkSet()) {
 			referenceNode = doc.createElement(REFERENCE_TAG);
 			referenceNode.setTextContent(metadata.getReferenceLink());
 		}
+		
+		this.metadata = metadata;
 	}
 
 	public MetadataNuMLNodes(Element creatorNode, Element createdNode, Element modifiedNode, Element typeNode,
 			Element rightsNode, Element referenceNode) {
+		
+		metadata = new Metadata();
+		
+		if (creatorNode != null) {
+			String[] tempStrings = creatorNode.getTextContent().split("\\.", 3);
+			metadata.setGivenName(Strings.emptyToNull(tempStrings[0]));
+			metadata.setFamilyName(Strings.emptyToNull(tempStrings[1]));
+			metadata.setContact(Strings.emptyToNull(tempStrings[2]));
+		}
+
+		if (createdNode != null) {
+			metadata.setCreatedDate(Strings.emptyToNull(createdNode.getTextContent()));
+		}
+
+		if (modifiedNode != null) {
+			metadata.setModifiedDate(Strings.emptyToNull(modifiedNode.getTextContent()));
+		}
+
+		if (typeNode != null) {
+			metadata.setType(Strings.emptyToNull(typeNode.getTextContent()));
+		}
+
+		if (rightsNode != null) {
+			metadata.setRights(Strings.emptyToNull(rightsNode.getTextContent()));
+		}
+		
+		if (referenceNode != null) {
+			metadata.setReferenceLink(Strings.emptyToNull(referenceNode.getTextContent()));
+		}
+
+		
+		// Copies nodes
 		this.creatorNode = creatorNode;
 		this.createdNode = createdNode;
 		this.modifiedNode = modifiedNode;
@@ -134,44 +171,7 @@ public class MetadataNuMLNodes {
 		return referenceNode != null;
 	}
 
-	public Metadata toMetadata() {
-
-		String givenName = "";
-		String familyName = "";
-		String contact = "";
-		String created = "";
-		String modified = "";
-		String type = "";
-		String license = "";
-		String referenceLink = "";
-
-		if (creatorNode != null) {
-			String[] tempStrings = creatorNode.getTextContent().split("\\.", 3);
-			givenName = tempStrings[0];
-			familyName = tempStrings[1];
-			contact = tempStrings[2];
-		}
-
-		if (createdNode != null) {
-			created = createdNode.getTextContent();
-		}
-
-		if (modifiedNode != null) {
-			modified = modifiedNode.getTextContent();
-		}
-
-		if (typeNode != null) {
-			type = typeNode.getTextContent();
-		}
-
-		if (rightsNode != null) {
-			license = rightsNode.getTextContent();
-		}
-		
-		if (referenceNode != null) {
-			referenceLink = referenceNode.getTextContent();
-		}
-
-		return new Metadata(givenName, familyName, contact, created, modified, type, license, referenceLink);
+	public Metadata getMetadata() {
+		return metadata;
 	}
 }

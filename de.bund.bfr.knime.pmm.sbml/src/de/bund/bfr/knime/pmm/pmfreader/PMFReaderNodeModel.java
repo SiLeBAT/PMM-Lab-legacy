@@ -27,9 +27,9 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
-import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
-import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
-import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.MetadataAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model2Annotation;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;

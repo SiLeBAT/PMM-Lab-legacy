@@ -30,8 +30,8 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
-import de.bund.bfr.knime.pmm.annotation.Model1Annotation;
-import de.bund.bfr.knime.pmm.annotation.Model2Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model1Annotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.Model2Annotation;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;

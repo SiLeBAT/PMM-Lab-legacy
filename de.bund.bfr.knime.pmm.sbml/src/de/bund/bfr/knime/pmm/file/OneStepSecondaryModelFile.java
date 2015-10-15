@@ -26,7 +26,7 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 import org.xml.sax.SAXException;
 
-import de.bund.bfr.knime.pmm.annotation.DataSourceNode;
+import de.bund.bfr.knime.pmm.annotation.sbml.DataSourceNode;
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.OneStepSecondaryModel;
 import de.bund.bfr.knime.pmm.sbmlutil.ModelType;

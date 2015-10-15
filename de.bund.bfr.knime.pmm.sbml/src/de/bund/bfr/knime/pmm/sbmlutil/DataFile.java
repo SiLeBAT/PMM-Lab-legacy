@@ -336,7 +336,7 @@ public class DataFile {
 
 		MetadataNuMLNodes metadataNodes = new MetadataNuMLNodes(creatorNode, createdNode, modifiedNode, typeNode,
 				rightsNode, referenceNode);
-		Metadata metadata = metadataNodes.toMetadata();
+		Metadata metadata = metadataNodes.getMetadata();
 		return metadata;
 	}
 

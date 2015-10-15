@@ -1,10 +1,10 @@
-package de.bund.bfr.knime.pmm.annotation;
+package de.bund.bfr.knime.pmm.annotation.sbml;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import de.bund.bfr.knime.pmm.annotation.MetadataAnnotation;
+import de.bund.bfr.knime.pmm.annotation.sbml.MetadataAnnotation;
 import de.bund.bfr.knime.pmm.sbmlutil.Metadata;
 
 public class MetadataAnnotationTest {
@@ -22,41 +22,41 @@ public class MetadataAnnotationTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingGivenName() {
-		Metadata metadata = new Metadata("", "doe", "doe", "", "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
+		Metadata metadata = new Metadata(null, "doe", "doe", null, "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
 				"CC BY", "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getGivenName().isEmpty());
+		assertFalse(ma2.getMetadata().isGivenNameSet());
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingFamilyName() {
-		Metadata metadata = new Metadata("doe", "", "doe", "", "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
+		Metadata metadata = new Metadata("doe", null, "doe", null, "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
 				"CC BY", "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getFamilyName().isEmpty());
+		assertFalse(ma2.getMetadata().isFamilyNameSet());
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingContact() {
-		Metadata metadata = new Metadata("doe", "doe", "", "", "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
+		Metadata metadata = new Metadata("doe", "doe", null, null, "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
 				"CC BY", "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getContact().isEmpty());
+		assertFalse(ma2.getMetadata().isContactSet());
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingCreatedDate() {
-		Metadata metadata = new Metadata("doe", "doe", "doe", "", "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
+		Metadata metadata = new Metadata("doe", "doe", "doe", null, "Tue Sep 01 02:00:00 CEST 2015", "EXPERIMENTAL_DATA",
 				"CC BY", "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getCreatedDate().isEmpty());
+		assertFalse(ma2.getMetadata().isCreatedDateSet());
 	}
 
 	@SuppressWarnings("static-method")
@@ -66,36 +66,36 @@ public class MetadataAnnotationTest {
 				"CC BY", "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getModifiedDate().isEmpty());
+		assertFalse(ma2.getMetadata().isModifiedDateSet());
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingType() {
 		Metadata metadata = new Metadata("doe", "doe", "doe", "Tue Sep 01 02:00:00 CEST 2015",
-				"Tue Sep 01 02:00:00 CEST 2015", "", "CC BY", "areference.com");
+				"Tue Sep 01 02:00:00 CEST 2015", null, "CC BY", "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getType().isEmpty());
+		assertFalse(ma2.getMetadata().isTypeSet());
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingRights() {
 		Metadata metadata = new Metadata("doe", "doe", "doe", "Tue Sep 01 02:00:00 CEST 2015",
-				"Tue Sep 01 02:00:00 CEST 2015", "Tue Sep 01 02:00:00 CEST 2015", "", "areference.com");
+				"Tue Sep 01 02:00:00 CEST 2015", "Tue Sep 01 02:00:00 CEST 2015", null, "areference.com");
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getRights().isEmpty());
+		assertFalse(ma2.getMetadata().areRightsSet());
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
 	public void testMissingReferenceLink() {
 		Metadata metadata = new Metadata("doe", "doe", "doe", "Tue Sep 01 02:00:00 CEST 2015",
-				"Tue Sep 01 02:00:00 CEST 2015", "Tue Sep 01 02:00:00 CEST 2015", "CC BY", "");
+				"Tue Sep 01 02:00:00 CEST 2015", "Tue Sep 01 02:00:00 CEST 2015", "CC BY", null);
 		MetadataAnnotation ma = new MetadataAnnotation(metadata);
 		MetadataAnnotation ma2 = new MetadataAnnotation(ma.getAnnotation());
-		assertTrue(ma2.getMetadata().getReferenceLink().isEmpty());
+		assertFalse(ma2.getMetadata().isReferenceLinkSet());
 	}
 }

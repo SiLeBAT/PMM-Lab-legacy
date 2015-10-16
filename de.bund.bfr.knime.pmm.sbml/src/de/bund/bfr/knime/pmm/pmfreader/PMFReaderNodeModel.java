@@ -333,8 +333,6 @@ class PrimaryModelWDataReader implements Reader {
 		row.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
 		row.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
 		row.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
-
-		PmmXmlDoc tsm = dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA);
 		row.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
 		// primary model cells
@@ -857,8 +855,8 @@ class DataTuple extends TupleBase {
 		tuple = new KnimeTuple(schema);
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, df.getCondID());
 		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, df.getCombaseID());
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));

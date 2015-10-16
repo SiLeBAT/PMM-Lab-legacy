@@ -31,18 +31,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.extendedtable;
+package de.bund.bfr.knime.pmm.extendedtable.items;
 
 import org.jdom2.Element;
 
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlHelper;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
-public class ModelLiteratureItem implements PmmXmlElementConvertable {
+public class MDLiteratureItem implements LiteratureItemI, PmmXmlElementConvertable {
 
-	public static final String ELEMENT_LITERATURE = "ModelLiterature";
+	public static final String ELEMENT_LITERATURE = "MDLiteratureItem";
 
 	private static final String ATT_AUTHOR = "author";
 	private static final String ATT_YEAR = "year";
@@ -74,7 +73,7 @@ public class ModelLiteratureItem implements PmmXmlElementConvertable {
 	private String comment;
 	private String dbuuid;
 
-	public ModelLiteratureItem(final String author, final Integer year, final String title, final String abstractText,
+	public MDLiteratureItem(final String author, final Integer year, final String title, final String abstractText,
 			final String journal, final String volume, final String issue, final Integer page,
 			final Integer approvalMode, final String website, final Integer type, final String comment,
 			final Integer id, String dbuuid) {
@@ -95,7 +94,7 @@ public class ModelLiteratureItem implements PmmXmlElementConvertable {
 		this.dbuuid = dbuuid;
 	}
 
-	public ModelLiteratureItem(final String author, final Integer year, final String title, final String abstractText,
+	public MDLiteratureItem(final String author, final Integer year, final String title, final String abstractText,
 			final String journal, final String volume, final String issue, final Integer page,
 			final Integer approvalMode, final String website, final Integer type, final String comment,
 			final Integer id) {
@@ -103,14 +102,14 @@ public class ModelLiteratureItem implements PmmXmlElementConvertable {
 				null);
 	}
 
-	public ModelLiteratureItem(final String author, final Integer year, final String title, final String abstractText,
+	public MDLiteratureItem(final String author, final Integer year, final String title, final String abstractText,
 			final String journal, final String volume, final String issue, final Integer page,
 			final Integer approvalMode, final String website, final Integer type, final String comment) {
 		this(author, year, title, abstractText, journal, volume, issue, page, approvalMode, website, type, comment,
 				MathUtilities.getRandomNegativeInt(), null);
 	}
 
-	public ModelLiteratureItem(final Element el) {
+	public MDLiteratureItem(final Element el) {
 		this(XmlHelper.getString(el, ATT_AUTHOR), XmlHelper.getInt(el, ATT_YEAR), XmlHelper.getString(el, ATT_TITLE),
 				XmlHelper.getString(el, ATT_ABSTRACT), XmlHelper.getString(el, ATT_JOURNAL),
 				XmlHelper.getString(el, ATT_VOLUME), XmlHelper.getString(el, ATT_ISSUE), XmlHelper.getInt(el, ATT_PAGE),
@@ -119,13 +118,17 @@ public class ModelLiteratureItem implements PmmXmlElementConvertable {
 				XmlHelper.getString(el, ATT_DBUUID));
 	}
 
-	public ModelLiteratureItem(final LiteratureItem lit) {
+	public MDLiteratureItem(final LiteratureItemI lit) {
 		this(lit.getAuthor(), lit.getYear(), lit.getTitle(), lit.getAbstractText(), lit.getJournal(), lit.getVolume(),
 				lit.getIssue(), lit.getPage(), lit.getApprovalMode(), lit.getWebsite(), lit.getType(), lit.getComment(),
 				lit.getId(), lit.getDbuuid());
 	}
 
-	@Override
+	
+	public String getElementName() {
+		return "MDLiteratureItem";
+	}
+	
 	public Element toXmlElement() {
 		Element ret = new Element(ELEMENT_LITERATURE);
 

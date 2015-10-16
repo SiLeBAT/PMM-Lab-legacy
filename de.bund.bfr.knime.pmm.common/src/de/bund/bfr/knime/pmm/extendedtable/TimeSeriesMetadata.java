@@ -47,14 +47,17 @@ import org.jdom2.output.DOMOutputter;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDAgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDMatrixXml;
 
 public class TimeSeriesMetadata {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 
-	private AgentXml agentXml;
-	private MatrixXml matrixXml;
-	private List<LiteratureItem> literatureItems;
+	private MDAgentXml agentXml;
+	private MDMatrixXml matrixXml;
+	private List<MDLiteratureItem> literatureItems;
 	private String warning;
 
 	public TimeSeriesMetadata() {
@@ -77,16 +80,16 @@ public class TimeSeriesMetadata {
 
 		Element agentElement = rootElement.getChild(AgentXml.ELEMENT_AGENT);
 		if (agentElement != null) {
-			agentXml = new AgentXml(agentElement);
+			agentXml = new MDAgentXml(agentElement);
 		}
 
 		Element matrixElement = rootElement.getChild(MatrixXml.ELEMENT_MATRIX);
 		if (matrixElement != null) {
-			matrixXml = new MatrixXml(matrixElement);
+			matrixXml = new MDMatrixXml(matrixElement);
 		}
 
-		for (Element literatureElement : rootElement.getChildren(LiteratureItem.ELEMENT_LITERATURE)) {
-			literatureItems.add(new LiteratureItem(literatureElement));
+		for (Element literatureElement : rootElement.getChildren(MDLiteratureItem.ELEMENT_LITERATURE)) {
+			literatureItems.add(new MDLiteratureItem(literatureElement));
 		}
 	}
 
@@ -98,7 +101,7 @@ public class TimeSeriesMetadata {
 		return warning;
 	}
 
-	public void setAgentXml(AgentXml agentXml) {
+	public void setAgentXml(MDAgentXml agentXml) {
 		this.agentXml = agentXml;
 	}
 
@@ -106,7 +109,7 @@ public class TimeSeriesMetadata {
 		this.agentXml = null;
 	}
 
-	public void setMatrixXml(MatrixXml matrixXml) {
+	public void setMatrixXml(MDMatrixXml matrixXml) {
 		this.matrixXml = matrixXml;
 	}
 
@@ -114,7 +117,7 @@ public class TimeSeriesMetadata {
 		this.matrixXml = null;
 	}
 
-	public void addLiteratureItem(LiteratureItem literatureItem) {
+	public void addLiteratureItem(MDLiteratureItem literatureItem) {
 		literatureItems.add(literatureItem);
 	}
 
@@ -143,7 +146,7 @@ public class TimeSeriesMetadata {
 		if (matrixXml != null) {
 			rootElement.addContent(matrixXml.toXmlElement());
 		}
-		for (LiteratureItem literatureItem : literatureItems) {
+		for (MDLiteratureItem literatureItem : literatureItems) {
 			rootElement.addContent(literatureItem.toXmlElement());
 		}
 

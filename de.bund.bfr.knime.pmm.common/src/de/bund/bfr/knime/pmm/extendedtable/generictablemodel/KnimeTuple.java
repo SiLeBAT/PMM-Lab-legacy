@@ -52,7 +52,8 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.extendedtable.CellIO;
-import de.bund.bfr.knime.pmm.extendedtable.ModelMetadata;
+import de.bund.bfr.knime.pmm.extendedtable.Model1Metadata;
+import de.bund.bfr.knime.pmm.extendedtable.Model2Metadata;
 import de.bund.bfr.knime.pmm.extendedtable.TimeSeriesMetadata;
 
 public class KnimeTuple implements DataRow {
@@ -420,8 +421,11 @@ public class KnimeTuple implements DataRow {
 				} else if (obj instanceof TimeSeriesMetadata) {
 					cell[i] = CellIO.createXmlCell((TimeSeriesMetadata) obj);
 					break;
-				} else if (obj instanceof ModelMetadata) {
-					cell[i] = CellIO.createXmlCell((ModelMetadata) obj);
+				} else if (obj instanceof Model1Metadata) {
+					cell[i] = CellIO.createXmlCell((Model1Metadata) obj);
+					break;
+				} else if (obj instanceof Model2Metadata) {
+					cell[i] = CellIO.createXmlCell((Model2Metadata) obj);
 					break;
 				}
 

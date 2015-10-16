@@ -203,7 +203,17 @@ public class CellIO {
 		return xmlCell;
 	}
 
-	public static DataCell createXmlCell(ModelMetadata xmlDoc) {
+	public static DataCell createXmlCell(Model1Metadata xmlDoc) {
+		if (xmlDoc == null) return null;
+		DataCell xmlCell = null;
+		//long ttt = System.currentTimeMillis();
+		org.w3c.dom.Document doc = xmlDoc.getW3C();
+		xmlCell = XMLCellFactory.create(doc);
+		//tttxcmldoc += (System.currentTimeMillis() - ttt);
+		return xmlCell;
+	}
+	
+	public static DataCell createXmlCell(Model2Metadata xmlDoc) {
 		if (xmlDoc == null) return null;
 		DataCell xmlCell = null;
 		//long ttt = System.currentTimeMillis();

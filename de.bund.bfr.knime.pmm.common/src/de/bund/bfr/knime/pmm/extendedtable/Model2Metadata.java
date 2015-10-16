@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.common;
+package de.bund.bfr.knime.pmm.extendedtable;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -44,27 +44,30 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.DOMOutputter;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.EMLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2MatrixXml;
 
-public class TimeSeriesMetadata {
+public class Model2Metadata {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 
-	private AgentXml agentXml;
-	private MatrixXml matrixXml;
-	private List<LiteratureItem> literatureItems;
+	private Model2AgentXml agentXml;
+	private Model2MatrixXml matrixXml;
+	private List<MLiteratureItem> modelLiteratureItems;
+	private List<EMLiteratureItem> estimatedModelLiteratureItems;
 	private String warning;
 
-	public TimeSeriesMetadata() {
+	public Model2Metadata() {
 		agentXml = null;
 		matrixXml = null;
-		literatureItems = new ArrayList<>();
+		modelLiteratureItems = new ArrayList<>();
+		estimatedModelLiteratureItems = new ArrayList<>();
 		warning = "";
 	}
 
-	public TimeSeriesMetadata(String xmlString) throws IOException, JDOMException {
+	public Model2Metadata(String xmlString) throws IOException, JDOMException {
 		this();
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = builder.build(new StringReader(xmlString));
@@ -75,18 +78,22 @@ public class TimeSeriesMetadata {
 
 	private void parseElement(Element rootElement) {
 
-		Element agentElement = rootElement.getChild(AgentXml.ELEMENT_AGENT);
+		Element agentElement = rootElement.getChild(Model2AgentXml.ELEMENT_AGENT);
 		if (agentElement != null) {
-			agentXml = new AgentXml(agentElement);
+			agentXml = new Model2AgentXml(agentElement);
 		}
 
-		Element matrixElement = rootElement.getChild(MatrixXml.ELEMENT_MATRIX);
+		Element matrixElement = rootElement.getChild(Model2MatrixXml.ELEMENT_MATRIX);
 		if (matrixElement != null) {
-			matrixXml = new MatrixXml(matrixElement);
+			matrixXml = new Model2MatrixXml(matrixElement);
 		}
 
-		for (Element literatureElement : rootElement.getChildren(LiteratureItem.ELEMENT_LITERATURE)) {
-			literatureItems.add(new LiteratureItem(literatureElement));
+		for (Element literatureElement : rootElement.getChildren(MLiteratureItem.ELEMENT_LITERATURE)) {
+			modelLiteratureItems.add(new MLiteratureItem(literatureElement));
+		}
+
+		for (Element literatureElement : rootElement.getChildren(EMLiteratureItem.ELEMENT_LITERATURE)) {
+			estimatedModelLiteratureItems.add(new EMLiteratureItem(literatureElement));
 		}
 	}
 
@@ -98,7 +105,7 @@ public class TimeSeriesMetadata {
 		return warning;
 	}
 
-	public void setAgentXml(AgentXml agentXml) {
+	public void setAgentXml(Model2AgentXml agentXml) {
 		this.agentXml = agentXml;
 	}
 
@@ -106,7 +113,7 @@ public class TimeSeriesMetadata {
 		this.agentXml = null;
 	}
 
-	public void setMatrixXml(MatrixXml matrixXml) {
+	public void setMatrixXml(Model2MatrixXml matrixXml) {
 		this.matrixXml = matrixXml;
 	}
 
@@ -114,12 +121,20 @@ public class TimeSeriesMetadata {
 		this.matrixXml = null;
 	}
 
-	public void addLiteratureItem(LiteratureItem literatureItem) {
-		literatureItems.add(literatureItem);
+	public void addLiteratureItem(MLiteratureItem literatureItem) {
+		modelLiteratureItems.add(literatureItem);
+	}
+	
+	public void removeLiteratureItem(MLiteratureItem literatureItem) {
+		modelLiteratureItems.remove(literatureItem);
 	}
 
-	public void removeLiteratureItem(LiteratureItem literatureItem) {
-		literatureItems.remove(literatureItem);
+	public void addLiteratureItem(EMLiteratureItem literatureItem) {
+		estimatedModelLiteratureItems.add(literatureItem);
+	}
+
+	public void removeLiteratureItem(EMLiteratureItem literatureItem) {
+		estimatedModelLiteratureItems.remove(literatureItem);
 	}
 
 	public org.w3c.dom.Document getW3C() {
@@ -143,7 +158,10 @@ public class TimeSeriesMetadata {
 		if (matrixXml != null) {
 			rootElement.addContent(matrixXml.toXmlElement());
 		}
-		for (LiteratureItem literatureItem : literatureItems) {
+		for (MLiteratureItem literatureItem : modelLiteratureItems) {
+			rootElement.addContent(literatureItem.toXmlElement());
+		}
+		for (EMLiteratureItem literatureItem : estimatedModelLiteratureItems) {
 			rootElement.addContent(literatureItem.toXmlElement());
 		}
 

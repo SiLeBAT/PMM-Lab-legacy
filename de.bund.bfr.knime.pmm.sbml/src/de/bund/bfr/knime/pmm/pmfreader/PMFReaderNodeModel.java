@@ -39,19 +39,27 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.extendedtable.EstimatedModelLiteratureItem;
-import de.bund.bfr.knime.pmm.extendedtable.ModelLiteratureItem;
-import de.bund.bfr.knime.pmm.extendedtable.ModelMetadata;
-import de.bund.bfr.knime.pmm.extendedtable.TimeSeriesMetadata;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.dbutil.DBUnits;
+import de.bund.bfr.knime.pmm.extendedtable.Model1Metadata;
+import de.bund.bfr.knime.pmm.extendedtable.Model2Metadata;
+import de.bund.bfr.knime.pmm.extendedtable.TimeSeriesMetadata;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.extendedtable.items.EMLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDAgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDMatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2MatrixXml;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
-import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.knime.pmm.file.ExperimentalDataFile;
 import de.bund.bfr.knime.pmm.file.ManualSecondaryModelFile;
 import de.bund.bfr.knime.pmm.file.ManualTertiaryModelFile;
@@ -325,6 +333,8 @@ class PrimaryModelWDataReader implements Reader {
 		row.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
 		row.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
 		row.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+
+		PmmXmlDoc tsm = dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA);
 		row.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
 		// primary model cells
@@ -790,8 +800,19 @@ class DataTuple extends TupleBase {
 		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
 		String concUnitObjectType = ufdb.getObject_type();
 
-		AgentXml agentXml = df.getAgent();
-		MatrixXml matrixXml = df.getMatrix();
+		AgentXml originalAgentXml = df.getAgent();
+		Integer agentId = originalAgentXml.getId();
+		String agentName = originalAgentXml.getName();
+		String agentDetail = originalAgentXml.getDetail();
+		String agentDbuuid = originalAgentXml.getDbuuid();
+		MDAgentXml agentXml = new MDAgentXml(agentId, agentName, agentDetail, agentDbuuid);
+
+		MatrixXml originalMatrixXml = df.getMatrix();
+		Integer matrixId = originalMatrixXml.getId();
+		String matrixName = originalMatrixXml.getName();
+		String matrixDetail = originalMatrixXml.getDetail();
+		String matrixDbuuid = originalMatrixXml.getDbuuid();
+		MDMatrixXml matrixXml = new MDMatrixXml(matrixId, matrixName, matrixDetail, matrixDbuuid);
 
 		// Gets time series
 		PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, df.getData());
@@ -812,7 +833,24 @@ class DataTuple extends TupleBase {
 		metadata.setAgentXml(agentXml);
 		metadata.setMatrixXml(matrixXml);
 		for (LiteratureItem literatureItem : df.getLits()) {
-			metadata.addLiteratureItem(literatureItem);
+			String author = literatureItem.getAuthor();
+			Integer year = literatureItem.getYear();
+			String title = literatureItem.getTitle();
+			String abstractText = literatureItem.getAbstractText();
+			String journal = literatureItem.getJournal();
+			String volume = literatureItem.getVolume();
+			String issue = literatureItem.getIssue();
+			Integer page = literatureItem.getPage();
+			Integer approvalMode = literatureItem.getApprovalMode();
+			String website = literatureItem.getWebsite();
+			Integer type = literatureItem.getType();
+			String comment = literatureItem.getComment();
+			Integer id = literatureItem.getId();
+			String dbuuid = literatureItem.getDbuuid();
+
+			MDLiteratureItem mdLit = new MDLiteratureItem(author, year, title, abstractText, journal, volume, issue,
+					page, approvalMode, website, type, comment, id, dbuuid);
+			metadata.addLiteratureItem(mdLit);
 		}
 
 		// Creates and fills tuple
@@ -837,12 +875,25 @@ class DataTuple extends TupleBase {
 		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
 		Agent agent = new Agent(model.getSpecies(0));
-		AgentXml agentXml = agent.toAgentXml();
+		AgentXml originalAgentXml = agent.toAgentXml();
 
 		Matrix matrix = new Matrix(model.getCompartment(0));
-		MatrixXml matrixXml = matrix.toMatrixXml();
+		MatrixXml originalMatrixXml = matrix.toMatrixXml();
 
 		TimeSeriesMetadata metadata = new TimeSeriesMetadata();
+
+		Integer agentId = originalAgentXml.getId();
+		String agentName = originalAgentXml.getName();
+		String agentDetail = originalAgentXml.getDetail();
+		String agentDbuuid = originalAgentXml.getDbuuid();
+		MDAgentXml agentXml = new MDAgentXml(agentId, agentName, agentDetail, agentDbuuid);
+
+		Integer matrixId = originalMatrixXml.getId();
+		String matrixName = originalMatrixXml.getName();
+		String matrixDetail = originalMatrixXml.getDetail();
+		String matrixDbuuid = originalMatrixXml.getDbuuid();
+		MDMatrixXml matrixXml = new MDMatrixXml(matrixId, matrixName, matrixDetail, matrixDbuuid);
+
 		metadata.setAgentXml(agentXml);
 		metadata.setMatrixXml(matrixXml);
 
@@ -852,8 +903,8 @@ class DataTuple extends TupleBase {
 		tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
 		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
@@ -952,18 +1003,63 @@ class Model1Tuple extends TupleBase {
 			emLit.add(lit);
 		}
 
-		AgentXml agentXml = agent.toAgentXml();
-		Matrix matrix = new Matrix(model.getCompartment(0));
-		MatrixXml matrixXml = matrix.toMatrixXml();
+		AgentXml originalAgentXml = agent.toAgentXml();
+		Integer agentId = originalAgentXml.getId();
+		String agentName = originalAgentXml.getName();
+		String agentDetail = originalAgentXml.getDetail();
+		String agentDbuuid = originalAgentXml.getDbuuid();
+		Model1AgentXml agentXml = new Model1AgentXml(agentId, agentName, agentDetail, agentDbuuid);
 
-		ModelMetadata metadata = new ModelMetadata();
+		Matrix matrix = new Matrix(model.getCompartment(0));
+		MatrixXml originalMatrixXml = matrix.toMatrixXml();
+		Integer matrixId = originalAgentXml.getId();
+		String matrixName = originalAgentXml.getName();
+		String matrixDetail = originalAgentXml.getDetail();
+		String matrixDbuuid = originalAgentXml.getDbuuid();
+		Model1MatrixXml matrixXml = new Model1MatrixXml(agentId, agentName, agentDetail, agentDbuuid);
+
+		Model1Metadata metadata = new Model1Metadata();
 		metadata.setAgentXml(agentXml);
 		metadata.setMatrixXml(matrixXml);
 		for (LiteratureItem literatureItem : rule.getLits()) {
-			metadata.addLiteratureItem(new ModelLiteratureItem(literatureItem));
+			String author = literatureItem.getAuthor();
+			Integer year = literatureItem.getYear();
+			String title = literatureItem.getTitle();
+			String abstractText = literatureItem.getAbstractText();
+			String journal = literatureItem.getJournal();
+			String volume = literatureItem.getVolume();
+			String issue = literatureItem.getIssue();
+			Integer page = literatureItem.getPage();
+			Integer approvalMode = literatureItem.getApprovalMode();
+			String website = literatureItem.getWebsite();
+			Integer type = literatureItem.getType();
+			String comment = literatureItem.getComment();
+			Integer id = literatureItem.getId();
+			String dbuuid = literatureItem.getDbuuid();
+
+			MLiteratureItem mLiteratureItem = new MLiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment, id, dbuuid);
+			metadata.addLiteratureItem(mLiteratureItem);
 		}
 		for (LiteratureItem literatureItem : m1Annot.getLits()) {
-			metadata.addLiteratureItem(new EstimatedModelLiteratureItem(literatureItem));
+			String author = literatureItem.getAuthor();
+			Integer year = literatureItem.getYear();
+			String title = literatureItem.getTitle();
+			String abstractText = literatureItem.getAbstractText();
+			String journal = literatureItem.getJournal();
+			String volume = literatureItem.getVolume();
+			String issue = literatureItem.getIssue();
+			Integer page = literatureItem.getPage();
+			Integer approvalMode = literatureItem.getApprovalMode();
+			String website = literatureItem.getWebsite();
+			Integer type = literatureItem.getType();
+			String comment = literatureItem.getComment();
+			Integer id = literatureItem.getId();
+			String dbuuid = literatureItem.getDbuuid();
+
+			EMLiteratureItem emLiteratureItem = new EMLiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment, id, dbuuid);
+			metadata.addLiteratureItem(emLiteratureItem);
 		}
 
 		tuple = new KnimeTuple(schema);
@@ -1029,21 +1125,67 @@ class Model2Tuple extends TupleBase {
 			emLits.add(lit);
 		}
 
-		ModelMetadata metadata = new ModelMetadata();
+		Model2Metadata metadata = new Model2Metadata();
 
 		if (model.getListOfSpecies().size() == 1) {
-			metadata.setAgentXml(new Agent(model.getSpecies(0)).toAgentXml());
+			AgentXml originalAgentXml = new Agent(model.getSpecies(0)).toAgentXml();
+			Integer agentId = originalAgentXml.getId();
+			String agentName = originalAgentXml.getName();
+			String agentDetail = originalAgentXml.getDetail();
+			String agentDbuuid = originalAgentXml.getDbuuid();
+			Model2AgentXml agentXml = new Model2AgentXml(agentId, agentName, agentDetail, agentDbuuid);
+			metadata.setAgentXml(agentXml);
 		}
 
 		if (model.getListOfCompartments().size() == 1) {
-			metadata.setMatrixXml(new Matrix(model.getCompartment(0)).toMatrixXml());
+			MatrixXml originalMatrixXml = new Matrix(model.getCompartment(0)).toMatrixXml();
+			Integer matrixId = originalMatrixXml.getId();
+			String matrixName = originalMatrixXml.getName();
+			String matrixDetail = originalMatrixXml.getDetail();
+			String matrixDbuuid = originalMatrixXml.getDbuuid();
+			Model2MatrixXml matrixXml = new Model2MatrixXml(matrixId, matrixName, matrixDetail, matrixDbuuid);
+			metadata.setMatrixXml(matrixXml);
 		}
 
 		for (LiteratureItem literatureItem : rule.getLits()) {
-			metadata.addLiteratureItem(new ModelLiteratureItem(literatureItem));
+			String author = literatureItem.getAuthor();
+			Integer year = literatureItem.getYear();
+			String title = literatureItem.getTitle();
+			String abstractText = literatureItem.getAbstractText();
+			String journal = literatureItem.getJournal();
+			String volume = literatureItem.getVolume();
+			String issue = literatureItem.getIssue();
+			Integer page = literatureItem.getPage();
+			Integer approvalMode = literatureItem.getApprovalMode();
+			String website = literatureItem.getWebsite();
+			Integer type = literatureItem.getType();
+			String comment = literatureItem.getComment();
+			Integer id = literatureItem.getId();
+			String dbuuid = literatureItem.getDbuuid();
+
+			MLiteratureItem mLiteratureItem = new MLiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment, id, dbuuid);
+			metadata.addLiteratureItem(mLiteratureItem);
 		}
 		for (LiteratureItem literatureItem : m2Annot.getLiteratureItems()) {
-			metadata.addLiteratureItem(new EstimatedModelLiteratureItem(literatureItem));
+			String author = literatureItem.getAuthor();
+			Integer year = literatureItem.getYear();
+			String title = literatureItem.getTitle();
+			String abstractText = literatureItem.getAbstractText();
+			String journal = literatureItem.getJournal();
+			String volume = literatureItem.getVolume();
+			String issue = literatureItem.getIssue();
+			Integer page = literatureItem.getPage();
+			Integer approvalMode = literatureItem.getApprovalMode();
+			String website = literatureItem.getWebsite();
+			Integer type = literatureItem.getType();
+			String comment = literatureItem.getComment();
+			Integer id = literatureItem.getId();
+			String dbuuid = literatureItem.getDbuuid();
+
+			EMLiteratureItem emLiteratureItem = new EMLiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment, id, dbuuid);
+			metadata.addLiteratureItem(emLiteratureItem);
 		}
 
 		tuple = new KnimeTuple(SchemaFactory.createM2Schema());

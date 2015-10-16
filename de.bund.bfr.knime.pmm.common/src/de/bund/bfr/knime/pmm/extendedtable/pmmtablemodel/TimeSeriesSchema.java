@@ -47,7 +47,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_MDINFO = "MD_Info";
 	public static final String ATT_LITMD = "MD_Literatur";
 	public static final String ATT_DBUUID = "MD_DB_UID";
-	public static final String ATT_METADATA = "TS_Metadata";
+	public static final String ATT_METADATA = "MD_Metadata";
 
 	public TimeSeriesSchema() {
 

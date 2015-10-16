@@ -44,20 +44,22 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.DOMOutputter;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.EMLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1MatrixXml;
 
-public class ModelMetadata {
+public class Model1Metadata {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 
-	private AgentXml agentXml;
-	private MatrixXml matrixXml;
-	private List<ModelLiteratureItem> modelLiteratureItems;
-	private List<EstimatedModelLiteratureItem> estimatedModelLiteratureItems;
+	private Model1AgentXml agentXml;
+	private Model1MatrixXml matrixXml;
+	private List<MLiteratureItem> modelLiteratureItems;
+	private List<EMLiteratureItem> estimatedModelLiteratureItems;
 	private String warning;
 
-	public ModelMetadata() {
+	public Model1Metadata() {
 		agentXml = null;
 		matrixXml = null;
 		modelLiteratureItems = new ArrayList<>();
@@ -65,7 +67,7 @@ public class ModelMetadata {
 		warning = "";
 	}
 
-	public ModelMetadata(String xmlString) throws IOException, JDOMException {
+	public Model1Metadata(String xmlString) throws IOException, JDOMException {
 		this();
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = builder.build(new StringReader(xmlString));
@@ -76,22 +78,22 @@ public class ModelMetadata {
 
 	private void parseElement(Element rootElement) {
 
-		Element agentElement = rootElement.getChild(AgentXml.ELEMENT_AGENT);
+		Element agentElement = rootElement.getChild(Model1AgentXml.ELEMENT_AGENT);
 		if (agentElement != null) {
-			agentXml = new AgentXml(agentElement);
+			agentXml = new Model1AgentXml(agentElement);
 		}
 
-		Element matrixElement = rootElement.getChild(MatrixXml.ELEMENT_MATRIX);
+		Element matrixElement = rootElement.getChild(Model1MatrixXml.ELEMENT_MATRIX);
 		if (matrixElement != null) {
-			matrixXml = new MatrixXml(matrixElement);
+			matrixXml = new Model1MatrixXml(matrixElement);
 		}
 
-		for (Element literatureElement : rootElement.getChildren(ModelLiteratureItem.ELEMENT_LITERATURE)) {
-			modelLiteratureItems.add(new ModelLiteratureItem(literatureElement));
+		for (Element literatureElement : rootElement.getChildren(MLiteratureItem.ELEMENT_LITERATURE)) {
+			modelLiteratureItems.add(new MLiteratureItem(literatureElement));
 		}
 
-		for (Element literatureElement : rootElement.getChildren(EstimatedModelLiteratureItem.ELEMENT_LITERATURE)) {
-			estimatedModelLiteratureItems.add(new EstimatedModelLiteratureItem(literatureElement));
+		for (Element literatureElement : rootElement.getChildren(EMLiteratureItem.ELEMENT_LITERATURE)) {
+			estimatedModelLiteratureItems.add(new EMLiteratureItem(literatureElement));
 		}
 	}
 
@@ -103,7 +105,7 @@ public class ModelMetadata {
 		return warning;
 	}
 
-	public void setAgentXml(AgentXml agentXml) {
+	public void setAgentXml(Model1AgentXml agentXml) {
 		this.agentXml = agentXml;
 	}
 
@@ -111,7 +113,7 @@ public class ModelMetadata {
 		this.agentXml = null;
 	}
 
-	public void setMatrixXml(MatrixXml matrixXml) {
+	public void setMatrixXml(Model1MatrixXml matrixXml) {
 		this.matrixXml = matrixXml;
 	}
 
@@ -119,19 +121,19 @@ public class ModelMetadata {
 		this.matrixXml = null;
 	}
 
-	public void addLiteratureItem(ModelLiteratureItem literatureItem) {
+	public void addLiteratureItem(MLiteratureItem literatureItem) {
 		modelLiteratureItems.add(literatureItem);
 	}
-
-	public void removeLiteratureItem(ModelLiteratureItem literatureItem) {
+	
+	public void removeLiteratureItem(MLiteratureItem literatureItem) {
 		modelLiteratureItems.remove(literatureItem);
 	}
 
-	public void addLiteratureItem(EstimatedModelLiteratureItem literatureItem) {
+	public void addLiteratureItem(EMLiteratureItem literatureItem) {
 		estimatedModelLiteratureItems.add(literatureItem);
 	}
 
-	public void removeLiteratureItem(EstimatedModelLiteratureItem literatureItem) {
+	public void removeLiteratureItem(EMLiteratureItem literatureItem) {
 		estimatedModelLiteratureItems.remove(literatureItem);
 	}
 
@@ -156,10 +158,10 @@ public class ModelMetadata {
 		if (matrixXml != null) {
 			rootElement.addContent(matrixXml.toXmlElement());
 		}
-		for (ModelLiteratureItem literatureItem : modelLiteratureItems) {
+		for (MLiteratureItem literatureItem : modelLiteratureItems) {
 			rootElement.addContent(literatureItem.toXmlElement());
 		}
-		for (EstimatedModelLiteratureItem literatureItem : estimatedModelLiteratureItems) {
+		for (EMLiteratureItem literatureItem : estimatedModelLiteratureItems) {
 			rootElement.addContent(literatureItem.toXmlElement());
 		}
 

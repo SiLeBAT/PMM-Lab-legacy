@@ -45,133 +45,190 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.DOMOutputter;
 import org.jdom2.output.XMLOutputter;
 
+import de.bund.bfr.knime.pmm.extendedtable.items.EMLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDAgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDMatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2MatrixXml;
+
 public class PmmXmlDoc {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
-	
+
 	private List<PmmXmlElementConvertable> elementSet;
 	private String warning = "";
-	
+
 	public PmmXmlDoc() {
 		elementSet = new ArrayList<>();
 	}
-	
-	public PmmXmlDoc(PmmXmlElementConvertable rootElement) {		
+
+	public PmmXmlDoc(PmmXmlElementConvertable rootElement) {
 		elementSet = new ArrayList<>();
 		elementSet.add(rootElement);
 	}
-	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {		
+
+	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {
 		this();
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = builder.build(new StringReader(xmlString));
-		
+
 		Element rootElement = doc.getRootElement();
 		parseElement(rootElement);
 	}
+
 	private void parseElement(Element rootElement) {
 		for (Element el : rootElement.getChildren()) {
 			/*
-			if (el instanceof PmmXmlElementConvertable) {
+			 * if (el instanceof PmmXmlElementConvertable) { elementSet.add(new
+			 * ParametricModel(el)); }
+			 */
+			switch (el.getName()) {
+			case ParametricModel.ELEMENT_PARAMETRICMODEL:
 				elementSet.add(new ParametricModel(el));
-			}
-			*/
-			if (el.getName().equals(ParametricModel.ELEMENT_PARAMETRICMODEL)) {
-				elementSet.add(new ParametricModel(el));
-			}	
-			else if (el.getName().equals(MiscXml.ELEMENT_MISC)) {
+				break;
+			case MiscXml.ELEMENT_MISC:
 				elementSet.add(new MiscXml(el));
-			}	
-			else if (el.getName().equals(ParamXml.ELEMENT_PARAM)) {
+				break;
+			case ParamXml.ELEMENT_PARAM:
 				elementSet.add(new ParamXml(el));
-			}	
-			else if (el.getName().equals(IndepXml.ELEMENT_INDEP)) {
+				break;
+			case IndepXml.ELEMENT_INDEP:
 				elementSet.add(new IndepXml(el));
-			}	
-			else if (el.getName().equals(DepXml.ELEMENT_DEPENDENT)) {
+				break;
+			case DepXml.ELEMENT_DEPENDENT:
 				elementSet.add(new DepXml(el));
-			}	
-			else if (el.getName().equals(TimeSeriesXml.ELEMENT_TIMESERIES)) {
+				break;
+			case TimeSeriesXml.ELEMENT_TIMESERIES:
 				elementSet.add(new TimeSeriesXml(el));
-			}	
-			else if (el.getName().equals(MdInfoXml.ELEMENT_MDINFO)) {
+				break;
+			case MdInfoXml.ELEMENT_MDINFO:
 				elementSet.add(new MdInfoXml(el));
-			}	
-			else if (el.getName().equals(LiteratureItem.ELEMENT_LITERATURE)) {
+				break;
+			case LiteratureItem.ELEMENT_LITERATURE:
 				elementSet.add(new LiteratureItem(el));
-			}	
-			else if (el.getName().equals(CatalogModelXml.ELEMENT_CATALOGMODEL)) {
+				break;
+			case MLiteratureItem.ELEMENT_LITERATURE:
+				elementSet.add(new MLiteratureItem(el));
+				break;
+			case MDLiteratureItem.ELEMENT_LITERATURE:
+				elementSet.add(new MDLiteratureItem(el));
+				break;
+			case EMLiteratureItem.ELEMENT_LITERATURE:
+				elementSet.add(new EMLiteratureItem(el));
+				break;
+			case CatalogModelXml.ELEMENT_CATALOGMODEL:
 				elementSet.add(new CatalogModelXml(el));
-			}	
-			else if (el.getName().equals(EstModelXml.ELEMENT_ESTMODEL)) {
+				break;
+			case EstModelXml.ELEMENT_ESTMODEL:
 				elementSet.add(new EstModelXml(el));
-			}	
-			else if (el.getName().equals(AgentXml.ELEMENT_AGENT)) {
+				break;
+			case AgentXml.ELEMENT_AGENT:
 				elementSet.add(new AgentXml(el));
-			}	
-			else if (el.getName().equals(MatrixXml.ELEMENT_MATRIX)) {
+				break;
+			case MDAgentXml.ELEMENT_AGENT:
+				elementSet.add(new MDAgentXml(el));
+				break;
+			case Model1AgentXml.ELEMENT_AGENT:
+				elementSet.add(new Model1AgentXml(el));
+				break;
+			case Model2AgentXml.ELEMENT_AGENT:
+				elementSet.add(new Model2AgentXml(el));
+				break;
+			case MatrixXml.ELEMENT_MATRIX:
 				elementSet.add(new MatrixXml(el));
-			}	
-			else if (el.getName().equals(PmmTimeSeries.ELEMENT_TIMESERIES)) {
+				break;
+			case MDMatrixXml.ELEMENT_MATRIX:
+				elementSet.add(new MDMatrixXml(el));
+				break;
+			case Model1MatrixXml.ELEMENT_MATRIX:
+				elementSet.add(new Model1MatrixXml(el));
+				break;
+			case Model2MatrixXml.ELEMENT_MATRIX:
+				elementSet.add(new Model2MatrixXml(el));
+				break;
+			case PmmTimeSeries.ELEMENT_TIMESERIES:
 				elementSet.add(new PmmTimeSeries(el));
-			}	
-		}					
+				break;
+			}
+		}
 	}
+
 	public void addWarning(String warning) {
 		this.warning += warning;
 	}
+
 	public String getWarning() {
 		return warning;
 	}
+
 	public void add(PmmXmlElementConvertable el) {
 		elementSet.add(el);
 	}
+
 	public void remove(PmmXmlElementConvertable el) {
 		elementSet.remove(el);
 	}
-	
+
 	public org.w3c.dom.Document getW3C() {
 		try {
 			Document doc = toXmlDocument();
 			return new DOMOutputter().output(doc);
-		}
-		catch (JDOMException e) {
+		} catch (JDOMException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	public Document toXmlDocument() {		
-		Document doc = new Document();		
+
+	public Document toXmlDocument() {
+		Document doc = new Document();
 		Element rootElement = new Element(ELEMENT_PMMDOC);
 		doc.setRootElement(rootElement);
-		
+
 		for (PmmXmlElementConvertable element : elementSet) {
-			rootElement.addContent(element.toXmlElement());			
-		}		
+			rootElement.addContent(element.toXmlElement());
+		}
 		return doc;
 	}
-	
-	public String toXmlString() {		
-		Document doc = toXmlDocument();		
+
+	public String toXmlString() {
+		Document doc = toXmlDocument();
 		XMLOutputter xmlo = new XMLOutputter();
 		return xmlo.outputString(doc);
 	}
-	
-	public int size() {return elementSet.size();}
-	public PmmXmlElementConvertable get(int i) {if (elementSet.size() > 0) return elementSet.get(i); else return null;}
-	public void set(int i, PmmXmlElementConvertable el) {elementSet.set(i, el);}
-	
-	public List<PmmXmlElementConvertable> getElementSet() {return elementSet;}
-	
+
+	public int size() {
+		return elementSet.size();
+	}
+
+	public PmmXmlElementConvertable get(int i) {
+		if (elementSet.size() > 0)
+			return elementSet.get(i);
+		else
+			return null;
+	}
+
+	public void set(int i, PmmXmlElementConvertable el) {
+		elementSet.set(i, el);
+	}
+
+	public List<PmmXmlElementConvertable> getElementSet() {
+		return elementSet;
+	}
+
 	public PmmXmlDoc clonePMs() {
 		PmmXmlDoc doc = new PmmXmlDoc();
-    	for (PmmXmlElementConvertable el : this.getElementSet()) {
-    		if (el instanceof ParametricModel) {
-        		ParametricModel model = (ParametricModel) el;	 
-        		doc.add(model.clone());
-    		}
-    		else doc.add(el);
-    	}
+		for (PmmXmlElementConvertable el : this.getElementSet()) {
+			if (el instanceof ParametricModel) {
+				ParametricModel model = (ParametricModel) el;
+				doc.add(model.clone());
+			} else
+				doc.add(el);
+		}
 		return doc;
 	}
-	
+
 }

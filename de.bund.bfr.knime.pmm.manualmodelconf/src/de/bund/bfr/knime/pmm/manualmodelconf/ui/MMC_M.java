@@ -184,7 +184,9 @@ public class MMC_M extends JPanel {
 	}
 
 	public ParametricModel getPM() {
-		return table.getPM();
+		ParametricModel pm = table.getPM(); 
+		refreshRefsInPM(pm);
+		return pm;
 	}
 
 	public void setPM(ParametricModel pm) {

@@ -77,6 +77,9 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
      * New pane for configuring the EstimatedModelReader node.
      */
     protected EstimatedModelReaderNodeDialog() {
+    	buildGui();
+    }
+    private void buildGui() {
     	JPanel panel = new JPanel();    	
     	/*
     	dbui = new DbConfigurationUi( true );
@@ -102,7 +105,9 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	//panel.add( dbui, BorderLayout.NORTH );    	
     	panel.add( estmodelui, BorderLayout.CENTER );    	
     	    	
+    	this.removeTab("Filter models");
     	addTab("Filter models", panel);
+    	this.setSelected("Filter models");
     	//addTab("Database connection", dbui);
     	
     	try {
@@ -110,7 +115,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	}
     	catch( Exception e ) {
     		e.printStackTrace( System.err );
-    	}
+    	}    	
     }
     
 	@Override
@@ -152,7 +157,8 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 		*/
 	}
 
-	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
+	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {	
+    	buildGui();
 		try {	
 			/*
 			if (settings.containsKey("DbConfigurationUi")) dbui.setSettings(settings.getConfig("DbConfigurationUi"));

@@ -83,7 +83,9 @@ public class Coefficient {
 		desc = paramXml.getDescription();
 
 		// Builds and sets non RDF annotation
-		param.setAnnotation(new CoefficientAnnotation(P, error, t, correlations, desc).getAnnotation());
+		if (P != null || error != null || t != null || !correlations.isEmpty() || desc != null) {
+			param.setAnnotation(new CoefficientAnnotation(P, error, t, correlations, desc).getAnnotation());
+		}
 	}
 
 	/**

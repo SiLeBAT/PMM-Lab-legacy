@@ -71,8 +71,10 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompModelPlugin;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
+import org.sbml.jsbml.ext.comp.CompSBasePlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
+import org.sbml.jsbml.ext.comp.ReplacedBy;
 import org.sbml.jsbml.ext.comp.Submodel;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -1038,17 +1040,6 @@ class TwoStepTertiaryModelParser implements Parser {
 		// Adds document annotation
 		tertDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
 
-		// Creates ExternalModelDefinition
-		for (SBMLDocument secDoc : secDocs) {
-			// Gets model definition id from secDoc
-			String mdId = secDoc.getModel().getId();
-
-			// Creates and adds an ExternalModelDefinition to the tertiary model
-			ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(mdId);
-			emd.setSource(mdId + ".sbml");
-			emd.setModelRef(mdId);
-		}
-
 		Model model = tertDoc.createModel("model");
 		KnimeTuple aTuple = tupleList.get(0).get(0);
 
@@ -1095,6 +1086,25 @@ class TwoStepTertiaryModelParser implements Parser {
 				p2.setAnnotation(new Annotation());
 			}
 			model.addParameter(p2);
+		}
+		
+		// Creates ExternalModelDefinition
+		for (SBMLDocument secDoc : secDocs) {
+			// Gets model definition id from secDoc
+			String mdId = secDoc.getModel().getId();
+
+			// Creates and adds an ExternalModelDefinition to the tertiary model
+			ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(mdId);
+			emd.setSource(mdId + ".sbml");
+			emd.setModelRef(mdId);
+			
+			String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+			Parameter parameter = model.getParameter(depId);
+			
+			CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
+			ReplacedBy replacedBy = plugin.createReplacedBy();
+			replacedBy.setIdRef(depId);
+			replacedBy.setSubmodelRef(mdId);
 		}
 
 		// Assigns unit definitions of the primary model
@@ -1168,6 +1178,14 @@ class OneStepTertiaryModelParser implements Parser {
 			ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(secModelId);
 			emd.setSource(secModelId + ".sbml");
 			emd.setModelRef(secModelId);
+			
+			String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+			Parameter parameter = tertDoc.getModel().getParameter(depId);
+			
+			CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
+			ReplacedBy replacedBy = plugin.createReplacedBy();
+			replacedBy.setIdRef(depId);
+			replacedBy.setSubmodelRef(secModelId);
 
 			// Add annotation for the primary model
 			XMLNode metadataNode = secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
@@ -1262,6 +1280,14 @@ class ManualTertiaryModelParser implements Parser {
 			submodel.setModelRef(emdId);
 
 			secDocs.add(secDoc); // Save secondary model
+			
+			String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+			Parameter parameter = tertDoc.getModel().getParameter(depId);
+			
+			CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
+			ReplacedBy replacedBy = plugin.createReplacedBy();
+			replacedBy.setIdRef(depId);
+			replacedBy.setSubmodelRef(emdId);
 		}
 
 		ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, secDocs);

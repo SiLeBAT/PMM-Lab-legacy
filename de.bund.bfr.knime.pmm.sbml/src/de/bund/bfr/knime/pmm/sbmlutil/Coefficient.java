@@ -37,12 +37,15 @@ public class Coefficient {
 	 *            SBML parameter with CoefficientAnnotation.
 	 */
 	public Coefficient(Parameter param) {
-		CoefficientAnnotation annot = new CoefficientAnnotation(param.getAnnotation());
-		P = annot.getP();
-		error = annot.getError();
-		t = annot.getT();
-		correlations = annot.getCorrelations();
-		desc = annot.getDescription();
+		System.out.println(param.isSetAnnotation());
+		if (param.isSetAnnotation()) {
+			CoefficientAnnotation annot = new CoefficientAnnotation(param.getAnnotation());
+			P = annot.getP();
+			error = annot.getError();
+			t = annot.getT();
+			correlations = annot.getCorrelations();
+			desc = annot.getDescription();
+		}
 		this.param = param;
 	}
 

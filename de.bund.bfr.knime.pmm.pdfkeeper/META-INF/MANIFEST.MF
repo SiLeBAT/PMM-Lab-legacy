@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: PdfKeeper-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.pdfkeeper; singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: pdfkeeper.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.pdfkeeper.PdfKeeperNodePlugin
 Bundle-Vendor: BfR

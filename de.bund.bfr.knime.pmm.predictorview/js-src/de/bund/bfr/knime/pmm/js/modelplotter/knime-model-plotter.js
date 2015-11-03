@@ -19,7 +19,7 @@ bfr_model_plotter = function() {
 		
 		var body = document.getElementsByTagName("body")[0];
 		body.setAttribute("style", 
-				"width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; font-size:14px;");
+				"width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; font-size:14px; overflow:hidden;");
 		
 		var table = document.createElement("table");
 		var row1 = document.createElement("tr");

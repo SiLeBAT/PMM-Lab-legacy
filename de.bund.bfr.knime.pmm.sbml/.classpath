@@ -6,7 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="lib" path="lib/jsbml-tidy-1.0.jar" sourcepath="lib/jsbml-tidy-1.0-src.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/de.bund.bfr.knime.pmm.sbml/lib/jsbml-tidy-1.0-javadoc.jar!/"/>

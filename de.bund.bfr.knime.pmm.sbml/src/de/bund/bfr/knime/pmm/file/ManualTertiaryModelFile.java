@@ -20,7 +20,6 @@ import javax.xml.transform.TransformerException;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
-import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.TidySBMLWriter;
@@ -88,16 +87,21 @@ public class ManualTertiaryModelFile {
 		}
 
 		ca.close();
-
-		for (SBMLDocument tertDoc : tertDocs.values()) {
+		
+		for (Map.Entry<String, SBMLDocument> entry : tertDocs.entrySet()) {
+			String tertDocName = entry.getKey();
+			SBMLDocument tertDoc = entry.getValue();
+			
 			List<SBMLDocument> secModels = new LinkedList<>();
+			List<String> secModelNames = new LinkedList<>();
 			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
-			// Gets secondary model ids
 			for (ExternalModelDefinition emd : plugin.getListOfExternalModelDefinitions()) {
-				secModels.add(secDocs.get(emd.getSource()));
+				String secModelName = emd.getSource();
+				SBMLDocument secModel = secDocs.get(secModelName);
+				secModels.add(secModel);
 			}
-
-			ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, secModels);
+			
+			ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, tertDocName, secModels, secModelNames);
 			models.add(mtm);
 		}
 
@@ -146,27 +150,20 @@ public class ManualTertiaryModelFile {
 			File tertTmp = File.createTempFile("sec", "");
 			tertTmp.deleteOnExit();
 
-			// Creates name for the tert model
-			String mdName = String.format("%s_%s.%s", filename, modelCounter, SBML_EXTENSION);
-
 			// Writes tertiary model to tertTmp and adds it to the file
 			sbmlWriter.write(model.getTertDoc(), tertTmp);
 			
-			ArchiveEntry masterEntry = ca.addEntry(tertTmp, mdName, sbmlURI);
+			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTerDocName(), sbmlURI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
-			for (SBMLDocument secDoc : model.getSecDocs()) {
+			for (int secDocCounter = 0; secDocCounter < model.getSecDocs().size(); secDocCounter++) {
 				// Creates tmp file for the secondary model
 				File secTmp = File.createTempFile("sec", "");
 				secTmp.deleteOnExit();
-
-				// Creates name for the sec model
-				Model md = secDoc.getModel();
-				String secMdName = String.format("%s_%s_%s.%s", filename, modelCounter, md.getId(), SBML_EXTENSION);
-
+				
 				// Writes model to secTmp and adds it to the file
-				sbmlWriter.write(secDoc, secTmp);
-				ca.addEntry(secTmp, secMdName, sbmlURI);
+				sbmlWriter.write(model.getSecDocs().get(secDocCounter), secTmp);
+				ca.addEntry(secTmp, model.getSecDocNames().get(secDocCounter), sbmlURI);
 			}
 
 			// Increments counter and update progress bar

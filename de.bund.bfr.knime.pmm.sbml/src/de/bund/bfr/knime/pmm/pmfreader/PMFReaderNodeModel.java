@@ -1010,11 +1010,11 @@ class Model1Tuple extends TupleBase {
 
 		Matrix matrix = new Matrix(model.getCompartment(0));
 		MatrixXml originalMatrixXml = matrix.toMatrixXml();
-		Integer matrixId = originalAgentXml.getId();
-		String matrixName = originalAgentXml.getName();
-		String matrixDetail = originalAgentXml.getDetail();
-		String matrixDbuuid = originalAgentXml.getDbuuid();
-		Model1MatrixXml matrixXml = new Model1MatrixXml(agentId, agentName, agentDetail, agentDbuuid);
+		Integer matrixId = originalMatrixXml.getId();
+		String matrixName = originalMatrixXml.getName();
+		String matrixDetail = originalMatrixXml.getDetail();
+		String matrixDbuuid = originalMatrixXml.getDbuuid();
+		Model1MatrixXml matrixXml = new Model1MatrixXml(matrixId, matrixName, matrixDetail, matrixDbuuid);
 
 		Model1Metadata metadata = new Model1Metadata();
 		metadata.setAgentXml(agentXml);

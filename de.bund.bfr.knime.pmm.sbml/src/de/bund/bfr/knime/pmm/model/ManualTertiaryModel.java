@@ -14,20 +14,32 @@ import org.sbml.jsbml.SBMLDocument;
  */
 public class ManualTertiaryModel {
 
-	SBMLDocument tertiaryDoc;
+	SBMLDocument tertDoc;
+	String terDocName;
 	List<SBMLDocument> secDocs;
+	List<String> secDocNames;
 
-	public ManualTertiaryModel(SBMLDocument tertiaryDoc,
-			List<SBMLDocument> secDocs) {
-		this.tertiaryDoc = tertiaryDoc;
+	public ManualTertiaryModel(SBMLDocument tertiaryDoc, String tertDocName, List<SBMLDocument> secDocs,
+			List<String> secDocNames) {
+		this.tertDoc = tertiaryDoc;
+		this.terDocName = tertDocName;
 		this.secDocs = secDocs;
+		this.secDocNames = secDocNames;
 	}
 
 	public SBMLDocument getTertDoc() {
-		return tertiaryDoc;
+		return tertDoc;
+	}
+
+	public String getTerDocName() {
+		return terDocName;
 	}
 
 	public List<SBMLDocument> getSecDocs() {
 		return secDocs;
+	}
+
+	public List<String> getSecDocNames() {
+		return secDocNames;
 	}
 }

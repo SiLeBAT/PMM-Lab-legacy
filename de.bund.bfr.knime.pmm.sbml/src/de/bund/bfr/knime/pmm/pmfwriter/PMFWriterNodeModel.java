@@ -1,9 +1,9 @@
 /*******************************************************************************
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab ï¿½ 2012, Federal Institute for Risk Assessment (BfR), Germany
  * 
  * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
  * 
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab ï¿½ 2012, Federal Institute for Risk Assessment (BfR), Germany
  * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
  * 
  * Developers and contributors to the PMM-Lab project are 
@@ -471,8 +471,8 @@ class TableReader {
 	}
 
 	public static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
-		final String CELSIUS = "°C";
-		final String FAHRENHEIT = "°F";
+		final String CELSIUS = "ï¿½C";
+		final String FAHRENHEIT = "ï¿½F";
 		final String KELVIN = "K";
 
 		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
@@ -1257,6 +1257,7 @@ class ManualTertiaryModelParser implements Parser {
 		// and the primary model from the first tuple
 		KnimeTuple firstTuple = firstInstance.get(0);
 
+		String tertDocName = String.format("%s_%d.sbml", mdName, modelNum);
 		// Creates SBMLDocument for the tertiary model
 		SBMLDocument tertDoc = new Model1Parser(firstTuple, metadata, notes).getDocument();
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
@@ -1264,14 +1265,15 @@ class ManualTertiaryModelParser implements Parser {
 
 		// Add submodels and model definitions
 		List<SBMLDocument> secDocs = new LinkedList<>();
+		List<String> secDocNames = new LinkedList<>();
 		for (KnimeTuple tuple : firstInstance) {
 			SBMLDocument secDoc = new Model2Parser(tuple, metadata, notes).getDocument();
 
 			// Creates ExternalModelDefinition
 			String emdId = secDoc.getModel().getId();
+			String secDocName = String.format("%s_%d_%s.sbml", mdName, modelNum, emdId);
 			ExternalModelDefinition emd = new ExternalModelDefinition(emdId, TableReader.LEVEL, TableReader.VERSION);
-			String emdSource = String.format("%s_%s_%s.%s", mdName, modelNum, emdId, "sbml");
-			emd.setSource(emdSource);
+			emd.setSource(secDocName);
 			emd.setModelRef(emdId);
 
 			compDocPlugin.addExternalModelDefinition(emd);
@@ -1280,6 +1282,7 @@ class ManualTertiaryModelParser implements Parser {
 			submodel.setModelRef(emdId);
 
 			secDocs.add(secDoc); // Save secondary model
+			secDocNames.add(secDocName);
 			
 			String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
 			Parameter parameter = tertDoc.getModel().getParameter(depId);
@@ -1290,7 +1293,7 @@ class ManualTertiaryModelParser implements Parser {
 			replacedBy.setSubmodelRef(emdId);
 		}
 
-		ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, secDocs);
+		ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, tertDocName, secDocs, secDocNames); // TODO
 		return mtm;
 	}
 }

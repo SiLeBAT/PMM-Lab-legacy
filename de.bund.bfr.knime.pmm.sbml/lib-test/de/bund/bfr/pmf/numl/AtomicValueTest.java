@@ -17,43 +17,53 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.annotation.numl;
+package de.bund.bfr.pmf.numl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.sbmlutil.Agent;
-
-public class AgentNuMLNodeTest {
-
-	@SuppressWarnings("static-method")
-	@Test
-	public void test() {
-		
-		String agentName = "salmonella spp";
-		String agentDetail = "Salmonella spec";
-		
-		AgentXml agentXml = new AgentXml();
-		agentXml.setName(agentName);
-		agentXml.setDetail(agentDetail);
-		Agent agent = new Agent(agentXml, null, null, null);
-		
-		AgentNuMLNode node1 = null;
+/**
+ * @author Miguel Alba
+ */
+public class AtomicValueTest {
+	
+	private AtomicValue timeValue;
+	private AtomicValue concValue;
+	private Document doc;
+	
+	@Before
+	public void setUp() {
+		timeValue = new AtomicValue(0.00);
+		concValue = new AtomicValue(2.67);
 		try {
-			node1 = new AgentNuMLNode(agent);
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			fail();
 		}
-		
-		AgentXml agentXml2 = node1.toAgentXml();
-		assertEquals(agentName, agentXml2.getName());
-		assertEquals(agentDetail, agentXml2.getDetail());
 	}
 
+	@Test
+	public void test() {
+		assertEquals(0.0, timeValue.getValue(), 0.01);
+		assertEquals(2.67, concValue.getValue(), 0.01);
+		
+		assertEquals(timeValue, new AtomicValue(timeValue.toNode(doc)));
+		assertEquals(concValue, new AtomicValue(concValue.toNode(doc)));
+		
+		assertFalse(timeValue.equals(concValue));
+	}
+	
+	@Test
+	public void testToString() {
+		assertEquals(concValue.toString(), "AtomicValue [value=2.670000]");
+		assertEquals(timeValue.toString(), "AtomicValue [value=0.000000]");
+	}
 }

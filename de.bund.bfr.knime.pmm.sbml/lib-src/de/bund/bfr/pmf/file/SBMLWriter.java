@@ -17,43 +17,28 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.annotation.numl;
+package de.bund.bfr.pmf.file;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.io.File;
+import java.io.IOException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 
-import org.junit.Test;
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLException;
+import org.sbml.jsbml.TidySBMLWriter;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+/**
+ * @author Miguel Alba
+ */
+public class SBMLWriter {
 
-public class AgentNuMLNodeTest {
+	private static final TidySBMLWriter sbmlWriter = new TidySBMLWriter("PMF Writer node", "1.0");
 
-	@SuppressWarnings("static-method")
-	@Test
-	public void test() {
-		
-		String agentName = "salmonella spp";
-		String agentDetail = "Salmonella spec";
-		
-		AgentXml agentXml = new AgentXml();
-		agentXml.setName(agentName);
-		agentXml.setDetail(agentDetail);
-		Agent agent = new Agent(agentXml, null, null, null);
-		
-		AgentNuMLNode node1 = null;
-		try {
-			node1 = new AgentNuMLNode(agent);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-			fail();
-		}
-		
-		AgentXml agentXml2 = node1.toAgentXml();
-		assertEquals(agentName, agentXml2.getName());
-		assertEquals(agentDetail, agentXml2.getDetail());
+	private SBMLWriter() {
 	}
 
+	public static void write(SBMLDocument doc, File file) throws SBMLException, XMLStreamException, IOException {
+		sbmlWriter.write(doc, file);
+	}
 }

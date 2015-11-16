@@ -12,5 +12,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jtidy-r938.jar"/>
+	<classpathentry kind="src" path="lib-test"/>
+	<classpathentry kind="src" path="lib-src"/>
+	<classpathentry excluding="de/bund/bfr/pmf/numl/UnitNuMLNode.java|de/bund/bfr/pmf/numl/CompartmentNuMLNode.java|de/bund/bfr/pmf/numl/SpeciesNuMLNode.java|de/bund/bfr/pmf/numl/ReferenceNuMLNode.java|de/bund/bfr/pmf/buggy_numl/" kind="src" path="new-pmf-nodes"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

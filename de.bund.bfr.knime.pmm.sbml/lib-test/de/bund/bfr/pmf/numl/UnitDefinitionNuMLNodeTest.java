@@ -17,43 +17,47 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.annotation.numl;
+package de.bund.bfr.pmf.numl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sbml.jsbml.Unit;
+import org.w3c.dom.Document;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.sbmlutil.Agent;
+import de.bund.bfr.pmf.sbml.PMFUnit;
+import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
 
-public class AgentNuMLNodeTest {
+/**
+ * @author Miguel Alba
+ */
+public class UnitDefinitionNuMLNodeTest {
 
-	@SuppressWarnings("static-method")
+	private PMFUnitDefinition unitDefinition;
+	private Document doc;
+
+	@Before
+	public void setUp() {
+		try {
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		PMFUnit[] units = new PMFUnit[] { new PMFUnit(1, 0, Unit.Kind.ITEM, 1), new PMFUnit(1, 0, Unit.Kind.GRAM, -1) };
+		unitDefinition = new PMFUnitDefinition("ln_count_g", "ln(count/g)", "ln", units);
+	}
+	
 	@Test
 	public void test() {
-		
-		String agentName = "salmonella spp";
-		String agentDetail = "Salmonella spec";
-		
-		AgentXml agentXml = new AgentXml();
-		agentXml.setName(agentName);
-		agentXml.setDetail(agentDetail);
-		Agent agent = new Agent(agentXml, null, null, null);
-		
-		AgentNuMLNode node1 = null;
-		try {
-			node1 = new AgentNuMLNode(agent);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-			fail();
-		}
-		
-		AgentXml agentXml2 = node1.toAgentXml();
-		assertEquals(agentName, agentXml2.getName());
-		assertEquals(agentDetail, agentXml2.getDetail());
+		UnitDefinitionNuMLNode unitDefNode = new UnitDefinitionNuMLNode(unitDefinition, doc);
+		assertEquals(unitDefinition, unitDefNode.toPMFUnitDefinition());
+		assertEquals(unitDefinition, new UnitDefinitionNuMLNode(unitDefNode.node).toPMFUnitDefinition());
 	}
 
 }

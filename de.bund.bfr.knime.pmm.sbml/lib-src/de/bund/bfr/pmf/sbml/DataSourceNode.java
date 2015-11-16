@@ -17,43 +17,36 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.annotation.numl;
+package de.bund.bfr.pmf.sbml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.sbml.jsbml.xml.XMLAttributes;
+import org.sbml.jsbml.xml.XMLNode;
+import org.sbml.jsbml.xml.XMLTriple;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.junit.Test;
-
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.sbmlutil.Agent;
-
-public class AgentNuMLNodeTest {
-
-	@SuppressWarnings("static-method")
-	@Test
-	public void test() {
-		
-		String agentName = "salmonella spp";
-		String agentDetail = "Salmonella spec";
-		
-		AgentXml agentXml = new AgentXml();
-		agentXml.setName(agentName);
-		agentXml.setDetail(agentDetail);
-		Agent agent = new Agent(agentXml, null, null, null);
-		
-		AgentNuMLNode node1 = null;
-		try {
-			node1 = new AgentNuMLNode(agent);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-			fail();
-		}
-		
-		AgentXml agentXml2 = node1.toAgentXml();
-		assertEquals(agentName, agentXml2.getName());
-		assertEquals(agentDetail, agentXml2.getDetail());
+/**
+ * @author Miguel Alba
+ */
+public class DataSourceNode {
+	
+	public static final String TAG = "dataSource";
+	public static final String NS = "pmmlab";
+	
+	XMLNode node;
+	
+	public DataSourceNode(final XMLNode node) {
+		this.node = node;
 	}
+	
+	public DataSourceNode(final String dataName) {
+		XMLTriple triple = new XMLTriple(TAG, null, NS);
 
+		XMLAttributes attrs = new XMLAttributes();
+		attrs.add("id", "source1");
+		attrs.add("href", dataName);
+		
+		node = new XMLNode(triple, attrs);
+	}
+	
+	public String getFile() { return node.getAttrValue("href"); }
+	public XMLNode getNode() { return node; }
 }

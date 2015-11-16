@@ -49,7 +49,8 @@ import de.bund.bfr.knime.pmm.sbmlutil.MetadataTest;
 	// de.bund.bfr.knime.pmm.sbml.sbmlutil
 	MetadataTest.class,
 	PMFUnitDefinitionTest.class,
-	UncertaintiesTest.class })
+	UncertaintiesTest.class
+	})
 public class AllTests {
 
 }

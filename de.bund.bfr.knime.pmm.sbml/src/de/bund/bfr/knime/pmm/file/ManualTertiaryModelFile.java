@@ -1,9 +1,13 @@
 package de.bund.bfr.knime.pmm.file;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
@@ -17,6 +21,7 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang.CharSet;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
@@ -27,6 +32,8 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.xml.stax.SBMLReader;
+
+import com.ctc.wstx.io.CharsetNames;
 
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.ManualTertiaryModel;
@@ -60,24 +67,26 @@ public class ManualTertiaryModelFile {
 		SBMLReader sbmlReader = new SBMLReader();
 
 		URI sbmlURI = URIFactory.createSBMLURI();
-		
+
 		MetaDataObject mdo = ca.getDescriptions().get(0);
 		Element metaParent = mdo.getXmlDescription();
 		PMFMetadataNode metadataAnnotation = new PMFMetadataNode(metaParent);
 		Set<String> masterFiles = metadataAnnotation.getMasterFiles();
-		
+
 		List<ArchiveEntry> sbmlEntries = ca.getEntriesWithFormat(sbmlURI);
-		
+
 		// Classify models into tertiary or secondary models
 		int numTertDocs = masterFiles.size();
 		int numSecDocs = sbmlEntries.size() - numTertDocs;
 		Map<String, SBMLDocument> tertDocs = new HashMap<>(numTertDocs);
 		Map<String, SBMLDocument> secDocs = new HashMap<>(numSecDocs);
-		
+
 		for (ArchiveEntry entry : sbmlEntries) {
-			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
-			stream.close();
+			 InputStream stream = Files.newInputStream(entry.getPath(),
+			 StandardOpenOption.READ);
+			 SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new
+			 NoLogging());
+			 stream.close();
 			
 			if (masterFiles.contains(entry.getFileName())) {
 				tertDocs.put(entry.getFileName(), doc);
@@ -87,11 +96,11 @@ public class ManualTertiaryModelFile {
 		}
 
 		ca.close();
-		
+
 		for (Map.Entry<String, SBMLDocument> entry : tertDocs.entrySet()) {
 			String tertDocName = entry.getKey();
 			SBMLDocument tertDoc = entry.getValue();
-			
+
 			List<SBMLDocument> secModels = new LinkedList<>();
 			List<String> secModelNames = new LinkedList<>();
 			CompSBMLDocumentPlugin plugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
@@ -100,7 +109,7 @@ public class ManualTertiaryModelFile {
 				SBMLDocument secModel = secDocs.get(secModelName);
 				secModels.add(secModel);
 			}
-			
+
 			ManualTertiaryModel mtm = new ManualTertiaryModel(tertDoc, tertDocName, secModels, secModelNames);
 			models.add(mtm);
 		}
@@ -152,7 +161,7 @@ public class ManualTertiaryModelFile {
 
 			// Writes tertiary model to tertTmp and adds it to the file
 			sbmlWriter.write(model.getTertDoc(), tertTmp);
-			
+
 			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTerDocName(), sbmlURI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
@@ -160,7 +169,7 @@ public class ManualTertiaryModelFile {
 				// Creates tmp file for the secondary model
 				File secTmp = File.createTempFile("sec", "");
 				secTmp.deleteOnExit();
-				
+
 				// Writes model to secTmp and adds it to the file
 				sbmlWriter.write(model.getSecDocs().get(secDocCounter), secTmp);
 				ca.addEntry(secTmp, model.getSecDocNames().get(secDocCounter), sbmlURI);

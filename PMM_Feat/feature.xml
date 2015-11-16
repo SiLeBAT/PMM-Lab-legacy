@@ -70,14 +70,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
+      <import plugin="com.google.guava"/>
       <import plugin="org.knime.xml"/>
       <import plugin="org.knime.ext.poi"/>
-      <import plugin="org.knime.quickform.nodes"/>
       <import plugin="org.knime.js.core"/>
       <import plugin="com.fasterxml.jackson.core.jackson-annotations" version="2.4.3" match="greaterOrEqual"/>
       <import plugin="com.fasterxml.jackson.core.jackson-core" version="2.4.3" match="greaterOrEqual"/>
       <import plugin="com.fasterxml.jackson.core.jackson-databind" version="2.4.3" match="greaterOrEqual"/>
-      <import plugin="com.google.guava"/>
       <import plugin="org.apache.log4j"/>
       <import plugin="org.apache.commons.lang"/>
       <import plugin="org.fife.rsyntaxtextarea"/>

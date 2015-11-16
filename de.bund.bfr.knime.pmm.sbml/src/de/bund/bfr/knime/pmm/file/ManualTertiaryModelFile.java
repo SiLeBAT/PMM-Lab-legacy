@@ -1,13 +1,9 @@
 package de.bund.bfr.knime.pmm.file;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
@@ -21,7 +17,6 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.lang.CharSet;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.knime.core.node.ExecutionContext;
@@ -32,8 +27,6 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
 import org.sbml.jsbml.xml.stax.SBMLReader;
-
-import com.ctc.wstx.io.CharsetNames;
 
 import de.bund.bfr.knime.pmm.file.uri.URIFactory;
 import de.bund.bfr.knime.pmm.model.ManualTertiaryModel;
@@ -84,8 +77,7 @@ public class ManualTertiaryModelFile {
 		for (ArchiveEntry entry : sbmlEntries) {
 			 InputStream stream = Files.newInputStream(entry.getPath(),
 			 StandardOpenOption.READ);
-			 SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new
-			 NoLogging());
+			 SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			 stream.close();
 			
 			if (masterFiles.contains(entry.getFileName())) {

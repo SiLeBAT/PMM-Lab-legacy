@@ -69,7 +69,7 @@ public class PrimaryModelWDataFile {
 		for (ArchiveEntry modelEntry : modelEntries) {
 
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
+			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
 			// Parse data

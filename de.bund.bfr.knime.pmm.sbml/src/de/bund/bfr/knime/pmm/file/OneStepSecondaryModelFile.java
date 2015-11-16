@@ -92,7 +92,7 @@ public class OneStepSecondaryModelFile {
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
+			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 
 			// look for DataSourceNode

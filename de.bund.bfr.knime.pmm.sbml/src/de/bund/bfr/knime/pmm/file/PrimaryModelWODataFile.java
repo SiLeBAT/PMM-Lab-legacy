@@ -54,7 +54,7 @@ public class PrimaryModelWODataFile {
 		for (ArchiveEntry modelEntry : modelEntries) {
 			InputStream stream = Files.newInputStream(modelEntry.getPath(),
 					StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
+			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 			PrimaryModelWOData model = new PrimaryModelWOData(sbmlDoc);
 			models.add(model);

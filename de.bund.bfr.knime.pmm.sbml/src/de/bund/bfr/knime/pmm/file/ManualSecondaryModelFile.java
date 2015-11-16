@@ -64,7 +64,7 @@ public class ManualSecondaryModelFile {
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(),
 					StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
+			SBMLDocument sbmlDoc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 			models.add(new ManualSecondaryModel(sbmlDoc));
 		}

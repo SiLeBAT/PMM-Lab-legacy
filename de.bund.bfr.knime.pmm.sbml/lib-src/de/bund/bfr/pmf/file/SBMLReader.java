@@ -19,15 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.pmf.file;
 
-import java.beans.PropertyChangeEvent;
 import java.io.InputStream;
 
-import javax.swing.tree.TreeNode;
 import javax.xml.stream.XMLStreamException;
 
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.util.TreeNodeChangeListener;
-import org.sbml.jsbml.util.TreeNodeRemovedEvent;
 
 /**
  * @author Miguel Alba
@@ -40,21 +36,6 @@ public class SBMLReader {
 	}
 	
 	public static SBMLDocument readSBMLFromStream(InputStream stream) throws XMLStreamException {
-		return sbmlReader.readSBMLFromStream(stream, new NoLogging());
+		return sbmlReader.readSBMLFromStream(stream);
 	}
-}
-
-/**
- * @author Christian Thoens
- */
-class NoLogging implements TreeNodeChangeListener {
-
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) { }
-
-	@Override
-	public void nodeRemoved(TreeNodeRemovedEvent event) { }
-
-	@Override
-	public void nodeAdded(TreeNode node) { }
 }

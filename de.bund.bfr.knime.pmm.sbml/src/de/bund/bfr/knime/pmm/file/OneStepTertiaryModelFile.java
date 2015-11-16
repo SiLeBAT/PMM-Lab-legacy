@@ -96,7 +96,7 @@ public class OneStepTertiaryModelFile {
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(sbmlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream, new NoLogging());
+			SBMLDocument doc = sbmlReader.readSBMLFromStream(stream);
 			stream.close();
 			
 			if (masterFiles.contains(entry.getFileName())) {

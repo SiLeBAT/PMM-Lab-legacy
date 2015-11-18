@@ -384,14 +384,14 @@ class Util {
 		Agent species = new Agent(model.getSpecies(0));
 		Matrix matrix = new Matrix(model.getCompartment(0));
 
-		tuple.setValue(OpenFSMRSchema.ATT_ID, model.getId());
-		tuple.setValue(OpenFSMRSchema.ATT_NAME, model.getName());
-		tuple.setValue(OpenFSMRSchema.ATT_LINK, "");
+		tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, model.getId());
+		tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, model.getName());
+		tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, "");
 
-		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM, species.getSpecies().getName());
+		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME, species.getSpecies().getName());
 		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL, species.getDetail());
 
-		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT, matrix.getCompartment().getName());
+		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME, matrix.getCompartment().getName());
 		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL, matrix.getDetails());
 
 		tuple.setValue(OpenFSMRSchema.ATT_CREATOR, metadata.getGivenName());
@@ -406,10 +406,10 @@ class Util {
 			refDescLink = lit.getWebsite();
 		}
 
-		tuple.setValue(OpenFSMRSchema.ATT_REF_DESC, refDesc);
-		tuple.setValue(OpenFSMRSchema.ATT_REF_DESC_LINK, refDescLink);
+		tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION, refDesc);
+		tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION_LINK, refDescLink);
 
-		tuple.setValue(OpenFSMRSchema.ATT_CREATED, metadata.getCreatedDate());
+		tuple.setValue(OpenFSMRSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
 		tuple.setValue(OpenFSMRSchema.ATT_MODIFIED, metadata.getModifiedDate());
 
 		tuple.setValue(OpenFSMRSchema.ATT_RIGHTS, "");
@@ -418,9 +418,9 @@ class Util {
 
 		tuple.setValue(OpenFSMRSchema.ATT_CURATION_STATUS, "");
 
-		tuple.setValue(OpenFSMRSchema.ATT_TYPE, metadata.getType());
+		tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, metadata.getType());
 
-		tuple.setValue(OpenFSMRSchema.ATT_SUBJECT, new Model1Rule((AssignmentRule) model.getRule(0)).getSubject());
+		tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, new Model1Rule((AssignmentRule) model.getRule(0)).getSubject());
 
 		tuple.setValue(OpenFSMRSchema.ATT_FOOD_PROCESS, "");
 
@@ -436,8 +436,8 @@ class Util {
 			depUnitCategory = dbUnits.get(depUnitName).getKind_of_property_quantity();
 		}
 
-		tuple.setValue(OpenFSMRSchema.ATT_DEP, depUnitCategory);
-		tuple.setValue(OpenFSMRSchema.ATT_DEP_UNITS, depUnitName);
+		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE, depUnitCategory);
+		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_UNIT, depUnitName);
 
 		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 		String max = "";
@@ -448,10 +448,10 @@ class Util {
 			min = depLimits.getMin().toString();
 		}
 
-		tuple.setValue(OpenFSMRSchema.ATT_DEP_MAX, max);
-		tuple.setValue(OpenFSMRSchema.ATT_DEP_MIN, min);
+		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MAX, max);
+		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MIN, min);
 
-		tuple.setValue(OpenFSMRSchema.ATT_INDEP, Categories.getTimeCategory().getName());
+		tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, Categories.getTimeCategory().getName());
 
 		tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE, "");
 		tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE_LINK, "");

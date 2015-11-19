@@ -363,4 +363,1055 @@ public class FSMRTemplateImplTest {
 		assertFalse(template.isSetSoftwareNotes());
 		assertNull(template.getSoftwareNotes());
 	}
+
+	@Test
+	public void testSoftwareAccesibilityAccesors() {
+	    template.setSoftwareAccesibility("accesible");
+	    assertTrue(template.isSetSoftwareAccessibility());
+	    assertEquals("accesible", template.getSoftwareAccesibility());
+
+	    template.unsetSoftwareAccesibility();
+	    assertFalse(template.isSetSoftwareAccessibility());
+	    assertNull(template.getSoftwareAccesibility());
+	}
+
+	@Test
+	public void testSoftwareStochasticModelingAccesors() {
+	    template.setSoftwareStochasticModeling(true);
+	    assertTrue(template.isSetSoftwareStochasticModeling());
+	    assertTrue(template.getSoftwareStochasticModeling());
+
+	    template.unsetSoftwareStochasticModeling();
+	    assertFalse(template.isSetSoftwareStochasticModeling());
+	    assertNull(template.getSoftwareStochasticModeling());
+	}
+
+	@Test
+	public void testInitLevelUnitAccesors() {
+	    template.setInitLevelUnit("m");
+	    assertTrue(template.isSetInitLevelUnit());
+	    assertEquals("m", template.getInitLevelUnit());
+
+	    template.unsetInitLevelUnit();
+	    assertFalse(template.isSetInitLevelUnit());
+	    assertNull(template.getInitLevelUnit());
+	}
+
+	@Test
+	public void testInitLevelMinAccesors() {
+	    template.setInitLevelMin(0.0);
+	    assertTrue(template.isSetInitLevelMin());
+	    assertEquals(0.0, template.getInitLevelMin(), 0.0);
+
+	    template.unsetInitLevelMin();
+	    assertFalse(template.isSetInitLevelMin());
+	    assertNull(template.getInitLevelMin());
+	}
+
+	@Test
+	public void testInitLevelMaxAccesors() {
+	    template.setInitLevelMax(10.0);
+	    assertTrue(template.isSetInitLevelMax());
+	    assertEquals(10.0, template.getInitLevelMax(), 0.0);
+
+	    template.unsetInitLevelMax();
+	    assertFalse(template.isSetInitLevelMax());
+	    assertNull(template.getInitLevelMax());
+	}
+
+	@Test
+	public void testTimeUnitAccesors() {
+	    template.setTimeUnit("s");
+	    assertTrue(template.isSetTimeUnit());
+	    assertEquals("s", template.getTimeUnit());
+	    
+	    template.unsetTimeUnit();
+	    assertFalse(template.isSetTimeUnit());
+	    assertNull(template.getInitLevelMin());
+	}
+
+	@Test
+	public void testTimeMinAccesors() {
+	    template.setTimeMin(0.0);
+	    assertTrue(template.isSetTimeMin());
+	    assertEquals(0.0, template.getTimeMin(), 0.0);
+
+	    template.unsetTimeMin();
+	    assertFalse(template.isSetTimeMin());
+	    assertNull(template.getTimeMin());
+	}
+
+	@Test
+	public void testTimeMaxAccesors() {
+	    template.setTimeMax(10.0);
+	    assertTrue(template.isSetTimeMax());
+	    assertEquals(10.0, template.getTimeMax(), 0.0);
+
+	    template.unsetTimeMax();
+	    assertFalse(template.isSetTimeMax());
+	    assertNull(template.getTimeMax());
+	}
+
+	@Test
+	public void testTemperatureUnitAccesors() {
+	    template.setTemperatureUnit("ºC");
+	    assertTrue(template.isSetTemperatureUnit());
+	    assertEquals("ºC", template.getTemperatureUnit());
+
+	    template.unsetTemperatureUnit();
+	    assertFalse(template.isSetTemperatureUnit());
+	    assertNull(template.getTemperatureUnit());
+	}
+
+	@Test
+	public void testTemperatureMinAccesors() {
+	    template.setTemperatureMin(0.0);
+	    assertTrue(template.isSetTemperatureMin());
+	    assertEquals(0.0, template.getTemperatureMin(), 0.0);
+
+	    template.unsetTemperatureMin();
+	    assertFalse(template.isSetTemperatureMin());
+	    assertNull(template.getTemperatureMin());
+	}
+
+	@Test
+	public void testTemperatureMaxAccesors() {
+	    template.setTemperatureMax(10.0);
+	    assertTrue(template.isSetTemperatureMax());
+	    assertEquals(10.0, template.getTemperatureMax(), 0.0);
+
+	    template.unsetTemperatureMax();
+	    assertFalse(template.isSetTemperatureMax());
+	    assertNull(template.getTemperatureMax());
+	}
+
+	@Test
+	public void testPhUnitAccesors() {
+	    template.setPhUnit("pH");
+	    assertTrue(template.isSetPhUnit());
+	    assertEquals("pH", template.getPhUnit());
+
+	    template.unsetPhUnit();
+	    assertFalse(template.isSetPhUnit());
+	    assertNull(template.getPhUnit());
+	}
+
+	@Test
+	public void testPhMinAccesors() {
+	    template.setPhMin(0);
+	    assertTrue(template.isSetPhMin());
+	    assertEquals(0, template.getPhMin(), 0.0);
+
+	    template.unsetPhMin();
+	    assertFalse(template.isSetPhMin());
+	    assertNull(template.getPhMin());
+	}
+
+	@Test
+	public void testPhMaxAccesors() {
+	    template.setPhMax(7);
+	    assertTrue(template.isSetPhMax());
+	    assertEquals(7, template.getPhMax(), 0.0);
+
+	    template.unsetPhMax();
+	    assertFalse(template.isSetPhMax());
+	    assertNull(template.getPhMax());
+	}
+
+	@Test
+	public void testAwUnitAccesors() {
+	    template.setAwUnit("aw");
+	    assertTrue(template.isSetAwUnit());
+	    assertEquals("aw", template.getAwUnit());
+
+	    template.unsetAwUnit();
+	    assertFalse(template.isSetAwUnit());
+	    assertNull(template.getAwUnit());
+	}
+
+	@Test
+	public void testAwMinAccesors() {
+	    template.setAwMin(0);
+	    assertTrue(template.isSetAwMin());
+	    assertEquals(0, template.getAwMin(), 0.0);
+
+	    template.unsetAwMin();
+	    assertFalse(template.isSetAwMin());
+	    assertNull(template.getAwMin());
+	}
+
+	@Test
+	public void testAwMaxAccesors() {
+	    template.setAwMax(7);
+	    assertTrue(template.isSetAwMax());
+	    assertEquals(7, template.getAwMax(), 0.0);
+
+	    template.unsetAwMax();
+	    assertFalse(template.isSetAwMax());
+	    assertNull(template.getAwMax());
+	}
+
+	@Test
+	public void testNaClUnitAccesors() {
+	    template.setNaClUnit("osm");
+	    assertTrue(template.isSetNaClUnit());
+	    assertEquals("osm", template.getNaClUnit());
+
+	    template.unsetNaClUnit();
+	    assertFalse(template.isSetNaClUnit());
+	    assertNull(template.getNaClUnit());
+	}
+
+	@Test
+	public void testNaClMinAccesors() {
+	    template.setNaClMin(0);
+	    assertTrue(template.isSetNaClMin());
+	    assertEquals(0, template.getNaClMin(), 0.0);
+
+	    template.unsetNaClMin();
+	    assertFalse(template.isSetNaClMin());
+	    assertNull(template.getNaClMin());
+	}
+
+	@Test
+	public void testNaClMaxAccesors() {
+	    template.setNaClMax(7);
+	    assertTrue(template.isSetNaClMax());
+	    assertEquals(7, template.getNaClMax(), 0.0);
+
+	    template.unsetNaClMax();
+	    assertFalse(template.isSetNaClMax());
+	    assertNull(template.getNaClMax());
+	}
+
+	@Test
+	public void testAltaUnitAccesors() {
+	    template.setAltaUnit("alta");
+	    assertTrue(template.isSetAltaUnit());
+	    assertEquals("alta", template.getAltaUnit());
+
+	    template.unsetAltaUnit();
+	    assertFalse(template.isSetAltaUnit());
+	    assertNull(template.getAltaUnit());
+	}
+
+	@Test
+	public void testAltaMinAccesors() {
+	    template.setAltaMin(0);
+	    assertTrue(template.isSetAltaMin());
+	    assertEquals(0, template.getAltaMin(), 0.0);
+
+	    template.unsetAltaMin();
+	    assertFalse(template.isSetAltaMin());
+	    assertNull(template.getAltaMin());
+	}
+
+	@Test
+	public void testAltaMaxAccesors() {
+	    template.setAltaMax(7);
+	    assertTrue(template.isSetAltaMax());
+	    assertEquals(7, template.getAltaMax(), 0.0);
+
+	    template.unsetAltaMax();
+	    assertFalse(template.isSetAltaMax());
+	    assertNull(template.getAltaMax());
+	}
+
+	@Test
+	public void testCO2UnitAccesors() {
+	    template.setCO2Unit("l");
+	    assertTrue(template.isSetCO2Unit());
+	    assertEquals("l", template.getCO2Unit());
+
+	    template.unsetCO2Unit();
+	    assertFalse(template.isSetCO2Unit());
+	    assertNull(template.getCO2Unit());
+	}
+
+	@Test
+	public void testCO2MinAccesors() {
+	    template.setCO2Min(0);
+	    assertTrue(template.isSetCO2Min());
+	    assertEquals(0, template.getCO2Min(), 0.0);
+
+	    template.unsetCO2Min();
+	    assertFalse(template.isSetCO2Min());
+	    assertNull(template.getCO2Min());
+	}
+
+	@Test
+	public void testCO2MaxAccesors() {
+	    template.setCO2Max(7);
+	    assertTrue(template.isSetCO2Max());
+	    assertEquals(7, template.getCO2Max(), 0.0);
+
+	    template.unsetCO2Max();
+	    assertFalse(template.isSetCO2Max());
+	    assertNull(template.getCO2Max());
+	}
+
+	@Test
+	public void testClO2UnitAccesors() {
+	    template.setClO2Unit("l");
+	    assertTrue(template.isSetClO2Unit());
+	    assertEquals("l", template.getClO2Unit());
+
+	    template.unsetClO2Unit();
+	    assertFalse(template.isSetClO2Unit());
+	    assertNull(template.getClO2Unit());
+	}
+
+	@Test
+	public void testClO2MinAccesors() {
+	    template.setClO2Min(0);
+	    assertTrue(template.isSetClO2Min());
+	    assertEquals(0, template.getClO2Min(), 0.0);
+
+	    template.unsetClO2Min();
+	    assertFalse(template.isSetClO2Min());
+	    assertNull(template.getClO2Min());
+	}
+
+	@Test
+	public void testClO2MaxAccesors() {
+	    template.setClO2Max(7);
+	    assertTrue(template.isSetClO2Max());
+	    assertEquals(7, template.getClO2Max(), 0.0);
+
+	    template.unsetClO2Max();
+	    assertFalse(template.isSetClO2Max());
+	    assertNull(template.getClO2Max());
+	}
+
+	@Test
+	public void testEdtaUnitAccesors() {
+	    template.setEdtaUnit("l");
+	    assertTrue(template.isSetEdtaUnit());
+	    assertEquals("l", template.getEdtaUnit());
+
+	    template.unsetEdtaUnit();
+	    assertFalse(template.isSetEdtaUnit());
+	    assertNull(template.getEdtaUnit());
+	}
+
+	@Test
+	public void testEdtaMinAccesors() {
+	    template.setEdtaMin(0);
+	    assertTrue(template.isSetEdtaMin());
+	    assertEquals(0, template.getEdtaMin(), 0.0);
+
+	    template.unsetEdtaMin();
+	    assertFalse(template.isSetEdtaMin());
+	    assertNull(template.getEdtaMin());
+	}
+
+	@Test
+	public void testEdtaMaxAccesors() {
+	    template.setEdtaMax(7);
+	    assertTrue(template.isSetEdtaMax());
+	    assertEquals(7, template.getEdtaMax(), 0.0);
+
+	    template.unsetEdtaMax();
+	    assertFalse(template.isSetEdtaMax());
+	    assertNull(template.getEdtaMax());
+	}
+
+	@Test
+	public void testHClUnitAccesors() {
+	    template.setHClUnit("l");
+	    assertTrue(template.isSetHClUnit());
+	    assertEquals("l", template.getHClUnit());
+
+	    template.unsetHClUnit();
+	    assertFalse(template.isSetHClUnit());
+	    assertNull(template.getHClUnit());
+	}
+
+	@Test
+	public void testHClMinAccesors() {
+	    template.setHClMin(0);
+	    assertTrue(template.isSetHClMin());
+	    assertEquals(0, template.getHClMin(), 0.0);
+
+	    template.unsetHClMin();
+	    assertFalse(template.isSetHClMin());
+	    assertNull(template.getHClMin());
+	}
+
+	@Test
+	public void testHClMaxAccesors() {
+	    template.setHClMax(7);
+	    assertTrue(template.isSetHClMax());
+	    assertEquals(7, template.getHClMax(), 0.0);
+
+	    template.unsetHClMax();
+	    assertFalse(template.isSetHClMax());
+	    assertNull(template.getHClMax());
+	}
+
+	@Test
+	public void testN2UnitAccesors() {
+	    template.setN2Unit("l");
+	    assertTrue(template.isSetN2Unit());
+	    assertEquals("l", template.getN2Unit());
+
+	    template.unsetN2Unit();
+	    assertFalse(template.isSetN2Unit());
+	    assertNull(template.getN2Unit());
+	}
+
+	@Test
+	public void testN2MinAccesors() {
+	    template.setN2Min(0);
+	    assertTrue(template.isSetN2Min());
+	    assertEquals(0, template.getN2Min(), 0.0);
+
+	    template.unsetN2Min();
+	    assertFalse(template.isSetN2Min());
+	    assertNull(template.getN2Min());
+	}
+
+	@Test
+	public void testN2MaxAccesors() {
+	    template.setN2Max(7);
+	    assertTrue(template.isSetN2Max());
+	    assertEquals(7, template.getN2Max(), 0.0);
+
+	    template.unsetN2Max();
+	    assertFalse(template.isSetN2Max());
+	    assertNull(template.getN2Max());
+	}
+
+	@Test
+	public void testO2UnitAccesors() {
+	    template.setO2Unit("l");
+	    assertTrue(template.isSetO2Unit());
+	    assertEquals("l", template.getO2Unit());
+
+	    template.unsetO2Unit();
+	    assertFalse(template.isSetO2Unit());
+	    assertNull(template.getO2Unit());
+	}
+
+	@Test
+	public void testO2MinAccesors() {
+	    template.setO2Min(0);
+	    assertTrue(template.isSetO2Min());
+	    assertEquals(0, template.getO2Min(), 0.0);
+
+	    template.unsetO2Min();
+	    assertFalse(template.isSetO2Min());
+	    assertNull(template.getO2Min());
+	}
+
+	@Test
+	public void testO2MaxAccesors() {
+	    template.setO2Max(7);
+	    assertTrue(template.isSetO2Max());
+	    assertEquals(7, template.getO2Max(), 0.0);
+
+	    template.unsetO2Max();
+	    assertFalse(template.isSetO2Max());
+	    assertNull(template.getO2Max());
+	}
+
+	@Test
+	public void testAceticAcidUnitAccesors() {
+	    template.setAceticAcidUnit("l");
+	    assertTrue(template.isSetAceticAcidUnit());
+	    assertEquals("l", template.getAceticAcidUnit());
+
+	    template.unsetAceticAcidUnit();
+	    assertFalse(template.isSetAceticAcidUnit());
+	    assertNull(template.getAceticAcidUnit());
+	}
+
+	@Test
+	public void testAceticAcidMinAccesors() {
+	    template.setAceticAcidMin(0);
+	    assertTrue(template.isSetAceticAcidMin());
+	    assertEquals(0, template.getAceticAcidMin(), 0.0);
+
+	    template.unsetAceticAcidMin();
+	    assertFalse(template.isSetAceticAcidMin());
+	    assertNull(template.getAceticAcidMin());
+	}
+
+	@Test
+	public void testAceticAcidMaxAccesors() {
+	    template.setAceticAcidMax(7);
+	    assertTrue(template.isSetAceticAcidMax());
+	    assertEquals(7, template.getAceticAcidMax(), 0.0);
+
+	    template.unsetAceticAcidMax();
+	    assertFalse(template.isSetAceticAcidMax());
+	    assertNull(template.getAceticAcidMax());
+	}
+
+	@Test
+	public void testAdditivesAccesors() {
+	    template.setAdditives("no addivitives");
+	    assertTrue(template.isSetAdditives());
+	    assertEquals("no addivitives", template.getAdditives());
+
+	    template.unsetAdditives();
+	    assertFalse(template.isSetAdditives());
+	    assertNull(template.getAdditives());
+	}
+
+	@Test
+	public void testAnaerobicAccesors() {
+	    template.setAnaerobic(false);
+	    assertTrue(template.isSetAnaerobic());
+	    assertFalse(template.getAnaerobic());
+
+	    template.unsetAnaerobic();
+	    assertFalse(template.isSetAnaerobic());
+	    assertNull(template.getAnaerobic());
+	}
+
+	@Test
+	public void testAntimicrobialDippingTimeUnitAccesors() {
+	    template.setAntimicrobialDippingTimeUnit("s");
+	    assertTrue(template.isSetAntimicrobialDippingTimeUnit());
+	    assertEquals("s", template.getAntimicrobialDippingTimeUnit());
+
+	    template.unsetAntimicrobialDippingTimeUnit();
+	    assertFalse(template.isSetAntimicrobialDippingTimeUnit());
+	    assertNull(template.getAntimicrobialDippingTimeUnit());
+	}
+
+	@Test
+	public void testAntimicrobialDippingTimeMinAccesors() {
+	    template.setAntimicrobialDippingTimeMin(0);
+	    assertTrue(template.isSetAntimicrobialDippingTimeMin());
+	    assertEquals(0, template.getAntimicrobialDippingTimeMin(), 0.0);
+
+	    template.unsetAntimicrobialDippingTimeMin();
+	    assertFalse(template.isSetAntimicrobialDippingTimeMin());
+	    assertNull(template.getAntimicrobialDippingTimeMin());
+	}
+
+	@Test
+	public void testAntimicrobialDippingTimeMaxAccesors() {
+	    template.setAntimicrobialDippingTimeMax(7);
+	    assertTrue(template.isSetAntimicrobialDippingTimeMax());
+	    assertEquals(7, template.getAntimicrobialDippingTimeMax(), 0.0);
+
+	    template.unsetAntimicrobialDippingTimeMax();
+	    assertFalse(template.isSetAntimicrobialDippingTimeMax());
+	    assertNull(template.getAntimicrobialDippingTimeMax());
+	}
+
+	@Test
+	public void testApplePolyphenolUnitAccesors() {
+	    template.setApplePolyphenolUnit("mg");
+	    assertTrue(template.isSetApplePolyphenolUnit());
+	    assertEquals("mg", template.getApplePolyphenolUnit());
+
+	    template.unsetApplePolyphenolUnit();
+	    assertFalse(template.isSetApplePolyphenolUnit());
+	    assertNull(template.getApplePolyphenolUnit());
+	}
+
+	@Test
+	public void testApplePolyphenolMinAccesors() {
+	    template.setApplePolyphenolMin(0);
+	    assertTrue(template.isSetApplePolyphenolMin());
+	    assertEquals(0, template.getApplePolyphenolMin(), 0.0);
+
+	    template.unsetApplePolyphenolMin();
+	    assertFalse(template.isSetApplePolyphenolMin());
+	    assertNull(template.getApplePolyphenolMin());
+	}
+
+	@Test
+	public void testApplePolyphenolMaxAccesors() {
+	    template.setApplePolyphenolMax(7);
+	    assertTrue(template.isSetApplePolyphenolMax());
+	    assertEquals(7, template.getApplePolyphenolMax(), 0.0);
+
+	    template.unsetApplePolyphenolMax();
+	    assertFalse(template.isSetApplePolyphenolMax());
+	    assertNull(template.getApplePolyphenolMax());
+	}
+
+	@Test
+	public void testAscorbiccAcidUnitAccesors() {
+	    template.setAscorbiccAcidUnit("mg");
+	    assertTrue(template.isSetAscorbiccAcidUnit());
+	    assertEquals("mg", template.getAscorbiccAcidUnit());
+
+	    template.unsetAscorbiccAcidUnit();
+	    assertFalse(template.isSetAscorbiccAcidUnit());
+	    assertNull(template.getAscorbiccAcidUnit());
+	}
+
+	@Test
+	public void testAscorbiccAcidMinAccesors() {
+	    template.setAscorbiccAcidMin(0);
+	    assertTrue(template.isSetAscorbiccAcidMin());
+	    assertEquals(0, template.getAscorbiccAcidMin(), 0.0);
+
+	    template.unsetAscorbiccAcidMin();
+	    assertFalse(template.isSetAscorbiccAcidMin());
+	    assertNull(template.getAscorbiccAcidMin());
+	}
+
+	@Test
+	public void testAscorbiccAcidMaxAccesors() {
+	    template.setAscorbiccAcidMax(7);
+	    assertTrue(template.isSetAscorbiccAcidMax());
+	    assertEquals(7, template.getAscorbiccAcidMax(), 0.0);
+
+	    template.unsetAscorbiccAcidMax();
+	    assertFalse(template.isSetAscorbiccAcidMax());
+	    assertNull(template.getAscorbiccAcidMax());
+	}
+
+	@Test
+	public void testAtrInducedAccesors() {
+	    template.setAtrInduced(false);
+	    assertTrue(template.isSetAtrInduced());
+	    assertFalse(template.getAtrInduced());
+
+	    template.unsetAtrInduced();
+	    assertFalse(template.isSetAtrInduced());
+	    assertNull(template.getAtrInduced());
+	}
+
+	@Test
+	public void testAttachmentTimeUnitAccesors() {
+	    template.setAttachmentTimeUnit("s");
+	    assertTrue(template.isSetAttachmentTimeUnit());
+	    assertEquals("s", template.getAttachmentTimeUnit());
+
+	    template.unsetAttachmentTimeUnit();
+	    assertFalse(template.isSetAttachmentTimeUnit());
+	    assertNull(template.getAttachmentTimeUnit());
+	}
+
+	@Test
+	public void testAttachmentTimeMinAccesors() {
+	    template.setAttachmentTimeMin(0);
+	    assertTrue(template.isSetAttachmentTimeMin());
+	    assertEquals(0, template.getAttachmentTimeMin(), 0.0);
+
+	    template.unsetAttachmentTimeMin();
+	    assertFalse(template.isSetAttachmentTimeMin());
+	    assertNull(template.getAttachmentTimeMin());
+	}
+
+	@Test
+	public void testAttachmentTimeMaxAccesors() {
+	    template.setAttachmentTimeMax(7);
+	    assertTrue(template.isSetAttachmentTimeMax());
+	    assertEquals(7, template.getAttachmentTimeMax(), 0.0);
+
+	    template.unsetAttachmentTimeMax();
+	    assertFalse(template.isSetAttachmentTimeMax());
+	    assertNull(template.getAttachmentTimeMax());
+	}
+
+	@Test
+	public void testBeanOilUnitAccesors() {
+	    template.setBeanOilUnit("l");
+	    assertTrue(template.isSetBeanOilUnit());
+	    assertEquals("l", template.getBeanOilUnit());
+
+	    template.unsetBeanOilUnit();
+	    assertFalse(template.isSetBeanOilUnit());
+	    assertNull(template.getBeanOilUnit());
+	}
+
+	@Test
+	public void testBeanOilMinAccesors() {
+	    template.setBeanOilMin(0);
+	    assertTrue(template.isSetBeanOilMin());
+	    assertEquals(0, template.getBeanOilMin(), 0.0);
+
+	    template.unsetBeanOilMin();
+	    assertFalse(template.isSetBeanOilMin());
+	    assertNull(template.getBeanOilMin());
+	}
+
+	@Test
+	public void testBeanOilMaxAccesors() {
+	    template.setBeanOilMax(7);
+	    assertTrue(template.isSetBeanOilMax());
+	    assertEquals(7, template.getBeanOilMax(), 0.0);
+
+	    template.unsetBeanOilMax();
+	    assertFalse(template.isSetBeanOilMax());
+	    assertNull(template.getBeanOilMax());
+	}
+
+	@Test
+	public void testBenzoicAcidUnitAccesors() {
+	    template.setBenzoicAcidUnit("l");
+	    assertTrue(template.isSetBenzoicAcidUnit());
+	    assertEquals("l", template.getBenzoicAcidUnit());
+
+	    template.unsetBenzoicAcidUnit();
+	    assertFalse(template.isSetBenzoicAcidUnit());
+	    assertNull(template.getBenzoicAcidUnit());
+	}
+
+	@Test
+	public void testBenzoicAcidMinAccesors() {
+	    template.setBenzoicAcidMin(0);
+	    assertTrue(template.isSetBenzoicAcidMin());
+	    assertEquals(0, template.getBenzoicAcidMin(), 0.0);
+
+	    template.unsetBenzoicAcidMin();
+	    assertFalse(template.isSetBenzoicAcidMin());
+	    assertNull(template.getBenzoicAcidMin());
+	}
+
+	@Test
+	public void testBenzoicAcidMaxAccesors() {
+	    template.setBenzoicAcidMax(7);
+	    assertTrue(template.isSetBenzoicAcidMax());
+	    assertEquals(7, template.getBenzoicAcidMax(), 0.0);
+
+	    template.unsetBenzoicAcidMax();
+	    assertFalse(template.isSetBenzoicAcidMax());
+	    assertNull(template.getBenzoicAcidMax());
+	}
+
+	@Test
+	public void testBetaineUnitAccesors() {
+	    template.setBetaineUnit("l");
+	    assertTrue(template.isSetBetaineUnit());
+	    assertEquals("l", template.getBetaineUnit());
+
+	    template.unsetBetaineUnit();
+	    assertFalse(template.isSetBetaineUnit());
+	    assertNull(template.getBetaineUnit());
+	}
+
+	@Test
+	public void testBetaineMinAccesors() {
+	    template.setBetaineMin(0);
+	    assertTrue(template.isSetBetaineMin());
+	    assertEquals(0, template.getBetaineMin(), 0.0);
+
+	    template.unsetBetaineMin();
+	    assertFalse(template.isSetBetaineMin());
+	    assertNull(template.getBetaineMin());
+	}
+
+	@Test
+	public void testBetaineMaxAccesors() {
+	    template.setBetaineMax(7);
+	    assertTrue(template.isSetBetaineMax());
+	    assertEquals(7, template.getBetaineMax(), 0.0);
+
+	    template.unsetBetaineMax();
+	    assertFalse(template.isSetBetaineMax());
+	    assertNull(template.getBetaineMax());
+	}
+
+	@Test
+	public void testCarvacrolUnitAccesors() {
+	    template.setCarvacrolUnit("l");
+	    assertTrue(template.isSetCarvacrolUnit());
+	    assertEquals("l", template.getCarvacrolUnit());
+
+	    template.unsetCarvacrolUnit();
+	    assertFalse(template.isSetCarvacrolUnit());
+	    assertNull(template.getCarvacrolUnit());
+	}
+
+	@Test
+	public void testCarvacrolMinAccesors() {
+	    template.setCarvacrolMin(0);
+	    assertTrue(template.isSetCarvacrolMin());
+	    assertEquals(0, template.getCarvacrolMin(), 0.0);
+
+	    template.unsetCarvacrolMin();
+	    assertFalse(template.isSetCarvacrolMin());
+	    assertNull(template.getCarvacrolMin());
+	}
+
+	@Test
+	public void testCarvacrolMaxAccesors() {
+	    template.setCarvacrolMax(7);
+	    assertTrue(template.isSetCarvacrolMax());
+	    assertEquals(7, template.getCarvacrolMax(), 0.0);
+
+	    template.unsetCarvacrolMax();
+	    assertFalse(template.isSetCarvacrolMax());
+	    assertNull(template.getCarvacrolMax());
+	}
+
+	@Test
+	public void testChitosanUnitAccesors() {
+	    template.setChitosanUnit("l");
+	    assertTrue(template.isSetChitosanUnit());
+	    assertEquals("l", template.getChitosanUnit());
+
+	    template.unsetChitosanUnit();
+	    assertFalse(template.isSetChitosanUnit());
+	    assertNull(template.getChitosanUnit());
+	}
+
+	@Test
+	public void testChitosanMinAccesors() {
+	    template.setChitosanMin(0);
+	    assertTrue(template.isSetChitosanMin());
+	    assertEquals(0, template.getChitosanMin(), 0.0);
+
+	    template.unsetChitosanMin();
+	    assertFalse(template.isSetChitosanMin());
+	    assertNull(template.getChitosanMin());
+	}
+
+	@Test
+	public void testChitosanMaxAccesors() {
+	    template.setChitosanMax(7);
+	    assertTrue(template.isSetChitosanMax());
+	    assertEquals(7, template.getChitosanMax(), 0.0);
+
+	    template.unsetChitosanMax();
+	    assertFalse(template.isSetChitosanMax());
+	    assertNull(template.getChitosanMax());
+	}
+
+	@Test
+	public void testCinnamaldehydeUnitAccesors() {
+	    template.setCinnamaldehydeUnit("l");
+	    assertTrue(template.isSetCinnamaldehydeUnit());
+	    assertEquals("l", template.getCinnamaldehydeUnit());
+
+	    template.unsetCinnamaldehydeUnit();
+	    assertFalse(template.isSetCinnamaldehydeUnit());
+	    assertNull(template.getCinnamaldehydeUnit());
+	}
+
+	@Test
+	public void testCinnamaldehydeMinAccesors() {
+	    template.setCinnamaldehydeMin(0);
+	    assertTrue(template.isSetCinnamaldehydeMin());
+	    assertEquals(0, template.getCinnamaldehydeMin(), 0.0);
+
+	    template.unsetCinnamaldehydeMin();
+	    assertFalse(template.isSetCinnamaldehydeMin());
+	    assertNull(template.getCinnamaldehydeMin());
+	}
+
+	@Test
+	public void testCinnamaldehydeMaxAccesors() {
+	    template.setCinnamaldehydeMax(7);
+	    assertTrue(template.isSetCinnamaldehydeMax());
+	    assertEquals(7, template.getCinnamaldehydeMax(), 0.0);
+
+	    template.unsetCinnamaldehydeMax();
+	    assertFalse(template.isSetCinnamaldehydeMax());
+	    assertNull(template.getCinnamaldehydeMax());
+	}
+
+	@Test
+	public void testCitricAcidUnitAccesors() {
+	    template.setCitricAcidUnit("l");
+	    assertTrue(template.isSetCitricAcidUnit());
+	    assertEquals("l", template.getCitricAcidUnit());
+
+	    template.unsetCitricAcidUnit();
+	    assertFalse(template.isSetCitricAcidUnit());
+	    assertNull(template.getCitricAcidUnit());
+	}
+
+	@Test
+	public void testCitricAcidMinAccesors() {
+	    template.setCitricAcidMin(0);
+	    assertTrue(template.isSetCitricAcidMin());
+	    assertEquals(0, template.getCitricAcidMin(), 0.0);
+
+	    template.unsetCitricAcidMin();
+	    assertFalse(template.isSetCitricAcidMin());
+	    assertNull(template.getCitricAcidMin());
+	}
+
+	@Test
+	public void testCitricAcidMaxAccesors() {
+	    template.setCitricAcidMax(7);
+	    assertTrue(template.isSetCitricAcidMax());
+	    assertEquals(7, template.getCitricAcidMax(), 0.0);
+
+	    template.unsetCitricAcidMax();
+	    assertFalse(template.isSetCitricAcidMax());
+	    assertNull(template.getCitricAcidMax());
+	}
+
+	// TODO: need to implement them before :S
+//	@Test
+//	public void testCoCultureAccesors() {
+//	}
+
+	@Test
+	public void testCuredAccesors() {
+	    template.setCured(true);
+	    assertTrue(template.isSetCured());
+	    assertTrue(template.getCured());
+
+	    template.unsetCured();
+	    assertFalse(template.isSetCured());
+	    assertNull(template.getCured());
+	}
+
+	@Test
+	public void testCutAccesors() {
+	    template.setCut(true);
+	    assertTrue(template.isSetCut());
+	    assertTrue(template.getCut());
+
+	    template.unsetCut();
+	    assertFalse(template.isSetCut());
+	    assertNull(template.getCut());
+	}
+
+	@Test
+	public void testDesiredReductionUnitAccesors() {
+	    template.setDesiredReductionUnit("l");
+	    assertTrue(template.isSetDesiredReductionUnit());
+	    assertEquals("l", template.getDesiredReductionUnit());
+
+	    template.unsetDesiredReductionUnit();
+	    assertFalse(template.isSetDesiredReductionUnit());
+	    assertNull(template.getDesiredReductionUnit());
+	}
+
+	@Test
+	public void testDesiredReductionMinAccesors() {
+	    template.setDesiredReductionMin(0);
+	    assertTrue(template.isSetDesiredReductionMin());
+	    assertEquals(0, template.getDesiredReductionMin(), 0.0);
+
+	    template.unsetDesiredReductionMin();
+	    assertFalse(template.isSetDesiredReductionMin());
+	    assertNull(template.getDesiredReductionMin());
+	}
+
+	@Test
+	public void testDesiredReductionMaxAccesors() {
+	    template.setDesiredReductionMax(7);
+	    assertTrue(template.isSetDesiredReductionMax());
+	    assertEquals(7, template.getDesiredReductionMax(), 0.0);
+
+	    template.unsetDesiredReductionMax();
+	    assertFalse(template.isSetDesiredReductionMax());
+	    assertNull(template.getDesiredReductionMax());
+	}
+
+	@Test
+	public void testDiaceticAcidUnitAccesors() {
+	    template.setDiaceticAcidUnit("l");
+	    assertTrue(template.isSetDiaceticAcidUnit());
+	    assertEquals("l", template.getDiaceticAcidUnit());
+
+	    template.unsetDiaceticAcidUnit();
+	    assertFalse(template.isSetDiaceticAcidUnit());
+	    assertNull(template.getDiaceticAcidUnit());
+	}
+
+	@Test
+	public void testDiaceticAcidMinAccesors() {
+	    template.setDiaceticAcidMin(0);
+	    assertTrue(template.isSetDiaceticAcidMin());
+	    assertEquals(0, template.getDiaceticAcidMin(), 0.0);
+
+	    template.unsetDiaceticAcidMin();
+	    assertFalse(template.isSetDiaceticAcidMin());
+	    assertNull(template.getDiaceticAcidMin());
+	}
+
+	@Test
+	public void testDiaceticAcidMaxAccesors() {
+	    template.setDiaceticAcidMax(7);
+	    assertTrue(template.isSetDiaceticAcidMax());
+	    assertEquals(7, template.getDiaceticAcidMax(), 0.0);
+
+	    template.unsetDiaceticAcidMax();
+	    assertFalse(template.isSetDiaceticAcidMax());
+	    assertNull(template.getDiaceticAcidMax());
+	}
+
+	@Test
+	public void testDisaccharideUnitAccesors() {
+	    template.setDisaccharideUnit("l");
+	    assertTrue(template.isSetDisaccharideUnit());
+	    assertEquals("l", template.getDisaccharideUnit());
+
+	    template.unsetDisaccharideUnit();
+	    assertFalse(template.isSetDisaccharideUnit());
+	    assertNull(template.getDisaccharideUnit());
+	}
+
+	@Test
+	public void testDisaccharideMinAccesors() {
+	    template.setDisaccharideMin(0);
+	    assertTrue(template.isSetDisaccharideMin());
+	    assertEquals(0, template.getDisaccharideMin(), 0.0);
+
+	    template.unsetDisaccharideMin();
+	    assertFalse(template.isSetDisaccharideMin());
+	    assertNull(template.getDisaccharideMin());
+	}
+
+	@Test
+	public void testDisaccharideMaxAccesors() {
+	    template.setDisaccharideMax(7);
+	    assertTrue(template.isSetDisaccharideMax());
+	    assertEquals(7, template.getDisaccharideMax(), 0.0);
+
+	    template.unsetDisaccharideMax();
+	    assertFalse(template.isSetDisaccharideMax());
+	    assertNull(template.getDisaccharideMax());
+	}
+
+	@Test
+	public void testDriedAccesors() {
+	    template.setDried(false);
+	    assertTrue(template.isSetDried());
+	    assertFalse(template.getDried());
+
+	    template.unsetDried();
+	    assertFalse(template.isSetDried());
+	    assertNull(template.getDried());
+	}
+
+	@Test
+	public void testEthanolUnitAccesors() {
+	    template.setEthanolUnit("l");
+	    assertTrue(template.isSetEthanolUnit());
+	    assertEquals("l", template.getEthanolUnit());
+
+	    template.unsetEthanolUnit();
+	    assertFalse(template.isSetEthanolUnit());
+	    assertNull(template.getEthanolUnit());
+	}
+
+	@Test
+	public void testEthanolMinAccesors() {
+	    template.setEthanolMin(0);
+	    assertTrue(template.isSetEthanolMin());
+	    assertEquals(0, template.getEthanolMin(), 0.0);
+
+	    template.unsetEthanolMin();
+	    assertFalse(template.isSetEthanolMin());
+	    assertNull(template.getEthanolMin());
+	}
+
+	@Test
+	public void testEthanolMaxAccesors() {
+	    template.setEthanolMax(7);
+	    assertTrue(template.isSetEthanolMax());
+	    assertEquals(7, template.getEthanolMax(), 0.0);
+
+	    template.unsetEthanolMax();
+	    assertFalse(template.isSetEthanolMax());
+	    assertNull(template.getEthanolMax());
+	}
+	// TODO: ...
 }

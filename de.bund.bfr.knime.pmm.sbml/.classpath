@@ -4,6 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry excluding="de/bund/bfr/pmf/numl/UnitNuMLNode.java|de/bund/bfr/pmf/numl/CompartmentNuMLNode.java|de/bund/bfr/pmf/numl/SpeciesNuMLNode.java|de/bund/bfr/pmf/numl/ReferenceNuMLNode.java|de/bund/bfr/pmf/buggy_numl/" kind="src" path="new-pmf-nodes"/>
-	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

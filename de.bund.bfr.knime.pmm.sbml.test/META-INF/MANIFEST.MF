@@ -5,3 +5,4 @@ Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: de.bund.bfr.knime.pmm.sbml
+Export-Package: de.bund.bfr.knime.pmm.openfsmr

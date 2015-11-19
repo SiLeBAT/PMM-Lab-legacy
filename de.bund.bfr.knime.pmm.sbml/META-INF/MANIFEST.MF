@@ -12,14 +12,14 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.log4j,
  org.hsh.bfr.db,
  com.google.guava,
- de.bund.bfr.pmf,
+ de.bund.bfr.pmf;visibility:=reexport,
  org.fife.rsyntaxtextarea,
  com.fasterxml.jackson.core.jackson-annotations,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
  org.apache.commons.lang,
  org.knime.js.core,
- de.bund.bfr.knime.pmm.common
+ de.bund.bfr.knime.pmm.common;visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: BfR

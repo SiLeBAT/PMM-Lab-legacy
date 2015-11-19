@@ -21,8 +21,7 @@
 			</arguments>
 		</buildCommand>
 	</buildSpec>
-	<natures>
-		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
+	<natures>		
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>

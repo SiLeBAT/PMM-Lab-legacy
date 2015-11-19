@@ -113,11 +113,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	private Double phMax = null;
 
-	private String waUnit = null;
+	private String awUnit = null;
 
-	private Double waMin = null;
+	private Double awMin = null;
 
-	private Double waMax = null;
+	private Double awMax = null;
 
 	private String naclUnit = null;
 
@@ -189,11 +189,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	private Double applePolyphenolMax;
 
-	private String ascorbiccUnit;
+	private String ascorbiccAcidUnit;
 
-	private Double ascorbiccMin;
+	private Double ascorbiccAcidMin;
 
-	private Double ascorbiccMax;
+	private Double ascorbiccAcidMax;
 
 	private Boolean atrInduced;
 
@@ -584,18 +584,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public String getWaUnit() {
-		return waUnit;
+	public String getAwUnit() {
+		return awUnit;
 	}
 
 	/** {@inheritDoc} */
-	public Double getWaMin() {
-		return waMin;
+	public Double getAwMin() {
+		return awMin;
 	}
 
 	/** {@inheritDoc} */
-	public Double getWaMax() {
-		return waMax;
+	public Double getAwMax() {
+		return awMax;
 	}
 
 	/** {@inheritDoc} */
@@ -774,18 +774,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public String getAscorbiccUnit() {
-		return ascorbiccUnit;
+	public String getAscorbiccAcidUnit() {
+		return ascorbiccAcidUnit;
 	}
 
 	/** {@inheritDoc} */
-	public Double getAscorbiccMin() {
-		return ascorbiccMin;
+	public Double getAscorbiccAcidMin() {
+		return ascorbiccAcidMin;
 	}
 
 	/** {@inheritDoc} */
-	public Double getAscorbiccMax() {
-		return ascorbiccMax;
+	public Double getAscorbiccAcidMax() {
+		return ascorbiccAcidMax;
 	}
 
 	/** {@inheritDoc} */
@@ -1394,7 +1394,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public void setStochasticModeling(boolean stochasticModeling) {
+	public void setSoftwareStochasticModeling(boolean stochasticModeling) {
 		this.softwareStochasticModeling = stochasticModeling;
 	}
 
@@ -1459,18 +1459,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public void setWaUnit(String waUnit) {
-		this.waUnit = waUnit;
+	public void setAwUnit(String awUnit) {
+		this.awUnit = awUnit;
 	}
 
 	/** {@inheritDoc} */
-	public void setWaMin(double waMin) {
-		this.waMin = waMin;
+	public void setAwMin(double awMin) {
+		this.awMin = awMin;
 	}
 
 	/** {@inheritDoc} */
-	public void setWaMax(double waMax) {
-		this.waMax = waMax;
+	public void setAwMax(double awMax) {
+		this.awMax = awMax;
 	}
 
 	/** {@inheritDoc} */
@@ -1580,17 +1580,17 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	/** {@inheritDoc} */
 	public void setO2Unit(String o2Unit) {
-		this.o2Unit = n2Unit;
+		this.o2Unit = o2Unit;
 	}
 
 	/** {@inheritDoc} */
 	public void setO2Min(double o2Min) {
-		this.o2Min = n2Min;
+		this.o2Min = o2Min;
 	}
 
 	/** {@inheritDoc} */
 	public void setO2Max(double o2Max) {
-		this.o2Max = n2Max;
+		this.o2Max = o2Max;
 	}
 
 	/** {@inheritDoc} */
@@ -1649,18 +1649,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 	
 	/** {@inheritDoc} */
-	public void setAscorbiccUnit(String ascorbiccUnit) {
-		this.ascorbiccUnit = ascorbiccUnit;
+	public void setAscorbiccAcidUnit(String ascorbiccAcidUnit) {
+		this.ascorbiccAcidUnit = ascorbiccAcidUnit;
 	}
 
 	/** {@inheritDoc} */
-	public void setAscorbiccMin(double ascorbiccMin) {
-		this.ascorbiccMin = ascorbiccMin;
+	public void setAscorbiccAcidMin(double ascorbiccAcidMin) {
+		this.ascorbiccAcidMin = ascorbiccAcidMin;
 	}
 
 	/** {@inheritDoc} */
-	public void setAscorbiccMax(double ascorbiccMax) {
-		this.ascorbiccMax = ascorbiccMax;
+	public void setAscorbiccAcidMax(double ascorbiccAcidMax) {
+		this.ascorbiccAcidMax = ascorbiccAcidMax;
 	}
 
 	/** {@inheritDoc} */
@@ -2330,18 +2330,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public void unsetWaUnit() {
-		waUnit = null;
+	public void unsetAwUnit() {
+		awUnit = null;
 	}
 
 	/** {@inheritDoc} */
-	public void unsetWaMin() {
-		waMin = null;
+	public void unsetAwMin() {
+		awMin = null;
 	}
 
 	/** {@inheritDoc} */
-	public void unsetWaMax() {
-		waMax = null;
+	public void unsetAwMax() {
+		awMax = null;
 	}
 
 	/** {@inheritDoc} */
@@ -2520,18 +2520,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public void unsetAscorbiccUnit() {
-		ascorbiccUnit = null;
+	public void unsetAscorbiccAcidUnit() {
+		ascorbiccAcidUnit = null;
 	}
 
 	/** {@inheritDoc} */
-	public void unsetAscorbiccMin() {
-		ascorbiccMin = null;
+	public void unsetAscorbiccAcidMin() {
+		ascorbiccAcidMin = null;
 	}
 
 	/** {@inheritDoc} */
-	public void unsetAscorbiccMax() {
-		ascorbiccMax = null;
+	public void unsetAscorbiccAcidMax() {
+		ascorbiccAcidMax = null;
 	}
 
 	/** {@inheritDoc} */
@@ -3135,12 +3135,12 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetSoftwareAcessibility() {
+	public boolean isSetSoftwareAccessibility() {
 		return softwareAccesibility != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetStochasticAccesibility() {
+	public boolean isSetSoftwareStochasticModeling() {
 		return softwareStochasticModeling != null;
 	}
 
@@ -3205,18 +3205,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetWaUnit() {
-		return waUnit != null;
+	public boolean isSetAwUnit() {
+		return awUnit != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetWaMin() {
-		return waMin != null;
+	public boolean isSetAwMin() {
+		return awMin != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetWaMax() {
-		return waMax != null;
+	public boolean isSetAwMax() {
+		return awMax != null;
 	}
 
 	/** {@inheritDoc} */
@@ -3395,18 +3395,18 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetAscorbiccUnit() {
-		return ascorbiccUnit != null;
+	public boolean isSetAscorbiccAcidUnit() {
+		return ascorbiccAcidUnit != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetAscorbiccMin() {
-		return ascorbiccMin != null;
+	public boolean isSetAscorbiccAcidMin() {
+		return ascorbiccAcidMin != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetAscorbiccMax() {
-		return ascorbiccMax != null;
+	public boolean isSetAscorbiccAcidMax() {
+		return ascorbiccAcidMax != null;
 	}
 
 	/** {@inheritDoc} */
@@ -3505,17 +3505,17 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetCinnalmadehydeUnit() {
+	public boolean isSetCinnamaldehydeUnit() {
 		return cinnamaldehydeUnit != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetCinnalmadehydeMin() {
+	public boolean isSetCinnamaldehydeMin() {
 		return cinnamaldehydeMin != null;
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetCinnalmadehydeMax() {
+	public boolean isSetCinnamaldehydeMax() {
 		return cinnamaldehydeMax != null;
 	}
 
@@ -3591,7 +3591,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	/** {@inheritDoc} */
 	public boolean isSetDried() {
-		return dried;
+		return dried != null;
 	}
 
 	/** {@inheritDoc} */

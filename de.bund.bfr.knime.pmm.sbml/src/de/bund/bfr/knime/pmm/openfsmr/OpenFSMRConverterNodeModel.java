@@ -53,9 +53,9 @@ import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 /**
- * This is the model implementation of SBMLReader.
+ * This is the model implementation of OpenFSMRConverter.
  * 
- * Author: Miguel de Alba Aparicio (malba@optimumquality.es)
+ * Author: Miguel de Alba Aparicio
  */
 public class OpenFSMRConverterNodeModel extends NodeModel {
 
@@ -378,86 +378,86 @@ class Util {
 	public static KnimeTuple createTuple(SBMLDocument doc) {
 		// Add cells to the row
 		KnimeTuple tuple = new KnimeTuple(new OpenFSMRSchema());
-
-		Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
-		Model model = doc.getModel();
-		Agent species = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, model.getId());
-		tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, model.getName());
-		tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, "");
-
-		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME, species.getSpecies().getName());
-		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL, species.getDetail());
-
-		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME, matrix.getCompartment().getName());
-		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL, matrix.getDetails());
-
-		tuple.setValue(OpenFSMRSchema.ATT_CREATOR, metadata.getGivenName());
-
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
-		String refDesc = null;
-		String refDescLink = null;
-
-		if (!m1Annot.getLits().isEmpty()) {
-			LiteratureItem lit = m1Annot.getLits().get(0);
-			refDesc = lit.getAuthor() + " " + lit.getTitle();
-			refDescLink = lit.getWebsite();
-		}
-
-		tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION, refDesc);
-		tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION_LINK, refDescLink);
-
-		tuple.setValue(OpenFSMRSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
-		tuple.setValue(OpenFSMRSchema.ATT_MODIFIED, metadata.getModifiedDate());
-
-		tuple.setValue(OpenFSMRSchema.ATT_RIGHTS, "");
-
-		tuple.setValue(OpenFSMRSchema.ATT_NOTES, "");
-
-		tuple.setValue(OpenFSMRSchema.ATT_CURATION_STATUS, "");
-
-		tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, metadata.getType());
-
-		tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, new Model1Rule((AssignmentRule) model.getRule(0)).getSubject());
-
-		tuple.setValue(OpenFSMRSchema.ATT_FOOD_PROCESS, "");
-
-		String depUnitID = species.getSpecies().getUnits();
-		String depUnitName = model.getUnitDefinition(depUnitID).getName();
-		String depUnitCategory;
-
-		Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
-
-		if (depUnitID.equals("dimensionless")) {
-			depUnitCategory = "Dimensionless quantity";
-		} else {
-			depUnitCategory = dbUnits.get(depUnitName).getKind_of_property_quantity();
-		}
-
-		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE, depUnitCategory);
-		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_UNIT, depUnitName);
-
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
-		String max = "";
-		String min = "";
-		if (limits.containsKey(depUnitID)) {
-			Limits depLimits = limits.get(depUnitID);
-			max = depLimits.getMax().toString();
-			min = depLimits.getMin().toString();
-		}
-
-		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MAX, max);
-		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MIN, min);
-
-		tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, Categories.getTimeCategory().getName());
-
-		tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE, "");
-		tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE_LINK, "");
-		tuple.setValue(OpenFSMRSchema.ATT_ACCESIBILITY, "");
-		tuple.setValue(OpenFSMRSchema.ATT_STOCHASTIC_MODELING, 0);
-		tuple.setValue(OpenFSMRSchema.ATT_PREDICTION_CONDITIONS, "");
+//
+//		Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
+//		Model model = doc.getModel();
+//		Agent species = new Agent(model.getSpecies(0));
+//		Matrix matrix = new Matrix(model.getCompartment(0));
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, model.getId());
+//		tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, model.getName());
+//		tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, "");
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME, species.getSpecies().getName());
+//		tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL, species.getDetail());
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME, matrix.getCompartment().getName());
+//		tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL, matrix.getDetails());
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_CREATOR, metadata.getGivenName());
+//
+//		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
+//		String refDesc = null;
+//		String refDescLink = null;
+//
+//		if (!m1Annot.getLits().isEmpty()) {
+//			LiteratureItem lit = m1Annot.getLits().get(0);
+//			refDesc = lit.getAuthor() + " " + lit.getTitle();
+//			refDescLink = lit.getWebsite();
+//		}
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION, refDesc);
+//		tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION_LINK, refDescLink);
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_CREATED_DATE, metadata.getCreatedDate());
+//		tuple.setValue(OpenFSMRSchema.ATT_MODIFIED, metadata.getModifiedDate());
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_RIGHTS, "");
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_NOTES, "");
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_CURATION_STATUS, "");
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, metadata.getType());
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, new Model1Rule((AssignmentRule) model.getRule(0)).getSubject());
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_FOOD_PROCESS, "");
+//
+//		String depUnitID = species.getSpecies().getUnits();
+//		String depUnitName = model.getUnitDefinition(depUnitID).getName();
+//		String depUnitCategory;
+//
+//		Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
+//
+//		if (depUnitID.equals("dimensionless")) {
+//			depUnitCategory = "Dimensionless quantity";
+//		} else {
+//			depUnitCategory = dbUnits.get(depUnitName).getKind_of_property_quantity();
+//		}
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE, depUnitCategory);
+//		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_UNIT, depUnitName);
+//
+//		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
+//		String max = "";
+//		String min = "";
+//		if (limits.containsKey(depUnitID)) {
+//			Limits depLimits = limits.get(depUnitID);
+//			max = depLimits.getMax().toString();
+//			min = depLimits.getMin().toString();
+//		}
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MAX, max);
+//		tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MIN, min);
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, Categories.getTimeCategory().getName());
+//
+//		tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE, "");
+//		tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE_LINK, "");
+//		tuple.setValue(OpenFSMRSchema.ATT_ACCESIBILITY, "");
+//		tuple.setValue(OpenFSMRSchema.ATT_STOCHASTIC_MODELING, 0);
+//		tuple.setValue(OpenFSMRSchema.ATT_PREDICTION_CONDITIONS, "");
 
 		return tuple;
 	}

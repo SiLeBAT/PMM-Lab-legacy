@@ -26,7 +26,98 @@ import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 
 /**
- * Template for the Food Safety Model Repository.
+ * Template for the Food Safety Model Repository. Includes the properties:
+ * <ul>
+ *   <li><b>Model name:</b> a name given to the model</li>
+ *   <li><b>Model id:</b> an unambiguous ID</li>
+ *   <li><b>Model link:</b> the link allowing to download the model file.</li>
+ *   <li><b>PMF organism:</b> Modelled organism / entity.</li>
+ *   <li><b>PMF organism detail:</b> Plain text comment describing further details on the modelled organism / entity</li>
+ *   <li><b>PMF environment:</b> The environment of the organism / entity.</li>
+ *   <li><b>PMF environment detail:</b> Plain text comments describing the environment and or experimental conditions</li>
+ *   <li><b>Model creator:</b> The person who contributed to the encoding of hte model in its present form by creating the model file</li>
+ *   <li><b>Model reference description:</b> A citation to the reference description</li>
+ *   <li><b>Model reference description link:</b> A link to the reference description</li>
+ *   <li><b>Model created:</b> Temporal information on the model creation date</li>
+ *   <li><b>Model modified:</b> Temporal information on the last modification of the model</li>
+ *   <li><b>Model rights:</b> Information on rights held in and over the resource</li>
+ *   <li><b>Model notes:</b> Plain text comments describing the model</li>
+ *   <li><b>Model curation status</b>: The curation status of the model</li>
+ *   <li><b>Model type:</b> the type of model</li>
+ *   <li><b>Model subject:</b> the subject of the model</li>
+ *   <li><b>Model foodprocess:</b> Food production processes in which the model could be used</li>
+ *   <li><b>Model dependent variables:</b> The properties the model predicts</li>
+ *   <li><b>Model dependent variable units:</b> Unit of the predicted properties</li>
+ *   <li><b>Model dependent variable minimum:</b> The co-domain minimal values</li>
+ *   <li><b>Model dependent variable maximum:</b> The co-domain maximum values</li>
+ *   <li><b>Model independent variables:</b> The model's independent variable(s)</li>
+ *   <li><b>Software:</b> Software solution(s) incorporating the model</li>
+ *   <li><b>Software link:</b> Software link</li>
+ *   <li><b>Software notes</b> Notes on the software notes</li>
+ *   <li><b>Software accessibility</b> Software accesibility</li>
+ *   <li><b>Software stochastic modeling</b> Does the software allow stochastic modeling?</li>
+ *   <li><b>Software prediction conditions</b> Does the software allow predictions from dynamic environmental conditions?</li>
+ *   <li><b>Atmosphere</b> Model parameter info (1, 2, 3)</li>
+ *   <li><b>init level</b> Model parameter info: unit, min and max</li>
+ *   <li><b>time</b> Model parameter info: unit, min and max</li>
+ *   <li><b>temp</b> Model parameter info: unit, min and max</li>
+ *   <li><b>ph</b> Model parameter info: unit, min and max</li>
+ *   <li><b>aw</b> Model parameter info: unit, min and max</li>
+ *   <li><b>NaCl</b> Model parameter info: unit, min and max</li>
+ *   <li><b>ALTA</b> Model parameter info: unit, min and max</li>
+ *   <li><b>CO2</b> Model parameter info: unit, min and max</li>
+ *   <li><b>ClO2</b> Model parameter info: unit, min and max</li>
+ *   <li><b>EDTA</b> Model parameter info: unit, min and max</li>
+ *   <li><b>HCl</b> Model parameter info: unit, min and max</li>
+ *   <li><b>N2</b> Model parameter info: unit, min and max</li>
+ *   <li><b>O2</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Acetic acid</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Additives</b> Free text</li>
+ *   <li><b>Anaerobic</b> Boolean</li>
+ *   <li><b>Antimicrobial dipping time</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Apple polyphenol</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Ascorbicc acid</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Atr induced</b> Boolean</li>
+ *   <li><b>Attachment time</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Bean oil</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Benzoic acid</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Betaine</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Carvacrol</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Chitosan</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Cinnamaldehyde</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Citric acid</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Co-culture</b> Boolean</li>
+ *   <li><b>Cured</b> Boolean</li>
+ *   <li><b>Cut</b> Boolean</li>
+ *   <li><b>Desired reduction</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Diacetic acid</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Diasccharide</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Dried</b> Boolean</li>
+ *   <li><b>Ethanol</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Exp inoculated</b> Boolean</li>
+ *   <li><b>Fat</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Frozen</b> Boolean</li>
+ *   <li><b>Fructose</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Gel microstructure</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Glucose</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Glycerol</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Green tea ground powder</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Green tea leaf</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Green tea polyphenol</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Green tea water extract</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Heated</b> Boolean</li>
+ *   <li><b>Hexoses</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Indigenous</b> Boolean</li>
+ *   <li><b>Init level histamine</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Init level histidine</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Injured</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Irradiated</b> Boolean</li>
+ *   <li><b>Irradation</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Lactic acid</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Lactic bacteria fermented</b> Boolean</li>
+ *   <li><b>Lauricidin</b> Model parameter info: unit, min and max</li>
+ *   <li><b>Malic acid</b> Model parameter info: unit, min and max</li>
+ * </ul>
  *
  * @author Miguel Alba
  */
@@ -275,19 +366,19 @@ public interface FSMRTemplate {
 	 * Returns the water activity unit of this {@link FSMRTemplate}. If not set,
 	 * returns null.
 	 */
-	public String getWaUnit();
+	public String getAwUnit();
 
 	/**
 	 * Returns the water activity min of this {@link FSMRTemplate}. If not set,
 	 * returns null.
 	 */
-	public Double getWaMin();
+	public Double getAwMin();
 
 	/**
 	 * Returns the water activity max of this {@link FSMRTemplate}. If not set,
 	 * returns null.
 	 */
-	public Double getWaMax();
+	public Double getAwMax();
 
 	/**
 	 * Returns the NaCl unit of this {@link FSMRTemplate}. If not set, returns
@@ -500,22 +591,22 @@ public interface FSMRTemplate {
 	public Double getApplePolyphenolMax();
 
 	/**
-	 * Returns the ascorbicc unit of this {@link FSMRTemplate}. If not set,
+	 * Returns the ascorbicc acid unit of this {@link FSMRTemplate}. If not set,
 	 * returns null.
 	 */
-	public String getAscorbiccUnit();
+	public String getAscorbiccAcidUnit();
 
 	/**
-	 * Returns the ascorbicc min of this {@link FSMRTemplate}. If not set,
+	 * Returns the ascorbicc acid min of this {@link FSMRTemplate}. If not set,
 	 * returns null.
 	 */
-	public Double getAscorbiccMin();
+	public Double getAscorbiccAcidMin();
 
 	/**
-	 * Returns the ascorbicc max of this {@link FSMRTemplate}. If not set,
+	 * Returns the ascorbicc acid max of this {@link FSMRTemplate}. If not set,
 	 * returns null.
 	 */
-	public Double getAscorbiccMax();
+	public Double getAscorbiccAcidMax();
 
 	/**
 	 * Returns the atrInduced of this {@link FSMRTemplate}. If not set returns
@@ -1215,7 +1306,7 @@ public interface FSMRTemplate {
 	 * Sets the stochastic modeling ot the software solution of this
 	 * {@link FSMRTemplate} with 'stochasticModeling'
 	 */
-	public void setStochasticModeling(boolean stochasticModeling);
+	public void setSoftwareStochasticModeling(boolean stochasticModeling);
 
 	/**
 	 * Sets the init level unit of this {@link FSMRTemplate} with
@@ -1272,17 +1363,17 @@ public interface FSMRTemplate {
 	/**
 	 * Sets the water activity unit of this {@link FSMRTemplate} with 'waUnit'.
 	 */
-	public void setWaUnit(String waUnit);
+	public void setAwUnit(String waUnit);
 
 	/**
 	 * Sets the water activity min of this {@link FSMRTemplate} with 'waMin'.
 	 */
-	public void setWaMin(double waMin);
+	public void setAwMin(double waMin);
 
 	/**
 	 * Sets the water activity max of this {@link FSMRTemplate} with 'waMax'.
 	 */
-	public void setWaMax(double waMax);
+	public void setAwMax(double waMax);
 
 	/** Sets the NaCl unit of this {@link FSMRTemplate} with 'naclUnit'. */
 	public void setNaClUnit(String naclUnit);
@@ -1417,20 +1508,20 @@ public interface FSMRTemplate {
 	public void setApplePolyphenolMax(double applePolyphenolMax);
 
 	/**
-	 * Sets the ascorbicc unit of this {@link FSMRTemplate} with
-	 * 'ascorbiccUnit'.
+	 * Sets the ascorbicc acid unit of this {@link FSMRTemplate} with
+	 * 'ascorbiccAcidUnit'.
 	 */
-	public void setAscorbiccUnit(String ascorbiccUnit);
+	public void setAscorbiccAcidUnit(String ascorbiccAcidUnit);
 
 	/**
-	 * Sets the ascorbicc min of this {@link FSMRTemplate} with 'ascorbiccMin'.
+	 * Sets the ascorbicc acid min of this {@link FSMRTemplate} with 'ascorbiccAcidMin'.
 	 */
-	public void setAscorbiccMin(double ascorbiccMin);
+	public void setAscorbiccAcidMin(double ascorbiccAcidMin);
 
 	/**
-	 * Sets the ascorbicc max of this {@link FSMRTemplate} with 'ascorbiccMax'.
+	 * Sets the ascorbicc acid max of this {@link FSMRTemplate} with 'ascorbiccAcidMax'.
 	 */
-	public void setAscorbiccMax(double ascorbiccMax);
+	public void setAscorbiccAcidMax(double ascorbiccAcidMax);
 
 	/** Sets the atrInduced of this {@link FSMRTemplate} with 'atrInduced'. */
 	public void setAtrInduced(boolean atrInduced);
@@ -2046,13 +2137,13 @@ public interface FSMRTemplate {
 	public void unsetPhMax();
 
 	/** Sets the water activity unit to null. */
-	public void unsetWaUnit();
+	public void unsetAwUnit();
 
 	/** Sets the water activity min to null. */
-	public void unsetWaMin();
+	public void unsetAwMin();
 
 	/** Sets the water activity max to null. */
-	public void unsetWaMax();
+	public void unsetAwMax();
 
 	/** Sets the NaCl unit to null. */
 	public void unsetNaClUnit();
@@ -2159,14 +2250,14 @@ public interface FSMRTemplate {
 	/** Sets the apple polyphenol max to null. */
 	public void unsetApplePolyphenolMax();
 
-	/** Sets the ascorbicc unit to null. */
-	public void unsetAscorbiccUnit();
+	/** Sets the ascorbicc acid unit to null. */
+	public void unsetAscorbiccAcidUnit();
 
-	/** Sets the ascorbicc min to null. */
-	public void unsetAscorbiccMin();
+	/** Sets the ascorbicc acid min to null. */
+	public void unsetAscorbiccAcidMin();
 
-	/** Sets the ascorbicc max to null. */
-	public void unsetAscorbiccMax();
+	/** Sets the ascorbicc acid max to null. */
+	public void unsetAscorbiccAcidMax();
 
 	/** Sets the atrInduced to null. */
 	public void unsetAtrInduced();
@@ -2573,16 +2664,16 @@ public interface FSMRTemplate {
 	public boolean isSetSoftwareNotes();
 
 	/**
-	 * Returns true if the accesibility of the software solution of this
+	 * Returns true if the accessibility of the software solution of this
 	 * {@link FSMRTemplate} is set.
 	 */
-	public boolean isSetSoftwareAcessibility();
+	public boolean isSetSoftwareAccessibility();
 
 	/**
 	 * Returns true if the stochastic modeling of the software solution of this
 	 * {@link FSMRTemplate} is set.
 	 */
-	public boolean isSetStochasticAccesibility();
+	public boolean isSetSoftwareStochasticModeling();
 
 	/**
 	 * Returns true if the init level unit of this {@link FSMRTemplate} is set.
@@ -2633,13 +2724,13 @@ public interface FSMRTemplate {
 	public boolean isSetPhMax();
 
 	/** Returns true if the wa unit of this {@link FSMRTemplate} is set. */
-	public boolean isSetWaUnit();
+	public boolean isSetAwUnit();
 
 	/** Returns true if the wa min of this {@link FSMRTemplate} is set. */
-	public boolean isSetWaMin();
+	public boolean isSetAwMin();
 
 	/** Returns true if the wa max of this {@link FSMRTemplate} is set. */
-	public boolean isSetWaMax();
+	public boolean isSetAwMax();
 
 	/** Returns true if the NaCl unit of this {@link FSMRTemplate} is set. */
 	public boolean isSetNaClUnit();
@@ -2771,19 +2862,19 @@ public interface FSMRTemplate {
 	public boolean isSetApplePolyphenolMax();
 
 	/**
-	 * Returns true if the ascorbicc unit of this {@link FSMRTemplate} is set.
+	 * Returns true if the ascorbicc acid unit of this {@link FSMRTemplate} is set.
 	 */
-	public boolean isSetAscorbiccUnit();
+	public boolean isSetAscorbiccAcidUnit();
 
 	/**
-	 * Returns true if the ascorbicc min of this {@link FSMRTemplate} is set.
+	 * Returns true if the ascorbicc acid min of this {@link FSMRTemplate} is set.
 	 */
-	public boolean isSetAscorbiccMin();
+	public boolean isSetAscorbiccAcidMin();
 
 	/**
-	 * Returns true if the ascorbicc max of this {@link FSMRTemplate} is set.
+	 * Returns true if the ascorbicc acid max of this {@link FSMRTemplate} is set.
 	 */
-	public boolean isSetAscorbiccMax();
+	public boolean isSetAscorbiccAcidMax();
 
 	/** Returns true if the atrInduced of this {@link FSMRTemplate} is set. */
 	public boolean isSetAtrInduced();
@@ -2882,22 +2973,22 @@ public interface FSMRTemplate {
 	public boolean isSetChitosanMax();
 
 	/**
-	 * Returns true if the cinnalmadehyde unit of this {@link FSMRTemplate} is
+	 * Returns true if the cinnamaldehyde unit of this {@link FSMRTemplate} is
 	 * set.
 	 */
-	public boolean isSetCinnalmadehydeUnit();
+	public boolean isSetCinnamaldehydeUnit();
 
 	/**
-	 * Returns true if the cinnalmadehyde min of this {@link FSMRTemplate} is
+	 * Returns true if the cinnamaldehyde min of this {@link FSMRTemplate} is
 	 * set.
 	 */
-	public boolean isSetCinnalmadehydeMin();
+	public boolean isSetCinnamaldehydeMin();
 
 	/**
-	 * Returns true if the cinnalmadehyde max of this {@link FSMRTemplate} is
+	 * Returns true if the cinnamaldehyde max of this {@link FSMRTemplate} is
 	 * set.
 	 */
-	public boolean isSetCinnalmadehydeMax();
+	public boolean isSetCinnamaldehydeMax();
 
 	/**
 	 * Returns true if the citric acid unit of this {@link FSMRTemplate} is set.

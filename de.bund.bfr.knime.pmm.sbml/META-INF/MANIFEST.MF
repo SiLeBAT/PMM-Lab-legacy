@@ -37,8 +37,8 @@ Export-Package: de.bund.bfr.knime.pmm.annotation,
  de.bund.bfr.knime.pmm.pmfreader2,
  de.bund.bfr.knime.pmm.pmfwriter,
  de.bund.bfr.knime.pmm.pmfwriter2,
- de.bund.bfr.knime.pmm.sbml.sbmlutil,
  de.bund.bfr.knime.pmm.sbmlreader,
  de.bund.bfr.knime.pmm.sbmlutil,
- de.bund.bfr.knime.pmm.sbmlwriter
+ de.bund.bfr.knime.pmm.sbmlwriter,
+ de.bund.bfr.numl
 

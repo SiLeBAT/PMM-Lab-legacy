@@ -1,0 +1,4 @@
+[14:35:22,134  INFO ENGINE:?] - Checkpoint start
+[14:35:22,139  INFO ENGINE:?] - checkpointClose start
+[14:35:22,350  INFO ENGINE:?] - checkpointClose end
+[14:35:22,353  INFO ENGINE:?] - Checkpoint end - txts: 1

@@ -2,12 +2,19 @@ package de.bund.bfr.knime.pmm.pmfreader2;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.jdom2.Element;
 import org.knime.core.data.DataTableSpec;
@@ -67,6 +74,9 @@ import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
+import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.ExperimentalDataFile;
@@ -88,6 +98,7 @@ import de.bund.bfr.pmf.model.PrimaryModelWData;
 import de.bund.bfr.pmf.model.PrimaryModelWOData;
 import de.bund.bfr.pmf.model.TwoStepSecondaryModel;
 import de.bund.bfr.pmf.model.TwoStepTertiaryModel;
+import de.bund.bfr.pmf.numl.ConcentrationOntology;
 import de.bund.bfr.pmf.numl.NuMLDocument;
 import de.bund.bfr.pmf.numl.ResultComponent;
 import de.bund.bfr.pmf.numl.Tuple;
@@ -95,7 +106,6 @@ import de.bund.bfr.pmf.sbml.Correlation;
 import de.bund.bfr.pmf.sbml.Limits;
 import de.bund.bfr.pmf.sbml.LimitsConstraint;
 import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.MetadataImpl;
 import de.bund.bfr.pmf.sbml.MetadataAnnotation;
 import de.bund.bfr.pmf.sbml.Model1Annotation;
 import de.bund.bfr.pmf.sbml.Model2Annotation;
@@ -294,25 +304,17 @@ class ExperimentalDataReader implements Reader {
 
 		dataContainer.close();
 
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		// Gets template of the first data file
+		FSMRTemplate template = FSMRUtils.processData(eds.get(0).getDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		// Gets metadata from the first NuMLDocument (all the NuMLDocuments in a
-		// ExperimentalData file share the same metadata.
-		ResultComponent rc = eds.get(0).getDoc().getResultComponent();
-		String creatorGivenName = rc.getCreatorGivenName();
-		String creatorFamilyName = rc.getCreatorFamilyName();
-		String creatorContact = rc.getCreatorContact();
-		String createdDate = rc.getCreatedDate();
-		String modifiedDate = rc.getModifiedDate();
-		String rights = rc.getRights();
-		MetadataImpl metadata = new MetadataImpl(creatorGivenName, creatorFamilyName, creatorContact, createdDate,
-				modifiedDate, ModelType.EXPERIMENTAL_DATA, rights, null);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Creates container with 'fmsrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
 
-		return new BufferedDataContainer[] { dataContainer, metadataContainer };
+		return new BufferedDataContainer[] { dataContainer, fsmrContainer };
 	}
 }
 
@@ -335,17 +337,17 @@ class PrimaryModelWDataReader implements Reader {
 
 		modelContainer.close();
 
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
+		// Gets template of the first model file
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getModelDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getModelDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private KnimeTuple parse(PrimaryModelWData pm) {
@@ -400,16 +402,17 @@ class PrimaryModelWODataReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template of the first model file
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private KnimeTuple parse(PrimaryModelWOData pm) {
@@ -467,16 +470,18 @@ class TwoStepSecondaryModelReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getSecDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template of the first primary model file
+		FSMRTemplate template = FSMRUtils
+				.processPrimaryModelWithMicrobialData(models.get(0).getPrimModels().get(0).getModelDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private List<KnimeTuple> parse(TwoStepSecondaryModel tssm) {
@@ -523,17 +528,17 @@ class OneStepSecondaryModelReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getModelDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template of the first primary model file
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getModelDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
 
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private List<KnimeTuple> parse(OneStepSecondaryModel ossm) {
@@ -577,16 +582,17 @@ class ManualSecondaryModelReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 }
 
@@ -611,16 +617,17 @@ class TwoStepTertiaryModelReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getTertDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getTertDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private List<KnimeTuple> parse(TwoStepTertiaryModel tstm) {
@@ -664,16 +671,17 @@ class OneStepTertiaryModelReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getTertiaryDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getTertiaryDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
@@ -723,16 +731,17 @@ class ManualTertiaryModelReader implements Reader {
 
 		modelContainer.close();
 
-		// Gets metadata from the first model
-		SBMLDocument aDoc = models.get(0).getTertiaryDoc();
-		Metadata metadata = new MetadataAnnotation(aDoc.getAnnotation()).getMetadata();
-		// Creates metadata table and container
-		DataTableSpec metadataSpec = new MetadataSchema().createSpec();
-		BufferedDataContainer metadataContainer = exec.createDataContainer(metadataSpec);
-		metadataContainer.addRowToTable(Util.createMetadataTuple(metadata));
-		metadataContainer.close();
+		// Gets template
+		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getTertiaryDoc());
+		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
-		return new BufferedDataContainer[] { modelContainer, metadataContainer };
+		// Creates container with 'fsmrTuple'
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		fsmrContainer.addRowToTable(fsmrTuple);
+		fsmrContainer.close();
+
+		return new BufferedDataContainer[] { modelContainer, fsmrContainer };
 	}
 
 	private List<KnimeTuple> parse(ManualTertiaryModel mtm) {
@@ -1476,6 +1485,479 @@ class Util {
 		tuple.setValue(Model2Schema.ATT_DBUUID, m2Tuple.getString(Model2Schema.ATT_DBUUID));
 		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
 		tuple.setValue(Model2Schema.ATT_METADATA, m2Tuple.getPmmXml(Model2Schema.ATT_METADATA));
+
+		return tuple;
+	}
+}
+
+class FSMRUtils {
+
+	public static FSMRTemplate processData(NuMLDocument doc) {
+		FSMRTemplate template = new FSMRTemplateImpl();
+
+		ConcentrationOntology concOntology = doc.getConcentrationOntologyTerm();
+
+		// PMF organism
+		PMFSpecies species = concOntology.getSpecies();
+		template.setOrganismName(species.getName());
+		if (species.isSetDetail()) {
+			String organismDetail = species.getDetail();
+			template.setOrganismDetails(organismDetail);
+		}
+
+		// PMF environment
+		PMFCompartment compartment = concOntology.getCompartment();
+		template.setMatrixName(compartment.getName());
+		if (compartment.isSetDetail()) {
+			String matrixDetail = compartment.getDetail();
+			template.setMatrixDetails(matrixDetail);
+		}
+
+		ResultComponent rc = doc.getResultComponent();
+		// Sets creator
+		if (rc.isSetCreatorGivenName()) {
+			String creatorGivenName = rc.getCreatorGivenName();
+			template.setCreator(creatorGivenName);
+		}
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+		// Sets created date
+		if (rc.isSetCreatedDate()) {
+			String createdDateAsString = rc.getCreatedDate();
+			try {
+				Date createdDate = dateFormat.parse(createdDateAsString);
+				template.setCreatedDate(createdDate);
+			} catch (ParseException e) {
+				System.err.println(createdDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// Sets modified date
+		if (rc.isSetModifiedDate()) {
+			String modifiedDateAsString = rc.getModifiedDate();
+			try {
+				Date modifiedDate = dateFormat.parse(modifiedDateAsString);
+				template.setModifiedDate(modifiedDate);
+			} catch (ParseException e) {
+				System.err.println(modifiedDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// Sets model rights
+		if (rc.isSetRights()) {
+			String rights = rc.getRights();
+			template.setRights(rights);
+		}
+
+		// Sets model type
+		template.setModelType(ModelType.EXPERIMENTAL_DATA);
+
+		// Sets model subject as ModelClass.UNKNOWN since the data files do not
+		// keep the subject of the model
+		template.setModelSubject(ModelClass.UNKNOWN);
+
+		return template;
+	}
+
+	public static FSMRTemplate processPrimaryModelWithMicrobialData(SBMLDocument doc) {
+		FSMRTemplate template = new FSMRTemplateImpl();
+		Model model = doc.getModel();
+
+		template.setModelId(model.getId());
+
+		if (model.isSetName()) {
+			String modelName = model.getName();
+			template.setModelName(modelName);
+		}
+
+		// PMF organism
+		PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+		String speciesName = species.getName();
+		template.setOrganismName(speciesName);
+		if (species.isSetDetail()) {
+			String speciesDetail = species.getDetail();
+			template.setOrganismDetails(speciesDetail);
+		}
+
+		// PMF environment
+		PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+		String compartmentName = compartment.getName();
+		template.setMatrixName(compartmentName);
+		if (compartment.isSetDetail()) {
+			String matrixDetail = compartment.getDetail();
+			template.setMatrixDetails(matrixDetail);
+		}
+
+		Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
+
+		// Sets creator
+		if (metadata.isSetGivenName()) {
+			String creatorGivenName = metadata.getGivenName();
+			template.setCreator(creatorGivenName);
+		}
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+
+		// Sets created date
+		if (metadata.isSetCreatedDate()) {
+			String createdDateAsString = metadata.getCreatedDate();
+			try {
+				Date createdDate = dateFormat.parse(createdDateAsString);
+				template.setCreatedDate(createdDate);
+			} catch (ParseException e) {
+				System.err.println(createdDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// Sets modified date
+		if (metadata.isSetModifiedDate()) {
+			String modifiedDateAsString = metadata.getModifiedDate();
+			try {
+				Date modifiedDate = dateFormat.parse(modifiedDateAsString);
+				template.setModifiedDate(modifiedDate);
+			} catch (ParseException e) {
+				System.err.println(modifiedDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// Sets model rights
+		if (metadata.isSetRights()) {
+			String rights = metadata.getRights();
+			template.setRights(rights);
+		}
+
+		if (model.isSetNotes()) {
+			try {
+				String notes = model.getNotesString();
+				template.setNotes(notes);
+			} catch (XMLStreamException e) {
+				System.err.println("Error accesing the notes of " + model);
+				e.printStackTrace();
+			}
+		}
+
+		// Sets model type
+		if (metadata.isSetType()) {
+			template.setModelType(metadata.getType());
+		}
+
+		// Sets model subject
+		ModelRule modelRule = new ModelRule((AssignmentRule) model.getRule(0));
+		ModelClass modelSubject = modelRule.getModelClass();
+		template.setModelSubject(modelSubject);
+
+		if (species.getSpecies().isSetUnits()) {
+			String depUnitID = species.getSpecies().getUnits();
+
+			// Sets dependent variable unit
+			String depUnitName = model.getUnitDefinition(depUnitID).getName();
+			template.setDependentVariableUnit(depUnitName);
+
+			// Sets dependent variable
+			if (!depUnitID.equals("dimensionless")) {
+				String depUnitCategory = DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity();
+				template.setDependentVariable(depUnitCategory);
+			}
+
+			// Sets dependent variable min & max
+			for (Constraint constraint : model.getListOfConstraints()) {
+				LimitsConstraint lc = new LimitsConstraint(constraint);
+				Limits lcLimits = lc.getLimits();
+				if (lcLimits.getVar().equals(depUnitID)) {
+					Double min = lcLimits.getMin();
+					if (min != null) {
+						template.setDependentVariableMin(min);
+					}
+					Double max = lcLimits.getMax();
+					if (max != null) {
+						template.setDependentVariableMax(max);
+					}
+
+					break;
+				}
+			}
+		}
+
+		for (Parameter parameter : model.getListOfParameters()) {
+			if (!parameter.isConstant() && parameter.isSetUnits()) {
+				String unitID = parameter.getUnits();
+
+				// Sets independent variable unit
+				String unitName = model.getUnitDefinition(unitID).getName();
+				template.setIndependentVariable(unitName);
+
+				// Sets independent variable
+				if (!unitID.equals("dimensionless")) {
+					String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+					template.setIndependentVariable(unitCategory);
+				}
+
+				// Sets dependent variable min & max
+				for (Constraint constraint : model.getListOfConstraints()) {
+					LimitsConstraint lc = new LimitsConstraint(constraint);
+					Limits lcLimits = lc.getLimits();
+					if (lcLimits.getVar().equals(unitID)) {
+						Double min = lcLimits.getMin();
+						if (min != null) {
+							template.setDependentVariableMin(min);
+						}
+						Double max = lcLimits.getMax();
+						if (max != null) {
+							template.setDependentVariableMax(max);
+						}
+
+						break;
+					}
+				}
+
+				// TODO: So far it's keeping only the first independent var it
+				// found, it should be able to keep the rest as well
+				break;
+			}
+		}
+
+		return template;
+	}
+
+	public static FSMRTemplate processPrimaryModelWithoutMicrobialData(SBMLDocument doc) {
+
+		FSMRTemplate template = new FSMRTemplateImpl();
+
+		Model model = doc.getModel();
+
+		template.setModelId(model.getId());
+
+		if (model.isSetName()) {
+			String modelName = model.getName();
+			template.setModelName(modelName);
+		}
+
+		Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
+
+		// Sets creator
+		if (metadata.isSetGivenName()) {
+			String creatorGivenName = metadata.getGivenName();
+			template.setCreator(creatorGivenName);
+		}
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+
+		// Sets created date
+		if (metadata.isSetCreatedDate()) {
+			String createdDateAsString = metadata.getCreatedDate();
+			try {
+				Date createdDate = dateFormat.parse(createdDateAsString);
+				template.setCreatedDate(createdDate);
+			} catch (ParseException e) {
+				System.err.println(createdDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// Sets modified date
+		if (metadata.isSetModifiedDate()) {
+			String modifiedDateAsString = metadata.getModifiedDate();
+			try {
+				Date modifiedDate = dateFormat.parse(modifiedDateAsString);
+				template.setModifiedDate(modifiedDate);
+			} catch (ParseException e) {
+				System.err.println(modifiedDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// Sets model rights
+		if (metadata.isSetRights()) {
+			String rights = metadata.getRights();
+			template.setRights(rights);
+		}
+
+		// Sets model type
+		if (metadata.isSetType()) {
+			template.setModelType(metadata.getType());
+		}
+
+		// Sets model subject
+		ModelRule modelRule = new ModelRule((AssignmentRule) model.getRule(0));
+		ModelClass modelSubject = modelRule.getModelClass();
+		template.setModelSubject(modelSubject);
+
+		// Sets model notes
+		if (model.isSetNotes()) {
+			try {
+				String notes = model.getNotesString();
+				template.setNotes(notes);
+			} catch (XMLStreamException e) {
+				System.err.println("Error accesing the notes of " + model);
+				e.printStackTrace();
+			}
+		}
+
+		ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+		String depName = rule.getRule().getVariable();
+		Parameter depParam = model.getParameter(depName);
+
+		if (depParam.isSetUnits()) {
+			// Sets dependent variable unit
+			String unitID = depParam.getUnits();
+			String unitName = model.getUnitDefinition(unitID).getName();
+			template.setDependentVariableUnit(unitName);
+
+			// Sets dependent variable
+			Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
+			if (dbUnits.containsKey(unitName)) {
+				String unitCategory = dbUnits.get(unitName).getKind_of_property_quantity();
+				template.setDependentVariable(unitCategory);
+			}
+
+			// Sets dependent variable min & max
+			for (Constraint contraint : model.getListOfConstraints()) {
+				LimitsConstraint lc = new LimitsConstraint(contraint);
+				Limits lcLimits = lc.getLimits();
+				if (lcLimits.getVar().equals(depParam.getId())) {
+					Double min = lcLimits.getMin();
+					if (min != null) {
+						template.setDependentVariableMin(min);
+					}
+					Double max = lcLimits.getMax();
+					if (max != null) {
+						template.setDependentVariableMax(max);
+					}
+					break;
+				}
+			}
+		}
+
+		return template;
+	}
+
+	public static KnimeTuple createTupleFromTemplate(FSMRTemplate template) {
+		KnimeTuple tuple = new KnimeTuple(new OpenFSMRSchema());
+
+		if (template.isSetModelName()) {
+			String modelName = template.getModelName();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, modelName);
+		}
+
+		if (template.isSetModelId()) {
+			String modelId = template.getModelId();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, modelId);
+		}
+
+		if (template.isSetModelLink()) {
+			URL modelLink = template.getModelLink();
+			String modelLinkAsString = modelLink.toString();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, modelLinkAsString);
+		}
+
+		if (template.isSetOrganismName()) {
+			String organismName = template.getOrganismName();
+			tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME, organismName);
+		}
+
+		if (template.isSetOrganismDetails()) {
+			String organismDetails = template.getOrganismDetails();
+			tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL, organismDetails);
+		}
+
+		if (template.isSetMatrixName()) {
+			String matrixName = template.getMatrixName();
+			tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME, matrixName);
+		}
+
+		if (template.isSetMatrixDetails()) {
+			String matrixDetail = template.getMatrixDetails();
+			tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL, matrixDetail);
+		}
+
+		if (template.isSetCreator()) {
+			String creator = template.getCreator();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATOR, creator);
+		}
+
+		if (template.isSetReferenceDescription()) {
+			String referenceDescription = template.getReferenceDescription();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION, referenceDescription);
+		}
+
+		if (template.isSetReferenceDescriptionLink()) {
+			URL referenceDescriptionLink = template.getReferenceDescriptionLink();
+			String referenceDescriptionLinkAsString = referenceDescriptionLink.toString();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK, referenceDescriptionLinkAsString);
+		}
+
+		if (template.isSetCreatedDate()) {
+			Date createdDate = template.getCreatedDate();
+			String createdDateAsString = createdDate.toString();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE, createdDateAsString);
+		}
+
+		if (template.isSetModifiedDate()) {
+			Date modifiedDate = template.getModifiedDate();
+			String modifiedDateAsString = modifiedDate.toString();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE, modifiedDateAsString);
+		}
+
+		if (template.isSetRights()) {
+			String rights = template.getRights();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_RIGHTS, rights);
+		}
+
+		if (template.isSetNotes()) {
+			String notes = template.getNotes();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_NOTES, notes);
+		}
+
+		if (template.isSetCurationStatus()) {
+			String curationStatus = template.getCurationStatus();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS, curationStatus);
+		}
+
+		if (template.isSetModelType()) {
+			ModelType modelType = template.getModelType();
+			String modelTypeAsString = modelType.toString();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, modelTypeAsString);
+		}
+
+		if (template.isSetModelSubject()) {
+			ModelClass modelSubject = template.getModelSubject();
+			String modelSubjectAsString = modelSubject.toString();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, modelSubjectAsString);
+		}
+
+		if (template.isSetFoodProcess()) {
+			String foodProcess = template.getFoodProcess();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS, foodProcess);
+		}
+
+		if (template.isSetDependentVariable()) {
+			String dependentVariable = template.getDependentVariable();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE, dependentVariable);
+		}
+
+		if (template.isSetDependentVariableUnit()) {
+			String dependentVariableUnit = template.getDependentVariableUnit();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT, dependentVariableUnit);
+		}
+
+		if (template.isSetDependentVariableMin()) {
+			double dependentVariableMin = template.getDependentVariableMin();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN, dependentVariableMin);
+		}
+
+		if (template.isSetDependentVariableMax()) {
+			double dependentVariableMax = template.getDependentVariableMax();
+			tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX, dependentVariableMax);
+		}
+
+		if (template.isSetIndependentVariable()) {
+			String independentVariable = template.getIndependentVariable();
+			tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, independentVariable);
+		}
 
 		return tuple;
 	}

@@ -89,6 +89,8 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	private Boolean softwareStochasticModeling = null;
 
+	private String softwarePredictionConditions = null;
+
 	private String initLevelUnit = null;
 
 	private Double initLevelMin = null;
@@ -521,6 +523,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public Boolean getSoftwareStochasticModeling() {
 		return softwareStochasticModeling;
+	}
+
+	/** {@inheritDoc} */
+	public String getSoftwarePredictionConditions() {
+		return softwarePredictionConditions;
 	}
 
 	/** {@inheritDoc} */
@@ -1399,6 +1406,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
+	public void setSoftwarePredictionConditions(String predictionConditions) {
+		softwarePredictionConditions = predictionConditions;
+	}
+
+	/** {@inheritDoc} */
 	public void setInitLevelUnit(String initLevelUnit) {
 		this.initLevelUnit = initLevelUnit;
 	}
@@ -1632,7 +1644,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	public void setAntimicrobialDippingTimeMax(double antimicrobialDippingTimeMax) {
 		this.antimicrobialDippingTimeMax = antimicrobialDippingTimeMax;
 	}
-	
+
 	/** {@inheritDoc} */
 	public void setApplePolyphenolUnit(String applePolyphenolUnit) {
 		this.applePolyphenolUnit = applePolyphenolUnit;
@@ -1647,7 +1659,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	public void setApplePolyphenolMax(double applePolyphenolMax) {
 		this.applePolyphenolMax = applePolyphenolMax;
 	}
-	
+
 	/** {@inheritDoc} */
 	public void setAscorbiccAcidUnit(String ascorbiccAcidUnit) {
 		this.ascorbiccAcidUnit = ascorbiccAcidUnit;
@@ -1682,7 +1694,6 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	public void setAttachmentTimeMax(double attachmentTimeMax) {
 		this.attachmentTimeMax = attachmentTimeMax;
 	}
-
 
 	/** {@inheritDoc} */
 	public void setBeanOilUnit(String beanOilUnit) {
@@ -2098,7 +2109,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	public void setLacticAcidMax(double lacticAcidMax) {
 		this.lacticAcidMax = lacticAcidMax;
 	}
-	
+
 	/** {@inheritDoc} */
 	public void setLacticBacteriaFermented(boolean lacticBacteriaFermented) {
 		this.lacticBacteriaFermented = lacticBacteriaFermented;
@@ -2267,6 +2278,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public void unsetSoftwareStochasticModeling() {
 		softwareStochasticModeling = null;
+	}
+
+	/** {@inheritDoc} */
+	public void unsetSoftwarePredictionConditions() {
+		softwarePredictionConditions = null;
 	}
 
 	/** {@inheritDoc} */
@@ -3145,6 +3161,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
+	public boolean isSetSoftwarePredictionConditions() {
+		return softwarePredictionConditions != null;
+	}
+
+	/** {@inheritDoc} */
 	public boolean isSetInitLevelUnit() {
 		return initLevelUnit != null;
 	}
@@ -3741,7 +3762,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	/** {@inheritDoc} */
 	public boolean isSetHeated() {
-		return heated;
+		return heated != null;
 	}
 
 	/** {@inheritDoc} */
@@ -3851,17 +3872,17 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	/** {@inheritDoc} */
 	public boolean isSetLauricidinUnit() {
-		return applePolyphenolUnit != null;
+		return lauricidinUnit != null;
 	}
 
 	/** {@inheritDoc} */
 	public boolean isSetLauricidinMin() {
-		return applePolyphenolMin != null;
+		return lauricidinMin != null;
 	}
 
 	/** {@inheritDoc} */
 	public boolean isSetLauricidinMax() {
-		return applePolyphenolMax != null;
+		return lauricidinMax != null;
 	}
 
 	/** {@inheritDoc} */

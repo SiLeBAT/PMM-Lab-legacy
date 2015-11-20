@@ -27,7 +27,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
  * @author Miguel Alba
  */
 public class OpenFSMRSchema extends KnimeSchema {
-	
+
 	public static final String ATT_MODEL_NAME = "Model_Name";
 	public static final String ATT_MODEL_ID = "Model_ID";
 	public static final String ATT_MODEL_LINK = "Model_Link";
@@ -39,7 +39,7 @@ public class OpenFSMRSchema extends KnimeSchema {
 	public static final String ATT_MODEL_REFERENCE_DESCRIPTION = "Model_Reference_Description";
 	public static final String ATT_MODEL_REFERENCE_DESCRIPTION_LINK = "Model_Reference_Description_Link";
 	public static final String ATT_MODEL_CREATED_DATE = "Model_Created";
-	public static final String ATT_MODEL_MODIFIED = "Model_Modified";
+	public static final String ATT_MODEL_MODIFIED_DATE = "Model_Modified";
 	public static final String ATT_MODEL_RIGHTS = "Model_Rights";
 	public static final String ATT_MODEL_NOTES = "Model_Notes";
 	public static final String ATT_MODEL_CURATION_STATUS = "Model_Curation_Status";
@@ -138,6 +138,7 @@ public class OpenFSMRSchema extends KnimeSchema {
 	public static final String ATT_CITRIC_ACID_MAX = "Citric_Acid_Max";
 	public static final String ATT_CO_CULTURE = "Co_Culture";
 	public static final String ATT_CURED = "Cured";
+	public static final String ATT_CUT = "Cut";
 	public static final String ATT_DESIRED_REDUCTION_UNIT = "Desired_Reduction_Unit";
 	public static final String ATT_DESIRED_REDUCTION_MIN = "Desired_Reduction_Min";
 	public static final String ATT_DESIRED_REDUCTION_MAX = "Desired_Reduction_Max";
@@ -221,7 +222,7 @@ public class OpenFSMRSchema extends KnimeSchema {
 		addStringAttribute(ATT_MODEL_REFERENCE_DESCRIPTION);
 		addStringAttribute(ATT_MODEL_REFERENCE_DESCRIPTION_LINK);
 		addStringAttribute(ATT_MODEL_CREATED_DATE);
-		addStringAttribute(ATT_MODEL_MODIFIED);
+		addStringAttribute(ATT_MODEL_MODIFIED_DATE);
 		addStringAttribute(ATT_MODEL_RIGHTS);
 		addStringAttribute(ATT_MODEL_NOTES);
 		addStringAttribute(ATT_MODEL_CURATION_STATUS);
@@ -319,7 +320,8 @@ public class OpenFSMRSchema extends KnimeSchema {
 		addDoubleAttribute(ATT_CITRIC_ACID_MIN);
 		addDoubleAttribute(ATT_CITRIC_ACID_MAX);
 		addStringAttribute(ATT_CO_CULTURE);
-		addStringAttribute(ATT_CURED);
+		addIntAttribute(ATT_CURED);
+		addIntAttribute(ATT_CUT);
 		addStringAttribute(ATT_DESIRED_REDUCTION_UNIT);
 		addDoubleAttribute(ATT_DESIRED_REDUCTION_MIN);
 		addDoubleAttribute(ATT_DESIRED_REDUCTION_MAX);

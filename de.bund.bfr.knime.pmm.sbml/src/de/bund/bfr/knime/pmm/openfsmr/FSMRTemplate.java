@@ -28,95 +28,113 @@ import de.bund.bfr.pmf.ModelType;
 /**
  * Template for the Food Safety Model Repository. Includes the properties:
  * <ul>
- *   <li><b>Model name:</b> a name given to the model</li>
- *   <li><b>Model id:</b> an unambiguous ID</li>
- *   <li><b>Model link:</b> the link allowing to download the model file.</li>
- *   <li><b>PMF organism:</b> Modelled organism / entity.</li>
- *   <li><b>PMF organism detail:</b> Plain text comment describing further details on the modelled organism / entity</li>
- *   <li><b>PMF environment:</b> The environment of the organism / entity.</li>
- *   <li><b>PMF environment detail:</b> Plain text comments describing the environment and or experimental conditions</li>
- *   <li><b>Model creator:</b> The person who contributed to the encoding of hte model in its present form by creating the model file</li>
- *   <li><b>Model reference description:</b> A citation to the reference description</li>
- *   <li><b>Model reference description link:</b> A link to the reference description</li>
- *   <li><b>Model created:</b> Temporal information on the model creation date</li>
- *   <li><b>Model modified:</b> Temporal information on the last modification of the model</li>
- *   <li><b>Model rights:</b> Information on rights held in and over the resource</li>
- *   <li><b>Model notes:</b> Plain text comments describing the model</li>
- *   <li><b>Model curation status</b>: The curation status of the model</li>
- *   <li><b>Model type:</b> the type of model</li>
- *   <li><b>Model subject:</b> the subject of the model</li>
- *   <li><b>Model foodprocess:</b> Food production processes in which the model could be used</li>
- *   <li><b>Model dependent variables:</b> The properties the model predicts</li>
- *   <li><b>Model dependent variable units:</b> Unit of the predicted properties</li>
- *   <li><b>Model dependent variable minimum:</b> The co-domain minimal values</li>
- *   <li><b>Model dependent variable maximum:</b> The co-domain maximum values</li>
- *   <li><b>Model independent variables:</b> The model's independent variable(s)</li>
- *   <li><b>Software:</b> Software solution(s) incorporating the model</li>
- *   <li><b>Software link:</b> Software link</li>
- *   <li><b>Software notes</b> Notes on the software notes</li>
- *   <li><b>Software accessibility</b> Software accesibility</li>
- *   <li><b>Software stochastic modeling</b> Does the software allow stochastic modeling?</li>
- *   <li><b>Software prediction conditions</b> Does the software allow predictions from dynamic environmental conditions?</li>
- *   <li><b>Atmosphere</b> Model parameter info (1, 2, 3)</li>
- *   <li><b>init level</b> Model parameter info: unit, min and max</li>
- *   <li><b>time</b> Model parameter info: unit, min and max</li>
- *   <li><b>temp</b> Model parameter info: unit, min and max</li>
- *   <li><b>ph</b> Model parameter info: unit, min and max</li>
- *   <li><b>aw</b> Model parameter info: unit, min and max</li>
- *   <li><b>NaCl</b> Model parameter info: unit, min and max</li>
- *   <li><b>ALTA</b> Model parameter info: unit, min and max</li>
- *   <li><b>CO2</b> Model parameter info: unit, min and max</li>
- *   <li><b>ClO2</b> Model parameter info: unit, min and max</li>
- *   <li><b>EDTA</b> Model parameter info: unit, min and max</li>
- *   <li><b>HCl</b> Model parameter info: unit, min and max</li>
- *   <li><b>N2</b> Model parameter info: unit, min and max</li>
- *   <li><b>O2</b> Model parameter info: unit, min and max</li>
- *   <li><b>Acetic acid</b> Model parameter info: unit, min and max</li>
- *   <li><b>Additives</b> Free text</li>
- *   <li><b>Anaerobic</b> Boolean</li>
- *   <li><b>Antimicrobial dipping time</b> Model parameter info: unit, min and max</li>
- *   <li><b>Apple polyphenol</b> Model parameter info: unit, min and max</li>
- *   <li><b>Ascorbicc acid</b> Model parameter info: unit, min and max</li>
- *   <li><b>Atr induced</b> Boolean</li>
- *   <li><b>Attachment time</b> Model parameter info: unit, min and max</li>
- *   <li><b>Bean oil</b> Model parameter info: unit, min and max</li>
- *   <li><b>Benzoic acid</b> Model parameter info: unit, min and max</li>
- *   <li><b>Betaine</b> Model parameter info: unit, min and max</li>
- *   <li><b>Carvacrol</b> Model parameter info: unit, min and max</li>
- *   <li><b>Chitosan</b> Model parameter info: unit, min and max</li>
- *   <li><b>Cinnamaldehyde</b> Model parameter info: unit, min and max</li>
- *   <li><b>Citric acid</b> Model parameter info: unit, min and max</li>
- *   <li><b>Co-culture</b> Boolean</li>
- *   <li><b>Cured</b> Boolean</li>
- *   <li><b>Cut</b> Boolean</li>
- *   <li><b>Desired reduction</b> Model parameter info: unit, min and max</li>
- *   <li><b>Diacetic acid</b> Model parameter info: unit, min and max</li>
- *   <li><b>Diasccharide</b> Model parameter info: unit, min and max</li>
- *   <li><b>Dried</b> Boolean</li>
- *   <li><b>Ethanol</b> Model parameter info: unit, min and max</li>
- *   <li><b>Exp inoculated</b> Boolean</li>
- *   <li><b>Fat</b> Model parameter info: unit, min and max</li>
- *   <li><b>Frozen</b> Boolean</li>
- *   <li><b>Fructose</b> Model parameter info: unit, min and max</li>
- *   <li><b>Gel microstructure</b> Model parameter info: unit, min and max</li>
- *   <li><b>Glucose</b> Model parameter info: unit, min and max</li>
- *   <li><b>Glycerol</b> Model parameter info: unit, min and max</li>
- *   <li><b>Green tea ground powder</b> Model parameter info: unit, min and max</li>
- *   <li><b>Green tea leaf</b> Model parameter info: unit, min and max</li>
- *   <li><b>Green tea polyphenol</b> Model parameter info: unit, min and max</li>
- *   <li><b>Green tea water extract</b> Model parameter info: unit, min and max</li>
- *   <li><b>Heated</b> Boolean</li>
- *   <li><b>Hexoses</b> Model parameter info: unit, min and max</li>
- *   <li><b>Indigenous</b> Boolean</li>
- *   <li><b>Init level histamine</b> Model parameter info: unit, min and max</li>
- *   <li><b>Init level histidine</b> Model parameter info: unit, min and max</li>
- *   <li><b>Injured</b> Model parameter info: unit, min and max</li>
- *   <li><b>Irradiated</b> Boolean</li>
- *   <li><b>Irradation</b> Model parameter info: unit, min and max</li>
- *   <li><b>Lactic acid</b> Model parameter info: unit, min and max</li>
- *   <li><b>Lactic bacteria fermented</b> Boolean</li>
- *   <li><b>Lauricidin</b> Model parameter info: unit, min and max</li>
- *   <li><b>Malic acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Model name:</b> a name given to the model</li>
+ * <li><b>Model id:</b> an unambiguous ID</li>
+ * <li><b>Model link:</b> the link allowing to download the model file.</li>
+ * <li><b>PMF organism:</b> Modelled organism / entity.</li>
+ * <li><b>PMF organism detail:</b> Plain text comment describing further details
+ * on the modelled organism / entity</li>
+ * <li><b>PMF environment:</b> The environment of the organism / entity.</li>
+ * <li><b>PMF environment detail:</b> Plain text comments describing the
+ * environment and or experimental conditions</li>
+ * <li><b>Model creator:</b> The person who contributed to the encoding of hte
+ * model in its present form by creating the model file</li>
+ * <li><b>Model reference description:</b> A citation to the reference
+ * description</li>
+ * <li><b>Model reference description link:</b> A link to the reference
+ * description</li>
+ * <li><b>Model created:</b> Temporal information on the model creation date
+ * </li>
+ * <li><b>Model modified:</b> Temporal information on the last modification of
+ * the model</li>
+ * <li><b>Model rights:</b> Information on rights held in and over the resource
+ * </li>
+ * <li><b>Model notes:</b> Plain text comments describing the model</li>
+ * <li><b>Model curation status</b>: The curation status of the model</li>
+ * <li><b>Model type:</b> the type of model</li>
+ * <li><b>Model subject:</b> the subject of the model</li>
+ * <li><b>Model foodprocess:</b> Food production processes in which the model
+ * could be used</li>
+ * <li><b>Model dependent variables:</b> The properties the model predicts</li>
+ * <li><b>Model dependent variable units:</b> Unit of the predicted properties
+ * </li>
+ * <li><b>Model dependent variable minimum:</b> The co-domain minimal values
+ * </li>
+ * <li><b>Model dependent variable maximum:</b> The co-domain maximum values
+ * </li>
+ * <li><b>Model independent variables:</b> The model's independent variable(s)
+ * </li>
+ * <li><b>Software:</b> Software solution(s) incorporating the model</li>
+ * <li><b>Software link:</b> Software link</li>
+ * <li><b>Software notes</b> Notes on the software notes</li>
+ * <li><b>Software accessibility</b> Software accesibility</li>
+ * <li><b>Software stochastic modeling</b> Does the software allow stochastic
+ * modeling?</li>
+ * <li><b>Software prediction conditions</b> Does the software allow predictions
+ * from dynamic environmental conditions?</li>
+ * <li><b>Atmosphere</b> Model parameter info (1, 2, 3)</li>
+ * <li><b>init level</b> Model parameter info: unit, min and max</li>
+ * <li><b>time</b> Model parameter info: unit, min and max</li>
+ * <li><b>temp</b> Model parameter info: unit, min and max</li>
+ * <li><b>ph</b> Model parameter info: unit, min and max</li>
+ * <li><b>aw</b> Model parameter info: unit, min and max</li>
+ * <li><b>NaCl</b> Model parameter info: unit, min and max</li>
+ * <li><b>ALTA</b> Model parameter info: unit, min and max</li>
+ * <li><b>CO2</b> Model parameter info: unit, min and max</li>
+ * <li><b>ClO2</b> Model parameter info: unit, min and max</li>
+ * <li><b>EDTA</b> Model parameter info: unit, min and max</li>
+ * <li><b>HCl</b> Model parameter info: unit, min and max</li>
+ * <li><b>N2</b> Model parameter info: unit, min and max</li>
+ * <li><b>O2</b> Model parameter info: unit, min and max</li>
+ * <li><b>Acetic acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Additives</b> Free text</li>
+ * <li><b>Anaerobic</b> Boolean</li>
+ * <li><b>Antimicrobial dipping time</b> Model parameter info: unit, min and max
+ * </li>
+ * <li><b>Apple polyphenol</b> Model parameter info: unit, min and max</li>
+ * <li><b>Ascorbicc acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Atr induced</b> Boolean</li>
+ * <li><b>Attachment time</b> Model parameter info: unit, min and max</li>
+ * <li><b>Bean oil</b> Model parameter info: unit, min and max</li>
+ * <li><b>Benzoic acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Betaine</b> Model parameter info: unit, min and max</li>
+ * <li><b>Carvacrol</b> Model parameter info: unit, min and max</li>
+ * <li><b>Chitosan</b> Model parameter info: unit, min and max</li>
+ * <li><b>Cinnamaldehyde</b> Model parameter info: unit, min and max</li>
+ * <li><b>Citric acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Co-culture</b> Boolean</li>
+ * <li><b>Cured</b> Boolean</li>
+ * <li><b>Cut</b> Boolean</li>
+ * <li><b>Desired reduction</b> Model parameter info: unit, min and max</li>
+ * <li><b>Diacetic acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Diasccharide</b> Model parameter info: unit, min and max</li>
+ * <li><b>Dried</b> Boolean</li>
+ * <li><b>Ethanol</b> Model parameter info: unit, min and max</li>
+ * <li><b>Exp inoculated</b> Boolean</li>
+ * <li><b>Fat</b> Model parameter info: unit, min and max</li>
+ * <li><b>Frozen</b> Boolean</li>
+ * <li><b>Fructose</b> Model parameter info: unit, min and max</li>
+ * <li><b>Gel microstructure</b> Model parameter info: unit, min and max</li>
+ * <li><b>Glucose</b> Model parameter info: unit, min and max</li>
+ * <li><b>Glycerol</b> Model parameter info: unit, min and max</li>
+ * <li><b>Green tea ground powder</b> Model parameter info: unit, min and max
+ * </li>
+ * <li><b>Green tea leaf</b> Model parameter info: unit, min and max</li>
+ * <li><b>Green tea polyphenol</b> Model parameter info: unit, min and max</li>
+ * <li><b>Green tea water extract</b> Model parameter info: unit, min and max
+ * </li>
+ * <li><b>Heated</b> Boolean</li>
+ * <li><b>Hexoses</b> Model parameter info: unit, min and max</li>
+ * <li><b>Indigenous</b> Boolean</li>
+ * <li><b>Init level histamine</b> Model parameter info: unit, min and max</li>
+ * <li><b>Init level histidine</b> Model parameter info: unit, min and max</li>
+ * <li><b>Injured</b> Model parameter info: unit, min and max</li>
+ * <li><b>Irradiated</b> Boolean</li>
+ * <li><b>Irradation</b> Model parameter info: unit, min and max</li>
+ * <li><b>Lactic acid</b> Model parameter info: unit, min and max</li>
+ * <li><b>Lactic bacteria fermented</b> Boolean</li>
+ * <li><b>Lauricidin</b> Model parameter info: unit, min and max</li>
+ * <li><b>Malic acid</b> Model parameter info: unit, min and max</li>
  * </ul>
  *
  * @author Miguel Alba
@@ -289,6 +307,12 @@ public interface FSMRTemplate {
 	 * not set, returns null.
 	 */
 	public Boolean getSoftwareStochasticModeling();
+
+	/**
+	 * Returns the software prediction conditions of this {@link FSMRTemplate}.
+	 * If not set, returns null.
+	 */
+	public String getSoftwarePredictionConditions();
 
 	/**
 	 * Returns the init level unit of this {@link FSMRTemplate}. If not set,
@@ -1303,10 +1327,16 @@ public interface FSMRTemplate {
 	public void setSoftwareAccesibility(String softwareAccesibility);
 
 	/**
-	 * Sets the stochastic modeling ot the software solution of this
+	 * Sets the stochastic modeling of the software solution of this
 	 * {@link FSMRTemplate} with 'stochasticModeling'
 	 */
 	public void setSoftwareStochasticModeling(boolean stochasticModeling);
+
+	/**
+	 * Sets the prediction conditios of the software solution of this
+	 * {@link FSMRTemplate} with 'preditionConditions'.
+	 */
+	public void setSoftwarePredictionConditions(String predictionConditions);
 
 	/**
 	 * Sets the init level unit of this {@link FSMRTemplate} with
@@ -1514,12 +1544,14 @@ public interface FSMRTemplate {
 	public void setAscorbiccAcidUnit(String ascorbiccAcidUnit);
 
 	/**
-	 * Sets the ascorbicc acid min of this {@link FSMRTemplate} with 'ascorbiccAcidMin'.
+	 * Sets the ascorbicc acid min of this {@link FSMRTemplate} with
+	 * 'ascorbiccAcidMin'.
 	 */
 	public void setAscorbiccAcidMin(double ascorbiccAcidMin);
 
 	/**
-	 * Sets the ascorbicc acid max of this {@link FSMRTemplate} with 'ascorbiccAcidMax'.
+	 * Sets the ascorbicc acid max of this {@link FSMRTemplate} with
+	 * 'ascorbiccAcidMax'.
 	 */
 	public void setAscorbiccAcidMax(double ascorbiccAcidMax);
 
@@ -2100,6 +2132,9 @@ public interface FSMRTemplate {
 	/** Sets the software stochastic modeling value to null. */
 	public void unsetSoftwareStochasticModeling();
 
+	/** Sets the software prediction conditions value to null. */
+	public void unsetSoftwarePredictionConditions();
+
 	/** Sets the init level unit value to null. */
 	public void unsetInitLevelUnit();
 
@@ -2676,6 +2711,12 @@ public interface FSMRTemplate {
 	public boolean isSetSoftwareStochasticModeling();
 
 	/**
+	 * Returns true if the prediction conditions of the software solution of
+	 * this {@link FSMRTemplate} is set.
+	 */
+	public boolean isSetSoftwarePredictionConditions();
+
+	/**
 	 * Returns true if the init level unit of this {@link FSMRTemplate} is set.
 	 */
 	public boolean isSetInitLevelUnit();
@@ -2862,17 +2903,20 @@ public interface FSMRTemplate {
 	public boolean isSetApplePolyphenolMax();
 
 	/**
-	 * Returns true if the ascorbicc acid unit of this {@link FSMRTemplate} is set.
+	 * Returns true if the ascorbicc acid unit of this {@link FSMRTemplate} is
+	 * set.
 	 */
 	public boolean isSetAscorbiccAcidUnit();
 
 	/**
-	 * Returns true if the ascorbicc acid min of this {@link FSMRTemplate} is set.
+	 * Returns true if the ascorbicc acid min of this {@link FSMRTemplate} is
+	 * set.
 	 */
 	public boolean isSetAscorbiccAcidMin();
 
 	/**
-	 * Returns true if the ascorbicc acid max of this {@link FSMRTemplate} is set.
+	 * Returns true if the ascorbicc acid max of this {@link FSMRTemplate} is
+	 * set.
 	 */
 	public boolean isSetAscorbiccAcidMax();
 

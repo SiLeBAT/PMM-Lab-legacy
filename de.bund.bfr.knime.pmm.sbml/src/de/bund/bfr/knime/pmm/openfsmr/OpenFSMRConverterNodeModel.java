@@ -6,6 +6,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,6 +22,8 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.sbml.jsbml.AssignmentRule;
+import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -28,12 +31,20 @@ import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.ExperimentalDataFile;
 import de.bund.bfr.pmf.file.PMFMetadataNode;
+import de.bund.bfr.pmf.file.PrimaryModelWDataFile;
+import de.bund.bfr.pmf.file.PrimaryModelWODataFile;
 import de.bund.bfr.pmf.model.ExperimentalData;
+import de.bund.bfr.pmf.model.PrimaryModelWData;
+import de.bund.bfr.pmf.model.PrimaryModelWOData;
 import de.bund.bfr.pmf.numl.ConcentrationOntology;
 import de.bund.bfr.pmf.numl.NuMLDocument;
 import de.bund.bfr.pmf.numl.ResultComponent;
+import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmf.sbml.MetadataAnnotation;
+import de.bund.bfr.pmf.sbml.ModelRule;
 import de.bund.bfr.pmf.sbml.PMFCompartment;
 import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
@@ -148,61 +159,51 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 		// c) Close archive
 		ca.close();
 
-		DataTableSpec tableSpec = new OpenFSMRSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(tableSpec);
-		
+		List<FSMRTemplate> templates = new LinkedList<>();
+
 		switch (modelType) {
 		case EXPERIMENTAL_DATA:
-			List<ExperimentalData> eds = ExperimentalDataFile.read(filepath);
-			// Creates tuples and adds them to the container
-			for (ExperimentalData ed : eds) {
-				KnimeTuple tuple = processData(ed);
-				container.addRowToTable(tuple);
-				
-				float progress = container.size() / eds.size();
-				exec.setProgress(progress);
+			// Obtain an OpenFSMR template per data file
+			for (ExperimentalData ed : ExperimentalDataFile.read(filepath)) {
+				FSMRTemplate template = processData(ed);
+				templates.add(template);
 			}
 			break;
 		case PRIMARY_MODEL_WDATA:
-			// TODO: Case 1a
-			setWarningMessage("OpenFSMR Converter does not support case 1a files");
+			// Obtain an OpenFSMR template per primary model
+			for (PrimaryModelWData pm : PrimaryModelWDataFile.read(filepath)) {
+				SBMLDocument primModelDoc = pm.getModelDoc();
+				FSMRTemplate template = processPrimaryModel(primModelDoc);
+				templates.add(template);
+			}
 			break;
 		case PRIMARY_MODEL_WODATA:
-			// TODO: Case 1b
-			setWarningMessage("OpenFSMR Converter does not support case 1b files");
-			break;
-		case TWO_STEP_SECONDARY_MODEL:
-			// TODO: Case 2a
-			setWarningMessage("OpenFSMR Converteer does not support case 2a files");
-			break;
-		case ONE_STEP_SECONDARY_MODEL:
-			// TODO: Case 2b
-			setWarningMessage("OpenFSMR Converteer does not support case 2b files");
-			break;
-		case MANUAL_SECONDARY_MODEL:
-			// TODO: Case 2c
-			setWarningMessage("OpenFSMR Converteer does not support case 2c files");
-			break;
-		case TWO_STEP_TERTIARY_MODEL:
-			// TODO: Case 3a
-			setWarningMessage("OpenFSMR Converteer does not support case 3a files");
-			break;
-		case ONE_STEP_TERTIARY_MODEL:
-			// TODO: Case 3b
-			setWarningMessage("OpenFSMR Converteer does not support case 3b files");
-			break;
-		case MANUAL_TERTIARY_MODEL:
-			// TODO: Case 3c
-			setWarningMessage("OpenFSMR Converteer does not support case 3c files");
+			// Obtain an OpenFSMR template per primary model
+			for (PrimaryModelWOData pm : PrimaryModelWODataFile.read(filepath)) {
+				SBMLDocument primModelDoc = pm.getDoc();
+				FSMRTemplate template = processPrimaryModel(primModelDoc);
+				templates.add(template);
+			}
 			break;
 		}
-		
+
+		DataTableSpec tableSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(tableSpec);
+		// Adds templates to the container
+		for (FSMRTemplate template : templates) {
+			KnimeTuple tuple = createTupleFromTemplate(template);
+			container.addRowToTable(tuple);
+
+			// Updates progress bar
+			float progress = container.size() / templates.size();
+			exec.setProgress(progress);
+		}
 		container.close();
 		BufferedDataTable[] tables = { container.getTable() };
 		return tables;
 	}
-	
-	private static KnimeTuple processData(ExperimentalData ed) {
+
+	private static FSMRTemplate processData(ExperimentalData ed) {
 		FSMRTemplate template = new FSMRTemplateImpl();
 
 		NuMLDocument doc = ed.getDoc();
@@ -269,310 +270,90 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 		// keep the subject of the model
 		template.setModelSubject(ModelClass.UNKNOWN);
 
-		KnimeTuple tuple = Util.createTupleFromTemplate(template);
-
-		return tuple;
+		return template;
 	}
-}
 
-/**
- * Reader interface
- * 
- * @author Miguel Alba
- */
-//interface Reader {
-//	/**
-//	 * Read models from a CombineArchive and returns a KNIME table with them
-//	 * 
-//	 * @throws Exception
-//	 */
-//	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception;
-//}
+	private static FSMRTemplate processPrimaryModel(SBMLDocument doc) {
 
-// TODO: PrimaryModelWDataReader
-// class PrimaryModelWDataReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-//
-// // Creates container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Reads in models from file
-// List<PrimaryModelWData> models = PrimaryModelWDataFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (PrimaryModelWData model : models) {
-// KnimeTuple tuple = Util.createTuple(model.getSBMLDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-// container.close();
-//
-// return container;
-// }
-// }
+		FSMRTemplate template = new FSMRTemplateImpl();
+		Model model = doc.getModel();
+		
+		template.setModelId(model.getId());
+		
+		if (model.isSetName()) {
+			String modelName = model.getName();
+			template.setModelName(modelName);
+		}
 
-// TODO: PrimaryModelWODataReader
-// class PrimaryModelWODataReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-// // Creates container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Reads in models from file
-// List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (PrimaryModelWOData model : models) {
-// KnimeTuple tuple = Util.createTuple(model.getSBMLDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-// container.close();
-//
-// return container;
-// }
-// }
+		// PMF organism
+		PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+		String speciesName = species.getName();
+		template.setOrganismName(speciesName);
+		if (species.isSetDetail()) {
+			String speciesDetail = species.getDetail();
+			template.setOrganismDetails(speciesDetail);
+		}
 
-// TODO: TwoStepSecondaryModelReader
-// class TwoStepSecondaryModelReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-// // Creates container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Reads in models from file
-// List<TwoStepSecondaryModel> models =
-// TwoStepSecondaryModelFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (TwoStepSecondaryModel tssm : models) {
-// KnimeTuple tuple =
-// Util.createTuple(tssm.getPrimModels().get(0).getSBMLDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-// container.close();
-//
-// return container;
-// }
-// }
+		// PMF environment
+		PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+		String compartmentName = compartment.getName();
+		template.setMatrixName(compartmentName);
+		if (compartment.isSetDetail()) {
+			String matrixDetail = compartment.getDetail();
+			template.setMatrixDetails(matrixDetail);
+		}
 
-// TODO: OneStepSecondaryModelReader
-// class OneStepSecondaryModelReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-//
-// // Creates container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Reads in models from file
-// List<OneStepSecondaryModel> models =
-// OneStepSecondaryModelFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (OneStepSecondaryModel ossm : models) {
-// KnimeTuple tuple = Util.createTuple(ossm.getSBMLDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-// container.close();
-//
-// return container;
-//
-// }
-// }
+		Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
 
-// TODO: TwoStepTertiaryModelReader
-// class TwoStepTertiaryModelReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-// // Creates container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Read in models from file
-// List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (TwoStepTertiaryModel tssm : models) {
-// KnimeTuple tuple = Util.createTuple(tssm.getTertDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-// container.close();
-//
-// return container;
-// }
-// }
+		// Sets creator
+		if (metadata.isSetGivenName()) {
+			String creatorGivenName = metadata.getGivenName();
+			template.setCreator(creatorGivenName);
+		}
 
-// TODO: OneStepTertiaryModelReader
-// class OneStepTertiaryModelReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-// // Creates table spec and container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Read in models from file
-// List<OneStepTertiaryModel> models = OneStepTertiaryModelFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (OneStepTertiaryModel ostm : models) {
-// KnimeTuple tuple = Util.createTuple(ostm.getTertDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-// container.close();
-//
-// return container;
-// }
-// }
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 
-// TODO: ManualTertiaryModelReader
-// class ManualTertiaryModelReader implements Reader {
-//
-// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-//
-// public BufferedDataContainer read(String filepath, ExecutionContext exec)
-// throws Exception {
-// // Creates container
-// BufferedDataContainer container = exec.createDataContainer(spec);
-//
-// // Read in models from file
-// List<ManualTertiaryModel> models = ManualTertiaryModelFile.read(filepath);
-//
-// // Creates tuples and adds them to the container
-// for (ManualTertiaryModel mtm : models) {
-// KnimeTuple tuple = Util.createTuple(mtm.getTertDoc());
-// container.addRowToTable(tuple);
-// exec.setProgress((float) container.size() / models.size());
-// }
-//
-// container.close();
-//
-// return container;
-// }
-// }
+		// Sets created date
+		if (metadata.isSetCreatedDate()) {
+			String createdDateAsString = metadata.getCreatedDate();
+			try {
+				Date createdDate = dateFormat.parse(createdDateAsString);
+				template.setCreatedDate(createdDate);
+			} catch (ParseException e) {
+				System.err.println(createdDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
 
-class Util {
+		// Sets modified date
+		if (metadata.isSetModifiedDate()) {
+			String modifiedDateAsString = metadata.getModifiedDate();
+			try {
+				Date modifiedDate = dateFormat.parse(modifiedDateAsString);
+				template.setModifiedDate(modifiedDate);
+			} catch (ParseException e) {
+				System.err.println(modifiedDateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
 
-	public static KnimeTuple createTuple(SBMLDocument doc) {
-		// Add cells to the row
-		KnimeTuple tuple = new KnimeTuple(new OpenFSMRSchema());
-		//
-		// Metadata metadata = new
-		// MetadataAnnotation(doc.getAnnotation()).getMetadata();
-		// Model model = doc.getModel();
-		// Agent species = new Agent(model.getSpecies(0));
-		// Matrix matrix = new Matrix(model.getCompartment(0));
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, model.getId());
-		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, model.getName());
-		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, "");
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME,
-		// species.getSpecies().getName());
-		// tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL,
-		// species.getDetail());
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME,
-		// matrix.getCompartment().getName());
-		// tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL,
-		// matrix.getDetails());
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_CREATOR, metadata.getGivenName());
-		//
-		// Model1Annotation m1Annot = new
-		// Model1Annotation(model.getAnnotation());
-		// String refDesc = null;
-		// String refDescLink = null;
-		//
-		// if (!m1Annot.getLits().isEmpty()) {
-		// LiteratureItem lit = m1Annot.getLits().get(0);
-		// refDesc = lit.getAuthor() + " " + lit.getTitle();
-		// refDescLink = lit.getWebsite();
-		// }
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION, refDesc);
-		// tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION_LINK,
-		// refDescLink);
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_CREATED_DATE,
-		// metadata.getCreatedDate());
-		// tuple.setValue(OpenFSMRSchema.ATT_MODIFIED,
-		// metadata.getModifiedDate());
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_RIGHTS, "");
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_NOTES, "");
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_CURATION_STATUS, "");
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, metadata.getType());
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, new
-		// Model1Rule((AssignmentRule) model.getRule(0)).getSubject());
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_FOOD_PROCESS, "");
-		//
-		// String depUnitID = species.getSpecies().getUnits();
-		// String depUnitName = model.getUnitDefinition(depUnitID).getName();
-		// String depUnitCategory;
-		//
-		// Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
-		//
-		// if (depUnitID.equals("dimensionless")) {
-		// depUnitCategory = "Dimensionless quantity";
-		// } else {
-		// depUnitCategory =
-		// dbUnits.get(depUnitName).getKind_of_property_quantity();
-		// }
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE,
-		// depUnitCategory);
-		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_UNIT,
-		// depUnitName);
-		//
-		// Map<String, Limits> limits =
-		// ReaderUtils.parseConstraints(model.getListOfConstraints());
-		// String max = "";
-		// String min = "";
-		// if (limits.containsKey(depUnitID)) {
-		// Limits depLimits = limits.get(depUnitID);
-		// max = depLimits.getMax().toString();
-		// min = depLimits.getMin().toString();
-		// }
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MAX, max);
-		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MIN, min);
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE,
-		// Categories.getTimeCategory().getName());
-		//
-		// tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE, "");
-		// tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE_LINK, "");
-		// tuple.setValue(OpenFSMRSchema.ATT_ACCESIBILITY, "");
-		// tuple.setValue(OpenFSMRSchema.ATT_STOCHASTIC_MODELING, 0);
-		// tuple.setValue(OpenFSMRSchema.ATT_PREDICTION_CONDITIONS, "");
+		// Sets model rights
+		if (metadata.isSetRights()) {
+			String rights = metadata.getRights();
+			template.setRights(rights);
+		}
 
-		return tuple;
+		// Sets model type
+		if (metadata.isSetType()) {
+			template.setModelType(metadata.getType());
+		}
+
+		// Sets model subject
+		ModelRule modelRule = new ModelRule((AssignmentRule) model.getRule(0));
+		ModelClass modelSubject = modelRule.getModelClass();
+		template.setModelSubject(modelSubject);
+
+		return template;
 	}
 
 	public static KnimeTuple createTupleFromTemplate(FSMRTemplate template) {
@@ -1420,4 +1201,307 @@ class Util {
 
 		return tuple;
 	}
+}
+
+/**
+ * Reader interface
+ * 
+ * @author Miguel Alba
+ */
+// interface Reader {
+// /**
+// * Read models from a CombineArchive and returns a KNIME table with them
+// *
+// * @throws Exception
+// */
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception;
+// }
+
+// TODO: PrimaryModelWDataReader
+// class PrimaryModelWDataReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+//
+// // Creates container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Reads in models from file
+// List<PrimaryModelWData> models = PrimaryModelWDataFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (PrimaryModelWData model : models) {
+// KnimeTuple tuple = Util.createTuple(model.getSBMLDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+// container.close();
+//
+// return container;
+// }
+// }
+
+// TODO: PrimaryModelWODataReader
+// class PrimaryModelWODataReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+// // Creates container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Reads in models from file
+// List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (PrimaryModelWOData model : models) {
+// KnimeTuple tuple = Util.createTuple(model.getSBMLDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+// container.close();
+//
+// return container;
+// }
+// }
+
+// TODO: TwoStepSecondaryModelReader
+// class TwoStepSecondaryModelReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+// // Creates container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Reads in models from file
+// List<TwoStepSecondaryModel> models =
+// TwoStepSecondaryModelFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (TwoStepSecondaryModel tssm : models) {
+// KnimeTuple tuple =
+// Util.createTuple(tssm.getPrimModels().get(0).getSBMLDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+// container.close();
+//
+// return container;
+// }
+// }
+
+// TODO: OneStepSecondaryModelReader
+// class OneStepSecondaryModelReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+//
+// // Creates container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Reads in models from file
+// List<OneStepSecondaryModel> models =
+// OneStepSecondaryModelFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (OneStepSecondaryModel ossm : models) {
+// KnimeTuple tuple = Util.createTuple(ossm.getSBMLDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+// container.close();
+//
+// return container;
+//
+// }
+// }
+
+// TODO: TwoStepTertiaryModelReader
+// class TwoStepTertiaryModelReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+// // Creates container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Read in models from file
+// List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (TwoStepTertiaryModel tssm : models) {
+// KnimeTuple tuple = Util.createTuple(tssm.getTertDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+// container.close();
+//
+// return container;
+// }
+// }
+
+// TODO: OneStepTertiaryModelReader
+// class OneStepTertiaryModelReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+// // Creates table spec and container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Read in models from file
+// List<OneStepTertiaryModel> models = OneStepTertiaryModelFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (OneStepTertiaryModel ostm : models) {
+// KnimeTuple tuple = Util.createTuple(ostm.getTertDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+// container.close();
+//
+// return container;
+// }
+// }
+
+// TODO: ManualTertiaryModelReader
+// class ManualTertiaryModelReader implements Reader {
+//
+// private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
+//
+// public BufferedDataContainer read(String filepath, ExecutionContext exec)
+// throws Exception {
+// // Creates container
+// BufferedDataContainer container = exec.createDataContainer(spec);
+//
+// // Read in models from file
+// List<ManualTertiaryModel> models = ManualTertiaryModelFile.read(filepath);
+//
+// // Creates tuples and adds them to the container
+// for (ManualTertiaryModel mtm : models) {
+// KnimeTuple tuple = Util.createTuple(mtm.getTertDoc());
+// container.addRowToTable(tuple);
+// exec.setProgress((float) container.size() / models.size());
+// }
+//
+// container.close();
+//
+// return container;
+// }
+// }
+
+class Util {
+
+	public static KnimeTuple createTuple(SBMLDocument doc) {
+		// Add cells to the row
+		KnimeTuple tuple = new KnimeTuple(new OpenFSMRSchema());
+		//
+		// Metadata metadata = new
+		// MetadataAnnotation(doc.getAnnotation()).getMetadata();
+		// Model model = doc.getModel();
+		// Agent species = new Agent(model.getSpecies(0));
+		// Matrix matrix = new Matrix(model.getCompartment(0));
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, model.getId());
+		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, model.getName());
+		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, "");
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME,
+		// species.getSpecies().getName());
+		// tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL,
+		// species.getDetail());
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME,
+		// matrix.getCompartment().getName());
+		// tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL,
+		// matrix.getDetails());
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_CREATOR, metadata.getGivenName());
+		//
+		// Model1Annotation m1Annot = new
+		// Model1Annotation(model.getAnnotation());
+		// String refDesc = null;
+		// String refDescLink = null;
+		//
+		// if (!m1Annot.getLits().isEmpty()) {
+		// LiteratureItem lit = m1Annot.getLits().get(0);
+		// refDesc = lit.getAuthor() + " " + lit.getTitle();
+		// refDescLink = lit.getWebsite();
+		// }
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION, refDesc);
+		// tuple.setValue(OpenFSMRSchema.ATT_REFERENCE_DESCRIPTION_LINK,
+		// refDescLink);
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_CREATED_DATE,
+		// metadata.getCreatedDate());
+		// tuple.setValue(OpenFSMRSchema.ATT_MODIFIED,
+		// metadata.getModifiedDate());
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_RIGHTS, "");
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_NOTES, "");
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_CURATION_STATUS, "");
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, metadata.getType());
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, new
+		// Model1Rule((AssignmentRule) model.getRule(0)).getSubject());
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_FOOD_PROCESS, "");
+		//
+		// String depUnitID = species.getSpecies().getUnits();
+		// String depUnitName = model.getUnitDefinition(depUnitID).getName();
+		// String depUnitCategory;
+		//
+		// Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
+		//
+		// if (depUnitID.equals("dimensionless")) {
+		// depUnitCategory = "Dimensionless quantity";
+		// } else {
+		// depUnitCategory =
+		// dbUnits.get(depUnitName).getKind_of_property_quantity();
+		// }
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE,
+		// depUnitCategory);
+		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_UNIT,
+		// depUnitName);
+		//
+		// Map<String, Limits> limits =
+		// ReaderUtils.parseConstraints(model.getListOfConstraints());
+		// String max = "";
+		// String min = "";
+		// if (limits.containsKey(depUnitID)) {
+		// Limits depLimits = limits.get(depUnitID);
+		// max = depLimits.getMax().toString();
+		// min = depLimits.getMin().toString();
+		// }
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MAX, max);
+		// tuple.setValue(OpenFSMRSchema.ATT_DEPENDENT_VARIABLE_MIN, min);
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE,
+		// Categories.getTimeCategory().getName());
+		//
+		// tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE, "");
+		// tuple.setValue(OpenFSMRSchema.ATT_SOFTWARE_LINK, "");
+		// tuple.setValue(OpenFSMRSchema.ATT_ACCESIBILITY, "");
+		// tuple.setValue(OpenFSMRSchema.ATT_STOCHASTIC_MODELING, 0);
+		// tuple.setValue(OpenFSMRSchema.ATT_PREDICTION_CONDITIONS, "");
+
+		return tuple;
+	}
+
 }

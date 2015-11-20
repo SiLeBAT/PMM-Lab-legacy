@@ -325,9 +325,6 @@ public class OpenFSMRSchema extends KnimeSchema {
 		addStringAttribute(ATT_DESIRED_REDUCTION_UNIT);
 		addDoubleAttribute(ATT_DESIRED_REDUCTION_MIN);
 		addDoubleAttribute(ATT_DESIRED_REDUCTION_MAX);
-		addStringAttribute(ATT_DESIRED_REDUCTION_UNIT);
-		addDoubleAttribute(ATT_DESIRED_REDUCTION_MIN);
-		addDoubleAttribute(ATT_DESIRED_REDUCTION_MAX);
 		addStringAttribute(ATT_DIACETIC_ACID_UNIT);
 		addDoubleAttribute(ATT_DIACETIC_ACID_MIN);
 		addDoubleAttribute(ATT_DIACETIC_ACID_MAX);

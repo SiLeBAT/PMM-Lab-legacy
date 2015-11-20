@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.jdom2.Element;
 import org.knime.core.data.DataTableSpec;
@@ -26,6 +27,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.ExperimentalDataFile;
+import de.bund.bfr.pmf.file.PMFMetadataNode;
 import de.bund.bfr.pmf.model.ExperimentalData;
 import de.bund.bfr.pmf.numl.ConcentrationOntology;
 import de.bund.bfr.pmf.numl.NuMLDocument;
@@ -49,8 +51,6 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 
 	// persistent state
 	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
-
-	Reader reader; // current reader
 
 	/**
 	 * Constructor for the node model.
@@ -142,15 +142,26 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 		// b) Get annotation
 		MetaDataObject mdo = ca.getDescriptions().get(0);
 		Element metaParent = mdo.getXmlDescription();
-		Element metaElement = metaParent.getChild("modeltype");
-		ModelType modelType = ModelType.valueOf(metaElement.getText());
+		PMFMetadataNode pmfMetadataNode = new PMFMetadataNode(metaParent);
+		ModelType modelType = pmfMetadataNode.getModelType();
 
 		// c) Close archive
 		ca.close();
 
+		DataTableSpec tableSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer container = exec.createDataContainer(tableSpec);
+		
 		switch (modelType) {
 		case EXPERIMENTAL_DATA:
-			reader = new ExperimentalDataReader();
+			List<ExperimentalData> eds = ExperimentalDataFile.read(filepath);
+			// Creates tuples and adds them to the container
+			for (ExperimentalData ed : eds) {
+				KnimeTuple tuple = processData(ed);
+				container.addRowToTable(tuple);
+				
+				float progress = container.size() / eds.size();
+				exec.setProgress(progress);
+			}
 			break;
 		case PRIMARY_MODEL_WDATA:
 			// TODO: Case 1a
@@ -185,51 +196,12 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			setWarningMessage("OpenFSMR Converteer does not support case 3c files");
 			break;
 		}
-
-		BufferedDataContainer container = reader.read(filepath, exec);
+		
+		container.close();
 		BufferedDataTable[] tables = { container.getTable() };
 		return tables;
 	}
-}
-
-/**
- * Reader interface
- * 
- * @author Miguel Alba
- */
-interface Reader {
-	/**
-	 * Read models from a CombineArchive and returns a KNIME table with them
-	 * 
-	 * @throws Exception
-	 */
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception;
-}
-
-class ExperimentalDataReader implements Reader {
-
-	private static DataTableSpec spec = new OpenFSMRSchema().createSpec();
-
-	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception {
-
-		// Creates container
-		BufferedDataContainer container = exec.createDataContainer(spec);
-
-		// Reads in models from file
-		List<ExperimentalData> eds = ExperimentalDataFile.read(filepath);
-
-		// Creates tuples and adds them to the container
-		for (ExperimentalData ed : eds) {
-			KnimeTuple tuple = processData(ed);
-			container.addRowToTable(tuple);
-			exec.setProgress((float) container.size() / eds.size());
-		}
-
-		container.close();
-
-		return container;
-	}
-
+	
 	private static KnimeTuple processData(ExperimentalData ed) {
 		FSMRTemplate template = new FSMRTemplateImpl();
 
@@ -259,11 +231,10 @@ class ExperimentalDataReader implements Reader {
 			template.setCreator(creatorGivenName);
 		}
 
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 		// Sets created date
 		if (rc.isSetCreatedDate()) {
 			String createdDateAsString = rc.getCreatedDate();
-
-			SimpleDateFormat dateFormat = new SimpleDateFormat("c");
 			try {
 				Date createdDate = dateFormat.parse(createdDateAsString);
 				template.setCreatedDate(createdDate);
@@ -276,8 +247,6 @@ class ExperimentalDataReader implements Reader {
 		// Sets modified date
 		if (rc.isSetModifiedDate()) {
 			String modifiedDateAsString = rc.getModifiedDate();
-
-			SimpleDateFormat dateFormat = new SimpleDateFormat("c");
 			try {
 				Date modifiedDate = dateFormat.parse(modifiedDateAsString);
 				template.setModifiedDate(modifiedDate);
@@ -305,6 +274,20 @@ class ExperimentalDataReader implements Reader {
 		return tuple;
 	}
 }
+
+/**
+ * Reader interface
+ * 
+ * @author Miguel Alba
+ */
+//interface Reader {
+//	/**
+//	 * Read models from a CombineArchive and returns a KNIME table with them
+//	 * 
+//	 * @throws Exception
+//	 */
+//	public BufferedDataContainer read(String filepath, ExecutionContext exec) throws Exception;
+//}
 
 // TODO: PrimaryModelWDataReader
 // class PrimaryModelWDataReader implements Reader {

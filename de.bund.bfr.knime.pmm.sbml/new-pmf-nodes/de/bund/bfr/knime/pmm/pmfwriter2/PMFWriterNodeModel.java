@@ -1408,7 +1408,7 @@ class ManualTertiaryModelParser implements Parser {
 			SBMLDocument secDoc = m2Parser.sbmlDocument;
 
 			String emdId = secDoc.getModel().getId();
-			String secDocName = String.format("%s_%s.smbl", mdName, emdId);
+			String secDocName = String.format("%s_%s.sbml", mdName, emdId);
 
 			secDocNames.add(secDocName);
 			secDocs.add(secDoc);

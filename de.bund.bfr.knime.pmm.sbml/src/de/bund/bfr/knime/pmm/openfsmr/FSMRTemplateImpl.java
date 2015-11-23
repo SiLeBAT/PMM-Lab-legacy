@@ -48,6 +48,10 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	private String matrixDetails = null;
 
 	private String creator = null;
+	
+	private String familyName = null;
+	
+	private String contact = null;
 
 	private String referenceDescription = null;
 
@@ -77,7 +81,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	private Double dependentVariableMax = null;
 
-	private String independentVariable = null;
+	private String[] independentVariables = null;
 
 	/** {@inheritDoc} */
 	public String getModelName() {
@@ -117,6 +121,16 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public String getCreator() {
 		return creator;
+	}
+	
+	/** {@inheritDoc} */
+	public String getFamilyName() {
+		return familyName;
+	}
+	
+	/** {@inheritDoc} */
+	public String getContact() {
+		return contact;
 	}
 
 	/** {@inheritDoc} */
@@ -190,8 +204,8 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public String getIndependentVariable() {
-		return independentVariable;
+	public String[] getIndependentVariables() {
+		return independentVariables;
 	}
 
 	/** {@inheritDoc} */
@@ -232,6 +246,15 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public void setCreator(String creator) {
 		this.creator = creator;
+	}
+
+	/** {@inheritDoc} */
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
+	}
+	/** {@inheritDoc} */
+	public void setContact(String contact) {
+		this.contact = contact;
 	}
 
 	/** {@inheritDoc} */
@@ -305,8 +328,8 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public void setIndependentVariable(String independentVariable) {
-		this.independentVariable = independentVariable;
+	public void setIndependentVariables(String[] independentVariables) {
+		this.independentVariables = independentVariables;
 	}
 
 	/** {@inheritDoc} */
@@ -347,6 +370,16 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public void unsetCreator() {
 		creator = null;
+	}
+
+	/** {@inheritDoc} */
+	public void unsetFamilyName() {
+		familyName = null;
+	}
+
+	/** {@inheritDoc} */
+	public void unsetContact() {
+		contact = null;
 	}
 
 	/** {@inheritDoc} */
@@ -415,8 +448,8 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public void unsetIndependentVariable() {
-		independentVariable = null;
+	public void unsetIndependentVariables() {
+		independentVariables = null;
 	}
 
 	/** {@inheritDoc} */
@@ -457,6 +490,16 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public boolean isSetCreator() {
 		return creator != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetFamilyName() {
+		return familyName != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetContact() {
+		return contact != null;
 	}
 
 	/** {@inheritDoc} */
@@ -530,7 +573,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
-	public boolean isSetIndependentVariable() {
-		return independentVariable != null;
+	public boolean isSetIndependentVariables() {
+		return independentVariables != null;
 	}
 }

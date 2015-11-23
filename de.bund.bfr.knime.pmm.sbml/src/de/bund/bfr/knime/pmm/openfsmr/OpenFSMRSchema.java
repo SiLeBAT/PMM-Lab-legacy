@@ -36,6 +36,8 @@ public class OpenFSMRSchema extends KnimeSchema {
 	public static final String ATT_ENVIRONMENT_NAME = "PMF-Environment";
 	public static final String ATT_ENVIRONMENT_DETAIL = "PMF-EnvironmentDetails";
 	public static final String ATT_MODEL_CREATOR = "Model-Creator";
+	public static final String ATT_MODEL_FAMILY_NAME = "Model-FamilyName";
+	public static final String ATT_MODEL_CONTACT = "Model-Contact";
 	public static final String ATT_MODEL_REFERENCE_DESCRIPTION = "Model-ReferenceDescription";
 	public static final String ATT_MODEL_REFERENCE_DESCRIPTION_LINK = "Model-ReferenceDescriptionLink";
 	public static final String ATT_MODEL_CREATED_DATE = "Model-Created";
@@ -61,6 +63,8 @@ public class OpenFSMRSchema extends KnimeSchema {
 		addStringAttribute(ATT_ENVIRONMENT_NAME);
 		addStringAttribute(ATT_ENVIRONMENT_DETAIL);
 		addStringAttribute(ATT_MODEL_CREATOR);
+		addStringAttribute(ATT_MODEL_FAMILY_NAME);
+		addStringAttribute(ATT_MODEL_CONTACT);
 		addStringAttribute(ATT_MODEL_REFERENCE_DESCRIPTION);
 		addStringAttribute(ATT_MODEL_REFERENCE_DESCRIPTION_LINK);
 		addStringAttribute(ATT_MODEL_CREATED_DATE);

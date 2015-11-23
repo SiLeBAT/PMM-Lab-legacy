@@ -40,6 +40,8 @@ import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 
+import com.google.common.base.Joiner;
+
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -1682,43 +1684,23 @@ class FSMRUtils {
 			}
 		}
 
+		List<String> independentVariableCategories = new LinkedList<>();
 		for (Parameter parameter : model.getListOfParameters()) {
-			if (!parameter.isConstant() && parameter.isSetUnits()) {
-				String unitID = parameter.getUnits();
+			String unitID = parameter.getUnits();
 
-				// Sets independent variable unit
-				String unitName = model.getUnitDefinition(unitID).getName();
-				template.setIndependentVariable(unitName);
+			// Sets independent variable unit
+			String unitName = model.getUnitDefinition(unitID).getName();
 
-				// Sets independent variable
-				if (!unitID.equals("dimensionless")) {
-					String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-					template.setIndependentVariable(unitCategory);
+			if (!unitID.equals("dimensionless")) {
+				String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+				if (!independentVariableCategories.contains(unitCategory)) {
+					independentVariableCategories.add(unitCategory);
 				}
-
-				// Sets dependent variable min & max
-				for (Constraint constraint : model.getListOfConstraints()) {
-					LimitsConstraint lc = new LimitsConstraint(constraint);
-					Limits lcLimits = lc.getLimits();
-					if (lcLimits.getVar().equals(unitID)) {
-						Double min = lcLimits.getMin();
-						if (min != null) {
-							template.setDependentVariableMin(min);
-						}
-						Double max = lcLimits.getMax();
-						if (max != null) {
-							template.setDependentVariableMax(max);
-						}
-
-						break;
-					}
-				}
-
-				// TODO: So far it's keeping only the first independent var it
-				// found, it should be able to keep the rest as well
-				break;
 			}
 		}
+		String[] independentVariableArray = independentVariableCategories
+				.toArray(new String[independentVariableCategories.size()]);
+		template.setIndependentVariables(independentVariableArray);
 
 		return template;
 	}
@@ -1954,9 +1936,10 @@ class FSMRUtils {
 			tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX, dependentVariableMax);
 		}
 
-		if (template.isSetIndependentVariable()) {
-			String independentVariable = template.getIndependentVariable();
-			tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, independentVariable);
+		if (template.isSetIndependentVariables()) {
+			// Join independent variables with commas. E.g. "time,temperature"
+			String formattedIndepentVariables = Joiner.on(",").join(template.getIndependentVariables());
+			tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, formattedIndepentVariables);
 		}
 
 		return tuple;

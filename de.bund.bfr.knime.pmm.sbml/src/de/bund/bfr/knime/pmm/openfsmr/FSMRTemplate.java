@@ -118,6 +118,18 @@ public interface FSMRTemplate {
 	public String getCreator();
 
 	/**
+	 * Returns the family name of this {@link FSMRTemplate}. If not set, returns
+	 * null.
+	 */
+	public String getFamilyName();
+
+	/**
+	 * Returns the contact of this {@link FSMRTemplate}. If not set, returns
+	 * null.
+	 */
+	public String getContact();
+
+	/**
 	 * Returns the reference description of this {@link FSMRTemplate}. If not
 	 * set, returns null.
 	 */
@@ -201,10 +213,10 @@ public interface FSMRTemplate {
 	public Double getDependentVariableMax();
 
 	/**
-	 * Returns the independent variable of this {@link FSMRTemplate}. If not
+	 * Returns the independent variables of this {@link FSMRTemplate}. If not
 	 * set, returns null.
 	 */
-	public String getIndependentVariable();
+	public String[] getIndependentVariables();
 
 	/**
 	 * Sets the model name of this {@link FSMRTemplate} with 'modelName'. If not
@@ -240,6 +252,12 @@ public interface FSMRTemplate {
 
 	/** Sets the creator of this {@link FSMRTemplate} with 'creator'. */
 	public void setCreator(String creator);
+
+	/** Sets the family name of this {@link FSMRTemplate} with 'familyName'. */
+	public void setFamilyName(String familyName);
+
+	/** Sets the contact of this {@link FSMRTemplate} with 'contact'. */
+	public void setContact(String contact);
 
 	/**
 	 * Sets the reference description of this {@link FSMRTemplate} with
@@ -311,10 +329,10 @@ public interface FSMRTemplate {
 	public void setDependentVariableMax(double dependentVariableMax);
 
 	/**
-	 * Sets the independent variable of this {@link FSMRTemplate} with
+	 * Sets the independent variables of this {@link FSMRTemplate} with
 	 * 'independentVariable'.
 	 */
-	public void setIndependentVariable(String independentVariable);
+	public void setIndependentVariables(String[] independentVariable);
 
 	/** Sets the model name value to null. */
 	public void unsetModelName();
@@ -339,6 +357,12 @@ public interface FSMRTemplate {
 
 	/** Sets the creator value to null. */
 	public void unsetCreator();
+
+	/** Sets the family name value to null. */
+	public void unsetFamilyName();
+
+	/** Sets the contact value to null. */
+	public void unsetContact();
 
 	/** Sets the reference description value to null. */
 	public void unsetReferenceDescription();
@@ -379,8 +403,8 @@ public interface FSMRTemplate {
 	/** Sets the dependent variable max value to null. */
 	public void unsetDependentVariableMax();
 
-	/** Sets the independent variable value to null. */
-	public void unsetIndependentVariable();
+	/** Sets the independent variables value to null. */
+	public void unsetIndependentVariables();
 
 	/** Returns true if the model name of this {@link FSMRTemplate} is set. */
 	public boolean isSetModelName();
@@ -412,6 +436,12 @@ public interface FSMRTemplate {
 
 	/** Returns true if the creator of this {@link FSMRTemplate} is set. */
 	public boolean isSetCreator();
+
+	/** Returns true if the family name of this {@link FSMRTemplate} is set. */
+	public boolean isSetFamilyName();
+
+	/** Returns true if the family name of this {@link FSMRTemplate} is set. */
+	public boolean isSetContact();
 
 	/**
 	 * Returns true if the reference description of this {@link FSMRTemplate} is
@@ -481,8 +511,8 @@ public interface FSMRTemplate {
 	public boolean isSetDependentVariableMax();
 
 	/**
-	 * Returns true if the independent variable of this {@link FSMRTemplate} is
+	 * Returns true if the independent variables of this {@link FSMRTemplate} is
 	 * set.
 	 */
-	public boolean isSetIndependentVariable();
+	public boolean isSetIndependentVariables();
 }

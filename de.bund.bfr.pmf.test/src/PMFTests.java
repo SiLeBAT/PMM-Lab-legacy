@@ -32,13 +32,19 @@ import de.bund.bfr.pmf.numl.TimeOntologyTest;
 import de.bund.bfr.pmf.numl.TupleDescriptionTest;
 import de.bund.bfr.pmf.numl.TupleTest;
 import de.bund.bfr.pmf.numl.UnitDefinitionNuMLNodeTest;
+import de.bund.bfr.pmf.sbml.CondIdNodeTest;
 import de.bund.bfr.pmf.sbml.CorrelationTest;
+import de.bund.bfr.pmf.sbml.DataSourceNodeTest;
+import de.bund.bfr.pmf.sbml.GlobalModelIdNodeTest;
 import de.bund.bfr.pmf.sbml.LimitsTest;
-import de.bund.bfr.pmf.sbml.MetadataTest;
+import de.bund.bfr.pmf.sbml.MetadataImplTest;
 import de.bund.bfr.pmf.sbml.ModelVariableTest;
+import de.bund.bfr.pmf.sbml.PMFCoefficientImplTest;
 import de.bund.bfr.pmf.sbml.PMFUnitTest;
+import de.bund.bfr.pmf.sbml.PrimaryModelNodeTest;
+import de.bund.bfr.pmf.sbml.ReferenceImplTest;
 import de.bund.bfr.pmf.sbml.ReferenceTypeTest;
-import de.bund.bfr.pmf.sbml.UncertaintiesTest;
+import de.bund.bfr.pmf.sbml.UncertaintiesImplTest;
 
 /**
  * @author Miguel Alba
@@ -55,13 +61,19 @@ import de.bund.bfr.pmf.sbml.UncertaintiesTest;
 	TupleTest.class,
 	UnitDefinitionNuMLNodeTest.class,
 	// de.bund.bfr.pmf.sbml
+	CondIdNodeTest.class,
 	CorrelationTest.class,
+	DataSourceNodeTest.class,
+	GlobalModelIdNodeTest.class,
 	LimitsTest.class,
-	MetadataTest.class,
+	MetadataImplTest.class,
 	ModelVariableTest.class,
+	ReferenceImplTest.class,
 	ReferenceTypeTest.class,
+	PMFCoefficientImplTest.class,
 	PMFUnitTest.class,
-	UncertaintiesTest.class,
+	PrimaryModelNodeTest.class,
+	UncertaintiesImplTest.class,
 	// de.bund.bfr.pmf
 	ModelClassTest.class
 })

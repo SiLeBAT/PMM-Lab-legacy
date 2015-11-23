@@ -19,39 +19,21 @@
  *******************************************************************************/
 package de.bund.bfr.pmf.sbml;
 
-import org.sbml.jsbml.xml.XMLAttributes;
-import org.sbml.jsbml.xml.XMLNode;
-import org.sbml.jsbml.xml.XMLTriple;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 /**
  * @author Miguel Alba
+ *
  */
-public class DataSourceNode {
+public class DataSourceNodeTest {
+	
+	private String dataFile = "data.numl";
 
-	public static final String TAG = "dataSource";
-	public static final String NS = "pmmlab";
-
-	XMLNode node;
-
-	public DataSourceNode(final XMLNode node) {
-		this.node = node;
+	@Test
+	public void test() {
+		assertEquals(dataFile, new DataSourceNode(new DataSourceNode(dataFile).getNode()).getFile());
 	}
 
-	public DataSourceNode(final String dataName) {
-		XMLTriple triple = new XMLTriple(TAG, null, NS);
-
-		XMLAttributes attrs = new XMLAttributes();
-		attrs.add("id", "source1");
-		attrs.add("href", dataName);
-
-		node = new XMLNode(triple, attrs);
-	}
-
-	public String getFile() {
-		return node.getAttrValue("href");
-	}
-
-	public XMLNode getNode() {
-		return node;
-	}
 }

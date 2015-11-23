@@ -71,28 +71,52 @@ public interface Metadata {
 	 */
 	public String getReferenceLink();
 
-	/** Sets the given name value with 'givenName'. */
+	/**
+	 * Sets the given name value with 'givenName'. If 'givenName' is null or
+	 * empty it will do nothing.
+	 */
 	public void setGivenName(String givenName);
 
-	/** Sets the family name value with 'familyName'. */
+	/**
+	 * Sets the family name value with 'familyName'. If 'familyName' is null or
+	 * empty it will do nothing
+	 */
 	public void setFamilyName(String familyName);
 
-	/** Sets the contact value with 'contact'. */
+	/**
+	 * Sets the contact value with 'contact'. If 'contact' is null or empty it
+	 * will do nothing.
+	 */
 	public void setContact(String contact);
 
-	/** Sets the created date value with 'createdDate'. */
+	/**
+	 * Sets the created date value with 'createdDate'. If 'createdDate' is null
+	 * or empty it will do nothing.
+	 */
 	public void setCreatedDate(String createdDate);
 
-	/** Sets the modified date value with 'modifiedDate'. */
+	/**
+	 * Sets the modified date value with 'modifiedDate'. If 'modifiedDate' is
+	 * null or empty it will do nothing.
+	 */
 	public void setModifiedDate(String modifiedDate);
 
-	/** Sets the {@link ModelType} value with 'type'. */
+	/**
+	 * Sets the {@link ModelType} value with 'type'. If 'modelType' is null it
+	 * will do nothing.
+	 */
 	public void setType(ModelType type);
 
-	/** Sets the rights value with 'rights'. */
+	/**
+	 * Sets the rights value with 'rights'. If 'rights' is null or empty it will
+	 * do nothing.
+	 */
 	public void setRights(String rights);
 
-	/** Sets the reference link value with 'referenceLink'. */
+	/**
+	 * Sets the reference link value with 'referenceLink'. If 'referenceLink' is
+	 * null or empty it will do nothing.
+	 */
 	public void setReferenceLink(String referenceLink);
 
 	/** Returns true if the given name of this {@link Metadata} is set. */

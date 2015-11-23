@@ -28,7 +28,7 @@ import de.bund.bfr.pmf.ModelType;
 /**
  * @author Miguel Alba
  */
-public class MetadataTest {
+public class MetadataImplTest {
 	
 	private MetadataImpl metadata = new MetadataImpl();
 	
@@ -37,6 +37,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetGivenName());
 		assertNull(metadata.getGivenName());
 
+		// setGivenName should ignore null strings
+		metadata.setGivenName(null);
+		assertFalse(metadata.isSetGivenName());
+		assertNull(metadata.getGivenName());
+		
+		// setGivenName should ignore empty strings
+		metadata.setGivenName("");
+		assertFalse(metadata.isSetGivenName());
+		assertNull(metadata.getGivenName());
+		
+		// setGivenName should accept non-empty strings
 		metadata.setGivenName("doe");
 		assertTrue(metadata.isSetGivenName());
 		assertEquals("doe", metadata.getGivenName());
@@ -46,6 +57,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetFamilyName());
 		assertNull(metadata.getFamilyName());
 		
+		// setFamilyName should ignore null strings
+		metadata.setFamilyName(null);
+		assertFalse(metadata.isSetFamilyName());
+		assertNull(metadata.getFamilyName());
+		
+		// setFamilyName should ignore empty strings
+		metadata.setFamilyName("");
+		assertFalse(metadata.isSetContact());
+		assertNull(metadata.getContact());
+		
+		// setFamilyName should accept non-empty strings
 		metadata.setFamilyName("doe");
 		assertTrue(metadata.isSetFamilyName());
 		assertEquals("doe", metadata.getFamilyName());
@@ -56,6 +78,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetContact());
 		assertNull(metadata.getContact());
 		
+		// setContact should ignore null strings
+		metadata.setContact(null);
+		assertFalse(metadata.isSetContact());
+		assertNull(metadata.getContact());
+		
+		// setContact should accept non-empty strings
+		metadata.setContact("");
+		assertFalse(metadata.isSetContact());
+		assertNull(metadata.getContact());
+		
+		// setContact should accept non-empty strings
 		metadata.setContact("doe");
 		assertTrue(metadata.isSetContact());
 		assertEquals("doe", metadata.getContact());
@@ -66,6 +99,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetCreatedDate());
 		assertNull(metadata.getCreatedDate());
 		
+		// setCreatedDate should ignore null strings
+		metadata.setCreatedDate(null);
+		assertFalse(metadata.isSetCreatedDate());
+		assertNull(metadata.getCreatedDate());
+		
+		// setCreatedDate should ignore empty strings
+		metadata.setCreatedDate("");
+		assertFalse(metadata.isSetCreatedDate());
+		assertNull(metadata.getCreatedDate());
+		
+		// setCreatedDate should accept non-empty strings
 		metadata.setCreatedDate("Wed Sep 02 02:00:00 CEST 2015");
 		assertTrue(metadata.isSetCreatedDate());
 		assertEquals("Wed Sep 02 02:00:00 CEST 2015", metadata.getCreatedDate());
@@ -76,6 +120,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetModifiedDate());
 		assertNull(metadata.getModifiedDate());
 		
+		// setModifiedDate should ignore null strings
+		metadata.setModifiedDate(null);
+		assertFalse(metadata.isSetModifiedDate());
+		assertNull(metadata.getModifiedDate());
+		
+		// setModifiedDate should ignore empty strings
+		metadata.setModifiedDate("");
+		assertFalse(metadata.isSetModifiedDate());
+		assertNull(metadata.getModifiedDate());
+		
+		// setModifiedDate should accept non-empty strings
 		metadata.setModifiedDate("Wed Sep 02 02:00:00 CEST 2015");
 		assertTrue(metadata.isSetModifiedDate());
 		assertEquals("Wed Sep 02 02:00:00 CEST 2015", metadata.getModifiedDate());
@@ -86,6 +141,12 @@ public class MetadataTest {
 		assertFalse(metadata.isSetType());
 		assertNull(metadata.getType());
 		
+		// setType should ignore null values
+		metadata.setType(null);
+		assertFalse(metadata.isSetType());
+		assertNull(metadata.getType());
+		
+		// setType should accept non-null ModelType values
 		metadata.setType(ModelType.EXPERIMENTAL_DATA);
 		assertTrue(metadata.isSetType());
 		assertEquals(ModelType.EXPERIMENTAL_DATA, metadata.getType());
@@ -96,6 +157,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetRights());
 		assertNull(metadata.getRights());
 		
+		// setRights should ignore null strings
+		metadata.setRights(null);
+		assertFalse(metadata.isSetRights());
+		assertNull(metadata.getRights());
+		
+		// setRights should ignore empty strings
+		metadata.setRights("");
+		assertFalse(metadata.isSetRights());
+		assertNull(metadata.getRights());
+
+		// setRights should accept non-empty strings
 		metadata.setRights("CC");
 		assertTrue(metadata.isSetRights());
 		assertEquals("CC", metadata.getRights());
@@ -106,6 +178,17 @@ public class MetadataTest {
 		assertFalse(metadata.isSetReferenceLink());
 		assertNull(metadata.getReferenceLink());
 		
+		// setReferenceLink should ignore null strings
+		metadata.setReferenceLink(null);
+		assertFalse(metadata.isSetReferenceLink());
+		assertNull(metadata.getReferenceLink());
+		
+		// setReferenceLink should ignore empty strings
+		metadata.setReferenceLink("");
+		assertFalse(metadata.isSetReferenceLink());
+		assertNull(metadata.getReferenceLink());
+		
+		// setReferenceLink should accept non-empty strings
 		metadata.setReferenceLink("www.bfr.bund.de");
 		assertTrue(metadata.isSetReferenceLink());
 		assertEquals("www.bfr.bund.de", metadata.getReferenceLink());

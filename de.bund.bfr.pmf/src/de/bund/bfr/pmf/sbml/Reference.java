@@ -20,82 +20,95 @@
 package de.bund.bfr.pmf.sbml;
 
 /**
- * Interface for reference items.
+ * Interface for reference items. Holds:
+ * <ul>
+ * <li>Author</li>
+ * <li>Year</li>
+ * <li>Title</li>
+ * <li>Abstract text</li>
+ * <li>Journal</li>
+ * <li>Volume</li>
+ * <li>Issue</li>
+ * <li>Page</li>
+ * <li>Approval mode</li>
+ * <li>Website</li>
+ * <li>Type</li>
+ * <li>Comment</li>
  *
  * @author Miguel Alba
  */
 public interface Reference {
 
-	/** Returns the author of this {@link Reference}. */
+	/** Returns the author of this {@link Reference}. If author is not set returns null. */
 	public String getAuthor();
 	
-	/** Returns the year of this {@link Reference}. */
+	/** Returns the year of this {@link Reference}. If year is not set returns null. */
 	public Integer getYear();
 	
-	/** Returns the title of this {@link Reference}. */
+	/** Returns the title of this {@link Reference}. If title is not returns null. */
 	public String getTitle();
 
-	/** Returns the abstract text of this {@link Reference}. */
+	/** Returns the abstract text of this {@link Reference}. If abstract text is not set returns null. */
 	public String getAbstractText();
 
-	/** Returns the journal of this {@link Reference}. */
+	/** Returns the journal of this {@link Reference}. If journal is not set returns null. */
 	public String getJournal();
 
-	/** Returns the volume of this {@link Reference}. */
+	/** Returns the volume of this {@link Reference}. If volume is not set returns null. */
 	public String getVolume();
 
-	/** Returns the issue of this {@link Reference}. */
+	/** Returns the issue of this {@link Reference}. If issue is not set returns null. */
 	public String getIssue();
 
-	/** Returns the page of this {@link Reference}. */
+	/** Returns the page of this {@link Reference}. If page is not set returns null. */
 	public Integer getPage();
 
-	/** Returns the approval mode of this {@link Reference}. */
+	/** Returns the approval mode of this {@link Reference}. If approval mode is not set returns null. */
 	public Integer getApprovalMode();
 
-	/** Returns the website of this {@link Reference}. */
+	/** Returns the website of this {@link Reference}. If website is not set returns null. */
 	public String getWebsite();
 
-	/** Returns the {@link ReferenceType} of this {@link Reference}. */
+	/** Returns the {@link ReferenceType} of this {@link Reference}. If type is not set returns null. */
 	public ReferenceType getType();
 
-	/** Returns the comment of this {@link Reference}. */
+	/** Returns the comment of this {@link Reference}. If comment is not set returns null. */
 	public String getComment();
 
-	/** Sets the author value with 'author'. */
+	/** Sets the author value with 'author'. If 'author' is null or empty it will do nothing. */
 	public void setAuthor(String author);
 
 	/** Sets the year value with 'year'. */
-	public void setYear(Integer year);
+	public void setYear(int year);
 
-	/** Sets the title value with 'title'. */
+	/** Sets the title value with 'title'. If 'title' is null or empty it will do nothing. */
 	public void setTitle(String title);
 
-	/** Sets the abstract text value with 'abstractText'. */
+	/** Sets the abstract text value with 'abstractText'. If 'abstractText' is null or empty it will do nothing. */
 	public void setAbstractText(String abstractText);
 
-	/** Sets the journal value with 'journal'. */
+	/** Sets the journal value with 'journal'. If 'journal' is null or empty it will do nothing. */
 	public void setJournal(String journal);
 
-	/** Sets the volume value with 'volume'. */
+	/** Sets the volume value with 'volume'. If 'volume' is null or empty it will do nothing. */
 	public void setVolume(String volume);
 
-	/** Sets the issue value with 'issue'. */
+	/** Sets the issue value with 'issue'. If 'issue' is null or empty it will do nothing. */
 	public void setIssue(String issue);
 
 	/** Sets the page value with 'page'. */
-	public void setPage(Integer page);
+	public void setPage(int page);
 
-	/** Sets the approval mode value with 'approvalMode'. */
+	/** Sets the approval mode value with 'approvalMode'. If 'approvalMode' is null or empty it will do nothing. */
 	public void setApprovalMode(Integer approvalMode);
 
-	/** Sets the website value with 'website'. */
+	/** Sets the website value with 'website'. If 'website' is null or empty it will do nothing. */
 	public void setWebsite(String website);
 
-	/** Sets the {@link ReferenceType} value with 'type'. */
+	/** Sets the {@link ReferenceType} value with 'type'. If 'type' is null it will do nothing. */
 	public void setType(ReferenceType type);
 
-	/** Sets the comment value with 'comment'. */
+	/** Sets the comment value with 'comment'. If 'comment' is null or empty it will do nothing. */
 	public void setComment(String comment);
 
 	/** Returns true if the author of this {@link Reference} is set. */

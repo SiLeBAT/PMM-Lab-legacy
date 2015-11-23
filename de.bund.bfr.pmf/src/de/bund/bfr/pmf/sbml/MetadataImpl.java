@@ -58,117 +58,150 @@ public class MetadataImpl implements Metadata {
 		setReferenceLink(referenceLink);
 	}
 
+	/** {@inheritDoc} */
 	public String getGivenName() {
 		return props.get(GIVEN_NAME);
 	}
 
+	/** {@inheritDoc} */
 	public String getFamilyName() {
 		return props.get(FAMILY_NAME);
 	}
 
+	/** {@inheritDoc} */
 	public String getContact() {
 		return props.get(CONTACT);
 	}
 
+	/** {@inheritDoc} */
 	public String getCreatedDate() {
 		return props.get(CREATED_DATE);
 	}
 
+	/** {@inheritDoc} */
 	public String getModifiedDate() {
 		return props.get(MODIFIED_DATE);
 	}
 
+	/** {@inheritDoc} */
 	public ModelType getType() {
 		return props.containsKey(TYPE) ? ModelType.valueOf(props.get(TYPE)) : null;
 	}
 
+	/** {@inheritDoc} */
 	public String getRights() {
 		return props.get(RIGHTS);
 	}
 
+	/** {@inheritDoc} */
 	public String getReferenceLink() {
 		return props.get(REFERENCE_LINK);
 	}
 
+	/** {@inheritDoc} */
 	public void setGivenName(String givenName) {
-		if (givenName != null && !givenName.isEmpty())
+		if (givenName != null && !givenName.isEmpty()) {
 			props.put(GIVEN_NAME, givenName);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public void setFamilyName(String familyName) {
-		if (familyName != null && !familyName.isEmpty())
+		if (familyName != null && !familyName.isEmpty()) {
 			props.put(FAMILY_NAME, familyName);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public void setContact(String contact) {
-		if (contact != null && !contact.isEmpty())
+		if (contact != null && !contact.isEmpty()) {
 			props.put(CONTACT, contact);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public void setCreatedDate(String createdDate) {
-		if (createdDate != null && !createdDate.isEmpty())
+		if (createdDate != null && !createdDate.isEmpty()) {
 			props.put(CREATED_DATE, createdDate);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public void setModifiedDate(String modifiedDate) {
-		if (modifiedDate != null && !modifiedDate.isEmpty())
+		if (modifiedDate != null && !modifiedDate.isEmpty()) {
 			props.put(MODIFIED_DATE, modifiedDate);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public void setType(ModelType type) {
 		if (type != null) {
 			props.put(TYPE, type.name());
 		}
 	}
 
+	/** {@inheritDoc} */
 	public void setRights(String rights) {
-		if (rights != null && !rights.isEmpty())
+		if (rights != null && !rights.isEmpty()) {
 			props.put(RIGHTS, rights);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public void setReferenceLink(String referenceLink) {
-		if (referenceLink != null && !referenceLink.isEmpty())
+		if (referenceLink != null && !referenceLink.isEmpty()) {
 			props.put(REFERENCE_LINK, referenceLink);
+		}
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetGivenName() {
 		return props.containsKey(GIVEN_NAME);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetFamilyName() {
 		return props.containsKey(FAMILY_NAME);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetContact() {
 		return props.containsKey(CONTACT);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetCreatedDate() {
 		return props.containsKey(CREATED_DATE);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetModifiedDate() {
 		return props.containsKey(MODIFIED_DATE);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetType() {
 		return props.containsKey(TYPE);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetRights() {
 		return props.containsKey(RIGHTS);
 	}
 
+	/** {@inheritDoc} */
 	public boolean isSetReferenceLink() {
 		return props.containsKey(REFERENCE_LINK);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		int result = 31 * 1 + ((props == null) ? 0 : props.hashCode());
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

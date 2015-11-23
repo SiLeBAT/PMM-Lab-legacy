@@ -26,19 +26,39 @@ import org.junit.Test;
 /**
  * @author Miguel Alba
  */
-public class UncertaintiesTest {
+public class UncertaintiesImplTest {
 	
 	private UncertaintiesImpl uncert = new UncertaintiesImpl();
+	
+	@Test
+	public void testIdAccesors() {
+		assertFalse(uncert.isSetID());
+		assertNull(uncert.getID());
+		
+		uncert.setID(101);
+		assertTrue(uncert.isSetID());
+		assertTrue(101 == uncert.getID());
+	}
     
 	@Test
 	public void testModelNameAccesors() {
 		assertFalse(uncert.isSetModelName());
 		assertNull(uncert.getModelName());
 		
-		String modelName = "BacillusCereus_CultureMedium";
-		uncert.setModelName(modelName);
+		// setModelName should ignore null strings
+		uncert.setModelName(null);
+		assertFalse(uncert.isSetModelName());
+		assertNull(uncert.getModelName());
+		
+		// setModelName should ignore empty strings
+		uncert.setModelName("");
+		assertFalse(uncert.isSetModelName());
+		assertNull(uncert.getModelName());
+		
+		// setModelName should accept non-empty strings
+		uncert.setModelName("BacillusCereus_CultureMedium");
 		assertTrue(uncert.isSetModelName());
-		assertEquals(uncert.getModelName(), modelName);
+		assertEquals(uncert.getModelName(), "BacillusCereus_CultureMedium");
 	}
 	
 	@Test
@@ -46,9 +66,20 @@ public class UncertaintiesTest {
 		assertFalse(uncert.isSetComment());
 		assertNull(uncert.getComment());
 		
+		// setComment should ignore null strings
+		uncert.setComment(null);
+		assertFalse(uncert.isSetComment());
+		assertNull(uncert.getComment());
+		
+		// setComment should ignore empty strings
 		uncert.setComment("");
+		assertFalse(uncert.isSetComment());
+		assertNull(uncert.getComment());
+		
+		// setComment should accept non-empty strings
+		uncert.setComment("uncertainties");
 		assertTrue(uncert.isSetComment());
-		assertEquals(uncert.getComment(), "");
+		assertEquals(uncert.getComment(), "uncertainties");
 	}
 	
 	@Test

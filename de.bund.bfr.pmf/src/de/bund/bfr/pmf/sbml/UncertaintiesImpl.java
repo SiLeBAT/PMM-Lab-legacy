@@ -72,7 +72,7 @@ public class UncertaintiesImpl implements Uncertainties {
 
 	/** {@inheritDoc} */
 	public Integer getID() {
-		return Integer.parseInt(props.get(ID));
+		return props.containsKey(ID) ? Integer.parseInt(props.get(ID)) : null;
 	}
 
 	/** {@inheritDoc} */
@@ -116,50 +116,52 @@ public class UncertaintiesImpl implements Uncertainties {
 	}
 
 	/** {@inheritDoc} */
-	public void setID(Integer id) {
-		if (id != null) {
-			props.put(ID, id.toString());
-		}
+	public void setID(int id) {
+		props.put(ID, Integer.toString(id));
 	}
 
 	/** {@inheritDoc} */
 	public void setModelName(String modelName) {
-		props.put(MODEL_NAME, modelName);
+		if (modelName != null && !modelName.isEmpty()) {
+			props.put(MODEL_NAME, modelName);
+		}
 	}
 
 	/** {@inheritDoc} */
 	public void setComment(String comment) {
-		props.put(COMMENT, comment);
+		if (comment != null && !comment.isEmpty()) {
+			props.put(COMMENT, comment);
+		}
 	}
 
 	/** {@inheritDoc} */
-	public void setR2(Double r2) {
-		props.put(R2, r2.toString());
+	public void setR2(double r2) {
+		props.put(R2, Double.toString(r2));
 	}
 
 	/** {@inheritDoc} */
-	public void setRMS(Double rms) {
-		props.put(RMS, rms.toString());
+	public void setRMS(double rms) {
+		props.put(RMS, Double.toString(rms));
 	}
 
 	/** {@inheritDoc} */
-	public void setSSE(Double sse) {
-		props.put(SSE, sse.toString());
+	public void setSSE(double sse) {
+		props.put(SSE, Double.toString(sse));
 	}
 
 	/** {@inheritDoc} */
-	public void setAIC(Double aic) {
-		props.put(AIC, aic.toString());
+	public void setAIC(double aic) {
+		props.put(AIC, Double.toString(aic));
 	}
 
 	/** {@inheritDoc} */
-	public void setBIC(Double bic) {
-		props.put(BIC, bic.toString());
+	public void setBIC(double bic) {
+		props.put(BIC, Double.toString(bic));
 	}
 
 	/** {@inheritDoc} */
-	public void setDOF(Integer dof) {
-		props.put(DOF, dof.toString());
+	public void setDOF(int dof) {
+		props.put(DOF, Integer.toString(dof));
 	}
 
 	/** {@inheritDoc} */

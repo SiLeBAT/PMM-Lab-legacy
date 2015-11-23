@@ -19,39 +19,22 @@
  *******************************************************************************/
 package de.bund.bfr.pmf.sbml;
 
-import org.sbml.jsbml.xml.XMLAttributes;
-import org.sbml.jsbml.xml.XMLNode;
-import org.sbml.jsbml.xml.XMLTriple;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 /**
  * @author Miguel Alba
+ *
  */
-public class DataSourceNode {
+public class GlobalModelIdNodeTest {
 
-	public static final String TAG = "dataSource";
-	public static final String NS = "pmmlab";
+	int globalModelId = 2;
 
-	XMLNode node;
-
-	public DataSourceNode(final XMLNode node) {
-		this.node = node;
-	}
-
-	public DataSourceNode(final String dataName) {
-		XMLTriple triple = new XMLTriple(TAG, null, NS);
-
-		XMLAttributes attrs = new XMLAttributes();
-		attrs.add("id", "source1");
-		attrs.add("href", dataName);
-
-		node = new XMLNode(triple, attrs);
-	}
-
-	public String getFile() {
-		return node.getAttrValue("href");
-	}
-
-	public XMLNode getNode() {
-		return node;
+	@Test
+	public void test() {
+		GlobalModelIdNode nodeFromId = new GlobalModelIdNode(globalModelId);
+		GlobalModelIdNode nodeFromOtherNode = new GlobalModelIdNode(nodeFromId.getNode());
+		assertTrue(globalModelId == nodeFromOtherNode.getGlobalModelId());
 	}
 }

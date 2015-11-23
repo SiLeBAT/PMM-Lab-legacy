@@ -113,7 +113,8 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 	}
 
 	/**
-	 * Creates a PMFCoefficientImpl fron an id, value, unit, P, error, t, correlations and description.
+	 * Creates a PMFCoefficientImpl fron an id, value, unit, P, error, t,
+	 * correlations and description.
 	 */
 	public PMFCoefficientImpl(String id, double value, String unit, Double P, Double error, Double t,
 			Correlation[] correlations, String desc) {
@@ -157,7 +158,7 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 					attrs.add(ATTRIBUTE_NAME, correlation.getName());
 					if (correlation.isSetValue()) {
 						String valueAsString = Double.toString(correlation.getValue());
-						attrs.add(ATTRIBUTE_VALUE,  valueAsString);
+						attrs.add(ATTRIBUTE_VALUE, valueAsString);
 					}
 
 					XMLTriple triple = new XMLTriple(CORRELATION_TAG, null, CORRELATION_NS);
@@ -172,7 +173,7 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 				descNode.addChild(new XMLNode(desc));
 				metadataNode.addChild(descNode);
 			}
-			
+
 			param.getAnnotation().setNonRDFAnnotation(metadataNode);
 		}
 		this.P = P;
@@ -198,18 +199,8 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 	}
 
 	/** {@inheritDoc} */
-	public void setId(String id) {
-		param.setId(id);
-	}
-
-	/** {@inheritDoc} */
 	public double getValue() {
 		return param.getValue();
-	}
-
-	/** {@inheritDoc} */
-	public void setValue(double value) {
-		param.setValue(value);
 	}
 
 	/** {@inheritDoc} */
@@ -218,23 +209,8 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 	}
 
 	/** {@inheritDoc} */
-	public void setUnit(String unit) {
-		param.setUnits(unit);
-	}
-
-	/** {@inheritDoc} */
 	public Double getP() {
 		return P;
-	}
-
-	/** {@inheritDoc} */
-	public void setP(Double p) {
-		this.P = p;
-	}
-
-	/** {@inheritDoc} */
-	public boolean isSetP() {
-		return P != null;
 	}
 
 	/** {@inheritDoc} */
@@ -243,28 +219,8 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 	}
 
 	/** {@inheritDoc} */
-	public void setError(Double error) {
-		this.error = error;
-	}
-
-	/** {@inheritDoc} */
-	public boolean isSetError() {
-		return error != null;
-	}
-
-	/** {@inheritDoc} */
 	public Double getT() {
 		return t;
-	}
-
-	/** {@inheritDoc} */
-	public void setT(Double t) {
-		this.t = t;
-	}
-
-	/** {@inheritDoc} */
-	public boolean isSetT() {
-		return t != null;
 	}
 
 	/** {@inheritDoc} */
@@ -273,23 +229,70 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 	}
 
 	/** {@inheritDoc} */
-	public void setCorrelations(Correlation[] correlations) {
-		this.correlations = correlations;
-	}
-
-	/** {@inheritDoc} */
-	public boolean isSetCorrelations() {
-		return correlations != null;
-	}
-
-	/** {@inheritDoc} */
 	public String getDescription() {
 		return desc;
 	}
 
 	/** {@inheritDoc} */
+	public void setId(String id) {
+		param.setId(id);
+	}
+
+	/** {@inheritDoc} */
+	public void setValue(double value) {
+		param.setValue(value);
+	}
+
+	/** {@inheritDoc} */
+	public void setUnit(String unit) {
+		param.setUnits(unit);
+	}
+
+	/** {@inheritDoc} */
+	public void setP(double p) {
+		this.P = p;
+	}
+
+	/** {@inheritDoc} */
+	public void setT(double t) {
+		this.t = t;
+	}
+
+	/** {@inheritDoc} */
+	public void setError(double error) {
+		this.error = error;
+	}
+
+	/** {@inheritDoc} */
+	public void setCorrelations(Correlation[] correlations) {
+		this.correlations = correlations;
+	}
+
+	/** {@inheritDoc} */
 	public void setDescription(String description) {
-		this.desc = description;
+		if (description != null && !description.isEmpty()) {
+			this.desc = description;
+		}
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetP() {
+		return P != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetError() {
+		return error != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetT() {
+		return t != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetCorrelations() {
+		return correlations != null;
 	}
 
 	/** {@inheritDoc} */

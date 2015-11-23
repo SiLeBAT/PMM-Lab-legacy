@@ -20,65 +20,75 @@
 package de.bund.bfr.pmf.sbml;
 
 /**
- * Holds uncertainty values of a model.
- *
+ * Holds uncertainty values of a model:
+ * <ul>
+ * <li>ID</li>
+ * <li>Model name</li>
+ * <li>Comment</li>
+ * <li>Coefficient of determination, R squared.</li>
+ * <li>Sum of squared errors of prediction, SSE</li>
+ * <li>Akaike information criterion, AIC</li>
+ * <li>Bayesian information criterion, BIC</li>
+ * <li>Degrees of freedom, dof</li>
+ * </ul>
+ * 
  * @author Miguel Alba
  */
 public interface Uncertainties {
 
-	/** Returns the id of this {@link Uncertainties}. */
+	/** Returns the id of this {@link Uncertainties}. If not set returns null. */
 	public Integer getID(); 
 
-	/** Returns the modelName of this {@link Uncertainties}. */
+	/** Returns the modelName of this {@link Uncertainties}. If not set returns null. */
 	public String getModelName(); 
 
-	/** Returns the comment of this {@link Uncertainties}. */
+	/** Returns the comment of this {@link Uncertainties}. If not set returns null. */
 	public String getComment(); 
 
-	/** Returns the r2 of this {@link Uncertainties}. */
+	/** Returns the r2 of this {@link Uncertainties}. If not set returns null. */
 	public Double getR2();
 
-	/** Returns the rms of this {@link Uncertainties}. */
+	/** Returns the rms of this {@link Uncertainties}. If not set returns null. */
 	public Double getRMS();
 
-	/** Returns the sse of this {link Uncertainties}. */
+	/** Returns the sse of this {link Uncertainties}. If not set returns null. */
 	public Double getSSE();
 
-	/** Returns the aic of this {link Uncertainties}. */
+	/** Returns the aic of this {link Uncertainties}. If not set returns null. */
 	public Double getAIC();
 
-	/** Returns the bic of this {link Uncertainties}. */
+	/** Returns the bic of this {link Uncertainties}. If not set returns null. */
 	public Double getBIC();
 
-	/** Returns the dof of this {link Uncertainties}. */
+	/** Returns the dof of this {link Uncertainties}. If not set returns null. */
 	public Integer getDOF();
 	
 	/** Sets the id value with 'id'. */
-	public void setID(Integer id);
+	public void setID(int id);
 	
-	/** Sets the modelName value with 'modelName'. */
+	/** Sets the modelName value with 'modelName'. If 'modelName' is null or empty it will do nothing. */
 	public void setModelName(String modelName); 
 
-	/** Sets the comment value with 'comment'. */
+	/** Sets the comment value with 'comment'. If 'comment' is null or empty it will do nothing. */
 	public void setComment(String comment); 
 
 	/** Sets the r2 value with 'r2'. */
-	public void setR2(Double r2); 
+	public void setR2(double r2); 
 
 	/** Sets the rms value with 'rms'. */
-	public void setRMS(Double rms);
+	public void setRMS(double rms);
 
 	/** Sets the sse value with 'sse'. */
-	public void setSSE(Double sse); 
+	public void setSSE(double sse); 
 
 	/** Sets the aic value with 'aic'. */
-	public void setAIC(Double aic); 
+	public void setAIC(double aic); 
 
 	/** Sets the bic value with 'bic'. */
-	public void setBIC(Double bic);
+	public void setBIC(double bic);
 
 	/** Sets the dof value with 'dof'. */
-	public void setDOF(Integer dof); 
+	public void setDOF(int dof); 
 
 	/** Returns true if the id of this {@link Uncertainties} is set. */
 	public boolean isSetID();

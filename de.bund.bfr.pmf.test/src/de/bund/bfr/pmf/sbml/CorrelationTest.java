@@ -20,6 +20,7 @@
 package de.bund.bfr.pmf.sbml;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -31,16 +32,27 @@ import org.junit.Test;
 public class CorrelationTest {
 
 	private Correlation ph = new Correlation("pH", 5.63);
+	private Correlation aw = new Correlation("aw");
 
 	@Test
 	public void testAccesors() {
 		assertEquals(ph.getName(), "pH");
+		assertTrue(ph.isSetValue());
 		assertTrue(Double.compare(ph.getValue(), 5.63) == 0);
+		
+		assertEquals(aw.getName(), "aw");
+		assertFalse(aw.isSetValue());
 	}
 
 	@Test
 	public void testToString() {
 		assertEquals("Correlation [name=pH, value=5.630000]", ph.toString());
+	}
+	
+	@Test
+	public void testEquals() {
+		assertEquals(ph, ph);
+		assertFalse(ph.equals(aw));
 	}
 
 }

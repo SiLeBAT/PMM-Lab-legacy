@@ -20,6 +20,7 @@ import de.bund.bfr.knime.pmm.annotation.sbml.Model2AnnotationTest;
 import de.bund.bfr.knime.pmm.annotation.sbml.PrimaryModelNodeTest;
 import de.bund.bfr.knime.pmm.annotation.sbml.SBMLReferenceNodeTest;
 import de.bund.bfr.knime.pmm.annotation.sbml.UncertaintyNodeTest;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImplTest;
 import de.bund.bfr.knime.pmm.sbml.sbmlutil.PMFUnitDefinitionTest;
 import de.bund.bfr.knime.pmm.sbml.sbmlutil.UncertaintiesTest;
 import de.bund.bfr.knime.pmm.sbmlutil.MetadataTest;
@@ -46,6 +47,8 @@ import de.bund.bfr.knime.pmm.sbmlutil.MetadataTest;
 	MatrixNuMLNodeTest.class,
 	MetadataNuMLNodesTest.class,
 	ReferenceNuMLNodeTest.class,
+	// de.bund.bfr.knime.pmm.openfsmr
+	FSMRTemplateImplTest.class,
 	// de.bund.bfr.knime.pmm.sbml.sbmlutil
 	MetadataTest.class,
 	PMFUnitDefinitionTest.class,

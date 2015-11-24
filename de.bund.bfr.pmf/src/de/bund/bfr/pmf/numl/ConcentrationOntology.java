@@ -255,7 +255,7 @@ class SpeciesNuMLNode {
 		node.setAttribute(COMPARTMENT_ATTR, species.getCompartment());
 		node.setAttribute(ID_ATTR, species.getId());
 		node.setAttribute(NAME_ATTR, species.getName());
-		node.setAttribute(SUBSTANCE_UNITS_ATTR, species.getSubstanceUnits());
+		node.setAttribute(SUBSTANCE_UNITS_ATTR, species.getUnits());
 
 		if (species.isSetCombaseCode() || species.isSetDetail() || species.isSetDescription()) {
 			Element annotation = doc.createElement(ANNOTATION);

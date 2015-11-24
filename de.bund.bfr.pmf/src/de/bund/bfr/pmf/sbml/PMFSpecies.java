@@ -22,7 +22,16 @@ package de.bund.bfr.pmf.sbml;
 import org.sbml.jsbml.Species;
 
 /**
- * Represents the species XML element of a PMF-SBML file.
+ * Represents the species XML element of a PMF-SBML file. It has the properties:
+ * <ul>
+ * <li>Compartment (mandatory)</li>
+ * <li>Id (mandatory)</li>
+ * <li>Name (mandatory)</li>
+ * <li>Units (mandatory)</li>
+ * <li>Combase code (optional)</li>
+ * <li>Detail (optional)</li>
+ * <li>Description</li>
+ * </ul>
  * 
  * @author Miguel Alba
  */
@@ -44,55 +53,67 @@ public interface PMFSpecies {
 	/** Returns the name of this {@link PMFSpecies}. */
 	public String getName();
 
-	/** Returns the substance units of this {@link PMFSpecies}. */
-	public String getSubstanceUnits();
-
 	/** Returns the units of this {@link PMFSpecies}. */
 	public String getUnits();
 
-	/** Returns the combase code of this {@link PMFSpecies}. */
+	/**
+	 * Returns the combase code of this {@link PMFSpecies}. If not set, returns
+	 * null.
+	 */
 	public String getCombaseCode();
 
-	/** Returns the detail of this {@link PMFSpecies}. */
+	/**
+	 * Returns the detail of this {@link PMFSpecies}. If not set, returns null.
+	 */
 	public String getDetail();
 
-	/** Returns the description of this {@link PMFSpecies}. */
+	/**
+	 * Returns the description of this {@link PMFSpecies}. If not set, returns
+	 * null.
+	 */
 	public String getDescription();
 
 	/**
 	 * Sets the compartment value of this {@link PMFSpecies} with 'compartment'.
+	 * If 'compartment' is null or empty it will do nothing.
 	 */
 	public void setCompartment(String compartment);
 
-	/** Sets the id value of this {@link PMFSpecies} with 'id'. */
+	/**
+	 * Sets the id value of this {@link PMFSpecies} with 'id'. If 'id' is null
+	 * or empty it will do nothing.
+	 */
 	public void setId(String id);
 
-	/** Sets the name value of this {@link PMFSpecies} with 'name'. */
+	/**
+	 * Sets the name value of this {@link PMFSpecies} with 'name'. If 'name' is
+	 * null or empty it will do nothing.
+	 */
 	public void setName(String name);
 
 	/**
-	 * Sets the substance unit value of this {@link PMFSpecies} with
-	 * 'substanceUnits'.
+	 * Sets the units value of this {@link PMFSpecies} with 'units'. It 'units'
+	 * is null or empty it will do nothing.
 	 */
-	public void setSubstanceUnits(String substanceUnits);
-
-	/** Sets the units value of this {@link PMFSpecies} with 'units'. */
 	public void setUnits(String units);
 
 	/**
 	 * Sets the combase code value of this {@link PMFSpecies} with
-	 * 'combaseCode'.
+	 * 'combaseCode'. It 'combaseCode' is null or empty it will do nothing.
 	 */
 	public void setCombaseCode(String combaseCode);
 
-	/** Sets the detail of this {@link PMFSpecies} with 'detail'. */
+	/**
+	 * Sets the detail of this {@link PMFSpecies} with 'detail'. If 'detail' is
+	 * null or empty it will do nothing.
+	 */
 	public void setDetail(String detail);
 
-	/** Sets the description of this {@link PMFSpecies} with 'description'. */
+	/**
+	 * Sets the description of this {@link PMFSpecies} with 'description'. If
+	 * 'description' is null or empty it will do nothing.
+	 */
 	public void setDescription(String description);
-
-	/** Returns true if the unit of this {@link PMFSpecies} is set. */
-	public boolean isSetUnits();
 
 	/** Returns true if the combase code of this {@link PMFSpecies} is set. */
 	public boolean isSetCombaseCode();

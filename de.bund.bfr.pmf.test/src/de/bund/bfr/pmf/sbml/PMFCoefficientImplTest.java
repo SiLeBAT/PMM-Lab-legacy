@@ -37,17 +37,29 @@ public class PMFCoefficientImplTest {
 
 	@Test
 	public void testIdAccesors() {
-		fail("Not yet implemented");
+		PMFCoefficient coefficient = new PMFCoefficientImpl("h0", 1.460, "dimensionless");
+		assertEquals("h0", coefficient.getId());
+		
+		coefficient.setId("mu_max");
+		assertEquals("mu_max", coefficient.getId());
 	}
 	
 	@Test
 	public void testValueAccesors() {
-		fail("Not yet implemented");
+		PMFCoefficient coefficient = new PMFCoefficientImpl("h0", 1.460, "dimensionless");
+		assertEquals(1.460, coefficient.getValue(), 0.0);
+		
+		coefficient.setValue(0.000);
+		assertEquals(0.000, coefficient.getValue(), 0.0);
 	}
 	
 	@Test
 	public void testUnitAccesors() {
-		fail("Not yet implemented");
+		PMFCoefficient coefficient = new PMFCoefficientImpl("h0", 1.460, "dimensionless");
+		assertEquals("dimensionless", coefficient.getUnit());
+		
+		coefficient.setUnit("s");
+		assertEquals("s", coefficient.getUnit());
 	}
 
 	@Test

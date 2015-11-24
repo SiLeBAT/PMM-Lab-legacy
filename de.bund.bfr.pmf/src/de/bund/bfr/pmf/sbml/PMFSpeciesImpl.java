@@ -146,11 +146,6 @@ public class PMFSpeciesImpl implements PMFSpecies {
 	}
 
 	/** {@inheritDoc} */
-	public String getSubstanceUnits() {
-		return species.getSubstanceUnits();
-	}
-
-	/** {@inheritDoc} */
 	public String getUnits() {
 		return species.getUnits();
 	}
@@ -185,10 +180,10 @@ public class PMFSpeciesImpl implements PMFSpecies {
 		species.setName(name);
 	}
 
-	/** {@inheritDoc} */
-	public void setSubstanceUnits(String substanceUnits) {
-		species.setSubstanceUnits(substanceUnits);
-	}
+//	/** {@inheritDoc} */
+//	public void setSubstanceUnits(String substanceUnits) {
+//		species.setSubstanceUnits(substanceUnits);
+//	}
 
 	/** {@inheritDoc} */
 	public void setUnits(String units) {
@@ -197,23 +192,29 @@ public class PMFSpeciesImpl implements PMFSpecies {
 
 	/** {@inheritDoc} */
 	public void setCombaseCode(String combaseCode) {
-		this.combaseCode = combaseCode;
+		if (combaseCode != null && !combaseCode.isEmpty()) {
+			this.combaseCode = combaseCode;
+		}
 	}
 
 	/** {@inheritDoc} */
 	public void setDetail(String detail) {
-		this.detail = detail;
+		if (detail != null && !detail.isEmpty()) {
+			this.detail = detail;
+		}
 	}
 
 	/** {@inheritDoc} */
 	public void setDescription(String description) {
-		this.description = description;
+		if (description != null && !description.isEmpty()) {
+			this.description = description;
+		}
 	}
 
-	/** {@inheritDoc} */
-	public boolean isSetUnits() {
-		return species.isSetUnits();
-	}
+//	/** {@inheritDoc} */
+//	public boolean isSetUnits() {
+//		return species.isSetUnits();
+//	}
 
 	/** {@inheritDoc} */
 	public boolean isSetCombaseCode() {

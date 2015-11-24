@@ -22,7 +22,15 @@ package de.bund.bfr.pmf.sbml;
 import org.sbml.jsbml.Compartment;
 
 /**
- * Represents the compartment XML element of a PMF-SBML file.
+ * Represents the compartment XML element of a PMF-SBML file. It has the
+ * properties:
+ * <ul>
+ * <li>Id (mandatory)</li>
+ * <li>Name (mandatory)</li>
+ * <li>PMF code (optional)</li>
+ * <li>Detail (optional)</li>
+ * <li>Model variables(optional)</li>
+ * </ul>
  *
  * @author Miguel Alba
  */
@@ -34,35 +42,54 @@ public interface PMFCompartment {
 	/** Returns the name of this {@link PMFCompartment}. */
 	public String getName();
 
-	/** Returns the PMF code of this {@link PMFCompartment}. */
+	/**
+	 * Returns the PMF code of this {@link PMFCompartment}. If not set, returns
+	 * null.
+	 */
 	public String getPMFCode();
 
-	/** Returns the detail of this {@link PMFCompartment}. */
+	/**
+	 * Returns the detail of this {@link PMFCompartment}. If not set, returns
+	 * null.
+	 */
 	public String getDetail();
 
-	/** Returns the {@link ModelVariable}s of this {@link PMFCompartment}. */
+	/**
+	 * Returns the {@link ModelVariable}s of this {@link PMFCompartment}. If not
+	 * set, returns null.
+	 */
 	public ModelVariable[] getModelVariables();
 
 	/** Returns the {@link Compartment} of this {@link PMFCompartment}. */
 	public Compartment getCompartment();
 
-	/** Sets the id value of this {@link PMFCompartment} with 'id'. */
+	/**
+	 * Sets the id value of this {@link PMFCompartment} with 'id'. Ignores null
+	 * or empty strings.
+	 */
 	public void setId(String id);
 
-	/** Sets the name value of this {@link PMFCompartment} with 'name'. */
+	/**
+	 * Sets the name value of this {@link PMFCompartment} with 'name'. Ignores
+	 * null or empty strings.
+	 */
 	public void setName(String name);
 
 	/**
 	 * Sets the PMF code value of this {@link PMFCompartment} with 'pmfCode'.
+	 * Ignores null or empty strings.
 	 */
 	public void setPMFCode(String pmfCode);
 
-	/** Sets the detail of this {@link PMFCompartment} with 'detail'. */
+	/**
+	 * Sets the detail of this {@link PMFCompartment} with 'detail'. Ignores
+	 * null or empty strings.
+	 */
 	public void setDetail(String detail);
 
 	/**
 	 * Sets the model variables of this (@link PMFCompartment) with
-	 * 'modelVariables'.
+	 * 'modelVariables'. Ignores null.
 	 */
 	public void setModelVariables(ModelVariable[] modelVariables);
 

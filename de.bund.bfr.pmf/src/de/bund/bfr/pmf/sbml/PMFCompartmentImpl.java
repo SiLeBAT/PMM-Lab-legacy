@@ -88,7 +88,8 @@ public class PMFCompartmentImpl implements PMFCompartment {
 	}
 
 	/**
-	 * Creates a PMFCompartmentImpl instance from an id, name, PMF code, detail and model variables.
+	 * Creates a PMFCompartmentImpl instance from an id, name, PMF code, detail
+	 * and model variables.
 	 */
 	public PMFCompartmentImpl(String id, String name, String pmfCode, String detail, ModelVariable[] modelVariables) {
 		compartment = new Compartment(id, name, LEVEL, VERSION);
@@ -182,7 +183,9 @@ public class PMFCompartmentImpl implements PMFCompartment {
 
 	/** {@inheritDoc} */
 	public void setPMFCode(String pmfCode) {
-		this.pmfCode = pmfCode;
+		if (pmfCode != null && !pmfCode.isEmpty()) {
+			this.pmfCode = pmfCode;
+		}
 	}
 
 	/** {@inheritDoc} */

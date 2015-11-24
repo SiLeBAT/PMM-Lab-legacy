@@ -40,6 +40,8 @@ import de.bund.bfr.pmf.sbml.LimitsTest;
 import de.bund.bfr.pmf.sbml.MetadataImplTest;
 import de.bund.bfr.pmf.sbml.ModelVariableTest;
 import de.bund.bfr.pmf.sbml.PMFCoefficientImplTest;
+import de.bund.bfr.pmf.sbml.PMFCompartmentImplTest;
+import de.bund.bfr.pmf.sbml.PMFSpeciesImplTest;
 import de.bund.bfr.pmf.sbml.PMFUnitTest;
 import de.bund.bfr.pmf.sbml.PrimaryModelNodeTest;
 import de.bund.bfr.pmf.sbml.ReferenceImplTest;
@@ -71,7 +73,9 @@ import de.bund.bfr.pmf.sbml.UncertaintiesImplTest;
 	ReferenceImplTest.class,
 	ReferenceTypeTest.class,
 	PMFCoefficientImplTest.class,
+	PMFCompartmentImplTest.class,
 	PMFUnitTest.class,
+	PMFSpeciesImplTest.class,
 	PrimaryModelNodeTest.class,
 	UncertaintiesImplTest.class,
 	// de.bund.bfr.pmf

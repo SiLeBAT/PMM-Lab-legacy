@@ -44,6 +44,7 @@ public class SecIndep {
 	public SecIndep(String name, String desc, String unit) {
 		param = new Parameter(name);
 		param.setConstant(false);
+		param.setValue(0.0);
 		
 		if (desc != null) {
 			param.setAnnotation(new SecIndepAnnotation(desc).annotation);

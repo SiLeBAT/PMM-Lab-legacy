@@ -121,6 +121,7 @@ public class PMFCoefficientImpl implements PMFCoefficient {
 		param = new Parameter(id, LEVEL, VERSION);
 		param.setValue(value);
 		param.setUnits(unit);
+		param.setConstant(true);
 
 		if (P != null || error != null || t != null || correlations != null || desc != null) {
 

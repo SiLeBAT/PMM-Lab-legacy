@@ -1186,6 +1186,8 @@ class TwoStepTertiaryModelParser implements Parser {
 			}
 			model.addParameter(p2);
 		}
+		
+		CompModelPlugin modelPlugin = (CompModelPlugin) model.getPlugin(CompConstants.shortLabel);
 
 		// Creates ExternalModelDefinition
 		List<String> secDocNames = new LinkedList<>();
@@ -1200,14 +1202,19 @@ class TwoStepTertiaryModelParser implements Parser {
 			ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(mdId);
 			emd.setSource(secDocName);
 			emd.setModelRef(mdId);
-
+			
 			String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+
+			// Creates submodel
+			Submodel submodel = modelPlugin.createSubmodel("submodel_" + depId);
+			submodel.setModelRef(mdId);
+
 			Parameter parameter = model.getParameter(depId);
 
 			CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
 			ReplacedBy replacedBy = plugin.createReplacedBy();
 			replacedBy.setIdRef(depId);
-			replacedBy.setSubmodelRef(mdId);
+			replacedBy.setSubmodelRef(submodel.getId());
 		}
 
 		// Assigns unit definitions of the primary model
@@ -1298,6 +1305,8 @@ class OneStepTertiaryModelParser implements Parser {
 		for (String numlDocName : numlDocNames) {
 			tertMetadataNode.addChild(new DataSourceNode(numlDocName).getNode());
 		}
+		
+		CompModelPlugin modelPlugin = (CompModelPlugin) tertDoc.getModel().getPlugin(CompConstants.shortLabel);
 
 		// Add submodels and model definitions
 		List<String> secDocNames = new LinkedList<>();
@@ -1318,12 +1327,16 @@ class OneStepTertiaryModelParser implements Parser {
 			emd.setModelRef(secModelId);
 
 			String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+			
+			Submodel submodel = modelPlugin.createSubmodel("submodel_" + depId);
+			submodel.setModelRef(emd.getId());
+			
 			Parameter parameter = tertDoc.getModel().getParameter(depId);
 
 			CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
 			ReplacedBy replacedBy = plugin.createReplacedBy();
 			replacedBy.setIdRef(depId);
-			replacedBy.setSubmodelRef(secModelId);
+			replacedBy.setSubmodelRef(submodel.getId());
 
 			// Add annotation for the primary model
 			XMLNode secMetadataNode = secDoc.getModel().getAnnotation().getNonRDFannotation()

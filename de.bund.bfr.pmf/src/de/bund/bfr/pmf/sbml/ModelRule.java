@@ -32,6 +32,16 @@ import org.sbml.jsbml.xml.XMLTriple;
 import de.bund.bfr.pmf.ModelClass;
 
 /**
+ * Model rule. It has the properties:
+ * <ul>
+ * <li>Formula (mandatory)</li>
+ * <li>Variable (mandatory)</li>
+ * <li>Formula name (mandatory)</li>
+ * <li>Model class (mandatory)</li>
+ * <li>PmmLab id (mandatory)</li>
+ * <li>References (optional)</li>
+ * </ul>
+ * 
  * @author Miguel Alba
  */
 public class ModelRule {
@@ -48,7 +58,7 @@ public class ModelRule {
 		this.modelClass = modelClass;
 		this.pmmlabID = pmmlabID;
 		this.references = references;
-		
+
 		ASTNode math = null;
 		try {
 			math = JSBML.parseFormula(formula);
@@ -61,7 +71,7 @@ public class ModelRule {
 		ModelRuleAnnotation annot = new ModelRuleAnnotation(formulaName, modelClass, pmmlabID, references);
 		rule.setAnnotation(annot.annotation);
 	}
-	
+
 	public ModelRule(AssignmentRule rule) {
 		this.rule = rule;
 		if (rule.isSetAnnotation()) {
@@ -72,48 +82,98 @@ public class ModelRule {
 			references = annot.references;
 		}
 	}
-	
-	public AssignmentRule getRule() { return rule; }
-	
-	public String getFormula() { return rule.getMath().toFormula(); }
-	public String getVariable() { return rule.getVariable(); }
-	
-	public String getFormulaName() { return formulaName; }
-	public void setFormulaName(String formulaName) { this.formulaName = formulaName; }
-	
-	public ModelClass getModelClass() { return modelClass; }
-	public void setModelClass(ModelClass modelClass) { this.modelClass = modelClass; }
-	
-	public int getPmmlabID() { return pmmlabID; }
-	public void setPmmlabID(int id) { this.pmmlabID = id; }
-	
-	public Reference[] getReferences() { return references; }
-	public void setReferences(Reference[] references) { this.references = references; }
-	public boolean isSetReferences() { return references == null; }
+
+	public AssignmentRule getRule() {
+		return rule;
+	}
+
+	/** Returns the formula of this {@link ModelRule}. */
+	public String getFormula() {
+		return rule.getMath().toFormula();
+	}
+
+	/** Returns the variable of this {@link ModelRule}. */
+	public String getVariable() {
+		return rule.getVariable();
+	}
+
+	/** Returns the formula name of this {@link ModelRule}. */
+	public String getFormulaName() {
+		return formulaName;
+	}
+
+	/** Returns the {@link ModelClass} of this {@link ModelRule}. */
+	public ModelClass getModelClass() {
+		return modelClass;
+	}
+
+	/** Returns the PmmLab id of this {@link ModelRule}. */
+	public int getPmmlabID() {
+		return pmmlabID;
+	}
+
+	/**
+	 * Returns the {@link Reference}(s) of this {@link ModelRule}. If not set,
+	 * returns null.
+	 */
+	public Reference[] getReferences() {
+		return references;
+	}
+
+	/**
+	 * Sets the formula name value of this {@link ModelRule} with 'formulaName'.
+	 * Ignores null or empty strings.
+	 */
+	public void setFormulaName(String formulaName) {
+		this.formulaName = formulaName;
+	}
+
+	/**
+	 * Sets the {@link ModelClass} value of this {@link ModelRule} with
+	 * 'modelClass'. Ignores null.
+	 */
+	public void setModelClass(ModelClass modelClass) {
+		this.modelClass = modelClass;
+	}
+
+	/** Sets the PmmLab id value of this {@link ModelRule} with 'id'. */
+	public void setPmmlabID(int id) {
+		this.pmmlabID = id;
+	}
+
+	/** Sets the references of this {@link ModelRule} with 'references'. Ignores null. */
+	public void setReferences(Reference[] references) {
+		this.references = references;
+	}
+
+	/** Returns true if the references of this {@link ModelRule} are set. */
+	public boolean isSetReferences() {
+		return references == null;
+	}
 }
 
 class ModelRuleAnnotation {
-	
+
 	String formulaName;
 	ModelClass modelClass;
 	Reference[] references;
 	int pmmlabID;
 	Annotation annotation;
-	
+
 	private static final String FORMULA_TAG = "formulaName";
 	private static final String SUBJECT_TAG = "subject";
 	private static final String REFERENCE_TAG = "reference";
 	private static final String PMMLAB_ID = "pmmlabID";
-	
+
 	public ModelRuleAnnotation(Annotation annotation) {
 		this.annotation = annotation;
-		
+
 		XMLNode metadata = annotation.getNonRDFannotation().getChildElement("metadata", "");
-		
+
 		// Gets formula name
 		XMLNode nameNode = metadata.getChildElement(FORMULA_TAG, "");
 		formulaName = nameNode.getChild(0).getCharacters();
-		
+
 		// Gets formula subject
 		XMLNode modelclassNode = metadata.getChildElement(SUBJECT_TAG, "");
 		if (modelclassNode == null) {
@@ -121,7 +181,7 @@ class ModelRuleAnnotation {
 		} else {
 			modelClass = ModelClass.fromName(modelclassNode.getChild(0).getCharacters());
 		}
-		
+
 		// Get PmmLab ID
 		XMLNode idNode = metadata.getChildElement(PMMLAB_ID, "");
 		if (idNode == null) {
@@ -129,7 +189,7 @@ class ModelRuleAnnotation {
 		} else {
 			pmmlabID = Integer.parseInt(idNode.getChild(0).getCharacters());
 		}
-		
+
 		// Gets references
 		List<XMLNode> refNodes = metadata.getChildElements(REFERENCE_TAG, "");
 		int numRefNodes = refNodes.size();
@@ -139,32 +199,32 @@ class ModelRuleAnnotation {
 			references[i] = new ReferenceSBMLNode(refNode).toReference();
 		}
 	}
-	
+
 	public ModelRuleAnnotation(String formulaName, ModelClass modelClass, int pmmlabID, Reference[] references) {
 		// Builds metadata node
 		XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
 		annotation = new Annotation();
 		annotation.setNonRDFAnnotation(metadataNode);
-		
+
 		// Creates annotation for formula name
 		XMLNode nameNode = new XMLNode(new XMLTriple(FORMULA_TAG, null, "pmmlab"));
 		nameNode.addChild(new XMLNode(formulaName));
 		metadataNode.addChild(nameNode);
-		
+
 		// Creates annotation for modelClass
 		XMLNode modelClassNode = new XMLNode(new XMLTriple(SUBJECT_TAG, null, "pmmlab"));
 		modelClassNode.addChild(new XMLNode(modelClass.fullName()));
 		metadataNode.addChild(modelClassNode);
-		
+
 		// Create annotation for pmmlabID
 		XMLNode idNode = new XMLNode(new XMLTriple(PMMLAB_ID, null, "pmmlab"));
 		idNode.addChild(new XMLNode(new Integer(pmmlabID).toString()));
 		metadataNode.addChild(idNode);
-		
+
 		// Builds reference nodes
 		for (Reference ref : references) {
 			metadataNode.addChild(new ReferenceSBMLNode(ref).node);
-		}	
+		}
 
 		// Saves formulaName, subject and model literature
 		this.formulaName = formulaName;
@@ -172,4 +232,4 @@ class ModelRuleAnnotation {
 		this.pmmlabID = pmmlabID;
 		this.references = references;
 	}
-}	
+}

@@ -185,7 +185,7 @@ class MyDBTreeModel implements TreeModel {
 				}
 			}
 			for (int i=0;i<codeVec.size();i++) {
-				createDTMN(codeVec.get(i), myT, lfd, null);
+				createDTMN(codeVec.get(i), myT, lfd, new int[]{2,4,6,8});
 				lfd++;
 				//System.err.println("codeVec not added -> " + codeVec.get(i));
 			}

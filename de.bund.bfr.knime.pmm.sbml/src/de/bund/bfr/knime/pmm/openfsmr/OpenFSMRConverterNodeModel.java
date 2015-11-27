@@ -25,6 +25,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.Model;
@@ -79,93 +80,97 @@ import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 public class OpenFSMRConverterNodeModel extends NodeModel {
 
 	// configuration keys
-	public static final String CFGKEY_FILE = "filename";
+	public static final String CFGKEY_DIR = "directory";
+	public static final String CFGKEY_FILES = "files";
+
 	// defaults for persistent state
-	private static final String DEFAULT_FILE = "c:/temp/foo.xml";
+	public static final String DEFAULT_DIR = "c:/";
+	public static final String[] DEFAULT_FILES = new String[0];
 
 	// persistent state
-	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
+	private SettingsModelString selectedDirectory = new SettingsModelString(CFGKEY_DIR, DEFAULT_DIR);
+	private SettingsModelStringArray selectedFiles = new SettingsModelStringArray(CFGKEY_FILES, DEFAULT_FILES);
 
-	/**
-	 * Constructor for the node model.
-	 */
+	/** Constructor for the node model. */
 	protected OpenFSMRConverterNodeModel() {
 		// 0 input ports and 1 output port
 		super(0, 1);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		BufferedDataTable[] tables = null;
-		tables = loadPMF(exec);
+		BufferedDataContainer container = exec.createDataContainer(new OpenFSMRSchema().createSpec());
+		for (String selectedFile : selectedFiles.getStringArrayValue()) {
+			// Builds full path
+			String fullpath = selectedDirectory.getStringValue() + "/" + selectedFile;
+
+			try {
+				List<FSMRTemplate> templates = createTemplatesFromPMF(fullpath);
+
+				for (FSMRTemplate template : templates) {
+					KnimeTuple tuple = createTupleFromTemplate(template);
+					container.addRowToTable(tuple);
+				}
+			} catch (Exception e) {
+				System.err.println("Could not process file: " + selectedFile);
+				e.printStackTrace();
+			}
+		}
+		container.close();
+		BufferedDataTable[] tables = { container.getTable() };
 		return tables;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void reset() {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		return new DataTableSpec[] { null };
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		filename.saveSettingsTo(settings);
+		selectedDirectory.saveSettingsTo(settings);
+		selectedFiles.saveSettingsTo(settings);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		filename.loadSettingsFrom(settings);
+		selectedDirectory.loadSettingsFrom(settings);
+		selectedFiles.loadSettingsFrom(settings);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		filename.validateSettings(settings);
+		selectedDirectory.validateSettings(settings);
+		selectedFiles.validateSettings(settings);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 	}
 
-	// Load PMF file
-	private BufferedDataTable[] loadPMF(final ExecutionContext exec) throws Exception {
-		// Get model type from annotation in the metadata file
+	private static List<FSMRTemplate> createTemplatesFromPMF(String filepath) throws Exception {
 
+		// Get model type from annotation in the metadata file
 		// a) Open archive
-		String filepath = filename.getStringValue();
 		CombineArchive ca = new CombineArchive(new File(filepath));
 
 		// b) Get annotation
@@ -178,7 +183,6 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 		ca.close();
 
 		List<FSMRTemplate> templates = new LinkedList<>();
-
 		switch (modelType) {
 		case EXPERIMENTAL_DATA:
 			// Obtain an OpenFSMR template per data file
@@ -254,21 +258,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			}
 			break;
 		}
-
-		DataTableSpec tableSpec = new OpenFSMRSchema().createSpec();
-		BufferedDataContainer container = exec.createDataContainer(tableSpec);
-		// Adds templates to the container
-		for (FSMRTemplate template : templates) {
-			KnimeTuple tuple = createTupleFromTemplate(template);
-			container.addRowToTable(tuple);
-
-			// Updates progress bar
-			float progress = container.size() / templates.size();
-			exec.setProgress(progress);
-		}
-		container.close();
-		BufferedDataTable[] tables = { container.getTable() };
-		return tables;
+		return templates;
 	}
 
 	private static FSMRTemplate processData(NuMLDocument doc) {
@@ -661,12 +651,12 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			String creator = template.getCreator();
 			tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATOR, creator);
 		}
-		
+
 		if (template.isSetFamilyName()) {
 			String familyName = template.getFamilyName();
 			tuple.setValue(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME, familyName);
 		}
-		
+
 		if (template.isSetContact()) {
 			String contact = template.getContact();
 			tuple.setValue(OpenFSMRSchema.ATT_MODEL_CONTACT, contact);

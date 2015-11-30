@@ -180,11 +180,6 @@ public class PMFSpeciesImpl implements PMFSpecies {
 		species.setName(name);
 	}
 
-//	/** {@inheritDoc} */
-//	public void setSubstanceUnits(String substanceUnits) {
-//		species.setSubstanceUnits(substanceUnits);
-//	}
-
 	/** {@inheritDoc} */
 	public void setUnits(String units) {
 		species.setUnits(units);
@@ -210,11 +205,6 @@ public class PMFSpeciesImpl implements PMFSpecies {
 			this.description = description;
 		}
 	}
-
-//	/** {@inheritDoc} */
-//	public boolean isSetUnits() {
-//		return species.isSetUnits();
-//	}
 
 	/** {@inheritDoc} */
 	public boolean isSetCombaseCode() {
@@ -271,5 +261,4 @@ public class PMFSpeciesImpl implements PMFSpecies {
 
 		return true;
 	}
-
 }

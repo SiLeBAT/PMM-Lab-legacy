@@ -37,6 +37,7 @@ import de.bund.bfr.pmf.sbml.CorrelationTest;
 import de.bund.bfr.pmf.sbml.DataSourceNodeTest;
 import de.bund.bfr.pmf.sbml.GlobalModelIdNodeTest;
 import de.bund.bfr.pmf.sbml.LimitsTest;
+import de.bund.bfr.pmf.sbml.MetadataAnnotationTest;
 import de.bund.bfr.pmf.sbml.MetadataImplTest;
 import de.bund.bfr.pmf.sbml.ModelVariableTest;
 import de.bund.bfr.pmf.sbml.PMFCoefficientImplTest;
@@ -45,8 +46,10 @@ import de.bund.bfr.pmf.sbml.PMFSpeciesImplTest;
 import de.bund.bfr.pmf.sbml.PMFUnitTest;
 import de.bund.bfr.pmf.sbml.PrimaryModelNodeTest;
 import de.bund.bfr.pmf.sbml.ReferenceImplTest;
+import de.bund.bfr.pmf.sbml.ReferenceSBMLNodeTest;
 import de.bund.bfr.pmf.sbml.ReferenceTypeTest;
 import de.bund.bfr.pmf.sbml.UncertaintiesImplTest;
+import de.bund.bfr.pmf.sbml.UncertaintyNodeTest;
 
 /**
  * @author Miguel Alba
@@ -68,9 +71,11 @@ import de.bund.bfr.pmf.sbml.UncertaintiesImplTest;
 	DataSourceNodeTest.class,
 	GlobalModelIdNodeTest.class,
 	LimitsTest.class,
+	MetadataAnnotationTest.class,
 	MetadataImplTest.class,
 	ModelVariableTest.class,
 	ReferenceImplTest.class,
+	ReferenceSBMLNodeTest.class,
 	ReferenceTypeTest.class,
 	PMFCoefficientImplTest.class,
 	PMFCompartmentImplTest.class,
@@ -78,6 +83,7 @@ import de.bund.bfr.pmf.sbml.UncertaintiesImplTest;
 	PMFSpeciesImplTest.class,
 	PrimaryModelNodeTest.class,
 	UncertaintiesImplTest.class,
+	UncertaintyNodeTest.class,
 	// de.bund.bfr.pmf
 	ModelClassTest.class
 })

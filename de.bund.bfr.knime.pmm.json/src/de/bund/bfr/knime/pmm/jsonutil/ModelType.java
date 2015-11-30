@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.sbmlutil;
+package de.bund.bfr.knime.pmm.jsonutil;
 
 import org.knime.core.data.DataTableSpec;
 

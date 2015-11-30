@@ -61,7 +61,7 @@ import de.bund.bfr.knime.pmm.jsonutil.JSONMatrix;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel1;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel2;
 import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
-import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
+import de.bund.bfr.knime.pmm.jsonutil.ModelType;
 
 /**
  * This is the model implementation of JSONEncoder. Turns a PMM Lab table into

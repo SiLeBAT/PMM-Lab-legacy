@@ -31,7 +31,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel1;
 import de.bund.bfr.knime.pmm.jsonutil.JSONModel2;
 import de.bund.bfr.knime.pmm.jsonutil.JSONTimeSeries;
-import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
+import de.bund.bfr.knime.pmm.jsonutil.ModelType;
 
 /**
  * This is the model implementation of JSONDecoder. Turns a JSON table into a
@@ -61,11 +61,11 @@ public class JSONDecoderNodeModel extends NodeModel {
 
 		// Find out model type
 		JSONObject jo = (JSONObject) models.get(0);
-		ModelType modelType;
+		de.bund.bfr.knime.pmm.jsonutil.ModelType modelType;
 		if (jo.containsKey("TimeSeriesSchema")
 				&& jo.containsKey("Model1Schema")
 				&& jo.containsKey("Model2Schema")) {
-			modelType = ModelType.TERTIARY;
+			modelType = de.bund.bfr.knime.pmm.jsonutil.ModelType.TERTIARY;
 		} else if (jo.containsKey("TimeSeriesSchema")
 				&& jo.containsKey("Model1Schema")) {
 			modelType = ModelType.PRIMARY;

@@ -2,7 +2,8 @@ package de.bund.bfr.knime.pmm.sbmlreader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,39 +26,60 @@ import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Unit;
+import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
-import de.bund.bfr.knime.pmm.annotation.sbml.Model1Annotation;
-import de.bund.bfr.knime.pmm.annotation.sbml.Model2Annotation;
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
-import de.bund.bfr.knime.pmm.sbmlutil.Agent;
-import de.bund.bfr.knime.pmm.sbmlutil.Coefficient;
-import de.bund.bfr.knime.pmm.sbmlutil.Limits;
-import de.bund.bfr.knime.pmm.sbmlutil.Matrix;
-import de.bund.bfr.knime.pmm.sbmlutil.Model1Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.Model2Rule;
-import de.bund.bfr.knime.pmm.sbmlutil.ModelType;
-import de.bund.bfr.knime.pmm.sbmlutil.ReaderUtils;
-import de.bund.bfr.knime.pmm.sbmlutil.SecDep;
-import de.bund.bfr.knime.pmm.sbmlutil.SecIndep;
-import de.bund.bfr.knime.pmm.sbmlutil.Uncertainties;
+import de.bund.bfr.knime.pmm.extendedtable.Model1Metadata;
+import de.bund.bfr.knime.pmm.extendedtable.Model2Metadata;
+import de.bund.bfr.knime.pmm.extendedtable.TimeSeriesMetadata;
+import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.extendedtable.items.EMLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDAgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MDMatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.MLiteratureItem;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model1MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2AgentXml;
+import de.bund.bfr.knime.pmm.extendedtable.items.Model2MatrixXml;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.pmf.ModelType;
+import de.bund.bfr.pmf.sbml.Correlation;
+import de.bund.bfr.pmf.sbml.Limits;
+import de.bund.bfr.pmf.sbml.LimitsConstraint;
+import de.bund.bfr.pmf.sbml.Model1Annotation;
+import de.bund.bfr.pmf.sbml.Model2Annotation;
+import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.ModelVariable;
+import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.PMFCompartment;
+import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.Reference;
+import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.pmf.sbml.SecDep;
+import de.bund.bfr.pmf.sbml.SecIndep;
+import de.bund.bfr.pmf.sbml.Uncertainties;
 
 public class SBMLReaderNodeModel extends NodeModel {
 
@@ -90,106 +112,35 @@ public class SBMLReaderNodeModel extends NodeModel {
 
 		XMLNode docMetadata = doc.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 		XMLNode typeNode = docMetadata.getChildElement("type", "");
-		String modelType = typeNode.getChild(0).getCharacters();
+		String modelTypeString = typeNode.getChild(0).getCharacters();
+		ModelType modelType = ModelType.valueOf(modelTypeString);
 
 		BufferedDataContainer container;
 
-		if (modelType.equals(ModelType.PRIMARY_MODEL_WDATA.toString())) {
-			// Creates data spec and container
-			DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
-			container = exec.createDataContainer(spec);
-
-			KnimeTuple tuple = readPrimaryModelWData(doc);
-
-			// Adds tuple
-			container.addRowToTable(tuple);
-
-			// Shows warning
-			setWarningMessage("This primary model includes links to external data files that cannot be reached");
-
-			// Updates the progress bar
-			exec.setProgress(1.0);
-
-			// Closes the container
-			container.close();
-		}
-
-		else if (modelType.equals(ModelType.PRIMARY_MODEL_WODATA.toString())) {
-			// Creates data spec and container
-			DataTableSpec spec = SchemaFactory.createM1DataSchema().createSpec();
-			container = exec.createDataContainer(spec);
-
-			KnimeTuple tuple = readPrimaryModelWOData(doc);
-
-			// Adds tuple
-			container.addRowToTable(tuple);
-
-			// Updates the progress bar
-			exec.setProgress(1.0);
-
-			// Closes the container
-			container.close();
-		}
-
-		else if (modelType.equals(ModelType.TWO_STEP_SECONDARY_MODEL.toString())) {
-			// Creates data spec and container
-			DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-			container = exec.createDataContainer(spec);
-
-			KnimeTuple tuple = readTwoStepSecondaryModel(doc);
-
-			// Adds tuple
-			container.addRowToTable(tuple);
-
-			// Shows warning
-			setWarningMessage(
-					"This secondary model includes links to external primary model and data files that cannot be reached");
-
-			// Updates the progress bar
-			exec.setProgress(1.0);
-
-			// Closes the container
-			container.close();
-		}
-
-		else if (modelType.equals(ModelType.ONE_STEP_SECONDARY_MODEL.toString())) {
-			// Creates data spec and container
-			DataTableSpec spec = SchemaFactory.createM12DataSchema().createSpec();
-			container = exec.createDataContainer(spec);
-
-			KnimeTuple tuple = readOneStepSecondaryModel(doc);
-
-			// Adds tuple
-			container.addRowToTable(tuple);
-
-			// Updates the progress bar
-			exec.setProgress(1.0);
-
-			// Closes the container
-			container.close();
-		}
-
-		else if (modelType.equals(ModelType.MANUAL_SECONDARY_MODEL.toString())) {
-			// Creates data spec and container
-			DataTableSpec spec = SchemaFactory.createM2Schema().createSpec();
-			container = exec.createDataContainer(spec);
-
-			KnimeTuple tuple = readManualSecondaryModel(doc);
-
-			// Adds tuple
-			container.addRowToTable(tuple);
-
-			// Updates the progress bar
-			exec.setProgress(1.0);
-
-			// Closes the container
-			container.close();
-		}
-
-		else {
+		switch (modelType) {
+		case EXPERIMENTAL_DATA:
+			setWarningMessage("SBML Reader does not support NuML. NuML Reader does.");
+			throw new Exception();
+		case PRIMARY_MODEL_WDATA:
+		case PRIMARY_MODEL_WODATA:
+			container = new PrimaryModelHandler().processDocument(exec, doc);
+			break;
+		case TWO_STEP_SECONDARY_MODEL:
+			container = new TwoStepSecondaryModelHandler().processDocument(exec, doc);
+			break;
+		case ONE_STEP_SECONDARY_MODEL:
+			container = new OneStepSecondaryModelHandler().processDocument(exec, doc);
+			break;
+		case MANUAL_SECONDARY_MODEL:
+			container = new ManualSecondaryModelHandler().processDocument(exec, doc);
+			break;
+		case TWO_STEP_TERTIARY_MODEL:
+		case ONE_STEP_TERTIARY_MODEL:
+		case MANUAL_TERTIARY_MODEL:
+			setWarningMessage("Tertiary models not supported currently");
+		default:
 			throw new Exception();
 		}
-		// TODO: tertiary model cases
 
 		BufferedDataTable[] table = { container.getTable() };
 		return table;
@@ -248,597 +199,705 @@ public class SBMLReaderNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 	}
+}
 
-	private KnimeTuple readPrimaryModelWData(SBMLDocument doc) {
+abstract class DocumentHandler {
 
-		Model model = doc.getModel();
+	public BufferedDataContainer processDocument(final ExecutionContext exec, final SBMLDocument doc) {
+		
+		// Creates table spec
+		final DataTableSpec spec = createSpec();
+		
+		// Creates container
+		final BufferedDataContainer container = exec.createDataContainer(spec);
+		
+		// Creates tuple from 'doc'
+		KnimeTuple tuple = readModel(doc);
+		
+		// Adds tuple
+		container.addRowToTable(tuple);
+		
+		// Updates the progress bar
+		exec.setProgress(1.0);
+		
+		// closes the container
+		container.close();
+		
+		return container;
+	}
+	
+	protected abstract DataTableSpec createSpec();
+	
+	protected abstract KnimeTuple readModel(SBMLDocument doc);
+}
 
-		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
+class PrimaryModelHandler extends DocumentHandler {
 
-		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
-
-		// Parse constraints
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
-
-		// time series cells
-		int condID = m1Annot.getCondID();
-		Agent agent = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		// Parse model variables
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-
-		// primary model cells
-
-		// Parse dep parameter (primary models only have one dependent var)
-		DepXml depXml = new DepXml("Value");
-		String depUnitID = agent.getSpecies().getUnits();
-		if (depUnitID != null) {
-			String depUnitName = model.getUnitDefinition(depUnitID).getName();
-			depXml.setUnit(depUnitName);
-			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
-		}
-		depXml.setDescription(agent.getDescription());
-
-		// Parse indep
-		Parameter indepParam = model.getParameter(Categories.getTime());
-		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
-		String indepUnitID = indepParam.getUnits();
-		if (!indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.getName())) {
-			String unitName = model.getUnitDefinition(indepUnitID).getName();
-			indepXml.setUnit(unitName);
-			indepXml.setCategory(Categories.getTimeCategory().getName());
-			indepXml.setDescription(Categories.getTime());
-		}
-		// Get limits
-		if (limits.containsKey(indepParam.getId())) {
-			Limits indepLimits = limits.get(indepParam.getId());
-			indepXml.setMax(indepLimits.getMax());
-			indepXml.setMin(indepLimits.getMin());
-		}
-
-		// Parse Consts
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : model.getListOfParameters()) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			}
-		}
-
-		PmmXmlDoc paramCell = new PmmXmlDoc();
-		for (Parameter constParam : constParams) {
-			paramCell.add(new Coefficient(constParam).toParamXml(model.getListOfUnitDefinitions(), limits));
-		}
-
-		Uncertainties uncertainties = m1Annot.getUncertainties();
-		EstModelXml estModel = uncertainties.getEstModelXml();
-		if (model.isSetName()) {
-			estModel.setName(model.getName());
-		}
-
-		PmmXmlDoc mLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : rule.getLits()) {
-			mLitCell.add(lit);
-		}
-
-		PmmXmlDoc emLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : m1Annot.getLits()) {
-			emLitCell.add(lit);
-		}
-
-		// Add cells to the row
-		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
-
-		// time series cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		row.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		row.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-		row.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		row.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		row.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-
-		// primary model cells
-		row.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		row.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		row.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
-		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
-		row.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		row.setValue(Model1Schema.ATT_MLIT, mLitCell);
-		row.setValue(Model1Schema.ATT_EMLIT, emLitCell);
-		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
-		row.setValue(Model1Schema.ATT_DBUUID, "?");
-
-		return row;
+	protected DataTableSpec createSpec() {
+		return SchemaFactory.createM1DataSchema().createSpec();
 	}
 
-	private KnimeTuple readPrimaryModelWOData(SBMLDocument doc) {
+	protected KnimeTuple readModel(SBMLDocument doc) {
+		return Util.mergeTuples(new DataTuple(doc), new Model1Tuple(doc));
+	}
+}
 
-		Model model = doc.getModel();
+class TwoStepSecondaryModelHandler extends DocumentHandler {
+	
+	protected DataTableSpec createSpec() {
+		return SchemaFactory.createM2Schema().createSpec();
+	}
+	
+	protected KnimeTuple readModel(SBMLDocument doc) {
+		return new Model2Tuple(doc.getModel()).tuple;
+	}
+}
 
-		// Parse model annotations
-		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
+class OneStepSecondaryModelHandler extends DocumentHandler {
+	
+	protected DataTableSpec createSpec() {
+		return SchemaFactory.createM12DataSchema().createSpec();
+	}
+	
+	protected KnimeTuple readModel(SBMLDocument doc) {
+		// Parses data columns
+		final KnimeTuple dataTuple = new DataTuple(doc).tuple;
 
-		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
+		// Parses primary model
+		final KnimeTuple m1Tuple = new Model1Tuple(doc).tuple;
 
-		// Parse constraints
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
+		// Parses secondary model
+		CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
+		ModelDefinition secModel = secCompPlugin.getModelDefinition(0);
+		final KnimeTuple m2Tuple = new Model2Tuple(secModel).tuple;
 
-		// time series cells
-		final int condID = m1Annot.getCondID();
-		Agent agent = new Agent(model.getSpecies(0));
-		Matrix matrix = new Matrix(model.getCompartment(0));
-
-		// Parse model variables: Temperature, pH and water activity
-		PmmXmlDoc miscCell = ReaderUtils.parseMiscs(matrix.getMiscs());
-
-		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
-
-		// primary model cells
-		// Parse dependent parameter (primary models only have one dependent
-		// variable)
-		DepXml depXml = new DepXml("Value");
-		String depUnitID = agent.getSpecies().getUnits();
-		if (depUnitID != null) {
-			String depUnitName = model.getUnitDefinition(depUnitID).getName();
-			depXml.setUnit(depUnitName);
-			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
-		}
-		depXml.setDescription(agent.getDescription());
-
-		// Parse indep
-		Parameter indepParam = model.getParameter(Categories.getTime());
-		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
-		String indepUnitID = indepParam.getUnits();
-		if (!indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.getName())) {
-			String unitName = model.getUnitDefinition(indepUnitID).getName();
-			indepXml.setUnit(unitName);
-			indepXml.setCategory(Categories.getTimeCategory().getName());
-			indepXml.setDescription(Categories.getTime());
-		}
-		// Get limits
-		if (limits.containsKey(indepParam.getId())) {
-			Limits indepLimits = limits.get(indepParam.getId());
-			indepXml.setMax(indepLimits.getMax());
-			indepXml.setMin(indepLimits.getMin());
-		}
-
-		// Parse Consts
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : model.getListOfParameters()) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			}
-		}
-
-		PmmXmlDoc paramCell = new PmmXmlDoc();
-		for (Parameter constParam : constParams) {
-			paramCell.add(new Coefficient(constParam).toParamXml(model.getListOfUnitDefinitions(), limits));
-		}
-
-		Uncertainties uncertainties = m1Annot.getUncertainties();
-		EstModelXml estModel = uncertainties.getEstModelXml();
-
-		if (model.isSetName()) {
-			estModel.setName(model.getName());
-		}
-
-		PmmXmlDoc mLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : rule.getLits()) {
-			mLitCell.add(lit);
-		}
-
-		PmmXmlDoc emLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : m1Annot.getLits()) {
-			emLitCell.add(lit);
-		}
-
-		// Add cells to the row
-		KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
-
-		// time series cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		row.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		row.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agent.toAgentXml()));
-		row.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrix.toMatrixXml()));
-		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		row.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		row.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-
-		// primary model cells
-		row.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		row.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		row.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
-		row.setValue(Model1Schema.ATT_PARAMETER, paramCell);
-		row.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		row.setValue(Model1Schema.ATT_MLIT, mLitCell);
-		row.setValue(Model1Schema.ATT_EMLIT, emLitCell);
-		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
-		row.setValue(Model1Schema.ATT_DBUUID, "?");
-
+		final KnimeTuple row = Util.mergeTuples(dataTuple, m1Tuple, m2Tuple);
 		return row;
 	}
+}
 
-	private KnimeTuple readManualSecondaryModel(SBMLDocument doc) {
-
-		Model model = doc.getModel();
-
-		// Parse constraints
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
-
-		// Parse rule
-		Model2Rule rule = new Model2Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
-
-		// Parse dep
-		String depName = rule.getRule().getVariable();
-		DepXml depXml = new DepXml(depName);
-		Parameter depParam = model.getParameter(depName);
-		if (depParam.getUnits() != null && !depParam.getUnits().isEmpty()) {
-			// Add unit
-			String unitID = depParam.getUnits();
-			String unitName = model.getUnitDefinition(unitID).getName();
-			depXml.setUnit(unitName);
-
-			// Add unit category
-			if (unitName.equals("min") || unitName.equals("h")) {
-				depXml.setCategory(Categories.getTimeCategory().getName());
-			} else if (unitName.equals("°C")) {
-				depXml.setCategory(Categories.getTempCategory().getName());
-			}
-		}
-
-		// Sort const and indep params
-		LinkedList<Parameter> indepParams = new LinkedList<>();
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : model.getListOfParameters()) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			} else if (!param.getId().equals(depName)) {
-				indepParams.add(param);
-			}
-		}
-
-		// Parse indeps
-		PmmXmlDoc indepCell = new PmmXmlDoc();
-		for (Parameter param : indepParams) {
-			indepCell.add(new SecIndep(param).toIndepXml(model.getListOfUnitDefinitions(), limits));
-		}
-
-		// Parse consts
-		PmmXmlDoc constCell = new PmmXmlDoc();
-		for (Parameter param : constParams) {
-			constCell.add(new Coefficient(param).toParamXml(model.getListOfUnitDefinitions(), limits));
-		}
-
-		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
-
-		// EstModel
-		Uncertainties uncertainties = m2Annot.getUncertainties();
-		EstModelXml estModelXml = uncertainties.getEstModelXml();
-		if (model.isSetName()) {
-			estModelXml.setName(model.getName());
-		}
-
-		// Get globalModelID from annotation
-		int globalModelID = m2Annot.getGlobalModelID();
-
-		PmmXmlDoc mLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : rule.getLits()) {
-			mLitCell.add(lit);
-		}
-
-		// Get EM_Literature (references) from annotation
-		PmmXmlDoc emLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : m2Annot.getLiteratureItems()) {
-			emLitCell.add(lit);
-		}
-
-		// Add cells to the row
-		KnimeTuple row = new KnimeTuple(SchemaFactory.createM2Schema());
-		row.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		row.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		row.setValue(Model2Schema.ATT_INDEPENDENT, indepCell);
-		row.setValue(Model2Schema.ATT_PARAMETER, constCell);
-		row.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModelXml));
-		row.setValue(Model2Schema.ATT_MLIT, mLitCell);
-		row.setValue(Model2Schema.ATT_EMLIT, emLitCell);
-		row.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
-		row.setValue(Model2Schema.ATT_DBUUID, "?");
-		row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
-		return row;
+class ManualSecondaryModelHandler extends DocumentHandler {
+	
+	protected DataTableSpec createSpec() {
+		return SchemaFactory.createM2Schema().createSpec();
 	}
-
-	private KnimeTuple readTwoStepSecondaryModel(SBMLDocument doc) {
-
-		Model model = doc.getModel();
-
-		// Parse constraints
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
-
-		// Parse rule
-		Model2Rule rule = new Model2Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
-
-		// Parse dep
-		String depName = rule.getRule().getVariable();
-		DepXml depXml = new DepXml(depName);
-		Parameter depParam = model.getParameter(depName);
-		if (depParam.getUnits() != null && !depParam.getUnits().isEmpty()) {
-			// Add unit
-			String unitID = depParam.getUnits();
-			String unitName = model.getUnitDefinition(unitID).getName();
-			depXml.setUnit(unitName);
-
-			// Add unit category
-			if (unitName.equals("min") || unitName.equals("h")) {
-				depXml.setCategory(Categories.getTimeCategory().getName());
-			} else if (unitName.equals("°C")) {
-				depXml.setCategory(Categories.getTempCategory().getName());
-			}
-		}
-
-		// Sort const and indep params
-		LinkedList<Parameter> indepParams = new LinkedList<>();
-		LinkedList<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : model.getListOfParameters()) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			} else if (!param.getId().equals(depName)) {
-				indepParams.add(param);
-			}
-		}
-
-		// Parse indeps
-		PmmXmlDoc indepCell = new PmmXmlDoc();
-		for (Parameter param : indepParams) {
-			indepCell.add(new SecIndep(param).toIndepXml(model.getListOfUnitDefinitions(), limits));
-		}
-
-		// Parse consts
-		PmmXmlDoc constCell = new PmmXmlDoc();
-		for (Parameter param : constParams) {
-			constCell.add(new Coefficient(param).toParamXml(model.getListOfUnitDefinitions(), limits));
-		}
-
-		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
-
-		// EstModel
-		Uncertainties uncertainties = m2Annot.getUncertainties();
-		EstModelXml estModel = uncertainties.getEstModelXml();
-		if (model.isSetName()) {
-			estModel.setName(model.getName());
-		}
-
-		// Get globalModelID from annotation
-		int globalModelID = m2Annot.getGlobalModelID();
-
-		PmmXmlDoc secMLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : rule.getLits()) {
-			secMLitCell.add(lit);
-		}
-
-		// Get EM_Literature (references) from annotation
-		PmmXmlDoc secEmLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : m2Annot.getLiteratureItems()) {
-			secEmLitCell.add(lit);
-		}
-
-		KnimeTuple row = new KnimeTuple(SchemaFactory.createM12DataSchema());
-
-		// TimeSeriesSchema cells
-		row.setValue(TimeSeriesSchema.ATT_CONDID, MathUtilities.getRandomNegativeInt());
-		row.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		row.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_MISC, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-		row.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-
-		// Model1Schema cells
-		row.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_PARAMETER, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_MLIT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_EMLIT, new PmmXmlDoc());
-		row.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
-		row.setValue(Model1Schema.ATT_DBUUID, "?");
-
-		// Model2Schema cells
-		row.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		row.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		row.setValue(Model2Schema.ATT_INDEPENDENT, indepCell);
-		row.setValue(Model2Schema.ATT_PARAMETER, constCell);
-		row.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		row.setValue(Model2Schema.ATT_MLIT, secMLitCell);
-		row.setValue(Model2Schema.ATT_EMLIT, secEmLitCell);
-		row.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
-		row.setValue(Model2Schema.ATT_DBUUID, "?");
-		row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
-
-		return row;
+	
+	protected KnimeTuple readModel(SBMLDocument doc) {
+		return new Model2Tuple(doc.getModel()).tuple;
 	}
+}
 
-	private KnimeTuple readOneStepSecondaryModel(SBMLDocument doc) {
+class TertiaryModelHandler extends DocumentHandler {
+	
+	protected DataTableSpec createSpec() {
+		return SchemaFactory.createM1DataSchema().createSpec();
+	}
+	
+	protected KnimeTuple readModel(SBMLDocument doc) {
+		return Util.mergeTuples(new DataTuple(doc), new Model1Tuple(doc));
+	}
+}
 
+class DataTuple {
+
+	KnimeTuple tuple;
+	private static final KnimeSchema SCHEMA = SchemaFactory.createDataSchema();
+
+	public DataTuple(SBMLDocument doc) {
 		Model model = doc.getModel();
+
 		// Parses annotation
 		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
-		Model1Rule rule = new Model1Rule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = rule.toCatModel();
+		PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+		final int agentID = MathUtilities.getRandomNegativeInt();
+		AgentXml originalAgentXml = new AgentXml(agentID, species.getName(), species.getDetail(), null);
+		MDAgentXml agentXml = new MDAgentXml(agentID, species.getName(), species.getDetail(), null);
 
-		// Parse constraints
-		ListOf<Constraint> constraints = model.getListOfConstraints();
-		Map<String, Limits> limits = ReaderUtils.parseConstraints(constraints);
+		PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+		final int matrixID = MathUtilities.getRandomNegativeInt();
+		MatrixXml originalMatrixXml = new MatrixXml(matrixID, compartment.getName(), compartment.getDetail(), null);
+		MDMatrixXml matrixXml = new MDMatrixXml(matrixID, compartment.getName(), compartment.getDetail(), null);
 
-		Agent agent = new Agent(model.getSpecies(0));
+		TimeSeriesMetadata metadata = new TimeSeriesMetadata();
+		metadata.setAgentXml(agentXml);
+		metadata.setMatrixXml(matrixXml);
 
-		// Parse dependent parameter (primary models only have one dependent
-		// variable)
+		PmmXmlDoc miscCell = new PmmXmlDoc();
+		if (compartment.isSetModelVariables()) {
+			Map<String, Double> miscs = new HashMap<>(compartment.getModelVariables().length);
+			for (final ModelVariable modelVariable : compartment.getModelVariables()) {
+				miscs.put(modelVariable.getName(), modelVariable.getValue());
+			}
+			miscCell = Util.parseMiscs(miscs);
+		}
+
+		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
+
+		tuple = new KnimeTuple(SCHEMA);
+		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
+		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
+		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
+		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
+		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
+		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
+		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		tuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
+	}
+}
+
+class Model1Tuple {
+
+	KnimeTuple tuple;
+
+	private static final KnimeSchema SCHEMA = SchemaFactory.createM1Schema();
+
+	public Model1Tuple(SBMLDocument doc) {
+		Model model = doc.getModel();
+
+		// Parses annotation
+		Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
+
+		ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+		CatalogModelXml catModel = Util.model1Rule2CatModel(rule);
+
+		// Parses constraints
+		Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
+
+		PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+
 		DepXml depXml = new DepXml("Value");
-		String depUnitID = agent.getSpecies().getUnits();
+		String depUnitID = species.getUnits();
 		if (depUnitID != null) {
-			String depUnitName = model.getUnitDefinition(depUnitID).getName();
-			depXml.setUnit(depUnitName);
-			depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+			if (depUnitID.equals("dimensionless")) {
+				depXml.setUnit("dimensionless");
+				depXml.setCategory("Dimensionless quantity");
+			} else {
+				String depUnitName = model.getUnitDefinition(depUnitID).getName();
+				depXml.setUnit(depUnitName);
+				depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+			}
 		}
-		depXml.setDescription(agent.getDescription());
-		// Gets limits
-		if (limits.containsKey(agent.getSpecies().getId())) {
-			Limits depLimits = limits.get(agent.getSpecies().getId());
-			depXml.setMax(depLimits.getMax());
-			depXml.setMin(depLimits.getMin());
+		if (species.isSetDescription()) {
+			depXml.setDescription(species.getDescription());
 		}
 
-		// Parse indep
+		// Gets limits
+		if (limits.containsKey(species.getId())) {
+			Limits depLimits = limits.get(species.getId());
+			depXml.setMin(depLimits.getMin());
+			depXml.setMax(depLimits.getMax());
+		}
+
+		// Parses indeps
 		Parameter indepParam = model.getParameter(Categories.getTime());
 		IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
 		String indepUnitID = indepParam.getUnits();
-		if (!indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.getName())) {
+		if (!indepUnitID.isEmpty() && !indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.name())) {
 			String unitName = model.getUnitDefinition(indepUnitID).getName();
 			indepXml.setUnit(unitName);
+			;
 			indepXml.setCategory(Categories.getTimeCategory().getName());
 			indepXml.setDescription(Categories.getTime());
 		}
-		// Get limits
+
+		// Gets limits
 		if (limits.containsKey(indepParam.getId())) {
 			Limits indepLimits = limits.get(indepParam.getId());
-			indepXml.setMax(indepLimits.getMax());
 			indepXml.setMin(indepLimits.getMin());
+			indepXml.setMax(indepLimits.getMax());
 		}
 
-		// Parse Consts
-		List<Parameter> constParams = new LinkedList<>();
-		for (Parameter param : model.getListOfParameters()) {
-			if (param.isConstant()) {
-				constParams.add(param);
-			}
-		}
-
+		// Parse consts
 		PmmXmlDoc paramCell = new PmmXmlDoc();
-		for (Parameter constParam : constParams) {
-			paramCell.add(new Coefficient(constParam).toParamXml(model.getListOfUnitDefinitions(), limits));
+		for (Parameter param : model.getListOfParameters()) {
+			if (!param.isConstant())
+				continue;
+
+			ParamXml paramXml = new ParamXml(param.getId(), param.getValue());
+
+			String unitID = param.getUnits();
+			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
+				String unitName = model.getUnitDefinition(unitID).getName();
+				paramXml.setUnit(unitName);
+				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+			}
+
+			PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(param);
+			if (coefficient.isSetP()) {
+				paramXml.setP(coefficient.getP());
+			}
+			if (coefficient.isSetError()) {
+				paramXml.setError(coefficient.getError());
+			}
+			if (coefficient.isSetT()) {
+				paramXml.setT(coefficient.getT());
+			}
+			if (coefficient.isSetDescription()) {
+				paramXml.setDescription(coefficient.getDescription());
+			}
+			if (coefficient.isSetCorrelations()) {
+				for (Correlation correlation : coefficient.getCorrelations()) {
+					paramXml.addCorrelation(correlation.getName(), correlation.getValue());
+				}
+			}
+			// Adds limits
+			if (limits.containsKey(param.getId())) {
+				Limits constLimits = limits.get(param.getId());
+				paramXml.setMin(constLimits.getMin());
+				paramXml.setMax(constLimits.getMax());
+			}
+			paramCell.add(paramXml);
 		}
 
-		Uncertainties uncertainties = m1Annot.getUncertainties();
-		EstModelXml estModel = uncertainties.getEstModelXml();
+		EstModelXml estModel = Util.uncertainties2EstModel(m1Annot.getUncertainties());
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}
 
-		// Gets model literature
-		PmmXmlDoc mLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : rule.getLits()) {
-			mLitCell.add(lit);
+		Model1AgentXml agentXml = new Model1AgentXml(MathUtilities.getRandomNegativeInt(), species.getName(),
+				species.getDetail(), null);
+
+		PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+		Model1MatrixXml matrixXml = new Model1MatrixXml(MathUtilities.getRandomNegativeInt(), compartment.getName(),
+				compartment.getDetail(), null);
+
+		Model1Metadata metadata = new Model1Metadata();
+		metadata.setAgentXml(agentXml);
+		metadata.setMatrixXml(matrixXml);
+
+		// Reads model literature
+		PmmXmlDoc mLit = new PmmXmlDoc();
+		for (Reference ref : rule.getReferences()) {
+			String author = ref.getAuthor();
+			Integer year = ref.getYear();
+			String title = ref.getTitle();
+			String abstractText = ref.getAbstractText();
+			String journal = ref.getJournal();
+			String volume = ref.getVolume();
+			String issue = ref.getIssue();
+			Integer page = ref.getPage();
+			Integer approvalMode = ref.getApprovalMode();
+			String website = ref.getWebsite();
+			Integer type = ref.isSetType() ? ref.getType().value() : null;
+			String comment = ref.getComment();
+
+			LiteratureItem literatureItem = new LiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment);
+			mLit.add(literatureItem);
+
+			MLiteratureItem mLiteratureItem = new MLiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment);
+			metadata.addLiteratureItem(mLiteratureItem);
 		}
 
-		// Gets estimated model literature
-		PmmXmlDoc emLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : m1Annot.getLits()) {
-			emLitCell.add(lit);
+		// Reads estimated model literature
+		PmmXmlDoc emLit = new PmmXmlDoc();
+		for (Reference ref : m1Annot.getReferences()) {
+			String author = ref.getAuthor();
+			Integer year = ref.getYear();
+			String title = ref.getTitle();
+			String abstractText = ref.getAbstractText();
+			String journal = ref.getJournal();
+			String volume = ref.getVolume();
+			String issue = ref.getIssue();
+			Integer page = ref.getPage();
+			Integer approvalMode = ref.getApprovalMode();
+			String website = ref.getWebsite();
+			Integer type = ref.isSetType() ? ref.getType().value() : null;
+			String comment = ref.getComment();
+
+			EMLiteratureItem emLiteratureItem = new EMLiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment);
+			metadata.addLiteratureItem(emLiteratureItem);
+
+			LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page,
+					approvalMode, website, type, comment);
+			emLit.add(lit);
 		}
 
-		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM12DataSchema());
+		tuple = new KnimeTuple(SCHEMA);
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
 		tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
 		tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
 		tuple.setValue(Model1Schema.ATT_PARAMETER, paramCell);
 		tuple.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		tuple.setValue(Model1Schema.ATT_MLIT, mLitCell);
-		tuple.setValue(Model1Schema.ATT_EMLIT, emLitCell);
+		tuple.setValue(Model1Schema.ATT_MLIT, mLit);
+		tuple.setValue(Model1Schema.ATT_EMLIT, emLit);
 		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
 		tuple.setValue(Model1Schema.ATT_DBUUID, "?");
+		tuple.setValue(Model1Schema.ATT_METADATA, metadata);
+	}
+}
 
-		// Parses secondary model
-		CompSBMLDocumentPlugin secCompPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
-		ModelDefinition secModel = secCompPlugin.getModelDefinition(0);
-		
-		// Parse constraints
-		Map<String, Limits> secLimits = ReaderUtils.parseConstraints(secModel.getListOfConstraints());
+class Model2Tuple {
 
-		// Parse rule
-		Model2Rule rule2 = new Model2Rule((AssignmentRule) secModel.getRule(0));
-		CatalogModelXml secCatModel = rule.toCatModel();
+	KnimeTuple tuple;
+	private static final KnimeSchema SCHEMA = SchemaFactory.createM2Schema();
 
-		// Parse dep
-		String secDepName = rule2.getRule().getVariable();
-		SecDep secDep = new SecDep(secModel.getParameter(secDepName));
-		DepXml secDepXml = secDep.toDepXml(secModel.getListOfUnitDefinitions(), secLimits);
+	public Model2Tuple(Model model) {
+		Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
 
-		// Sort consts and indep params
-		List<Parameter> secIndeps = new LinkedList<>();
-		List<Parameter> secConsts = new LinkedList<>();
-		for (Parameter param : secModel.getListOfParameters()) {
-			if (param.isConstant()) {
-				secConsts.add(param);
-			} else if (!param.getId().equals(secDepName)) {
-				secIndeps.add(param);
+		// Parses rule
+		ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+		CatalogModelXml catModel = Util.model2Rule2CatModel(rule);
+
+		// Parses dep
+		String depName = rule.getRule().getVariable();
+
+		SecDep secDep = new SecDep(model.getParameter(depName));
+		DepXml depXml = new DepXml(secDep.getParam().getId());
+		depXml.setDescription(secDep.getDescription());
+		if (secDep.getParam().isSetUnits()) {
+			// Adds unit
+			String unitID = secDep.getParam().getUnits();
+			String unitName = model.getUnitDefinition(unitID).getName();
+			depXml.setUnit(unitName);
+
+			// Adds unit category
+			Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
+			if (dbUnits.containsKey(unitName)) {
+				UnitsFromDB dbUnit = dbUnits.get(unitName);
+				depXml.setCategory(dbUnit.getKind_of_property_quantity());
+			}
+
+			// Adds limits
+			if (limits.containsKey(secDep.getParam().getId())) {
+				Limits depLimits = limits.get(secDep.getParam().getId());
+				depXml.setMin(depLimits.getMin());
+				depXml.setMax(depLimits.getMax());
 			}
 		}
 
-		// Parse indeps
-		PmmXmlDoc secIndepCell = new PmmXmlDoc();
-		for (Parameter param : secIndeps) {
-			secIndepCell.add(new SecIndep(param).toIndepXml(secModel.getListOfUnitDefinitions(), limits));
+		PmmXmlDoc indeps = new PmmXmlDoc();
+		PmmXmlDoc consts = new PmmXmlDoc();
+
+		for (Parameter param : model.getListOfParameters()) {
+			if (param.isConstant()) {
+				ParamXml paramXml = processCoefficient(param, model.getListOfUnitDefinitions(), limits);
+				consts.add(paramXml);
+			} else if (!param.getId().equals(depName)) {
+				IndepXml indepXml = processIndep(param, model.getListOfUnitDefinitions(), limits);
+				indeps.add(indepXml);
+			}
 		}
 
-		// Parse consts
-		PmmXmlDoc secConstCell = new PmmXmlDoc();
-		for (Parameter param : secConsts) {
-			secConstCell.add(new Coefficient(param).toParamXml(secModel.getListOfUnitDefinitions(), limits));
-		}
-
-		// Get model annotation
-		Model2Annotation m2Annot = new Model2Annotation(secModel.getAnnotation());
+		// Get model annotations
+		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
-		Uncertainties secUncertainties = m2Annot.getUncertainties();
-		EstModelXml secEstModel = secUncertainties.getEstModelXml();
-		if (secModel.isSetName()) {
-			secEstModel.setName(secModel.getName());
+		EstModelXml estModel = Util.uncertainties2EstModel(m2Annot.getUncertainties());
+		if (model.isSetName()) {
+			estModel.setName(model.getName());
 		}
 
-		// Get globalModelID from annotation
-		int globalModelID = m2Annot.getGlobalModelID();
+		Model2Metadata metadata = new Model2Metadata();
+
+		if (model.getListOfSpecies().size() == 1) {
+			PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+			Model2AgentXml agentXml = new Model2AgentXml(MathUtilities.getRandomNegativeInt(), species.getName(),
+					species.getDetail(), null);
+			metadata.setAgentXml(agentXml);
+		}
+
+		if (model.getListOfCompartments().size() == 1) {
+			PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+			Model2MatrixXml matrixXml = new Model2MatrixXml(MathUtilities.getRandomNegativeInt(), compartment.getName(),
+					compartment.getDetail(), null);
+			metadata.setMatrixXml(matrixXml);
+		}
 
 		// Gets model literature
-		PmmXmlDoc secMLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : rule2.getLits()) {
-			secMLitCell.add(lit);
+		final PmmXmlDoc mLits = new PmmXmlDoc();
+		for (final Reference ref : rule.getReferences()) {
+			final String author = ref.getAuthor();
+			final Integer year = ref.getYear();
+			final String title = ref.getTitle();
+			final String abstractText = ref.getAbstractText();
+			final String journal = ref.getJournal();
+			final String volume = ref.getVolume();
+			final String issue = ref.getIssue();
+			final Integer page = ref.getPage();
+			final Integer approvalMode = ref.getApprovalMode();
+			final String website = ref.getWebsite();
+			final Integer type = ref.isSetType() ? ref.getType().value() : null;
+			final String comment = ref.getComment();
+
+			final LiteratureItem literatureItem = new LiteratureItem(author, year, title, abstractText, journal, volume,
+					issue, page, approvalMode, website, type, comment);
+			mLits.add(literatureItem);
+
+			final MLiteratureItem mLiteratureItem = new MLiteratureItem(author, year, title, abstractText, journal,
+					volume, issue, page, approvalMode, website, type, comment);
+			metadata.addLiteratureItem(mLiteratureItem);
 		}
 
-		// Get EM_Literature (references) from annotation
-		PmmXmlDoc secEmLitCell = new PmmXmlDoc();
-		for (LiteratureItem lit : m2Annot.getLiteratureItems()) {
-			secEmLitCell.add(lit);
+		// Gets estimated model literature
+		final PmmXmlDoc emLits = new PmmXmlDoc();
+		for (final Reference ref : m2Annot.getReferences()) {
+			final String author = ref.getAuthor();
+			final Integer year = ref.getYear();
+			final String title = ref.getTitle();
+			final String abstractText = ref.getAbstractText();
+			final String journal = ref.getJournal();
+			final String volume = ref.getVolume();
+			final String issue = ref.getIssue();
+			final Integer page = ref.getPage();
+			final Integer approvalMode = ref.getApprovalMode();
+			final String website = ref.getWebsite();
+			final Integer type = ref.isSetType() ? ref.getType().value() : null;
+			final String comment = ref.getComment();
+
+			final LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal, volume, issue,
+					page, approvalMode, website, type, comment);
+			emLits.add(lit);
+
+			final EMLiteratureItem emLiteratureItem = new EMLiteratureItem(author, year, title, abstractText, journal,
+					volume, issue, page, approvalMode, website, type, comment);
+			metadata.addLiteratureItem(emLiteratureItem);
 		}
 
-		tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(secCatModel));
-		tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(secDepXml));
-		tuple.setValue(Model2Schema.ATT_INDEPENDENT, secIndepCell);
-		tuple.setValue(Model2Schema.ATT_PARAMETER, secConstCell);
-		tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(secEstModel));
-		tuple.setValue(Model2Schema.ATT_MLIT, secMLitCell);
-		tuple.setValue(Model2Schema.ATT_EMLIT, secEmLitCell);
+		tuple = new KnimeTuple(SCHEMA);
+		tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+		tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indeps);
+		tuple.setValue(Model2Schema.ATT_PARAMETER, consts);
+		tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+		tuple.setValue(Model2Schema.ATT_MLIT, mLits);
+		tuple.setValue(Model2Schema.ATT_EMLIT, emLits);
 		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
 		tuple.setValue(Model2Schema.ATT_DBUUID, "?");
-		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, globalModelID);
+		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
+		tuple.setValue(Model2Schema.ATT_METADATA, metadata);
+	}
+
+	private static ParamXml processCoefficient(Parameter param, ListOf<UnitDefinition> unitDefs,
+			Map<String, Limits> limits) {
+		// Creates ParamXml and adds description
+		ParamXml paramXml = new ParamXml(param.getId(), param.getValue());
+
+		// Assigns unit and category
+		String unitID = param.getUnits();
+		if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
+			String unitName = unitDefs.get(unitID).getName();
+			paramXml.setUnit(unitName);
+			paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+		}
+
+		PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(param);
+		if (coefficient.isSetDescription()) {
+			paramXml.setDescription(coefficient.getDescription());
+		}
+
+		// Adds correlations
+		if (coefficient.isSetCorrelations()) {
+			for (Correlation corr : coefficient.getCorrelations()) {
+				paramXml.addCorrelation(corr.getName(), corr.getValue());
+			}
+		}
+
+		// Adds limits
+		if (limits.containsKey(param.getId())) {
+			Limits constLimits = limits.get(param.getId());
+			paramXml.setMax(constLimits.getMax());
+			paramXml.setMin(constLimits.getMin());
+		}
+
+		return paramXml;
+	}
+
+	private static IndepXml processIndep(Parameter param, ListOf<UnitDefinition> unitDefs, Map<String, Limits> limits) {
+
+		// Adds limits
+		Double min = null;
+		Double max = null;
+		if (limits.containsKey(param.getId())) {
+			Limits indepLimits = limits.get(param.getId());
+			min = indepLimits.getMin();
+			max = indepLimits.getMax();
+		}
+
+		IndepXml indepXml = new IndepXml(param.getId(), min, max);
+
+		SecIndep secIndep = new SecIndep(param);
+		indepXml.setDescription(secIndep.getDescription());
+
+		// Adds unit and unit category
+		String unitID = param.getUnits();
+		if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
+			String unitName = unitDefs.get(unitID).getName();
+			indepXml.setUnit(unitName);
+			indepXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+		}
+
+		return indepXml;
+	}
+}
+
+class Util {
+
+	private Util() {
+	}
+
+	public static Map<String, Limits> parseConstraints(final ListOf<Constraint> constraints) {
+		Map<String, Limits> paramLimits = new HashMap<>();
+		for (Constraint currConstraint : constraints) {
+			LimitsConstraint lc = new LimitsConstraint(currConstraint);
+			Limits lcLimits = lc.getLimits();
+			paramLimits.put(lcLimits.getVar(), lcLimits);
+		}
+		return paramLimits;
+	}
+
+	public static CatalogModelXml model1Rule2CatModel(final ModelRule rule) {
+		final int formulaId = rule.getPmmlabID();
+		final String formulaName = rule.getFormulaName();
+		final int modelClass = rule.getModelClass().ordinal();
+
+		String formulaString = rule.getFormula();
+		formulaString = formulaString.replace("time", "Time");
+		formulaString = formulaString.replace("log(", "ln(");
+		final String formula = String.format("Value=%s", formulaString);
+
+		final CatalogModelXml catModel = new CatalogModelXml(formulaId, formulaName, formula, modelClass);
+		return catModel;
+	}
+
+	public static CatalogModelXml model2Rule2CatModel(final ModelRule rule) {
+		final int formulaId = rule.getPmmlabID();
+		final String formulaName = rule.getFormulaName();
+		final int modelClass = rule.getModelClass().ordinal();
+
+		String formulaString = rule.getFormula();
+		formulaString = formulaString.replace("time", "Time");
+		formulaString = formulaString.replace("log(", "ln(");
+		final String formula = String.format("%s=%s", rule.getVariable(), formulaString);
+
+		final CatalogModelXml catModel = new CatalogModelXml(formulaId, formulaName, formula, modelClass);
+		return catModel;
+	}
+
+	public static EstModelXml uncertainties2EstModel(final Uncertainties uncertainties) {
+		final int estModelId = uncertainties.getID();
+		final String modelName = uncertainties.getModelName();
+		final Double sse = uncertainties.getSSE();
+		final Double rms = uncertainties.getRMS();
+		final Double r2 = uncertainties.getR2();
+		final Double aic = uncertainties.getAIC();
+		final Double bic = uncertainties.getBIC();
+		final Integer dof = uncertainties.getDOF();
+
+		final EstModelXml estModel = new EstModelXml(estModelId, modelName, sse, rms, r2, aic, bic, dof);
+		return estModel;
+	}
+
+	public static PmmXmlDoc parseMiscs(final Map<String, Double> miscs) {
+		PmmXmlDoc cell = new PmmXmlDoc();
+
+		if (miscs != null) {
+			// First misc item has id -1 and the rest of items have negative
+			// ints
+			int counter = -1;
+			for (Map.Entry<String, Double> entry : miscs.entrySet()) {
+				String name = entry.getKey();
+				Double value = entry.getValue();
+
+				if (name.equals("Temperature")) {
+					final List<String> categories = Arrays.asList(Categories.getTempCategory().getName());
+					final String description = name;
+					final String unit = Categories.getTempCategory().getStandardUnit();
+
+					final MiscXml miscXml = new MiscXml(counter, name, description, value, categories, unit);
+					cell.add(miscXml);
+
+					counter--;
+				} else if (name.equals("pH")) {
+					final List<String> categories = Arrays.asList(Categories.getPhCategory().getName());
+					final String description = name;
+					final String unit = Categories.getPhUnit();
+
+					final MiscXml miscXml = new MiscXml(counter, name, description, value, categories, unit);
+					cell.add(miscXml);
+
+					counter--;
+				}
+			}
+		}
+		return cell;
+	}
+
+	public static KnimeTuple mergeTuples(final DataTuple dataTuple, final Model1Tuple m1Tuple) {
+		final KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
+
+		// Copies data columns
+		tuple.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.tuple.getInt(TimeSeriesSchema.ATT_CONDID));
+		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, dataTuple.tuple.getString(TimeSeriesSchema.ATT_COMBASEID));
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+		tuple.setValue(TimeSeriesSchema.ATT_MISC, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+		tuple.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.tuple.getString(TimeSeriesSchema.ATT_DBUUID));
+		tuple.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.tuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
+		
+		// Copies model1 columns
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
+		tuple.setValue(Model1Schema.ATT_DEPENDENT, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
+		tuple.setValue(Model1Schema.ATT_INDEPENDENT, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
+		tuple.setValue(Model1Schema.ATT_PARAMETER, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_PARAMETER));
+		tuple.setValue(Model1Schema.ATT_ESTMODEL, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_ESTMODEL));
+		tuple.setValue(Model1Schema.ATT_MLIT, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_MLIT));
+		tuple.setValue(Model1Schema.ATT_EMLIT, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_EMLIT));
+		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, m1Tuple.tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
+		tuple.setValue(Model1Schema.ATT_DBUUID, m1Tuple.tuple.getString(Model1Schema.ATT_DBUUID));
+		tuple.setValue(Model1Schema.ATT_METADATA, m1Tuple.tuple.getPmmXml(Model1Schema.ATT_METADATA));
+		
+		return tuple;
+	}
+
+	public static KnimeTuple mergeTuples(final KnimeTuple dataTuple, final KnimeTuple m1Tuple,
+			final KnimeTuple m2Tuple) {
+
+		final KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM12DataSchema());
+
+		tuple.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.getInt(TimeSeriesSchema.ATT_CONDID));
+		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, dataTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, dataTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT));
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX));
+		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, dataTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES));
+		tuple.setValue(TimeSeriesSchema.ATT_MISC, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC));
+		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO));
+		tuple.setValue(TimeSeriesSchema.ATT_LITMD, dataTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD));
+		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, dataTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+		tuple.setValue(TimeSeriesSchema.ATT_METADATA, dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
+
+		// Copies model1 columns
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
+		tuple.setValue(Model1Schema.ATT_DEPENDENT, m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
+		tuple.setValue(Model1Schema.ATT_INDEPENDENT, m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
+		tuple.setValue(Model1Schema.ATT_PARAMETER, m1Tuple.getPmmXml(Model1Schema.ATT_PARAMETER));
+		tuple.setValue(Model1Schema.ATT_ESTMODEL, m1Tuple.getPmmXml(Model1Schema.ATT_ESTMODEL));
+		tuple.setValue(Model1Schema.ATT_MLIT, m1Tuple.getPmmXml(Model1Schema.ATT_MLIT));
+		tuple.setValue(Model1Schema.ATT_EMLIT, m1Tuple.getPmmXml(Model1Schema.ATT_EMLIT));
+		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, m1Tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
+		tuple.setValue(Model1Schema.ATT_DBUUID, m1Tuple.getString(Model1Schema.ATT_DBUUID));
+		tuple.setValue(Model1Schema.ATT_METADATA, m1Tuple.getPmmXml(Model1Schema.ATT_METADATA));
+
+		// Copies model2 columns
+		tuple.setValue(Model2Schema.ATT_MODELCATALOG, m2Tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG));
+		tuple.setValue(Model2Schema.ATT_DEPENDENT, m2Tuple.getPmmXml(Model2Schema.ATT_DEPENDENT));
+		tuple.setValue(Model2Schema.ATT_INDEPENDENT, m2Tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));
+		tuple.setValue(Model2Schema.ATT_PARAMETER, m2Tuple.getPmmXml(Model2Schema.ATT_PARAMETER));
+		tuple.setValue(Model2Schema.ATT_ESTMODEL, m2Tuple.getPmmXml(Model2Schema.ATT_ESTMODEL));
+		tuple.setValue(Model2Schema.ATT_MLIT, m2Tuple.getPmmXml(Model2Schema.ATT_MLIT));
+		tuple.setValue(Model2Schema.ATT_EMLIT, m2Tuple.getPmmXml(Model2Schema.ATT_EMLIT));
+		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, m2Tuple.getInt(Model2Schema.ATT_DATABASEWRITABLE));
+		tuple.setValue(Model2Schema.ATT_DBUUID, m2Tuple.getString(Model2Schema.ATT_DBUUID));
+		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
+		tuple.setValue(Model2Schema.ATT_METADATA, m2Tuple.getPmmXml(Model2Schema.ATT_METADATA));
 
 		return tuple;
 	}

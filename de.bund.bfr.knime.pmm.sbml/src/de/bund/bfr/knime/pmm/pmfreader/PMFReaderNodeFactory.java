@@ -7,9 +7,7 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "SBMLReader" Node.
  * 
- *
  * Author: Miguel de Alba Aparicio
- * Contact: malba@optimumquality.es
  */
 public class PMFReaderNodeFactory 
         extends NodeFactory<PMFReaderNodeModel> {

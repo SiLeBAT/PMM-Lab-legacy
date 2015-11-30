@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.pmf.numl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,15 +35,22 @@ import org.xml.sax.SAXException;
  * @author Miguel Alba
  */
 public class NuMLReader {
-	
+
 	private NuMLReader() {
 	}
-	
+
 	public static NuMLDocument read(InputStream is) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document xmlDoc = docBuilder.parse(is);
-		
+
 		NuMLDocument numlDoc = new NuMLDocument(xmlDoc.getDocumentElement());
+		return numlDoc;
+	}
+
+	public static NuMLDocument read(File file) throws ParserConfigurationException, SAXException, IOException {
+		InputStream is = new FileInputStream(file);
+		NuMLDocument numlDoc = read(is);
+		is.close();
 		return numlDoc;
 	}
 }

@@ -9,14 +9,14 @@
   <node
         category-path="/pmmlab/reader"
         expert-flag="false"
-        factory-class="de.bund.bfr.knime.pmm.pmfreader2.PMFReaderNodeFactory"
-        id="de.bund.bfr.knime.pmm.pmfreader2.PMFReaderNodeFactory">
+        factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory"
+        id="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory">
   </node>
   <node
         category-path="/pmmlab/writer"
         expert-flag="false"
-        factory-class="de.bund.bfr.knime.pmm.pmfwriter2.PMFWriterNodeFactory"
-        id="de.bund.bfr.knime.pmm.pmfwriter2.PMFWriterNodeFactory">
+        factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory"
+        id="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory">
   </node>
 	</extension>	
    

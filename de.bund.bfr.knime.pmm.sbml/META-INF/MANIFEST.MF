@@ -23,22 +23,12 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: BfR
-Export-Package: de.bund.bfr.knime.pmm.annotation,
- de.bund.bfr.knime.pmm.annotation.numl,
- de.bund.bfr.knime.pmm.annotation.sbml,
- de.bund.bfr.knime.pmm.dbutil,
- de.bund.bfr.knime.pmm.file,
- de.bund.bfr.knime.pmm.file.uri,
+Export-Package: de.bund.bfr.knime.pmm.dbutil,
  de.bund.bfr.knime.pmm.js.editor,
- de.bund.bfr.knime.pmm.model,
  de.bund.bfr.knime.pmm.numl,
  de.bund.bfr.knime.pmm.openfsmr,
  de.bund.bfr.knime.pmm.pmfreader,
- de.bund.bfr.knime.pmm.pmfreader2,
  de.bund.bfr.knime.pmm.pmfwriter,
- de.bund.bfr.knime.pmm.pmfwriter2,
  de.bund.bfr.knime.pmm.sbmlreader,
- de.bund.bfr.knime.pmm.sbmlutil,
- de.bund.bfr.knime.pmm.sbmlwriter,
- de.bund.bfr.numl
+ de.bund.bfr.knime.pmm.sbmlwriter
 

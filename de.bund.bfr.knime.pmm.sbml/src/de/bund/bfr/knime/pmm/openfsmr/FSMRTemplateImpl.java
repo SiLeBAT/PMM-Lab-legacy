@@ -83,6 +83,8 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
 	private String[] independentVariables = null;
 
+	private Boolean hasData;
+
 	/** {@inheritDoc} */
 	public String getModelName() {
 		return modelName;
@@ -206,6 +208,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public String[] getIndependentVariables() {
 		return independentVariables;
+	}
+
+	/** {@inheritDoc} */
+	public Boolean getHasData() {
+	    return hasData;
 	}
 
 	/** {@inheritDoc} */
@@ -333,6 +340,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	}
 
 	/** {@inheritDoc} */
+	public void setHasData(boolean hasData) {
+	    this.hasData = hasData;
+	}
+
+	/** {@inheritDoc} */
 	public void unsetModelName() {
 		modelName = null;
 	}
@@ -450,6 +462,11 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public void unsetIndependentVariables() {
 		independentVariables = null;
+	}
+
+	/** {@inheritDoc} */
+	public void unsetHasData() {
+	   hasData = null;
 	}
 
 	/** {@inheritDoc} */
@@ -575,5 +592,10 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public boolean isSetIndependentVariables() {
 		return independentVariables != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetHasData() {
+	    return hasData != null;
 	}
 }

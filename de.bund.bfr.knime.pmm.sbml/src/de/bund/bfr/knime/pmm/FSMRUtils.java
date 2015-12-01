@@ -107,6 +107,8 @@ public class FSMRUtils {
 		// keep the subject of the model
 		template.setModelSubject(ModelClass.UNKNOWN);
 
+		template.setHasData(true);
+
 		return template;
 	}
 
@@ -249,6 +251,8 @@ public class FSMRUtils {
 				.toArray(new String[independentVariableCategories.size()]);
 		template.setIndependentVariables(independentVariableArray);
 
+		template.setHasData(true);
+
 		return template;
 	}
 
@@ -360,6 +364,7 @@ public class FSMRUtils {
 				}
 			}
 		}
+		template.setHasData(false);
 
 		return template;
 	}
@@ -487,6 +492,11 @@ public class FSMRUtils {
 			// Join independent variables with commas. E.g. "time,temperature"
 			String formattedIndepentVariables = Joiner.on(",").join(template.getIndependentVariables());
 			tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, formattedIndepentVariables);
+		}
+
+		if (template.isSetHasData()) {
+		    int hasDataAsInt = template.getHasData() ? 1 : 0;
+		    tuple.setValue(OpenFSMRSchema.ATT_HAS_DATA, hasDataAsInt);
 		}
 
 		return tuple;

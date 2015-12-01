@@ -53,6 +53,7 @@ public class OpenFSMRSchema extends KnimeSchema {
 	public static final String ATT_MODEL_DEPENDENT_VARIABLE_MIN = "Model-DependentVariableMinimum";
 	public static final String ATT_MODEL_DEPENDENT_VARIABLE_MAX = "Model-DependentVariableMaximum";
 	public static final String ATT_INDEPENDENT_VARIABLE = "Model-IndependentVariables";
+	public static final String ATT_HAS_DATA = "HasData?";
 
 	public OpenFSMRSchema() {
 		addStringAttribute(ATT_MODEL_NAME);
@@ -80,5 +81,6 @@ public class OpenFSMRSchema extends KnimeSchema {
 		addDoubleAttribute(ATT_MODEL_DEPENDENT_VARIABLE_MIN);
 		addDoubleAttribute(ATT_MODEL_DEPENDENT_VARIABLE_MAX);
 		addStringAttribute(ATT_INDEPENDENT_VARIABLE);
+		addIntAttribute(ATT_HAS_DATA);
 	}
 }

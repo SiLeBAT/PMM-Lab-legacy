@@ -62,7 +62,8 @@ import de.bund.bfr.pmf.ModelType;
  * </li>
  * <li><b>Model dependent variable maximum:</b> The co-domain maximum values
  * </li>
- * <li><b>Model independent variables:</b> The model's independent variable(s)
+ * <li><b>Model independent variables:</b></li> The model's independent variable(s)
+ * <li><b>Has data</b></li>
  * </ul>
  *
  * @author Miguel Alba
@@ -218,6 +219,9 @@ public interface FSMRTemplate {
 	 */
 	public String[] getIndependentVariables();
 
+	/** Returns the hasData variable of this {@link FSMRTemplate}. If not set, returns null. */
+	public Boolean getHasData();
+
 	/**
 	 * Sets the model name of this {@link FSMRTemplate} with 'modelName'. If not
 	 * set, returns null.
@@ -334,6 +338,9 @@ public interface FSMRTemplate {
 	 */
 	public void setIndependentVariables(String[] independentVariable);
 
+	/** Sets the hasData variable of this {@link FSMRTemplate} with 'hasData'. */
+	public void setHasData(boolean hasData);
+
 	/** Sets the model name value to null. */
 	public void unsetModelName();
 
@@ -405,6 +412,9 @@ public interface FSMRTemplate {
 
 	/** Sets the independent variables value to null. */
 	public void unsetIndependentVariables();
+
+	/** Sets the hasData variable to null. */
+	public void unsetHasData();
 
 	/** Returns true if the model name of this {@link FSMRTemplate} is set. */
 	public boolean isSetModelName();
@@ -515,4 +525,7 @@ public interface FSMRTemplate {
 	 * set.
 	 */
 	public boolean isSetIndependentVariables();
+
+	/** Returns true if the hasData variables of this {@link FSMRTemplate} is set. */
+	public boolean isSetHasData();
 }

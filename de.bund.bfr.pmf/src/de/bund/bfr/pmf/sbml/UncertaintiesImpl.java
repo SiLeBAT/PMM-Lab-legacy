@@ -39,17 +39,21 @@ public class UncertaintiesImpl implements Uncertainties {
 
 	private Map<String, String> props;
 
-	public UncertaintiesImpl() {
-		props = new HashMap<>(9);
-	}
-
 	/**
-	 * Creates a UncertaintiesImpl instance from an id, model name, comment, r2,
-	 * rms, sse, aic, bic and dof.
+	 * Creates a UncertaintiesImpl instance.
+	 * 
+	 * @param id: Ignored if null.
+	 * @param comment: Ignored if null or empty string.
+	 * @param r2: Ignored if null.
+	 * @param rms: Ignored if null.
+	 * @param sse: Ignored if null.
+	 * @param aic: Ignored if null.
+	 * @param bic: Ignored if null.
+	 * @param dof: Ignored if null.
 	 */
 	public UncertaintiesImpl(Integer id, String modelName, String comment, Double r2, Double rms, Double sse,
 			Double aic, Double bic, Integer dof) {
-		props = new HashMap<>(7);
+		props = new HashMap<>(9);
 		if (id != null)
 			props.put(ID, id.toString());
 		if (modelName != null && !modelName.isEmpty())

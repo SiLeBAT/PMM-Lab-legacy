@@ -1,7 +1,6 @@
 package de.bund.bfr.pmf.sbml;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +26,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testId() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setID(exampleUncertainties.getID());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(exampleUncertainties.getID(), null, null, null,
+				null, null, null, null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getID(), node.getMeasures().getID());
@@ -37,9 +36,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testModelName() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setModelName(exampleUncertainties.getModelName());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(null, exampleUncertainties.getModelName(), null,
+				null, null, null, null, null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getModelName(), node.getMeasures().getModelName());
@@ -47,9 +46,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testComment() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setComment(exampleUncertainties.getComment());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(null, null, exampleUncertainties.getComment(),
+				null, null, null, null, null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getComment(), node.getMeasures().getComment());
@@ -57,9 +56,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testR2() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setR2(exampleUncertainties.getR2());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(null, null, null, exampleUncertainties.getR2(),
+				null, null, null, null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getR2(), node.getMeasures().getR2());
@@ -67,9 +66,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testRMS() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setRMS(exampleUncertainties.getRMS());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(null, null, null, null,
+				exampleUncertainties.getRMS(), null, null, null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getRMS(), node.getMeasures().getRMS());
@@ -77,9 +76,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testSSE() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setSSE(exampleUncertainties.getSSE());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(null, null, null, null, null,
+				exampleUncertainties.getSSE(), null, null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getSSE(), node.getMeasures().getSSE());
@@ -87,9 +86,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testAIC() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setAIC(exampleUncertainties.getAIC());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(exampleUncertainties.getID(), null, null, null,
+				null, null, exampleUncertainties.getAIC(), null, null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getAIC(), node.getMeasures().getAIC());
@@ -97,9 +96,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void testBIC() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setBIC(exampleUncertainties.getBIC());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(exampleUncertainties.getID(), null, null, null,
+				null, null, null, exampleUncertainties.getBIC(), null);
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getBIC(), node.getMeasures().getBIC());
@@ -107,9 +106,9 @@ public class UncertaintyNodeTest {
 
 	@Test
 	public void tetsDOF() {
-		Uncertainties uncertainties = SBMLFactory.createUncertainties();
-		uncertainties.setDOF(exampleUncertainties.getDOF());
-		
+		Uncertainties uncertainties = SBMLFactory.createUncertainties(exampleUncertainties.getID(), null, null, null,
+				null, null, null, null, exampleUncertainties.getDOF());
+
 		UncertaintyNode node = new UncertaintyNode(uncertainties);
 		node = new UncertaintyNode(node.getNode());
 		assertEquals(exampleUncertainties.getDOF(), node.getMeasures().getDOF());

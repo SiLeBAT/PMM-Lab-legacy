@@ -86,10 +86,6 @@ public class SBMLFactory {
 				referenceType, comment);
 	}
 
-	public static Uncertainties createUncertainties() {
-		return new UncertaintiesImpl();
-	}
-
 	public static Uncertainties createUncertainties(Integer id, String modelName, String comment, Double r2, Double rms,
 			Double sse, Double aic, Double bic, Integer dof) {
 		return new UncertaintiesImpl(id, modelName, comment, r2, rms, sse, aic, bic, dof);

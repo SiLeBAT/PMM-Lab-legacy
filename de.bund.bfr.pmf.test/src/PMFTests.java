@@ -48,6 +48,8 @@ import de.bund.bfr.pmf.sbml.PrimaryModelNodeTest;
 import de.bund.bfr.pmf.sbml.ReferenceImplTest;
 import de.bund.bfr.pmf.sbml.ReferenceSBMLNodeTest;
 import de.bund.bfr.pmf.sbml.ReferenceTypeTest;
+import de.bund.bfr.pmf.sbml.SecDepTest;
+import de.bund.bfr.pmf.sbml.SecIndepTest;
 import de.bund.bfr.pmf.sbml.UncertaintiesImplTest;
 import de.bund.bfr.pmf.sbml.UncertaintyNodeTest;
 
@@ -82,6 +84,8 @@ import de.bund.bfr.pmf.sbml.UncertaintyNodeTest;
 	PMFUnitTest.class,
 	PMFSpeciesImplTest.class,
 	PrimaryModelNodeTest.class,
+	SecDepTest.class,
+	SecIndepTest.class,
 	UncertaintiesImplTest.class,
 	UncertaintyNodeTest.class,
 	// de.bund.bfr.pmf

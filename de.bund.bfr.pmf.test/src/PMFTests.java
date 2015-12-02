@@ -39,6 +39,7 @@ import de.bund.bfr.pmf.sbml.GlobalModelIdNodeTest;
 import de.bund.bfr.pmf.sbml.LimitsTest;
 import de.bund.bfr.pmf.sbml.MetadataAnnotationTest;
 import de.bund.bfr.pmf.sbml.MetadataImplTest;
+import de.bund.bfr.pmf.sbml.ModelRuleTest;
 import de.bund.bfr.pmf.sbml.ModelVariableTest;
 import de.bund.bfr.pmf.sbml.PMFCoefficientImplTest;
 import de.bund.bfr.pmf.sbml.PMFCompartmentImplTest;
@@ -75,6 +76,7 @@ import de.bund.bfr.pmf.sbml.UncertaintyNodeTest;
 	LimitsTest.class,
 	MetadataAnnotationTest.class,
 	MetadataImplTest.class,
+	ModelRuleTest.class,
 	ModelVariableTest.class,
 	ReferenceImplTest.class,
 	ReferenceSBMLNodeTest.class,

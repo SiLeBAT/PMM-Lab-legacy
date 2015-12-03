@@ -102,7 +102,7 @@ class UnitNuMLNode {
 	public UnitNuMLNode(PMFUnit unit, Document doc) {
 		node = doc.createElement(UNIT_TAG);
 		node.setAttribute(EXPONENT_ATTR, Double.toString(unit.getExponent()));
-		node.setAttribute(KIND_ATTR, unit.getKind().toString());
+		node.setAttribute(KIND_ATTR, unit.getKind().getName());
 		node.setAttribute(MULTIPLIER_ATTR, Double.toString(unit.getMultiplier()));
 		node.setAttribute(SCALE_ATTR, Integer.toString(unit.getScale()));
 	}
@@ -113,7 +113,7 @@ class UnitNuMLNode {
 
 	public PMFUnit toUnit() {
 		double exponent = Double.parseDouble(node.getAttribute(EXPONENT_ATTR));
-		Unit.Kind kind = Unit.Kind.valueOf(node.getAttribute(KIND_ATTR));
+		Unit.Kind kind = Unit.Kind.valueOf(node.getAttribute(KIND_ATTR).toUpperCase());
 		double multiplier = Double.parseDouble(node.getAttribute(MULTIPLIER_ATTR));
 		int scale = Integer.parseInt(node.getAttribute(SCALE_ATTR));
 

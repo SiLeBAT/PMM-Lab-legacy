@@ -27,6 +27,7 @@ import de.bund.bfr.pmf.ModelClassTest;
 import de.bund.bfr.pmf.numl.AtomicDescriptionTest;
 import de.bund.bfr.pmf.numl.AtomicValueTest;
 import de.bund.bfr.pmf.numl.ConcentrationOntologyTest;
+import de.bund.bfr.pmf.numl.NuMLDocumentTest;
 import de.bund.bfr.pmf.numl.ResultComponentTest;
 import de.bund.bfr.pmf.numl.TimeOntologyTest;
 import de.bund.bfr.pmf.numl.TupleDescriptionTest;
@@ -63,6 +64,7 @@ import de.bund.bfr.pmf.sbml.UncertaintyNodeTest;
 	AtomicDescriptionTest.class,
 	AtomicValueTest.class,
 	ConcentrationOntologyTest.class,
+	NuMLDocumentTest.class,
 	ResultComponentTest.class,
 	TimeOntologyTest.class,
 	TupleDescriptionTest.class,

@@ -167,7 +167,9 @@ class CompartmentNuMLNode {
 				for (ModelVariable modelVariable : compartment.getModelVariables()) {
 					Element modelVariableNode = doc.createElement(VARIABLE_TAG);
 					modelVariableNode.setAttribute("name", modelVariable.getName());
-					modelVariableNode.setAttribute("value", Double.toString(modelVariable.getValue()));
+					if (modelVariable.getValue() != null) {
+						modelVariableNode.setAttribute("value", Double.toString(modelVariable.getValue()));
+					}
 					metadata.appendChild(modelVariableNode);
 				}
 			}

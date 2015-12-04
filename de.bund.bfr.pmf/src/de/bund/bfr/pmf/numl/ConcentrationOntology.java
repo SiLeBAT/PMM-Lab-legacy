@@ -218,7 +218,12 @@ class CompartmentNuMLNode {
 			for (int i = 0; i < varNodes.getLength(); i++) {
 				Element varNode = (Element) varNodes.item(i);
 				String varName = varNode.getAttribute("name");
-				double varValue = Double.parseDouble(varNode.getAttribute("value"));
+				Double varValue;
+				if (varNode.hasAttribute("value")) {
+					varValue = Double.parseDouble(varNode.getAttribute("value"));
+				} else {
+					varValue = null;
+				}
 				modelVariables[i] = new ModelVariable(varName, varValue);
 			}
 		}

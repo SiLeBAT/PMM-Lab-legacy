@@ -30,7 +30,7 @@ import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.extendedtable.TimeSeriesMetadata;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;

@@ -326,7 +326,7 @@ class PrimaryModelWDataReader implements Reader {
 		modelContainer.close();
 
 		// Gets template of the first model file
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getModelDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(models.get(0).getModelDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -391,7 +391,7 @@ class PrimaryModelWODataReader implements Reader {
 		modelContainer.close();
 
 		// Gets template of the first model file
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(models.get(0).getDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -460,7 +460,7 @@ class TwoStepSecondaryModelReader implements Reader {
 
 		// Gets template of the first primary model file
 		FSMRTemplate template = FSMRUtils
-				.processPrimaryModelWithMicrobialData(models.get(0).getPrimModels().get(0).getModelDoc());
+				.processModelWithMicrobialData(models.get(0).getPrimModels().get(0).getModelDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -517,7 +517,7 @@ class OneStepSecondaryModelReader implements Reader {
 		modelContainer.close();
 
 		// Gets template of the first primary model file
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getModelDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(models.get(0).getModelDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -571,7 +571,7 @@ class ManualSecondaryModelReader implements Reader {
 		modelContainer.close();
 
 		// Gets template
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithoutMicrobialData(models.get(0).getDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithoutMicrobialData(models.get(0).getDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -606,7 +606,7 @@ class TwoStepTertiaryModelReader implements Reader {
 		modelContainer.close();
 
 		// Gets template
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getTertDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(models.get(0).getTertDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -660,7 +660,7 @@ class OneStepTertiaryModelReader implements Reader {
 		modelContainer.close();
 
 		// Gets template
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getTertiaryDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(models.get(0).getTertiaryDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
@@ -720,7 +720,7 @@ class ManualTertiaryModelReader implements Reader {
 		modelContainer.close();
 
 		// Gets template
-		FSMRTemplate template = FSMRUtils.processPrimaryModelWithMicrobialData(models.get(0).getTertiaryDoc());
+		FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(models.get(0).getTertiaryDoc());
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'

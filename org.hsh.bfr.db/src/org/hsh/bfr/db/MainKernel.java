@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.io.File;
@@ -67,9 +50,9 @@ public class MainKernel {
 	private static String logFolder = "C:/Dokumente und Einstellungen/Weiser/.localHSH/BfR/LOGs/";
 	*/
 	private static String[][] dbDefs = new String[][] {
-		//{"krise_145","krise_145","SA","de6!§5ddy"},
-		{"silebat_DB","silebat_DB","defad","de6!§5ddy"},
-		{"silebat_DB_test","silebat_DB_test","defad","de6!§5ddy"}//,
+		//{"krise_145","krise_145","SA","de6!Â§5ddy"},
+		{"silebat_DB","silebat_DB","defad","de6!Â§5ddy"},
+		{"silebat_DB_test","silebat_DB_test","defad","de6!Â§5ddy"}//,
 	};
 	
 	public static void main(final String[] args) { // Servervariante

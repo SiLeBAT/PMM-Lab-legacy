@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.imports.custom;
 
 import java.awt.Dimension;
@@ -203,7 +186,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 				    	MyLogger.handleException(e);
 				    }
 				    
-				    // Output für IFE-Burchardi
+				    // Output fÃ¼r IFE-Burchardi
 		      		HSSFWorkbook wb = new HSSFWorkbook();
 			    	HSSFSheet sheet = wb.createSheet(xmlFile.getName());
     		    	HSSFRow row = sheet.createRow(0); 
@@ -223,7 +206,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 				    }
 			    	if (DBKernel.getUsername().equals("burchardi")) {
 					    try {
-					    	FileOutputStream fileOut = new FileOutputStream(filename + "_ife.xls"); // Der Export hier ist ja nur für IFE gedacht!
+					    	FileOutputStream fileOut = new FileOutputStream(filename + "_ife.xls"); // Der Export hier ist ja nur fÃ¼r IFE gedacht!
 					    	wb.write(fileOut);
 					    	fileOut.close();
 					    }
@@ -313,7 +296,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 			
 			indexReihenfolge.add(ende);
 			int wegPfeile = getReihenfolgePrev(org_dst, indexReihenfolge);
-			// jetzt evtl. andere Enden überprüfen!
+			// jetzt evtl. andere Enden Ã¼berprÃ¼fen!
 		    for (int i=0;i<org_dst.size();i++) {
 		    	int2 = org_dst.get(i);
 		    	int j=0;
@@ -365,7 +348,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 		    }
 		}
 		private int getReihenfolgePrev(Vector<Integer[]> org_dst, Vector<Integer> indexReihenfolge) {
-			int wegPfeile = 0; // Ein Knoten kann mehrere Pfeile haben, die ihn verlassen ..., z.B. Salami_Test_Britta, gleich der erste Knoten "Wareneingang" führt zum einen zu "Speck (Meat, Raw)" zum anderen zu "Schweinefleich , roh (Meat, Raw)"
+			int wegPfeile = 0; // Ein Knoten kann mehrere Pfeile haben, die ihn verlassen ..., z.B. Salami_Test_Britta, gleich der erste Knoten "Wareneingang" fÃ¼hrt zum einen zu "Speck (Meat, Raw)" zum anderen zu "Schweinefleich , roh (Meat, Raw)"
 			if (indexReihenfolge != null) {
 				Vector<Vector<Integer>> rhflgn = new Vector<>();
 				int firstIndex = indexReihenfolge.get(0);
@@ -399,7 +382,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 			    		}
 			    		else {
 			    			// ist das jetzt korrekt????????
-			    			// wenn ich es nicht mache, dann klappen manche Imports von Wese nicht mehr, z.B. Rinderzunge, gepökelt.PEX oder Vollmilch pasteurisiert standardisiert.PEX (Mails vom 20.03.2012)
+			    			// wenn ich es nicht mache, dann klappen manche Imports von Wese nicht mehr, z.B. Rinderzunge, gepÃ¶kelt.PEX oder Vollmilch pasteurisiert standardisiert.PEX (Mails vom 20.03.2012)
 			    			offset--;
 			    		}
 			    	}

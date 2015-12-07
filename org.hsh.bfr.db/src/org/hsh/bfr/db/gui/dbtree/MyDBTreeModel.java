@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.gui.dbtree;
 
 import java.sql.ResultSet;
@@ -234,7 +217,7 @@ class MyDBTreeModel implements TreeModel {
 		  				String cutCode = (myCS == null) ? cutEndZeros(code) : code; // codeSystemIsGS1
 		  				String description = rs.getString(3);
 		  				if (code == null || code.trim().length() == 0) {
-		  					System.err.println("Brümde?");
+		  					System.err.println("BrÃ¼mde?");
 		  				}
 		  				else {
 		  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, code, description, false, codeSystemNum);
@@ -292,7 +275,7 @@ class MyDBTreeModel implements TreeModel {
 					else {
 						if (i > 0) { // sonst Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: -1
 							String zeroKey = key;
-							for (int j=i;j<cutSystem.length;j++) { // Nullen anfügen, gibts dann nen Parent? Das ist zumindest wichtig bei ADV-01 Matrices. Sieht bei den anderen System auch gut aus
+							for (int j=i;j<cutSystem.length;j++) { // Nullen anfÃ¼gen, gibts dann nen Parent? Das ist zumindest wichtig bei ADV-01 Matrices. Sieht bei den anderen System auch gut aus
 								for (int k=0;k<cutSystem[j]-cutSystem[j-1];k++) {
 									zeroKey += "0";
 								}

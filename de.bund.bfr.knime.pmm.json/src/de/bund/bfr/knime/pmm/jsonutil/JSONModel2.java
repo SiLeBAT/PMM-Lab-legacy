@@ -1,7 +1,22 @@
-/**
- * Code and decode a KnimeTuple with Model2Schema into/from JSON.
- * @author Miguel Alba
- */
+/*******************************************************************************
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package de.bund.bfr.knime.pmm.jsonutil;
 
 import java.util.ArrayList;
@@ -166,7 +181,7 @@ public class JSONModel2 {
 		Double indepMin = 10.0;
 		Double indepMax = 45.0;
 		String indepCategory = "Temperature";
-		String indepUnit = "ºC";
+		String indepUnit = "ÂºC";
 		String indepDesc = "degree Celsius";
 
 		IndepXml indep = new IndepXml(indepName, indepOrigName, indepMin,
@@ -178,14 +193,14 @@ public class JSONModel2 {
 		tmaxParam.setCategory("Temperature");
 		tmaxParam.setDescription("degree celsius");
 		tmaxParam.setOrigName("Tmax");
-		tmaxParam.setUnit("ºC");
+		tmaxParam.setUnit("ÂºC");
 
 		// Tmin parameter
 		ParamXml tminParam = new ParamXml("Tmin", 5.572);
 		tminParam.setCategory("Temperature");
 		tminParam.setDescription("degree celsius");
 		tminParam.setOrigName("Tmin");
-		tminParam.setUnit("ºC");
+		tminParam.setUnit("ÂºC");
 
 		// Join all the params in a list
 		List<ParamXml> params = Arrays.asList(tmaxParam, tminParam);

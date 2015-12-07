@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.gui.dbtable;
 
 import java.awt.Color;
@@ -359,7 +342,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 	  	updateRowHeader(!bigbigTable);
 		// sortieren nach ID und damit nach Zeitstempel, das neueste zuoberst!
-		// Das gilt erstmal für die beiden ReadOnly Tabellen: ChangeLog und DateiSpeicher
+		// Das gilt erstmal fÃ¼r die beiden ReadOnly Tabellen: ChangeLog und DateiSpeicher
 		if (sorter != null) {
 			if (myT.isReadOnly()) {
 				List<SortKey> sortKeys = new ArrayList<>();
@@ -369,7 +352,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				//this.sortByColumn(1, false);
 			} 
 			/*
-			else if (myT.getTablename().equals("ComBaseImport")) { // nur temporär, kann irgendwann wieder weg
+			else if (myT.getTablename().equals("ComBaseImport")) { // nur temporÃ¤r, kann irgendwann wieder weg
 				List<SortKey> sortKeys = new ArrayList<SortKey>();
 		  		sortKeys.add(new SortKey(3, SortOrder.DESCENDING));
 		  		sorter.setSortKeys(sortKeys);
@@ -417,7 +400,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		return result;
 		
 		/*
-		 Alternativ könnte folgender Code funktionieren. Der würde nicht so viel Speicher verbrauchen (hashBox)
+		 Alternativ kÃ¶nnte folgender Code funktionieren. Der wÃ¼rde nicht so viel Speicher verbrauchen (hashBox)
 		        c = this.getTable().getCellRenderer(i, j).getTableCellRendererComponent(this.getTable(), this.getValueAt(i, j), false, false, i, j);
 		        if (c instanceof JLabel) {
 		          result[i][j - beginCol] = ( (JLabel) c).getText();
@@ -435,7 +418,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	    	if (mnTable != null && mnTable.length > selCol - 1 && mnTable[selCol - 1] != null) {
 	    		String sql = "";
 				if (mnTable[selCol - 1].equals("INT")) {
-					sql = "";				// todo - oder auch nicht... Lieber nicht löschen! Is gut so! Wenn da was gelöscht werden soll, dann sollte das Fremdfenster geöffnet werden und dort die Zeile (Beispiel: Zutat) gelöscht werden!!!
+					sql = "";				// todo - oder auch nicht... Lieber nicht lÃ¶schen! Is gut so! Wenn da was gelÃ¶scht werden soll, dann sollte das Fremdfenster geÃ¶ffnet werden und dort die Zeile (Beispiel: Zutat) gelÃ¶scht werden!!!
 				}
 				else {
 					MyTable myMNTable = DBKernel.myDBi.getTable(mnTable[selCol - 1]);
@@ -555,7 +538,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			else {
 				this.insertEmptyRecord();
 			}
-			// Hier muss man höllisch aufpassen, dass auch bei geschalteten Filtern und Sortern die korrekte ID bzw. Row rauskommt!!!!
+			// Hier muss man hÃ¶llisch aufpassen, dass auch bei geschalteten Filtern und Sortern die korrekte ID bzw. Row rauskommt!!!!
 			int newSelRow = this.getSelectedRow();
 			if (filterConditions != null) {
 				for (int i=0;i<filterConditions.length;i++) {
@@ -752,8 +735,8 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 						    		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL(myT.getTablename()) +
 						    				" SET " + DBKernel.delimitL(myT.getFieldNames()[i]) + "=" + newfID +
 						    				" WHERE " + DBKernel.delimitL("ID") + "=" + newID, false);
-						    		// Es ist hier essentiell, dass im DBTable der Wert gesetzt wird, weil sonst ein späterer "myRefresh" dafür sorgt, dass die DB Einträge wieder mit NULL überschrieben werden
-						    		// Alternativ könnte man this.save(); an der richtigen Stelle setzen?!?
+						    		// Es ist hier essentiell, dass im DBTable der Wert gesetzt wird, weil sonst ein spÃ¤terer "myRefresh" dafÃ¼r sorgt, dass die DB EintrÃ¤ge wieder mit NULL Ã¼berschrieben werden
+						    		// Alternativ kÃ¶nnte man this.save(); an der richtigen Stelle setzen?!?
 						    		if (toRow != null && actualTable.getTablename().equals(myT.getTablename())) {
 										this.setValueAt(newfID, toRow, i+1);
 									}
@@ -866,9 +849,9 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		if (actualTable.isReadOnly()) {
 			sorterModel = new MyTableModel4Sorter(this); 
 			sorter = new TableRowSorter<TableModel>(sorterModel); //this.getTable().getModel());//new MyTableModel4Sorter(this)); //
-			sorter.setMaxSortKeys(1); // eins genügt wohl
+			sorter.setMaxSortKeys(1); // eins genÃ¼gt wohl
 			sorter.addRowSorterListener(this);
-			sorter.setSortsOnUpdates(false); // lieber nicht, danach ist alles immer so unübersichtlich.
+			sorter.setSortsOnUpdates(false); // lieber nicht, danach ist alles immer so unÃ¼bersichtlich.
 			this.getTable().setRowSorter(sorter);      
       			
 			sorter.setComparator(1, new MyIntegerSorter()); // ID
@@ -990,7 +973,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					    		if (sorter != null) {
 									sorter.setComparator(i+2, new MyDblKZSorter());
 								}			
-						    	//tooltip += "\nHier sind mehrere Einträge/Kennzahlen möglich!";
+						    	//tooltip += "\nHier sind mehrere EintrÃ¤ge/Kennzahlen mÃ¶glich!";
 					    	}
 					    	else {
 					    		if (sorter != null) {
@@ -1014,7 +997,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					    	if (mnTable != null && i < mnTable.length && mnTable[i] != null && mnTable[i].equals("INT")) {
 						    	c.setUserCellRenderer(new MyMNRenderer(this, i));
 						    	c.setReadOnly(true);					    		
-						    	//tooltip += "\nHier sind mehrere Einträge möglich!";
+						    	//tooltip += "\nHier sind mehrere EintrÃ¤ge mÃ¶glich!";
 					    	}
 					    }
 					    else if (fieldTypes[i].equals("BIGINT")) {
@@ -1151,7 +1134,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	}
 	void checkUnsavedStuff(final boolean saveProps) {
 		//if (actualTable == null || actualTable.isReadOnly()) System.err.println(" readonly, but saved??? " + actualTable);
-		// eigentlich würde es genügen, wenn man nur this.save() ausführt. this.save() hat selbst eine Routine, die checkt, ob was geändert wurde oder nicht, d.h. es wird nicht in jedem Fall abgespeichert
+		// eigentlich wÃ¼rde es genÃ¼gen, wenn man nur this.save() ausfÃ¼hrt. this.save() hat selbst eine Routine, die checkt, ob was geÃ¤ndert wurde oder nicht, d.h. es wird nicht in jedem Fall abgespeichert
 		if (theFilter != null) return;
 		if (this.getEditingColumn() >= 0 && this.getEditingRow() >= 0) {
 			this.save();
@@ -1162,8 +1145,8 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		if (this.getMyCellPropertiesModel() instanceof MyCellPropertiesModel) {
 			int num =(this.getMyCellPropertiesModel()).getModifiedCellsColl().size(); 
 			if (num > 0) {
-				MyLogger.handleMessage(actualTable.getTablename() + ": Nicht alles konnte abgespeichert werden.\n" + num + " (rot markierte) Änderungen gehen verloren... Hmmm, stimmt das?");
-        		//InfoBox ib = new InfoBox("Nicht alles konnte abgespeichert werden.\n" + num + " (rot markierte) Änderungen gehen verloren.", true, new Dimension(300, 300), null, true);
+				MyLogger.handleMessage(actualTable.getTablename() + ": Nicht alles konnte abgespeichert werden.\n" + num + " (rot markierte) Ã„nderungen gehen verloren... Hmmm, stimmt das?");
+        		//InfoBox ib = new InfoBox("Nicht alles konnte abgespeichert werden.\n" + num + " (rot markierte) Ã„nderungen gehen verloren.", true, new Dimension(300, 300), null, true);
         		//ib.setVisible(true);    				  										        			
 			}
 		}
@@ -1178,7 +1161,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	@Override
 	public void valueChanged(final ListSelectionEvent e) {
 		if (myDBPanel1 != null) {
-			if (e.getFirstIndex() > 0 || e.getValueIsAdjusting()) { // Wenn ich diese Abfrage nicht mache, dann gibt es Probleme bei getSelectedID: es wird die vor "setSelectedID" selektierte row zurückgegeben. Dies ist z.B. der Fall, wenn im dbTree etwas selektiert wird. Beispiel: Matrices -> Favoriten -> Kuhmilch. Dann wird im Endeffekt eine andere "virtuelle" Kuhm,ilch selektiert im dbTree und zwar unter BLS
+			if (e.getFirstIndex() > 0 || e.getValueIsAdjusting()) { // Wenn ich diese Abfrage nicht mache, dann gibt es Probleme bei getSelectedID: es wird die vor "setSelectedID" selektierte row zurÃ¼ckgegeben. Dies ist z.B. der Fall, wenn im dbTree etwas selektiert wird. Beispiel: Matrices -> Favoriten -> Kuhmilch. Dann wird im Endeffekt eine andere "virtuelle" Kuhm,ilch selektiert im dbTree und zwar unter BLS
 				//System.out.println(e + "\t" + e.getFirstIndex());
 				myDBPanel1.setSelectedID(getSelectedID());
 				myDBPanel1.setBLOBEnabled(isFilledBlobField(this.getTable().getSelectedRow(), this.getTable().getSelectedColumn()));							
@@ -1257,14 +1240,14 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				//this.setRowSelectionInterval(row, row);
 				//this.getTable().setColumnSelectionInterval(col, col);
 				//this.getTable().requestFocus();
-				/// Dummerweise ist z.B. die Combobox dann sogleich im EditorModus... also obige Toolkit-Lösung!
+				/// Dummerweise ist z.B. die Combobox dann sogleich im EditorModus... also obige Toolkit-LÃ¶sung!
 			}
 			else {
 				//this.setRowSelectionInterval(row, row);
 				//this.getTable().setColumnSelectionInterval(col, col);
 				//System.err.println("row3: " + row + "\t" + col);
 				try {
-					// hier gibts leider manchmal Abstürze, wenn ein Filter gesetzt ist und gleichzeitig der Sorter gedrückt wird
+					// hier gibts leider manchmal AbstÃ¼rze, wenn ein Filter gesetzt ist und gleichzeitig der Sorter gedrÃ¼ckt wird
 					this.selectCell(row, col);					
 				}
 				catch (Exception e) {MyLogger.handleException(e);}
@@ -1352,7 +1335,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 
     	//int[] rh = getRowHeights(this.getTable());
   		this.save();
-  		// Ist die Refresherei überhaupt notwendig? Naja, setRowHeights wird nicht aufgerufen und damit gehen die RowHeights verloren...
+  		// Ist die Refresherei Ã¼berhaupt notwendig? Naja, setRowHeights wird nicht aufgerufen und damit gehen die RowHeights verloren...
   		// Damit kann ich aber erst mal leben.
   		// Nagut, die hashBox geht auch verloren...
   		/*
@@ -1593,12 +1576,12 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	void copyProzessschritt() {
 		Integer id = getSelectedID();
 		if (id >= 0) {
-	    int retVal = JOptionPane.showConfirmDialog(this, "Sicher?\nDie aktuellen Parameter des selektierten Prozessschrittes könnten in der Folge überschrieben werden!",
+	    int retVal = JOptionPane.showConfirmDialog(this, "Sicher?\nDie aktuellen Parameter des selektierten Prozessschrittes kÃ¶nnten in der Folge Ã¼berschrieben werden!",
 	    		"Prozessschritt kopieren?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (retVal == JOptionPane.YES_OPTION) {
 				Object carverID = DBKernel.getValue("Prozessdaten", "ID", getSelectedID()+"", "Prozess_CARVER");
 				Object[][] cond = new Object[1][2]; cond[0][0] = "Prozess_CARVER"; cond[0][1] = carverID;
-				Object fromID = DBKernel.myList.openNewWindow(actualTable, null, "Datensatz zur Parameterübernahme", this, null, null, cond);
+				Object fromID = DBKernel.myList.openNewWindow(actualTable, null, "Datensatz zur ParameterÃ¼bernahme", this, null, null, cond);
 				copyParameters(fromID, getSelectedID());
 				this.myRefresh();
 				// evtl. HashBox neu setzen, sonst wird nicht refresht
@@ -1653,7 +1636,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				MyLogger.handleMessage("DauerEinheit ist nicht Column Number 9....");
 			}
 			// Zutaten???
-			this.save(); // jetzt ja eigentlich nicht mehr notwendigm da ja toRow an copyKennzahlen übergeben wird - doppelt gemoppelt, ok, hält besser
+			this.save(); // jetzt ja eigentlich nicht mehr notwendigm da ja toRow an copyKennzahlen Ã¼bergeben wird - doppelt gemoppelt, ok, hÃ¤lt besser
 			// alle Kenzahlen
 			MyTable pd = DBKernel.myDBi.getTable("Prozessdaten");
 			try {

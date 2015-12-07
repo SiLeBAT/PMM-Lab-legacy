@@ -6,7 +6,7 @@
     <shortDescription>Uses mathematical model formulas and estimates their parameters in order to fit a curve to data (e.g. to a time series of bacterial concentrations or to growth rates changing with temperature)</shortDescription>
     
     <fullDescription>
-        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates parameters in order to fit a curve to data (e.g. microbial concentrations). In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration as well as the initial and maximum cell concentration.</intro>              
+        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates parameters in order to fit a curve to data (e.g. microbial concentrations). In predictive microbiology, important parameters are the maximum growth / inactivation rate (Âµmax / kmax), the lag phase duration as well as the initial and maximum cell concentration.</intro>              
         
         <option name="Fitting">
         <u>Primary Fitting</u> Fits a primary model formula to a time series of data points. For example, a curve will be fitted to time/concentration data on microbial growth. According to the chosen mathematical model formula, parameters are estimated (e.g. for maximum growth rate and lag phase duration).<br></br><br></br>

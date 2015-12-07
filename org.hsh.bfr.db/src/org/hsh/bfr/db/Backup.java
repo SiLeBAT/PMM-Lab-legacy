@@ -1,36 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.io.File;
@@ -131,7 +117,7 @@ public class Backup extends FileFilter {
 				String answerErr = DBKernel.sendRequestGetErr("BACKUP DATABASE TO '" + filename + "' BLOCKING");
 				if (!silent) {
 					if (answerErr.length() == 0) {
-						JOptionPane.showMessageDialog(frame, "In '" + filename + "' " + GuiMessages.getString("wurde erfolgreich ein Backup der Datenbank erstellt!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
+						JOptionPane.showMessageDialog(frame, "In '" + filename + "' " + GuiMessages.getString("wurde erfolgreich ein Backup der Datenbank erstellt!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu Ã¶ffnen!" : "")
 								"Backup", JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						JOptionPane.showMessageDialog(frame,
@@ -193,8 +179,8 @@ public class Backup extends FileFilter {
 		if (scriptFile != null && scriptFile.exists()) {
 			if (!silent) {
 				int returnVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame,
-						GuiMessages.getString("Die Datenbank wird gelöscht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
-								+ GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"), GuiMessages.getString("Datenbank löschen"), JOptionPane.YES_NO_OPTION);
+						GuiMessages.getString("Die Datenbank wird gelÃ¶scht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
+								+ GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"), GuiMessages.getString("Datenbank lÃ¶schen"), JOptionPane.YES_NO_OPTION);
 				if (returnVal != JOptionPane.YES_OPTION) {
 					return result;
 				}
@@ -244,7 +230,7 @@ public class Backup extends FileFilter {
 					}
 				}
 				if (!silent && answerErr.length() == 0) {
-					JOptionPane.showMessageDialog(DBKernel.mainFrame, GuiMessages.getString("Fertig!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
+					JOptionPane.showMessageDialog(DBKernel.mainFrame, GuiMessages.getString("Fertig!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu Ã¶ffnen!" : "")
 							"Restore", JOptionPane.INFORMATION_MESSAGE);
 					if (myDB != null && !DBKernel.isKNIME) {
 						myDB.myRefresh();

@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.sql.ResultSet;
@@ -80,7 +63,7 @@ public class PlausibilityChecker {
 				int diesjahr = cal.get(Calendar.YEAR);
 				if (jahr < 1100 && jahr > diesjahr) {
 					result = new String[1];
-					result[0] = GuiMessages.getString("Merkwürdige Jahresangabe...");
+					result[0] = GuiMessages.getString("MerkwÃ¼rdige Jahresangabe...");
 				}
 			}
 		}
@@ -250,7 +233,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Jahr") + " < 1100 OR " + DBKernel.delimitL("Jahr") + " > " + jahr,
-						GuiMessages.getString("Merkwürdige Jahresangabe...")
+						GuiMessages.getString("MerkwÃ¼rdige Jahresangabe...")
 						});
 			}
 		}
@@ -370,13 +353,13 @@ public class PlausibilityChecker {
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Versuchsbedingungen") + " IS NULL",
-					"Jeder Messwert muss zu einer Versuchsbedingung gehören!"
+					"Jeder Messwert muss zu einer Versuchsbedingung gehÃ¶ren!"
 					});
 					*/
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Delta") + " AND " + DBKernel.delimitL("Zeit") + " = 0",
-					GuiMessages.getString("Für den Zeitpunkt 0 kann das Delta Feld nicht angehakt sein!")
+					GuiMessages.getString("FÃ¼r den Zeitpunkt 0 kann das Delta Feld nicht angehakt sein!")
 					});
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -396,7 +379,7 @@ public class PlausibilityChecker {
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Konz_Einheit") + " IS NULL",
-					GuiMessages.getString("Die Einheit für die Konzentration sollte eingetragen werden!")
+					GuiMessages.getString("Die Einheit fÃ¼r die Konzentration sollte eingetragen werden!")
 					});
 			if (table == null) {
 			}
@@ -455,12 +438,12 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Kosten") + " IS NOT NULL AND " + DBKernel.delimitL("KostenEinheit") + " IS NULL",
-						GuiMessages.getString("Die Einheit für die Kosten sollte eingetragen werden!")
+						GuiMessages.getString("Die Einheit fÃ¼r die Kosten sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("ZertifikatNr") + " IS NOT NULL AND (" + DBKernel.delimitL("Gueltigkeit") + " IS NULL OR " + DBKernel.delimitL("Zertifizierungssystem") + " IS NULL)",
-						GuiMessages.getString("Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren Gültigkeit und das Zertifizierungssystem angegeben sein!")
+						GuiMessages.getString("Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren GÃ¼ltigkeit und das Zertifizierungssystem angegeben sein!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -479,7 +462,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Personalressourcen") + " IS NOT NULL AND " + DBKernel.delimitL("ZeitEinheit") + " IS NULL",
-						GuiMessages.getString("Die Zeiteinheit für die Personalressourcen sollte eingetragen werden!")
+						GuiMessages.getString("Die Zeiteinheit fÃ¼r die Personalressourcen sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -513,7 +496,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Personalressourcen") + " IS NOT NULL AND " + DBKernel.delimitL("ZeitEinheit") + " IS NULL",
-						GuiMessages.getString("Die Zeiteinheit für die Personalressourcen sollte eingetragen werden!")
+						GuiMessages.getString("Die Zeiteinheit fÃ¼r die Personalressourcen sollte eingetragen werden!")
 						});
 			}
 		}
@@ -522,7 +505,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Nachweisgrenze") + " IS NOT NULL AND " + DBKernel.delimitL("NG_Einheit") + " IS NULL",
-						GuiMessages.getString("Die Einheit für die Nachweisgrenze sollte eingetragen werden!")
+						GuiMessages.getString("Die Einheit fÃ¼r die Nachweisgrenze sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -546,7 +529,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Durchsatz") + " IS NOT NULL AND " + DBKernel.delimitL("DurchsatzEinheit") + " IS NULL",
-						GuiMessages.getString("Die Einheit für den Durchsatz sollte eingetragen werden!")
+						GuiMessages.getString("Die Einheit fÃ¼r den Durchsatz sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -556,7 +539,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("ZertifikatNr") + " IS NOT NULL AND (" + DBKernel.delimitL("Gueltigkeit") + " IS NULL OR " + DBKernel.delimitL("Zertifizierungssystem") + " IS NULL)",
-						GuiMessages.getString("Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren Gültigkeit und das Zertifizierungssystem angegeben sein!")
+						GuiMessages.getString("Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren GÃ¼ltigkeit und das Zertifizierungssystem angegeben sein!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +

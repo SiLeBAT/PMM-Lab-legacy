@@ -41,7 +41,7 @@
         <option name="Variables on Display">
 		<u>X:</u> If more than one environmental condition was added via the Conditions menu the one to be displayed on the x-axis can be defined here.<br></br>
 		<u>Y:</u> The parameter to be displayed on the y-axis is set in the table and cannot be changed here.<br></br>
-		<u>X Unit:</u> If the condition is 'temperature', the unit can be changed (°C, K or °F).<br></br>
+		<u>X Unit:</u> If the condition is 'temperature', the unit can be changed (Â°C, K or Â°F).<br></br>
 		<u>Y Unit:</u> Units for parameters cannot be changed.<br></br>
         <u>X and Y Transform:</u> Transforms the data on the X and Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).<br></br>
         <u>Conditions:</u> Add environmental conditions to the variables in the display menu. Which condition is currently displayed can be changed in the 'Variables on Display' and 'Other Variables' sections.</option>

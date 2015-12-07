@@ -1,49 +1,24 @@
+package org.hsh.bfr.db.gui.dbtable.editoren;
+
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
-package org.hsh.bfr.db.gui.dbtable.editoren;
-
-/**
- * <p>Title: Turniere</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: HSH</p>
- * @author Armin Weiser
- * @version 1.0
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 
 import java.awt.event.*;
 
@@ -102,7 +77,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
       this.addAncestorListener(new AncestorListener() {
     	  public void ancestorAdded(AncestorEvent e) {
     		  }
-    		  public void ancestorRemoved(AncestorEvent e) { // oben rechts das x gedrückt zum Schliessen
+    		  public void ancestorRemoved(AncestorEvent e) { // oben rechts das x gedrï¿½ckt zum Schliessen
     			  if (DBKernel.debug) System.out.println("lbs2: " + (System.currentTimeMillis() - lastBLOBChosen));
     			  if (System.currentTimeMillis() - lastBLOBChosen > 1000) {
                 	  lastBLOBChosen = System.currentTimeMillis();
@@ -179,7 +154,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
   public void addCellEditorListener(CellEditorListener l) {
     //System.out.println("addCellEditorListener" + l);
     listeners.addElement(l);
-    // alle KeyEvents außer Alt+Enter, Strg+Enter, damit soll was anders passieren, nämlich die abgespeicherte Datei geöffnet werden
+    // alle KeyEvents auï¿½er Alt+Enter, Strg+Enter, damit soll was anders passieren, nï¿½mlich die abgespeicherte Datei geï¿½ffnet werden
     if (sourceEvent != null && sourceEvent instanceof KeyEvent &&
     		((KeyEvent) sourceEvent).getKeyChar() != KeyEvent.VK_ENTER) shouldSelectCell(sourceEvent);
   }
@@ -262,7 +237,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
   }
 
   public boolean isCellEditable(EventObject anEvent) {
-	  if (anEvent == null) { // null wird übergeben bei selectCell(row, column) in der Funktion setSelectedRowCol in MyDBTable
+	  if (anEvent == null) { // null wird ï¿½bergeben bei selectCell(row, column) in der Funktion setSelectedRowCol in MyDBTable
 		  return false;
 	  }
 	  else {

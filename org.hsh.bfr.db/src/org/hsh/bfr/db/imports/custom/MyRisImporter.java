@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.imports.custom;
 
 import java.awt.Dimension;
@@ -225,7 +208,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 									    DBKernel.insertBLOB("Literatur", "ID", risses.get(bibitem), bibitem.getField("erstautor") + "_" + year + ".ris", lastInsertedID);
 									    numRisses++;
 	
-									    // Das Paper wird natürlich auch abgespeichert, falls verfügbar
+									    // Das Paper wird natï¿½rlich auch abgespeichert, falls verfï¿½gbar
 									    if (bibitem.getField("fulltext") != null || bibitem.getField("pdf") != null) {
 									    	String strURL = (bibitem.getField("pdf") != null) ? bibitem.getField("pdf") : bibitem.getField("fulltext");
 									    	URL myUrl = getMyURL(strURL);
@@ -235,7 +218,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 											      	String newFile;
 											      	if (myUrl.getPath().length() == 0) {
 											      		newFile = f.getParentFile().getAbsolutePath() + System.getProperty("file.separator") + myUrl.getHost();
-											      		MyLogger.handleMessage("Wasn das eigentlich fürn komischer Fall????\t" + newFile + "\t" + myUrl);
+											      		MyLogger.handleMessage("Wasn das eigentlich fï¿½rn komischer Fall????\t" + newFile + "\t" + myUrl);
 											      	}
 											      	else if (myUrl.getHost().length() == 0) {
 											      		newFile = myUrl.getPath();
@@ -245,7 +228,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 											      	}
 											      	//System.out.println(newFile + "\t" + urlToFile(myUrl).exists());
 												      File fl = new File(newFile);
-												      if (fl.exists()) { // Hier dauerts evtl. sehr lange, wenn das Netzlaufwerk nicht verfügbar ist
+												      if (fl.exists()) { // Hier dauerts evtl. sehr lange, wenn das Netzlaufwerk nicht verfï¿½gbar ist
 												      	DBKernel.insertBLOB("Literatur", "Paper", fl, lastInsertedID);
 												      	DBKernel.getDBConnection().createStatement().execute("UPDATE " + DBKernel.delimitL("Literatur") + " SET " + DBKernel.delimitL("Paper") + "='" + fl.getName() + "' WHERE " + DBKernel.delimitL("ID") + "=" + lastInsertedID);
 												      	numPapers++;
@@ -257,7 +240,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 											      }
 									    	}
 									    	else {
-									    		MyLogger.handleMessage("Wasn das fürn URL Format??? " + strURL);
+									    		MyLogger.handleMessage("Wasn das fï¿½rn URL Format??? " + strURL);
 									    	}
 									    }
 							      }
@@ -380,7 +363,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 		BufferedReader in = new BufferedReader(getReaderDefaultEncoding(stream));
 		String str;
 		while ((str = in.readLine()) != null) {
-			if (str.length() > 0) { // Komischerweise sind hier alle zwei Zeilen empty... Also weg damit, wird ja eh nicht benötigt
+			if (str.length() > 0) { // Komischerweise sind hier alle zwei Zeilen empty... Also weg damit, wird ja eh nicht benï¿½tigt
 		    sb.append(str);
 		    sb.append("\n");
 			}
@@ -566,7 +549,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 	  InputStreamReader reader;
 	  String encoding = System.getProperty("file.encoding");
 	  if (encoding.equalsIgnoreCase("Cp1252")) encoding = "Cp850"; // Cp1252 bekommt die Umlaute nicht so gut hin. ReferenceManager scheint in Cp850 abzuspeichern (OEM vs. ANSI)
-	  else MyLogger.handleMessage("Was gibts denn noch so für Encodings????? Anderes OS?");
+	  else MyLogger.handleMessage("Was gibts denn noch so fï¿½r Encodings????? Anderes OS?");
 	  //System.out.println(encoding);
 	  reader = new InputStreamReader(in, encoding); // "Cp850" oder System.getProperty("file.encoding")
 	

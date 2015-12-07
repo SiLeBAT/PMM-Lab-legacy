@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.gui.dbtable;
 
 import java.awt.Dimension;
@@ -51,11 +34,11 @@ class MyDBTableErrorListener implements DBTableErrorListener {
 	
 	public boolean errorOccured(int errorId, String errorMessage, Exception unexpectedException) {
 		if (errorId == 6) {
-			//errorId=6: Invalid index (Unable to delete!) passiert dummerweise beim Löschen der letzten Zeile in einer Table... wieso auch immer
+			//errorId=6: Invalid index (Unable to delete!) passiert dummerweise beim Lï¿½schen der letzten Zeile in einer Table... wieso auch immer
 			return true;
 		}
 		else if (errorId == 3 && errorMessage.equals("data exception: string data, right truncation")) {
-			String text = "Der Text in einem Feld (gelb markiert) ist zu lang und kann so nicht abgespeichert werden!\nBitte ändern!";
+			String text = "Der Text in einem Feld (gelb markiert) ist zu lang und kann so nicht abgespeichert werden!\nBitte ï¿½ndern!";
 			InfoBox ib = new InfoBox(text, true, new Dimension(600, 200), null, false);	
 			ib.setVisible(true);
 			return true;

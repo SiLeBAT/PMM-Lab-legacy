@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.sql.Connection;
@@ -66,7 +49,7 @@ public class MyTrigger implements Trigger {
 						}        				
         			}
         			else if (triggerType == Trigger.UPDATE_BEFORE_ROW) {
-        				// Achtung: Aktiver User darf die Kennung nicht ändern. Daher: Änderung nicht zulassen!!!
+        				// Achtung: Aktiver User darf die Kennung nicht ï¿½ndern. Daher: ï¿½nderung nicht zulassen!!!
 	        	  		if (rowBefore != null && rowBefore[1] != null) {
 	        	  			String un = MainKernel.getUsername(); 
 	        	  			if (un.length() == 0) {
@@ -79,7 +62,7 @@ public class MyTrigger implements Trigger {
 		        	  			}
 		        	  	}
 	        	  		/*
-        				// Achtung: es sollte immer mindestens ein Admin vorhanden sein. Daher: Änderung nicht zulassen!!!
+        				// Achtung: es sollte immer mindestens ein Admin vorhanden sein. Daher: ï¿½nderung nicht zulassen!!!
         				if (rowBefore != null && rowBefore[4] != null) {
         					int oldAccRight = ((Integer) rowBefore[4]).intValue();
         					if (oldAccRight == Users.ADMIN) {
@@ -108,7 +91,7 @@ public class MyTrigger implements Trigger {
         				}
         			}
         		}
-        		else if (tableName.equals("ProzessWorkflow") && triggerType == Trigger.UPDATE_BEFORE_ROW) { // XML sollte nicht gelöscht werden dürfen!
+        		else if (tableName.equals("ProzessWorkflow") && triggerType == Trigger.UPDATE_BEFORE_ROW) { // XML sollte nicht gelï¿½scht werden dï¿½rfen!
         			if (rowAfter != null && (rowAfter[9] == null)) { // XML
     					rowAfter[9] = rowBefore[9];
         			}
@@ -164,13 +147,13 @@ public class MyTrigger implements Trigger {
 		  	else {
 		  		int oldAccRight = (oldUser[4] == null) ? Users.READ_ONLY : ((Integer) oldUser[4]).intValue();
 		  		String oldUsername = oldUser[1].toString();
-			  	// 2. Username hat sich geändert
+			  	// 2. Username hat sich geï¿½ndert
 		  		if (oldUsername.length() > 0 && !oldUsername.equals(newUsername)) {
 			  		if (createUser(newUsername, newAccRight)) {
 						deleteUser(oldUser);
 					}	  			
 		  		}
-			  	// 3. Access Rights haben sich geändert
+			  	// 3. Access Rights haben sich geï¿½ndert
 			  	else if (oldAccRight != newAccRight) {
 			  		if (removeAccRight(newUsername, oldAccRight)) {
 						createAccRight(newUsername, newAccRight);

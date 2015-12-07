@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.gui.dbtable.editoren;
 
 import java.awt.Dimension;
@@ -69,7 +52,7 @@ public class MyCheckBoxEditor extends JCheckBox  implements ActionListener, Cell
 	public MyCheckBoxEditor(String tooltip, MyDBTable myDB, boolean isGeprueftCheckBox) {
 		this.myDB = myDB;
 		this.setToolTipText(tooltip);
-		this.isGeprueftCheckBox = isGeprueftCheckBox;//tooltip.endsWith("Richtigkeit überprüft");
+		this.isGeprueftCheckBox = isGeprueftCheckBox;//tooltip.endsWith("Richtigkeit ï¿½berprï¿½ft");
 		//this.addChangeListener(this);
 		this.addActionListener(this);
 		this.setHorizontalAlignment(SwingConstants.CENTER);
@@ -128,7 +111,7 @@ public class MyCheckBoxEditor extends JCheckBox  implements ActionListener, Cell
 			      	//System.out.println(v.keySet().toString());
 		      		if (v.containsKey(DBKernel.getUsername())) {
 				        this.setSelected(!this.isSelected());
-	    				InfoBox ib = new InfoBox("Der Benutzer, der diesen Datensatz erstellt hat,\ndarf das Geprueft-Feld nicht ändern!", true, new Dimension(333, 150), null, true);
+	    				InfoBox ib = new InfoBox("Der Benutzer, der diesen Datensatz erstellt hat,\ndarf das Geprueft-Feld nicht ï¿½ndern!", true, new Dimension(333, 150), null, true);
 	    				ib.setVisible(true);    				
 		      		}		
 			      	if (isNull && this.isSelected()) isNull = false;			   

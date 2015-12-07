@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.sql.PreparedStatement;
@@ -50,7 +33,7 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
  * 
  */
 
-// ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
+// ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachtrï¿½glich ausgefï¿½hrt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
 	public static void check4Updates_183_184() {
@@ -619,7 +602,7 @@ public class UpdateChecker {
 			// 34 -> 35, 33 -> 31
 			DBKernel.sendRequest(
 					"INSERT INTO " + DBKernel.delimitL("Einheiten") + " (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung")
-							+ ") VALUES (44,'°Bé','Grad Baumé')", false); // 31 -> 44
+							+ ") VALUES (44,'ï¿½Bï¿½','Grad Baumï¿½')", false); // 31 -> 44
 			DBKernel.sendRequest(
 					"INSERT INTO " + DBKernel.delimitL("Einheiten") + " (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung")
 							+ ") VALUES (46,'U/min','Umdrehungen pro Minute')", false); // 32 -> 46
@@ -790,8 +773,8 @@ public class UpdateChecker {
 	 * "/org/hsh/bfr/db/res/002_EstModelPrimView_165.sql", null, false); new
 	 * SQLScriptImporter
 	 * ().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_165.sql", null,
-	 * false); } public static void check4Updates_163_164() { /* // für Krisen
-	 * EHEC-DB, da wurde wohl ein Update mitten "im Übergang" von
+	 * false); } public static void check4Updates_163_164() { /* // fï¿½r Krisen
+	 * EHEC-DB, da wurde wohl ein Update mitten "im ï¿½bergang" von
 	 * check4Updates_162_163 gemacht DBKernel.sendRequest("DROP VIEW IF EXISTS "
 	 * + DBKernel.delimitL("MesswerteEinfach"), false);
 	 * DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") +
@@ -1607,8 +1590,8 @@ public class UpdateChecker {
 	 * ps.setString(1, "Linsensamen"); ps.execute(); ps.setString(1,
 	 * "Zwiebelsamen"); ps.execute();
 	 * 
-	 * ps.setString(1, "Frischgemüse"); ps.execute(); ps.setString(1,
-	 * "Sprossgemüse"); ps.execute(); ps.setString(1, "Bockshornkleesprossen");
+	 * ps.setString(1, "Frischgemï¿½se"); ps.execute(); ps.setString(1,
+	 * "Sprossgemï¿½se"); ps.execute(); ps.setString(1, "Bockshornkleesprossen");
 	 * ps.execute(); ps.setString(1, "Alfalfasprossen"); ps.execute();
 	 * ps.setString(1, "Mungobohnensprossen"); ps.execute(); ps.setString(1,
 	 * "Rettichsprossen"); ps.execute(); ps.setString(1, "Linsensprossen");
@@ -1753,7 +1736,7 @@ public class UpdateChecker {
 							}
 						} else {
 							if (!ct.equals("PRIMARY KEY") && !ct.equals("CHECK")) {
-								MyLogger.handleMessage("Wasn das jetzt fürn CONSTRAINT. Soll ich wirklich löschen??? " + ct + "\t" + tn + "\t" + cn);
+								MyLogger.handleMessage("Wasn das jetzt fï¿½rn CONSTRAINT. Soll ich wirklich lï¿½schen??? " + ct + "\t" + tn + "\t" + cn);
 							}
 						}
 					}

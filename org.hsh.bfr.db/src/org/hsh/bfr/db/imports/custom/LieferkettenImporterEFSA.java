@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.imports.custom;
 
 /**
@@ -1451,7 +1434,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + sdfFormat(dayMHD, monthMHD, yearMHD);
 					;
 					//System.err.println(deliveryS);
-					lastID = getID("Lieferungen", new String[] { "Charge", "dd_day", "dd_month", "dd_year", "Unitmenge", "UnitEinheit", "Empfänger", "Serial",
+					lastID = getID("Lieferungen", new String[] { "Charge", "dd_day", "dd_month", "dd_year", "Unitmenge", "UnitEinheit", "Empfï¿½nger", "Serial",
 							"Contact_Questions_Remarks", "numPU", "typePU", "EndChain", "Explanation_EndChain", "Further_Traceback" }, new String[] { lastID.toString(), dayD,
 							monthD, yearD, amountKG, "kg", empf == null ? null : empf.toString(), serial, cqr, numPU, typePU, EndChain, Explanation_EndChain, Further_Traceback },
 							new boolean[] { true, true, true, true, true, true, true, false, false, true, true, false, false, false }, new boolean[] { false, false, false, false,

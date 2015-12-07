@@ -1,36 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.awt.Cursor;
@@ -53,9 +39,9 @@ public class MergeDBsAPriori {
 
 	private Hashtable<String, Integer> idConverter;
 	/*
-	// 2) Könntest du vielleicht bei dem Eintrag 3605 Escherichia coli 0104:H4 eine Änderung in O104:H4 vornehmen?
-	select * from "ChangeLog" WHERE "Tabelle" = 'Matrices' ID=33 checken -> rückgängig machen!!! Fleisch warmblütiger Tiere auch tiefgefroren - In Agenzien_Matrices 2 Einträge ändern!
-	select * from "ChangeLog" WHERE "Tabelle" = 'Agenzien' ID=20 (10 Änderungen notwendig),63 (0 Änderungen notwendig),178 (0 Änderung notwendig),756 (14 Änderungen notwendig),3605 (0104)
+	// 2) Kï¿½nntest du vielleicht bei dem Eintrag 3605 Escherichia coli 0104:H4 eine ï¿½nderung in O104:H4 vornehmen?
+	select * from "ChangeLog" WHERE "Tabelle" = 'Matrices' ID=33 checken -> rï¿½ckgï¿½ngig machen!!! Fleisch warmblï¿½tiger Tiere auch tiefgefroren - In Agenzien_Matrices 2 Eintrï¿½ge ï¿½ndern!
+	select * from "ChangeLog" WHERE "Tabelle" = 'Agenzien' ID=20 (10 ï¿½nderungen notwendig),63 (0 ï¿½nderungen notwendig),178 (0 ï¿½nderung notwendig),756 (14 ï¿½nderungen notwendig),3605 (0104)
 	
 	Literatur
 	Agenzien_Matrices
@@ -70,7 +56,7 @@ public class MergeDBsAPriori {
 	*/
 	public MergeDBsAPriori () {
 	    int retVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame, "Sicher?",
-	    		"DBs zusammenführen?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+	    		"DBs zusammenfï¿½hren?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION && DBKernel.isAdmin()) {
 			try {
 				DBKernel.mainFrame.getMyList().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -86,7 +72,7 @@ public class MergeDBsAPriori {
 						DBKernel.myDBi.getTable("Krankheitsbilder_Symptome")};
 				Integer[] myFromIDs = new Integer[]{242, null, null, null, null, null, null};
 				idConverter = new Hashtable<>();
-				go4It(folder, "defad", "de6!§5ddy", myTs, myFromIDs);
+				go4It(folder, "defad", "de6!ï¿½5ddy", myTs, myFromIDs);
 
 				LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 				for(String key : myTables.keySet()) {
@@ -96,7 +82,7 @@ public class MergeDBsAPriori {
 				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 				myDB.setTable(myDB.getActualTable());
 				
-				JOptionPane.showMessageDialog(DBKernel.mainFrame, "Fertig!", "DBs zusammenführen", JOptionPane.INFORMATION_MESSAGE);		
+				JOptionPane.showMessageDialog(DBKernel.mainFrame, "Fertig!", "DBs zusammenfï¿½hren", JOptionPane.INFORMATION_MESSAGE);		
 			}
 			finally {
 				DBKernel.mainFrame.getMyList().setCursor(Cursor.getDefaultCursor());
@@ -158,7 +144,7 @@ public class MergeDBsAPriori {
 			MyTable[] foreigns = myT.getForeignFields();
 			String[] mnTable = myT.getMNTable();
 			int i=1;
-			for (;i<=ft.length;i++) { // ID wird hier nicht benötigt
+			for (;i<=ft.length;i++) { // ID wird hier nicht benï¿½tigt
 				Object o = rs.getObject(i+1);
 				if (ft[i-1].equals("DOUBLE")) {
 					if (o == null) {

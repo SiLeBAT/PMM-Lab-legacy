@@ -1,36 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db.gui.actions;
 
 import java.awt.Cursor;
@@ -101,7 +87,7 @@ public class PlausibleAction extends AbstractAction {
 			        		if (progress != null) {
 			        			progress.setVisible(true);
 			        			progress.setStringPainted(true);
-			        			progress.setString("Plausibilitätstests laufen...");
+			        			progress.setString("Plausibilitï¿½tstests laufen...");
 			        			progress.setMinimum(0);
 			        			progress.setMaximum(myTables.size());
 			        			progress.setValue(0);
@@ -114,7 +100,7 @@ public class PlausibleAction extends AbstractAction {
 			        		for(String key : myTables.keySet()) {
 			        			MyTable myT = myTables.get(key);
 			        			String tn = myT.getTablename();
-			        	  		if (pd.radioButton1.isSelected()) { // Alle Datensätze
+			        	  		if (pd.radioButton1.isSelected()) { // Alle Datensï¿½tze
 			        	  			go4Table(tn, result, -1, -1, myT, showOnlyDataFromCurrentUser);
 			        	  		}
 			        	  		else if (pd.radioButton2.isSelected()) { // Nur sichtbare Tabelle
@@ -134,9 +120,9 @@ public class PlausibleAction extends AbstractAction {
 			        	  			}
 			        	  		}
 			        	  		/*
-			        	  		if (analysedIDs != null && tn.equals("Versuchsbedingungen")) {// erstmal nur für Messwerte bzw. Versuchsbedingungen
+			        	  		if (analysedIDs != null && tn.equals("Versuchsbedingungen")) {// erstmal nur fï¿½r Messwerte bzw. Versuchsbedingungen
 	    	  						go4Table("Messwerte", result, -1, -1, DBKernel.myDBi.getTable("Messwerte"),
-	    	  								null, showOnlyDataFromCurrentUser); // analysedIDs oder WHERE Versuchsbedingungen=5 oder so ähnlich vielleicht???
+	    	  								null, showOnlyDataFromCurrentUser); // analysedIDs oder WHERE Versuchsbedingungen=5 oder so ï¿½hnlich vielleicht???
 			        	  		}
 			        	  		*/
 			        	  		progress.setValue(++lfd);		
@@ -206,7 +192,7 @@ public class PlausibleAction extends AbstractAction {
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 =
 					pd4.cd.isSelected() ?
-							checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empfänger"},
+							checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empfï¿½nger"},
 								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
@@ -248,7 +234,7 @@ public class PlausibleAction extends AbstractAction {
     			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
     			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-    			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + stationId;
+    			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfï¿½nger") + "=" + stationId;
 		try {
 			System.err.println("Deliveries - Inbound");
 			System.err.println("Recipient\tArtikelnummer\tBezeichnung\tChargenNr\tMHD_day\tMHD_month\tMHD_year\tpd_day\tpd_month\tpd_year\tdd_day\tdd_month\tdd_year\tUnitmenge\tUnitEinheit\tnumPU\ttypePU");
@@ -271,7 +257,7 @@ public class PlausibleAction extends AbstractAction {
 				DBKernel.delimitL("pd_day") + "," + DBKernel.delimitL("pd_month") + "," + DBKernel.delimitL("pd_year") + "," +
 				DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + "," +
 				DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("numPU") + "," + DBKernel.delimitL("typePU") + "," +
-				DBKernel.delimitL("Empfänger") +
+				DBKernel.delimitL("Empfï¿½nger") +
 				" FROM " + DBKernel.delimitL("Produktkatalog") +
     			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
@@ -289,7 +275,7 @@ public class PlausibleAction extends AbstractAction {
 							rs.getObject("pd_day") + "\t" + rs.getObject("pd_month") + "\t" + rs.getObject("pd_year") + "\t" +
 							rs.getObject("dd_day") + "\t" + rs.getObject("dd_month") + "\t" + rs.getObject("dd_year") + "\t" +
 							rs.getObject("Unitmenge") + "\t" + rs.getObject("UnitEinheit") + "\t" + rs.getObject("numPU") + "\t" + rs.getObject("typePU") + "\t" +
-							rs.getInt("Empfänger"));
+							rs.getInt("Empfï¿½nger"));
 				} while (rs.next());
 			}
 		}
@@ -497,7 +483,7 @@ public class PlausibleAction extends AbstractAction {
 								}
 								if (vals.length() > 0) {
 									vals = vals.substring(1);
-									result.add(tn + " hat " + rs.getString(1) + " Datensätze mit denselben Werten: (" + vals + ")"); // Duplikate
+									result.add(tn + " hat " + rs.getString(1) + " Datensï¿½tze mit denselben Werten: (" + vals + ")"); // Duplikate
 								}
 							} while (rs.next());
 						}
@@ -816,7 +802,7 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
 									    		break;
 								    		}
 								    		else {
-								    			// Datensatz bereits wieder gelöscht - System.err.print("\t" + rs2.getInt(4) + "\tnull"); 
+								    			// Datensatz bereits wieder gelï¿½scht - System.err.print("\t" + rs2.getInt(4) + "\tnull"); 
 								    		}
 								    	}
 								    }

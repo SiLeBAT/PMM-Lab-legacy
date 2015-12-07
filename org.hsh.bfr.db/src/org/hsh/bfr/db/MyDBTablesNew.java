@@ -1,36 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.util.Arrays;
@@ -59,7 +45,7 @@ public class MyDBTablesNew extends MyDBI {
 	private LinkedHashSet<String> allViews = null;
 	private LinkedHashMap<String, String> allData = null;
 	private String saUser = "SA";//"defad"; // SA
-	private String saPass = "";//"de6!§5ddy";
+	private String saPass = "";//"de6!ï¿½5ddy";
 	private String dbServerPath = "";
 	private String softwareVersion = "1.8.2.0.0";//"1.8.3";//
 	
@@ -187,11 +173,11 @@ public class MyDBTablesNew extends MyDBI {
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), false);
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
 	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
-	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
+	        // Zur ï¿½berwachung, damit immer mindestens ein Admin ï¿½brig bleibt; dasselbe gibts im MyDataChangeListener fï¿½r Delete Operations!
+	        // Auï¿½erdem zur ï¿½berwachung, daï¿½ der eingeloggte User seine Kennung nicht ï¿½ndert
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
-	        // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
+	        // Zur ï¿½berwachung, damit eine importierte xml Datei nicht gelï¿½scht werden kann!
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
 	}
@@ -217,7 +203,7 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,null,null,null},
 				new String[][]{{"Username"}},
 				new LinkedHashMap[]{null,null,null,Users.getUserTypesHash()});
-		addTable(us, SystemTabellen_LIST); // müsste jetzt doch gehen, oder?...  lieber die Users ganz weg, weil das Editieren auf dem HSQLServer nicht korrekt funktioniert - siehe im Trigger removeAccRight usw., da müsste man erst die sendRequests umstellen auf defaultconnection...		
+		addTable(us, SystemTabellen_LIST); // mï¿½sste jetzt doch gehen, oder?...  lieber die Users ganz weg, weil das Editieren auf dem HSQLServer nicht korrekt funktioniert - siehe im Trigger removeAccRight usw., da mï¿½sste man erst die sendRequests umstellen auf defaultconnection...		
 
 		MyTable infoTable = new MyTable("Infotabelle",
 				new String[]{"Parameter","Wert"},
@@ -240,7 +226,7 @@ public class MyDBTablesNew extends MyDBI {
 	    lt.put(new Integer(8), "Bericht");
 		MyTable literatur = new MyTable("Literatur", new String[]{"Erstautor","Jahr","Titel","Abstract","Journal","Volume","Issue","Seite","FreigabeModus","Webseite","Literaturtyp","Paper"},
 				new String[]{"VARCHAR(100)","INTEGER","VARCHAR(1023)","VARCHAR(16383)","VARCHAR(255)","VARCHAR(50)","VARCHAR(50)","INTEGER","INTEGER","VARCHAR(255)","INTEGER","BLOB(10M)"},
-				new String[]{"Erstautor der Publikation","Veröffentlichungsjahr","Titel des Artikels","Abstract/Zusammenfassung des Artikels","Journal / Buchtitel / ggf. Webseite / Veranstaltung etc.",null,null,"Seitenzahl_Beginn","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox",null,"Auswahl zwischen Paper, SOP, LA, Handbuch/Manual, Laborbuch","Originaldatei"},
+				new String[]{"Erstautor der Publikation","Verï¿½ffentlichungsjahr","Titel des Artikels","Abstract/Zusammenfassung des Artikels","Journal / Buchtitel / ggf. Webseite / Veranstaltung etc.",null,null,"Seitenzahl_Beginn","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox",null,"Auswahl zwischen Paper, SOP, LA, Handbuch/Manual, Laborbuch","Originaldatei"},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[][]{{"Erstautor","Jahr","Titel"}},
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null},
@@ -264,10 +250,10 @@ public class MyDBTablesNew extends MyDBI {
 				"DOUBLE","DOUBLE","BOOLEAN","DOUBLE","DOUBLE","BOOLEAN",
 				"VARCHAR(1023)","BOOLEAN","VARCHAR(1023)","BOOLEAN","VARCHAR(1023)","VARCHAR(25)","BOOLEAN",
 				"BOOLEAN","INTEGER"},
-				new String[]{"Wert","Exponent zur Basis 10, falls vorhanden\nBeispiel 1.3*10^-4 : 1.3 wird in der Spalte 'Wert' eingetragen und -4 in dieser Spalte","Wert_typ ist entweder Einzelwert, Mittelwert oder Median","Der Einzelwert wurde nicht wirklich gemessen, sondern geschaetzt (ja=geschaetzt, nein=gemessen)","Anzahl der Wiederholungsmessungen/technischen Replikate für diesen Wert","geschaetzt","Standardabweichung des gemessenen Wertes - Eintrag nur bei Mehrfachmessungen möglich","Exponent zur Basis 10 für die Standardabweichung, falls vorhanden","geschaetzt",
-				"Minimum","Exponent zur Basis 10 für das Minimum, falls vorhanden","geschaetzt","Maximum","Exponent zur Basis 10 für das Maximum, falls vorhanden","geschaetzt",
-				"Untere Konfidenzgrenze des gemessenen Wertes (95%-KI) - Eintrag nur bei Mehrfachmessungen möglich","Exponent zur Basis 10 für LCL95, falls vorhanden","geschaetzt","Obere Konfidenzgrenze des gemessenen Wertes (95%-KI) - Eintrag nur bei Mehrfachmessungen möglich","Exponent zur Basis 10 für UCL95, falls vorhanden","geschaetzt",
-				"Verteilung der Werte bei Mehrfachmessungen, z.B. Normalverteilung. Anzugeben ist die entsprechende Funktion in R, z.B. rnorm(n, mean = 0, sd = 1)","geschaetzt","'Parameter'/Zeit-Profil. Funktion des Parameters in Abhaengigkeit von der Zeit.\nFuer das Parsen wird die Klasse http://math.hws.edu/javamath/javadoc/edu/hws/jcm/data/Parser.html benutzt.","geschaetzt","'Parameter'/x-Profil. Funktion des Parameters in Abhängigkeit des anzugebenden x-Parameters.\nFür das Parsen wird die Klasse http://math.hws.edu/javamath/javadoc/edu/hws/jcm/data/Parser.html benutzt.","Der zugehoerige x-Parameter: Bezugsgroesse für eine Funktion, z.B. Temperatur in Abhaengigkeit von pH, dann ist die Bezugsgroesse pH.","geschaetzt",
+				new String[]{"Wert","Exponent zur Basis 10, falls vorhanden\nBeispiel 1.3*10^-4 : 1.3 wird in der Spalte 'Wert' eingetragen und -4 in dieser Spalte","Wert_typ ist entweder Einzelwert, Mittelwert oder Median","Der Einzelwert wurde nicht wirklich gemessen, sondern geschaetzt (ja=geschaetzt, nein=gemessen)","Anzahl der Wiederholungsmessungen/technischen Replikate fï¿½r diesen Wert","geschaetzt","Standardabweichung des gemessenen Wertes - Eintrag nur bei Mehrfachmessungen mï¿½glich","Exponent zur Basis 10 fï¿½r die Standardabweichung, falls vorhanden","geschaetzt",
+				"Minimum","Exponent zur Basis 10 fï¿½r das Minimum, falls vorhanden","geschaetzt","Maximum","Exponent zur Basis 10 fï¿½r das Maximum, falls vorhanden","geschaetzt",
+				"Untere Konfidenzgrenze des gemessenen Wertes (95%-KI) - Eintrag nur bei Mehrfachmessungen mï¿½glich","Exponent zur Basis 10 fï¿½r LCL95, falls vorhanden","geschaetzt","Obere Konfidenzgrenze des gemessenen Wertes (95%-KI) - Eintrag nur bei Mehrfachmessungen mï¿½glich","Exponent zur Basis 10 fï¿½r UCL95, falls vorhanden","geschaetzt",
+				"Verteilung der Werte bei Mehrfachmessungen, z.B. Normalverteilung. Anzugeben ist die entsprechende Funktion in R, z.B. rnorm(n, mean = 0, sd = 1)","geschaetzt","'Parameter'/Zeit-Profil. Funktion des Parameters in Abhaengigkeit von der Zeit.\nFuer das Parsen wird die Klasse http://math.hws.edu/javamath/javadoc/edu/hws/jcm/data/Parser.html benutzt.","geschaetzt","'Parameter'/x-Profil. Funktion des Parameters in Abhï¿½ngigkeit des anzugebenden x-Parameters.\nFï¿½r das Parsen wird die Klasse http://math.hws.edu/javamath/javadoc/edu/hws/jcm/data/Parser.html benutzt.","Der zugehoerige x-Parameter: Bezugsgroesse fï¿½r eine Funktion, z.B. Temperatur in Abhaengigkeit von pH, dann ist die Bezugsgroesse pH.","geschaetzt",
 				"Undefiniert (n.d.)","Referenz zu diesen Kennzahlen"},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,
 				null,null,null,null,null,null,
@@ -288,7 +274,7 @@ public class MyDBTablesNew extends MyDBI {
 		// Katalogtabellen
 		MyTable matrix = new MyTable("Matrices", new String[]{"Matrixname","Leitsatznummer","pH","aw","Dichte","Katalogcodes"},
 				new String[]{"VARCHAR(255)","VARCHAR(20)","DOUBLE","DOUBLE","DOUBLE","INTEGER"},
-				new String[]{"Kulturmedium / Futtermittel / Lebensmittel / Serum / Kot / Gewebe","Leitsatznummer - falls bekannt","pH-Wert über alle Produkte der Warengruppe - falls abschaetzbar","aw-Wert über alle Produkte der Warengruppe - falls abschaetzbar","Dichte der Matrix über alle Produkte der Warengruppe - falls abschaetzbar","Matrixkatalog - Codes"},
+				new String[]{"Kulturmedium / Futtermittel / Lebensmittel / Serum / Kot / Gewebe","Leitsatznummer - falls bekannt","pH-Wert ï¿½ber alle Produkte der Warengruppe - falls abschaetzbar","aw-Wert ï¿½ber alle Produkte der Warengruppe - falls abschaetzbar","Dichte der Matrix ï¿½ber alle Produkte der Warengruppe - falls abschaetzbar","Matrixkatalog - Codes"},
 				new MyTable[]{null,null,newDoubleTable,newDoubleTable,newDoubleTable,null},
 				null,
 				null,
@@ -360,7 +346,7 @@ public class MyDBTablesNew extends MyDBI {
 		if (isSiLeBAT) addTable(normen, -1);
 		MyTable methoden = new MyTable("Methoden", new String[]{"Name","Beschreibung","Referenz","Norm","Katalogcodes"},
 				new String[]{"VARCHAR(1023)","VARCHAR(1023)","INTEGER","INTEGER","INTEGER"},
-				new String[]{"Name des Nachweisverfahrens","Beschreibung des Nachweisverfahrens","Verweis auf Literaturstelle","Zugehörige Normen, z.B. ISO, DIN, CEN, etc.","Methodenkatalog - Codes"}, // ,"Angabe, ob Testreagenzien auch inhouse produziert werden können"
+				new String[]{"Name des Nachweisverfahrens","Beschreibung des Nachweisverfahrens","Verweis auf Literaturstelle","Zugehï¿½rige Normen, z.B. ISO, DIN, CEN, etc.","Methodenkatalog - Codes"}, // ,"Angabe, ob Testreagenzien auch inhouse produziert werden kï¿½nnen"
 				new MyTable[]{null,null,literatur,normen,null},
 				null,
 				null,
@@ -380,7 +366,7 @@ public class MyDBTablesNew extends MyDBI {
 		
 		MyTable matrix_OG = new MyTable("Codes_Matrices", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
-				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, GS1, BLS, ADV oder auch selfmade)","Hierarchischer Code","Zugehörige Matrix"},
+				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, GS1, BLS, ADV oder auch selfmade)","Hierarchischer Code","Zugehï¿½rige Matrix"},
 				new MyTable[]{null,null,matrix},
 				new String[][]{{"CodeSystem","Code"}},
 				null,
@@ -391,7 +377,7 @@ public class MyDBTablesNew extends MyDBI {
 		matrix.setForeignField(matrix_OG, 5);
 		MyTable agenzienkategorie = new MyTable("Codes_Agenzien", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
-				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, ADV oder auch selfmade)","Hierarchischer Code","Zugehöriges Agens"},
+				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, ADV oder auch selfmade)","Hierarchischer Code","Zugehï¿½riges Agens"},
 				new MyTable[]{null,null,agenzien},
 				new String[][]{{"CodeSystem","Code"}},
 				null,
@@ -402,7 +388,7 @@ public class MyDBTablesNew extends MyDBI {
 		agenzien.setForeignField(agenzienkategorie, 15);
 		MyTable methoden_OG = new MyTable("Codes_Methoden", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(40)","INTEGER"},
-				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, BLV oder auch selfmade)","Hierarchischer Code","Zugehörige Methode"},
+				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, BLV oder auch selfmade)","Hierarchischer Code","Zugehï¿½rige Methode"},
 				new MyTable[]{null,null,methoden},
 				new String[][]{{"CodeSystem","Code"}},
 				null,
@@ -431,7 +417,7 @@ public class MyDBTablesNew extends MyDBI {
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
 				new String[]{"VARCHAR(50)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)"},
-				new String[]{"Kurzform auf deutsch","Ausführliche Beschreibung auf deutsch","Kurzform auf englisch","Ausführliche Beschreibung auf englisch"},
+				new String[]{"Kurzform auf deutsch","Ausfï¿½hrliche Beschreibung auf deutsch","Kurzform auf englisch","Ausfï¿½hrliche Beschreibung auf englisch"},
 				new MyTable[]{null,null,null,null},
 				null,
 				null,
@@ -442,7 +428,7 @@ public class MyDBTablesNew extends MyDBI {
 
 		MyTable risikogruppen = new MyTable("Risikogruppen", new String[]{"Bezeichnung","Beschreibung"},
 				new String[]{"VARCHAR(50)","VARCHAR(255)"},
-				new String[]{"Kurzform","Ausführliche Beschreibung"},
+				new String[]{"Kurzform","Ausfï¿½hrliche Beschreibung"},
 				new MyTable[]{null,null},
 				null,
 				null,
@@ -453,7 +439,7 @@ public class MyDBTablesNew extends MyDBI {
 
 		MyTable tierkrankheiten = new MyTable("Tierkrankheiten", new String[]{"VET_Code","Kurzbezeichnung","Krankheitsart"},
 				new String[]{"VARCHAR(255)","VARCHAR(50)","VARCHAR(255)"},
-				new String[]{null,"Kurzform","Ausführliche Beschreibung"},
+				new String[]{null,"Kurzform","Ausfï¿½hrliche Beschreibung"},
 				new MyTable[]{null,null,null});
 		if (isSiLeBAT) addTable(tierkrankheiten, -1);
 		
@@ -462,21 +448,21 @@ public class MyDBTablesNew extends MyDBI {
 		
 		LinkedHashMap<Object, String> h1 = new LinkedHashMap<>();
 		h1.put("Human", "Human");h1.put("Kaninchen", "Kaninchen");h1.put("Maus", "Maus");h1.put("Ratte", "Ratte");
-		h1.put("Meerschweinchen", "Meerschweinchen");h1.put("Primaten", "Primaten");h1.put("sonst. Säugetier", "sonst. Säugetier");
+		h1.put("Meerschweinchen", "Meerschweinchen");h1.put("Primaten", "Primaten");h1.put("sonst. Sï¿½ugetier", "sonst. Sï¿½ugetier");
 		LinkedHashMap<Object, String> h2 = new LinkedHashMap<>();
 		h2.put("inhalativ", "inhalativ");					
 		h2.put("oral", "oral");					
 		h2.put("dermal", "dermal");		
-		h2.put("Blut/Serum/Körperflüssigkeit", "Blut/Serum/Körperflüssigkeit");		
-		h2.put("hämatogen", "hämatogen");							
+		h2.put("Blut/Serum/Kï¿½rperflï¿½ssigkeit", "Blut/Serum/Kï¿½rperflï¿½ssigkeit");		
+		h2.put("hï¿½matogen", "hï¿½matogen");							
 		h2.put("transplazental", "transplazental");							
 		h2.put("kutan", "kutan");					
 		h2.put("venerisch", "venerisch");							
 		h2.put("transkutan", "transkutan");							
 		h2.put("intraperitoneal", "intraperitoneal");							
-		h2.put("intravenös", "intravenös");							
+		h2.put("intravenï¿½s", "intravenï¿½s");							
 		h2.put("subkutan", "subkutan");							
-		h2.put("intramuskulär", "intramuskulär");							
+		h2.put("intramuskulï¿½r", "intramuskulï¿½r");							
 		h2.put("Injektion", "Injektion");							
 		LinkedHashMap<Object, String> h3 = new LinkedHashMap<>();
 		h3.put("akut", "akut");					
@@ -522,20 +508,20 @@ public class MyDBTablesNew extends MyDBI {
 				"BOOLEAN","BOOLEAN","BOOLEAN","BOOLEAN","VARCHAR(50)",
 				"VARCHAR(255)","VARCHAR(255)"
 				},
-				new String[]{"Referenz - Verweis auf Tabelle Literatur","Agens - Verweis auf Tabelle Agenzien","Details zum Erreger, die durch den Katalog nicht abgebildet werden, z.B. Serovartyp","Risikokategorie laut Einstufung des Centers for Disease Control and Prevention (CDC)","Schutzstufen gemaess Verordnung über Sicherheit und Gesundheitsschutz bei Taetigkeiten mit biologischen Arbeitsstoffen (Biostoffverordnung - BioStoffV)",
-				"Bezeichnung der Krankheit, wenn möglich Verweis auf die Internationale Klassifikation der Krankheiten 10. Revision (ICD10-Kodes)","Auswahl aus hinterlegtem Katalog mit der Möglichkeit, neue Symptome einzufügen; Mehrfachnennungen möglich",
+				new String[]{"Referenz - Verweis auf Tabelle Literatur","Agens - Verweis auf Tabelle Agenzien","Details zum Erreger, die durch den Katalog nicht abgebildet werden, z.B. Serovartyp","Risikokategorie laut Einstufung des Centers for Disease Control and Prevention (CDC)","Schutzstufen gemaess Verordnung ï¿½ber Sicherheit und Gesundheitsschutz bei Taetigkeiten mit biologischen Arbeitsstoffen (Biostoffverordnung - BioStoffV)",
+				"Bezeichnung der Krankheit, wenn mï¿½glich Verweis auf die Internationale Klassifikation der Krankheiten 10. Revision (ICD10-Kodes)","Auswahl aus hinterlegtem Katalog mit der Mï¿½glichkeit, neue Symptome einzufï¿½gen; Mehrfachnennungen mï¿½glich",
 				"Zielpopulation","Aufnahmeroute","Art des Krankheitsverlaufs",
-				"Risikogruppen - Mehrfachnennungen möglich",
+				"Risikogruppen - Mehrfachnennungen mï¿½glich",
 				"Anzahl der Neuerkrankungsfaelle/100.000/Jahr in Deutschland","Angabe der Altersgruppe, falls die Inzidenz altersbezogen angegeben ist",
 				"Zeitraum von Aufnahme des Agens bis zum Auftreten des/r ersten Symptome/s","Inkubationszeit-Einheit",
 				"Symptomdauer","Symptomdauer-Einheit",
 				"Infektionsdosis oraler Aufnahme","Infektionsdosis-Einheit",
-				"Letalitaetsdosis LD50: mittlere Dosis einer Substanz, die bei 50 % der Exponierten zum Tode führt","Letalitaetsdosis50-Einheit","Bei welchem Organismus wurden die Untersuchungen zu LD50 gemacht?","Welche Aufnahmeroute wurde gewaehlt?",
-				"Letalitaetsdosis LD100: mittlere Dosis einer Substanz, die bei 100 % der Exponierten zum Tode führt","Letalitaetsdosis100-Einheit","Bei welchem Organismus wurden die Untersuchungen zu LD100 gemacht?","Welche Aufnahmeroute wurde gewaehlt?",
+				"Letalitaetsdosis LD50: mittlere Dosis einer Substanz, die bei 50 % der Exponierten zum Tode fï¿½hrt","Letalitaetsdosis50-Einheit","Bei welchem Organismus wurden die Untersuchungen zu LD50 gemacht?","Welche Aufnahmeroute wurde gewaehlt?",
+				"Letalitaetsdosis LD100: mittlere Dosis einer Substanz, die bei 100 % der Exponierten zum Tode fï¿½hrt","Letalitaetsdosis100-Einheit","Bei welchem Organismus wurden die Untersuchungen zu LD100 gemacht?","Welche Aufnahmeroute wurde gewaehlt?",
 				"Meldepflicht nach Infektionsschutzgesetz",
 				"Krankheitshaeufigkeit pro Jahr in Deutschland, falls nicht im Kommentarfeld anders vermerkt - Angabe in Prozent","Prozentualer Anteil der Todesfaelle, bezogen auf die Gesamtzahl der Bevoelkerung in Deutschland, falls nicht im Kommentarfeld anders vermerkt",
 				"Verhaeltnis der Todesfaelle zur Anzahl der Erkrankten, angegeben in Prozent","Letalitaet: mit bzw. ohne Therapie","Ungefaehre, moegliche Dauer des Ausscheidens des Erregers",
-				"Krankheit ist von Mensch zu Mensch übertragbar","Therapiemöglichkeit besteht","Antidotgabe möglich","Schutzimpfung verfügbar","Moeglicher Zeitraum vom Symptombeginn bis zum Eintritt des Todes",
+				"Krankheit ist von Mensch zu Mensch ï¿½bertragbar","Therapiemï¿½glichkeit besteht","Antidotgabe mï¿½glich","Schutzimpfung verfï¿½gbar","Moeglicher Zeitraum vom Symptombeginn bis zum Eintritt des Todes",
 				"Moegliche Spaetschaeden","Moegliche unguenstige Beeinflussung oder Verschlimmerung des Krankheitszustandes"},
 				new MyTable[]{literatur,agenzien,null,null,null,
 				krankheiten,symptome,
@@ -598,7 +584,7 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{diagnostik,risikogruppen},
 				new LinkedHashMap[]{null,null});
 		if (isSiLeBAT) addTable(krankheitsbilderrisikogruppen, -1);
-		MyTable agensmatrices = new MyTable("Agenzien_Matrices", // ,"natürliches Vorkommen in Lebensmitteln in D"
+		MyTable agensmatrices = new MyTable("Agenzien_Matrices", // ,"natï¿½rliches Vorkommen in Lebensmitteln in D"
 				new String[]{"Agens","Matrix","Referenz"},
 				new String[]{"INTEGER","INTEGER","INTEGER"},
 				new String[]{null,null,null},
@@ -608,7 +594,7 @@ public class MyDBTablesNew extends MyDBI {
 		
 		MyTable zertifikate = new MyTable("Zertifizierungssysteme", new String[]{"Bezeichnung","Abkuerzung","Anbieter"},
 				new String[]{"VARCHAR(255)","VARCHAR(20)","INTEGER"},
-				new String[]{"Vollstaendiger Name zum Zertifizierungssystem","Abkürzung für Zertifizierungssystem","Anbieter des Zertifizierungssystems - Verweis auf die Kontakttabelle"},
+				new String[]{"Vollstaendiger Name zum Zertifizierungssystem","Abkï¿½rzung fï¿½r Zertifizierungssystem","Anbieter des Zertifizierungssystems - Verweis auf die Kontakttabelle"},
 				new MyTable[]{null,null,adressen});
 		if (isSiLeBAT) addTable(zertifikate, DBKernel.isKNIME ? -1 : BasisTabellen_LIST);
 		
@@ -624,7 +610,7 @@ public class MyDBTablesNew extends MyDBI {
 		if (isSiLeBAT) addTable(methodiken, -1);
 		MyTable methodiken_OG = new MyTable("Codes_Methodiken", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
-				new String[]{"Codebezeichnung","Hierarchischer Code","Zugehörige Methode"},
+				new String[]{"Codebezeichnung","Hierarchischer Code","Zugehï¿½rige Methode"},
 				new MyTable[]{null,null,methodiken},
 				new String[][]{{"CodeSystem","Code"}},
 				null,
@@ -634,13 +620,13 @@ public class MyDBTablesNew extends MyDBI {
 		if (isSiLeBAT) addTable(methodiken_OG, -1); // -1
 		methodiken.setForeignField(methodiken_OG, 4);
 		h1 = new LinkedHashMap<>();
-		h1.put("NRL", "NRL"); h1.put("Konsiliarlabor", "Konsiliarlabor"); h1.put("staatlich", "staatlich"); h1.put("GPV", "GPV"); h1.put("privat", "privat"); h1.put("sonstiges", "sonstiges");	// GPV = Gegenprobensachverständiger	
+		h1.put("NRL", "NRL"); h1.put("Konsiliarlabor", "Konsiliarlabor"); h1.put("staatlich", "staatlich"); h1.put("GPV", "GPV"); h1.put("privat", "privat"); h1.put("sonstiges", "sonstiges");	// GPV = Gegenprobensachverstï¿½ndiger	
 		MyTable labore = new MyTable("Labore", new String[]{"Kontakt","HIT_Nummer","ADV_Nummer",
 				"privat_staatlich","Matrices","Untersuchungsart","Agenzien"},
 				new String[]{"INTEGER","BIGINT","VARCHAR(10)",
 				"VARCHAR(20)","INTEGER","INTEGER","INTEGER"},
 				new String[]{"Verweis auf die Kontakttabelle - Tabelle enthaelt auch Betriebslabore","HIT-Nummer","ADV-Nummer",
-				"Ist das Labor privat, staatlich, oder sogar ein NRL (Nationales Referenz Labor) oder ein GPV (Gegenprobensachverstaendigen Labor) oder etwas anderes?","Matrices, auf die das Labor spezialisiert ist. Mehrfachnennungen möglich.","Art der Untersuchung, Methoden. Mehrfachnennungen möglich.","Agenzien, die das Labor untersucht und für die die genutzten Methodiken bekannt sind. Mehrfachnennungen möglich."},
+				"Ist das Labor privat, staatlich, oder sogar ein NRL (Nationales Referenz Labor) oder ein GPV (Gegenprobensachverstaendigen Labor) oder etwas anderes?","Matrices, auf die das Labor spezialisiert ist. Mehrfachnennungen mï¿½glich.","Art der Untersuchung, Methoden. Mehrfachnennungen mï¿½glich.","Agenzien, die das Labor untersucht und fï¿½r die die genutzten Methodiken bekannt sind. Mehrfachnennungen mï¿½glich."},
 				new MyTable[]{adressen,null,null,null,matrix,methodiken,agenzien},
 				new String[][]{{"HIT_Nummer"},{"ADV_Nummer"}},
 				new LinkedHashMap[]{null,null,null,h1,null,null,null},
@@ -712,7 +698,7 @@ public class MyDBTablesNew extends MyDBI {
 				new char[][]{{'_','$','\b'},null,null});
 		if (isSiLeBAT || isPmm) addTable(SonstigeParameter, DBKernel.isKNIME ? BasisTabellen_LIST : -1);
 		h1 = new LinkedHashMap<>();
-	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		
+	    h1.put("Fest", "Fest"); h1.put("Flï¿½ssig", "Flï¿½ssig"); h1.put("Gasfï¿½rmig", "Gasfï¿½rmig");		
 		//min, avg, max
 		
 
@@ -730,7 +716,7 @@ public class MyDBTablesNew extends MyDBI {
 				"INTEGER","INTEGER","VARCHAR(255)","INTEGER","VARCHAR(255)",
 				"BOOLEAN","BOOLEAN",
 				"VARCHAR(255)","VARCHAR(255)"},
-				new String[]{"Bezeichnung des Kits","Verweis auf Eintrag in Kontakttabelle - falls Testanbieter vorhanden","Zertifikatnummer - falls vorhanden","Gültigkeitsdatum des Zertifikats - falls vorhanden","Zertifizierungsanbieter - Verweis auf Tabelle Zertifizierungssysteme","Das Angebot kann ein individuelles Angebot, ein Katalogeintrag, eine E-Mail oder auch ein anderes Dokument des Testanbieters sein, moeglicherweise auch mit Angabe der Gueltigkeit des Angebots","Kosten für das Kit - Angabe ohne Mengenrabbatte. Geschaetzte Materialkosten, falls inhouse","Waehrung für die Kosten - Auswahlbox",
+				new String[]{"Bezeichnung des Kits","Verweis auf Eintrag in Kontakttabelle - falls Testanbieter vorhanden","Zertifikatnummer - falls vorhanden","Gï¿½ltigkeitsdatum des Zertifikats - falls vorhanden","Zertifizierungsanbieter - Verweis auf Tabelle Zertifizierungssysteme","Das Angebot kann ein individuelles Angebot, ein Katalogeintrag, eine E-Mail oder auch ein anderes Dokument des Testanbieters sein, moeglicherweise auch mit Angabe der Gueltigkeit des Angebots","Kosten fï¿½r das Kit - Angabe ohne Mengenrabbatte. Geschaetzte Materialkosten, falls inhouse","Waehrung fï¿½r die Kosten - Auswahlbox",
 				"Anzahl der Kits pro Bestellung",null,null,null,
 				null,null,null,null,null,
 				"Quantitativ",null,null,
@@ -775,9 +761,9 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,null,null,null,
 				"Verweis auf Matrix in Matrixtabelle","Details zur Matrix, die durch den Katalog nicht abgebildet werden",
 				"Verweis auf Eintrag in Agens-Tabelle","Details zum Erreger, die durch den Katalog nicht abgebildet werden, z.B. welches Serovar",
-				"Notwendige Kits - hier können mehrere Kits ausgewaehlt werden","Dauer des Verfahrens (von Beginn bis Vorliegen des Ergebnisses)","Zeiteinheit der Dauer","Wie gross ist der durchschnittliche TA-Zeitaufwand zur Durchfuehrung des Nachweisverfahrens - geschaetzt?","Zeiteinheit für Zeitaufwand für Personal - Auswahlbox",
-				"Geschaetzte Materialkosten, zusaetzlich zu den Kitkosten","Waehrung für die Kosten - Auswahlbox",
-				"Zugehörige Normen, z.B. ISO, DIN, CEN, etc.","Standard Operating Procedure oder Laboranweisung - falls vorhanden","Wird für das Verfahren Spezialequipment benötigt? Details bitte ins Kommentarfeld eintragen","Kann das Verfahren ohne Fachpersonal durchgeführt werden? Details bitte ins Kommentarfeld eintragen","Referenz, gegebenenfalls Laborbuch"},
+				"Notwendige Kits - hier kï¿½nnen mehrere Kits ausgewaehlt werden","Dauer des Verfahrens (von Beginn bis Vorliegen des Ergebnisses)","Zeiteinheit der Dauer","Wie gross ist der durchschnittliche TA-Zeitaufwand zur Durchfuehrung des Nachweisverfahrens - geschaetzt?","Zeiteinheit fï¿½r Zeitaufwand fï¿½r Personal - Auswahlbox",
+				"Geschaetzte Materialkosten, zusaetzlich zu den Kitkosten","Waehrung fï¿½r die Kosten - Auswahlbox",
+				"Zugehï¿½rige Normen, z.B. ISO, DIN, CEN, etc.","Standard Operating Procedure oder Laboranweisung - falls vorhanden","Wird fï¿½r das Verfahren Spezialequipment benï¿½tigt? Details bitte ins Kommentarfeld eintragen","Kann das Verfahren ohne Fachpersonal durchgefï¿½hrt werden? Details bitte ins Kommentarfeld eintragen","Referenz, gegebenenfalls Laborbuch"},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,
 				matrix,null,agenzien,null,
 				kits,null,null,null,null,
@@ -837,9 +823,9 @@ public class MyDBTablesNew extends MyDBI {
 				"Methoden. Verweis auf Tabelle Methodiken",
 				"Verweis auf Matrix in Matrixtabelle","Details zur Matrix, die durch den Katalog nicht abgebildet werden",
 				"Verweis auf Eintrag in Agens-Tabelle","Details zum Erreger, die durch den Katalog nicht abgebildet werden, z.B. welches Serovar",
-				"Notwendige Kits - hier können mehrere Kits ausgewaehlt werden","Dauer des Verfahrens (von Beginn bis Vorliegen des Ergebnisses)","Zeiteinheit der Dauer","Wie gross ist der durchschnittliche TA-Zeitaufwand zur Durchfuehrung des Nachweisverfahrens - geschaetzt?","Zeiteinheit für Zeitaufwand für Personal - Auswahlbox",
-				"Geschaetzte Materialkosten, zusaetzlich zu den Kitkosten","Waehrung für die Kosten - Auswahlbox",
-				"Zugehörige Normen, z.B. ISO, DIN, CEN, etc.","Standard Operating Procedure oder Laboranweisung - falls vorhanden","Wird für das Verfahren Spezialequipment benötigt? Details bitte ins Kommentarfeld eintragen","Kann das Verfahren ohne Fachpersonal durchgeführt werden? Details bitte ins Kommentarfeld eintragen","Referenz, gegebenenfalls Laborbuch"},
+				"Notwendige Kits - hier kï¿½nnen mehrere Kits ausgewaehlt werden","Dauer des Verfahrens (von Beginn bis Vorliegen des Ergebnisses)","Zeiteinheit der Dauer","Wie gross ist der durchschnittliche TA-Zeitaufwand zur Durchfuehrung des Nachweisverfahrens - geschaetzt?","Zeiteinheit fï¿½r Zeitaufwand fï¿½r Personal - Auswahlbox",
+				"Geschaetzte Materialkosten, zusaetzlich zu den Kitkosten","Waehrung fï¿½r die Kosten - Auswahlbox",
+				"Zugehï¿½rige Normen, z.B. ISO, DIN, CEN, etc.","Standard Operating Procedure oder Laboranweisung - falls vorhanden","Wird fï¿½r das Verfahren Spezialequipment benï¿½tigt? Details bitte ins Kommentarfeld eintragen","Kann das Verfahren ohne Fachpersonal durchgefï¿½hrt werden? Details bitte ins Kommentarfeld eintragen","Referenz, gegebenenfalls Laborbuch"},
 				new MyTable[]{null,
 				null,null,null,
 				methodiken,
@@ -885,14 +871,14 @@ public class MyDBTablesNew extends MyDBI {
 		MyTable aufbereitungs_nachweisverfahren = new MyTable("Aufbereitungs_Nachweisverfahren",
 				new String[]{"Aufbereitungsverfahren","Nachweisverfahren","Nachweisgrenze","NG_Einheit","Sensitivitaet","Spezifitaet","Effizienz","Wiederfindungsrate","Referenz"},
 				new String[]{"INTEGER","INTEGER","DOUBLE","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER"},
-				new String[]{null,null,"Nachweisgrenze des Verfahrens bezogen auf die Konzentration des Agens auf/in der Ausgangsmatrix","Einheit der Konzentration der Nachweisgrenze - Auswahlbox","Mittlere zu erwartende Sensitivitaet (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Mittlere zu erwartende Spezifitaet (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Mittlere zu erwartende Effizienz (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Wiederfindungsrate","Referenz für alle Angaben im Datensatz"},
+				new String[]{null,null,"Nachweisgrenze des Verfahrens bezogen auf die Konzentration des Agens auf/in der Ausgangsmatrix","Einheit der Konzentration der Nachweisgrenze - Auswahlbox","Mittlere zu erwartende Sensitivitaet (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Mittlere zu erwartende Spezifitaet (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Mittlere zu erwartende Effizienz (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Wiederfindungsrate","Referenz fï¿½r alle Angaben im Datensatz"},
 				new MyTable[]{aufbereitungsverfahren,nachweisverfahren,newDoubleTable,Konzentrationseinheiten,null,null,null,null,literatur});
 		if (isSiLeBAT) addTable(aufbereitungs_nachweisverfahren, Nachweissysteme_LIST);
 
 		MyTable labor_aufbereitungs_nachweisverfahren = new MyTable("Labor_Aufbereitungs_Nachweisverfahren",
 				new String[]{"Labor","Aufbereitungs_Nachweisverfahren","ZertifikatNr","Gueltigkeit","Zertifizierungssystem","Durchsatz","DurchsatzEinheit","Kosten","KostenEinheit","FreigabeModus","AuftragsAnnahme","SOP","LaborAngebot"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)","DATE","INTEGER","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)","INTEGER","BOOLEAN","BOOLEAN","BLOB(10M)"},
-				new String[]{"Verweis zum Eintrag in Labor-Tabelle","Verweis zum Eintrag in Kombi-Tabelle Aufbereitungs_Nachweisverfahren","Zertifikatnummer - falls vorhanden","Gültigkeitsdatum des Zertifikats - falls vorhanden","Zertifizierungsanbieter - Verweis auf Tabelle Zertifizierungssysteme","Angaben zum Durchsatz des Labors für das Verfahren - sollte im LaborAngebot angegeben sein","Einheit des Durchsatzes - Auswahlbox","Kosten pro Probe/Einzelansatz - ohne Rabatte - sollte im LaborAngebot angegeben sein","Waehrung für die Kosten - Auswahlbox","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox","Nimmt das Labor auch externe Auftraege an?","Existiert eine SOP zu dem Verfahren bei dem Labor?","Das Angebot kann ein individuelles Angebot, ein Katalogeintrag, eine E-Mail oder auch ein anderes Dokument des Labors sein, moeglicherweise auch mit Angabe der Gueltigkeit des Angebots"},
+				new String[]{"Verweis zum Eintrag in Labor-Tabelle","Verweis zum Eintrag in Kombi-Tabelle Aufbereitungs_Nachweisverfahren","Zertifikatnummer - falls vorhanden","Gï¿½ltigkeitsdatum des Zertifikats - falls vorhanden","Zertifizierungsanbieter - Verweis auf Tabelle Zertifizierungssysteme","Angaben zum Durchsatz des Labors fï¿½r das Verfahren - sollte im LaborAngebot angegeben sein","Einheit des Durchsatzes - Auswahlbox","Kosten pro Probe/Einzelansatz - ohne Rabatte - sollte im LaborAngebot angegeben sein","Waehrung fï¿½r die Kosten - Auswahlbox","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox","Nimmt das Labor auch externe Auftraege an?","Existiert eine SOP zu dem Verfahren bei dem Labor?","Das Angebot kann ein individuelles Angebot, ein Katalogeintrag, eine E-Mail oder auch ein anderes Dokument des Labors sein, moeglicherweise auch mit Angabe der Gueltigkeit des Angebots"},
 				new MyTable[]{labore,aufbereitungs_nachweisverfahren,null,null,zertifikate,null,null,null,null,null,null,null,null},
 				new LinkedHashMap[]{null,null,null,null,null,null,allHashes.get("Speed"),null,allHashes.get("Currency"),allHashes.get("Freigabe"),null,null,null});
 		if (isSiLeBAT) addTable(labor_aufbereitungs_nachweisverfahren, Nachweissysteme_LIST);
@@ -918,10 +904,10 @@ public class MyDBTablesNew extends MyDBI {
 				"DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE",
 				"CHAR(2)","INTEGER","VARCHAR(16383)","INTEGER","INTEGER",
 				"VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
-				new String[]{"Verweis auf die zugehörige Literatur","Verweis auf den Erregerkatalog","Details zum Erreger, die durch den Katalog nicht abgebildet werden, z.B. Stamm, Serovar","Auswahl der Matrix","EAN-Nummer aus SA2-Datenbank - falls bekannt","Details zur Matrix, die durch den Katalog nicht abgebildet werden",
-				"zugehörige Messwerte",
+				new String[]{"Verweis auf die zugehï¿½rige Literatur","Verweis auf den Erregerkatalog","Details zum Erreger, die durch den Katalog nicht abgebildet werden, z.B. Stamm, Serovar","Auswahl der Matrix","EAN-Nummer aus SA2-Datenbank - falls bekannt","Details zur Matrix, die durch den Katalog nicht abgebildet werden",
+				"zugehï¿½rige Messwerte",
 				"Experimentelle Bedingung: Temperatur in Grad Celcius","Experimentelle Bedingung: pH-Wert","Experimentelle Bedingung: aw-Wert","Experimentelle Bedingung: CO2 [ppm]","Experimentelle Bedingung: Druck [bar]","Experimentelle Bedingung: Luftfeuchtigkeit [%]",
-				"Auf der Oberflaeche oder in der Matrix drin gemessen bzw. entnommen? - Auswahlbox (auf / innen)","Sonstige experimentelle Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",null,"Das benutzte Nachweisverfahren","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox",
+				"Auf der Oberflaeche oder in der Matrix drin gemessen bzw. entnommen? - Auswahlbox (auf / innen)","Sonstige experimentelle Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs ï¿½ffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden kï¿½nnen, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",null,"Das benutzte Nachweisverfahren","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox",
 				"Eindeutige ID aus der Combase Datenbank - bei eigenen Eintraegen bleibt das Feld leer","Eintrag aus der Combase Datenbank - bei eigenen Eintraegen bleibt das Feld leer","Eintrag aus der Combase Datenbank - bei eigenen Eintraegen bleibt das Feld leer","Eintrag aus der Combase Datenbank - bei eigenen Eintraegen bleibt das Feld leer","Eintrag aus der Combase Datenbank - bei eigenen Eintraegen bleibt das Feld leer"},
 				new MyTable[]{literatur,agenzien,null,matrix,null,null,
 				null,
@@ -945,9 +931,9 @@ public class MyDBTablesNew extends MyDBI {
 				"DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE",
 				"INTEGER"},
 				new String[]{"Verweis auf die Tabelle mit den experimentellen Versuchsbedingungen","Vergangene Zeit nach Versuchsbeginn","Masseinheit der Zeit - Auswahlbox",
-				"Falls angehakt:\nin den folgenden Feldern sind die Veraenderungen der Konzentration des Erregers im Vergleich zum Startzeitpunkt eingetragen.\nDabei bedeutet eine positive Zahl im Feld 'Konzentration' eine Konzentrationserhöhung, eine negative Zahl eine Konzentrationsreduzierung.","Konzentration des Erregers - Entweder ist die absolute Konzentration bzw. der Mittelwert bei Mehrfachmessungen hier einzutragen ODER die Konzentrationsaenderung, falls das Delta-Feld angehakt ist","Einheit zu den Konzentrationsangaben, auch der Logarithmus ist hier auswaehlbar - Auswahlbox",
+				"Falls angehakt:\nin den folgenden Feldern sind die Veraenderungen der Konzentration des Erregers im Vergleich zum Startzeitpunkt eingetragen.\nDabei bedeutet eine positive Zahl im Feld 'Konzentration' eine Konzentrationserhï¿½hung, eine negative Zahl eine Konzentrationsreduzierung.","Konzentration des Erregers - Entweder ist die absolute Konzentration bzw. der Mittelwert bei Mehrfachmessungen hier einzutragen ODER die Konzentrationsaenderung, falls das Delta-Feld angehakt ist","Einheit zu den Konzentrationsangaben, auch der Logarithmus ist hier auswaehlbar - Auswahlbox",
 				"Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: Temperatur in Grad Celcius","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: pH-Wert","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: aw-Wert","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: CO2 [ppm]","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: Druck [bar]","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: Luftfeuchtigkeit [%]",
-				"Sonstige experimentelle Rahmenbedingungen in der Umgebung, aber auch Facetten der Matrix, falls abweichend von den festen Versuchsbedingungen.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf"},
+				"Sonstige experimentelle Rahmenbedingungen in der Umgebung, aber auch Facetten der Matrix, falls abweichend von den festen Versuchsbedingungen.\nEs ï¿½ffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden kï¿½nnen, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf"},
 				new MyTable[]{tenazity_raw_data,newDoubleTable,Konzentrationseinheiten,null,newDoubleTable,Konzentrationseinheiten,
 				newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,
 				SonstigeParameter},
@@ -1011,7 +997,7 @@ public class MyDBTablesNew extends MyDBI {
 		MyTable prozessElemente = new MyTable("ProzessElemente",
 				new String[]{"Prozess_ID","ProzessElement","ProzessElementKategorie","ProzessElementSubKategorie","ProzessElement_engl","ProzessElementKategorie_engl","ProzessElementSubKategorie_engl"},
 				new String[]{"INTEGER","VARCHAR(60)","VARCHAR(60)","VARCHAR(60)","VARCHAR(60)","VARCHAR(60)","VARCHAR(60)"},
-				new String[]{"Prozess_ID in CARVER","Bezeichnung des Vorgangs bei der Prozessierung","Bezeichnung für die Kategorie, in die der Prozess einzuordnen ist","Bezeichnung der Unterkategorie für eine genauere Spezifizierung des Vorgangs","Wie ProzessElement, aber englische Bezeichnung","Wie ProzessElementKategorie, aber englische Bezeichnung","Wie ProzessElementSubKategorie, aber englische Bezeichnung"},
+				new String[]{"Prozess_ID in CARVER","Bezeichnung des Vorgangs bei der Prozessierung","Bezeichnung fï¿½r die Kategorie, in die der Prozess einzuordnen ist","Bezeichnung der Unterkategorie fï¿½r eine genauere Spezifizierung des Vorgangs","Wie ProzessElement, aber englische Bezeichnung","Wie ProzessElementKategorie, aber englische Bezeichnung","Wie ProzessElementSubKategorie, aber englische Bezeichnung"},
 				new MyTable[]{null,null,null,null,null,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null},
@@ -1021,20 +1007,20 @@ public class MyDBTablesNew extends MyDBI {
 		if (isSiLeBAT) addTable(prozessElemente, Prozessdaten_LIST);
 		h1 = new LinkedHashMap<>();
 	    h1.put("EAN (betriebsspezifisch)", "EAN (betriebsspezifisch)");					
-	    h1.put("Produktklasse (überbetrieblich)", "Produktklasse (überbetrieblich)");					
-	    h1.put("Produktgruppe (überbetrieblich und produktübergreifen)", "Produktgruppe (überbetrieblich und produktübergreifen)");		
+	    h1.put("Produktklasse (ï¿½berbetrieblich)", "Produktklasse (ï¿½berbetrieblich)");					
+	    h1.put("Produktgruppe (ï¿½berbetrieblich und produktï¿½bergreifen)", "Produktgruppe (ï¿½berbetrieblich und produktï¿½bergreifen)");		
 	    LinkedHashMap<Object, String> h4 = new LinkedHashMap<>();
 	    h4.put(1, "Kilogramm");					
 	    h4.put(2, "Gramm");					
 	    h4.put(7, "Liter");					
 	    h4.put(24, "Prozent (%)");					
-	    h4.put(25, "Promille (‰)");					
-	    h4.put(35, "Stück");					
+	    h4.put(25, "Promille (ï¿½)");					
+	    h4.put(35, "Stï¿½ck");					
 	    
 		MyTable prozessFlow = new MyTable("ProzessWorkflow",
 				new String[]{"Name","Autor","Datum","Beschreibung","Firma","Produktmatrix","EAN","Prozessdaten","XML","Referenz"}, // ,"#Chargenunits","Unitmenge","UnitEinheit"
 				new String[]{"VARCHAR(60)","VARCHAR(60)","DATE","VARCHAR(1023)","INTEGER","INTEGER","VARCHAR(255)","INTEGER","BLOB(10M)","INTEGER"}, // ,"DOUBLE","DOUBLE","INTEGER"
-				new String[]{"Eigene Bezeichnung für den Workflow","Name des Eintragenden",null,"Beschreibung des Workflows in Prosa-Text","Verweis auf den Betrieb aus der Tabelle Produzent","Verweis auf Matrixkatalog","EAN-Nummer aus SA2-Datenbank - falls bekannt",null,"Ablage der CARVER XML Datei, die den Workflow abbildet",null}, // ,null,null,null
+				new String[]{"Eigene Bezeichnung fï¿½r den Workflow","Name des Eintragenden",null,"Beschreibung des Workflows in Prosa-Text","Verweis auf den Betrieb aus der Tabelle Produzent","Verweis auf Matrixkatalog","EAN-Nummer aus SA2-Datenbank - falls bekannt",null,"Ablage der CARVER XML Datei, die den Workflow abbildet",null}, // ,null,null,null
 				new MyTable[]{null,null,null,null,betriebe,matrix,null,null,null,literatur}, // null,null,null,
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null}, // ,null,null,h4
@@ -1083,12 +1069,12 @@ public class MyDBTablesNew extends MyDBI {
 				"INTEGER",
 				"DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE",
 				"INTEGER","INTEGER","INTEGER"},
-				new String[]{"Verweise auf Eintraege aus der Tabelle Literatur, die diesen Prozessschritt beschreiben","Verweis auf einen Eintrag aus der Tabelle Workflow, zu dem dieser Prozessschritt gehört","Auswahlbox: EAN (betriebsspezifisch), Produktgruppe (überbetrieblich), Produktklasse (überbetrieblich)","Verweis auf einen Eintrag aus der Tabelle ProzessElemente, der den Prozesschritt benennt","DetailInformation zu diesem Prozessschritt",
-				"Fassungsvermögen des Prozesselements, z.B. Volumen, Gewicht",null,"Bei einem kontinuierlichen Prozess muss die zeitliche Bezugsgroesse angegeben werden. Bei einem abgeschotteten Prozess bleibt das Feld leer",
+				new String[]{"Verweise auf Eintraege aus der Tabelle Literatur, die diesen Prozessschritt beschreiben","Verweis auf einen Eintrag aus der Tabelle Workflow, zu dem dieser Prozessschritt gehï¿½rt","Auswahlbox: EAN (betriebsspezifisch), Produktgruppe (ï¿½berbetrieblich), Produktklasse (ï¿½berbetrieblich)","Verweis auf einen Eintrag aus der Tabelle ProzessElemente, der den Prozesschritt benennt","DetailInformation zu diesem Prozessschritt",
+				"Fassungsvermï¿½gen des Prozesselements, z.B. Volumen, Gewicht",null,"Bei einem kontinuierlichen Prozess muss die zeitliche Bezugsgroesse angegeben werden. Bei einem abgeschotteten Prozess bleibt das Feld leer",
 				"Dauer des Prozessschritts","Einheit der Dauer",
 				"Verweis auf Eintrag aus der Tabelle Zutatendaten, der Menge und Art der Zutat spezifiziert",
-				"Temperatur - in °C!!!",null,null,null,"Druck - in [bar]!!!","Luftfeuchtigkeit - Einheit bitte in [%]",
-				"Sonstige experimentelle Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",
+				"Temperatur - in ï¿½C!!!",null,null,null,"Druck - in [bar]!!!","Luftfeuchtigkeit - Einheit bitte in [%]",
+				"Sonstige experimentelle Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs ï¿½ffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden kï¿½nnen, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",
 				"Tenazitaetsdaten, falls vorliegend",null},
 				new MyTable[]{literatur,prozessFlow,null,prozessElemente,null,
 				newDoubleTable,null,null,
@@ -1177,8 +1163,8 @@ public class MyDBTablesNew extends MyDBI {
 				"Matrix","EAN","MatrixDetail","Verpackung","Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit","Sonstiges","Kosten"},
 				new String[]{"INTEGER","VARCHAR(10)","DOUBLE","DOUBLE","INTEGER","INTEGER",
 				"INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER","INTEGER"},
-				new String[]{"Verweis auf Eintraege aus der Tabelle Zutatendaten (Bedeutung nur für interne Verarbeitung)","Auswahl ob es sich um eine Zutat oder ein Produkt","Groesse einer Charge","Mengengroesse pro Chargenelement","Einheit eines Chargenelements","Produkt des Vorprozesses",
-				null,"EAN-Nummer aus SA2-Datenbank - falls bekannt","Details zur Matrix, die durch den Katalog nicht abgebildet werden",null,"Temperatur in Grad Celcius","pH-Wert","aw-Wert","CO2 [ppm]","Druck [bar]","Luftfeuchtigkeit - Einheit bitte in [%]","Sonstige Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",null},
+				new String[]{"Verweis auf Eintraege aus der Tabelle Zutatendaten (Bedeutung nur fï¿½r interne Verarbeitung)","Auswahl ob es sich um eine Zutat oder ein Produkt","Groesse einer Charge","Mengengroesse pro Chargenelement","Einheit eines Chargenelements","Produkt des Vorprozesses",
+				null,"EAN-Nummer aus SA2-Datenbank - falls bekannt","Details zur Matrix, die durch den Katalog nicht abgebildet werden",null,"Temperatur in Grad Celcius","pH-Wert","aw-Wert","CO2 [ppm]","Druck [bar]","Luftfeuchtigkeit - Einheit bitte in [%]","Sonstige Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs ï¿½ffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden kï¿½nnen, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",null},
 				new MyTable[]{prozessdaten,null,newDoubleTable,newDoubleTable,null,null,
 				matrix,null,null,Verpackungen,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,SonstigeParameter,Kostenkatalog}, // prozessLinks
 				null,
@@ -1233,8 +1219,8 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(255)","VARCHAR(30)","VARCHAR(100)","DOUBLE","DOUBLE","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
 				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","VARCHAR(16383)"},
 				new String[]{null,null, null,null,null,null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null,null,
-				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
-				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
+				"z.B. Endverbraucher, Erzeuger, Einzelhï¿½ndler, Groï¿½hï¿½ndler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
+				"Falldefinition erfï¿½llt (z.B. laut RKI) - Prioritï¿½t: Wert zwischen 0 und 1",null,null,null,"Datum frï¿½hester Erkrankungsbeginn","Datum des Hï¿½hepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
@@ -1255,12 +1241,12 @@ public class MyDBTablesNew extends MyDBI {
 		LinkedHashMap<String, String> proce = new LinkedHashMap<>();
 		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and ready-to-eat (e.g. salads)" : "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
 		proce.put("erhitzt und verzehrsfertig (fast alles)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and ready-to-eat" : "erhitzt und verzehrsfertig (fast alles)");
-		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
-		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
+		proce.put("erhitzt und nicht verzehrsfï¿½hig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfï¿½hig (Vorprodukte wie eingefrorene Kuchen)");
+		proce.put("nicht erhitzt und nicht verzehrsfï¿½hig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfï¿½hig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
 				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER","VARCHAR(16383)"},
-				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null},
+				new String[]{null,null,null,"gekocht? geschï¿½ttelt? gerï¿½hrt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null},
 				new MyTable[]{Knoten,null,null,null,null,null,matrix,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null},
@@ -1292,7 +1278,7 @@ public class MyDBTablesNew extends MyDBI {
 		
 		MyTable Lieferungen = new MyTable("Lieferungen", // Artikel_Lieferung
 				new String[]{"Charge","dd_day","dd_month","dd_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
-					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback"}, // ,"Vorprodukt","Zielprodukt"
+					"Unitmenge","UnitEinheit","Empfï¿½nger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback"}, // ,"Vorprodukt","Zielprodukt"
 				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
 					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)","VARCHAR(16383)","VARCHAR(255)"}, // ,"INTEGER","INTEGER"
 				new String[]{null,"Delivery date - day","Delivery date - month","Delivery date - year","number of packing units","type of packing units","total amount","total amount unit",null,null,null,null,null,null}, // ,null,null
@@ -1315,7 +1301,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null},
 				null,
 				new LinkedList<>(Arrays.asList("Zutat")),
-				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null});
+				new String[]{"Zutat.Empfï¿½nger=Produkt.Artikel.Station", null, null});
 		addTable(ChargenVerbindungen, DBKernel.debug ? Lieferketten_LIST : -1);
 		Chargen.setForeignField(ChargenVerbindungen, 1);
 
@@ -1409,15 +1395,15 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(1)","VARCHAR(1)","VARCHAR(1)","INTEGER","INTEGER","VARCHAR(7)","VARCHAR(6)","VARCHAR(5)",
 				"VARCHAR(255)","VARCHAR(1)","VARCHAR(1)","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","VARCHAR(1)","VARCHAR(1)","VARCHAR(3)",
 				"VARCHAR(4)","VARCHAR(3)","VARCHAR(4)","VARCHAR(1)","VARCHAR(1)","VARCHAR(1)","VARCHAR(1)","VARCHAR(1)"},
-				new String[]{"Klassifikationsebene, 1 Zeichen: 3 = Dreisteller; 4 = Viersteller; 5 = Fünfsteller","Ort der Schluesselnummer im Klassifikationsbaum, 1 Zeichen: T = terminale Schluesselnummer (kodierbarer Endpunkt); N = nichtterminale Schluesselnummer (kein kodierbarer Endpunkt)","Art der Vier- und Fünfsteller: X = explizit aufgeführt (praekombiniert); S = per Subklassifikation (postkombiniert)",
+				new String[]{"Klassifikationsebene, 1 Zeichen: 3 = Dreisteller; 4 = Viersteller; 5 = Fï¿½nfsteller","Ort der Schluesselnummer im Klassifikationsbaum, 1 Zeichen: T = terminale Schluesselnummer (kodierbarer Endpunkt); N = nichtterminale Schluesselnummer (kein kodierbarer Endpunkt)","Art der Vier- und Fï¿½nfsteller: X = explizit aufgefï¿½hrt (praekombiniert); S = per Subklassifikation (postkombiniert)",
 				"Kapitelnummer","erster Dreisteller der Gruppe","Schluesselnummer ohne eventuelles Kreuz, bis zu 7 Zeichen","Schluesselnummer ohne Strich, Stern und  Ausrufezeichen, bis zu 6 Zeichen","Schluesselnummer ohne Punkt, Strich, Stern und Ausrufezeichen, bis zu 5 Zeichen",
 				"Klassentitel, bis zu 255 Zeichen","Verwendung der Schluesselnummer nach Paragraph 295: P = zur Primaerverschluesselung zugelassene Schluesselnummer; O = nur als Sternschluesselnummer zugelassen; Z = nur als Ausrufezeichenschluesselnummer zugelassen; V = nicht zur Verschluesselung zugelassen","Verwendung der Schluesselnummer nach Paragraph 301: P = zur Primaerverschluesselung zugelassen; O = nur als Sternschluesselnummer zugelassen; Z = nur als Ausrufezeichenschluesselnummer zugelassen; V = nicht zur Verschluesselung zugelassen",
 				"Bezug zur Mortalitaetsliste 1","Bezug zur Mortalitaetsliste 2","Bezug zur Mortalitaetsliste 3","Bezug zur Mortalitaetsliste 4","Bezug zur Morbiditaetsliste",
 				"Geschlechtsbezug der Schluesselnummer: 9 = kein Geschlechtsbezug; M = maennlich; W = weiblich", "Art des Fehlers bei Geschlechtsbezug: 9 = irrelevant; M = Muss-Fehler; K = Kann-Fehler",
-				"untere Altersgrenze für eine Schluesselnummer: 999     = irrelevant; 000     = unter 1 vollendeten Tag; 001-006 = 1 Tag bis unter 7 Tage; 011-013 = 7 Tage bis unter 28 Tage; also 011 =  7-13 Tage (1 Woche bis unter 2 Wochen); 012 = 14-20 Tage (2 Wochen bis unter 3 Wochen); 013 = 21-27 Tage (3 Wochen bis unter einem Monat); 101-111 = 28 Tage bis unter 1 Jahr; also 101 = 28 Tage bis Ende des 2. Lebensmonats; 102 = Anfang bis Ende des 3. Lebensmonats; 103 = Anfang bis Ende des 4. Lebensmonats; usw. bis; 111 = Anfang des 12. Lebensmonats bis unter 1 Jahr; 201-299 = 1 Jahr bis unter 100 Jahre; 300-324 = 100 Jahre bis unter 125 Jahre",
-				"untere Altersgrenze für eine Schluesselnummer, alternatives Format: 9999    = irrelevant; t000 - t365 = 0 Tage bis unter 1 Jahr; j001 - j124 = 1 Jahr bis unter 124 Jahre",
-				"obere Altersgrenze für eine Schluesselnummer, wie bei Feld 'AltUnt'","obere Altersgrenze für eine Schluesselnummer,alternatives Format wie bei Feld 'AltUntNeu'",
-				"Art des Fehlers bei Altersbezug: 9 = irrelevant; M = Muss-Fehler; K = Kann-Fehler","Krankheit in Mitteleuropa sehr selten? J = Ja; N = Nein","Schluesselnummer mit Inhalt belegt? J = Ja; N = Nein (--> Kann-Fehler auslösen!)",
+				"untere Altersgrenze fï¿½r eine Schluesselnummer: 999     = irrelevant; 000     = unter 1 vollendeten Tag; 001-006 = 1 Tag bis unter 7 Tage; 011-013 = 7 Tage bis unter 28 Tage; also 011 =  7-13 Tage (1 Woche bis unter 2 Wochen); 012 = 14-20 Tage (2 Wochen bis unter 3 Wochen); 013 = 21-27 Tage (3 Wochen bis unter einem Monat); 101-111 = 28 Tage bis unter 1 Jahr; also 101 = 28 Tage bis Ende des 2. Lebensmonats; 102 = Anfang bis Ende des 3. Lebensmonats; 103 = Anfang bis Ende des 4. Lebensmonats; usw. bis; 111 = Anfang des 12. Lebensmonats bis unter 1 Jahr; 201-299 = 1 Jahr bis unter 100 Jahre; 300-324 = 100 Jahre bis unter 125 Jahre",
+				"untere Altersgrenze fï¿½r eine Schluesselnummer, alternatives Format: 9999    = irrelevant; t000 - t365 = 0 Tage bis unter 1 Jahr; j001 - j124 = 1 Jahr bis unter 124 Jahre",
+				"obere Altersgrenze fï¿½r eine Schluesselnummer, wie bei Feld 'AltUnt'","obere Altersgrenze fï¿½r eine Schluesselnummer,alternatives Format wie bei Feld 'AltUntNeu'",
+				"Art des Fehlers bei Altersbezug: 9 = irrelevant; M = Muss-Fehler; K = Kann-Fehler","Krankheit in Mitteleuropa sehr selten? J = Ja; N = Nein","Schluesselnummer mit Inhalt belegt? J = Ja; N = Nein (--> Kann-Fehler auslï¿½sen!)",
 				"IfSG-Meldung, kennzeichnet, dass bei Diagnosen,die mit dieser Schluesselnummer kodiert sind, besonders auf die Arzt-Meldepflicht nach dem Infektionsschutzgesetz IfSG) hinzuweisen ist: J = Ja; N = Nein","IfSG-Labor, kennzeichnet, dass bei Laboruntersuchungen zu diesen Diagnosen die Laborausschlussziffer des EBM (32006) gewaehlt werden kann: J = Ja; N = Nein"},
 				new MyTable[]{null,null,null,ICD10_Kapitel,ICD10_Gruppen,null,null,null,null,null,null,ICD10_MortL1,ICD10_MortL2,ICD10_MortL3,ICD10_MortL4,ICD10_MorbL,
 				null,null,null,null,null,null,null,null,null,null,null},
@@ -1472,7 +1458,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(255)","VARCHAR(255)","INTEGER","INTEGER","VARCHAR(255)","DATE",
 				"VARCHAR(255)","VARCHAR(1023)","VARCHAR(1023)","INTEGER","VARCHAR(255)",
 				"INTEGER","INTEGER","BOOLEAN"},
-				new String[]{null,null,"1: primary, 2:secondary","1:growth, 2:inactivation, 3:survival,\n4:growth/inactivation, 5:inactivation/survival, 6: growth/survival,\n7:growth/inactivation/survival\n8: T, 9: pH, 10:aw, 11:T/pH, 12:T/aw, 13:pH/aw, 14:T/pH/aw",null,null,"Ersteller des Datensatzes","Beschreibung des Modells","zugrundeliegende Formel für das Modell","Ableitung","schreibt den Schaetzknoten vor",
+				new String[]{null,null,"1: primary, 2:secondary","1:growth, 2:inactivation, 3:survival,\n4:growth/inactivation, 5:inactivation/survival, 6: growth/survival,\n7:growth/inactivation/survival\n8: T, 9: pH, 10:aw, 11:T/pH, 12:T/aw, 13:pH/aw, 14:T/pH/aw",null,null,"Ersteller des Datensatzes","Beschreibung des Modells","zugrundeliegende Formel fï¿½r das Modell","Ableitung","schreibt den Schaetzknoten vor",
 				"Parameterdefinitionen, die dem Modell zugrunde liegen: abhaengige Variable, unabhaengige Variable, Parameter","Referenzen, die dem Modell zugrunde liegen",null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,
 				null,literatur,null},
@@ -1517,7 +1503,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(255)","INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
 				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)","INTEGER","INTEGER"},
 				new String[]{null,null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schaetzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmass der Schaetzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schaetzung",
-				"Referenzen, aus denen diese Modellschaetzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschaetzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschaetzten Parameter","Gültigkeitsbereiche für Sekundaermodelle",null,null,null},
+				"Referenzen, aus denen diese Modellschaetzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschaetzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschaetzten Parameter","Gï¿½ltigkeitsbereiche fï¿½r Sekundaermodelle",null,null,null},
 				new MyTable[]{null,tenazity_raw_data,Modellkatalog,
 				ModellkatalogParameter,null,null,null,null,null,null,null,
 				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null,PMMLabWorkflows,null},
@@ -1626,7 +1612,7 @@ public class MyDBTablesNew extends MyDBI {
 
 		LinkedHashMap<Object, String> hashGeld = new LinkedHashMap<>();
 		hashGeld.put("Dollar", "Dollar ($)");					
-		hashGeld.put("Euro", "Euro (€)");					
+		hashGeld.put("Euro", "Euro (ï¿½)");					
 		allHashes.put("Currency", hashGeld);
 
 		LinkedHashMap<Object, String> hashGewicht = new LinkedHashMap<>();
@@ -1660,7 +1646,7 @@ public class MyDBTablesNew extends MyDBI {
 		allHashes.put("Freigabe", hashFreigabe);
 		
 		LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<>();
-		hashBundesland.put("Baden-Württemberg", "Baden-Württemberg");
+		hashBundesland.put("Baden-Wï¿½rttemberg", "Baden-Wï¿½rttemberg");
 		hashBundesland.put("Bayern", "Bayern");
 		hashBundesland.put("Berlin", "Berlin");
 		hashBundesland.put("Brandenburg", "Brandenburg");
@@ -1675,7 +1661,7 @@ public class MyDBTablesNew extends MyDBI {
 		hashBundesland.put("Sachsen", "Sachsen");
 		hashBundesland.put("Sachsen-Anhalt", "Sachsen-Anhalt");
 		hashBundesland.put("Schleswig-Holstein", "Schleswig-Holstein");
-		hashBundesland.put("Thüringen", "Thüringen");
+		hashBundesland.put("Thï¿½ringen", "Thï¿½ringen");
 		allHashes.put("County", hashBundesland);
 
 		LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<>();

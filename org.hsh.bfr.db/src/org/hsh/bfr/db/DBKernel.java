@@ -1,39 +1,22 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
- * Matthias Filter (BfR)
- * Armin A. Weiser (BfR)
- * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-/**
- * 
- */
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package org.hsh.bfr.db;
 
 import java.awt.Component;
@@ -135,7 +118,7 @@ public class DBKernel {
 		// String pass = DBKernel.prefs.get("DBADMINPASS" +
 		// getCRC32(dbPath),"00");
 		// if (pass.equals("00")) {
-		if (isServerConnection && isKrise) return "de6!§5ddy";
+		if (isServerConnection && isKrise) return "de6!ï¿½5ddy";
 		if (!adminP.containsKey(dbPath)) getUP(dbPath);
 		return adminP.get(dbPath);
 	}
@@ -159,8 +142,8 @@ public class DBKernel {
 	private static String getDefaultSAPass(boolean other) {
 		String pass = "";
 		// if (debug) return "";
-		if (other) pass = isKNIME || isKrise ? "de6!§5ddy" : "";
-		else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
+		if (other) pass = isKNIME || isKrise ? "de6!ï¿½5ddy" : "";
+		else pass = isKNIME || isKrise ? "" : "de6!ï¿½5ddy";
 		return pass;
 	}
 
@@ -428,7 +411,7 @@ public class DBKernel {
 					actualRow += "\t" + rs.getString(j);
 				}
 				do {
-					if (showDeletedAsWell || rs.getObject("ID") != null) { // wurde die ID in der Zwischenzeit gelöscht? Dann muss sie auch nicht gelistet werden!
+					if (showDeletedAsWell || rs.getObject("ID") != null) { // wurde die ID in der Zwischenzeit gelï¿½scht? Dann muss sie auch nicht gelistet werden!
 						Integer id = rs.getInt("TabellenID");
 						if (result.containsKey(id)) {
 							entries = result.get(id);
@@ -463,7 +446,7 @@ public class DBKernel {
 						entries.add(newEntry + "\n" + actualRow);
 						result.put(id, entries);
 					} else {
-						// System.err.println(rs.getInt("TabellenID") + " wurde bereits gelöscht!");
+						// System.err.println(rs.getInt("TabellenID") + " wurde bereits gelï¿½scht!");
 					}
 				} while (rs.next());
 				rs.close();
@@ -604,7 +587,7 @@ public class DBKernel {
 					} catch (Exception e) {
 						MyLogger.handleException(e);
 					}
-					break; // nur das zuletzt abgespeicherte soll geöffnet werden!
+					break; // nur das zuletzt abgespeicherte soll geï¿½ffnet werden!
 				} while (rs.next());
 			}
 		} catch (SQLException e) {
@@ -667,7 +650,7 @@ public class DBKernel {
 	}
 
 	// Still to look at... myDBI... newConn...
-	// newConn wird nur von MergeDBs benötigt
+	// newConn wird nur von MergeDBs benï¿½tigt
 	static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
 		return getDBConnection(dbPath, theUsername, thePassword, newConn, false);
 	}
@@ -688,7 +671,7 @@ public class DBKernel {
 	}
 
 	// Still to look at... myDBI... newConn...
-	// newConn wird nur von MergeDBs und Bfrdb benötigt
+	// newConn wird nur von MergeDBs und Bfrdb benï¿½tigt
 	static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
 		Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn);
 		return result;
@@ -933,7 +916,7 @@ public class DBKernel {
 					result = "";
 					// System.err.println("isMN..." + ft);
 				} else {
-					System.err.println("hashBox überprüfen...\t" + id);
+					System.err.println("hashBox ï¿½berprï¿½fen...\t" + id);
 					result = "";// ft + ": leer\n";
 				}
 			} else {
@@ -1321,7 +1304,7 @@ public class DBKernel {
 		return isAdmin(null, un);
 	}
 
-	private static boolean isAdmin(Connection conn, String un) { // nur der Admin kann überhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen für Adminrechte, das kann auch defad sein
+	private static boolean isAdmin(Connection conn, String un) { // nur der Admin kann ï¿½berhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen fï¿½r Adminrechte, das kann auch defad sein
 		if (conn == null) {
 			if (un.equals(getTempSA(HSHDB_PATH))) {
 				return true;
@@ -1500,7 +1483,7 @@ public class DBKernel {
 						DBKernel.myDBi.addUserInCaseNotThere(username, password);
 					}
 				} else {
-					if (!Backup.doRestore(null, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+					if (!Backup.doRestore(null, temp, true)) { // Passwort hat sich verï¿½ndert innerhalb der 2 beteiligten Datenbanken...
 					}
 				}
 			}

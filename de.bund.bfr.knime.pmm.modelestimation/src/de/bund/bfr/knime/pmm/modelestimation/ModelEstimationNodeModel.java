@@ -284,8 +284,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 		BufferedDataContainer container = exec.createDataContainer(outSchema
 				.createSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
-		int n = table.getRowCount();
-		List<KnimeTuple> tuples = new ArrayList<>(n);
+		long n = table.size();
+		List<KnimeTuple> tuples = new ArrayList<>((int) n);
 		AtomicInteger runningThreads = new AtomicInteger(0);
 		AtomicInteger finishedThreads = new AtomicInteger(0);
 		Map<String, Map<String, Point2D.Double>> parameterGuesses;

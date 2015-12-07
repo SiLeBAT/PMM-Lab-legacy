@@ -108,7 +108,7 @@ final class JSEditorNodeModel extends AbstractWizardNodeModel<JSEditorRepresenta
             if (inObjects[0] != null) {
               //construct dataset
                 BufferedDataTable table = (BufferedDataTable)inObjects[0];
-                if (m_config.getMaxRows() < table.getRowCount()) {
+                if (m_config.getMaxRows() < table.size()) {
                     setWarningMessage("Only the first " + m_config.getMaxRows() + " rows are displayed.");
                 }
                 JSONDataTable jsonTable = new JSONDataTable(table, 1, m_config.getMaxRows(), exec);

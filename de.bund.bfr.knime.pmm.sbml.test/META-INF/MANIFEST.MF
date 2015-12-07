@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SBML Test
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml.test
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: de.bund.bfr.knime.pmm.sbml,
  org.junit;bundle-version="4.0.0"
 Export-Package: de.bund.bfr.knime.pmm.openfsmr

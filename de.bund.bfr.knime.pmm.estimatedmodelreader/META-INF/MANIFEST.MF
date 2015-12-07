@@ -18,5 +18,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.hsh.bfr.db
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.estimatedmodelreader
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

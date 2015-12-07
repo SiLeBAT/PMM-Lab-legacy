@@ -92,7 +92,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 			throw new IOException(f.getAbsolutePath() + " already exists");
 		}
 
-		int n = inData[0].getRowCount();
+		long n = inData[0].size();
 
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);

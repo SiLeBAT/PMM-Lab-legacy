@@ -26,5 +26,5 @@ Import-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
  org.junit,
  org.junit.runner,
  org.junit.runners;version="4.8.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

@@ -112,7 +112,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 			}
 
 			exec.checkCanceled();
-			exec.setProgress((double) index / (double) table.getRowCount(), "");
+			exec.setProgress((double) index / (double) table.size(), "");
 			index++;
 		}
 

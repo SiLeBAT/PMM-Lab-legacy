@@ -112,7 +112,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	Connection conn = db.getConnection();
     	conn.setReadOnly(false);
     	
-    	int n = inData[0].getRowCount();
+    	int n = inData[0].size();
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);

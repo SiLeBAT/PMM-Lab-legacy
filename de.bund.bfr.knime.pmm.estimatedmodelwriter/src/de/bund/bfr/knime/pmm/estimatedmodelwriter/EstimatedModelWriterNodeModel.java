@@ -140,7 +140,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		 * FileUtils.copyDirectory(new File(resource.getLocationURI()), dest,
 		 * true); } } if (true) return null;
 		 */
-		int n = inData[0].getRowCount();
+		int n = inData[0].size();
 
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean tsConform = inSchema.conforms(new TimeSeriesSchema());

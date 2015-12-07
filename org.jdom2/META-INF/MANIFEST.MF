@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JDOM
 Bundle-SymbolicName: org.jdom2
 Bundle-Version: 2.0.1
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: lib/jdom-2.0.1.jar
 Export-Package: org.jdom2,
  org.jdom2.adapters,

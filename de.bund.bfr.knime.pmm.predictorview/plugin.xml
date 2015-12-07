@@ -21,8 +21,7 @@
             factory-class="de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeFactory"
             id="de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeFactory"/>
       <node
-            category-path="/pmmlab/views"
-            expert-flag="false"
+            category-path="/pmmlab/views"            
             factory-class="de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterNodeFactory"
             id="de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterNodeFactory">
       </node>

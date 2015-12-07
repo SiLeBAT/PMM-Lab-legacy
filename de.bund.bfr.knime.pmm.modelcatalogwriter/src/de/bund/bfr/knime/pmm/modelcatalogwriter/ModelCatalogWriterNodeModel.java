@@ -109,7 +109,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		Connection conn = db.getConnection();
 		conn.setReadOnly(false);
 
-		int n = inData[0].getRowCount();
+		long n = inData[0].size();
 
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model1Conform = inSchema.conforms(new Model1Schema());

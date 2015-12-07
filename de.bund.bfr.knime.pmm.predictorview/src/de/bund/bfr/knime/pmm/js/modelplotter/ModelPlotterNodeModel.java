@@ -264,7 +264,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 		DataTableSpec[] outSpces = createOutputDataTableSpecs();
 		
 		BufferedDataContainer constBC = exec.createDataContainer(outSpces[0]);
-		int i = 0;
+		long i = 0;
 		if (value.getConstants() != null) {
 			for (Entry<String, Double> e : value.getConstants().entrySet()) {
 				RowKey key = RowKey.createRowKey(i);

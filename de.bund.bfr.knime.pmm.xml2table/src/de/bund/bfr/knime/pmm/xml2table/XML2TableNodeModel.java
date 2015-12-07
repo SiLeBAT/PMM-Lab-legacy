@@ -103,7 +103,7 @@ public class XML2TableNodeModel extends NodeModel {
 			}
 
 			exec.checkCanceled();
-			exec.setProgress((double) index / (double) table.getRowCount());
+			exec.setProgress((double) index / (double) table.size());
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
 		}
 

@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.js.core,
  de.bund.bfr.knime.pmm.common;visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
 Export-Package: de.bund.bfr.knime.pmm.dbutil,
  de.bund.bfr.knime.pmm.js.editor,

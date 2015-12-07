@@ -174,8 +174,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     }
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, int level, boolean withoutMdData, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
     	return getKnimeTuples(db, conn, schema, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, null, where, emrnm);
-    }
-    @SuppressWarnings("resource")
+    }    
 	public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,

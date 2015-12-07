@@ -236,8 +236,8 @@ public class CombinedJoiner implements Joiner {
 		Map<String, Map<String, String>> replacements = XmlConverter
 				.xmlToObject(assignments,
 						new LinkedHashMap<String, Map<String, String>>());
-		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
-		int index = 0;
+		long rowCount = modelTable.size() * dataTable.size();
+		long index = 0;
 
 		for (KnimeTuple modelTuple : modelTuples) {
 			PmmXmlDoc modelXml = modelTuple
@@ -267,7 +267,7 @@ public class CombinedJoiner implements Joiner {
 
 			if (primAssign == null || secAssign == null
 					|| !primAssign.containsKey(depVarName)) {
-				index += dataTable.getRowCount();
+				index += dataTable.size();
 				continue;
 			}
 
@@ -293,7 +293,7 @@ public class CombinedJoiner implements Joiner {
 			}
 
 			if (error) {
-				index += dataTable.getRowCount();
+				index += dataTable.size();
 				continue;
 			}
 
@@ -313,7 +313,7 @@ public class CombinedJoiner implements Joiner {
 			}
 
 			if (error) {
-				index += dataTable.getRowCount();
+				index += dataTable.size();
 				continue;
 			}
 

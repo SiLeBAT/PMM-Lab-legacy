@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.ui,
  org.hsh.bfr.db,
  org.knime.ext.svg,
  org.apache.poi;visibility:=reexport,
+ org.apache.poi.ooxml,
  org.knime.ext.jfreechart;visibility:=reexport,
  com.thoughtworks.xstream;visibility:=reexport,
  org.knime.ext.jep;visibility:=reexport,
@@ -18,7 +19,7 @@ Require-Bundle: org.eclipse.ui,
  com.jgoodies;visibility:=reexport,
  com.google.guava
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: BfR
 Export-Package: de.bund.bfr.knime.pmm.common,

@@ -180,7 +180,7 @@ public class PrimaryJoiner implements Joiner {
 		Map<Integer, Map<String, String>> assignmentsMap = XmlConverter
 				.xmlToObject(assignments,
 						new LinkedHashMap<Integer, Map<String, String>>());
-		int rowCount = modelTuples.size() * dataTable.getRowCount();
+		int rowCount = modelTuples.size() * dataTable.size();
 		int index = 0;
 
 		for (int i = 0; i < modelTuples.size(); i++) {

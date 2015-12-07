@@ -1,22 +1,40 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
- *
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * 
+ * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
+ * 
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
+ * 
+ * Developers and contributors to the PMM-Lab project are 
+ * Christian Thöns (BfR)
+ * Matthias Filter (BfR)
+ * Armin A. Weiser (BfR)
+ * Alexander Falenski (BfR)
+ * Jörgen Brandt (BfR)
+ * Annemarie Käsbohrer (BfR)
+ * Bernd Appel (BfR)
+ * 
+ * PMM-Lab is a project under development. Contributions are welcome.
+ * 
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Contributors:
- *     Department Biological Safety - BfR
- *******************************************************************************/
+ ******************************************************************************/
+/*
+ * Created by JFormDesigner on Thu Jun 17 07:37:46 CEST 2010
+ */
+
 package org.hsh.bfr.db.gui;
 
 import java.awt.Component;
@@ -121,7 +139,7 @@ public class MainFrame extends JFrame {
 
 	public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final String mnTable, final String mnID, final MyDBForm dbForm, final JDialog owner) {
 		Object result = null;
-		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswï¿½hlen...");
+		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswählen...");
 		//JDialog f = new JDialog(DBKernel.mainFrame, titel, dbForm != null);
 		JDialog f = new JDialog(owner == null ? DBKernel.mainFrame : owner, titel);
 		f.setModal(dbForm != null || owner != null);
@@ -159,7 +177,7 @@ public class MainFrame extends JFrame {
 				myP.setParentDialog(f, true);
 			}
 
-			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf mï¿½glicherweise nicht zu sehen...
+			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf möglicherweise nicht zu sehen...
 			f.getContentPane().add(myP);
 			f.pack();
 			if (dbForm == null) {
@@ -243,7 +261,7 @@ public class MainFrame extends JFrame {
 	public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, Component parent,
 			String level1Expansion) {
 		Object result = null;
-		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswï¿½hlen...");
+		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswählen...");
 		//JDialog.setDefaultLookAndFeelDecorated(true);
 		Window parentFrame = null;
 		if (parent == null) {
@@ -282,7 +300,7 @@ public class MainFrame extends JFrame {
 				 * myT.getTablename().equals("Versuchsbedingungen") &&
 				 * headerValue != null &&
 				 * headerValue.toString().equals("Matrix")) { showOnly = new
-				 * String[] {"TOP", "ADV", "GS1", "Nï¿½hrmedien"}; } else if (myT
+				 * String[] {"TOP", "ADV", "GS1", "Nährmedien"}; } else if (myT
 				 * != null && myT.getTablename().equals("Zutatendaten") &&
 				 * headerValue != null &&
 				 * headerValue.toString().equals("Matrix")) { showOnly = new
@@ -326,7 +344,7 @@ public class MainFrame extends JFrame {
 				myP.setParentDialog(f, true);
 			}
 			myP.setTreeVisible(isHierarchic, level1Expansion);
-			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf mï¿½glicherweise nicht zu sehen...
+			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf möglicherweise nicht zu sehen...
 			f.getContentPane().add(myP);
 			f.pack();
 			if (dbTable == null) {
@@ -460,7 +478,7 @@ public class MainFrame extends JFrame {
 		if (myT != null) {
 			Object[][] o = null;
 			String[] dff = myT.getDeepForeignFields();
-			// Zutat.Empfï¿½nger=Produkt.Artikel.Station
+			// Zutat.Empfänger=Produkt.Artikel.Station
 			// Vorprozess.Prozessdaten=Prozess_Verbindungen.Ausgangsprozess WHERE Prozess_Verbindungen.Zielprozess=Prozessdaten; AND " + DBKernel.delimitL("Zutat_Produkt") + "='Produkt'
 			if (dff != null && dff[col - 1] != null) {
 				StringTokenizer tokADD = new StringTokenizer(dff[col - 1], ";");
@@ -481,7 +499,7 @@ public class MainFrame extends JFrame {
 							tok.nextToken();// Zutat
 							if (tok.hasMoreTokens()) {
 								o = new Object[1][2];
-								o[0][0] = tok.nextToken(); // Empfï¿½nger
+								o[0][0] = tok.nextToken(); // Empfänger
 								tok = new StringTokenizer(right, ".");
 								if (tok.hasMoreTokens()) {
 									String field = tok.nextToken(); // Produkt
@@ -728,7 +746,7 @@ public class MainFrame extends JFrame {
 
 	private void button11ActionPerformed(final ActionEvent e) {
 		// reset Database:
-		int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daï¿½ Sie die Datenbank neu initialisieren mï¿½chten?", "Reset bestï¿½tigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie die Datenbank neu initialisieren möchten?", "Reset bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION) {
 			this.dispose();
 			Login login = new Login(true);

@@ -1,22 +1,40 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
- *
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * 
+ * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
+ * 
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
+ * 
+ * Developers and contributors to the PMM-Lab project are 
+ * Christian Thöns (BfR)
+ * Matthias Filter (BfR)
+ * Armin A. Weiser (BfR)
+ * Alexander Falenski (BfR)
+ * Jörgen Brandt (BfR)
+ * Annemarie Käsbohrer (BfR)
+ * Bernd Appel (BfR)
+ * 
+ * PMM-Lab is a project under development. Contributions are welcome.
+ * 
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Contributors:
- *     Department Biological Safety - BfR
- *******************************************************************************/
+ ******************************************************************************/
+/*
+ * Created by JFormDesigner on Thu Aug 12 23:40:52 CEST 2010
+ */
+
 package org.hsh.bfr.db.gui;
 
 import java.awt.BorderLayout;
@@ -312,11 +330,11 @@ public class Login extends JFrame {
 				}
 			}
 
-			// Passwort ï¿½ndern
+			// Passwort ändern
 			if (checkBox1.isSelected()) {
 				if (passwordField2.getPassword().length >= 0) {
 					String newPassword = new String(passwordField2.getPassword());
-					if (newPassword.length() == 0) { // Passwï¿½rter dï¿½rfen nicht leer sein!
+					if (newPassword.length() == 0) { // Passwörter dürfen nicht leer sein!
 						passwordField1.setBackground(Color.WHITE);
 						passwordField2.setBackground(Color.RED);
 						passwordField3.setBackground(Color.RED);
@@ -342,7 +360,7 @@ public class Login extends JFrame {
 			}
 
 			// Login succeeded: DB erstellen/starten, GUI aufbauen
-			// Datenbank fï¿½llen			
+			// Datenbank füllen			
 			if (noDBThere) {
 				int answer = JOptionPane.NO_OPTION; // YES_OPTION
 				if (beInteractive) {
@@ -360,7 +378,7 @@ public class Login extends JFrame {
 						if (BackupMyDBI.doRestore(myDB, temp, true, true)) {
 							DBKernel.myDBi.addUserInCaseNotThere(username, password);
 						}
-						else {  // Passwort hat sich verï¿½ndert innerhalb der 2 beteiligten Datenbanken...
+						else {  // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
 							passwordField3.setBackground(Color.WHITE);
@@ -368,7 +386,7 @@ public class Login extends JFrame {
 							return mf;
 						}
 					} else {
-						if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verï¿½ndert innerhalb der 2 beteiligten Datenbanken...
+						if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
 							passwordField3.setBackground(Color.WHITE);
@@ -590,7 +608,7 @@ public class Login extends JFrame {
 	private void button1ActionPerformed(final ActionEvent e) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(new java.io.File(textField2.getText()));
-		chooser.setDialogTitle("Wï¿½hle Ordner der Datenbank");
+		chooser.setDialogTitle("Wähle Ordner der Datenbank");
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		chooser.setAcceptAllFileFilterUsed(false);
 		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -658,11 +676,11 @@ public class Login extends JFrame {
 				}
 			}
 
-			// Passwort ï¿½ndern
+			// Passwort ändern
 			if (checkBox1.isSelected()) {
 				if (passwordField2.getPassword().length >= 0) {
 					String newPassword = new String(passwordField2.getPassword());
-					if (newPassword.length() == 0) { // Passwï¿½rter dï¿½rfen nicht leer sein!
+					if (newPassword.length() == 0) { // Passwörter dürfen nicht leer sein!
 						passwordField1.setBackground(Color.WHITE);
 						passwordField2.setBackground(Color.RED);
 						passwordField3.setBackground(Color.RED);
@@ -689,7 +707,7 @@ public class Login extends JFrame {
 			}
 
 			// Login succeeded: DB erstellen/starten, GUI aufbauen
-			// Datenbank fï¿½llen			
+			// Datenbank füllen			
 			mf = initGuiNew(myDB);
 			if (!myDBi.isServerConnection() && noDBThere) {
 				myDBi.bootstrapDB();
@@ -734,7 +752,7 @@ public class Login extends JFrame {
 				}
 			}
 		} else if (retVal == JOptionPane.NO_OPTION) {
-			retVal = JOptionPane.showConfirmDialog(this, "Die Datenbank wirklich ohne Backup ï¿½berschreiben?? Sicher?", "Sicher?", JOptionPane.YES_NO_OPTION,
+			retVal = JOptionPane.showConfirmDialog(this, "Die Datenbank wirklich ohne Backup überschreiben?? Sicher?", "Sicher?", JOptionPane.YES_NO_OPTION,
 					JOptionPane.QUESTION_MESSAGE);
 			if (retVal == JOptionPane.YES_OPTION) {
 				;

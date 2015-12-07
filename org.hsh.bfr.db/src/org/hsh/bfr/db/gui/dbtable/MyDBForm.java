@@ -1,22 +1,40 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
- *
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * 
+ * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
+ * 
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
+ * 
+ * Developers and contributors to the PMM-Lab project are 
+ * Christian Thöns (BfR)
+ * Matthias Filter (BfR)
+ * Armin A. Weiser (BfR)
+ * Alexander Falenski (BfR)
+ * Jörgen Brandt (BfR)
+ * Annemarie Käsbohrer (BfR)
+ * Bernd Appel (BfR)
+ * 
+ * PMM-Lab is a project under development. Contributions are welcome.
+ * 
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Contributors:
- *     Department Biological Safety - BfR
- *******************************************************************************/
+ ******************************************************************************/
+/*
+ * Created by JFormDesigner on Thu Apr 19 22:09:03 CEST 2012
+ */
+
 package org.hsh.bfr.db.gui.dbtable;
 
 import java.awt.*;
@@ -315,13 +333,13 @@ public class MyDBForm extends JPanel {
 	private void updateRow() {
 		if (DBKernel.isReadOnly()) return;
 	      try {
-	    	  // Geprï¿½ft erstmal nicht berï¿½cksichtigen, das gibt nur ï¿½rger: dauernd Update der DB,
+	    	  // Geprüft erstmal nicht berücksichtigen, das gibt nur Ärger: dauernd Update der DB,
 	    	  // weil hier so nur false gespeichert werden kann und nicht NULL. Es sind aber viele NULLen in der DB drin
 	    	  String sql = myT.getUpdateSQL1().replace(",\"Geprueft\"=?", "");
 	    	  //System.err.println(sql);
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql);
 			managePs(ps);
-			// Achtung hier "myT.getNumFields()-1" bis Geprï¿½ft wieder integriert ist!
+			// Achtung hier "myT.getNumFields()-1" bis Geprüft wieder integriert ist!
 			ps.setInt(myT.getNumFields()-1, getInt(((JTextField) componentMap.get("ID")).getText()));
 			
 			ps.execute();
@@ -339,7 +357,7 @@ public class MyDBForm extends JPanel {
 		if (DBKernel.isReadOnly()) return false;
 		boolean allNull = true;
 	      try {
-	    	  // Geprï¿½ft erstmal nicht berï¿½cksichtigen, das gibt nur ï¿½rger: dauernd Update der DB,
+	    	  // Geprüft erstmal nicht berücksichtigen, das gibt nur Ärger: dauernd Update der DB,
 	    	  // weil hier so nur false gespeichert werden kann und nicht NULL. Es ind aber viele NULLen in der DB drin
 	    	  String sql = myT.getInsertSQL1().replace(",\"Geprueft\"", "").replace(",?)", ")");
 	    	  //System.err.println(sql);
@@ -364,8 +382,8 @@ public class MyDBForm extends JPanel {
 	}
 	void deleteRow() {
 		if (!newDS()) {
-			int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daï¿½ Sie diesen Datensatz lï¿½schen mï¿½chten?",
-		    		"Lï¿½schen bestï¿½tigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie diesen Datensatz löschen möchten?",
+		    		"Löschen bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		    if (retVal == JOptionPane.YES_OPTION) {
 				DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL(myT.getTablename()) +
 						" WHERE " + DBKernel.delimitL("ID") + " = " + getSelectedID(), false);
@@ -427,7 +445,7 @@ public class MyDBForm extends JPanel {
 	    }
 	    if (!myT.getHideScore()) allNullVals = handleInt(ps, ++i, ((JTextField) componentMap.get("Guetescore")).getText()) && allNullVals;
 	    if (!myT.getHideKommentar()) allNullVals = handleStr(ps, ++i, componentMap.get("Kommentar")) && allNullVals;
-	    // Geprï¿½ft mache ich erstmal nur Read-Only!! is zu bucklig wegen 1. null berï¿½cksichtigen, 2. die ganze abfragelogik von wegen ein anderer Nutzer darf nur usw...!
+	    // Geprüft mache ich erstmal nur Read-Only!! is zu bucklig wegen 1. null berücksichtigen, 2. die ganze abfragelogik von wegen ein anderer Nutzer darf nur usw...!
 	    //if (!myT.getHideTested()) allNullVals = handleBool(ps, ++i, componentMap.get("Geprueft")) && allNullVals;
 	    
 	    return allNullVals;
@@ -520,7 +538,7 @@ public class MyDBForm extends JPanel {
 	
 	private void scrollBar1AdjustmentValueChanged(AdjustmentEvent e) {
 		if (initVal > 0 && !e.getValueIsAdjusting()) {
-			if (initVal > 1) { // ï¿½nderungen abspeichern!
+			if (initVal > 1) { // Änderungen abspeichern!
 				if (newDS()) insertNewRow();
 				else updateRow();
 			}

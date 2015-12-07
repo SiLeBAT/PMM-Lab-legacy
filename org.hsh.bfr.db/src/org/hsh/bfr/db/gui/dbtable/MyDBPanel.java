@@ -1,22 +1,40 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
- *
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * 
+ * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
+ * 
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
+ * 
+ * Developers and contributors to the PMM-Lab project are 
+ * Christian Thöns (BfR)
+ * Matthias Filter (BfR)
+ * Armin A. Weiser (BfR)
+ * Alexander Falenski (BfR)
+ * Jörgen Brandt (BfR)
+ * Annemarie Käsbohrer (BfR)
+ * Bernd Appel (BfR)
+ * 
+ * PMM-Lab is a project under development. Contributions are welcome.
+ * 
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Contributors:
- *     Department Biological Safety - BfR
- *******************************************************************************/
+ ******************************************************************************/
+/*
+ * Created by JFormDesigner on Wed Jun 30 01:12:18 CEST 2010
+ */
+
 package org.hsh.bfr.db.gui.dbtable;
 
 import java.awt.Color;
@@ -501,10 +519,10 @@ public class MyDBPanel extends JPanel {
 				    	return;
 				    }
 				}
-				savePressed = true; // wenn button10 nicht visible, dann haBEN WIR HIER EIN M:N Table, dann kann man ohnehin nicht abbrechen, dann wird die selectedID auch nicht benï¿½tigt! OK soll aber dennoch erhalten bleiben, um die Anwender nicht zu irritieren. Abbrechen ist mir zu bucklig zu implementieren!
+				savePressed = true; // wenn button10 nicht visible, dann haBEN WIR HIER EIN M:N Table, dann kann man ohnehin nicht abbrechen, dann wird die selectedID auch nicht benötigt! OK soll aber dennoch erhalten bleiben, um die Anwender nicht zu irritieren. Abbrechen ist mir zu bucklig zu implementieren!
 			}
 			else {
-				  //if (myDBTable1.getActualTable().getTablename().equals("Messwerte")) { // erstmal nur fï¿½r Messwerte, andere Tabellen kï¿½nnen hinzugefï¿½gt werden, muss aber erst gecheckt werden, vor allem wegen der Performance!!! Die scheint bei M:N Tabellen sehr  schlecht zu sein.
+				  //if (myDBTable1.getActualTable().getTablename().equals("Messwerte")) { // erstmal nur für Messwerte, andere Tabellen können hinzugefügt werden, muss aber erst gecheckt werden, vor allem wegen der Performance!!! Die scheint bei M:N Tabellen sehr  schlecht zu sein.
 					  String toShow = "";
 					  Vector<String[]> plausibility = PlausibilityChecker.getPlausibilityRow(myDBTable1, myDBTable1.getActualTable(), -1, "ID");
 					  if (plausibility != null && plausibility.size() == 1) {
@@ -625,7 +643,7 @@ public class MyDBPanel extends JPanel {
 	}
 
 	private void textField1FocusLost(FocusEvent e) {
-		// nach filtern nimmt sich manchmal der JTable den Focus, das nervt, also dann bitte wieder zurï¿½ck!
+		// nach filtern nimmt sich manchmal der JTable den Focus, das nervt, also dann bitte wieder zurück!
 		if (System.currentTimeMillis() - tf1LastFocus < 200) textField1.requestFocus();
 	}
 

@@ -1,9 +1,9 @@
 /*******************************************************************************
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab ï¿½ 2012, Federal Institute for Risk Assessment (BfR), Germany
  * 
  * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
  * 
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab ï¿½ 2012, Federal Institute for Risk Assessment (BfR), Germany
  * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
  * 
  * Developers and contributors to the PMM-Lab project are 
@@ -180,7 +180,7 @@ public class PrimaryJoiner implements Joiner {
 		Map<Integer, Map<String, String>> assignmentsMap = XmlConverter
 				.xmlToObject(assignments,
 						new LinkedHashMap<Integer, Map<String, String>>());
-		int rowCount = modelTuples.size() * dataTable.size();
+		long rowCount = modelTuples.size() * dataTable.size();
 		int index = 0;
 
 		for (int i = 0; i < modelTuples.size(); i++) {

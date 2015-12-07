@@ -1,18 +1,18 @@
 /*******************************************************************************
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab ï¿½ 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
  * 
  * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
  * 
- * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab ï¿½ 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
  * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
  * 
  * Developers and contributors to the PMM-Lab project are 
- * Christian Thöns (BfR)
+ * Christian Thï¿½ns (BfR)
  * Matthias Filter (BfR)
  * Armin A. Weiser (BfR)
  * Alexander Falenski (BfR)
- * Jörgen Brandt (BfR)
- * Annemarie Käsbohrer (BfR)
+ * Jï¿½rgen Brandt (BfR)
+ * Annemarie Kï¿½sbohrer (BfR)
  * Bernd Appel (BfR)
  * 
  * PMM-Lab is a project under development. Contributions are welcome.
@@ -140,7 +140,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		 * FileUtils.copyDirectory(new File(resource.getLocationURI()), dest,
 		 * true); } } if (true) return null;
 		 */
-		int n = inData[0].size();
+		long n = inData[0].size();
 
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean tsConform = inSchema.conforms(new TimeSeriesSchema());

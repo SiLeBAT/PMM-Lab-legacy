@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.hsh.bfr.db,
  com.google.guava,
  de.bund.bfr.pmf;visibility:=reexport,
- org.fife.rsyntaxtextarea,
  com.fasterxml.jackson.core.jackson-annotations,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
@@ -23,8 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
-Export-Package: de.bund.bfr.knime.pmm.dbutil,
- de.bund.bfr.knime.pmm.js.editor,
+Export-Package: de.bund.bfr.knime.pmm.dbutil, 
  de.bund.bfr.knime.pmm.numl,
  de.bund.bfr.knime.pmm.openfsmr,
  de.bund.bfr.knime.pmm.pmfreader,

@@ -472,8 +472,8 @@ class TableReader {
 	}
 
 	public static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
-		final String CELSIUS = "ï¿½C";
-		final String FAHRENHEIT = "ï¿½F";
+		final String CELSIUS = "°C";
+		final String FAHRENHEIT = "°F";
 		final String KELVIN = "K";
 
 		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);

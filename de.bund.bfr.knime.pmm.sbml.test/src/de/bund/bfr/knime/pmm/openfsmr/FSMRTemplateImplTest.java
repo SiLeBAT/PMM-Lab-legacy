@@ -145,7 +145,7 @@ public class FSMRTemplateImplTest {
 	public void testReferenceDescriptionAccesors() {
 		String referenceDescription = "Juneja, Vijay K. et al., 2009. "
 				+ "Mathematical modeling of growth of Salmonella in raw "
-				+ "ground beef under isothermal conditions from 10 to 45Â°C. "
+				+ "ground beef under isothermal conditions from 10 to 45°C. "
 				+ "International Journal of Food Microbiology ():  ff.";
 		template.setReferenceDescription(referenceDescription);
 		assertTrue(template.isSetReferenceDescription());

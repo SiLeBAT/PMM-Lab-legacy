@@ -366,4 +366,36 @@ public class ModelPlotterViewValue extends JSONViewContent {
 			variables.add(v);
 		}
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		int hashCode = 1;
+		hashCode = 31 * hashCode + (function != null ? function.hashCode() : 0);
+		hashCode = 31 * hashCode + (functionFull != null ? functionFull.hashCode() : 0);
+		hashCode = 31 * hashCode + (constants != null ? constants.hashCode() : 0);
+		hashCode = 31 * hashCode + (variables != null ? variables.hashCode() : 0);
+		return hashCode;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		ModelPlotterViewValue other = (ModelPlotterViewValue) obj;
+		return  function.equals(other.function) &&
+				functionFull.equals(other.functionFull) &&
+				constants.equals(other.constants) &&
+				variables.equals(other.variables);
+	}
 }

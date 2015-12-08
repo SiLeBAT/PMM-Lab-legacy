@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.modelplotter;
 
+import java.util.Random;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -33,11 +35,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 * expression, argumants, and constants. 
 *
 * @author Kilian Thiel, KNIME.com GmbH, Berlin, Germany
+* 
+* HINT: This class does not yet serve any purpose.
 */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public final class ModelPlotterViewRepresentation extends JSONViewContent {
 
+	// no members to hash on
+	public final int pseudoIdentifier = (new Random()).nextInt();
+	
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		// Nothing to do.
@@ -47,5 +54,30 @@ public final class ModelPlotterViewRepresentation extends JSONViewContent {
 	public void loadFromNodeSettings(NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		// Nothing to do.
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return pseudoIdentifier;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		return false; // maybe add other criteria here
 	}
 }

@@ -85,8 +85,9 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
      * Constructor of {@code ModelPlotterNodeModel}.
      */
     protected ModelPlotterNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE }, 
+			  new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE }, 
+			  (new ModelPlotterNodeFactory()).getInteractiveViewName());
         m_config = new ModelPlotterViewConfig();
 	}
 
@@ -313,11 +314,6 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	@Override
 	protected void performReset() {
 		m_executed = false;
-	}
-
-	@Override
-	protected String getInteractiveViewName() {
-		return (new ModelPlotterNodeFactory()).getInteractiveViewName();
 	}
 
 	@Override

@@ -20,7 +20,10 @@
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -39,6 +42,8 @@ public class SBMLWriter {
 	}
 
 	public static void write(SBMLDocument doc, File file) throws SBMLException, XMLStreamException, IOException {
-		sbmlWriter.write(doc, file);
+		try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+			writer.write(sbmlWriter.writeSBMLToString(doc));
+		}
 	}
 }

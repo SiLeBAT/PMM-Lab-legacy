@@ -34,7 +34,7 @@
             init-method-name="init"
             javascriptComponentID="org.bund.bfr.knime.pmm.js.modelplotter"
             name="Model Plotter"
-            namespace="bfr_model_plotter"
+            namespace="pmm_plotter"
             setValidationError-method-name="setValidationError"
             validate-method-name="validate">
       </javascriptComponent>
@@ -82,9 +82,69 @@
       </webResourceBundle>
       <webResourceBundle
             debug="true"
+            name="Function Plot"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/function-plot.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/function-plot.js">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/function-plot.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      
+      <!--  TODO: resolve dependencies from org.knime.js.core -->
+      <webResourceBundle
+            debug="true"
+            name="d3"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/d3.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/d3.js">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/d3.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      <webResourceBundle
+            debug="true"
+            name="jQuery UI"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery-ui">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.js">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      <webResourceBundle
+            debug="true"
+            name="jQuery"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery.js">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      <!-- -->
+      
+      <webResourceBundle
+            debug="true"
             name="Model Plotter"
             version="1.0.0"
-            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle_old">
          <webResource
                relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
                relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">
@@ -92,8 +152,40 @@
          <webDependency
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
          </webDependency>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
+         </webDependency>
          <importResource
                relativePath="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
+               type="JAVASCRIPT">
+         </importResource>
+      </webResourceBundle>
+      <webResourceBundle
+            debug="true"
+            name="PMM Plotter"
+            version="1.0.0"
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js">
+         </webResource>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
+         </webDependency>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3">
+         </webDependency>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
+         </webDependency>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery-ui">
+         </webDependency>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
+         </webDependency>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js"
                type="JAVASCRIPT">
          </importResource>
       </webResourceBundle>

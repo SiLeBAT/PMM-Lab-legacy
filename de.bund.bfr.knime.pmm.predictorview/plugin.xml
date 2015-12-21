@@ -116,12 +116,36 @@
             version="1.0.0"
             webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery-ui">
          <webResource
-               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.js"
-               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.js">
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/">
          </webResource>
          <importResource
                relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.js"
                type="JAVASCRIPT">
+         </importResource>
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.css"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.css">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.css"
+               type="CSS">
+         </importResource>
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.structure.css"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.structure.css">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.structure.css"
+               type="CSS">
+         </importResource>
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.theme.css"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.theme.css">
+         </webResource>
+         <importResource
+               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.theme.css"
+               type="CSS">
          </importResource>
       </webResourceBundle>
       <webResourceBundle
@@ -179,10 +203,10 @@
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
          </webDependency>
          <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery-ui">
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
          </webDependency>
          <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery-ui">
          </webDependency>
          <importResource
                relativePath="de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js"

@@ -1,5 +1,6 @@
 pmm_plotter = function() {
 
+
 	var modelPlotter = {
 			version: "1.0.0"
 	};
@@ -11,27 +12,98 @@ pmm_plotter = function() {
 	var variableIndices;
 	var functionGraph;
 	var jsxBoard;
+	var globalNumber = 1;
+	
+	var msgAdd = "Hinzufügen";
+	var msgChoose = "Modell auswählen";
 	
 	
 	
 	modelPlotter.init = function(representation, value) {
+
 		//alert(JSON.stringify(representation));
 		plotterValue = value;
 		plotterRep = representation;
 		
 		var body = document.getElementsByTagName("body")[0];
-		body.setAttribute("style", "width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; font-size:14px; overflow:hidden;");
+		body.setAttribute("style", "width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
 
+		/*
+		 * new plotter layout
+		 */
+		var layoutTable = document.createElement("table");
+		var layoutTableRow1 = document.createElement("tr");
+		var layoutTableElement1 = document.createElement("td");
+		layoutTable.appendChild(layoutTableRow1);
+		layoutTableRow1.appendChild(layoutTableElement1);
+		var layoutTableRow2 = document.createElement("tr");
+		var layoutTableElement2 = document.createElement("td");
+		layoutTable.appendChild(layoutTableRow2);
+		layoutTableRow2.appendChild(layoutTableElement2);
+		
+		// select Menu
+		var menuLabel = document.createElement("label");
+		menuLabel.setAttribute("for", "selectModel");
+		menuLabel.setAttribute("style" , "display: block; margin: 30px 0 0 0; width: 250px;");
+		menuLabel.innerHTML = msgChoose;
+		layoutTableElement1.appendChild(menuLabel);
+		
+		var modelSelectionMenu = document.createElement("select");
+		modelSelectionMenu.innerHTML = msgChoose;
+		modelSelectionMenu.setAttribute("id", "selectModel");
+		modelSelectionMenu.setAttribute("name", "selectModel");
+		modelSelectionMenu.setAttribute("style" , "width: 250px;");
+		layoutTableElement1.appendChild(modelSelectionMenu);
+		
+		
+		// options
+		var optGroup1 = document.createElement("optgroup");
+		optGroup1.setAttribute("label", "Typ A");
+		modelSelectionMenu.appendChild(optGroup1);
+		
+		var option1 = document.createElement("option");
+		option1.innerHTML = "Beispiel 1";
+		optGroup1.appendChild(option1);
+		
+		var option2 = document.createElement("option");
+		option2.innerHTML = "Beispiel 2";
+		optGroup1.appendChild(option2);
+
+		var optGroup2 = document.createElement("optgroup");
+		optGroup2.setAttribute("label", "Typ B");
+		modelSelectionMenu.appendChild(optGroup2);
+		
+		var option3 = document.createElement("option");
+		option3.innerHTML = "Beispiel 3";
+		optGroup2.appendChild(option3);
+		
+		var option4 = document.createElement("option");
+		option4.innerHTML = "Beispiel 4";
+		optGroup2.appendChild(option4);
+		
+		
+		// add button
+		var addButton = document.createElement("button");
+		addButton.innerHTML = msgAdd;
+		addButton.setAttribute("id", "addButton");
+		addButton.setAttribute("style" , "width: 250px;");
+		addButton.addEventListener("click", function() { d3Update(); });
+		layoutTableElement2.appendChild(addButton);
+		
+		
+		
+		body.appendChild(layoutTable);
+		// --- //
+		
+		
 		/*
 		 * new plotter
 		 */
 		var plotDemo = document.createElement("div");
 		plotDemo.setAttribute("id", "d3plotter");
 		body.appendChild(plotDemo);
-
-		
+				
 		drawD3Plot();
-
 		/******/
 
 		
@@ -154,6 +226,18 @@ pmm_plotter = function() {
 			   parent.KnimePageLoader.autoResize(window.frameElement.id);
 		}
 		
+		/*
+		 * jQueryUI functions
+		 */
+		$(function() {
+			  $("button").button({
+			      icons: {
+			        primary: "ui-icon-plus"
+			      }
+			  });
+			  $("select").selectmenu();
+		});
+		/***/
 	};
 	
 	
@@ -209,24 +293,44 @@ pmm_plotter = function() {
 		return functionString.replace(/Time/gi, "x");
 	}
 	
+	function addFunction()
+	{
+		return true;
+	}
+	
+	function d3Update()
+	{
+		drawD3Plot();
+	}
+	
 	function getFunctionData() 
 	{
+		globalNumber++;
 		plotterValue.constants.Y0 = plotterValue.y0; // set the value from the settings here
 		var functionAsString = prepareFunction(plotterValue.func);
 		var functionConstants = plotterValue.constants;
-		var maxRange = 1000;
+		var maxRange = 1000; // obligatoric for the range feature
+		var range = [0,maxRange];
 		
-		return [{
-		  range: [0,maxRange],
-		  fn: functionAsString,
-	      skipTip: false,
-		  scope: functionConstants,
-	    },
-		{ 
-			range: [0,maxRange],
-			fn: "x-5",
-			skipTip: true,
-		}];
+		var functionObjects = [];
+		
+		var funcObj = {
+		 fn: functionAsString,
+		 range: range,
+		 scope: functionConstants,
+		 skipTip: false
+		};
+		functionObjects.push(funcObj);
+		
+		// this is a test and feature verification function, it is to be removed
+		funcObj = {
+		  fn: "x-" + globalNumber,
+		  range: range,
+		  skipTip: false
+		};
+		functionObjects.push(funcObj);
+		
+		return functionObjects;
 	}
 	
 	function drawD3Plot() 

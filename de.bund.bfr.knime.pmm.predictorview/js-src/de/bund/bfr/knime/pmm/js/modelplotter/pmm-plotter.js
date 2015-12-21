@@ -20,8 +20,20 @@ pmm_plotter = function() {
 		plotterRep = representation;
 		
 		var body = document.getElementsByTagName("body")[0];
-		body.setAttribute("style", 
-				"width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; font-size:14px; overflow:hidden;");
+		body.setAttribute("style", "width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; font-size:14px; overflow:hidden;");
+
+		/*
+		 * new plotter
+		 */
+		var plotDemo = document.createElement("div");
+		plotDemo.setAttribute("id", "d3plotter");
+		body.appendChild(plotDemo);
+
+		
+		drawD3Plot();
+
+		/******/
+
 		
 		var table = document.createElement("table");
 		var row1 = document.createElement("tr");
@@ -35,25 +47,13 @@ pmm_plotter = function() {
 		table.appendChild(row2);
 		body.appendChild(table);
 
-		var plotDemo = document.createElement("div");
-		plotDemo.setAttribute("id", "plotDemo");
-		body.appendChild(plotDemo);
-		
-			functionPlot({
-				  target: '#plotDemo',
-				  data: [
-				    { fn: 'x^2' },
-				    { fn: 'x^3' }
-				  ]
-				});
-
 		
 		var layoutContainer = document.createElement("div");
-		layoutContainer.setAttribute("style", "width:410px; height:360px;");
+		layoutContainer.setAttribute("style", "width:500px; height:350px;");
 		td1.appendChild(layoutContainer);
 		
 		var constantsBox = document.createElement("div");
-		constantsBox.setAttribute("style", "border-style:solid; border-width:1px; width:35%; text-align:left; padding:10px;");
+		constantsBox.setAttribute("style", "border-style:solid; border-width:1px; width:60%; text-align:left; padding:10px;");
 		td2.appendChild(constantsBox);
 		
 		var constantsHeadline = document.createElement("h3");
@@ -89,7 +89,7 @@ pmm_plotter = function() {
 		var div = document.createElement("div");
 		div.setAttribute("id", "box");
 		div.setAttribute("class", "jxgbox");
-		div.setAttribute("style", "width:400px; height:300px;");
+		div.setAttribute("style", "width:400px; height:350px;");
 		layoutContainer.appendChild(div);
 		
 	    // add constants in view representation to select box as options
@@ -153,6 +153,7 @@ pmm_plotter = function() {
 		if (parent !== undefined && parent.KnimePageLoader !== undefined) {
 			   parent.KnimePageLoader.autoResize(window.frameElement.id);
 		}
+		
 	};
 	
 	
@@ -196,6 +197,65 @@ pmm_plotter = function() {
 			updateFunctionGraph();
 		}
 	};
+	
+	
+	
+	/*
+	 * new function plot functions
+	 */
+	function prepareFunction(functionString) {
+		// replace "Time" with "x"
+		// gi: global, case-insensitive
+		return functionString.replace(/Time/gi, "x");
+	}
+	
+	function getFunctionData() 
+	{
+		plotterValue.constants.Y0 = plotterValue.y0; // set the value from the settings here
+		var functionAsString = prepareFunction(plotterValue.func);
+		var functionConstants = plotterValue.constants;
+		var maxRange = 1000;
+		
+		return [{
+		  range: [0,maxRange],
+		  fn: functionAsString,
+	      skipTip: false,
+		  scope: functionConstants,
+	    },
+		{ 
+			range: [0,maxRange],
+			fn: "x-5",
+			skipTip: true,
+		}];
+	}
+	
+	function drawD3Plot() 
+	{
+		var plotWidth = 600;
+		var plotHeight = 400;
+		
+		functionPlot({
+			  target: '#d3plotter',
+			  xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],
+			  yDomain: [plotterValue.minYAxis, plotterValue.maxYAxis],
+			  xLabel: plotterValue.xUnit,
+			  yLabel: plotterValue.yUnit,
+			  witdh: plotWidth,
+			  height: plotHeight,
+			  tip: 
+			  {
+			    xLine: true,    // dashed line parallel to y = 0
+			    yLine: true,    // dashed line parallel to x = 0
+			    renderer: function (x, y, index) {
+			      return y;
+				}
+			  },
+			  data: getFunctionData()
+		});
+	}
+	/*******/
+	
+	
 	
 	function createFunctionStr() {
 		var functionStr = 'f(Time';

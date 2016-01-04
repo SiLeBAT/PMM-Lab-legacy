@@ -12,24 +12,28 @@ pmm_plotter = function() {
 	var variableIndices;
 	var functionGraph;
 	var jsxBoard;
+	
 	var globalNumber = 1;
+	var functionObjects = [];
+	var colorsArray = [];
 	
 	var msgAdd = "Hinzufügen";
 	var msgChoose = "Modell auswählen";
 	
 	var buttonWidth = "width: 250px;";
-	var totalHeight = "height:800px;";
-	
-	
+	var totalHeight = "height: 800px;";
+	var plotWidth = 600;
+	var plotHeight = 400;
 	
 	modelPlotter.init = function(representation, value) {
 
 		//alert(JSON.stringify(representation));
 		plotterValue = value;
 		plotterRep = representation;
+		initFunctionData();
 		
 		var body = document.getElementsByTagName("body")[0];
-		body.setAttribute("style", "width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
+		body.setAttribute("style", "background: #fdfdfd; width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
 
 		/*
 		 * new plotter layout
@@ -46,17 +50,6 @@ pmm_plotter = function() {
 		layoutWrapper.appendChild(leftWrapper);
 		layoutWrapper.appendChild(rightWrapper);
 		
-	/*	
-		var layoutTable = document.createElement("table");
-		var layoutTableRow1 = document.createElement("tr");
-		var layoutTableElement1 = document.createElement("td");
-		layoutTable.appendChild(layoutTableRow1);
-		layoutTableRow1.appendChild(layoutTableElement1);
-		var layoutTableRow2 = document.createElement("tr");
-		var layoutTableElement2 = document.createElement("td");
-		layoutTable.appendChild(layoutTableRow2);
-		layoutTableRow2.appendChild(layoutTableElement2);
-		*/
 		// select Menu
 		var menuLabel = document.createElement("label");
 		menuLabel.setAttribute("for", "selectModel");
@@ -103,7 +96,10 @@ pmm_plotter = function() {
 		addButton.innerHTML = msgAdd;
 		addButton.setAttribute("id", "addButton");
 		addButton.setAttribute("style" , buttonWidth);
-		addButton.addEventListener("click", function() { d3Update(); });
+		addButton.addEventListener("click", function() { 
+			// this is a test and feature verification function; it is to be removed
+			addFunctionObject("x-" + globalNumber, null); 
+			});
 		leftWrapper.appendChild(addButton);
 		
 		body.appendChild(layoutWrapper);
@@ -301,57 +297,54 @@ pmm_plotter = function() {
 	/*
 	 * new function plot functions
 	 */
+	
+	
 	function prepareFunction(functionString) {
-		// replace "Time" with "x"
+		// replace "Time" with "x" using regex
 		// gi: global, case-insensitive
 		return functionString.replace(/Time/gi, "x");
 	}
 	
-	function addFunction()
+	function initFunctionData() 
 	{
-		return true;
-	}
-	
-	function d3Update()
-	{
-		drawD3Plot();
-	}
-	
-	function getFunctionData() 
-	{
-		globalNumber++;
 		plotterValue.constants.Y0 = plotterValue.y0; // set the value from the settings here
 		var functionAsString = prepareFunction(plotterValue.func);
 		var functionConstants = plotterValue.constants;
-		var maxRange = 1000; // obligatoric for the range feature
-		var range = [0,maxRange];
 		
-		var functionObjects = [];
+		addFunctionObject(functionAsString, functionConstants);
+	}
+	
+	/*
+	 * adds a function to the functions array and redraws the plot
+	 */
+	function addFunctionObject(functionAsString, functionConstants)
+	{
+		var color = getNextColor(); // functionPlot provides 9 colors
+		globalNumber++; // to be removed
+		var maxRange = 100; // obligatoric for the range feature
+		var range = [0, maxRange];
 		
 		var funcObj = {
-		 fn: functionAsString,
-		 range: range,
-		 scope: functionConstants,
-		 skipTip: false
+			 fn: functionAsString,
+			 scope: functionConstants,
+			 color: color,
+			 range: range,
+			 skipTip: false
 		};
 		functionObjects.push(funcObj);
-		
-		// this is a test and feature verification function, it is to be removed
-		funcObj = {
-		  fn: "x-" + globalNumber,
-		  range: range,
-		  skipTip: false
-		};
-		functionObjects.push(funcObj);
-		
-		return functionObjects;
+		// update plot after adding new function
+		drawD3Plot();
+	}
+	
+	function getNextColor()
+	{
+		if(colorsArray.length <= 0)
+			colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
+		return colorsArray.shift();
 	}
 	
 	function drawD3Plot() 
 	{
-		var plotWidth = 600;
-		var plotHeight = 400;
-		
 		functionPlot({
 			  target: '#d3plotter',
 			  xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],
@@ -368,7 +361,7 @@ pmm_plotter = function() {
 			      return y;
 				}
 			  },
-			  data: getFunctionData()
+			  data: functionObjects
 		});
 	}
 	/*******/

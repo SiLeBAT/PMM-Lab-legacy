@@ -17,6 +17,9 @@ pmm_plotter = function() {
 	var msgAdd = "Hinzufügen";
 	var msgChoose = "Modell auswählen";
 	
+	var buttonWidth = "width: 250px;";
+	var totalHeight = "height:800px;";
+	
 	
 	
 	modelPlotter.init = function(representation, value) {
@@ -31,6 +34,19 @@ pmm_plotter = function() {
 		/*
 		 * new plotter layout
 		 */
+		var layoutWrapper = document.createElement("div");
+		layoutWrapper.setAttribute("id", "layoutWrapper");
+		layoutWrapper.setAttribute("style", "width:800px;");
+		var leftWrapper = document.createElement("div");
+		leftWrapper.setAttribute("id", "leftWrapper");
+		leftWrapper.setAttribute("style", "width:300px; display: block; float: left;" + totalHeight);
+		var rightWrapper = document.createElement("div");
+		rightWrapper.setAttribute("id", "rightWrapper");
+		rightWrapper.setAttribute("style", "width:500px; display: block; float: left;" + totalHeight);
+		layoutWrapper.appendChild(leftWrapper);
+		layoutWrapper.appendChild(rightWrapper);
+		
+	/*	
 		var layoutTable = document.createElement("table");
 		var layoutTableRow1 = document.createElement("tr");
 		var layoutTableElement1 = document.createElement("td");
@@ -40,20 +56,20 @@ pmm_plotter = function() {
 		var layoutTableElement2 = document.createElement("td");
 		layoutTable.appendChild(layoutTableRow2);
 		layoutTableRow2.appendChild(layoutTableElement2);
-		
+		*/
 		// select Menu
 		var menuLabel = document.createElement("label");
 		menuLabel.setAttribute("for", "selectModel");
-		menuLabel.setAttribute("style" , "display: block; margin: 30px 0 0 0; width: 250px;");
+		menuLabel.setAttribute("style" , "display: block;" + buttonWidth);
 		menuLabel.innerHTML = msgChoose;
-		layoutTableElement1.appendChild(menuLabel);
+		leftWrapper.appendChild(menuLabel);
 		
 		var modelSelectionMenu = document.createElement("select");
 		modelSelectionMenu.innerHTML = msgChoose;
 		modelSelectionMenu.setAttribute("id", "selectModel");
 		modelSelectionMenu.setAttribute("name", "selectModel");
-		modelSelectionMenu.setAttribute("style" , "width: 250px;");
-		layoutTableElement1.appendChild(modelSelectionMenu);
+		modelSelectionMenu.setAttribute("style" , buttonWidth);
+		leftWrapper.appendChild(modelSelectionMenu);
 		
 		
 		// options
@@ -86,22 +102,20 @@ pmm_plotter = function() {
 		var addButton = document.createElement("button");
 		addButton.innerHTML = msgAdd;
 		addButton.setAttribute("id", "addButton");
-		addButton.setAttribute("style" , "width: 250px;");
+		addButton.setAttribute("style" , buttonWidth);
 		addButton.addEventListener("click", function() { d3Update(); });
-		layoutTableElement2.appendChild(addButton);
+		leftWrapper.appendChild(addButton);
 		
-		
-		
-		body.appendChild(layoutTable);
+		body.appendChild(layoutWrapper);
 		// --- //
 		
 		
 		/*
 		 * new plotter
 		 */
-		var plotDemo = document.createElement("div");
-		plotDemo.setAttribute("id", "d3plotter");
-		body.appendChild(plotDemo);
+		var d3Plot = document.createElement("div");
+		d3Plot.setAttribute("id", "d3plotter");
+		rightWrapper.appendChild(d3Plot);
 				
 		drawD3Plot();
 		/******/

@@ -19,14 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.modelplotter;
 
-import java.util.List;
-import java.util.Map;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-
-import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewValue.Variable;
 
 /**
  * Node configuration data, such as chart title and Y0.

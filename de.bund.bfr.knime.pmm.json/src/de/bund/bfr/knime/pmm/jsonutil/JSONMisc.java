@@ -66,6 +66,7 @@ public class JSONMisc {
 		return obj;
 	}
 
+	@SuppressWarnings("unchecked")
 	public MiscXml toMiscXml() {
 		Integer id = (Integer) obj.get(ATT_ID);
 		String name = (String) obj.get(ATT_NAME);

@@ -74,6 +74,7 @@ public class JSONParam {
 		return obj;
 	}
 
+	@SuppressWarnings("unchecked")
 	public ParamXml toParamXml() {
 		String name = (String) obj.get(ATT_NAME);
 		String origName = (String) obj.get(ATT_ORIGNAME);

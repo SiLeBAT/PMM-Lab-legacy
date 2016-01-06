@@ -781,8 +781,13 @@ class DataTuple {
 		String concUnit = doc.getConcentrationOntologyTerm().getUnitDefinition().getName();
 
 		// Gets concentration unit object type from DB
-		UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
-		String concUnitObjectType = ufdb.getObject_type();
+		String concUnitObjectType;
+		if (DBUnits.getDBUnits().containsKey(concUnit)) {
+			UnitsFromDB ufdb = DBUnits.getDBUnits().get(concUnit);
+			concUnitObjectType = ufdb.getObject_type();
+		} else {
+			concUnitObjectType = "";
+		}
 
 		PMFSpecies species = doc.getConcentrationOntologyTerm().getSpecies();
 		AgentXml originalAgentXml = new AgentXml();

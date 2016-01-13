@@ -30,7 +30,7 @@ public enum ModelClass {
 	GROWTH_INACTIVATION(4, "growth/inactivation"),
 	INACTIVATION_SURVIVAL(5, "inactivation/survival"),
 	GROWTH_SURVIVAL(6, "growth/survival"),
-	GROWTH_INACTIVATION_SURVIVAL(7, "growth_inactivation_survival"),
+	GROWTH_INACTIVATION_SURVIVAL(7, "growth/inactivation/survival"),
 	T(8, "T"),
 	PH(9, "pH"),
 	AW(10, "aw"),
@@ -64,4 +64,5 @@ public enum ModelClass {
 	public String fullName() {
 		return fullName;
 	}
+	
 }

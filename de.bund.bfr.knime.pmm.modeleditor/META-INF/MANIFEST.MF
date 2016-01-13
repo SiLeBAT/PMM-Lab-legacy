@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Javascript Test nodes
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.javascripttest;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: .
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.apache.log4j,
+ de.bund.bfr.knime.pmm.common,
+ org.knime.core,
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.google.guava,
+ org.hsh.bfr.db,
+ de.bund.bfr.knime.pmm.bfrdbiface.lib
+Export-Package: de.bund.bfr.knime.pmm
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: de.bund.bfr.knime.pmm.dbutil,
+ de.bund.bfr.pmf,
+ org.apache.commons.lang.builder,
+ org.junit;version="4.12.0",
+ org.junit.runner,
+ org.junit.runners,
+ org.knime.js.core,
+ org.knime.js.core.node
+Bundle-Activator: de.bund.bfr.knime.pmm.JavascriptModelEditorNodePlugin
+Bundle-ActivationPolicy: lazy
+

@@ -54,7 +54,6 @@ pmm_plotter = function() {
 		var menuLabel = document.createElement("label");
 		menuLabel.setAttribute("for", "selectModel");
 		menuLabel.setAttribute("style" , "display: block;" + buttonWidth);
-		menuLabel.innerHTML = msgChoose;
 		leftWrapper.appendChild(menuLabel);
 		
 		var modelSelectionMenu = document.createElement("select");
@@ -62,21 +61,21 @@ pmm_plotter = function() {
 		modelSelectionMenu.setAttribute("id", "selectModel");
 		modelSelectionMenu.setAttribute("name", "selectModel");
 		modelSelectionMenu.setAttribute("style" , buttonWidth);
+		modelSelectionMenu.setAttribute("required");
 		leftWrapper.appendChild(modelSelectionMenu);
 		
 		
-		// options
+		// selection + options
+		var option0 = document.createElement("option");
+		option0.setAttribute("hidden");
+		option0.setAttribute("disabled");
+		option0.innerHTML = msgChoose;
+		modelSelectionMenu.appendChild(option0);
+		
 		var optGroup1 = document.createElement("optgroup");
 		optGroup1.setAttribute("label", "Typ A");
+		optGroup1.setAttribute("id", "optGroupA");
 		modelSelectionMenu.appendChild(optGroup1);
-		
-		var option1 = document.createElement("option");
-		option1.innerHTML = "Beispiel 1";
-		optGroup1.appendChild(option1);
-		
-		var option2 = document.createElement("option");
-		option2.innerHTML = "Beispiel 2";
-		optGroup1.appendChild(option2);
 
 		var optGroup2 = document.createElement("optgroup");
 		optGroup2.setAttribute("label", "Typ B");
@@ -114,6 +113,10 @@ pmm_plotter = function() {
 		rightWrapper.appendChild(d3Plot);
 				
 		drawD3Plot();
+		
+		// dynamic options
+		addSelectOption(plotterValue.dbuuid, plotterValue.modelName);
+		addSelectOption("123", "Beispiel");
 		/******/
 
 		
@@ -363,6 +366,17 @@ pmm_plotter = function() {
 			  },
 			  data: functionObjects
 		});
+	}
+	
+	function addSelectOption(dbuuid, modelName)
+	{
+		// TODO: dynamisches Mappen von Typen zu Gruppen
+		var option = document.createElement("option");
+		option.setAttribute("value", plotterValue.dbuuid);
+		option.innerHTML = "(" + dbuuid + ") " + modelName;
+		
+		var group = document.getElementById("optGroupA");
+		group.appendChild(option);
 	}
 	/*******/
 	

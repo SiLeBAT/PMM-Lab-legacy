@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -157,6 +158,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 		// read all plotables
 		Map<String, Plotable> plotables = reader.getPlotables();
 		Plotable p;
+		reader.getStringColumns();
 		
 		// warn if more than one plotables
 		if (plotables.size() <= 0) {
@@ -192,6 +194,18 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			// DATA: specify function (substring after '=')
 			viewValue.setFunc(p.getFunction().substring(
 					p.getFunction().indexOf("=") + 1));
+			viewValue.setModelName(p.getModelName());
+			if(p.getDbuuid() == null || p.getDbuuid().isEmpty())
+			{
+				LOGGER.warn("DATA PROBLEM: model does not deliver a 'dbuuid'. Random id will be generated.");
+				viewValue.setDbuuid("g" + String.valueOf(new Random(p.getFunction().length()).nextInt(999999)));
+			}
+			else
+			{
+				viewValue.setDbuuid(p.getDbuuid());
+			}
+				
+			
 
 			// DATA: specify arguments that can be adjusted via sliders in
 			// JavaScript view

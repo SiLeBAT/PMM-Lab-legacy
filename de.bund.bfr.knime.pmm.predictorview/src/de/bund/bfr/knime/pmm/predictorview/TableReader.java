@@ -340,6 +340,7 @@ public class TableReader {
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelName = modelXml.getName();
+			String dbuuid = modelXml.getDbuuid();
 			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
 					.getFormula());
 			String depVar = depXml.getName();
@@ -469,10 +470,11 @@ public class TableReader {
 			longLegend.put(id, index + "");
 			shortIds.put(id, index + "");
 			stringColumns.get(IDENTIFIER).add(index + "");
-			stringColumns.get(Model1Schema.FORMULA).add(modelName);
+//			stringColumns.get(Model1Schema.FORMULA).add(modelName);
+			stringColumns.get(Model1Schema.NAME).add(modelName);
 			stringColumns.get(Model1Schema.ATT_EMLIT).add(literature);
-			stringColumns.get(Model1Schema.NAME).add(
-					((EstModelXml) estModelXml.get(0)).getName());
+//			stringColumns.get(Model1Schema.NAME).add(
+//					((EstModelXml) estModelXml.get(0)).getName());
 			index++;
 
 			if (isTertiaryModel) {
@@ -526,6 +528,8 @@ public class TableReader {
 					((EstModelXml) estModelXml.get(0)).getAic());
 
 			plotable.setFunction(modelXml.getFormula());
+			plotable.setDbuuid(dbuuid);
+			plotable.setModelName(modelName);
 			plotable.setFunctionValue(depVar);
 			plotable.setFunctionArguments(variables);
 			plotable.setMinValue(depXml.getMin());

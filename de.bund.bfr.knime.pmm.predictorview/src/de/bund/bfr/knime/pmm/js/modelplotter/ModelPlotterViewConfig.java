@@ -19,14 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.modelplotter;
 
-import java.util.List;
-import java.util.Map;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-
-import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewValue.Variable;
 
 /**
  * Node configuration data, such as chart title and Y0.
@@ -40,6 +35,9 @@ final class ModelPlotterViewConfig {
 
 	static final String FUNCTION = "function";
 	static final String FUNCTION_FULL = "function.full";
+
+	static final String MODEL_NAME = "modelName";
+	static final String DBUUID = "dbuuid";
 	
 	static final String CONSTANTS_KEYS = "constants.keys";
 	static final String CONSTANTS_VALUES = "constants.values";

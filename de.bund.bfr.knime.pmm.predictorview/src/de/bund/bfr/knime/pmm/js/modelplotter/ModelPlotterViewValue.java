@@ -44,6 +44,10 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	
 	private String chartTitle;
 	
+	private String modelName;
+	
+	private String dbuuid;
+	
 	private double y0;
 	
 	private String function;
@@ -134,6 +138,34 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	 */
 	public void setxUnit(String xUnit) {
 		this.xUnit = xUnit;
+	}
+	
+	/**
+	 * @return the name of the model
+	 */
+	public String getModelName() {
+		return modelName;
+	}
+	
+	/**
+	 * @param the string that is to be set as the name of the model
+	 */
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
+	}
+	
+	/**
+	 * @return the name of the dbuuid
+	 */
+	public String getDbuuid() {
+		return dbuuid;
+	}
+	
+	/**
+	 * @param the string that is to be set as the dbuuid of the model
+	 */
+	public void setDbuuid(String dbuuid) {
+		this.dbuuid = dbuuid;
 	}
 
 	/**
@@ -305,6 +337,8 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		settings.addString(ModelPlotterViewConfig.CHART_TITLE, getChartTitle());
 		settings.addDouble(ModelPlotterViewConfig.Y0, getY0());
 		settings.addString(ModelPlotterViewConfig.FUNCTION, getFunc());
+		settings.addString(ModelPlotterViewConfig.MODEL_NAME, getModelName());
+		settings.addString(ModelPlotterViewConfig.DBUUID, getDbuuid());
 		settings.addString(ModelPlotterViewConfig.FUNCTION_FULL, getFunctionFull());
 		settings.addString(ModelPlotterViewConfig.X_UNIT, getxUnit());
 		settings.addString(ModelPlotterViewConfig.Y_UNIT, getyUnit());
@@ -338,6 +372,8 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		setChartTitle(settings.getString(ModelPlotterViewConfig.CHART_TITLE));
 		setY0(settings.getDouble(ModelPlotterViewConfig.Y0));
 		setFunc(settings.getString(ModelPlotterViewConfig.FUNCTION));
+		setModelName(settings.getString(ModelPlotterViewConfig.MODEL_NAME));
+		setDbuuid(settings.getString(ModelPlotterViewConfig.DBUUID));
 		setFunctionFull(settings.getString(ModelPlotterViewConfig.FUNCTION_FULL));
 		setxUnit(settings.getString(ModelPlotterViewConfig.X_UNIT));
 		setyUnit(settings.getString(ModelPlotterViewConfig.Y_UNIT));

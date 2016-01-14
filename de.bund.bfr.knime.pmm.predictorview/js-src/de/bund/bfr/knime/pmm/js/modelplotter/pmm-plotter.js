@@ -14,7 +14,7 @@ pmm_plotter = function() {
 	var jsxBoard;
 	
 	var globalNumber = 1;
-	var functionObjects = [];
+	var modelObjects = [];
 	var colorsArray = [];
 	
 	var msgAdd = "Hinzufügen";
@@ -27,10 +27,8 @@ pmm_plotter = function() {
 	
 	modelPlotter.init = function(representation, value) {
 
-		//alert(JSON.stringify(representation));
 		plotterValue = value;
 		plotterRep = representation;
-		initFunctionData();
 		
 		var body = document.getElementsByTagName("body")[0];
 		body.setAttribute("style", "background: #fdfdfd; width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
@@ -69,6 +67,8 @@ pmm_plotter = function() {
 		var option0 = document.createElement("option");
 		option0.setAttribute("hidden");
 		option0.setAttribute("disabled");
+		option0.setAttribute("selected");
+		option0.setAttribute("value", "");
 		option0.innerHTML = msgChoose;
 		modelSelectionMenu.appendChild(option0);
 		
@@ -96,8 +96,7 @@ pmm_plotter = function() {
 		addButton.setAttribute("id", "addButton");
 		addButton.setAttribute("style" , buttonWidth);
 		addButton.addEventListener("click", function() { 
-			// this is a test and feature verification function; it is to be removed
-			addFunctionObject("x-" + globalNumber, null); 
+			addFunctionFromSelection(); 
 			});
 		leftWrapper.appendChild(addButton);
 		
@@ -295,13 +294,9 @@ pmm_plotter = function() {
 		}
 	};
 	
-	
-	
 	/*
 	 * new function plot functions
 	 */
-	
-	
 	function prepareFunction(functionString) {
 		// replace "Time" with "x" using regex
 		// gi: global, case-insensitive
@@ -313,28 +308,48 @@ pmm_plotter = function() {
 		plotterValue.constants.Y0 = plotterValue.y0; // set the value from the settings here
 		var functionAsString = prepareFunction(plotterValue.func);
 		var functionConstants = plotterValue.constants;
+		var dbuuid = plotterValue.dbuuid;
 		
-		addFunctionObject(functionAsString, functionConstants);
+		addFunctionObject(dbuuid, functionAsString, functionConstants);
 	}
 	
+	function addFunctionFromSelection()
+	{
+		var selectMenu = document.getElementById("selectModel");
+		var selection = selectMenu.options[selectMenu.selectedIndex].value;
+
+		if(plotterValue.dbuuid == selection)
+		{
+			plotterValue.constants.Y0 = plotterValue.y0; // set the value from the settings here
+			var functionAsString = prepareFunction(plotterValue.func);
+			var functionConstants = plotterValue.constants;
+			var dbuuid = plotterValue.dbuuid;
+			addFunctionObject(dbuuid, functionAsString, functionConstants);
+		}
+		else // to be removed
+		{
+			globalNumber++; 
+			addFunctionObject(globalNumber, "x-" + globalNumber, null);
+		}
+	}
 	/*
 	 * adds a function to the functions array and redraws the plot
 	 */
-	function addFunctionObject(functionAsString, functionConstants)
+	function addFunctionObject(dbuuid, functionAsString, functionConstants)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
-		globalNumber++; // to be removed
 		var maxRange = 100; // obligatoric for the range feature
 		var range = [0, maxRange];
 		
-		var funcObj = {
+		var funcObj = { 
+			 dbuuid: dbuuid,
 			 fn: functionAsString,
 			 scope: functionConstants,
 			 color: color,
 			 range: range,
 			 skipTip: false
 		};
-		functionObjects.push(funcObj);
+		modelObjects.push(funcObj);
 		// update plot after adding new function
 		drawD3Plot();
 	}
@@ -364,7 +379,7 @@ pmm_plotter = function() {
 			      return y;
 				}
 			  },
-			  data: functionObjects
+			  data: modelObjects
 		});
 	}
 	
@@ -372,7 +387,7 @@ pmm_plotter = function() {
 	{
 		// TODO: dynamisches Mappen von Typen zu Gruppen
 		var option = document.createElement("option");
-		option.setAttribute("value", plotterValue.dbuuid);
+		option.setAttribute("value", dbuuid);
 		option.innerHTML = "(" + dbuuid + ") " + modelName;
 		
 		var group = document.getElementById("optGroupA");

@@ -35,6 +35,9 @@ final class ModelPlotterViewConfig {
 
 	static final String FUNCTION = "function";
 	static final String FUNCTION_FULL = "function.full";
+
+	static final String MODEL_NAME = "modelName";
+	static final String DBUUID = "dbuuid";
 	
 	static final String CONSTANTS_KEYS = "constants.keys";
 	static final String CONSTANTS_VALUES = "constants.values";

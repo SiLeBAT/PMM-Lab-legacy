@@ -39,7 +39,7 @@ public class TimeSeriesList {
 		return timeSeries;
 	}
 
-	public void setTimeSeries(TimeSeries[] timeSeries) {
+	public void setTimeSeries(final TimeSeries[] timeSeries) {
 		numTimeSeries = timeSeries.length;
 		this.timeSeries = timeSeries;
 	}
@@ -51,11 +51,15 @@ public class TimeSeriesList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numTimeSeries = settings.getInt(NUM_TIMESERIES);
-		timeSeries = new TimeSeries[numTimeSeries];
-		for (int i = 0; i < numTimeSeries; i++) {
-			timeSeries[i].loadFromNodeSettings(settings.getNodeSettings(TIMESERIES + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numTimeSeries = settings.getInt(NUM_TIMESERIES);
+			timeSeries = new TimeSeries[numTimeSeries];
+			for (int i = 0; i < numTimeSeries; i++) {
+				timeSeries[i] = new TimeSeries();
+				timeSeries[i].loadFromNodeSettings(settings.getNodeSettings(TIMESERIES + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

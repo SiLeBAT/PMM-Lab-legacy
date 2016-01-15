@@ -39,7 +39,7 @@ public class IndepList {
 		return indeps;
 	}
 
-	public void setIndeps(Indep[] indeps) {
+	public void setIndeps(final Indep[] indeps) {
 		numIndeps = indeps.length;
 		this.indeps = indeps;
 	}
@@ -51,11 +51,14 @@ public class IndepList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
 		numIndeps = settings.getInt(NUM_INDEPS);
 		indeps = new Indep[numIndeps];
 		for (int i = 0; i < numIndeps; i++) {
+			indeps[i] = new Indep();
 			indeps[i].loadFromNodeSettings(settings.getNodeSettings(INDEPS + i));
 		}
+		} catch (InvalidSettingsException e) { }
 	}
 }

@@ -6,6 +6,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.base.Strings;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -29,25 +30,25 @@ public class Model1DataTuple implements ViewValue {
 	private static final String EMLIT = "EM_Literatur";
 	private static final String DATABASEWRITABLE = "DatabaseWritable";
 
-	private int condId;
+	private Integer condId;
 	private String combaseId;
-	private Agent agent;
-	private Matrix matrix;
-	private TimeSeriesList timeSeriesList;
-	private MiscList miscList;
-	private MdInfo mdInfo;
-	private LiteratureList litMd;
+	private Agent agent = new Agent();
+	private Matrix matrix = new Matrix();
+	private TimeSeriesList timeSeriesList = new TimeSeriesList();
+	private MiscList miscList = new MiscList();
+	private MdInfo mdInfo = new MdInfo();
+	private LiteratureList litMd = new LiteratureList();
 	private String dbuuid;
-	private CatalogModel catModel;
-	private EstModel estModel;
-	private Dep dep;
-	private ParamList params;
-	private IndepList indeps;
-	private LiteratureList mLit;
-	private LiteratureList emLit;
-	private boolean databaseWritable;
+	private CatalogModel catModel = new CatalogModel();
+	private EstModel estModel = new EstModel();
+	private Dep dep = new Dep();
+	private ParamList params = new ParamList();
+	private IndepList indeps = new IndepList();
+	private LiteratureList mLit = new LiteratureList();
+	private LiteratureList emLit = new LiteratureList();
+	private Boolean databaseWritable;
 
-	public int getCondId() {
+	public Integer getCondId() {
 		return condId;
 	}
 
@@ -111,89 +112,89 @@ public class Model1DataTuple implements ViewValue {
 		return emLit;
 	}
 
-	public boolean isDatabaseWritable() {
+	public Boolean isDatabaseWritable() {
 		return databaseWritable;
 	}
 
-	public void setCondId(int condId) {
+	public void setCondId(final Integer condId) {
 		this.condId = condId;
 	}
 
-	public void setCombaseId(String combaseId) {
-		this.combaseId = combaseId;
+	public void setCombaseId(final String combaseId) {
+		this.combaseId = Strings.emptyToNull(combaseId);
 	}
 
-	public void setAgent(Agent agent) {
+	public void setAgent(final Agent agent) {
 		this.agent = agent;
 	}
 
-	public void setMatrix(Matrix matrix) {
+	public void setMatrix(final Matrix matrix) {
 		this.matrix = matrix;
 	}
 
-	public void setTimeSeriesList(TimeSeriesList timeSeriesList) {
+	public void setTimeSeriesList(final TimeSeriesList timeSeriesList) {
 		this.timeSeriesList = timeSeriesList;
 	}
 
-	public void setMiscList(MiscList miscList) {
+	public void setMiscList(final MiscList miscList) {
 		this.miscList = miscList;
 	}
 
-	public void setMdInfo(MdInfo mdInfo) {
+	public void setMdInfo(final MdInfo mdInfo) {
 		this.mdInfo = mdInfo;
 	}
 
-	public void setLitMd(LiteratureList litMd) {
+	public void setLitMd(final LiteratureList litMd) {
 		this.litMd = litMd;
 	}
 
-	public void setDbuuid(String dbuuid) {
-		this.dbuuid = dbuuid;
+	public void setDbuuid(final String dbuuid) {
+		this.dbuuid = Strings.emptyToNull(dbuuid);
 	}
 
-	public void setCatModel(CatalogModel catModel) {
+	public void setCatModel(final CatalogModel catModel) {
 		this.catModel = catModel;
 	}
 
-	public void setEstModel(EstModel estModel) {
+	public void setEstModel(final EstModel estModel) {
 		this.estModel = estModel;
 	}
 
-	public void setDep(Dep dep) {
+	public void setDep(final Dep dep) {
 		this.dep = dep;
 	}
 
-	public void setParams(ParamList params) {
+	public void setParams(final ParamList params) {
 		this.params = params;
 	}
 
-	public void setIndeps(IndepList indeps) {
+	public void setIndeps(final IndepList indeps) {
 		this.indeps = indeps;
 	}
 
-	public void setmLit(LiteratureList mLit) {
+	public void setmLit(final LiteratureList mLit) {
 		this.mLit = mLit;
 	}
 
-	public void setEmLit(LiteratureList emLit) {
+	public void setEmLit(final LiteratureList emLit) {
 		this.emLit = emLit;
 	}
 
-	public void setDatabaseWritable(boolean databaseWritable) {
+	public void setDatabaseWritable(final Boolean databaseWritable) {
 		this.databaseWritable = databaseWritable;
 	}
 
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		settings.addInt(CONDID, condId);
-		settings.addString(COMBASEID, combaseId);
+		SettingsHelper.addInt(CONDID, condId, settings);
+		SettingsHelper.addString(COMBASEID, combaseId, settings);
 		agent.saveToNodeSettings(settings.addNodeSettings(AGENT));
 		matrix.saveToNodeSettings(settings.addNodeSettings(MATRIX));
 		timeSeriesList.saveToNodeSettings(settings.addNodeSettings(TIMESERIES));
 		miscList.saveToNodeSettings(settings.addNodeSettings(MISC));
 		mdInfo.saveToNodeSettings(settings.addNodeSettings(MDINFO));
 		litMd.saveToNodeSettings(settings.addNodeSettings(LITMD));
-		settings.addString(DBUUID, dbuuid);
+		SettingsHelper.addString(DBUUID, dbuuid, settings);
 		catModel.saveToNodeSettings(settings.addNodeSettings(MODELCATALOG));
 		estModel.saveToNodeSettings(settings.addNodeSettings(ESTMODEL));
 		dep.saveToNodeSettings(settings.addNodeSettings(DEPENDENT));
@@ -201,20 +202,20 @@ public class Model1DataTuple implements ViewValue {
 		indeps.saveToNodeSettings(settings.addNodeSettings(INDEPENDENT));
 		mLit.saveToNodeSettings(settings.addNodeSettings(MLIT));
 		emLit.saveToNodeSettings(settings.addNodeSettings(EMLIT));
-		settings.addBoolean(DATABASEWRITABLE, databaseWritable);
+		SettingsHelper.addBoolean(DATABASEWRITABLE, databaseWritable, settings);
 	}
 
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		condId = settings.getInt(CONDID);
-		combaseId = settings.getString(AGENT);
+		condId = SettingsHelper.getInteger(CONDID, settings);
+		combaseId = SettingsHelper.getString(COMBASEID, settings);
 		agent.loadFromNodeSettings(settings.getNodeSettings(AGENT));
 		matrix.loadFromNodeSettings(settings.getNodeSettings(MATRIX));
 		timeSeriesList.loadFromNodeSettings(settings.getNodeSettings(TIMESERIES));
 		miscList.loadFromNodeSettings(settings.getNodeSettings(MISC));
 		mdInfo.loadFromNodeSettings(settings.getNodeSettings(MDINFO));
 		litMd.loadFromNodeSettings(settings.getNodeSettings(LITMD));
-		dbuuid = settings.getString(DBUUID);
+		dbuuid = SettingsHelper.getString(DBUUID, settings);
 		catModel.loadFromNodeSettings(settings.getNodeSettings(MODELCATALOG));
 		estModel.loadFromNodeSettings(settings.getNodeSettings(ESTMODEL));
 		dep.loadFromNodeSettings(settings.getNodeSettings(DEPENDENT));
@@ -222,6 +223,6 @@ public class Model1DataTuple implements ViewValue {
 		indeps.loadFromNodeSettings(settings.getNodeSettings(INDEPENDENT));
 		mLit.loadFromNodeSettings(settings.getNodeSettings(MLIT));
 		emLit.loadFromNodeSettings(settings.getNodeSettings(EMLIT));
-		databaseWritable = settings.getBoolean(DATABASEWRITABLE);
+		databaseWritable = SettingsHelper.getBoolean(DATABASEWRITABLE, settings);
 	}
 }

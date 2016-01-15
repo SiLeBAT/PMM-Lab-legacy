@@ -115,174 +115,99 @@ public class TimeSeries implements ViewValue {
 		return numberOfMeasurements;
 	}
 
-	/** Sets the name value with 'name'. Ignores null and empty. */
-	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+	/** Sets the name value with 'name'. Converts empty strings to null. */
+	public void setName(final String name) {
+		this.name = Strings.emptyToNull(name);
 	}
 
 	/** Sets the time value with 'time'. */
-	public void setTime(Double time) {
-		if (time != null) {
-			this.time = time;
-		}
+	public void setTime(final Double time) {
+		this.time = time;
 	}
 
-	/** Sets the time unit with 'timeUnit'. Ignores null and empty. */
-	public void setTimeUnit(String timeUnit) {
-		if (!Strings.isNullOrEmpty(timeUnit)) {
-			this.timeUnit = timeUnit;
-		}
+	/** Sets the time unit with 'timeUnit'. Converts empty strings to null. */
+	public void setTimeUnit(final String timeUnit) {
+		this.timeUnit = Strings.emptyToNull(timeUnit);
 	}
 
 	/**
-	 * Sets the original time unit with 'origTimeUnit'. Ignores null and empty.
+	 * Sets the original time unit with 'origTimeUnit'. Converts empty strings
+	 * to null.
 	 */
-	public void setOrigTimeUnit(String origTimeUnit) {
-		if (!Strings.isNullOrEmpty(origTimeUnit)) {
-			this.origTimeUnit = origTimeUnit;
-		}
+	public void setOrigTimeUnit(final String origTimeUnit) {
+		this.origTimeUnit = Strings.emptyToNull(origTimeUnit);
 	}
 
 	/** Sets the concentration with 'concentration'. */
-	public void setConcentration(Double concentration) {
-		if (concentration != null) {
-			this.concentration = concentration;
-		}
+	public void setConcentration(final Double concentration) {
+		this.concentration = concentration;
 	}
 
 	/**
-	 * Sets the concentration unit with 'concentrationUnit'. Ignores null and
-	 * empty.
+	 * Sets the concentration unit with 'concentrationUnit'. Converts empty
+	 * strings to null.
 	 */
-	public void setConcentrationUnit(String concentrationUnit) {
-		if (!Strings.isNullOrEmpty(concentrationUnit)) {
-			this.concentrationUnit = concentrationUnit;
-		}
+	public void setConcentrationUnit(final String concentrationUnit) {
+		this.concentrationUnit = Strings.emptyToNull(concentrationUnit);
 	}
 
 	/**
 	 * Sets the concentrationUnitObjectType with 'concentrationUnitObjectType'.
-	 * Ignores null and empty.
+	 * Converts empty strings to null.
 	 */
-	public void setConcentrationUnitObjectType(String concentrationUnitObjectType) {
-		if (!Strings.isNullOrEmpty(concentrationUnitObjectType)) {
-			this.concentrationUnitObjectType = concentrationUnitObjectType;
-		}
+	public void setConcentrationUnitObjectType(final String concentrationUnitObjectType) {
+		this.concentrationUnitObjectType = Strings.emptyToNull(concentrationUnitObjectType);
 	}
 
 	/**
-	 * Sets the origConcentrationUnit with 'origConcentrationUnit'. Ignores null
-	 * and empty.
+	 * Sets the origConcentrationUnit with 'origConcentrationUnit'. Converts
+	 * empty strings to null.
 	 */
-	public void setOrigConcentrationUnit(String origConcentrationUnit) {
-		if (!Strings.isNullOrEmpty(origConcentrationUnit)) {
-			this.origConcentrationUnit = origConcentrationUnit;
-		}
+	public void setOrigConcentrationUnit(final String origConcentrationUnit) {
+		this.origConcentrationUnit = Strings.emptyToNull(origConcentrationUnit);
 	}
 
 	/** Sets the concentration std dev with 'concentrationStdDev'. */
-	public void setConcentrationStdDev(Double concentrationStdDev) {
-		if (concentrationStdDev != null) {
-			this.concentrationStdDev = concentrationStdDev;
-		}
+	public void setConcentrationStdDev(final Double concentrationStdDev) {
+		this.concentrationStdDev = concentrationStdDev;
 	}
 
 	/** Sets the number of measurements with 'numberOfMeasurements'. */
-	public void setNumberOfMeasurements(Integer numberOfMeasurements) {
-		if (numberOfMeasurements != null) {
-			this.numberOfMeasurements = numberOfMeasurements;
-
-		}
+	public void setNumberOfMeasurements(final Integer numberOfMeasurements) {
+		this.numberOfMeasurements = numberOfMeasurements;
 	}
 
 	/** Saves time series properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(final NodeSettingsWO settings) {
-		if (name != null) {
-			settings.addString(NAME, name);
-		}
-		if (time != null) {
-			settings.addDouble(TIME, time);
-		}
-		if (timeUnit != null) {
-			settings.addString(TIME_UNIT, timeUnit);
-		}
-		if (origTimeUnit != null) {
-			settings.addString(ORIG_TIME_UNIT, origTimeUnit);
-		}
-		if (concentration != null) {
-			settings.addDouble(CONCENTRATION, concentration);
-		}
-		if (concentrationUnit != null) {
-			settings.addString(CONCENTRATION_UNIT, concentrationUnit);
-		}
-		if (concentrationUnitObjectType != null) {
-			settings.addString(CONCENTRATION_UNIT_OBJECT_TYPE, concentrationUnitObjectType);
-		}
-		if (origConcentrationUnit != null) {
-			settings.addString(ORIG_CONCENTRATION_UNIT, origConcentrationUnit);
-		}
-		if (concentrationStdDev != null) {
-			settings.addDouble(CONCENTRATION_STDDEV, concentrationStdDev);
-		}
-		if (numberOfMeasurements != null) {
-			settings.addInt(NUMBER_OF_MEASUREMENTS, numberOfMeasurements);
-		}
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addDouble(TIME, time, settings);
+		SettingsHelper.addString(TIME_UNIT, timeUnit, settings);
+		SettingsHelper.addString(ORIG_TIME_UNIT, origTimeUnit, settings);
+		SettingsHelper.addString(ORIG_CONCENTRATION_UNIT, origTimeUnit, settings);
+		SettingsHelper.addDouble(CONCENTRATION, concentration, settings);
+		SettingsHelper.addString(CONCENTRATION_UNIT, concentrationUnit, settings);
+		SettingsHelper.addString(CONCENTRATION_UNIT_OBJECT_TYPE, concentrationUnitObjectType, settings);
+		SettingsHelper.addString(ORIG_CONCENTRATION_UNIT, origConcentrationUnit, settings);
+		SettingsHelper.addDouble(CONCENTRATION_STDDEV, concentrationStdDev, settings);
+		SettingsHelper.addInt(NUMBER_OF_MEASUREMENTS, numberOfMeasurements, settings);
 	}
 
-	/** Loads time series properties from a {@link NodeSettingsRO}. */
+	/**
+	 * Loads time series properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			time = settings.getDouble(TIME);
-		} catch (InvalidSettingsException e) {
-			time = null;
-		}
-		try {
-			timeUnit = settings.getString(TIME_UNIT);
-		} catch (InvalidSettingsException e) {
-			timeUnit = null;
-		}
-		try {
-			origTimeUnit = settings.getString(ORIG_TIME_UNIT);
-		} catch (InvalidSettingsException e) {
-			origTimeUnit = null;
-		}
-		try {
-			concentration = settings.getDouble(CONCENTRATION);
-		} catch (InvalidSettingsException e) {
-			concentration = null;
-		}
-		try {
-			concentrationUnit = settings.getString(CONCENTRATION_UNIT);
-		} catch (InvalidSettingsException e) {
-			concentrationUnit = null;
-		}
-		try {
-			concentrationUnitObjectType = settings.getString(CONCENTRATION_UNIT_OBJECT_TYPE);
-		} catch (InvalidSettingsException e) {
-			concentrationUnitObjectType = null;
-		}
-		try {
-			origConcentrationUnit = settings.getString(ORIG_CONCENTRATION_UNIT);
-		} catch (InvalidSettingsException e) {
-			origConcentrationUnit = null;
-		}
-		try {
-			concentrationStdDev = settings.getDouble(CONCENTRATION_STDDEV);
-		} catch (InvalidSettingsException e) {
-			concentrationStdDev = null;
-		}
-		try {
-			numberOfMeasurements = settings.getInt(NUMBER_OF_MEASUREMENTS);
-		} catch (InvalidSettingsException e) {
-			numberOfMeasurements = null;
-		}
+		name = SettingsHelper.getString(NAME, settings);
+		time = SettingsHelper.getDouble(TIME, settings);
+		timeUnit = SettingsHelper.getString(TIME_UNIT, settings);
+		origTimeUnit = SettingsHelper.getString(ORIG_TIME_UNIT, settings);
+		concentration = SettingsHelper.getDouble(CONCENTRATION, settings);
+		concentrationUnit = SettingsHelper.getString(CONCENTRATION_UNIT, settings);
+		concentrationUnitObjectType = SettingsHelper.getString(CONCENTRATION_UNIT_OBJECT_TYPE, settings);
+		origConcentrationUnit = SettingsHelper.getString(ORIG_CONCENTRATION_UNIT, settings);
+		concentrationStdDev = SettingsHelper.getDouble(CONCENTRATION_STDDEV, settings);
+		numberOfMeasurements = SettingsHelper.getInteger(NUMBER_OF_MEASUREMENTS, settings);
 	}
 
 	/** Creates a {@link TimeSeriesXml} from this {@link TimeSeries}. */

@@ -66,88 +66,49 @@ public class MdInfo implements ViewValue {
 	}
 
 	/** Sets the id value with 'id'. */
-	public void setId(Integer id) {
-		if (id != null) {
-			this.id = id;
-		}
+	public void setId(final Integer id) {
+		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Ignores null and empty strings. */
-	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+	/** Sets the name value with 'name'. Converts empty strings to null. */
+	public void setName(final String name) {
+		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the comment value with 'comment'. Ignores null and empty strings.
+	 * Sets the comment value with 'comment'. Converts empty strings to null.
 	 */
-	public void setComment(String comment) {
-		if (!Strings.isNullOrEmpty(comment)) {
-			this.comment = comment;
-		}
+	public void setComment(final String comment) {
+		this.comment = Strings.emptyToNull(comment);
 	}
 
 	/** Sets the quality score with 'qualityScore'. */
-	public void setQualityScore(Integer qualityScore) {
-		if (qualityScore != null) {
-			this.qualityScore = qualityScore;
-		}
+	public void setQualityScore(final Integer qualityScore) {
+		this.qualityScore = qualityScore;
 	}
 
 	/** Sets the checked value with 'checked'. */
-	public void setChecked(Boolean checked) {
-		if (checked != null) {
-			this.checked = checked;
-		}
+	public void setChecked(final Boolean checked) {
+		this.checked = checked;
 	}
 
 	/** Saves model info properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (id != null) {
-			settings.addInt(ID, id);
-		}
-		if (name != null) {
-			settings.addString(NAME, name);
-		}
-		if (comment != null) {
-			settings.addString(COMMENT, comment);
-		}
-		if (qualityScore != null) {
-			settings.addInt(QUALITYSCORE, qualityScore);
-		}
-		if (checked != null) {
-			settings.addBoolean(CHECKED, checked);
-		}
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addString(COMMENT, comment, settings);
+		SettingsHelper.addInt(QUALITYSCORE, qualityScore, settings);
+		SettingsHelper.addBoolean(CHECKED, checked, settings);
 	}
 
-	/** Loads model info properties from a {@link NodeSettingsRO}. */
+	/** Loads model info properties from a {@link NodeSettingsRO}. 
+	 * @throws InvalidSettingsException */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			comment = settings.getString(COMMENT);
-		} catch (InvalidSettingsException e) {
-			comment = null;
-		}
-		try {
-			qualityScore = settings.getInt(QUALITYSCORE);
-		} catch (InvalidSettingsException e) {
-			qualityScore = null;
-		}
-		try {
-			checked = settings.getBoolean(CHECKED);
-		} catch (InvalidSettingsException e) {
-			checked = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		name = SettingsHelper.getString(NAME, settings);
+		comment = SettingsHelper.getString(COMMENT, settings);
+		qualityScore = SettingsHelper.getInteger(QUALITYSCORE, settings);
+		checked = SettingsHelper.getBoolean(CHECKED, settings);
 	}
 
 	/** Creates an {@link MdInfoXml} from this {@link MdInfo}. */

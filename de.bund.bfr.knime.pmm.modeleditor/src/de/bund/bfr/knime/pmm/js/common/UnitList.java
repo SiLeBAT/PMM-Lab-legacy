@@ -51,11 +51,15 @@ public class UnitList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numUnits = settings.getInt(NUM_UNITS);
-		units = new Unit[numUnits];
-		for (int i = 0; i < numUnits; i++) {
-			units[i].loadFromNodeSettings(settings.getNodeSettings(UNITS + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numUnits = settings.getInt(NUM_UNITS);
+			units = new Unit[numUnits];
+			for (int i = 0; i < numUnits; i++) {
+				units[i] = new Unit();
+				units[i].loadFromNodeSettings(settings.getNodeSettings(UNITS + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

@@ -51,11 +51,15 @@ public class MatrixList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numMatrices = settings.getInt(NUM_MATRICES);
-		matrices = new Matrix[numMatrices];
-		for (int i = 0; i < numMatrices; i++) {
-			matrices[i].loadFromNodeSettings(settings.getNodeSettings(MATRICES + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numMatrices = settings.getInt(NUM_MATRICES);
+			matrices = new Matrix[numMatrices];
+			for (int i = 0; i < numMatrices; i++) {
+				matrices[i] = new Matrix();
+				matrices[i].loadFromNodeSettings(settings.getNodeSettings(MATRICES + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

@@ -39,23 +39,26 @@ public class LiteratureList {
 		return literature;
 	}
 
-	public void setLiterature(Literature[] literature) {
+	public void setLiterature(final Literature[] literature) {
 		numLiterature = literature.length;
 		this.literature = literature;
 	}
 
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		settings.addInt(NUM_LITERATURE, numLiterature);
+		SettingsHelper.addInt(NUM_LITERATURE, numLiterature, settings);
 		for (int i = 0; i < numLiterature; i++) {
 			literature[i].saveToNodeSettings(settings.addNodeSettings(LITERATURE + i));
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
 		numLiterature = settings.getInt(NUM_LITERATURE);
 		literature = new Literature[numLiterature];
 		for (int i = 0; i < numLiterature; i++) {
+			literature[i] = new Literature();
 			literature[i].loadFromNodeSettings(settings.getNodeSettings(LITERATURE + i));
 		}
+		} catch (InvalidSettingsException e) {}
 	}
 }

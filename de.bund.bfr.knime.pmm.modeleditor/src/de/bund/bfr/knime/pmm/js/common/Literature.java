@@ -1,6 +1,5 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -177,212 +176,114 @@ public class Literature implements ViewValue {
 	}
 
 	/** Sets the id value with 'id'. */
-	public void setId(Integer id) {
-		if (id != null) {
-			this.id = id;
-		}
+	public void setId(final Integer id) {
+		this.id = id;
 	}
 
-	/** Sets the author value with 'author'. Ignores null and empty strings. */
-	public void setAuthor(String author) {
-		if (!Strings.isNullOrEmpty(author)) {
-			this.author = author;
-		}
+	/** Sets the author value with 'author'. Converts empty strings to null. */
+	public void setAuthor(final String author) {
+		this.author = Strings.emptyToNull(author);
 	}
 
-	/** Sets the title value with 'title'. Ignores null and empty strings. */
-	public void setTitle(String title) {
-		if (!Strings.isNullOrEmpty(title)) {
-			this.title = title;
-		}
+	/** Sets the title value with 'title'. Converts empty strings to null. */
+	public void setTitle(final String title) {
+		this.title = Strings.emptyToNull(title);
 	}
 
 	/**
-	 * Sets the abstract text with 'abstractText'. Ignores null and empty
-	 * strings.
+	 * Sets the abstract text with 'abstractText'. Converts empty strings to
+	 * null.
 	 */
-	public void setAbstractText(String abstractText) {
-		if (!Strings.isNullOrEmpty(abstractText)) {
-			this.abstractText = abstractText;
-		}
+	public void setAbstractText(final String abstractText) {
+		this.abstractText = Strings.emptyToNull(abstractText);
 	}
 
 	/** Sets the year value with 'year'. */
-	public void setYear(Integer year) {
-		if (year != null) {
-			this.year = year;
-		}
+	public void setYear(final Integer year) {
+		this.year = year;
 	}
 
 	/**
-	 * Sets the journal value with 'journal'. Ignores null and empty strings.
+	 * Sets the journal value with 'journal'. Converts empty strings to null.
 	 */
-	public void setJournal(String journal) {
-		if (!Strings.isNullOrEmpty(journal)) {
-			this.journal = journal;
-		}
+	public void setJournal(final String journal) {
+		this.journal = Strings.emptyToNull(journal);
 	}
 
-	/** Sets the volume value with 'volume'. Ignores null and empty strings. */
-	public void setVolume(String volume) {
-		if (!Strings.isNullOrEmpty(volume)) {
-			this.volume = volume;
-		}
+	/** Sets the volume value with 'volume'. Converts empty strings to null. */
+	public void setVolume(final String volume) {
+		this.volume = Strings.emptyToNull(volume);
 	}
 
-	/** Sets the issue value with 'issue'. Ignores null and empty strings. */
-	public void setIssue(String issue) {
-		if (!Strings.isNullOrEmpty(issue)) {
-			this.issue = issue;
-		}
+	/** Sets the issue value with 'issue'. Converts empty strings to null. */
+	public void setIssue(final String issue) {
+		this.issue = Strings.emptyToNull(issue);
 	}
 
 	/** Sets the page value with 'page'. */
-	public void setPage(Integer page) {
-		if (page != null) {
-			this.page = page;
-		}
+	public void setPage(final Integer page) {
+		this.page = page;
 	}
 
 	/** Set the approval mode value with 'approvalMode'. */
-	public void setApprovalMode(Integer approvalMode) {
-		if (approvalMode != null) {
-			this.approvalMode = approvalMode;
-		}
+	public void setApprovalMode(final Integer approvalMode) {
+		this.approvalMode = approvalMode;
 	}
 
 	/**
-	 * Sets the website value with 'website'. Ignores null and empty strings.
+	 * Sets the website value with 'website'. Converts empty strings to null.
 	 */
-	public void setWebsite(String website) {
-		if (!Strings.isNullOrEmpty(website)) {
-			this.website = website;
-		}
+	public void setWebsite(final String website) {
+		this.website = Strings.emptyToNull(website);
 	}
 
 	/** Sets the type value with 'type'. */
-	public void setType(Integer type) {
-		if (type != null) {
-			this.type = type;
-		}
+	public void setType(final Integer type) {
+		this.type = type;
 	}
 
-	/** Sets the comment with 'comment'. */
-	public void setComment(String comment) {
-		if (!Strings.isNullOrEmpty(comment)) {
-			this.comment = comment;
-		}
+	/** Sets the comment with 'comment'. Converts empty strings to null. */
+	public void setComment(final String comment) {
+		this.comment = Strings.emptyToNull(comment);
 	}
 
-	/** Sets the dbuuid with 'dbuuid'. */
-	public void setDbuuid(String dbuuid) {
-		if (!Strings.isNullOrEmpty(dbuuid)) {
-			this.dbuuid = dbuuid;
-		}
+	/** Sets the dbuuid with 'dbuuid'. Converts empty strings to null. */
+	public void setDbuuid(final String dbuuid) {
+		this.dbuuid = Strings.emptyToNull(dbuuid);
 	}
 
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (id != null)
-			settings.addInt(ID, id);
-		if (author != null)
-			settings.addString(AUTHOR, author);
-		if (title != null)
-			settings.addString(TITLE, title);
-		if (abstractText != null)
-			settings.addString(ABSTRACT, abstractText);
-		if (year != null)
-			settings.addInt(YEAR, year);
-		if (journal != null)
-			settings.addString(JOURNAL, journal);
-		if (volume != null)
-			settings.addString(VOLUME, volume);
-		if (issue != null)
-			settings.addString(ISSUE, issue);
-		if (page != null)
-			settings.addInt(PAGE, page);
-		if (approvalMode != null)
-			settings.addInt(APPROVAL_MODE, approvalMode);
-		if (website != null)
-			settings.addString(WEBSITE, website);
-		if (type != null)
-			settings.addInt(TYPE, type);
-		if (comment != null)
-			settings.addString(COMMENT, comment);
-		if (dbuuid != null)
-			settings.addString(DBUUID, dbuuid);
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(AUTHOR, author, settings);
+		SettingsHelper.addString(TITLE, title, settings);
+		SettingsHelper.addString(ABSTRACT, abstractText, settings);
+		SettingsHelper.addInt(YEAR, year, settings);
+		SettingsHelper.addString(JOURNAL, journal, settings);
+		SettingsHelper.addString(VOLUME, volume, settings);
+		SettingsHelper.addString(ISSUE, issue, settings);
+		SettingsHelper.addInt(PAGE, page, settings);
+		SettingsHelper.addInt(APPROVAL_MODE, approvalMode, settings);
+		SettingsHelper.addString(WEBSITE, website, settings);
+		SettingsHelper.addInt(TYPE, type, settings);
+		SettingsHelper.addString(COMMENT, comment, settings);
+		SettingsHelper.addString(DBUUID, dbuuid, settings);
 	}
 
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-		try {
-			author = settings.getString(AUTHOR);
-		} catch (InvalidSettingsException e) {
-			author = null;
-		}
-		try {
-			title = settings.getString(TITLE);
-		} catch (InvalidSettingsException e) {
-			title = null;
-		}
-		try {
-			abstractText = settings.getString(ABSTRACT);
-		} catch (InvalidSettingsException e) {
-			abstractText = null;
-		}
-		try {
-			year = settings.getInt(YEAR);
-		} catch (InvalidSettingsException e) {
-			year = null;
-		}
-		try {
-			journal = settings.getString(JOURNAL);
-		} catch (InvalidSettingsException e) {
-			journal = null;
-		}
-		try {
-			volume = settings.getString(VOLUME);
-		} catch (InvalidSettingsException e) {
-			volume = null;
-		}
-		try {
-			issue = settings.getString(ISSUE);
-		} catch (InvalidSettingsException e) {
-			issue = null;
-		}
-		try {
-			page = settings.getInt(PAGE);
-		} catch (InvalidSettingsException e) {
-			page = null;
-		}
-		try {
-			approvalMode = settings.getInt(APPROVAL_MODE);
-		} catch (InvalidSettingsException e) {
-			approvalMode = null;
-		}
-		try {
-			website = settings.getString(WEBSITE);
-		} catch (InvalidSettingsException e) {
-			website = null;
-		}
-		try {
-			type = settings.getInt(TYPE);
-		} catch (InvalidSettingsException e) {
-			type = null;
-		}
-		try {
-			comment = settings.getString(COMMENT);
-		} catch (InvalidSettingsException e) {
-			comment = null;
-		}
-		try {
-			dbuuid = settings.getString(DBUUID);
-		} catch (InvalidSettingsException e) {
-			dbuuid = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		author = SettingsHelper.getString(AUTHOR, settings);
+		title = SettingsHelper.getString(TITLE, settings);
+		abstractText = SettingsHelper.getString(ABSTRACT, settings);
+		year = SettingsHelper.getInteger(YEAR, settings);
+		journal = SettingsHelper.getString(JOURNAL, settings);
+		volume = SettingsHelper.getString(VOLUME, settings);
+		issue = SettingsHelper.getString(ISSUE, settings);
+		page = SettingsHelper.getInteger(PAGE, settings);
+		approvalMode = SettingsHelper.getInteger(APPROVAL_MODE, settings);
+		website = SettingsHelper.getString(WEBSITE, settings);
+		type = SettingsHelper.getInteger(TYPE, settings);
+		comment = SettingsHelper.getString(COMMENT, settings);
+		dbuuid = SettingsHelper.getString(DBUUID, settings);
 	}
 
 	/** Creates an {@link LiteratureItem} from this {@link Literature}. */

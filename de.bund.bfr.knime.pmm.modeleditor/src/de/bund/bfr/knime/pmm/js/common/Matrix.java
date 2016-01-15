@@ -75,70 +75,42 @@ public class Matrix implements ViewValue {
 
 	/** Sets the id value with 'id'. */
 	public void setId(Integer id) {
-		if (id != null) {
-			this.id = id;
-		}
+		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. */
+	/** Sets the name value with 'name'. Converts empty strings to null. */
 	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+		this.name = Strings.emptyToNull(name);
 	}
 
-	/** Sets the detail value with 'detail'. Ignores null and empty strings. */
+	/** Sets the detail value with 'detail'. Converts empty strings to null. */
 	public void setDetail(String detail) {
-		if (!Strings.isNullOrEmpty(detail)) {
-			this.detail = detail;
-		}
+		this.detail = Strings.emptyToNull(detail);
 	}
 
-	/** Sets the dbuuid value with 'dbuuid'. Ignores null and empty strings. */
+	/** Sets the dbuuid value with 'dbuuid'. Converts empty strings to null. */
 	public void setDbuuid(String dbuuid) {
-		if (!Strings.isNullOrEmpty(dbuuid)) {
-			this.dbuuid = dbuuid;
-		}
+		this.dbuuid = Strings.emptyToNull(dbuuid);
 	}
 
 	/** Saves matrix properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (id != null) {
-			settings.addInt(ID, id);
-		}
-		if (name != null) {
-			settings.addString(NAME, name);
-		}
-		if (detail != null) {
-			settings.addString(DETAIL, detail);
-		}
-		if (dbuuid != null) {
-			settings.addString(DBUUID, dbuuid);
-		}
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addString(DETAIL, detail, settings);
+		SettingsHelper.addString(DBUUID, dbuuid, settings);
 	}
 
-	/** Loads matrix properties from a {@link NodeSettingsRO}. */
+	/**
+	 * Loads matrix properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			detail = settings.getString(DETAIL);
-		} catch (InvalidSettingsException e) {
-			detail = null;
-		}
-		try {
-			dbuuid = settings.getString(DBUUID);
-		} catch (InvalidSettingsException e) {
-			dbuuid = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		name = SettingsHelper.getString(NAME, settings);
+		detail = settings.getString(DETAIL, detail);
+		dbuuid = settings.getString(DBUUID, dbuuid);
 	}
 
 	/** Creates an {@link MatrixXml} from this {@link Matrix}. */

@@ -88,124 +88,72 @@ public class Dep implements ViewValue {
 		return description;
 	}
 
-	/** Sets the name value with 'name'. Ignores null and empty values. */
-	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+	/** Sets the name value with 'name'. Converts empty strings to null. */
+	public void setName(final String name) {
+		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the origname value with 'origname'. Ignores null and empty values.
+	 * Sets the origname value with 'origname'. Converts empty strings to null.
 	 */
-	public void setOrigname(String origname) {
-		if (!Strings.isNullOrEmpty(origname)) {
-			this.origname = origname;
-		}
+	public void setOrigname(final String origname) {
+		this.origname = Strings.emptyToNull(origname);
 	}
 
 	/** Sets the min value with 'min'. */
-	public void setMin(Double min) {
-		if (min != null) {
-			this.min = min;
-		}
+	public void setMin(final Double min) {
+		this.min = min;
 	}
 
 	/** Sets the max value with 'max'. */
-	public void setMax(Double max) {
-		if (max != null) {
-			this.max = max;
-		}
+	public void setMax(final Double max) {
+		this.max = max;
 	}
 
 	/**
-	 * Sets the category value with 'category'. Ignores null and empty values.
+	 * Sets the category value with 'category'. Converts empty strings to null.
 	 */
-	public void setCategory(String category) {
-		if (!Strings.isNullOrEmpty(category)) {
-			this.category = category;
-		}
+	public void setCategory(final String category) {
+		this.category = Strings.emptyToNull(category);
 	}
 
-	/** Sets the unit value with 'unit'. Ignores null and empty values. */
-	public void setUnit(String unit) {
-		if (!Strings.isNullOrEmpty(unit)) {
-			this.unit = unit;
-		}
+	/** Sets the unit value with 'unit'. Converts empty strings to null. */
+	public void setUnit(final String unit) {
+		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the description value with 'description'. Ignores null and empty
-	 * values.
+	 * Sets the description value with 'description'. Converts empty strings to
+	 * null.
 	 */
-	public void setDescription(String description) {
-		if (!Strings.isNullOrEmpty(description)) {
-			this.description = description;
-		}
+	public void setDescription(final String description) {
+		this.description = description.isEmpty() ? null : description;
 	}
 
 	/** Saves dep properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (name != null) {
-			settings.addString(NAME, name);
-		}
-		if (origname != null) {
-			settings.addString(ORIGNAME, origname);
-		}
-		if (min != null) {
-			settings.addDouble(MIN, min);
-		}
-		if (max != null) {
-			settings.addDouble(MAX, max);
-		}
-		if (category != null) {
-			settings.addString(CATEGORY, category);
-		}
-		if (unit != null) {
-			settings.addString(UNIT, unit);
-		}
-		if (description != null) {
-			settings.addString(DESCRIPTION, description);
-		}
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addString(ORIGNAME, origname, settings);
+		SettingsHelper.addDouble(MIN, min, settings);
+		SettingsHelper.addDouble(MAX, max, settings);
+		SettingsHelper.addString(CATEGORY, category, settings);
+		SettingsHelper.addString(UNIT, unit, settings);
+		SettingsHelper.addString(DESCRIPTION, description, settings);
 	}
 
-	/** Loads dep properties from a {@link NodeSettingsRO}. */
+	/**
+	 * Loads dep properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			origname = settings.getString(ORIGNAME);
-		} catch (InvalidSettingsException e) {
-			origname = null;
-		}
-		try {
-			min = settings.getDouble(MIN);
-		} catch (InvalidSettingsException e) {
-			min = null;
-		}
-		try {
-			max = settings.getDouble(MAX);
-		} catch (InvalidSettingsException e) {
-			max = null;
-		}
-		try {
-			category = settings.getString(CATEGORY);
-		} catch (InvalidSettingsException e) {
-			category = null;
-		}
-		try {
-			unit = settings.getString(UNIT);
-		} catch (InvalidSettingsException e) {
-			unit = null;
-		}
-		try {
-			description = settings.getString(DESCRIPTION);
-		} catch (InvalidSettingsException e) {
-			description = null;
-		}
+		name = SettingsHelper.getString(NAME, settings);
+		origname = SettingsHelper.getString(ORIGNAME, settings);
+		min = SettingsHelper.getDouble(MIN, settings);
+		max = SettingsHelper.getDouble(MAX, settings);
+		category = SettingsHelper.getString(CATEGORY, settings);
+		unit = SettingsHelper.getString(UNIT, settings);
+		description = SettingsHelper.getString(DESCRIPTION, settings);
 	}
 
 	/** Creates an {@link DepXml} from this {@link Dep}. */

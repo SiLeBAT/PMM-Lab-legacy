@@ -39,7 +39,7 @@ public class AgentList {
 		return agents;
 	}
 
-	public void setAgents(Agent[] agents) {
+	public void setAgents(final Agent[] agents) {
 		numAgents = agents.length;
 		this.agents = agents;
 	}
@@ -51,11 +51,15 @@ public class AgentList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numAgents = settings.getInt(NUM_AGENTS);
-		agents = new Agent[numAgents];
-		for (int i = 0; i < numAgents; i++) {
-			agents[i].loadFromNodeSettings(settings.getNodeSettings(AGENTS + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numAgents = settings.getInt(NUM_AGENTS);
+			agents = new Agent[numAgents];
+			for (int i = 0; i < numAgents; i++) {
+				agents[i] = new Agent();
+				agents[i].loadFromNodeSettings(settings.getNodeSettings(AGENTS + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

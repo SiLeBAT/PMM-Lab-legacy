@@ -51,6 +51,7 @@ public class ModelEditorViewValue extends JSONViewContent {
 		loadAgentsFromDB();
 		loadLiteratureItemsFromDB();
 		loadUnitsFromDB();
+		m_models = new ModelList();
 	}
 
 	public MatrixList getDbMatrices() {

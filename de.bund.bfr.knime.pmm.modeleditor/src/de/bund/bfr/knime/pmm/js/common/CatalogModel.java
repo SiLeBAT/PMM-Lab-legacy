@@ -90,122 +90,77 @@ public class CatalogModel implements ViewValue {
 
 	/** Sets the id value with 'id'. */
 	public void setId(final Integer id) {
-		if (id != null) {
-			this.id = id;
-		}
+		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Ignores null and empty values. */
+	/** Sets the name value with 'name'. Converts empty strings to null. */
 	public void setName(final String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+		this.name = Strings.emptyToNull(name);
 	}
 
-	/** Sets the formula value with 'formula'. Ignores null and empty values. */
+	/** Sets the formula value with 'formula'. Converts empty strings to null. */
 	public void setFormula(final String formula) {
-		if (!Strings.isNullOrEmpty(formula)) {
-			this.formula = formula;
-		}
+		this.formula = Strings.emptyToNull(formula);
 	}
 
 	/** Sets the model class value with 'modelClass'. */
 	public void setModelClass(final Integer modelClass) {
-		if (modelClass != null) {
-			this.modelClass = modelClass;
-		}
+		this.modelClass = modelClass;
 	}
 
-	/** Sets the comment value with 'comment'. Ignores null values. */
+	/** Sets the comment value with 'comment'. Converts empty strings to null. */
 	public void setComment(final String comment) {
-		if (!Strings.isNullOrEmpty(comment)) {
-			this.comment = comment;
-		}
+		this.comment = Strings.emptyToNull(comment);
 	}
 
-	/** Sets the dbuuid value with 'dbuuid'. Ignores null values. */
+	/** Sets the dbuuid value with 'dbuuid'. Converts empty strings to null. */
 	public void setDbuuid(final String dbuuid) {
-		if (!Strings.isNullOrEmpty(dbuuid)) {
-			this.dbuuid = dbuuid;
-		}
+		this.dbuuid = Strings.emptyToNull(dbuuid);
 	}
 
 	/** Saves catalog model properties into a {@link CatalogModel}. */
 	public void saveToNodeSettings(final NodeSettingsWO settings) {
-		if (id != null) {
-			settings.addInt(ID, id);
-		}
-		if (name != null) {
-			settings.addString(NAME, name);
-		}
-		if (formula != null) {
-			settings.addString(FORMULA, formula);
-		}
-		if (modelClass != null) {
-			settings.addInt(MODEL_CLASS, modelClass);
-		}
-		if (comment != null) {
-			settings.addString(COMMENT, comment);
-		}
-		if (dbuuid != null) {
-			settings.addString(DBUUID, dbuuid);
-		}
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addString(FORMULA, formula, settings);
+		SettingsHelper.addInt(MODEL_CLASS, modelClass, settings);
+		SettingsHelper.addString(COMMENT, comment, settings);
+		SettingsHelper.addString(DBUUID, dbuuid, settings);
 	}
 
-	/** Loads catalog model properties from a {@link CatalogModel}. */
+	/**
+	 * Loads catalog model properties from a {@link CatalogModel}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(final NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			formula = settings.getString(FORMULA);
-		} catch (InvalidSettingsException e) {
-			formula = null;
-		}
-		try {
-			modelClass = settings.getInt(MODEL_CLASS);
-		} catch (InvalidSettingsException e) {
-			modelClass = null;
-		}
-		try {
-			comment = settings.getString(COMMENT);
-		} catch (InvalidSettingsException e) {
-			comment = null;
-		}
-		try {
-			dbuuid = settings.getString(DBUUID);
-		} catch (InvalidSettingsException e) {
-			dbuuid = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		name = SettingsHelper.getString(NAME, settings);
+		formula = SettingsHelper.getString(FORMULA, settings);
+		modelClass = SettingsHelper.getInteger(MODEL_CLASS, settings);
+		comment = SettingsHelper.getString(COMMENT, settings);
+		dbuuid = SettingsHelper.getString(DBUUID, settings);
 	}
 
 	/** Creates an {@link CatalogModelXml} from this {@link CatalogModel}. */
 	public CatalogModelXml toCatalogModelXml() {
-	    CatalogModelXml catalogModelXml = new CatalogModelXml(id, name,
-	    	formula, modelClass, dbuuid);
-	    catalogModelXml.setComment(comment);
+		CatalogModelXml catalogModelXml = new CatalogModelXml(id, name, formula, modelClass, dbuuid);
+		catalogModelXml.setComment(comment);
 
-	    return catalogModelXml;
+		return catalogModelXml;
 	}
 
 	/** Creates an {@link CatalogModel} from an {@link CatalogModelXml}. */
 	public static CatalogModel toCatalogModel(CatalogModelXml catalogModelXml) {
-	    CatalogModel catalogModel = new CatalogModel();
-	    catalogModel.setId(catalogModelXml.getId());
-	    catalogModel.setName(catalogModelXml.getName());
-	    catalogModel.setFormula(catalogModelXml.getFormula());
-	    catalogModel.setModelClass(catalogModelXml.getModelClass());
-	    catalogModel.setComment(catalogModelXml.getComment());
-	    catalogModel.setDbuuid(catalogModelXml.getDbuuid());
+		CatalogModel catalogModel = new CatalogModel();
+		catalogModel.setId(catalogModelXml.getId());
+		catalogModel.setName(catalogModelXml.getName());
+		catalogModel.setFormula(catalogModelXml.getFormula());
+		catalogModel.setModelClass(catalogModelXml.getModelClass());
+		catalogModel.setComment(catalogModelXml.getComment());
+		catalogModel.setDbuuid(catalogModelXml.getDbuuid());
 
-	    return catalogModel;
+		return catalogModel;
 	}
 
 }

@@ -39,23 +39,27 @@ public class MiscList {
 		return miscs;
 	}
 
-	public void setMiscs(Misc[] miscs) {
+	public void setMiscs(final Misc[] miscs) {
 		numMiscs = miscs.length;
 		this.miscs = miscs;
 	}
 
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		settings.addInt(NUM_MISCS, numMiscs);
+		SettingsHelper.addInt(NUM_MISCS, numMiscs, settings);
 		for (int i = 0; i < numMiscs; i++) {
 			miscs[i].saveToNodeSettings(settings.addNodeSettings(MISCS + i));
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numMiscs = settings.getInt(NUM_MISCS);
-		miscs = new Misc[numMiscs];
-		for (int i = 0; i < numMiscs; i++) {
-			miscs[i].loadFromNodeSettings(settings.getNodeSettings(MISCS + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numMiscs = settings.getInt(NUM_MISCS);
+			miscs = new Misc[numMiscs];
+			for (int i = 0; i < numMiscs; i++) {
+				miscs[i] = new Misc();
+				miscs[i].loadFromNodeSettings(settings.getNodeSettings(MISCS + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

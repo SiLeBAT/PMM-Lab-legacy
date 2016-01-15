@@ -101,126 +101,80 @@ public class Misc implements ViewValue {
 	}
 
 	/** Sets the id value with 'id'. */
-	public void setId(Integer id) {
-		if (id != null) {
-			this.id = id;
-		}
+	public void setId(final Integer id) {
+		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Ignores null and empty strings. */
-	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+	/** Sets the name value with 'name'. Converts empty strings to null. */
+	public void setName(final String name) {
+		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the description value with 'description'. Ignores null and empty
-	 * strings.
+	 * Sets the description value with 'description'. Converts empty strings to
+	 * null.
 	 */
-	public void setDescription(String description) {
-		if (!Strings.isNullOrEmpty(description)) {
-			this.description = description;
-		}
+	public void setDescription(final String description) {
+		this.description = Strings.emptyToNull(description);
 	}
 
 	/** Sets the value with 'value'. */
-	public void setValue(Double value) {
-		if (value != null) {
-			this.value = value;
-		}
+	public void setValue(final Double value) {
+		this.value = value;
 	}
 
 	/** Sets the categories with 'categories'. */
-	public void setCategories(String[] categories) {
+	public void setCategories(final String[] categories) {
 		this.categories = categories;
 	}
 
-	/** Sets the unit value with 'unit'. Ignores null and empty strings. */
-	public void setUnit(String unit) {
-		if (!Strings.isNullOrEmpty(unit)) {
-			this.unit = unit;
-		}
+	/** Sets the unit value with 'unit'. Converts empty strings to null. */
+	public void setUnit(final String unit) {
+		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the original unit with 'origUnit'. Ignores null and empty strings.
+	 * Sets the original unit with 'origUnit'. Converts empty strings to null.
 	 */
-	public void setOrigUnit(String origUnit) {
-		if (!Strings.isNullOrEmpty(origUnit)) {
-			this.origUnit = origUnit;
-		}
+	public void setOrigUnit(final String origUnit) {
+		this.origUnit = Strings.emptyToNull(origUnit);
 	}
 
-	/** Sets the dbuuid value with 'dbuuid'. Ignores null and empty strings. */
-	public void setDbuuid(String dbuuid) {
-		if (!Strings.isNullOrEmpty(dbuuid)) {
-			this.dbuuid = dbuuid;
-		}
+	/** Sets the dbuuid value with 'dbuuid'. Converts empty strings to null. */
+	public void setDbuuid(final String dbuuid) {
+		this.dbuuid = dbuuid;
 	}
 
 	/** Saves misc properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (id != null)
-			settings.addInt(ID, id);
-		if (name != null)
-			settings.addString(NAME, name);
-		if (description != null)
-			settings.addString(DESCRIPTION, description);
-		if (value != null)
-			settings.addDouble(VALUE, value);
-		if (categories != null)
-			settings.addStringArray(CATEGORY, categories);
-		if (unit != null)
-			settings.addString(UNIT, unit);
-		if (origUnit != null)
-			settings.addString(ORIGUNIT, origUnit);
-		if (dbuuid != null)
-			settings.addString(DBUUID, dbuuid);
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addString(DESCRIPTION, description, settings);
+		SettingsHelper.addDouble(VALUE, value, settings);
+		settings.addStringArray(CATEGORY, categories);
+		SettingsHelper.addString(UNIT, unit, settings);
+		SettingsHelper.addString(ORIGUNIT, origUnit, settings);
+		SettingsHelper.addString(DBUUID, dbuuid, settings);
 	}
 
-	/** Loads misc properties from a {@link NodeSettingsRO}. */
+	/**
+	 * Loads misc properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			description = settings.getString(DESCRIPTION);
-		} catch (InvalidSettingsException e) {
-			description = null;
-		}
-		try {
-			value = settings.getDouble(VALUE);
-		} catch (InvalidSettingsException e) {
-			value = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		name = SettingsHelper.getString(NAME, settings);
+		description = SettingsHelper.getString(DESCRIPTION, settings);
+		value = SettingsHelper.getDouble(VALUE, settings);
 		try {
 			categories = settings.getStringArray(CATEGORY);
 		} catch (InvalidSettingsException e) {
 			categories = null;
 		}
-		try {
-			unit = settings.getString(UNIT);
-		} catch (InvalidSettingsException e) {
-			unit = null;
-		}
-		try {
-			origUnit = settings.getString(ORIGUNIT);
-		} catch (InvalidSettingsException e) {
-			origUnit = null;
-		}
-		try {
-			dbuuid = settings.getString(DBUUID);
-		} catch (InvalidSettingsException e) {
-			dbuuid = null;
-		}
+		unit = SettingsHelper.getString(UNIT, settings);
+		origUnit = SettingsHelper.getString(ORIGUNIT, settings);
+		dbuuid = SettingsHelper.getString(DBUUID, settings);
 	}
 
 	/** Creates an {@link MiscXml} from this {@link Misc}. */

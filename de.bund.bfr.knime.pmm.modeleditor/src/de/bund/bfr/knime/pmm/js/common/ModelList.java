@@ -39,7 +39,7 @@ public class ModelList {
 		return models;
 	}
 
-	public void setModels(Model1DataTuple[] models) {
+	public void setModels(final Model1DataTuple[] models) {
 		numModels = models.length;
 		this.models = models;
 	}
@@ -51,11 +51,15 @@ public class ModelList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numModels = settings.getInt(NUM_MODELS);
-		models = new Model1DataTuple[numModels];
-		for (int i = 0; i < numModels; i++) {
-			models[i].loadFromNodeSettings(settings.getNodeSettings(MODELS + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numModels = settings.getInt(NUM_MODELS);
+			models = new Model1DataTuple[numModels];
+			for (int i = 0; i < numModels; i++) {
+				models[i] = new Model1DataTuple();
+				models[i].loadFromNodeSettings(settings.getNodeSettings(MODELS + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

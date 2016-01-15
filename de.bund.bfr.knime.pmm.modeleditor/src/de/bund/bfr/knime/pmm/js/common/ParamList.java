@@ -51,11 +51,15 @@ public class ParamList {
 		}
 	}
 
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		numParams = settings.getInt(NUM_PARAMS);
-		params = new Param[numParams];
-		for (int i = 0; i < numParams; i++) {
-			params[i].loadFromNodeSettings(settings.getNodeSettings(PARAMS + i));
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		try {
+			numParams = settings.getInt(NUM_PARAMS);
+			params = new Param[numParams];
+			for (int i = 0; i < numParams; i++) {
+				params[i] = new Param();
+				params[i].loadFromNodeSettings(settings.getNodeSettings(PARAMS + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
 	}
 }

@@ -172,192 +172,98 @@ public class EstModel implements ViewValue {
 	}
 
 	/** Sets the id value with 'id. */
-	public void setId(Integer id) {
-		if (id != null) {
-			this.id = id;
-		}
+	public void setId(final Integer id) {
+		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Ignores null and empty strings. */
-	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+	/** Sets the name value with 'name'. Converts empty strings to null. */
+	public void setName(final String name) {
+		this.name = Strings.emptyToNull(name);
 	}
 
 	/** Sets the sse value with 'sse'. */
-	public void setSse(Double sse) {
-		if (sse != null) {
-			this.sse = sse;
-		}
+	public void setSse(final Double sse) {
+		this.sse = sse;
 	}
 
 	/** Sets the rms value with 'rms'. */
-	public void setRms(Double rms) {
-		if (rms != null) {
-			this.rms = rms;
-		}
+	public void setRms(final Double rms) {
+		this.rms = rms;
 	}
 
 	/** Sets the r2 value with 'r2'. */
-	public void setR2(Double r2) {
-		if (r2 != null) {
-			this.r2 = r2;
-		}
+	public void setR2(final Double r2) {
+		this.r2 = r2;
 	}
 
 	/** Sets the aic value with 'aic'. */
-	public void setAIC(Double aic) {
-		if (aic != null) {
-			this.aic = aic;
-		}
+	public void setAIC(final Double aic) {
+		this.aic = aic;
 	}
 
 	/** Sets the bic value with 'bic'. */
-	public void setBIC(Double bic) {
-		if (bic != null) {
-			this.bic = bic;
-		}
+	public void setBIC(final Double bic) {
+		this.bic = bic;
 	}
 
 	/** Sets the dof value with 'dof'. */
-	public void setDof(Integer dof) {
-		if (dof != null) {
-			this.dof = dof;
-		}
+	public void setDof(final Integer dof) {
+		this.dof = dof;
 	}
 
 	/** Sets the quality score value with 'qualityScore'. */
-	public void setQualityScore(Integer qualityScore) {
-		if (qualityScore != null) {
-			this.qualityScore = qualityScore;
-		}
+	public void setQualityScore(final Integer qualityScore) {
+		this.qualityScore = qualityScore;
 	}
 
 	/** Sets the checked value with 'checked'. */
-	public void setChecked(Boolean checked) {
-		if (checked != null) {
-			this.checked = checked;
-		}
+	public void setChecked(final Boolean checked) {
+		this.checked = checked;
 	}
 
 	/**
-	 * Sets the comment value with 'comment'. Ignores null and empty strings.
+	 * Sets the comment value with 'comment'. Converts empty strings to null.
 	 */
-	public void setComment(String comment) {
-		if (!Strings.isNullOrEmpty(comment)) {
-			this.comment = comment;
-		}
+	public void setComment(final String comment) {
+		this.comment = Strings.emptyToNull(comment);
 	}
 
-	/** Sets the dbuuid value with 'dbuuid'. Ignores null and empty strings. */
-	public void setDbuuid(String dbuuid) {
-		if (!Strings.isNullOrEmpty(dbuuid)) {
-			this.dbuuid = dbuuid;
-		}
+	/** Sets the dbuuid value with 'dbuuid'. Converts empty strings to null. */
+	public void setDbuuid(final String dbuuid) {
+		this.dbuuid = Strings.emptyToNull(dbuuid);
 	}
 
 	/** Saves estimated model properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (id != null)
-			settings.addInt(ID, id);
-		if (name != null)
-			settings.addString(NAME, name);
-		if (sse != null)
-			settings.addDouble(SSE, sse);
-		if (rms != null)
-			settings.addDouble(RMS, rms);
-		if (r2 != null)
-			settings.addDouble(R2, r2);
-		if (aic != null)
-			settings.addDouble(AIC, aic);
-		if (bic != null)
-			settings.addDouble(BIC, bic);
-		if (dof != null)
-			settings.addInt(DOF, dof);
-		if (qualityScore != null)
-			settings.addInt(QUALITY_SCORE, qualityScore);
-		if (checked != null)
-			settings.addBoolean(CHECKED, checked);
-		if (comment != null)
-			settings.addString(COMMENT, comment);
-		if (dbuuid != null)
-			settings.addString(DBUUID, dbuuid);
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addDouble(SSE, sse, settings);
+		SettingsHelper.addDouble(RMS, rms, settings);
+		SettingsHelper.addDouble(R2, r2, settings);
+		SettingsHelper.addDouble(BIC, bic, settings);
+		SettingsHelper.addInt(DOF, dof, settings);
+		SettingsHelper.addBoolean(CHECKED, checked, settings);
+		SettingsHelper.addString(COMMENT, comment, settings);
+		SettingsHelper.addString(DBUUID, dbuuid, settings);
 	}
 
-	/** Loads estimated model properties from a {@link NodeSettingsRO}. */
+	/**
+	 * Loads estimated model properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-
-		try {
-			sse = settings.getDouble(SSE);
-		} catch (InvalidSettingsException e) {
-			sse = null;
-		}
-
-		try {
-			rms = settings.getDouble(RMS);
-		} catch (InvalidSettingsException e) {
-			rms = null;
-		}
-
-		try {
-			r2 = settings.getDouble(R2);
-		} catch (InvalidSettingsException e) {
-			r2 = null;
-		}
-
-		try {
-			aic = settings.getDouble(AIC);
-		} catch (InvalidSettingsException e) {
-			aic = null;
-		}
-
-		try {
-			bic = settings.getDouble(BIC);
-		} catch (InvalidSettingsException e) {
-			bic = null;
-		}
-
-		try {
-			dof = settings.getInt(DOF);
-		} catch (InvalidSettingsException e) {
-			dof = null;
-		}
-
-		try {
-			qualityScore = settings.getInt(QUALITY_SCORE);
-		} catch (InvalidSettingsException e) {
-			qualityScore = null;
-		}
-
-		try {
-			checked = settings.getBoolean(CHECKED);
-		} catch (InvalidSettingsException e) {
-			checked = null;
-		}
-
-		try {
-			comment = settings.getString(COMMENT);
-		} catch (InvalidSettingsException e) {
-			comment = null;
-		}
-
-		try {
-			dbuuid = settings.getString(DBUUID);
-		} catch (InvalidSettingsException e) {
-			dbuuid = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		name = SettingsHelper.getString(NAME, settings);
+		sse = SettingsHelper.getDouble(SSE, settings);
+		rms = SettingsHelper.getDouble(RMS, settings);
+		r2 = SettingsHelper.getDouble(R2, settings);
+		aic = SettingsHelper.getDouble(AIC, settings);
+		bic = SettingsHelper.getDouble(BIC, settings);
+		dof = SettingsHelper.getInteger(DOF, settings);
+		qualityScore = SettingsHelper.getInteger(QUALITY_SCORE, settings);
+		checked = SettingsHelper.getBoolean(COMMENT, settings);
+		dbuuid = SettingsHelper.getString(DBUUID, settings);
 	}
 
 	/** Creates an {@link EstModelXml} from this {@link EstModel}. */

@@ -153,218 +153,134 @@ public class Unit implements ViewValue {
 	}
 
 	/** Sets the id value with 'id'. */
-	public void setId(int id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
-	/** Sets the unit value with 'unit'. Ignores null and empty values. */
-	public void setUnit(String unit) {
-		if (!Strings.isNullOrEmpty(unit)) {
-			this.unit = unit;
-		}
+	/** Sets the unit value with 'unit'. Converts empty strings to null. */
+	public void setUnit(final String unit) {
+		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the description value with 'description'. Ignores null and empty
-	 * values.
+	 * Sets the description value with 'description'. Converts empty strings to
+	 * null.
 	 */
-	public void setDescription(String description) {
-		if (!Strings.isNullOrEmpty(description)) {
-			this.description = description;
-		}
+	public void setDescription(final String description) {
+		this.description = Strings.emptyToNull(description);
 	}
 
-	/** Sets the name of this {@link Unit}. Ignores null and empty values. */
-	public void setName(String name) {
-		if (!Strings.isNullOrEmpty(name)) {
-			this.name = name;
-		}
+	/** Sets the name of this {@link Unit}. Converts empty strings to null. */
+	public void setName(final String name) {
+		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the kind_of_property_quantity of this {@link Unit}. Ignores null and
-	 * empty values.
+	 * Sets the kind_of_property_quantity of this {@link Unit}. Converts empty
+	 * strings to null.
 	 */
-	public void setKindOfPropertyQuantity(String kind_of_property_quantity) {
-		if (!Strings.isNullOrEmpty(kind_of_property_quantity)) {
-			this.kind_of_property_quantity = kind_of_property_quantity;
-		}
+	public void setKindOfPropertyQuantity(final String kind_of_property_quantity) {
+		this.kind_of_property_quantity = Strings.emptyToNull(kind_of_property_quantity);
 	}
 
 	/**
-	 * Sets the notation_case_sensitive of this {@link Unit}. Ignores null and
-	 * empty values.
+	 * Sets the notation_case_sensitive of this {@link Unit}. Converts empty
+	 * strings to null.
 	 */
-	public void setNotationCaseSensitive(String notation_case_sensitive) {
-		if (!Strings.isNullOrEmpty(notation_case_sensitive)) {
-			this.notation_case_sensitive = notation_case_sensitive;
-		}
+	public void setNotationCaseSensitive(final String notation_case_sensitive) {
+		this.notation_case_sensitive = Strings.emptyToNull(notation_case_sensitive);
 	}
 
 	/**
-	 * Sets the convert_to of this {@link Unit}. Ignores null and empty values.
+	 * Sets the convert_to of this {@link Unit}. Converts empty strings to null.
 	 */
-	public void setConvertTo(String convert_to) {
-		if (!Strings.isNullOrEmpty(convert_to)) {
-			this.convert_to = convert_to;
-		}
+	public void setConvertTo(final String convert_to) {
+		this.convert_to = Strings.emptyToNull(convert_to);
 	}
 
 	/**
-	 * Sets the conversion_function_factor of this {@link Unit}. Ignores null
-	 * and empty values.
+	 * Sets the conversion_function_factor of this {@link Unit}. Converts empty
+	 * strings to null.
 	 */
-	public void setConversionFunctionFactor(String conversion_function_factor) {
-		if (!Strings.isNullOrEmpty(conversion_function_factor)) {
-			this.conversion_function_factor = conversion_function_factor;
-		}
+	public void setConversionFunctionFactor(final String conversion_function_factor) {
+		this.conversion_function_factor = Strings.emptyToNull(conversion_function_factor);
 	}
 
 	/**
-	 * Sets the inverse_conversion_function_factor of this {@link Unit}. Ignores
-	 * null and empty values.
+	 * Sets the inverse_conversion_function_factor of this {@link Unit}.
+	 * Converts empty strings to null.
 	 */
-	public void setInverseConversionFunctionFactor(String inverse_conversion_function_factor) {
-		if (!Strings.isNullOrEmpty(inverse_conversion_function_factor)) {
-			this.inverse_conversion_function_factor = inverse_conversion_function_factor;
-		}
+	public void setInverseConversionFunctionFactor(final String inverse_conversion_function_factor) {
+		this.inverse_conversion_function_factor = Strings.emptyToNull(inverse_conversion_function_factor);
 	}
 
 	/**
-	 * Sets the object_type of this {@link Unit}. Ignores null and empty values.
+	 * Sets the object_type of this {@link Unit}. Converts empty strings to
+	 * null.
 	 */
-	public void setObjectType(String object_type) {
-		if (!Strings.isNullOrEmpty(object_type)) {
-			this.object_type = object_type;
-		}
+	public void setObjectType(final String object_type) {
+		this.object_type = Strings.emptyToNull(object_type);
 	}
 
 	/**
-	 * Sets the display_in_GUI_as of this {@link Unit}. Ignores null and empty
-	 * values.
+	 * Sets the display_in_GUI_as of this {@link Unit}. Converts empty strings
+	 * to null.
 	 */
-	public void setDisplayInGuiAs(String display_in_GUI_as) {
-		if (!Strings.isNullOrEmpty(display_in_GUI_as)) {
-			this.display_in_GUI_as = display_in_GUI_as;
-		}
+	public void setDisplayInGuiAs(final String display_in_GUI_as) {
+		this.display_in_GUI_as = Strings.emptyToNull(display_in_GUI_as);
 	}
 
 	/**
-	 * Sets the mathML_string of this {@link Unit}. Ignores null and empty
-	 * values.
+	 * Sets the mathML_string of this {@link Unit}. Converts empty strings to
+	 * null.
 	 */
-	public void setMathMLString(String mathML_string) {
-		if (!Strings.isNullOrEmpty(mathML_string)) {
-			this.mathML_string = mathML_string;
-		}
+	public void setMathMLString(final String mathML_string) {
+		this.mathML_string = Strings.emptyToNull(mathML_string);
 	}
 
 	/**
-	 * Sets the priority_for_display_in_GUI of this {@link Unit}. Ignores null
-	 * and empty values.
+	 * Sets the priority_for_display_in_GUI of this {@link Unit}. Converts empty
+	 * strings to null.
 	 */
-	public void setPriorityForDisplayInGui(String priority_for_display_in_GUI) {
-		if (!Strings.isNullOrEmpty(priority_for_display_in_GUI)) {
-			this.priority_for_display_in_GUI = priority_for_display_in_GUI;
-		}
+	public void setPriorityForDisplayInGui(final String priority_for_display_in_GUI) {
+		this.priority_for_display_in_GUI = Strings.emptyToNull(priority_for_display_in_GUI);
 	}
 
 	/** Saves unit properties into a {@link NodeSettingsWO}. */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		if (id != null)
-			settings.addInt(ID, id);
-		if (unit != null)
-			settings.addString(UNIT, unit);
-		if (description != null)
-			settings.addString(DESCRIPTION, description);
-		if (name != null)
-			settings.addString(NAME, name);
-		if (kind_of_property_quantity != null)
-			settings.addString(KIND_OF_PROPERTY_QUANTITY, kind_of_property_quantity);
-		if (notation_case_sensitive != null)
-			settings.addString(NOTATION_CASE_SENSITIVE, notation_case_sensitive);
-		if (convert_to != null)
-			settings.addString(CONVERT_TO, convert_to);
-		if (conversion_function_factor != null)
-			settings.addString(CONVERSION_FUNCTION_FACTOR, conversion_function_factor);
-		if (inverse_conversion_function_factor != null)
-			settings.addString(INVERSION_CONVERSION_FUNCTION_FACTOR, inverse_conversion_function_factor);
-		if (object_type != null)
-			settings.addString(OBJECT_TYPE, object_type);
-		if (display_in_GUI_as != null)
-			settings.addString(DISPLAY_IN_GUI_AS, display_in_GUI_as);
-		if (mathML_string != null)
-			settings.addString(MATHML_STRING, mathML_string);
-		if (priority_for_display_in_GUI != null)
-			settings.addString(PRIORITY_FOR_DISPLAY_IN_GUI, priority_for_display_in_GUI);
+		SettingsHelper.addInt(ID, id, settings);
+		SettingsHelper.addString(UNIT, unit, settings);
+		SettingsHelper.addString(DESCRIPTION, description, settings);
+		SettingsHelper.addString(NAME, name, settings);
+		SettingsHelper.addString(KIND_OF_PROPERTY_QUANTITY, kind_of_property_quantity, settings);
+		SettingsHelper.addString(NOTATION_CASE_SENSITIVE, notation_case_sensitive, settings);
+		SettingsHelper.addString(CONVERT_TO, convert_to, settings);
+		SettingsHelper.addString(CONVERSION_FUNCTION_FACTOR, conversion_function_factor, settings);
+		SettingsHelper.addString(INVERSION_CONVERSION_FUNCTION_FACTOR, inverse_conversion_function_factor, settings);
+		SettingsHelper.addString(OBJECT_TYPE, object_type, settings);
+		SettingsHelper.addString(DISPLAY_IN_GUI_AS, display_in_GUI_as, settings);
+		SettingsHelper.addString(MATHML_STRING, mathML_string, settings);
+		SettingsHelper.addString(PRIORITY_FOR_DISPLAY_IN_GUI, priority_for_display_in_GUI, settings);
 	}
 
-	/** Loads unit properties from a {@link NodeSettingsRO}. */
+	/**
+	 * Loads unit properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
-		try {
-			id = settings.getInt(ID);
-		} catch (InvalidSettingsException e) {
-			id = null;
-		}
-		try {
-			unit = settings.getString(UNIT);
-		} catch (InvalidSettingsException e) {
-			unit = null;
-		}
-		try {
-			description = settings.getString(DESCRIPTION);
-		} catch (InvalidSettingsException e) {
-			description = null;
-		}
-		try {
-			name = settings.getString(NAME);
-		} catch (InvalidSettingsException e) {
-			name = null;
-		}
-		try {
-			kind_of_property_quantity = settings.getString(KIND_OF_PROPERTY_QUANTITY);
-		} catch (InvalidSettingsException e) {
-			kind_of_property_quantity = null;
-		}
-		try {
-			notation_case_sensitive = settings.getString(NOTATION_CASE_SENSITIVE);
-		} catch (InvalidSettingsException e) {
-			notation_case_sensitive = null;
-		}
-		try {
-			convert_to = settings.getString(CONVERT_TO);
-		} catch (InvalidSettingsException e) {
-			convert_to = null;
-		}
-		try {
-			conversion_function_factor = settings.getString(CONVERSION_FUNCTION_FACTOR);
-		} catch (InvalidSettingsException e) {
-			conversion_function_factor = null;
-		}
-		try {
-			inverse_conversion_function_factor = settings.getString(INVERSION_CONVERSION_FUNCTION_FACTOR);
-		} catch (InvalidSettingsException e) {
-			inverse_conversion_function_factor = null;
-		}
-		try {
-			object_type = settings.getString(OBJECT_TYPE);
-		} catch (InvalidSettingsException e) {
-			object_type = null;
-		}
-		try {
-			display_in_GUI_as = settings.getString(DISPLAY_IN_GUI_AS);
-		} catch (InvalidSettingsException e) {
-			display_in_GUI_as = null;
-		}
-		try {
-			mathML_string = settings.getString(MATHML_STRING);
-		} catch (InvalidSettingsException e) {
-			mathML_string = null;
-		}
-		try {
-			priority_for_display_in_GUI = settings.getString(PRIORITY_FOR_DISPLAY_IN_GUI);
-		} catch (InvalidSettingsException e) {
-			priority_for_display_in_GUI = null;
-		}
+		id = SettingsHelper.getInteger(ID, settings);
+		unit = SettingsHelper.getString(UNIT, settings);
+		description = SettingsHelper.getString(DESCRIPTION, settings);
+		name = SettingsHelper.getString(KIND_OF_PROPERTY_QUANTITY, settings);
+		kind_of_property_quantity = SettingsHelper.getString(KIND_OF_PROPERTY_QUANTITY, settings);
+		notation_case_sensitive = SettingsHelper.getString(NOTATION_CASE_SENSITIVE, settings);
+		convert_to = SettingsHelper.getString(CONVERT_TO, settings);
+		conversion_function_factor = SettingsHelper.getString(CONVERSION_FUNCTION_FACTOR, settings);
+		inverse_conversion_function_factor = SettingsHelper.getString(INVERSION_CONVERSION_FUNCTION_FACTOR, settings);
+		object_type = SettingsHelper.getString(OBJECT_TYPE, settings);
+		display_in_GUI_as = SettingsHelper.getString(DISPLAY_IN_GUI_AS, settings);
+		mathML_string = SettingsHelper.getString(MATHML_STRING, settings);
+		priority_for_display_in_GUI = SettingsHelper.getString(PRIORITY_FOR_DISPLAY_IN_GUI, settings);
 	}
 }

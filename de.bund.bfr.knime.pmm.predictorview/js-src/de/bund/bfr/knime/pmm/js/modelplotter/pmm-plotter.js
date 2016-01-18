@@ -38,7 +38,7 @@ pmm_plotter = function() {
 		body.setAttribute("style", "background: #fdfdfd; width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
 
 		/*
-		 * new plotter layout
+		 * layout
 		 */
 		var layoutWrapper = document.createElement("div");
 		layoutWrapper.setAttribute("id", "layoutWrapper");
@@ -60,7 +60,6 @@ pmm_plotter = function() {
 		modelSelectionMenu.setAttribute("style" , buttonWidth);
 		modelSelectionMenu.setAttribute("required");
 		leftWrapper.appendChild(modelSelectionMenu);
-		
 		
 		// selection + options
 		var option0 = document.createElement("option");
@@ -88,7 +87,6 @@ pmm_plotter = function() {
 		option4.innerHTML = "Beispiel 4";
 		optGroup2.appendChild(option4);
 		
-		
 		// add button
 		var addButton = document.createElement("button");
 		addButton.innerHTML = msgAdd;
@@ -109,195 +107,29 @@ pmm_plotter = function() {
 		body.appendChild(layoutWrapper);
 		// --- //
 		
-		
-		/*
-		 * new plotter
-		 */
+		// plot
 		var d3Plot = document.createElement("div");
 		d3Plot.setAttribute("id", "d3plotter");
 		rightWrapper.appendChild(d3Plot);
 				
-		drawD3Plot();
-		
 		// dynamic options
 		addSelectOption(plotterValue.dbuuid, plotterValue.modelName);
 		addSelectOption("123", "Beispiel");
-		/******/
-
-		
-		var table = document.createElement("table");
-		var row1 = document.createElement("tr");
-		var td1 = document.createElement("td");
-		row1.appendChild(td1);
-		var row2 = document.createElement("tr");
-		var td2 = document.createElement("td");
-		td2.setAttribute("align", "right");
-		row2.appendChild(td2);
-		table.appendChild(row1);
-		table.appendChild(row2);
-		body.appendChild(table);
-
-		
-		var layoutContainer = document.createElement("div");
-		layoutContainer.setAttribute("style", "width:500px; height:350px;");
-		td1.appendChild(layoutContainer);
-		
-		var constantsBox = document.createElement("div");
-		constantsBox.setAttribute("style", "border-style:solid; border-width:1px; width:60%; text-align:left; padding:10px;");
-		td2.appendChild(constantsBox);
-		
-		var constantsHeadline = document.createElement("h3");
-		constantsHeadline.innerHTML = "Model constants";
-		constantsHeadline.setAttribute("style", "margin:5px;");
-		constantsBox.appendChild(constantsHeadline);
-		
-		var selectBox = document.createElement("select");
-		selectBox.setAttribute("id", "funcConstants");
-		selectBox.setAttribute("style", "margin:5px;");
-		selectBox.addEventListener("change", function() { constantSelected(); });
-		constantsBox.appendChild(selectBox);
-		
-		var textInput = document.createElement("input");
-		textInput.setAttribute("id", "funcConstantValue");
-		textInput.setAttribute("type", "text");
-		textInput.setAttribute("size", "7");
-		textInput.setAttribute("style", "margin:5px;");
-		textInput.addEventListener("change", function() { checkNumberInput(); });
-		constantsBox.appendChild(textInput);
-		
-		var applyButton = document.createElement("button");
-		applyButton.innerHTML = "Apply me";
-		applyButton.setAttribute("id", "funcConstantValueChange");
-		applyButton.setAttribute("style", "margin:5px;");
-		applyButton.addEventListener("click", function() { applyNewValue(); });
-		constantsBox.appendChild(applyButton);
-		
-		var h = document.createElement("h1");
-		h.innerHTML = "Plotter Test";//plotterValue.chartTitle;
-		layoutContainer.appendChild(h);
-		
-		var div = document.createElement("div");
-		div.setAttribute("id", "box");
-		div.setAttribute("class", "jxgbox");
-		div.setAttribute("style", "width:400px; height:350px;");
-		layoutContainer.appendChild(div);
-		
-	    // add constants in view representation to select box as options
-	    var constantsSelectBox = document.getElementById('funcConstants');
-		for (var c in plotterValue.constants) {
-		    var opt = document.createElement('option');
-			opt.value = c;
-			opt.innerHTML = c;
-			constantsSelectBox.appendChild(opt);
-		}
-		
-		// set value in text field to value of selected constant
-		constantSelected();
-		
-		// Initialize JSX board to draw function graphs, etc.
-		var minXAxis = plotterValue.minXAxis;
-		var maxXAxis = plotterValue.maxXAxis;
-		var minYAxis = plotterValue.minYAxis;
-		var maxYAxis = plotterValue.maxYAxis;		
-		jsxBoard = JXG.JSXGraph.initBoard('box', {boundingbox: [minXAxis, maxYAxis, maxXAxis, minYAxis], axis:false});
-		
-		var xunit = "[" + plotterValue.xUnit + "]";
-		var yunit = "[" + plotterValue.yUnit + "]";
-		
-		// Set Y axis, ticks, labels
-		var yaxis = jsxBoard.create('axis', [[0, 0], [0, 1]], {name:yunit, withLabel: true, 
-				ticks: {insertTicks: true, ticksDistance: 1, label: {offset: [-20, -20]}}});
-			 yaxis.defaultTicks.ticksFunction = function () { return 5; };
-
-	    // Set X axis, ticks, labels
-	    var xaxis = jsxBoard.create('axis', [[0, 0], [1, 0]], {name:xunit, withLabel: true, 
-				ticks: {insertTicks: true, ticksDistance: 1, label: {offset: [-20, -20]}}});
-			 xaxis.defaultTicks.ticksFunction = function () { return 5; };
-			 
-		variableSliders = [];
-		variableIndices = [];
-		// Append one slider for each function variable		
-		for (var i = 0; i < plotterValue.variables.length; i++) {
-			var v = plotterValue.variables[i];
-			if (v.name != 'Time') {				
-				variableSliders.push(jsxBoard.create('slider', [[50,-2 - i], [80,-2 - i], [v.min, v.def, v.max]],
-						{name:v.name, point1: {frozen: true}, point2: {frozen: true}}));
-				variableIndices.push(i);
-			}
-		}		
 				
-		plotterValue.constants.Y0 = plotterValue.y0;
-		
-		// Creates time based function and updates plottable model graph 
-		updateFunctionGraph();
-		
-		// On zoom change event remove current function graph and create/draw new function graph 
-		// with new max value of x axis
-		jsxBoard.on('boundingbox', function() {
-			maxXValue = jsxBoard.plainBB[2] + 10;
-			jsxBoard.removeObject(functionGraph);
-			functionGraph = jsxBoard.create('functiongraph', [timeModelFunction, 0, maxXValue]);		
-		});		
-		
-		// Auto resize view when shown in WebPortal
-		if (parent !== undefined && parent.KnimePageLoader !== undefined) {
-			   parent.KnimePageLoader.autoResize(window.frameElement.id);
-		}
-		
 		/*
 		 * jQueryUI functions
 		 */
 		$(function() {
-			  $("button").button({
-			      icons: {
+			// make all html buttons jquery buttons
+			$("button").button({
+			    icons: {
 			        primary: "ui-icon-plus"
-			      }
-			  });
-			  $("select").selectmenu();
+			    }
+			});
+			// make all html selects jquery select menus
+			$("select").selectmenu();
 		});
 		/***/
-	};
-	
-	
-
-	// read selected constant from select box and show value of constant in text field 
-	constantSelected = function() {
-		var constantsSelectBox = document.getElementById('funcConstants');
-		var constant = constantsSelectBox.options[constantsSelectBox.selectedIndex].value;
-		document.getElementById('funcConstantValue').value = plotterValue.constants[constant];
-	};
-	
-	// checks if input of text field is number
-	checkNumberInput = function() {
-		var constantsSelectBox = document.getElementById('funcConstants');
-		var constant = constantsSelectBox.options[constantsSelectBox.selectedIndex].value;
-		var newValueField = document.getElementById('funcConstantValue');
-		var newValue = newValueField.value;
-		
-		var newNumberValue = parseFloat(newValue);
-		if (isNaN(newNumberValue)) {
-			newValueField.style.background = "red";
-		} else {
-			newValueField.style.background = "white";
-		}
-	};
-	
-	applyNewValue = function() {	
-		var constantsSelectBox = document.getElementById('funcConstants');
-		var constant = constantsSelectBox.options[constantsSelectBox.selectedIndex].value;
-		var newValue = document.getElementById('funcConstantValue').value;
-		
-		var newNumberValue = parseFloat(newValue);
-		if (!isNaN(newNumberValue)) {
-			plotterValue.constants[constant] = newNumberValue;
-			if (constant == "Y0") {
-				// set new Y0 value to view value
-				plotterValue.y0 = newNumberValue;
-			}
-			
-			jsxBoard.removeObject(functionGraph);
-			updateFunctionGraph();
-		}
 	};
 	
 	/*
@@ -318,9 +150,14 @@ pmm_plotter = function() {
 	 * parse functiom from model and modify it according to framework needs
 	 */
 	function prepareFunction(functionString) {
-		// replace "Time" with "x" using regex
+		// replace "T" and "Time" with "x" using regex
 		// gi: global, case-insensitive
-		return functionString.replace(/Time/gi, "x");
+		var newString = functionString;
+//		show("old string: " + newString);
+		newString = newString.replace(/Time/gi, "x");
+		newString = newString.replace(/\bT\b/gi, "x");
+//		show("new string: " + newString);
+		return newString;
 	}
 	
 	/*
@@ -377,9 +214,8 @@ pmm_plotter = function() {
 		drawD3Plot();
 	}
 
-	
     /*
-     * 
+     * adds sliders for all dynamic constants
      */
 	function generateParameterSliders()
 	{
@@ -391,21 +227,21 @@ pmm_plotter = function() {
 	    	if(constants)
 	    	{
 		    	$.each(constants, function(constant, value)
-				{
-		    		var sliderId = "slider_" + constant.toUpperCase();
-		    		if(document.getElementById(sliderId))
-		    		{
-		    			// do not add known parameters twice
-		    			return true;
-		    		}
-		    		
-		    		/*
-		    		 * the layout structue is as follows:
-		    		 * > sliderBox
-		    		 * >> sliderLabel
-		    		 * >> slider | >> sliderValueDiv
-		    		 * 			   >>> sliderValue
-		    		 */
+		    	{
+					var sliderId = "slider_" + constant.toUpperCase();
+					if(document.getElementById(sliderId))
+					{
+						// do not add known parameters twice
+						return true;
+					}
+					
+					/*
+					 * the layout structure is as follows:
+					 * > sliderBox
+					 * >> sliderLabel
+					 * >> slider | >> sliderValueDiv
+					 * 			   >>> sliderValue
+					 */
 				    var sliderBox = document.createElement("p");
 				    sliderBox.setAttribute("id", sliderId);
 				    sliderBox.setAttribute("style" , buttonWidth + sliderBoxHeight);
@@ -436,14 +272,17 @@ pmm_plotter = function() {
 				    	// changing the slider changes the input field
 				        slide: function( event, ui ) {
 				            $(sliderValue).val( ui.value );
-				            window.setTimeout(updateFunctionConstant(constant, ui.value), 100);
+				            // delay prevents excessive redrawing
+				            window.setTimeout(updateFunctionConstant(constant, ui.value), 30);
 				        }
 				    });
 					$(sliderValue).change(function() {
 						// changing the input field changes the slider
 						$(slider).slider("value", this.value);
-						window.setTimeout(updateFunctionConstant(constant, this.value), 100);
+							// delay prevents excessive redrawing
+							window.setTimeout(updateFunctionConstant(constant, this.value), 30);
 					});
+					// react immediately on key input
 					$(sliderValue).keyup(function() {
 						$(this).change();
 					});
@@ -453,16 +292,18 @@ pmm_plotter = function() {
 	}
 
 	/* 
-	 * 
+	 * update a constant value in all functions
 	 */
 	function updateFunctionConstant(constant, value)
 	{
-		if(value == "0")
-			value = 0.0001;
+		if(value == "0") // workaround, functionPlot/implementation crashes on "0"
+		{
+			value = 0.0000001;
+		}
 		for(var modelIndex in modelObjects)
 		{
 			var constants = modelObjects[modelIndex].scope;
-			if(constants[constant])
+			if(constants && constants[constant])
 				constants[constant] = value;
 		}
 		drawD3Plot();
@@ -505,100 +346,29 @@ pmm_plotter = function() {
 	/*******/
 	
 	
-	
-	function createFunctionStr() {
-		var functionStr = 'f(Time';
-		// Append variable name to function string, separated by ","		
-		for (var i = 0; i < plotterValue.variables.length; i++) {
-			var v = plotterValue.variables[i];
-			if (v.name != 'Time') {				
-				functionStr += ", " + v.name;
-			}
-		}
-		// Close parameter brackets of function and add function term
-		functionStr += ") = " + plotterValue.func;
-		
-		return functionStr;
-	}
-	
-	function createMath() {
-		// Note that due to math.js the root math object can be either "mathjs" or "math",
-		// which depends on the used browser.		
-		var myMath;
-		if (typeof define === 'function' && define.amd) {
-			myMath = mathjs;
-		} else {
-			myMath = math;
-		}
-		
-		// Set all constants of the given model representation
-		myMath.import(plotterValue.constants, { override: true });
-		
-		// CUSTOMIZED FUNCTIONS
-		myMath.import({
-		  ln: function (x) { return myMath.log(x); },
-		  log10: function (x) { return myMath.log(x)/myMath.log(10); }
-		});
-		
-		return myMath;
-	}
-	
-	function createTimeBasedModelFunction(baseModelFunction) {
-		var timeModelFunction = function(Time){
-		 	var varValues = [Time];
-		 	for (var i = 0; i < variableSliders.length; i++) {
-		 		varValues.push(variableSliders[i].Value());
-		 	}		 
-		 	return baseModelFunction.apply(null, varValues);
-	 	 };	
-	 	 return timeModelFunction;
-	}
-	
-	function updateFunctionGraph() {
-		// Save max value of x axis
-		var maxXValue = jsxBoard.attr.boundingbox[2] + 10;
-		
-		// Prepare string of function f of time
-		var functionStr = createFunctionStr();
-		plotterValue.functionFull = functionStr;
-		
-		// Prepare myMath object to call math functions 		
-		var myMath = createMath();
-		
-		// Create js function from function string with time and all given parameters as input
-		// variables of the function
-		var baseModelFunction = myMath.eval(functionStr);
-		
-		// Create js function ONLY WITH TIME as input variable of the function. As values of all
-		// other input variables the slider values are set
-		var timeModelFunction = createTimeBasedModelFunction(baseModelFunction);
-		
-	 	// Create graph of function with time parameter only
-		functionGraph = jsxBoard.create('functiongraph', [timeModelFunction, 0, maxXValue]);
-	}
-	
-	modelPlotter.validate = function() {
-		return true;
-	};
-	
-	modelPlotter.setValidationError = function() { };
-	
-	modelPlotter.getComponentValue = function() {
-		// set current slider values as variables values
-		for (var i = 0; i < variableIndices.length; i++) {
-			var v = plotterValue.variables[variableIndices[i]];
-			v.def = variableSliders[i].Value();
-			plotterValue.variables[variableIndices[i]] = v;
-		}
-		return plotterValue;
-	};
-	
 	// maintenance function
 	function show(obj)
 	{
 		alert(JSON.stringify(obj, null, 4));
 	}
+
+	/*
+	 * mandatory for JS
+	 */
+	modelPlotter.validate = function() 
+	{
+		return true;
+	}
 	
+	modelPlotter.setValidationError = function () 
+	{ 
+		show("validation error");
+	}
+	
+	modelPlotter.getComponentValue = function() 
+	{
+	    return plotterValue;
+	}
 	
 	return modelPlotter;	
 }();

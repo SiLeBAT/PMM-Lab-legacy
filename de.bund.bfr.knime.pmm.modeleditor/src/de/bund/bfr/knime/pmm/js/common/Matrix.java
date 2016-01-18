@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.MatrixXml;
-
 /**
  * PmmLab matrix. Holds:
  * <ul>
@@ -111,21 +109,5 @@ public class Matrix implements ViewValue {
 		name = SettingsHelper.getString(NAME, settings);
 		detail = settings.getString(DETAIL, detail);
 		dbuuid = settings.getString(DBUUID, dbuuid);
-	}
-
-	/** Creates an {@link MatrixXml} from this {@link Matrix}. */
-	public MatrixXml toMatrixXml() {
-		return new MatrixXml(id, name, detail, dbuuid);
-	}
-
-	/** Creates an {@link Matrix} from an {@link MatrixXml}. */
-	public static Matrix toMatrix(MatrixXml matrixXml) {
-		Matrix matrix = new Matrix();
-		matrix.setId(matrixXml.getId());
-		matrix.setName(matrixXml.getName());
-		matrix.setDetail(matrixXml.getDetail());
-		matrix.setDbuuid(matrixXml.getDbuuid());
-
-		return matrix;
 	}
 }

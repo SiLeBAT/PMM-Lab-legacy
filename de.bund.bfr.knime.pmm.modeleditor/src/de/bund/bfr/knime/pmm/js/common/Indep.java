@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.IndepXml;
-
 /**
  * PmmLab independent variable. Holds:
  * <ul>
@@ -184,26 +182,5 @@ public class Indep implements ViewValue {
 		category = SettingsHelper.getString(CATEGORY, settings);
 		unit = SettingsHelper.getString(UNIT, settings);
 		description = SettingsHelper.getString(DESCRIPTION, settings);
-	}
-
-	/** Creates an {@link IndepXml} from this {@link Indep}. */
-	public IndepXml toIndepXml() {
-		IndepXml indepXml = new IndepXml(name, origname, min, max, category, unit, description);
-
-		return indepXml;
-	}
-
-	/** Creates an {@link Indep} from an {@link Indep}. */
-	public static Indep toIndep(IndepXml indepXml) {
-		Indep indep = new Indep();
-		indep.setName(indepXml.getName());
-		indep.setOrigname(indepXml.getOrigName());
-		indep.setMin(indepXml.getMin());
-		indep.setMax(indepXml.getMax());
-		indep.setCategory(indepXml.getCategory());
-		indep.setUnit(indepXml.getUnit());
-		indep.setDescription(indepXml.getDescription());
-
-		return indep;
 	}
 }

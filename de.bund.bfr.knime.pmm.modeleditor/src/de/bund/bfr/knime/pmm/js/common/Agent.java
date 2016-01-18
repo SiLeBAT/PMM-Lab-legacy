@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-
 /**
  * PmmLab agent. Holds:
  * <ul>
@@ -119,21 +117,5 @@ public class Agent implements ViewValue {
 		name = SettingsHelper.getString(NAME, settings);
 		detail = SettingsHelper.getString(DETAIL, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
-	}
-
-	/** Creates an {@link AgentXml} from this {@link Agent}. */
-	public AgentXml toAgentXml() {
-		return new AgentXml(id, name, detail, dbuuid);
-	}
-
-	/** Creates an {@link Agent} from an {@link AgentXml}. */
-	public static Agent toAgent(AgentXml agentXml) {
-		Agent agent = new Agent();
-		agent.setId(agentXml.getId());
-		agent.setName(agentXml.getName());
-		agent.setDetail(agentXml.getDetail());
-		agent.setDbuuid(agentXml.getDbuuid());
-
-		return agent;
 	}
 }

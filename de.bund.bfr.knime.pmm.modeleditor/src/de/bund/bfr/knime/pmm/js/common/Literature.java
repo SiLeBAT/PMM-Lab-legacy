@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
-
 /**
  * PmmLab literature item. Holds:
  * <ul>
@@ -284,32 +282,5 @@ public class Literature implements ViewValue {
 		type = SettingsHelper.getInteger(TYPE, settings);
 		comment = SettingsHelper.getString(COMMENT, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
-	}
-
-	/** Creates an {@link LiteratureItem} from this {@link Literature}. */
-	public LiteratureItem toLiteratureItem() {
-		return new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page, approvalMode,
-				website, type, comment, id, dbuuid);
-	}
-
-	/** Creates an {@link Literature} from an {@link LiteratureItem}. */
-	public static Literature toLiterature(LiteratureItem literatureItem) {
-		Literature literature = new Literature();
-		literature.setAuthor(literatureItem.getAuthor());
-		literature.setYear(literatureItem.getYear());
-		literature.setTitle(literatureItem.getTitle());
-		literature.setAbstractText(literatureItem.getAbstractText());
-		literature.setJournal(literatureItem.getJournal());
-		literature.setVolume(literatureItem.getVolume());
-		literature.setIssue(literatureItem.getIssue());
-		literature.setPage(literatureItem.getPage());
-		literature.setApprovalMode(literatureItem.getApprovalMode());
-		literature.setWebsite(literatureItem.getWebsite());
-		literature.setType(literatureItem.getType());
-		literature.setComment(literatureItem.getComment());
-		literature.setId(literatureItem.getId());
-		literature.setDbuuid(literatureItem.getDbuuid());
-
-		return literature;
 	}
 }

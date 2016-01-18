@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-
 /**
  * PmmLab catalog model. Holds:
  * <ul>
@@ -141,26 +139,4 @@ public class CatalogModel implements ViewValue {
 		comment = SettingsHelper.getString(COMMENT, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
 	}
-
-	/** Creates an {@link CatalogModelXml} from this {@link CatalogModel}. */
-	public CatalogModelXml toCatalogModelXml() {
-		CatalogModelXml catalogModelXml = new CatalogModelXml(id, name, formula, modelClass, dbuuid);
-		catalogModelXml.setComment(comment);
-
-		return catalogModelXml;
-	}
-
-	/** Creates an {@link CatalogModel} from an {@link CatalogModelXml}. */
-	public static CatalogModel toCatalogModel(CatalogModelXml catalogModelXml) {
-		CatalogModel catalogModel = new CatalogModel();
-		catalogModel.setId(catalogModelXml.getId());
-		catalogModel.setName(catalogModelXml.getName());
-		catalogModel.setFormula(catalogModelXml.getFormula());
-		catalogModel.setModelClass(catalogModelXml.getModelClass());
-		catalogModel.setComment(catalogModelXml.getComment());
-		catalogModel.setDbuuid(catalogModelXml.getDbuuid());
-
-		return catalogModel;
-	}
-
 }

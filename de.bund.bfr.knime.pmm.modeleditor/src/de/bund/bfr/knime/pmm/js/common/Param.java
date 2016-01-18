@@ -1,8 +1,5 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -10,8 +7,6 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
-
-import de.bund.bfr.knime.pmm.common.ParamXml;
 
 /**
  * PmmLab parameter. Holds:
@@ -286,49 +281,5 @@ public class Param implements ViewValue {
 			correlationNames = null;
 			correlationValues = null;
 		}
-	}
-
-	/** Creates an {@link ParamXml} from this {@link Param}. */
-	public ParamXml toParamXml() {
-		HashMap<String, Double> correlations = new HashMap<>();
-		for (int i = 0; i < correlationNames.length; i++) {
-			correlations.put(correlationNames[i], correlationValues[i]);
-		}
-		ParamXml paramXml = new ParamXml(name, origname, value, error, min, max, p, t, minGuess, maxGuess, category,
-				unit, description, correlations);
-
-		return paramXml;
-	}
-
-	/** Creates an {@link Param} from an {@link ParamXml}. */
-	public static Param toParam(ParamXml paramXml) {
-		HashMap<String, Double> obtainedCorrelations = paramXml.getAllCorrelations();
-		String[] obtainedCorrelationNames = new String[obtainedCorrelations.size()];
-		double[] obtainedCorrelationValues = new double[obtainedCorrelations.size()];
-		int i = 0;
-		for (Map.Entry<String, Double> entry : obtainedCorrelations.entrySet()) {
-			obtainedCorrelationNames[i] = entry.getKey();
-			obtainedCorrelationValues[i] = entry.getValue();
-			i++;
-		}
-
-		Param param = new Param();
-		param.setName(paramXml.getName());
-		param.setOrigName(paramXml.getOrigName());
-		param.setValue(paramXml.getValue());
-		param.setError(paramXml.getError());
-		param.setMin(paramXml.getMin());
-		param.setMax(paramXml.getMax());
-		param.setP(paramXml.getP());
-		param.setT(paramXml.getT());
-		param.setMinGuess(paramXml.getMinGuess());
-		param.setMaxGuess(paramXml.getMaxGuess());
-		param.setCategory(paramXml.getCategory());
-		param.setUnit(paramXml.getUnit());
-		param.setDescription(paramXml.getDescription());
-		param.setCorrelationNames(obtainedCorrelationNames);
-		param.setCorrelationValues(obtainedCorrelationValues);
-
-		return param;
 	}
 }

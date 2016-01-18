@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.DepXml;
-
 /**
  * PmmLab dep. Holds:
  * <ul>
@@ -127,7 +125,7 @@ public class Dep implements ViewValue {
 	 * null.
 	 */
 	public void setDescription(final String description) {
-		this.description = description.isEmpty() ? null : description;
+		this.description = Strings.emptyToNull(description);
 	}
 
 	/** Saves dep properties into a {@link NodeSettingsWO}. */
@@ -154,28 +152,5 @@ public class Dep implements ViewValue {
 		category = SettingsHelper.getString(CATEGORY, settings);
 		unit = SettingsHelper.getString(UNIT, settings);
 		description = SettingsHelper.getString(DESCRIPTION, settings);
-	}
-
-	/** Creates an {@link DepXml} from this {@link Dep}. */
-	public DepXml toDepXml() {
-		DepXml depXml = new DepXml(name, origname, category, unit, description);
-		depXml.setMin(min);
-		depXml.setMax(max);
-
-		return depXml;
-	}
-
-	/** Creates an {@link Dep} from this {@link DepXml}. */
-	public static Dep toDep(DepXml depXml) {
-		Dep dep = new Dep();
-		dep.setName(depXml.getName());
-		dep.setOrigname(depXml.getOrigName());
-		dep.setMin(depXml.getMin());
-		dep.setMax(depXml.getMax());
-		dep.setCategory(depXml.getCategory());
-		dep.setUnit(depXml.getUnit());
-		dep.setDescription(depXml.getDescription());
-
-		return dep;
 	}
 }

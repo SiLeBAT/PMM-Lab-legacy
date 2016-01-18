@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.MdInfoXml;
-
 /**
  * PmmLab model info. Holds:
  * <ul>
@@ -109,22 +107,5 @@ public class MdInfo implements ViewValue {
 		comment = SettingsHelper.getString(COMMENT, settings);
 		qualityScore = SettingsHelper.getInteger(QUALITYSCORE, settings);
 		checked = SettingsHelper.getBoolean(CHECKED, settings);
-	}
-
-	/** Creates an {@link MdInfoXml} from this {@link MdInfo}. */
-	public MdInfoXml toMdInfoXml() {
-		return new MdInfoXml(id, name, comment, qualityScore, checked);
-	}
-
-	/** Creates an {@link MdInfo} from an {@link MdInfoXml}. */
-	public static MdInfo toMdInfo(MdInfoXml mdInfoXml) {
-		MdInfo mdInfo = new MdInfo();
-		mdInfo.setId(mdInfoXml.getId());
-		mdInfo.setName(mdInfoXml.getName());
-		mdInfo.setComment(mdInfoXml.getComment());
-		mdInfo.setQualityScore(mdInfoXml.getQualityScore());
-		mdInfo.setChecked(mdInfoXml.getChecked());
-
-		return mdInfo;
 	}
 }

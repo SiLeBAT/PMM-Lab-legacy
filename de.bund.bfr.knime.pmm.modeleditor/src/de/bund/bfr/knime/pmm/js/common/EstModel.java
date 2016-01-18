@@ -266,14 +266,6 @@ public class EstModel implements ViewValue {
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
 	}
 
-	/** Creates an {@link EstModelXml} from this {@link EstModel}. */
-	public EstModelXml toEstModelXml() {
-		EstModelXml estModelXml = new EstModelXml(id, name, sse, rms, r2, aic, bic, dof, true, qualityScore, dbuuid);
-		estModelXml.setComment(comment);
-
-		return estModelXml;
-	}
-
 	/** Creates an {@link EstModel} from an {@link EstModelXml}. */
 	public static EstModel toEstModel(EstModelXml estModelXml) {
 		EstModel estModel = new EstModel();

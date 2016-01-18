@@ -508,7 +508,7 @@ js_editor = function() {
 				}
 			}
 		});
-		models[modelNumber].mLit = literatureItems;
+		models[modelNumber].mLit.literature = literatureItems;
 
 		print_error("success", "Save References", "Save!");
 	}
@@ -923,47 +923,92 @@ js_editor = function() {
 	}
 
 	function save_parameters(model_number) {
-		var dep = {};  // dependent parameter
-		var indeps = [];  // independent parameters
-		var params = [];  // constant parameters
+		var model = models[model_number];
+		model.indeps.indeps = Array();  // independent parameters
+		model.params.params = Array();  // constant parameters
 
 		// Takes parameters from the table, one parameter a time
 		$("#par_table_body tr").each(function() {
-			// TODO: update category according to unit
-			var category = null;
-			var name = $(this).data('name');
-			var desc = $(this).find("td:eq(8) a").text();
-			var max = $(this).find("td:eq(7) a").text();
-			var min = $(this).find("td:eq(6) a").text();   
-			var unit = $(this).find("td:eq(2) a").text();
-			var val = $(this).find("td:eq(4) a").text();
-			var error = $(this).find("td:eq(5) a").text();
 
-			var param = {};
-			param.category = category;
-			param.description = (desc === 'Empty') ? null : desc;
-			param.max = (max === 'Empty') ? null : max;
-			param.min = (min === 'Empty') ? null : min;
-			param.name = name;
-			param.origname = name;
-			param.unit = (unit === 'Empty') ? null : unit;
+			function row2Dep(row) {
+
+				var unit_cell = row.find("td:eq(2) a");
+				var min_cell = row.find("td:eq(6) a");
+				var max_cell = row.find("td:eq(7) a");
+				var desc_cell = row.find("td:eq(8) a");	
+
+				var dep = {};
+				dep["@class"] = "de.bund.bfr.knime.pmm.js.common.Dep";
+				dep.name = row.data('name');
+				dep.origname = row.data('name');
+				dep.min = min_cell.text() === "-" ? null : parseFloat(min_cell.text());
+				dep.max = max_cell.text() === "-" ? null : parseFloat(max_cell.text());
+				dep.category = null;  // TODO: need to fill category according to `unit`
+				dep.unit = unit_cell.text() === "-" ? null : unit_cell.text();
+				dep.description = desc_cell.text() === "Empty" ? null : desc_cell.text();
+
+				return dep;
+			}
+
+			function row2Indep(row) {
+				var unit_cell = row.find("td:eq(2) a");
+				var min_cell = row.find("td:eq(6) a");
+				var max_cell = row.find("td:eq(7) a");
+				var desc_cell = row.find("td:eq(8) a");	
+
+				var indep = {};
+				indep["@class"] = "de.bund.bfr.knime.pmm.js.common.Indep";
+				indep.name = row.data('name');
+				indep.origname = row.data('name');
+				indep.min = min_cell.text() === "-" ? null : parseFloat(min_cell.text());
+				indep.max = max_cell.text() === "-" ? null : parseFloat(max_cell.text());
+				indep.category = null;  // TODO: need to fill category according to `unit`
+				indep.unit = unit_cell.text() === "Empty" ? null : unit_cell.text();
+				indep.description = desc_cell.text() === "Empty" ? null : desc_cell.text();
+
+				return indep;
+			}
+
+			function row2Param(row) {
+				var unit_cell = row.find("td:eq(2) a");
+				var value_cell = row.find("td:eq(4) a");
+				var error_cell = row.find("td:eq(5) a");
+				var min_cell = row.find("td:eq(6) a");
+				var max_cell = row.find("td:eq(7) a");
+				var desc_cell = row.find("td:eq(8) a");	
+
+				var param = {};
+				param["@class"] = "de.bund.bfr.knime.pmm.js.common.Param";
+				param.name = row.data('name');
+				param.origname = row.data('name');
+				param.value = value_cell.text() === "-" ? null : parseFloat(value_cell.text());
+				param.error = value_cell.text() === "-" ? null : parseFloat(error_cell.text());
+				param.min = min_cell.text() === "-" ? null : parseFloat(min_cell.text());
+				param.max = max_cell.text() === "-" ? null : parseFloat(max_cell.text());
+				param.p = null;
+				param.t = null;
+				param.minGuess = null;
+				param.maxGuess = null;
+				param.category = null;  // TODO
+				param.unit = unit_cell.text() === "Empty" ? null : unit_cell.text();
+				param.description = desc_cell.text() === "Empty" ? null : desc_cell.text();
+				param.correlationNames = null;
+				param.correlationValues = null;
+
+				return param;
+
+			}
 
 			// Saves dependent, independent and constant parameters
 			var param_type = $(this).data('type');
 			if (param_type === 'D') {
-				dep = param;
+				model.dep = row2Dep($(this));
 			} else if (param_type === 'I') {
-				indeps.push(param);
+				model.indeps.indeps.push(row2Indep($(this)));
 			} else if (param_type === 'P') {
-				params.push(param);
+				model.params.params.push(row2Param($(this)));
 			}
 		});
-
-		// Save new parameters to model
-		var model = models[model_number];
-		model.dep = dep;
-		model.indeps = indeps;
-		model.params = params;
 	}	
 
 	/****************GLOBAL FUNCTIONS****************/

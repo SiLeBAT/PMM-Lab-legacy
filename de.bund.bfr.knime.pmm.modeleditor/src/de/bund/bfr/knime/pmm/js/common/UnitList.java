@@ -39,7 +39,7 @@ public class UnitList {
 		return units;
 	}
 
-	public void setUnits(Unit[] units) {
+	public void setUnits(final Unit[] units) {
 		numUnits = units.length;
 		this.units = units;
 	}

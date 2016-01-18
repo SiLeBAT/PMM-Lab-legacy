@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class TimeSeries implements ViewValue {
@@ -208,28 +206,5 @@ public class TimeSeries implements ViewValue {
 		origConcentrationUnit = SettingsHelper.getString(ORIG_CONCENTRATION_UNIT, settings);
 		concentrationStdDev = SettingsHelper.getDouble(CONCENTRATION_STDDEV, settings);
 		numberOfMeasurements = SettingsHelper.getInteger(NUMBER_OF_MEASUREMENTS, settings);
-	}
-
-	/** Creates a {@link TimeSeriesXml} from this {@link TimeSeries}. */
-	public TimeSeriesXml toTimeSeriesXml() {
-		return new TimeSeriesXml(name, time, timeUnit, origTimeUnit, concentration, concentrationUnit,
-				concentrationUnitObjectType, origConcentrationUnit, concentrationStdDev, numberOfMeasurements);
-	}
-
-	/** Creates a {@link TimeSeris} from a {@link TimeSeriesXml}. */
-	public static TimeSeries toTimeSeries(TimeSeriesXml timeSeriesXml) {
-		TimeSeries timeSeries = new TimeSeries();
-		timeSeries.setName(timeSeriesXml.getName());
-		timeSeries.setTime(timeSeriesXml.getTime());
-		timeSeries.setTimeUnit(timeSeriesXml.getTimeUnit());
-		timeSeries.setOrigTimeUnit(timeSeriesXml.getOrigTimeUnit());
-		timeSeries.setConcentration(timeSeriesXml.getConcentration());
-		timeSeries.setConcentrationUnit(timeSeriesXml.getConcentrationUnit());
-		timeSeries.setConcentrationUnitObjectType(timeSeriesXml.getConcentrationUnitObjectType());
-		timeSeries.setOrigConcentrationUnit(timeSeriesXml.getOrigConcentrationUnit());
-		timeSeries.setConcentrationStdDev(timeSeriesXml.getConcentrationStdDev());
-		timeSeries.setNumberOfMeasurements(timeSeriesXml.getNumberOfMeasurements());
-
-		return timeSeries;
 	}
 }

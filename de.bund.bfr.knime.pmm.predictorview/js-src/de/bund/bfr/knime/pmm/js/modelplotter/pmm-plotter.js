@@ -13,8 +13,8 @@ pmm_plotter = function() {
 	var functionGraph;
 	var jsxBoard;
 	
-	var globalNumber = 1;
-	var modelObjects = [];
+	var _globalNumber = 1;
+	var _modelObjects = [];
 	var colorsArray = [];
 	
 	var msgAdd = "Hinzufügen";
@@ -24,7 +24,7 @@ pmm_plotter = function() {
 	var sliderWidth = "width: 190px;";
 	var sliderInputWidth = "width: 40px;";
 	var sliderBoxHeight = "height: 33px;";
-	var sliderStepSize = 0.0001;
+	var _sliderStepSize = 0.0001;
 	var totalHeight = "height: 800px;";
 	var plotWidth = 600;
 	var plotHeight = 400;
@@ -34,6 +34,7 @@ pmm_plotter = function() {
 		plotterValue = value;
 		plotterRep = representation;
 		
+		// body
 		var body = document.getElementsByTagName("body")[0];
 		body.setAttribute("style", "background: #fdfdfd; width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
 
@@ -43,9 +44,12 @@ pmm_plotter = function() {
 		var layoutWrapper = document.createElement("div");
 		layoutWrapper.setAttribute("id", "layoutWrapper");
 		layoutWrapper.setAttribute("style", "width:900px;");
+		body.appendChild(layoutWrapper);
+		
 		var leftWrapper = document.createElement("div");
 		leftWrapper.setAttribute("id", "leftWrapper");
 		leftWrapper.setAttribute("style", "width:300px; display: block; float: left;" + totalHeight);
+		
 		var rightWrapper = document.createElement("div");
 		rightWrapper.setAttribute("id", "rightWrapper");
 		rightWrapper.setAttribute("style", "width:600px; display: block; float: left;" + totalHeight);
@@ -103,15 +107,18 @@ pmm_plotter = function() {
 		sliderWrapper.setAttribute("style" , buttonWidth);
 		leftWrapper.appendChild(sliderWrapper);
 		
-		// body
-		body.appendChild(layoutWrapper);
-		// --- //
-		
 		// plot
 		var d3Plot = document.createElement("div");
 		d3Plot.setAttribute("id", "d3plotter");
 		rightWrapper.appendChild(d3Plot);
-				
+		
+		// meta data
+		var metaDataWrapper = document.createElement("div");
+		metaDataWrapper.setAttribute("id", "metaDataWrapper");
+		rightWrapper.appendChild(metaDataWrapper);
+		
+		// --- //
+		
 		// dynamic options
 		addSelectOption(plotterValue.dbuuid, plotterValue.modelName);
 		addSelectOption("123", "Beispiel");
@@ -128,6 +135,10 @@ pmm_plotter = function() {
 			});
 			// make all html selects jquery select menus
 			$("select").selectmenu();
+			$("#metaDataWrapper").accordion({
+				content: "height-style",
+				collapsible: true
+			});
 		});
 		/***/
 	};
@@ -183,8 +194,8 @@ pmm_plotter = function() {
 		}
 		else // to be removed
 		{
-			globalNumber++; 
-			addFunctionObject(globalNumber, "x-" + globalNumber, null);
+			_globalNumber++; 
+			addFunctionObject(_globalNumber, "x-" + _globalNumber, null);
 		}
 	}
 	
@@ -197,10 +208,10 @@ pmm_plotter = function() {
 	function addFunctionObject(dbuuid, functionAsString, functionConstants)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
-		var maxRange = 100; // obligatoric for the range feature
+		var maxRange = plotterValue.maxXAxis; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
 		
-		var funcObj = { 
+		var modelObj = { 
 			 dbuuid: dbuuid,
 			 fn: functionAsString,
 			 scope: functionConstants,
@@ -208,10 +219,49 @@ pmm_plotter = function() {
 			 range: range,
 			 skipTip: false
 		};
-		modelObjects.push(funcObj);
+		_modelObjects.push(modelObj);
 		// update plot after adding new function
 		generateParameterSliders();
+		addMetaData(modelObj);
 		drawD3Plot();
+	}
+	
+	function addMetaData(modelObject) 
+	{
+		var header = document.createElement("h3");
+		header.setAttribute("id", "h" + modelObject.dbuuid);
+		header.innerHTML = modelObject.dbuuid;
+		$("#metaDataWrapper").append(header);
+		
+		var metaDiv = document.createElement("div");
+		metaDiv.setAttribute("id", modelObject.dbuuid);
+		$("#metaDataWrapper").append(metaDiv);
+		
+		var paragraphFunc = document.createElement("p");
+		metaDiv.appendChild(paragraphFunc);
+		
+		var functionHeader  = document.createElement("div");
+		functionHeader.setAttribute("style", "font-weight: bold;");
+		functionHeader.innerHTML = "Funktion";
+		paragraphFunc.appendChild(functionHeader);	
+		
+		var functionElem = document.createElement("div");
+		functionElem.innerHTML = modelObject.fn;
+		paragraphFunc.appendChild(functionElem);	
+		
+		var paragraphScope = document.createElement("p");
+		metaDiv.appendChild(paragraphScope);
+		
+		var scopeHeader  = document.createElement("div");
+		scopeHeader.setAttribute("style", "font-weight: bold;");
+		scopeHeader.innerHTML = "Parameter";
+		paragraphScope.appendChild(scopeHeader);
+		
+		var scopeElem = document.createElement("div");
+		scopeElem.innerHTML = modelObject.scope;
+		paragraphScope.appendChild(scopeElem);	
+		
+		$("#metaDataWrapper").accordion("refresh");
 	}
 
     /*
@@ -221,9 +271,9 @@ pmm_plotter = function() {
 	{
 	    var sliderWrapper = document.getElementById("sliderWrapper");
 	    
-	    for (var modelIndex in modelObjects)
+	    for (var modelIndex in _modelObjects)
 	    {
-	    	var constants = modelObjects[modelIndex].scope;
+	    	var constants = _modelObjects[modelIndex].scope;
 	    	if(constants)
 	    	{
 		    	$.each(constants, function(constant, value)
@@ -240,7 +290,7 @@ pmm_plotter = function() {
 					 * > sliderBox
 					 * >> sliderLabel
 					 * >> slider | >> sliderValueDiv
-					 * 			   >>> sliderValue
+					 * 			   >>> sliderValueInput
 					 */
 				    var sliderBox = document.createElement("p");
 				    sliderBox.setAttribute("id", sliderId);
@@ -260,30 +310,53 @@ pmm_plotter = function() {
 					sliderValueDiv.setAttribute("style" , sliderInputWidth + "display: block; float: left;");
 					sliderBox.appendChild(sliderValueDiv);
 					
-					var sliderValue = document.createElement("input");
-					sliderValue.setAttribute("type", "text");
-					sliderValue.setAttribute("style" , sliderInputWidth + "font-weight: bold;");
-					sliderValueDiv.appendChild(sliderValue);
+					var sliderValueInput = document.createElement("input");
+					sliderValueInput.setAttribute("type", "number");
+					sliderValueInput.setAttribute("style" , sliderInputWidth + "font-weight: bold;");
+					sliderValueDiv.appendChild(sliderValueInput);
 					
-					$(sliderValue).val(value);
+					var sliderMin;
+					var sliderMax;
+					
+					if(value > 0)
+					{
+						sliderMin = value / 2;
+						sliderMax = value * 2;
+					}
+					else if(value < 0) 
+					{
+						sliderMin = value + value;
+						sliderMax = value - value;
+		    		}
+					else
+					{
+						sliderMin = 0;
+						sliderMax = 1;
+					}
+					sliderValueInput.setAttribute("min", sliderMin);
+					sliderValueInput.setAttribute("max", sliderMax);
+					
+					$(sliderValueInput).val(value);
 				    $(slider).slider({
 				    	value: value,
-				    	step: sliderStepSize,
+				    	min: sliderMin,
+				    	max: sliderMax,
+				    	step: _sliderStepSize,
 				    	// changing the slider changes the input field
 				        slide: function( event, ui ) {
-				            $(sliderValue).val( ui.value );
+				            $(sliderValueInput).val( ui.value );
 				            // delay prevents excessive redrawing
 				            window.setTimeout(updateFunctionConstant(constant, ui.value), 30);
 				        }
 				    });
-					$(sliderValue).change(function() {
+					$(sliderValueInput).change(function() {
 						// changing the input field changes the slider
 						$(slider).slider("value", this.value);
 							// delay prevents excessive redrawing
 							window.setTimeout(updateFunctionConstant(constant, this.value), 30);
 					});
 					// react immediately on key input
-					$(sliderValue).keyup(function() {
+					$(sliderValueInput).keyup(function() {
 						$(this).change();
 					});
 				});
@@ -296,15 +369,12 @@ pmm_plotter = function() {
 	 */
 	function updateFunctionConstant(constant, value)
 	{
-		if(value == "0") // workaround, functionPlot/implementation crashes on "0"
+		newValue = parseFloat(value);
+		for(var modelIndex in _modelObjects)
 		{
-			value = 0.0000001;
-		}
-		for(var modelIndex in modelObjects)
-		{
-			var constants = modelObjects[modelIndex].scope;
-			if(constants && constants[constant])
-				constants[constant] = value;
+			var constants = _modelObjects[modelIndex].scope;
+			if(constants && constants[constant] != undefined)
+				constants[constant] = newValue;
 		}
 		drawD3Plot();
 	}
@@ -315,22 +385,22 @@ pmm_plotter = function() {
 	function drawD3Plot() 
 	{
 		functionPlot({
-			  target: '#d3plotter',
-			  xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],
-			  yDomain: [plotterValue.minYAxis, plotterValue.maxYAxis],
-			  xLabel: plotterValue.xUnit,
-			  yLabel: plotterValue.yUnit,
-			  witdh: plotWidth,
-			  height: plotHeight,
-			  tip: 
-			  {
-			    xLine: true,    // dashed line parallel to y = 0
+		    target: '#d3plotter',
+		    xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],
+		    yDomain: [plotterValue.minYAxis, plotterValue.maxYAxis],
+		    xLabel: plotterValue.xUnit,
+		    yLabel: plotterValue.yUnit,
+		    witdh: plotWidth,
+		    height: plotHeight,
+		    tip: 
+		    {
+		    	xLine: true,    // dashed line parallel to y = 0
 			    yLine: true,    // dashed line parallel to x = 0
 			    renderer: function (x, y, index) {
 			      return y;
 				}
-			  },
-			  data: modelObjects
+			},
+		    data: _modelObjects
 		});
 	}
 	

@@ -32,6 +32,7 @@ public class JSONParam {
 	// attribute keys
 	static final String ATT_NAME = "name";
 	static final String ATT_ORIGNAME = "origname";
+	static final String ATT_IS_START = "isStart";
 	static final String ATT_VALUE = "value";
 	static final String ATT_ERROR = "error";
 	static final String ATT_MIN = "min";
@@ -56,6 +57,7 @@ public class JSONParam {
 
 		obj.put(ATT_NAME, param.getName());
 		obj.put(ATT_ORIGNAME, param.getOrigName());
+		obj.put(ATT_IS_START, param.isStartParam());
 		obj.put(ATT_VALUE, param.getValue());
 		obj.put(ATT_ERROR, param.getError());
 		obj.put(ATT_MIN, param.getMin());
@@ -78,6 +80,7 @@ public class JSONParam {
 	public ParamXml toParamXml() {
 		String name = (String) obj.get(ATT_NAME);
 		String origName = (String) obj.get(ATT_ORIGNAME);
+		Boolean isStart = (Boolean) obj.get(ATT_IS_START);
 		Double value = (Double) obj.get(ATT_VALUE);
 		Double error = (Double) obj.get(ATT_ERROR);
 		Double min = (Double) obj.get(ATT_MIN);
@@ -92,7 +95,7 @@ public class JSONParam {
 		HashMap<String, Double> correlations = (HashMap<String, Double>) obj
 				.get(ATT_CORRELATION);
 
-		return new ParamXml(name, origName, value, error, min, max, P, t,
+		return new ParamXml(name, origName, isStart, value, error, min, max, P, t,
 				minGuess, maxGuess, category, unit, description, correlations);
 	}
 }

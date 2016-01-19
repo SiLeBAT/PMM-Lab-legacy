@@ -34,6 +34,7 @@ public class Param implements ViewValue {
 	// Configuration keys
 	static final String NAME = "name";
 	static final String ORIGNAME = "origname";
+	static final String ISSTART = "isStart";
 	static final String VALUE = "value";
 	static final String ERROR = "error";
 	static final String MIN = "min";
@@ -50,6 +51,7 @@ public class Param implements ViewValue {
 
 	private String name;
 	private String origname;
+	private Boolean isStart;
 	private Double value;
 	private Double error;
 	private Double min;
@@ -75,6 +77,14 @@ public class Param implements ViewValue {
 	 */
 	public String getOrigName() {
 		return origname;
+	}
+
+	/**
+	 * Returns TRUE if this {@link Param} is a start parameter. If not set, returns
+	 * null.
+	 */
+	public Boolean isStart() {
+		return isStart;
 	}
 
 	/** Returns the value of this {@link Param}. If not set, returns null. */
@@ -175,6 +185,11 @@ public class Param implements ViewValue {
 		this.origname = Strings.emptyToNull(origName);
 	}
 
+	/** Sets the state of the parameter as start parameter to 'isStart'. */
+	public void setIsStart(final Boolean isStart) {
+		this.isStart = isStart;
+	}
+
 	/** Sets the value with 'value'. */
 	public void setValue(final Double value) {
 		this.value = value;
@@ -245,6 +260,7 @@ public class Param implements ViewValue {
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
 		SettingsHelper.addString(ORIGNAME, origname, settings);
+		SettingsHelper.addBoolean(ISSTART, isStart, settings);
 		SettingsHelper.addDouble(VALUE, value, settings);
 		SettingsHelper.addDouble(ERROR, error, settings);
 		SettingsHelper.addDouble(MIN, min, settings);
@@ -263,6 +279,7 @@ public class Param implements ViewValue {
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		name = SettingsHelper.getString(NAME, settings);
 		origname = SettingsHelper.getString(ORIGNAME, settings);
+		isStart = SettingsHelper.getBoolean(ISSTART, settings);
 		value = SettingsHelper.getDouble(VALUE, settings);
 		error = SettingsHelper.getDouble(ERROR, settings);
 		min = SettingsHelper.getDouble(MIN, settings);

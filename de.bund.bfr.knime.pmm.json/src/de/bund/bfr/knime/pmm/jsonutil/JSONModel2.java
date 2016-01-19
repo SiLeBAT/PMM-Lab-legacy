@@ -189,14 +189,14 @@ public class JSONModel2 {
 		List<IndepXml> indeps = Arrays.asList(indep);
 
 		// Tmax parameter
-		ParamXml tmaxParam = new ParamXml("Tmax", 51.282);
+		ParamXml tmaxParam = new ParamXml("Tmax", false, 51.282);
 		tmaxParam.setCategory("Temperature");
 		tmaxParam.setDescription("degree celsius");
 		tmaxParam.setOrigName("Tmax");
 		tmaxParam.setUnit("ºC");
 
 		// Tmin parameter
-		ParamXml tminParam = new ParamXml("Tmin", 5.572);
+		ParamXml tminParam = new ParamXml("Tmin", false, 5.572);
 		tminParam.setCategory("Temperature");
 		tminParam.setDescription("degree celsius");
 		tminParam.setOrigName("Tmin");

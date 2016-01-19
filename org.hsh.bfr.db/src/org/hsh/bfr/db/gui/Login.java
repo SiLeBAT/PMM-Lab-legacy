@@ -136,9 +136,9 @@ public class Login extends JFrame {
 				}
 			}
 			catch (Exception e) {}
-			
-			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 			/*
+			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
+			
 			  DBKernel.sendRequest("DELETE FROM " +
 			  DBKernel.delimitL("Infotabelle") + " WHERE " +
 			  DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
@@ -154,6 +154,8 @@ public class Login extends JFrame {
 			  true); DBKernel.sendRequest("DROP TABLE " +
 			  DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false,
 			  true); DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
+			  
+			  System.err.println("DB cleaned up!");
 			  */
 			  /*
 			  DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GlobalModel") + "=3", false);
@@ -476,12 +478,10 @@ public class Login extends JFrame {
 				UpdateChecker.check4Updates_1820_18200();
 				DBKernel.setDBVersion("1.8.2.0.0");
 			}
-			/*
 			if (DBKernel.getDBVersionFromDB().equals("1.8.2.0.0")) {
 				UpdateChecker.check4Updates_182_183();
 				DBKernel.setDBVersion("1.8.3");
 			}
-			*/
 
 			DBKernel.closeDBConnections(false);
 		} catch (Exception e) {

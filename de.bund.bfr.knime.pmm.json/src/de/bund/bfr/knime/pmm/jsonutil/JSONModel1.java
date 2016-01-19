@@ -170,14 +170,14 @@ public class JSONModel1 {
 		List<IndepXml> indeps = Arrays.asList(indep);
 
 		// Log10N param - Create with name and value
-		ParamXml log10NParam = new ParamXml("Log10N", 0.0);
+		ParamXml log10NParam = new ParamXml("Log10N", false, 0.0);
 		log10NParam.setCategory("Number Content (count/mass)");
 		log10NParam.setDescription("ln ...");
 		log10NParam.setOrigName("Log10N");
 		log10NParam.setUnit("ln(count/g)");
 
 		// Log10N0 param - Create with name and value
-		ParamXml log10N0Param = new ParamXml("Log10N0", 2.68134);
+		ParamXml log10N0Param = new ParamXml("Log10N0", true, 2.68134);
 		log10N0Param.setCategory("Number Content (count/mass)");
 		log10N0Param.setDescription("ln ...");
 		log10N0Param.setOrigName("Log10N0");

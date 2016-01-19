@@ -37,10 +37,6 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class UpdateChecker {
 	public static void check4Updates_183_184() {
-		/*
-	*/
-	}
-	public static void check4Updates_182_183() {
 		try {
 			ResultSet rs = DBKernel.getResultSet(
 					"SELECT MIN(\"Agenzien\".\"Agensname\") AS \"Agensname\", MIN(\"Versuchsbedingungen\") AS \"Versuchsbedingung\" FROM \"Messwerte\"" +
@@ -151,6 +147,14 @@ public class UpdateChecker {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	public static void check4Updates_182_183() {
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("ParamView") + ";", false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_183.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_183.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_183.sql", null, false);
 	}
 	public static void check4Updates_1820_18200() {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ALTER COLUMN " + DBKernel.delimitL("MathML string") + " VARCHAR(16383)", false);

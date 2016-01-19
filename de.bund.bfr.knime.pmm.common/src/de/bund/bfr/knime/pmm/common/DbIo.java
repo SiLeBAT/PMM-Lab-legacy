@@ -153,7 +153,7 @@ public class DbIo {
     	return value;
     }
     public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name,
-    		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max, Array desc, Array P, Array t, Integer modelId, Integer emid) {
+    		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max, Array desc, Array paramType, Array P, Array t, Integer modelId, Integer emid) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -168,6 +168,7 @@ public class DbIo {
 				Object[] cd = (Object[])desc.getArray();
 				Object[] cp = (P == null) ? null : (Object[])P.getArray();
 				Object[] ct = (t == null) ? null : (Object[])t.getArray();
+				Object[] pta = (paramType == null) ? null : (Object[])paramType.getArray();
 				if (na != null && na.length > 0) {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
@@ -197,7 +198,8 @@ public class DbIo {
 			    		if (cc != null && cc[i] == null && cu[i] != null) {
 			    			cc[i] = DBKernel.getValue("Einheiten", "display in GUI as", (String) cu[i], "kind of property / quantity");
 			    		}
-						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
+			    		Boolean ptab = pta == null || pta[i] == null ? null : ((Integer) pta[i]).intValue() == 4;
+						ParamXml px = new ParamXml(onas,ptab,vad,erd,mid,mad,null,null,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
 						px.setName(nas);
 						if (cd != null && cd[i] != null) px.setDescription(stripNonValidXMLCharacters(cd[i].toString()));
 						if (cp != null && cp[i] != null) px.setP(Double.parseDouble(cp[i].toString()));

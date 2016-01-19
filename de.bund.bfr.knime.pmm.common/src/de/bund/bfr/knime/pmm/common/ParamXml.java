@@ -29,6 +29,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 
 	private static final String ATT_NAME = "name";
 	private static final String ATT_ORIGNAME = "origname";
+	private static final String ATT_IS_START = "isStart";
 	private static final String ATT_VALUE = "value";
 	private static final String ATT_ERROR = "error";
 	private static final String ATT_MIN = "min";
@@ -44,6 +45,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 
 	private String name;
 	private String origName;
+	private Boolean isStartParam;
 	private Double value;
 	private Double error;
 	private Double min;
@@ -57,12 +59,13 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private String description;
 	private HashMap<String, Double> correlations;
 
-	public ParamXml(String name, String origName, Double value, Double error,
+	public ParamXml(String name, String origName, Boolean isStartParam, Double value, Double error,
 			Double min, Double max, Double P, Double t, Double minGuess,
 			Double maxGuess, String category, String unit, String description,
 			HashMap<String, Double> correlations) {
 		this.name = name;
 		this.origName = origName;
+		this.isStartParam = isStartParam;
 		this.value = value;
 		this.error = error;
 		this.min = min;
@@ -77,26 +80,26 @@ public class ParamXml implements PmmXmlElementConvertable {
 		this.correlations = correlations;
 	}
 
-	public ParamXml(String name, Double value) {
-		this(name, name, value, null, null, null, null, null, null, null, null,
+	public ParamXml(String name, Boolean isStartParam, Double value) {
+		this(name, name, isStartParam, value, null, null, null, null, null, null, null, null,
 				null, null, new HashMap<String, Double>());
 	}
 
-	public ParamXml(String name, Double value, Double error, Double min,
+	public ParamXml(String name, Boolean isStartParam, Double value, Double error, Double min,
 			Double max, Double P, Double t) {
-		this(name, name, value, error, min, max, P, t, null, null, null, null,
+		this(name, name, isStartParam, value, error, min, max, P, t, null, null, null, null,
 				null, new HashMap<String, Double>());
 	}
 
-	public ParamXml(String name, Double value, Double error, Double min,
+	public ParamXml(String name, Boolean isStartParam, Double value, Double error, Double min,
 			Double max, Double P, Double t, String category, String unit) {
-		this(name, name, value, error, min, max, P, t, null, null, category,
+		this(name, name, isStartParam, value, error, min, max, P, t, null, null, category,
 				unit, null, new HashMap<String, Double>());
 	}
 
 	public ParamXml(Element el) {
 		this(XmlHelper.getString(el, ATT_NAME), XmlHelper.getString(el,
-				ATT_ORIGNAME), XmlHelper.getDouble(el, ATT_VALUE), XmlHelper
+				ATT_ORIGNAME), XmlHelper.getBoolean(el, ATT_IS_START), XmlHelper.getDouble(el, ATT_VALUE), XmlHelper
 				.getDouble(el, ATT_ERROR), XmlHelper.getDouble(el, ATT_MIN),
 				XmlHelper.getDouble(el, ATT_MAX), XmlHelper
 						.getDouble(el, ATT_P), XmlHelper.getDouble(el, ATT_T),
@@ -121,6 +124,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 
 		ret.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
 		ret.setAttribute(ATT_ORIGNAME, XmlHelper.getNonNull(origName));
+		ret.setAttribute(ATT_IS_START, XmlHelper.getNonNull(isStartParam));
 		ret.setAttribute(ATT_VALUE, XmlHelper.getNonNull(value));
 		ret.setAttribute(ATT_ERROR, XmlHelper.getNonNull(error));
 		ret.setAttribute(ATT_MIN, XmlHelper.getNonNull(min));
@@ -187,6 +191,12 @@ public class ParamXml implements PmmXmlElementConvertable {
 		this.value = value;
 	}
 
+	public Boolean isStartParam() {
+		return isStartParam;
+	}
+	public void setIsStartParam(Boolean isStartParam) {
+		this.isStartParam = isStartParam;
+	}
 	public Double getError() {
 		return error;
 	}

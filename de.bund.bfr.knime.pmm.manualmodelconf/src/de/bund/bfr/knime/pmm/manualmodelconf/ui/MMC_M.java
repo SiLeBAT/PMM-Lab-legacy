@@ -281,6 +281,7 @@ public class MMC_M extends JPanel {
 		Array arrayCat = result.getArray("ParCategory");
 		Array arrayUnit = result.getArray("ParUnit");
 		Array arrayDesc = result.getArray("ParamDescription");
+		Array arrayParamType = result.getArray(Bfrdb.ATT_PARAMTYPE);
 		if (array != null && arrayMin != null && arrayMax != null) {
 			try {
 				Object[] o = (Object[]) array.getArray();
@@ -289,9 +290,10 @@ public class MMC_M extends JPanel {
 				Object[] oCat = (Object[]) arrayCat.getArray();
 				Object[] oUnit = (Object[]) arrayUnit.getArray();
 				Object[] oDesc = (Object[]) arrayDesc.getArray();
+				Object[] oPT = (Object[]) arrayParamType.getArray();
 				if (o != null && o.length > 0) {
 					for (int ii = 0; ii < o.length; ii++) {
-						pm.addParam(o[ii].toString(), Double.NaN, Double.NaN);
+						pm.addParam(o[ii].toString(), null, Double.NaN, Double.NaN);
 						if (oMin != null && oMin.length > ii && oMin[ii] != null) {
 							pm.setParamMin(o[ii].toString(), Double.parseDouble(oMin[ii].toString()));
 						}
@@ -306,6 +308,10 @@ public class MMC_M extends JPanel {
 						}
 						if (oDesc != null && oDesc.length > ii && oDesc[ii] != null) {
 							pm.setParamDescription(o[ii].toString(), oDesc[ii].toString());
+						}
+						if (oPT != null && oPT.length > ii && oPT[ii] != null) {
+							boolean isStart = ((Integer) oPT[ii]).intValue() == 4;
+							pm.setParamIsStart(o[ii].toString(), isStart);
 						}
 					}
 				}
@@ -379,10 +385,10 @@ public class MMC_M extends JPanel {
 					if (oldPM.containsIndep(os)) {
 						newPM.addIndepVar(os, oldPM.getIndepMin(os), oldPM.getIndepMax(os), oldPM.getIndepCategory(os), oldPM.getIndepUnit(os), oldPM.getIndepDescription(os));
 					} else if (oldPM.containsParam(os)) {
-						newPM.addParam(os, oldPM.getParamValue(os), oldPM.getParamError(os), oldPM.getParamMin(os), oldPM.getParamMax(os), oldPM.getParamCategory(os),
+						newPM.addParam(os, oldPM.getParamIsStart(os), oldPM.getParamValue(os), oldPM.getParamError(os), oldPM.getParamMin(os), oldPM.getParamMax(os), oldPM.getParamCategory(os),
 								oldPM.getParamUnit(os), oldPM.getParamDescription(os));
 					} else {
-						newPM.addParam(os);
+						newPM.addParam(os, null);
 					}
 				}
 			}

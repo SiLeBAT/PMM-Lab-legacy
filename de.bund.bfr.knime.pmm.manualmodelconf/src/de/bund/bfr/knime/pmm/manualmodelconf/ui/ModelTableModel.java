@@ -232,7 +232,7 @@ public class ModelTableModel extends JTable {
                 		}
             		}
             		else {
-            			thePM.addParam(paramName, Double.NaN, Double.NaN, thePM.getIndepMin(paramName), thePM.getIndepMax(paramName), thePM.getIndepCategory(paramName), thePM.getIndepUnit(paramName), thePM.getIndepDescription(paramName));
+            			thePM.addParam(paramName, null, Double.NaN, Double.NaN, thePM.getIndepMin(paramName), thePM.getIndepMax(paramName), thePM.getIndepCategory(paramName), thePM.getIndepUnit(paramName), thePM.getIndepDescription(paramName));
             			thePM.removeIndepVar(paramName);
             		}
                 	hasChanged = true;

@@ -119,14 +119,14 @@ public class CombaseReaderNodeModel extends NodeModel {
 				if (timeSeries.getMaximumRate() >= 0) {
 					start = useStartValue == 1 ? startGrow : null;
 					modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, linear);
-					paramDoc.add(new ParamXml("LogC0", start, null, null, null, null, null));
-					paramDoc.add(new ParamXml("mumax", timeSeries.getMaximumRate(), null, null, null, null, null));
+					paramDoc.add(new ParamXml("LogC0", true, start, null, null, null, null, null));
+					paramDoc.add(new ParamXml("mumax", false, timeSeries.getMaximumRate(), null, null, null, null, null));
 				} else {
 					start = useStartValue == 1 ? startElim : null;
 					modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, dValue);
-					paramDoc.add(new ParamXml("LogC0", start, null, null, null, null, null));
+					paramDoc.add(new ParamXml("LogC0", true, start, null, null, null, null, null));
 					paramDoc.add(
-							new ParamXml("Dvalue", -1.0 / timeSeries.getMaximumRate(), null, null, null, null, null));
+							new ParamXml("Dvalue", false, -1.0 / timeSeries.getMaximumRate(), null, null, null, null, null));
 				}
 
 				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);

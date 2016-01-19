@@ -520,7 +520,7 @@ public final class ModelEditorNodeModel
 					correlations.put(correlationName, correlationValue);
 				}
 			}
-			ParamXml paramXml = new ParamXml(param.getName(), param.getOrigName(), param.getValue(), param.getError(),
+			ParamXml paramXml = new ParamXml(param.getName(), param.getOrigName(), param.isStart(), param.getValue(), param.getError(),
 					param.getMin(), param.getMax(), param.getP(), param.getT(), param.getMinGuess(),
 					param.getMaxGuess(), param.getCategory(), param.getUnit(), param.getDescription(), correlations);
 			paramDoc.add(paramXml);

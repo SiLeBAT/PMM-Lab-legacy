@@ -51,7 +51,7 @@ public class JSONParamTest {
 		correlations.put("h0", 3.2387019240707804E-4);
 		correlations.put("Y0", 7.843710581862156E-5);
 		
-		ParamXml paramXml = new ParamXml(name, value, error, minGuess, maxGuess, P, t, category, unit);
+		ParamXml paramXml = new ParamXml(name, false, value, error, minGuess, maxGuess, P, t, category, unit);
 		paramXml.setOrigName(origName);
 		paramXml.setMin(min);
 		paramXml.setMax(max);
@@ -66,6 +66,7 @@ public class JSONParamTest {
 		// Tests paramXml
 		assertEquals(name, paramXml.getName());
 		assertEquals(origName, paramXml.getOrigName());
+		assertEquals(Boolean.FALSE, paramXml.isStartParam());
 		assertEquals(value, paramXml.getValue());
 		assertEquals(error, paramXml.getError());
 		assertEquals(min, paramXml.getMin());

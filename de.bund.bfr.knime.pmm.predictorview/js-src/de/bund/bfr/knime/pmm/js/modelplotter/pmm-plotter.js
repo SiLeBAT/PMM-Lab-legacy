@@ -104,11 +104,11 @@ pmm_plotter = function() {
 		sliderWrapper.setAttribute("id", "sliderWrapper");
 		sliderWrapper.setAttribute("style" , buttonWidth);
 		leftWrapper.appendChild(sliderWrapper);
+
 		
-		// plot
-		var d3Plot = document.createElement("div");
-		d3Plot.setAttribute("id", "d3plotter");
-		rightWrapper.appendChild(d3Plot);
+		var plotterWrapper = document.createElement("div");
+		plotterWrapper.setAttribute("id", "plotterWrapper");
+		rightWrapper.appendChild(plotterWrapper);
 		
 		// meta data
 		var metaDataWrapper = document.createElement("div");
@@ -188,13 +188,14 @@ pmm_plotter = function() {
 			var functionAsString = prepareFunction(plotterValue.func);
 			var functionConstants = plotterValue.constants;
 			var dbuuid = plotterValue.dbuuid;
+			var modelName = plotterValue.modelName;
 			// call subsequent method
-			addFunctionObject(dbuuid, functionAsString, functionConstants);
+			addFunctionObject(dbuuid, functionAsString, functionConstants, modelName);
 		}
 		else // to be removed
 		{
 			_globalNumber++; 
-			addFunctionObject(_globalNumber, "x-" + _globalNumber, null);
+			addFunctionObject(_globalNumber, "x^" + _globalNumber, null, "Test " + _globalNumber);
 		}
 	}
 	
@@ -204,13 +205,14 @@ pmm_plotter = function() {
 	 * @param functionAsString the function string as returend by prepareFunction()
 	 * @param the function constants as an array 
 	 */
-	function addFunctionObject(dbuuid, functionAsString, functionConstants)
+	function addFunctionObject(dbuuid, functionAsString, functionConstants, modelName)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
 		var maxRange = plotterValue.maxXAxis; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
 		
 		var modelObj = { 
+			 name: modelName,
 			 dbuuid: dbuuid,
 			 fn: functionAsString,
 			 scope: functionConstants,
@@ -220,14 +222,36 @@ pmm_plotter = function() {
 		};
 		_modelObjects.push(modelObj);
 		// update plot after adding new function
-		generateParameterSliders();
+		updateParameterSliders();
 		addMetaData(modelObj);
 		drawD3Plot();
 	}
 	
-	function deleteFunctionObject(dbuuid)
+	/*
+	 * deletes a model for good - including graph and meta data
+	 * @param id dbuuid of the model
+	 */
+	function deleteFunctionObject(id)
 	{
+		$.each(_modelObjects, function (index, object) {
+			if(object.dbuuid == id)
+			{
+				_modelObjects.splice(index, 1);
+				return true;
+			}
+		});
+		drawD3Plot();
 		
+		// remove meta data header
+		var header = document.getElementById("h" + id);
+		header.parentElement.removeChild(header);
+		
+		// remove meta data
+		var data = document.getElementById(id);
+		data.parentElement.removeChild(data);
+		
+		$("#metaDataWrapper").accordion("refresh");
+		updateParameterSliders();
 	}
 	
 	/*
@@ -243,6 +267,7 @@ pmm_plotter = function() {
 		 * 
 		 * Structure for each meta entry:
 		 * > h3 (header)
+		 * >> div (button>
 		 * > div
 		 * >> p
 		 * >>> div (bold)
@@ -255,12 +280,51 @@ pmm_plotter = function() {
 		var header = document.createElement("h3");
 		header.setAttribute("id", "h" + modelObject.dbuuid);
 		header.innerHTML = modelObject.dbuuid;
+		
 		// accordion-specific jQuery semantic for append()
 		$("#metaDataWrapper").append(header);
+		
+		var deleteDiv = document.createElement("span");
+		deleteDiv.setAttribute("style", "float: right; color: transparent; background: transparent; border: transparent;")
+		header.appendChild(deleteDiv);
+		
+		var deleteButton = document.createElement("button");
+	    $(deleteButton).button({
+	        icons: {
+	          primary: "ui-icon-closethick"
+	        },
+	        text: false
+	    }).click(function(event) {
+	    	event.preventDefault();
+	    	event.stopPropagation();
+	    	deleteFunctionObject(modelObject.dbuuid);
+	    });
+	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");
+		
+		deleteDiv.appendChild(deleteButton);
+		
+		var titleDiv = document.createElement("div");
+		header.appendChild(titleDiv);
 		
 		var metaDiv = document.createElement("div");
 		metaDiv.setAttribute("id", modelObject.dbuuid);
 		$("#metaDataWrapper").append(metaDiv);
+		
+		
+		var paragraphName = document.createElement("p");
+		metaDiv.appendChild(paragraphName);
+		
+		var nameHeader  = document.createElement("div");
+		nameHeader.setAttribute("style", "font-weight: bold;");
+		nameHeader.innerHTML = "Name";
+		paragraphName.appendChild(nameHeader);	
+		
+		var nameElem = document.createElement("div");
+		if(!modelObject.name)
+			nameElem.innerHTML = "Kein Name gegeben";
+		else
+			nameElem.innerHTML = modelObject.name;
+		paragraphName.appendChild(nameElem);	
 		
 		var paragraphFunc = document.createElement("p");
 		metaDiv.appendChild(paragraphFunc);
@@ -279,26 +343,31 @@ pmm_plotter = function() {
 		
 		var scopeHeader  = document.createElement("div");
 		scopeHeader.setAttribute("style", "font-weight: bold;");
-		scopeHeader.innerHTML = "Parameter";
+		scopeHeader.innerHTML = "Initiale Parameter";
 		paragraphScope.appendChild(scopeHeader);
 		
 		var scopeElem = document.createElement("div");
-		scopeElem.innerHTML = modelObject.scope;
+		if(!modelObject.modelName)
+			scopeElem.innerHTML = "Keine Parameter gegeben";
+		else
+			scopeElem.innerHTML = JSON.stringify(modelObject.scope, null, 4);
 		paragraphScope.appendChild(scopeElem);	
 		
 		// use jquery to refresh the accordion values
-		
 		$("#metaDataWrapper").accordion("refresh");
+		
 		var numSections = document.getElementById("metaDataWrapper").childNodes.length / 2;
+		// open last index
 		$("#metaDataWrapper").accordion({ active: (numSections - 1) });
 	}
 
     /*
      * adds sliders for all dynamic constants
      */
-	function generateParameterSliders()
+	function updateParameterSliders()
 	{
 	    var sliderWrapper = document.getElementById("sliderWrapper");
+	    var sliderIds = []; // ids of all sliders that correspond to a constant
 	    
 	    for (var modelIndex in _modelObjects)
 	    {
@@ -308,6 +377,9 @@ pmm_plotter = function() {
 		    	$.each(constants, function(constant, value)
 		    	{
 					var sliderId = "slider_" + constant.toUpperCase();
+					sliderIds.push(sliderId); // remember active sliders
+					
+					// do not recreate if already in the DOM
 					if(document.getElementById(sliderId))
 					{
 						// do not add known parameters twice
@@ -355,7 +427,7 @@ pmm_plotter = function() {
 					else if(value < 0) 
 					{
 						sliderMin = value + value;
-						sliderMax = value - value;
+						sliderMax = 0;
 		    		}
 					else
 					{
@@ -378,14 +450,14 @@ pmm_plotter = function() {
 				        slide: function( event, ui ) {
 				            $(sliderValueInput).val( ui.value );
 				            // delay prevents excessive redrawing
-				            window.setTimeout(updateFunctionConstant(constant, ui.value), 30);
+				            window.setTimeout(updateFunctionConstant(constant, ui.value), 100);
 				        }
 				    });
 					$(sliderValueInput).change(function() {
 						// changing the input field changes the slider
 						$(slider).slider("value", this.value);
 							// delay prevents excessive redrawing
-							window.setTimeout(updateFunctionConstant(constant, this.value), 30);
+							window.setTimeout(updateFunctionConstant(constant, this.value), 100);
 					});
 					// react immediately on key input
 					$(sliderValueInput).keyup(function() {
@@ -394,6 +466,23 @@ pmm_plotter = function() {
 				});
 	    	}
 	    }
+	    
+	    // at last, we delete unused sliders
+	    var allIds = []; // ids of all shown sliders
+	    
+	    var sliderWrapperChildren = sliderWrapper.children;
+	    for(var i = 0; i < sliderWrapperChildren.length; i++) 
+	    {
+	    	allIds.push(sliderWrapperChildren[i].id);
+	    };
+
+	    $.each(allIds, function(i) {
+	    	// check if slider is still used
+	    	var found = sliderIds.indexOf(allIds[i]);
+	    	// if not used, remove from DOM
+	    	if(found == -1)
+	    		sliderWrapper.removeChild(document.getElementById(allIds[i]));
+	    });
 	}
 
 	/* 
@@ -418,6 +507,18 @@ pmm_plotter = function() {
 	 */
 	function drawD3Plot() 
 	{
+		// the plot element has to be reset because otherwise functionPlot may draw artifacts
+		var plotDiv = document.getElementById("d3plotter");
+		if(plotDiv)
+			plotDiv.parentElement.removeChild(plotDiv)
+		
+		var d3Plot = document.createElement("div");
+		d3Plot.setAttribute("id", "d3plotter");
+		
+		var wrapper = document.getElementById("plotterWrapper");
+		wrapper.appendChild(d3Plot);
+		
+		// plot
 		functionPlot({
 		    target: '#d3plotter',
 		    xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],

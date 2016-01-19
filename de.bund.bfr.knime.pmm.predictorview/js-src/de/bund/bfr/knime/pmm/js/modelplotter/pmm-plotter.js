@@ -4,30 +4,28 @@ pmm_plotter = function() {
 	var modelPlotter = {
 			version: "1.0.0"
 	};
-	modelPlotter.name = "Model Plotter";
+	modelPlotter.name = "PMM Model Plotter";
 	
 	var plotterValue;
 	var plotterRep;
-	var variableSliders;
-	var variableIndices;
-	var functionGraph;
-	var jsxBoard;
 	
 	var _globalNumber = 1;
 	var _modelObjects = [];
-	var colorsArray = [];
+	var _colorsArray = [];
 	
 	var msgAdd = "Hinzufügen";
 	var msgChoose = "Modell auswählen";
 	
-	var buttonWidth = "width: 250px;";
+	/* the following values are suspect to change */
+	var buttonWidth = "width: 250px;"; // not only used for buttons
 	var sliderWidth = "width: 190px;";
 	var sliderInputWidth = "width: 40px;";
 	var sliderBoxHeight = "height: 33px;";
-	var _sliderStepSize = 0.0001;
+	var _sliderStepSize = 0.0001; // aligns perfectly with the input field size
 	var totalHeight = "height: 800px;";
 	var plotWidth = 600;
 	var plotHeight = 400;
+	
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -124,7 +122,7 @@ pmm_plotter = function() {
 		addSelectOption("123", "Beispiel");
 				
 		/*
-		 * jQueryUI functions
+		 * jQueryUI
 		 */
 		$(function() {
 			// make all html buttons jquery buttons
@@ -145,6 +143,8 @@ pmm_plotter = function() {
 	
 	/*
 	 * adds a new option to the selection menu
+	 * @param dbuuid id of the model
+	 * @param modelName name of the model
 	 */
 	function addSelectOption(dbuuid, modelName)
 	{
@@ -159,15 +159,14 @@ pmm_plotter = function() {
 
 	/*
 	 * parse functiom from model and modify it according to framework needs
+	 * @param functionString formula as delivered by the java class
 	 */
 	function prepareFunction(functionString) {
 		// replace "T" and "Time" with "x" using regex
 		// gi: global, case-insensitive
 		var newString = functionString;
-//		show("old string: " + newString);
 		newString = newString.replace(/Time/gi, "x");
 		newString = newString.replace(/\bT\b/gi, "x");
-//		show("new string: " + newString);
 		return newString;
 	}
 	
@@ -226,11 +225,32 @@ pmm_plotter = function() {
 		drawD3Plot();
 	}
 	
+	/*
+	 * adds a new entry for a new model object and shows it in the accordion below the plot
+	 * @param modelObject the recently added modelObject
+	 */
 	function addMetaData(modelObject) 
 	{
+		/*
+		 * Accordion needs a header followed by a div. We add a paragraph per parameter.
+		 * The individual paragraph includes two divs, containing the parameter name and 
+		 * value respectively.
+		 * 
+		 * Structure for each meta entry:
+		 * > h3 (header)
+		 * > div
+		 * >> p
+		 * >>> div (bold)
+		 * >>> div
+		 * >> p 
+		 * >>> div /bold)
+		 * >>> div
+		 * ...
+		 */
 		var header = document.createElement("h3");
 		header.setAttribute("id", "h" + modelObject.dbuuid);
 		header.innerHTML = modelObject.dbuuid;
+		// accordion-specific jQuery semantic for append()
 		$("#metaDataWrapper").append(header);
 		
 		var metaDiv = document.createElement("div");
@@ -261,6 +281,7 @@ pmm_plotter = function() {
 		scopeElem.innerHTML = modelObject.scope;
 		paragraphScope.appendChild(scopeElem);	
 		
+		// use jquery to refresh the accordion values
 		$("#metaDataWrapper").accordion("refresh");
 	}
 
@@ -336,7 +357,10 @@ pmm_plotter = function() {
 					sliderValueInput.setAttribute("min", sliderMin);
 					sliderValueInput.setAttribute("max", sliderMax);
 					
+					// set input field to initial value
 					$(sliderValueInput).val(value);
+					
+					// configure slider, its range and init value
 				    $(slider).slider({
 				    	value: value,
 				    	min: sliderMin,
@@ -366,6 +390,8 @@ pmm_plotter = function() {
 
 	/* 
 	 * update a constant value in all functions
+	 * @param constant parameter name
+	 * @param constant (new) parameter value
 	 */
 	function updateFunctionConstant(constant, value)
 	{
@@ -409,9 +435,9 @@ pmm_plotter = function() {
 	 */
 	function getNextColor()
 	{
-		if(colorsArray.length <= 0)
-			colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
-		return colorsArray.shift();
+		if(_colorsArray.length <= 0)
+			_colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
+		return _colorsArray.shift();
 	}
 	/*******/
 	
@@ -438,6 +464,14 @@ pmm_plotter = function() {
 	modelPlotter.getComponentValue = function() 
 	{
 	    return plotterValue;
+	}
+	
+	/*
+	 * KNIME
+	 */
+	if (parent !== undefined && parent.KnimePageLoader !== undefined)
+	{
+		parent.KnimePageLoader.autoResize(window, frameElement.id)
 	}
 	
 	return modelPlotter;	

@@ -225,6 +225,11 @@ pmm_plotter = function() {
 		drawD3Plot();
 	}
 	
+	function deleteFunctionObject(dbuuid)
+	{
+		
+	}
+	
 	/*
 	 * adds a new entry for a new model object and shows it in the accordion below the plot
 	 * @param modelObject the recently added modelObject
@@ -282,7 +287,10 @@ pmm_plotter = function() {
 		paragraphScope.appendChild(scopeElem);	
 		
 		// use jquery to refresh the accordion values
+		
 		$("#metaDataWrapper").accordion("refresh");
+		var numSections = document.getElementById("metaDataWrapper").childNodes.length / 2;
+		$("#metaDataWrapper").accordion({ active: (numSections - 1) });
 	}
 
     /*

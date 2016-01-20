@@ -53,7 +53,7 @@ public class ModelClassTest {
 		assertEquals(growthInactivation, ModelClass.fromName("growth/inactivation"));
 		assertEquals(inactivationSurvival, ModelClass.fromName("inactivation/survival"));
 		assertEquals(growthSurvival, ModelClass.fromName("growth/survival"));
-		assertEquals(growthInactivationSurvival, ModelClass.fromName("growth_inactivation_survival"));
+		assertEquals(growthInactivationSurvival, ModelClass.fromName("growth/inactivation/survival"));
 		assertEquals(t, ModelClass.fromName("T"));
 		assertEquals(pH, ModelClass.fromName("pH"));
 		assertEquals(aw, ModelClass.fromName("aw"));
@@ -95,7 +95,7 @@ public class ModelClassTest {
 		assertEquals(growthInactivation.fullName(), "growth/inactivation");
 		assertEquals(inactivationSurvival.fullName(), "inactivation/survival");
 		assertEquals(growthSurvival.fullName(), "growth/survival");
-		assertEquals(growthInactivationSurvival.fullName(), "growth_inactivation_survival");
+		assertEquals(growthInactivationSurvival.fullName(), "growth/inactivation/survival");
 		assertEquals(t.fullName(), "T");
 		assertEquals(pH.fullName(), "pH");
 		assertEquals(aw.fullName(), "aw");

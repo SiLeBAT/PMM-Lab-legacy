@@ -339,6 +339,7 @@ public final class ModelEditorNodeModel
 			Param param = new Param();
 			param.setName(paramXml.getName());
 			param.setOrigName(paramXml.getOrigName());
+			param.setIsStart(paramXml.isStartParam());
 			param.setValue(paramXml.getValue());
 			param.setError(paramXml.getError());
 			param.setMin(paramXml.getMin());

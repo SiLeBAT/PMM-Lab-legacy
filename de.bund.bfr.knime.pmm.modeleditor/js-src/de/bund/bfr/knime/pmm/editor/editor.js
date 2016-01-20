@@ -981,6 +981,7 @@ js_editor = function() {
 				param["@class"] = "de.bund.bfr.knime.pmm.js.common.Param";
 				param.name = row.data('name');
 				param.origname = row.data('name');
+				param.isStart = null;
 				param.value = value_cell.text() === "-" ? null : parseFloat(value_cell.text());
 				param.error = value_cell.text() === "-" ? null : parseFloat(error_cell.text());
 				param.min = min_cell.text() === "-" ? null : parseFloat(min_cell.text());

@@ -13,6 +13,7 @@ import com.google.common.base.Strings;
  * <ul>
  * <li>name
  * <li>original name
+ * <li>is start value
  * <li>value
  * <li>error
  * <li>minimum value

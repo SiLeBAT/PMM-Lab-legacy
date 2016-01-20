@@ -16,15 +16,15 @@ pmm_plotter = function() {
 	var msgAdd = "Hinzufügen";
 	var msgChoose = "Modell auswählen";
 	
-	/* the following values are suspect to change */
-	var buttonWidth = "width: 250px;"; // not only used for buttons
-	var sliderWidth = "width: 190px;";
-	var sliderInputWidth = "width: 40px;";
-	var sliderBoxHeight = "height: 33px;";
+	/* the following values are subject to change */
+	var _buttonWidth = "width: 250px;"; // not only used for buttons
+	var _sliderWidth = "width: 190px;";
+	var _sliderInputWidth = "width: 40px;";
+	var _sliderBoxHeight = "height: 33px;";
 	var _sliderStepSize = 0.0001; // aligns perfectly with the input field size
-	var totalHeight = "height: 800px;";
-	var plotWidth = 600;
-	var plotHeight = 400;
+	var _totalHeight = "height: 800px;";
+	var _plotWidth = 600;
+	var _plotHeight = 400;
 	
 	
 	modelPlotter.init = function(representation, value) {
@@ -46,11 +46,11 @@ pmm_plotter = function() {
 		
 		var leftWrapper = document.createElement("div");
 		leftWrapper.setAttribute("id", "leftWrapper");
-		leftWrapper.setAttribute("style", "width:300px; display: block; float: left;" + totalHeight);
+		leftWrapper.setAttribute("style", "width:300px; display: block; float: left;" + _totalHeight);
 		
 		var rightWrapper = document.createElement("div");
 		rightWrapper.setAttribute("id", "rightWrapper");
-		rightWrapper.setAttribute("style", "width:600px; display: block; float: left;" + totalHeight);
+		rightWrapper.setAttribute("style", "width:600px; display: block; float: left;" + _totalHeight);
 		layoutWrapper.appendChild(leftWrapper);
 		layoutWrapper.appendChild(rightWrapper);
 		
@@ -59,7 +59,7 @@ pmm_plotter = function() {
 		modelSelectionMenu.innerHTML = msgChoose;
 		modelSelectionMenu.setAttribute("id", "selectModel");
 		modelSelectionMenu.setAttribute("name", "selectModel");
-		modelSelectionMenu.setAttribute("style" , buttonWidth);
+		modelSelectionMenu.setAttribute("style" , _buttonWidth);
 		modelSelectionMenu.setAttribute("required");
 		leftWrapper.appendChild(modelSelectionMenu);
 		
@@ -93,7 +93,7 @@ pmm_plotter = function() {
 		var addButton = document.createElement("button");
 		addButton.innerHTML = msgAdd;
 		addButton.setAttribute("id", "addButton");
-		addButton.setAttribute("style" , buttonWidth);
+		addButton.setAttribute("style" , _buttonWidth);
 		addButton.addEventListener("click", function() { 
 			addFunctionFromSelection(); 
 			});
@@ -102,7 +102,7 @@ pmm_plotter = function() {
 		// slider wrapper
 		var sliderWrapper = document.createElement("div");
 		sliderWrapper.setAttribute("id", "sliderWrapper");
-		sliderWrapper.setAttribute("style" , buttonWidth);
+		sliderWrapper.setAttribute("style" , _buttonWidth);
 		leftWrapper.appendChild(sliderWrapper);
 
 		
@@ -395,7 +395,7 @@ pmm_plotter = function() {
 					 */
 				    var sliderBox = document.createElement("p");
 				    sliderBox.setAttribute("id", sliderId);
-				    sliderBox.setAttribute("style" , buttonWidth + sliderBoxHeight);
+				    sliderBox.setAttribute("style" , _buttonWidth + _sliderBoxHeight);
 				    sliderWrapper.appendChild(sliderBox);
 				    
 					var sliderLabel = document.createElement("div");
@@ -404,16 +404,16 @@ pmm_plotter = function() {
 					sliderBox.appendChild(sliderLabel);
 					
 					var slider = document.createElement("div");
-					slider.setAttribute("style" , sliderWidth + "display: block; float: left; margin: 3px");
+					slider.setAttribute("style" , _sliderWidth + "display: block; float: left; margin: 3px");
 					sliderBox.appendChild(slider);
 									    
 					var sliderValueDiv = document.createElement("div");
-					sliderValueDiv.setAttribute("style" , sliderInputWidth + "display: block; float: left;");
+					sliderValueDiv.setAttribute("style" , _sliderInputWidth + "display: block; float: left;");
 					sliderBox.appendChild(sliderValueDiv);
 					
 					var sliderValueInput = document.createElement("input");
 					sliderValueInput.setAttribute("type", "number");
-					sliderValueInput.setAttribute("style" , sliderInputWidth + "font-weight: bold;");
+					sliderValueInput.setAttribute("style" , _sliderInputWidth + "font-weight: bold;");
 					sliderValueDiv.appendChild(sliderValueInput);
 					
 					var sliderMin;
@@ -525,8 +525,8 @@ pmm_plotter = function() {
 		    yDomain: [plotterValue.minYAxis, plotterValue.maxYAxis],
 		    xLabel: plotterValue.xUnit,
 		    yLabel: plotterValue.yUnit,
-		    witdh: plotWidth,
-		    height: plotHeight,
+		    witdh: _plotWidth,
+		    height: _plotHeight,
 		    tip: 
 		    {
 		    	xLine: true,    // dashed line parallel to y = 0
@@ -548,6 +548,12 @@ pmm_plotter = function() {
 			_colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
 		return _colorsArray.shift();
 	}
+	
+	function reparseFunction()
+	{
+		
+	}
+	
 	/*******/
 	
 	

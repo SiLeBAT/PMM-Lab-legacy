@@ -26,19 +26,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
 
 /**
  * <code>NodeDialog</code> for the "DatabaseDelete" Node.
- * 
- *
- * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
- * creation of a simple dialog with standard components. If you need a more 
- * complex dialog please derive directly from 
- * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Armin A. Weiser
  */

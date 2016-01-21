@@ -62,6 +62,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_MININDEP = "MinIndep";
 	private static final String ATT_MAXINDEP = "MaxIndep";
 	private static final String ATT_PARAMERR = "StandardError";
+	private static final String ATT_IS_START = "IsStart";
 	private static final String ATT_RMAP = "rMap";
 	private static final String ATT_MLIT = "ModelLiterature";
 	private static final String ATT_EMLIT = "EstimatedModelLiterature";
@@ -265,13 +266,15 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				boolean errNull = el.getAttributeValue(ATT_PARAMERR) == null || el.getAttributeValue(ATT_PARAMERR).equals("null");
 				boolean categoryNull = el.getAttributeValue("Category") == null || el.getAttributeValue("Category").equals("null");
 				boolean unitNull = el.getAttributeValue("Unit") == null || el.getAttributeValue("Unit").equals("null");
+				
 				Double min = minNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MINVALUE));
 				Double max = maxNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MAXVALUE));
 				Double val = valNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_VALUE));
 				Double err = errNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_PARAMERR));
 				String category = categoryNull ? null : el.getAttributeValue("Category");
 				String unit = unitNull ? null : el.getAttributeValue("Unit");
-				ParamXml px = new ParamXml(el.getAttributeValue(ATT_PARAMNAME),
+
+				ParamXml px = new ParamXml(el.getAttributeValue(ATT_PARAMNAME), XmlHelper.getBoolean(el, ATT_IS_START),
 						val,
 						err, min, max, null, null, category, unit);
 				parameter.add(px);
@@ -488,18 +491,18 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	
 	public void setCondId( final int condId ) { this.condId = condId; }
 	
-	public void addParam(final String paramName) {
-		addParam(paramName, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+	public void addParam(final String paramName, final Boolean isStartParam) {
+		addParam(paramName, isStartParam, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 	}
-	public void addParam( final String paramName, final Double value, final Double error ) {
-		addParam(paramName, value, error, Double.NaN, Double.NaN);
+	public void addParam( final String paramName, final Boolean isStartParam, final Double value, final Double error ) {
+		addParam(paramName, isStartParam, value, error, Double.NaN, Double.NaN);
 	}
 	
-	public void addParam( final String paramName, final Double value, final Double error, final Double min, final Double max ) {
-		addParam(paramName, value, error, min, max, null, null, null);
+	public void addParam( final String paramName, final Boolean isStartParam, final Double value, final Double error, final Double min, final Double max ) {
+		addParam(paramName, isStartParam, value, error, min, max, null, null, null);
 	}
-	public void addParam(final String paramName, final Double value, final Double error, final Double min, final Double max, String category, String unit, String description) {
-		ParamXml px = new ParamXml(paramName, value, error, min, max, null, null, category, unit);
+	public void addParam(final String paramName, final Boolean isStartParam, final Double value, final Double error, final Double min, final Double max, String category, String unit, String description) {
+		ParamXml px = new ParamXml(paramName, isStartParam, value, error, min, max, null, null, category, unit);
 		if (description != null) px.setDescription(description);
 		parameter.add(px);
 	}
@@ -559,6 +562,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 	}
+	public void setParamIsStart( final String name, final Boolean isStart ) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(name)) {
+					px.setIsStartParam(isStart);
+					break;
+				}
+			}
+		}
+	}	
 	public void setParamValue( final String name, final Double value ) {
 		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 			if (el instanceof ParamXml) {
@@ -743,6 +757,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				ParamXml px = (ParamXml) el;
 				if (px.getName().equals(paramName)) {
 					return px.getT();
+				}
+			}
+		}
+		return null;
+	}
+	public Boolean getParamIsStart( final String paramName ) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(paramName)) {
+					return px.isStartParam();
 				}
 			}
 		}

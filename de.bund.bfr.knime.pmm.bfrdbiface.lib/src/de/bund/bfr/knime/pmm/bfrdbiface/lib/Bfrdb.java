@@ -178,10 +178,10 @@ public class Bfrdb {
 			+ ATT_CONDITION_MISCPARAM + "\"\n" + "\n" + "LEFT JOIN \"" + REL_UNIT + "\"\n" + "ON \"" + ATT_CONDITION_MISCPARAM + "\".\"" + ATT_UNIT + "\"=\"" + REL_UNIT
 			+ "\".\"ID\"\n" + "\n" + "JOIN \"" + REL_MISCPARAM + "\"\n" + "ON \"" + ATT_CONDITION_MISCPARAM + "\".\"" + REL_MISCPARAM + "\"=\"" + REL_MISCPARAM + "\".\"ID\"\n"
 			+ "\n" + "LEFT JOIN \"" + REL_DOUBLE + "Einfach\"\n" + "ON \"" + ATT_CONDITION_MISCPARAM + "\".\"" + ATT_VALUE + "\"=\"" + REL_DOUBLE + "Einfach\".\"ID\"\n";
-
+	
 	private static final String queryModelView = "SELECT\n" + "\n" + "\"" + REL_MODEL + "\".\"Formel\",\n" + "\"" + REL_MODEL + "\".\"ID\" AS \"" + ATT_MODELID + "\",\n"
 			+ "\"P\".\"" + ATT_PARAMNAME + "\",\n" + "\"D\".\"" + ATT_PARAMNAME + "\" AS \"" + ATT_DEP + "\",\n" + "\"I\".\"" + ATT_PARAMNAME + "\" AS \"" + ATT_INDEP + "\",\n"
-			+ "\"" + REL_MODEL + "\".\"" + ATT_NAME + "\",\n" + "\"" + ATT_MINVALUE + "\",\n" + "\"" + ATT_MAXVALUE + "\",\n" + "\"ParamDescription\",\n" + "\"ParCategory\",\n"
+			+ "\"" + REL_MODEL + "\".\"" + ATT_NAME + "\",\n" + "\"" + ATT_MINVALUE + "\",\n" + "\"" + ATT_MAXVALUE + "\",\n" + "\"ParamDescription\",\n" + "\"" + ATT_PARAMTYPE + "\",\n" + "\"ParCategory\",\n"
 			+ "\"ParUnit\",\n" + "\"DepCategory\",\n" + "\"DepUnit\",\n" + "\"DepDescription\",\n" + "\"IndepCategory\",\n" + "\"IndepUnit\",\n" + "\"" + ATT_MININDEP + "\",\n"
 			+ "\"" + ATT_MAXINDEP + "\",\n" + "\"IndepDescription\",\n" + "\"LitMID\",\n" + "\"LitM\",\n" + "\"Modellkatalog\".\"" + ATT_LEVEL + "\",\n"
 			+ "\"Modellkatalog\".\"Klasse\"\n" + "\n" + "FROM \"Modellkatalog\"\n" + "\n" + "LEFT JOIN \"LitMView\"\n" + "ON \"Modellkatalog\".\"ID\"=\"LitMView\".\""
@@ -197,9 +197,9 @@ public class Bfrdb {
 			+ ATT_PARAMTYPE + "\"=1\n" + "    GROUP BY \"" + ATT_MODELID + "\" )AS \"I\"\n" + "ON \"Modellkatalog\".\"ID\"=\"I\".\"" + ATT_MODELID + "\"\n" + "\n" + "LEFT JOIN(\n"
 			+ "    SELECT\n" + "        \"" + ATT_MODELID + "\",\n" + "        ARRAY_AGG( \"" + ATT_PARAMNAME + "\" )AS \"" + ATT_PARAMNAME + "\",\n" + "        ARRAY_AGG( \""
 			+ ATT_MIN + "\" )AS \"" + ATT_MINVALUE + "\",\n" + "        ARRAY_AGG( \"" + ATT_MAX + "\" )AS \"" + ATT_MAXVALUE + "\",\n"
-			+ "        ARRAY_AGG( \"Beschreibung\" )AS \"ParamDescription\",\n" + "        ARRAY_AGG( \"kind of property / quantity\" )AS \"ParCategory\",\n"
+			+ "        ARRAY_AGG( \"Beschreibung\" )AS \"ParamDescription\",\n" + "        ARRAY_AGG( \"kind of property / quantity\" )AS \"ParCategory\",\n" + "        ARRAY_AGG( \"" + ATT_PARAMTYPE + "\" )AS \"" + ATT_PARAMTYPE + "\",\n"
 			+ "        ARRAY_AGG( \"display in GUI as\" )AS \"ParUnit\"\n" + "    FROM \"ModellkatalogParameter\"\n"
-			+ " LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\"" + "    WHERE \"" + ATT_PARAMTYPE + "\"=2\n" + "    GROUP BY \""
+			+ " LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\"" + "    WHERE \"" + ATT_PARAMTYPE + "\"=2  OR \"" + ATT_PARAMTYPE + "\"=4\n" + "    GROUP BY \""
 			+ ATT_MODELID + "\" )AS \"P\"\n" + "ON \"" + REL_MODEL + "\".\"ID\"=\"P\".\"" + ATT_MODELID + "\"\n";
 
 	private static final String querySecOnly = "SELECT " + "*" + "FROM" + "\"EstModelSecView\"\n";
@@ -220,7 +220,7 @@ public class Bfrdb {
 			+ "    \"EstModelPrimView\".\"ZeitEinheit\",\n" + "    \"EstModelPrimView\".\"Einheiten\",\n" + "    \"EstModelPrimView\".\"DepCategory\",\n"
 			+ "    \"EstModelPrimView\".\"DepUnit\",\n" + "    \"EstModelPrimView\".\"DepDescription\",\n" + "    \"EstModelPrimView\".\"IndepCategory\",\n"
 			+ "    \"EstModelPrimView\".\"IndepUnit\",\n" + "    \"EstModelPrimView\".\"IndepDescription\",\n" + "    \"EstModelPrimView\".\"ParCategory\",\n"
-			+ "    \"EstModelPrimView\".\"ParUnit\",\n" + "    \"EstModelPrimView\".\"ParamDescription\",\n" + "    \"EstModelPrimView\".\"ParamP\",\n"
+			+ "    \"EstModelPrimView\".\"ParUnit\",\n" + "    \"EstModelPrimView\".\"ParamDescription\",\n" + "    \"EstModelPrimView\".\"" + ATT_PARAMTYPE + "\",\n" + "    \"EstModelPrimView\".\"ParamP\",\n"
 			+ "    \"EstModelPrimView\".\"Paramt\",\n" + "    \"EstModelPrimView\".\"" + ATT_NAME + "\",\n" + "    \"EstModelPrimView\".\"" + ATT_MODELID + "\",\n"
 			+ "    \"EstModelPrimView\".\"" + ATT_ESTMODELID + "\",\n" + "    \"EstModelPrimView\".\"" + ATT_RMS + "\",\n" + "    \"EstModelPrimView\".\"" + ATT_RSQUARED + "\",\n"
 			+ "    \"EstModelPrimView\".\"AIC\",\n" + "    \"EstModelPrimView\".\"BIC\",\n" + "    \"EstModelPrimView\".\"Kommentar\",\n"
@@ -306,7 +306,7 @@ public class Bfrdb {
 
 					tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME), null, null,
 							result.getArray("ParCategory"), result.getArray("ParUnit"), null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE),
-							result.getArray("ParamDescription"), null, null, null, null));
+							result.getArray("ParamDescription"), result.getArray(Bfrdb.ATT_PARAMTYPE), null, null, null, null));
 
 					doc = new PmmXmlDoc();
 					doc.add(new EstModelXml(null, null, null, null, null, null, null, null));
@@ -361,7 +361,7 @@ public class Bfrdb {
 
 					tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME), null, null,
 							result.getArray("ParCategory"), result.getArray("ParUnit"), null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE),
-							result.getArray("ParamDescription"), null, null, null, null));
+							result.getArray("ParamDescription"), result.getArray(Bfrdb.ATT_PARAMTYPE), null, null, null, null));
 
 					doc = new PmmXmlDoc();
 					doc.add(new EstModelXml(null, null, null, null, null, null, null, null));
@@ -444,6 +444,7 @@ public class Bfrdb {
 		String myWhereCache = "";
 		if (level == 1) {
 			q = queryPei2;
+			//System.err.println(q);
 			if (estimatedModelID > 0) {
 				myWhere = " WHERE \"EstModelPrimView\".\"" + ATT_ESTMODELID + "\" = " + estimatedModelID;
 				myWhereCache = " WHERE \"" + ATT_ESTMODELID + "\" = " + estimatedModelID;

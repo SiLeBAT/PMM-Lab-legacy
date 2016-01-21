@@ -435,7 +435,7 @@ class Model1Tuple {
 			if (!param.isConstant())
 				continue;
 
-			ParamXml paramXml = new ParamXml(param.getId(), param.getValue());
+			ParamXml paramXml = new ParamXml(param.getId(), null, param.getValue());
 
 			String unitID = param.getUnits();
 			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
@@ -695,7 +695,7 @@ class Model2Tuple {
 	private static ParamXml processCoefficient(Parameter param, ListOf<UnitDefinition> unitDefs,
 			Map<String, Limits> limits) {
 		// Creates ParamXml and adds description
-		ParamXml paramXml = new ParamXml(param.getId(), param.getValue());
+		ParamXml paramXml = new ParamXml(param.getId(), null, param.getValue());
 
 		// Assigns unit and category
 		String unitID = param.getUnits();

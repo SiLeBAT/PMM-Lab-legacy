@@ -347,7 +347,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
 				tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
 	    				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
-	    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription"), result.getArray("ParamP"), result.getArray("Paramt"), cmx.getId(), emid));
+	    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription"), result.getArray(Bfrdb.ATT_PARAMTYPE), result.getArray("ParamP"), result.getArray("Paramt"), cmx.getId(), emid));
 	    		
 	    		s = result.getString("LitMID");
 	    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s, dbuuid));
@@ -437,7 +437,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    				result.getArray("IndepUnit2"), result.getArray("IndepDescription2"), false));
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
 	    				result.getArray(Bfrdb.ATT_VALUE+"2"), result.getArray("ZeitEinheit2"), null, result.getArray("Einheiten2"), result.getArray("StandardError2"), result.getArray(Bfrdb.ATT_MIN+"2"),
-	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2"), result.getArray("ParamP2"), result.getArray("Paramt2"), cmx.getId(), emid));
+	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2"), result.getArray(Bfrdb.ATT_PARAMTYPE+"2"), result.getArray("ParamP2"), result.getArray("Paramt2"), cmx.getId(), emid));
 
 	    		s = result.getString("LitMID2");
 	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(conn, s, dbuuid));

@@ -5,19 +5,11 @@ Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: sbmlreader.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodePlugin
-Require-Bundle: org.eclipse.core.runtime,
- org.knime.workbench.core,
- org.knime.workbench.repository,
+Require-Bundle: org.knime.workbench.core,
  org.knime.base,
- org.apache.log4j,
  org.hsh.bfr.db,
  com.google.guava,
  de.bund.bfr.pmf;visibility:=reexport,
- com.fasterxml.jackson.core.jackson-annotations,
- com.fasterxml.jackson.core.jackson-core,
- com.fasterxml.jackson.core.jackson-databind,
- org.apache.commons.lang,
- org.knime.js.core,
  de.bund.bfr.knime.pmm.common;visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

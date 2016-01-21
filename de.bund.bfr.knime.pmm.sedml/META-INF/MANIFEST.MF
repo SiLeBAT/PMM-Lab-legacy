@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SedML nodes extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.sedml;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: sedmlNodes.jar,
+ JLibSedML/jlibsedml.jar,
+ JLibSedML/lib/jaxen-1.1.1.jar,
+ JLibSedML/lib/jdom-1.1.3.jar,
+ JLibSedML/lib/jdom-contrib.jar,
+ JLibSedML/lib/jdom.jar,
+ JLibSedML/lib/jmathml.jar,
+ JLibSedML/lib/junit.jar,
+ JLibSedML/lib/libsbmlj.jar,
+ JLibSedML/lib/xom-1.2.1.jar
+Bundle-Activator: de.bund.bfr.knime.pmm.sedml.SedMLNodePlugin
+Require-Bundle: org.knime.workbench.core,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.common;visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: BfR
+Export-Package: de.bund.bfr.knime.pmm.sedml.writer;uses:="org.knime.core.node.defaultnodesettings,org.knime.core.node"
+

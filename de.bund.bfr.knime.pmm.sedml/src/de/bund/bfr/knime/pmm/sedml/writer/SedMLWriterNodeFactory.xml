@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./SedMLWriter.png" type="Sink" deprecated="false"
+	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>SedML Writer</name>
+
+	<shortDescription>
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+		</intro>
+
+		<option name="Output Path">
+		</option>
+		<option name="Model Name">
+		</option>
+		<option name="Initial Concentration Parameter">
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Models"></inPort>
+	</ports>
+</knimeNode>

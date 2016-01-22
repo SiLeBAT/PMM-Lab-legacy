@@ -81,7 +81,7 @@ pmm_plotter = function() {
 		var addButton = document.createElement("button");
 		addButton.innerHTML = msgAdd;
 		addButton.setAttribute("id", "addButton");
-		addButton.setAttribute("style" , _buttonWidth);
+		addButton.setAttribute("style", _buttonWidth);
 		addButton.addEventListener("click", function() 
 			{ 
 				addFunctionFromSelection(); 
@@ -117,14 +117,24 @@ pmm_plotter = function() {
 		 * jQueryUI
 		 */
 		$(function() {
+			
 			// make all html buttons jquery buttons
-			$("button").button({
+			$("#addButton").button({
 			    icons: {
 			        primary: "ui-icon-plus"
-			    }
+			    },
+			    disabled: true
 			});
-			// make all html selects jquery select menus
-			$("select").selectmenu();
+			
+			// make select menu a jquery select menu
+			$("#modelSelectionMenu").selectmenu({
+				change: function () {
+					show("enabling");
+					$("#addButton").button( "option", "disabled", false );
+					show("done");
+				}
+			});
+			
 			$("#metaDataWrapper").accordion({
 				content: "height-style",
 				collapsible: true
@@ -344,8 +354,8 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    }).click(function(event) {
-	    	event.preventDefault();
-	    	event.stopPropagation();
+//	    	event.preventDefault();
+//	    	event.stopPropagation();
 	    	deleteFunctionObject(modelObject.dbuuid);
 	    });
 	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");

@@ -12,6 +12,7 @@ pmm_plotter = function() {
 	var _globalNumber = 1;
 	var _modelObjects = [];
 	var _colorsArray = [];
+	var _rawModels = [];
 	
 	var msgAdd = "Hinzufügen";
 	var msgChoose = "Modell auswählen";
@@ -26,12 +27,12 @@ pmm_plotter = function() {
 	var _plotWidth = 600;
 	var _plotHeight = 400;
 	
-	
 	modelPlotter.init = function(representation, value) {
 
+		_rawModels = value.models.models;
 		plotterValue = value;
-		plotterRep = representation;
-		
+		plotterRep = representation; // not used
+
 		// body
 		var body = document.getElementsByTagName("body")[0];
 		body.setAttribute("style", "background: #fdfdfd; width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
@@ -57,8 +58,7 @@ pmm_plotter = function() {
 		// selection
 		var modelSelectionMenu = document.createElement("select");
 		modelSelectionMenu.innerHTML = msgChoose;
-		modelSelectionMenu.setAttribute("id", "selectModel");
-		modelSelectionMenu.setAttribute("name", "selectModel");
+		modelSelectionMenu.setAttribute("id", "modelSelectionMenu");
 		modelSelectionMenu.setAttribute("style" , _buttonWidth);
 		modelSelectionMenu.setAttribute("required");
 		leftWrapper.appendChild(modelSelectionMenu);
@@ -76,27 +76,17 @@ pmm_plotter = function() {
 		optGroup1.setAttribute("label", "Typ A");
 		optGroup1.setAttribute("id", "optGroupA");
 		modelSelectionMenu.appendChild(optGroup1);
-
-		var optGroup2 = document.createElement("optgroup");
-		optGroup2.setAttribute("label", "Typ B");
-		modelSelectionMenu.appendChild(optGroup2);
-		
-		var option3 = document.createElement("option");
-		option3.innerHTML = "Beispiel 3";
-		optGroup2.appendChild(option3);
-		
-		var option4 = document.createElement("option");
-		option4.innerHTML = "Beispiel 4";
-		optGroup2.appendChild(option4);
 		
 		// add button
 		var addButton = document.createElement("button");
 		addButton.innerHTML = msgAdd;
 		addButton.setAttribute("id", "addButton");
 		addButton.setAttribute("style" , _buttonWidth);
-		addButton.addEventListener("click", function() { 
-			addFunctionFromSelection(); 
-			});
+		addButton.addEventListener("click", function() 
+			{ 
+				addFunctionFromSelection(); 
+			}
+		);
 		leftWrapper.appendChild(addButton);
 		
 		// slider wrapper
@@ -104,7 +94,6 @@ pmm_plotter = function() {
 		sliderWrapper.setAttribute("id", "sliderWrapper");
 		sliderWrapper.setAttribute("style" , _buttonWidth);
 		leftWrapper.appendChild(sliderWrapper);
-
 		
 		var plotterWrapper = document.createElement("div");
 		plotterWrapper.setAttribute("id", "plotterWrapper");
@@ -118,8 +107,11 @@ pmm_plotter = function() {
 		// --- //
 		
 		// dynamic options
-		addSelectOption(plotterValue.dbuuid, plotterValue.modelName);
-		addSelectOption("123", "Beispiel");
+		addSelectOptions(_rawModels);
+		addSelectOption("23325234", "Beispiel 1", "Tests");
+		addSelectOption("34242", "Beispiel 2", "Tests");
+		addSelectOption("45123", "Beispiel 3", "Tests");
+		addSelectOption("556633", "Beispiel 4", "Tests");
 				
 		/*
 		 * jQueryUI
@@ -146,28 +138,75 @@ pmm_plotter = function() {
 	 * @param dbuuid id of the model
 	 * @param modelName name of the model
 	 */
-	function addSelectOption(dbuuid, modelName)
+	function addSelectOption(dbuuid, modelName, type)
 	{
 		// TODO: dynamisches Mappen von Typen zu Gruppen
+		if(!type || type == "")
+			type = "Kein Typ";
+		
 		var option = document.createElement("option");
 		option.setAttribute("value", dbuuid);
 		option.innerHTML = "(" + dbuuid + ") " + modelName;
 		
-		var group = document.getElementById("optGroupA");
+		var groupId = "optGroup_" + type;
+		var group = document.getElementById(groupId);
+		if(!group) 
+		{
+			var group = document.createElement("optgroup");
+			group.setAttribute("id", groupId);
+			group.setAttribute("label", type);
+			document.getElementById("modelSelectionMenu").appendChild(group);
+		}
 		group.appendChild(option);
+	}
+	
+	/*
+	 * adds a new option to the selection menu
+	 * @param dbuuid id of the model
+	 * @param modelName name of the model
+	 */
+	function addSelectOptions(modelsArray)
+	{
+		$.each(modelsArray, function(i) 
+			{
+				var type = modelsArray[i].type;
+				var dbuuid = modelsArray[i].dbuuid;
+				var modelName = modelsArray[i].estModel.name;
+				addSelectOption(dbuuid, modelName, type);
+			}
+		);
 	}
 
 	/*
-	 * parse functiom from model and modify it according to framework needs
+	 * parse function from model and modify it according to framework needs
 	 * @param functionString formula as delivered by the java class
+	 * @return parsed function 
 	 */
 	function prepareFunction(functionString) {
 		// replace "T" and "Time" with "x" using regex
 		// gi: global, case-insensitive
 		var newString = functionString;
+		if(newString.indexOf("=") != -1)
+			newString = newString.split("=")[1];
 		newString = newString.replace(/Time/gi, "x");
 		newString = newString.replace(/\bT\b/gi, "x");
 		return newString;
+	}
+	
+	/*
+	 * extract paremter names and values
+	 * @param functionString formula as delivered by the java class
+	 * @return reduced parameter array
+	 */
+	function prepareConstants(parameterArray) 
+	{
+		var newParameterArray = {};
+		$.each(parameterArray, function(index, param) {
+			var name = param["name"];
+			var value = param["value"];
+			newParameterArray[name] = value; 
+		});
+		return newParameterArray;
 	}
 	
 	/*
@@ -178,21 +217,31 @@ pmm_plotter = function() {
 	function addFunctionFromSelection()
 	{
 		// get the selection
-		var selectMenu = document.getElementById("selectModel");
+		var selectMenu = document.getElementById("modelSelectionMenu");
 		var selection = selectMenu.options[selectMenu.selectedIndex].value;
 
 		// get the model data
-		if(plotterValue.dbuuid == selection)
+		var model;
+		$.each(_rawModels, function(i, object)
 		{
-			plotterValue.constants.Y0 = plotterValue.y0; // set the value from the settings here
-			var functionAsString = prepareFunction(plotterValue.func);
-			var functionConstants = plotterValue.constants;
-			var dbuuid = plotterValue.dbuuid;
-			var modelName = plotterValue.modelName;
+			if(_rawModels[i].dbuuid == selection)
+			{
+				model = _rawModels[i];
+				return true;
+			}
+		});
+
+		if(model) // to be removed
+		{
+			model.params.params.Y0 = plotterValue.y0; // set the value from the settings here
+			var functionAsString = prepareFunction(model.catModel.formula);
+			var functionConstants = prepareConstants(model.params.params);
+			var dbuuid = model.dbuuid;
+			var modelName = model.estModel.name;
 			// call subsequent method
 			addFunctionObject(dbuuid, functionAsString, functionConstants, modelName);
 		}
-		else // to be removed
+		else
 		{
 			_globalNumber++; 
 			addFunctionObject(_globalNumber, "x^" + _globalNumber, null, "Test " + _globalNumber);
@@ -335,7 +384,7 @@ pmm_plotter = function() {
 		paragraphFunc.appendChild(functionHeader);	
 		
 		var functionElem = document.createElement("div");
-		functionElem.innerHTML = modelObject.fn;
+		functionElem.innerHTML = reparseFunction(modelObject.fn);
 		paragraphFunc.appendChild(functionElem);	
 		
 		var paragraphScope = document.createElement("p");
@@ -347,7 +396,7 @@ pmm_plotter = function() {
 		paragraphScope.appendChild(scopeHeader);
 		
 		var scopeElem = document.createElement("div");
-		if(!modelObject.modelName)
+		if(!modelObject.scope)
 			scopeElem.innerHTML = "Keine Parameter gegeben";
 		else
 			scopeElem.innerHTML = JSON.stringify(modelObject.scope, null, 4);
@@ -508,31 +557,52 @@ pmm_plotter = function() {
 	function drawD3Plot() 
 	{
 		// the plot element has to be reset because otherwise functionPlot may draw artifacts
-		var plotDiv = document.getElementById("d3plotter");
-		if(plotDiv)
-			plotDiv.parentElement.removeChild(plotDiv)
-		
-		var d3Plot = document.createElement("div");
+		var d3Plot = document.getElementById("d3plotter");
+		if(d3Plot)
+		{
+			d3Plot.parentElement.removeChild(d3Plot)
+		}
+		d3Plot = document.createElement("div");
 		d3Plot.setAttribute("id", "d3plotter");
 		
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
+		
+		var xUnit = "unknown";
+		$.each(_rawModels[0].indeps.indeps, function(i) {
+			var currentIndep = _rawModels[0].indeps.indeps[i];
+			if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
+			{
+				xUnit = currentIndep["name"] + " in " + currentIndep["unit"];
+				return true;
+			}
+		});
+		
+		var yUnit = "unknown";
+		$.each(_rawModels[0].params.params, function(i) {
+			var currentParam = _rawModels[0].params.params[i];
+			if(currentParam["unit"])
+			{
+				yUnit = currentParam["unit"];
+				return true;
+			}
+		});
 		
 		// plot
 		functionPlot({
 		    target: '#d3plotter',
 		    xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],
 		    yDomain: [plotterValue.minYAxis, plotterValue.maxYAxis],
-		    xLabel: plotterValue.xUnit,
-		    yLabel: plotterValue.yUnit,
-		    witdh: _plotWidth,
+		    xLabel: xUnit,
+		    yLabel: yUnit,
 		    height: _plotHeight,
+		    witdh: _plotWidth,
 		    tip: 
 		    {
 		    	xLine: true,    // dashed line parallel to y = 0
 			    yLine: true,    // dashed line parallel to x = 0
 			    renderer: function (x, y, index) {
-			      return y;
+			    	return y;
 				}
 			},
 		    data: _modelObjects
@@ -549,9 +619,9 @@ pmm_plotter = function() {
 		return _colorsArray.shift();
 	}
 	
-	function reparseFunction()
+	function reparseFunction(formula)
 	{
-		
+		return formula.replace(/\bx\b/gi, "Zeit");
 	}
 	
 	/*******/

@@ -1,7 +1,7 @@
 pmm_plotter = function() {
 	
 	/*
-	 * @author Markus Freitag, EITCO GmbH, mfreitag@eitco.de, 2015
+	 * @author Markus Freitag, EITCO GmbH, MFreitag@eitco.de, 2015
 	 * 
 	 * Please try to avoid native JavaScript for the creation of DOM elements. 
 	 * Use jQuery for the sake of clarity whenever possible. Improvements of 
@@ -88,7 +88,7 @@ pmm_plotter = function() {
 		var addButton = document.createElement("button");
 		addButton.innerHTML = msgAdd;
 		addButton.setAttribute("id", "addButton");
-		addButton.setAttribute("style", _buttonWidth);
+		addButton.setAttribute("style", _buttonWidth + "margin-bottom: 3px;");
 		addButton.addEventListener("click", function() 
 			{ 
 				addFunctionFromSelection(); 
@@ -101,6 +101,15 @@ pmm_plotter = function() {
 		sliderWrapper.setAttribute("id", "sliderWrapper");
 		sliderWrapper.setAttribute("style" , _buttonWidth);
 		leftWrapper.appendChild(sliderWrapper);
+		
+		var nextButton = $("<button>", {id: "nextButton", style: _buttonWidth, text: "Weiter" });
+		nextButton.on("click", function() 
+			{ 
+				$("#layoutWrapper").fadeOut(500);
+				showInputForm();
+			}
+		);
+		$("#leftWrapper").append(nextButton);
 		
 		var plotterWrapper = document.createElement("div");
 		plotterWrapper.setAttribute("id", "plotterWrapper");
@@ -126,12 +135,25 @@ pmm_plotter = function() {
 		$(function() {
 			
 			// make all html buttons jquery buttons
+			$("#nextButton").button({
+				icons: {
+					primary: "ui-icon-arrow-1-e"
+				},
+				disabled: true
+			});
+			
+			// make all html buttons jquery buttons
 			$("#addButton").button({
 			    icons: {
 			        primary: "ui-icon-plus"
 			    },
 			    disabled: true
-			});
+			}).click( function () 
+				// once a model is added, we can activate the "next" button
+				{
+					$("#nextButton").button( "option", "disabled", false );
+				}
+			);
 			
 			// make select menu a jquery select menu
 			$("#modelSelectionMenu").selectmenu({
@@ -148,6 +170,47 @@ pmm_plotter = function() {
 		/***/
 	};
 	
+	function showInputForm()
+	{
+		$("#layoutWrapper").empty();
+		inputMember = ["Name des Berichts", "Namen der Autoren", "Kommentar"]
+		
+		var form = $("<form>", { style: _buttonWidth });
+		$.each(inputMember, function(i) {
+			var paragraph = $("<p>", { style: _buttonWidth });
+			var label = $("<div>", { text: inputMember[i], style: "font-weight: bold;" + _buttonWidth });
+			var input = $('<input>', { id: "input_" + inputMember[i].replace(/\s/g,""), style: "width: 224px;" })
+			  .button()
+			  .css({
+			    'font' : 'inherit',
+			    'background': '#eeeeee',
+			    'color' : 'inherit',
+			    'text-align' : 'left',
+			    'outline' : 'thick',
+			    'cursor' : 'text'
+			  });
+			form.append(paragraph);
+			paragraph.append(label);
+			paragraph.append(input);
+		})
+		$(document.body).append(form);
+		
+		var finishButton = $("<button>", {id: "finishButton", style: _buttonWidth, text: "Fertig" }).button();
+		finishButton.on("click", function() 
+			{ 
+				plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
+				plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
+				plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
+				
+				show(plotterValue.reportName);
+				show(plotterValue.authors);
+				show(plotterValue.comment);
+				
+				$(document.body).fadeOut();
+			}
+		);
+		$(document.body).append(finishButton);
+	}
 	/*
 	 * adds a new option to the selection menu
 	 * @param dbuuid id of the model
@@ -269,7 +332,7 @@ pmm_plotter = function() {
 						},
 					"matrix": ""
 				};
-			addFunctionObject(_globalNumber, "x*0.1" + _globalNumber, null, model);
+			addFunctionObject(_globalNumber, "x*0.1" + _globalNumber*2, null, model);
 		}
 	}
 	
@@ -315,7 +378,11 @@ pmm_plotter = function() {
 				return true;
 			}
 		});
-		drawD3Plot();
+
+		if(_modelObjects.length == 0)
+		{
+			$("#nextButton").button( "option", "disabled", true);
+		}
 		
 		// remove meta data header
 		var header = document.getElementById("h" + id);
@@ -327,6 +394,7 @@ pmm_plotter = function() {
 		
 		$("#metaDataWrapper").accordion("refresh");
 		updateParameterSliders();
+		drawD3Plot();
 	}
 	
 	/*

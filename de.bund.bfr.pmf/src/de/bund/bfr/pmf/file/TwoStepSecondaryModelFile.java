@@ -34,6 +34,8 @@ import java.util.Set;
 import org.jdom2.Element;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.pmf.ModelType;
@@ -60,6 +62,9 @@ public class TwoStepSecondaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
 	private static final URI NUML_URI = URIFactory.createNuMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
 	public static List<TwoStepSecondaryModel> read(String filename) throws Exception {
 
@@ -94,7 +99,7 @@ public class TwoStepSecondaryModelFile {
 
 		for (ArchiveEntry entry : sbmlEntries) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();
 
 			if (masterFiles.contains(entry.getFileName())) {
@@ -164,7 +169,7 @@ public class TwoStepSecondaryModelFile {
 		CombineArchive ca = new CombineArchive(new File(caName));
 
 		Set<String> masterFiles = new HashSet<>(models.size());
-
+		
 		// Add models and data
 		for (TwoStepSecondaryModel model : models) {
 			// Creates tmp file for the secondary model
@@ -172,7 +177,7 @@ public class TwoStepSecondaryModelFile {
 			secTmp.deleteOnExit();
 
 			// Writes model to secTmp and adds it to the file
-			SBMLWriter.write(model.getSecDoc(), secTmp);
+			WRITER.write(model.getSecDoc(), secTmp);
 			ArchiveEntry masterEntry = ca.addEntry(secTmp, model.getSecDocName(), SBML_URI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
@@ -193,7 +198,7 @@ public class TwoStepSecondaryModelFile {
 				primTmp.deleteOnExit();
 
 				// Writes model to primTmp and adds it to the file
-				SBMLWriter.write(primModel.getModelDoc(), primTmp);
+				WRITER.write(primModel.getModelDoc(), primTmp);
 				ca.addEntry(primTmp, primModel.getModelDocName(), SBML_URI);
 			}
 		}

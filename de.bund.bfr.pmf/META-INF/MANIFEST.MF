@@ -7,8 +7,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  lib/biojava3-ontology-3.1.0.jar,
  lib/jigsaw-dateParser.jar,
- lib/jsbml-tidy-1.0.jar,
- lib/jtidy-r938.jar,
  lib/junit-4.8.jar,
  lib/log4j-1.2.17.jar,
  lib/spi-full-0.2.4.jar,
@@ -181,7 +179,5 @@ Export-Package: com.ctc.wstx.api,
  org.sbml.jsbml.xml.stax,
  org.sbml.jsbml.xml.test,
  org.sbml.jsbml.xml.xstream.converter,
- org.w3c.tidy,
- org.w3c.tidy.ant,
  org.w3c.util
 Require-Bundle: org.jdom2;visibility:=reexport

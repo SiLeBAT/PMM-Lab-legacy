@@ -35,6 +35,8 @@ import javax.xml.stream.XMLStreamException;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
@@ -52,6 +54,9 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 public class ManualSecondaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
 	public static List<ManualSecondaryModel> read(String filename)
 			throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
@@ -64,7 +69,7 @@ public class ManualSecondaryModelFile {
 		// Parse models in the PMF file
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument sbmlDoc = READER.readSBMLFromStream(stream);
 			stream.close();
 			String sbmlDocName = entry.getFileName();
 			models.add(new ManualSecondaryModel(sbmlDocName, sbmlDoc));
@@ -90,7 +95,7 @@ public class ManualSecondaryModelFile {
 
 		// Creates SBML URI
 		URI sbmlURI = URIFactory.createSBMLURI();
-
+		
 		// Add models and data
 		for (ManualSecondaryModel model : models) {
 			// Creates tmp file for the model
@@ -98,7 +103,7 @@ public class ManualSecondaryModelFile {
 			sbmlTmp.deleteOnExit();
 
 			// Writes model to sbmlTmp and add it to the file
-			SBMLWriter.write(model.getDoc(), sbmlTmp);
+			WRITER.write(model.getDoc(), sbmlTmp);
 			ca.addEntry(sbmlTmp, model.getDocName(), sbmlURI);
 		}
 

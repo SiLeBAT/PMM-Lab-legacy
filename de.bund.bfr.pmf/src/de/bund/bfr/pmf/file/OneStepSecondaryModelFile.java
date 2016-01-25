@@ -32,6 +32,8 @@ import java.util.Map;
 
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
@@ -58,6 +60,9 @@ public class OneStepSecondaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
 	private static final URI NuML_URI = URIFactory.createNuMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
 	public static List<OneStepSecondaryModel> read(String filename) throws Exception {
 
@@ -79,7 +84,7 @@ public class OneStepSecondaryModelFile {
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			String docName = entry.getFileName();
-			SBMLDocument doc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();
 
 			// look for DataSourceNode
@@ -121,7 +126,7 @@ public class OneStepSecondaryModelFile {
 
 		// Creates new CombineArchive
 		CombineArchive ca = new CombineArchive(new File(caName));
-
+		
 		// Add models and data
 		for (OneStepSecondaryModel model : models) {
 
@@ -143,7 +148,7 @@ public class OneStepSecondaryModelFile {
 			sbmlTmp.deleteOnExit();
 
 			// Writes model to secTmp and adds it to the file
-			SBMLWriter.write(model.getModelDoc(), sbmlTmp);
+			WRITER.write(model.getModelDoc(), sbmlTmp);
 			ca.addEntry(sbmlTmp, model.getModelDocName(), SBML_URI);
 		}
 

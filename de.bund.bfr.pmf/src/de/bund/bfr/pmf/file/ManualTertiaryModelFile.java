@@ -33,6 +33,8 @@ import java.util.Set;
 
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
@@ -53,6 +55,9 @@ import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 public class ManualTertiaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
 	public static List<ManualTertiaryModel> read(String filename) throws Exception {
 
@@ -76,7 +81,7 @@ public class ManualTertiaryModelFile {
 
 		for (ArchiveEntry entry : sbmlEntries) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();
 
 			if (masterFiles.contains(entry.getFileName())) {
@@ -125,7 +130,7 @@ public class ManualTertiaryModelFile {
 		CombineArchive ca = new CombineArchive(new File(caName));
 
 		Set<String> masterFiles = new HashSet<>(models.size());
-
+		
 		// Add models and data
 		for (ManualTertiaryModel model : models) {
 			// Creates tmp file for the tert model
@@ -133,7 +138,7 @@ public class ManualTertiaryModelFile {
 			tertTmp.deleteOnExit();
 
 			// Writes tertiary model to tertTmp and adds it to the file
-			SBMLWriter.write(model.getTertiaryDoc(), tertTmp);
+			WRITER.write(model.getTertiaryDoc(), tertTmp);
 
 			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTertiaryDocName(), SBML_URI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
@@ -147,7 +152,7 @@ public class ManualTertiaryModelFile {
 				secTmp.deleteOnExit();
 
 				// Writes model to secTmp and adds it to the file
-				SBMLWriter.write(secDoc, secTmp);
+				WRITER.write(secDoc, secTmp);
 				ca.addEntry(secTmp, secDocName, SBML_URI);
 			}
 		}

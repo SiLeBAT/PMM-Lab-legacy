@@ -31,6 +31,8 @@ import java.util.List;
 
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.pmf.ModelType;
@@ -51,6 +53,9 @@ public class PrimaryModelWDataFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
 	private static final URI NUML_URI = URIFactory.createNuMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
 	public static List<PrimaryModelWData> read(String filename) throws Exception {
 
@@ -71,7 +76,7 @@ public class PrimaryModelWDataFile {
 		for (ArchiveEntry modelEntry : modelEntries) {
 
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument sbmlDoc = READER.readSBMLFromStream(stream);
 			stream.close();
 
 			String sbmlDocName = modelEntry.getFileName();
@@ -125,7 +130,7 @@ public class PrimaryModelWDataFile {
 
 		// Creates new CombineArchive
 		CombineArchive ca = new CombineArchive(new File(caName));
-
+		
 		// Add models and data
 		for (PrimaryModelWData model : models) {
 			// Adds data set
@@ -144,7 +149,7 @@ public class PrimaryModelWDataFile {
 			sbmlTmp.deleteOnExit();
 
 			// Writes model to sbmlTmp and adds it to the file
-			SBMLWriter.write(model.getModelDoc(), sbmlTmp);
+			WRITER.write(model.getModelDoc(), sbmlTmp);
 			ca.addEntry(sbmlTmp, model.getModelDocName(), SBML_URI);
 		}
 

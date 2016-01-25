@@ -30,6 +30,8 @@ import java.util.List;
 
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
@@ -47,6 +49,9 @@ public class PrimaryModelWODataFile {
 	
 	private static final URI SBML_URI = URIFactory.createNuMLURI();
 	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
+	
 	public static List<PrimaryModelWOData> read(String filename) throws Exception {
 		
 		List<PrimaryModelWOData> models = new LinkedList<>();
@@ -58,7 +63,7 @@ public class PrimaryModelWODataFile {
 		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(SBML_URI);
 		for (ArchiveEntry modelEntry : modelEntries) {
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument sbmlDoc = READER.readSBMLFromStream(stream);
 			stream.close();
 			String sbmlDocName = modelEntry.getFileName();
 			PrimaryModelWOData model = new PrimaryModelWOData(sbmlDocName, sbmlDoc);
@@ -90,7 +95,7 @@ public class PrimaryModelWODataFile {
 			sbmlTmp.deleteOnExit();
 			
 			// Writes model to sbmlTmp and adds it to the file
-			SBMLWriter.write(model.getDoc(), sbmlTmp);
+			WRITER.write(model.getDoc(), sbmlTmp);
 			ca.addEntry(sbmlTmp,  model.getDocName(), SBML_URI);
 		}
 		

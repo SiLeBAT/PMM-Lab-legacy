@@ -35,6 +35,8 @@ import org.jdom2.Element;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ExternalModelDefinition;
@@ -63,6 +65,9 @@ public class TwoStepTertiaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
 	private static final URI NUML_URI = URIFactory.createNuMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
 	public static List<TwoStepTertiaryModel> read(String filename) throws Exception {
 
@@ -92,7 +97,7 @@ public class TwoStepTertiaryModelFile {
 
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument doc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();
 
 			if (masterFiles.contains(entry.getFileName())) {
@@ -200,7 +205,7 @@ public class TwoStepTertiaryModelFile {
 				pmNames.add(pm.getModelDocName());
 
 				// Writes model to sbmlTmp and add it to the file
-				SBMLWriter.write(pm.getModelDoc(), sbmlTmp);
+				WRITER.write(pm.getModelDoc(), sbmlTmp);
 				ca.addEntry(sbmlTmp, pm.getModelDocName(), SBML_URI);
 			}
 
@@ -213,7 +218,7 @@ public class TwoStepTertiaryModelFile {
 				secTmp.deleteOnExit();
 
 				// Writes model to secTmp and adds it to the file
-				SBMLWriter.write(secDoc, secTmp);
+				WRITER.write(secDoc, secTmp);
 				ca.addEntry(secTmp, secDocName, SBML_URI);
 			}
 
@@ -222,7 +227,7 @@ public class TwoStepTertiaryModelFile {
 			tertTmp.deleteOnExit();
 
 			// Writes tertiary model to tertTmp and adds it to the file
-			SBMLWriter.write(model.getTertDoc(), tertTmp);
+			WRITER.write(model.getTertDoc(), tertTmp);
 			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTertDocName(), SBML_URI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
 		}

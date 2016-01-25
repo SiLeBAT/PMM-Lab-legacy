@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="lib/CombineArchive-0.9.4.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/biojava3-ontology-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jigsaw-dateParser.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jsbml-1.1-20151116.jar" sourcepath="lib/jsbml-1.1-20151116-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsbml-1.1-dev-with-dependencies.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jsbml-tidy-1.0.jar" sourcepath="lib/jsbml-tidy-1.0-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jtidy-r938.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.8.jar"/>

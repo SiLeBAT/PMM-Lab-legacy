@@ -18,6 +18,9 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private int minYAxis;
 	private int maxXAxis;
 	private int maxYAxis;
+	private String authors;
+	private String comments;
+	private String reportName;
 	private double y0;
 
 	// Configuration keys
@@ -97,5 +100,47 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	public void setY0(double y0) {
 		this.y0 = y0;
+	}
+
+	/**
+	 * @return the authors
+	 */
+	public String getAuthors() {
+		return authors;
+	}
+
+	/**
+	 * @param authors the authors to set
+	 */
+	public void setAuthors(String authors) {
+		this.authors = authors;
+	}
+
+	/**
+	 * @return the comments
+	 */
+	public String getComments() {
+		return comments;
+	}
+
+	/**
+	 * @param comments the comments to set
+	 */
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	/**
+	 * @return the reportName
+	 */
+	public String getReportName() {
+		return reportName;
+	}
+
+	/**
+	 * @param reportName the reportName to set
+	 */
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
 	}
 }

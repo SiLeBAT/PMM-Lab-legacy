@@ -22,11 +22,13 @@ package de.bund.bfr.knime.pmm.js.modelplotter;
 import java.util.List;
 import java.util.Random;
 
+import org.dmg.pmml.DATATYPE;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.xml.XMLCell;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -39,6 +41,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.node.AbstractWizardNodeModel;
 
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
@@ -61,6 +64,9 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	static final String FLOWVAR_FUNCTION_ORIG = "Original Function";
 	static final String FLOWVAR_FUNCTION_FULL = "Full Function";
 	static final String FLOWVAR_FUNCTION_APPLIED = "Applied Function";
+	static final String AUTHORS = "authors";
+	static final String REPORT_NAME = "reportName";
+	static final String COMMENT = "comments";
 	/*
 	 * deprecated
 	private static final String PMM_MODEL_ARG_TIME = "Time";
@@ -191,50 +197,43 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			container.addRowToTable(outTuple);
 		}
 		container.close();
+		
+		BufferedDataContainer userContainer = exec.createDataContainer(getUserSpec());
+		String reportName = getViewValue().getReportName();
+		String authors = getViewValue().getAuthors();
+		String comment = getViewValue().getComments();
+		
+		KnimeSchema userSchema = new KnimeSchema();
+		userSchema.addStringAttribute(REPORT_NAME);
+		userSchema.addStringAttribute(AUTHORS);
+		userSchema.addStringAttribute(COMMENT);
+		
+		KnimeTuple userTuple = new KnimeTuple(userSchema);
+		userTuple.setValue(REPORT_NAME, reportName);
+		userTuple.setValue(AUTHORS, authors);
+		userTuple.setValue(COMMENT, comment);
+		
+		userContainer.addRowToTable(userTuple);
+		userContainer.close();
+		
 		// TODO: finish output
-		return new BufferedDataTable[] { container.getTable(), container.getTable() };
+		return new BufferedDataTable[] { container.getTable(), userContainer.getTable() };
 	}
 
 	private DataTableSpec[] createOutputDataTableSpecs() {
+
 		return new DataTableSpec[]{ 
 			SchemaFactory.createM1DataSchema().createSpec(), 
-			SchemaFactory.createM1DataSchema().createSpec() 
+			getUserSpec()
 		};		
 	}
 	
-	/*
-	 * private BufferedDataTable[] createOutputDataTables(final ExecutionContext exec) {
-		ModelPlotterViewValue value = getViewValue();
-		DataTableSpec[] outSpces = createOutputDataTableSpecs();
-		
-		BufferedDataContainer constBC = exec.createDataContainer(outSpces[0]);
-		long i = 0;
-		if (value.getConstants() != null) {
-			for (Entry<String, Double> e : value.getConstants().entrySet()) {
-				RowKey key = RowKey.createRowKey(i);
-				constBC.addRowToTable(new DefaultRow(key, new StringCell(e
-						.getKey()), new DoubleCell(e.getValue())));
-				i++;
-			}
-		}
-		constBC.close();
-		
-		BufferedDataContainer varBC = exec.createDataContainer(outSpces[1]);
-		i = 0;
-		if (value.getVariables() != null) {
-			for (Variable v : value.getVariables()) {
-				RowKey key = RowKey.createRowKey(i);
-				varBC.addRowToTable(new DefaultRow(key, new StringCell(v
-						.getName()), new DoubleCell(v.getDef()),
-						new DoubleCell(v.getMin()), new DoubleCell(v.getMax())));
-				i++;
-			}
-		}
-		varBC.close();
-		
-		return new BufferedDataTable[]{ constBC.getTable(), varBC.getTable() };
+	private DataTableSpec getUserSpec(){
+		String[] fields = {AUTHORS, REPORT_NAME, COMMENT};
+		DataType[] types = {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
+		DataTableSpec userDataSpec = new DataTableSpec(fields, types);
+		return userDataSpec;
 	}
-	*/
 	
 	@Override
 	protected void performReset() {

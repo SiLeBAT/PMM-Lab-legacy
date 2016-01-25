@@ -247,7 +247,7 @@ pmm_plotter = function() {
 			}
 		});
 
-		if(model) // to be removed
+		if(model)
 		{
 			model.params.params.Y0 = plotterValue.y0; // set the value from the settings here
 			var functionAsString = prepareFunction(model.catModel.formula);
@@ -255,12 +255,21 @@ pmm_plotter = function() {
 			var dbuuid = model.dbuuid;
 			var modelName = model.estModel.name;
 			// call subsequent method
-			addFunctionObject(dbuuid, functionAsString, functionConstants, modelName);
+			addFunctionObject(dbuuid, functionAsString, functionConstants, model);
 		}
+		// TODO: just for testing purposes
 		else
 		{
-			_globalNumber++; 
-			addFunctionObject(_globalNumber, "x^" + _globalNumber, null, "Test " + _globalNumber);
+			_globalNumber++;
+			model =
+				{
+					"estModel": 
+						{
+							"name": "Test " + _globalNumber
+						},
+					"matrix": ""
+				};
+			addFunctionObject(_globalNumber, "x*0.1" + _globalNumber, null, model);
 		}
 	}
 	
@@ -270,20 +279,21 @@ pmm_plotter = function() {
 	 * @param functionAsString the function string as returend by prepareFunction()
 	 * @param the function constants as an array 
 	 */
-	function addFunctionObject(dbuuid, functionAsString, functionConstants, modelName)
+	function addFunctionObject(dbuuid, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
 		var maxRange = plotterValue.maxXAxis; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
 		
 		var modelObj = { 
-			 name: modelName,
+			 name: model.estModel.name,
 			 dbuuid: dbuuid,
 			 fn: functionAsString,
 			 scope: functionConstants,
 			 color: color,
 			 range: range,
-			 skipTip: false
+			 skipTip: false,
+			 modelData: model
 		};
 		_modelObjects.push(modelObj);
 		// update plot after adding new function
@@ -388,9 +398,15 @@ pmm_plotter = function() {
 		// name of the model
 		addMetaParagraph("Name", modelObject.name, "Kein Name gegeben");
 		// model formula (function)
+		addMetaParagraph("Quality Score", modelObject.modelData.estModel.qualityScore, "Kein Quality Score gegeben");
+		// matrix data
 		addMetaParagraph("Funktion", reparseFunction(modelObject.fn), "Keine Funktion gegeben");
 		// function parameter
 		addMetaParagraph("Initiale Parameter", unfoldScope(modelObject.scope), "Keine Parameter gegeben");
+		// quality score
+		addMetaParagraph("Matrix", modelObject.modelData.matrix.name + "; " + modelObject.modelData.matrix.detail, "Keine Matrixinformationen gegeben");
+		
+		// ... add more paragraphs/attributes here ...
 		
 		// use jquery to refresh the accordion values
 		$("#metaDataWrapper").accordion("refresh");

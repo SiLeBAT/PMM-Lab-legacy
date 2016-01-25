@@ -1,5 +1,12 @@
 pmm_plotter = function() {
-
+	
+	/*
+	 * @author Markus Freitag, EITCO GmbH, mfreitag@eitco.de, 2015
+	 * 
+	 * Please try to avoid native JavaScript for the creation of DOM elements. 
+	 * Use jQuery for the sake of clarity whenever possible. Improvements of 
+	 * code readability are welcome.
+	 */
 
 	var modelPlotter = {
 			version: "1.0.0"
@@ -129,9 +136,7 @@ pmm_plotter = function() {
 			// make select menu a jquery select menu
 			$("#modelSelectionMenu").selectmenu({
 				change: function () {
-					show("enabling");
 					$("#addButton").button( "option", "disabled", false );
-					show("done");
 				}
 			});
 			
@@ -177,14 +182,15 @@ pmm_plotter = function() {
 	 */
 	function addSelectOptions(modelsArray)
 	{
-		$.each(modelsArray, function(i) 
-			{
-				var type = modelsArray[i].type;
-				var dbuuid = modelsArray[i].dbuuid;
-				var modelName = modelsArray[i].estModel.name;
-				addSelectOption(dbuuid, modelName, type);
-			}
-		);
+		if(modelsArray)
+			$.each(modelsArray, function(i) 
+				{
+					var type = modelsArray[i].type;
+					var dbuuid = modelsArray[i].dbuuid;
+					var modelName = modelsArray[i].estModel.name;
+					addSelectOption(dbuuid, modelName, type);
+				}
+			);
 	}
 
 	/*
@@ -354,63 +360,37 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    }).click(function(event) {
-//	    	event.preventDefault();
-//	    	event.stopPropagation();
 	    	deleteFunctionObject(modelObject.dbuuid);
 	    });
 	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");
-		
 		deleteDiv.appendChild(deleteButton);
 		
-		var titleDiv = document.createElement("div");
-		header.appendChild(titleDiv);
+		// color field
+		var colorDiv = document.createElement("span");
+		colorDiv.setAttribute("style", "float: left; color: " + modelObject.color + "; background:  " + modelObject.color + "; border: 1px solid #cac3c3; margin-right: 5px; height: 10px; width: 10px; margin-top: 3px;")
+		header.appendChild(colorDiv);
+
+		var colorDivSub = document.createElement("button");
+	    $(colorDivSub).button({
+	        icons: {
+	          primary: "ui-icon-blank"
+	        },
+	        text: false
+	    });
+		colorDivSub.setAttribute("style", "float: left; color: " + modelObject.color + "; background: " + modelObject.color + "; border: 0px; height: 10px; width: 10px;")
+		colorDiv.appendChild(colorDivSub);
 		
+		// meta content divs divs
 		var metaDiv = document.createElement("div");
 		metaDiv.setAttribute("id", modelObject.dbuuid);
 		$("#metaDataWrapper").append(metaDiv);
-		
-		
-		var paragraphName = document.createElement("p");
-		metaDiv.appendChild(paragraphName);
-		
-		var nameHeader  = document.createElement("div");
-		nameHeader.setAttribute("style", "font-weight: bold;");
-		nameHeader.innerHTML = "Name";
-		paragraphName.appendChild(nameHeader);	
-		
-		var nameElem = document.createElement("div");
-		if(!modelObject.name)
-			nameElem.innerHTML = "Kein Name gegeben";
-		else
-			nameElem.innerHTML = modelObject.name;
-		paragraphName.appendChild(nameElem);	
-		
-		var paragraphFunc = document.createElement("p");
-		metaDiv.appendChild(paragraphFunc);
-		
-		var functionHeader  = document.createElement("div");
-		functionHeader.setAttribute("style", "font-weight: bold;");
-		functionHeader.innerHTML = "Funktion";
-		paragraphFunc.appendChild(functionHeader);	
-		
-		var functionElem = document.createElement("div");
-		functionElem.innerHTML = reparseFunction(modelObject.fn);
-		paragraphFunc.appendChild(functionElem);	
-		
-		var paragraphScope = document.createElement("p");
-		metaDiv.appendChild(paragraphScope);
-		
-		var scopeHeader  = document.createElement("div");
-		scopeHeader.setAttribute("style", "font-weight: bold;");
-		scopeHeader.innerHTML = "Initiale Parameter";
-		paragraphScope.appendChild(scopeHeader);
-		
-		var scopeElem = document.createElement("div");
-		if(!modelObject.scope)
-			scopeElem.innerHTML = "Keine Parameter gegeben";
-		else
-			scopeElem.innerHTML = JSON.stringify(modelObject.scope, null, 4);
-		paragraphScope.appendChild(scopeElem);	
+
+		// name of the model
+		addMetaParagraph("Name", modelObject.name, "Kein Name gegeben");
+		// model formula (function)
+		addMetaParagraph("Funktion", reparseFunction(modelObject.fn), "Keine Funktion gegeben");
+		// function parameter
+		addMetaParagraph("Initiale Parameter", unfoldScope(modelObject.scope), "Keine Parameter gegeben");
 		
 		// use jquery to refresh the accordion values
 		$("#metaDataWrapper").accordion("refresh");
@@ -418,6 +398,36 @@ pmm_plotter = function() {
 		var numSections = document.getElementById("metaDataWrapper").childNodes.length / 2;
 		// open last index
 		$("#metaDataWrapper").accordion({ active: (numSections - 1) });
+		
+		function addMetaParagraph(title, content, alt) 
+		{
+			var header = "<div style='font-weight: bold;'>" + title + "</div>";
+			if(!content)
+				var content = alt;
+			var inner = "<div>" + content + "</div>";
+			
+			var paragraph = $("<p></p>").append(header, inner);
+			$(metaDiv).append(paragraph);
+		}
+		
+		function reparseFunction(formula)
+		{
+			return formula.replace(/\bx\b/gi, "Zeit");
+		}
+		
+		function unfoldScope(paramArray)
+		{
+			if(!paramArray)
+				return null;
+			var list = "";
+			$.each(paramArray, function(elem) 
+				{
+					list += ("<li>" + elem + ": " + paramArray[elem] + "</li>");
+				}
+			);
+			var domElement = "<ul type='square'>" + list + "</ul>";
+			return domElement;
+		}
 	}
 
     /*
@@ -627,11 +637,6 @@ pmm_plotter = function() {
 		if(_colorsArray.length <= 0)
 			_colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
 		return _colorsArray.shift();
-	}
-	
-	function reparseFunction(formula)
-	{
-		return formula.replace(/\bx\b/gi, "Zeit");
 	}
 	
 	/*******/

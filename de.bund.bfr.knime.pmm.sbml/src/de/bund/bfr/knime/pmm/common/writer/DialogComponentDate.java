@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfwriter;
+package de.bund.bfr.knime.pmm.common.writer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;

@@ -17,12 +17,13 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfwriter;
+package de.bund.bfr.knime.pmm.pmfxwriter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -73,15 +74,18 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.common.writer.DataParser;
 import de.bund.bfr.knime.pmm.common.writer.Model1Parser;
 import de.bund.bfr.knime.pmm.common.writer.Model2Parser;
-import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.Util;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.PMFUtil;
@@ -112,6 +116,7 @@ import de.bund.bfr.pmf.sbml.MetadataAnnotation;
 import de.bund.bfr.pmf.sbml.Model2Annotation;
 import de.bund.bfr.pmf.sbml.ModelRule;
 import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
 import de.bund.bfr.pmf.sbml.PrimaryModelNode;
 import de.bund.bfr.pmf.sbml.Reference;
 import de.bund.bfr.pmf.sbml.ReferenceSBMLNode;
@@ -121,11 +126,11 @@ import de.bund.bfr.pmf.sbml.SecIndep;
 import de.bund.bfr.pmf.sbml.Uncertainties;
 
 /**
- * Model implementation of PMFWriter
+ * Model implementation of PMFXWriter
  * 
  * @author Miguel Alba
  */
-public class PMFWriterNodeModel extends NodeModel {
+public class PMFXWriterNodeModel extends NodeModel {
 	protected static final String CFG_OUT_PATH = "outPath";
 	protected static final String CFG_MODEL_NAME = "modelName";
 	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
@@ -156,10 +161,7 @@ public class PMFWriterNodeModel extends NodeModel {
 
 	Parser parser; // current parser
 
-	/**
-	 * Constructor for the node model.
-	 */
-	protected PMFWriterNodeModel() {
+	protected PMFXWriterNodeModel() {
 		super(1, 0);
 
 		// Sets current date in the dialog components
@@ -275,7 +277,7 @@ public class PMFWriterNodeModel extends NodeModel {
 
 		// Check for existing file -> shows warning if despite overwrite being
 		// false the user still executes the nod
-		String filepath = String.format("%s/%s.pmf", dir, mdName);
+		String filepath = String.format("%s/%s.pmfx", dir, mdName);
 		File f = new File(filepath);
 		if (f.exists() && !f.isDirectory() && !overwrite.getBooleanValue()) {
 			setWarningMessage(filepath + " was not overwritten");
@@ -432,6 +434,148 @@ public class PMFWriterNodeModel extends NodeModel {
 	}
 }
 
+class TableReader {
+	protected final static int LEVEL = 3;
+	protected final static int VERSION = 1;
+
+	public static void renameLog(KnimeTuple tuple) {
+		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
+
+		model.setFormula(MathUtilities.replaceVariable(model.getFormula(), "log", "log10"));
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+	}
+
+	public static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
+		final String CELSIUS = "°C";
+		final String FAHRENHEIT = "°F";
+		final String KELVIN = "K";
+
+		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
+		Category temp = Categories.getTempCategory();
+
+		for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+			IndepXml indep = (IndepXml) el;
+
+			if (CELSIUS.equals(indep.getUnit())) {
+				try {
+					String replacement = "(" + temp.getConversionString(indep.getName(), KELVIN, CELSIUS) + ")";
+
+					model.setFormula(MathUtilities.replaceVariable(model.getFormula(), indep.getName(), replacement));
+					indep.setUnit(KELVIN);
+					indep.setMin(temp.convert(indep.getMin(), CELSIUS, KELVIN));
+					indep.setMax(temp.convert(indep.getMax(), CELSIUS, KELVIN));
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
+			} else if (FAHRENHEIT.equals(indep.getUnit())) {
+				try {
+					String replacement = "(" + temp.getConversionString(indep.getName(), KELVIN, FAHRENHEIT) + ")";
+
+					model.setFormula(MathUtilities.replaceVariable(model.getFormula(), indep.getName(), replacement));
+					indep.setUnit(FAHRENHEIT);
+					indep.setMin(temp.convert(indep.getMin(), FAHRENHEIT, KELVIN));
+					indep.setMax(temp.convert(indep.getMax(), FAHRENHEIT, KELVIN));
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+	}
+
+	public static void addNamespaces(SBMLDocument doc) {
+		doc.addDeclaredNamespace("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		doc.addDeclaredNamespace("xmlns:pmml", "http://www.dmg.org/PMML-4_2");
+		doc.addDeclaredNamespace("xmlns:pmf", "http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:dc", "http://purl.org/dc/elements/1.1");
+		doc.addDeclaredNamespace("xmlns:dcterms", "http://purl.org/dc/terms/");
+		doc.addDeclaredNamespace("xmlns:pmmlab",
+				"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML");
+		doc.addDeclaredNamespace("xmlns:numl", "http://www.numl.org/numl/level1/version1");
+		doc.addDeclaredNamespace("xmlns:xlink", "http//www.w3.org/1999/xlink");
+	}
+
+	public static void addUnitDefinitions(Model model, DepXml depXml, List<IndepXml> indepXmls,
+			List<ParamXml> constXmls) throws XMLStreamException {
+		// Get units from dep, indeps and consts
+		HashSet<String> units = new HashSet<>();
+		if (depXml.getUnit() != null) {
+			units.add(depXml.getUnit());
+		}
+
+		for (IndepXml indepXml : indepXmls) {
+			if (indepXml.getUnit() != null) {
+				units.add(indepXml.getUnit());
+			}
+		}
+
+		for (ParamXml paramXml : constXmls) {
+			if (paramXml.getUnit() != null) {
+				units.add(paramXml.getUnit());
+			}
+		}
+
+		// Creates and adds unit definitions for the units present in DB.
+		// Missing units in DB will not be retrievable and thus will lack a list
+		// of units
+		for (String unit : units) {
+			PMFUnitDefinition unitDefinition = Util.createUnitFromDB(unit);
+			if (unitDefinition != null) {
+				model.addUnitDefinition(unitDefinition.getUnitDefinition());
+			}
+		}
+	}
+
+	public static Map<Integer, Map<Integer, List<KnimeTuple>>> sortGlobalModels(List<KnimeTuple> tuples) {
+		// Sort tertiary models
+		Map<Integer, Map<Integer, List<KnimeTuple>>> gms = new HashMap<>();
+		for (KnimeTuple tuple : tuples) {
+			Integer gmID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			Integer condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+
+			// global model is in globalModels
+			if (gms.containsKey(gmID)) {
+				// Get global model
+				Map<Integer, List<KnimeTuple>> gm = gms.get(gmID);
+				// globalModel has tertiary model with condID => Add tuple to
+				// this tertiary model
+				if (gm.containsKey(condID)) {
+					gm.get(condID).add(tuple);
+				}
+				// Otherwise, create a tertiary model with condID and add it the
+				// current tuple
+				else {
+					LinkedList<KnimeTuple> tertiaryModel = new LinkedList<>();
+					tertiaryModel.add(tuple);
+					gm.put(condID, tertiaryModel);
+				}
+			}
+
+			// else, create tertiary model with condID and add it to new global
+			// model
+			else {
+				// Create new global model
+				HashMap<Integer, List<KnimeTuple>> gm = new HashMap<>();
+
+				// Create tertiary model and add it to new global model
+				LinkedList<KnimeTuple> tertiaryModel = new LinkedList<>();
+				tertiaryModel.add(tuple);
+				gm.put(condID, tertiaryModel);
+
+				// Add new global model
+				gms.put(gmID, gm);
+			}
+		}
+		return gms;
+	}
+
+}
+
 interface Parser {
 	public void write(List<KnimeTuple> tuples, String dir, String mdName, Metadata metadata, boolean splitModels,
 			String notes, ExecutionContext exec) throws Exception;
@@ -456,7 +600,7 @@ class ExperimentalDataParser implements Parser {
 			ExperimentalData ed = new ExperimentalData(docName, doc);
 			eds.add(ed);
 		}
-		ExperimentalDataFile.writePMF(dir, mdName, eds);
+		ExperimentalDataFile.writePMFX(dir, mdName, eds);
 	}
 }
 
@@ -476,7 +620,7 @@ class PrimaryModelWDataParser implements Parser {
 
 			Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
 			SBMLDocument sbmlDoc = m1Parser.getDocument();
-			String sbmlDocName = String.format("%s_%d.sbml", mdName, pms.size());
+			String sbmlDocName = String.format("%s_%d.pmf", mdName, pms.size());
 
 			if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
 				DataParser dataParser = new DataParser(tuple, metadata, notes);
@@ -494,7 +638,7 @@ class PrimaryModelWDataParser implements Parser {
 			pms.add(pm);
 		}
 
-		PrimaryModelWDataFile.writePMF(dir, mdName, pms);
+		PrimaryModelWDataFile.writePMFX(dir, mdName, pms);
 	}
 }
 
@@ -512,12 +656,12 @@ class PrimaryModelWODataParser implements Parser {
 			Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
 
 			SBMLDocument sbmlDoc = m1Parser.getDocument();
-			String sbmlDocName = String.format("%s_%d.sbml", mdName, pms.size());
+			String sbmlDocName = String.format("%s_%d.pmf", mdName, pms.size());
 
 			PrimaryModelWOData pm = new PrimaryModelWOData(sbmlDocName, sbmlDoc);
 			pms.add(pm);
 		}
-		PrimaryModelWODataFile.writePMF(dir, mdName, pms);
+		PrimaryModelWODataFile.writePMFX(dir, mdName, pms);
 	}
 }
 
@@ -556,10 +700,10 @@ class TwoStepSecondaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<TwoStepSecondaryModel> model = new LinkedList<>();
 				model.add(sms.get(numModel));
-				TwoStepSecondaryModelFile.writePMF(dir, modelName, model);
+				TwoStepSecondaryModelFile.writePMFX(dir, modelName, model);
 			}
 		} else {
-			TwoStepSecondaryModelFile.writePMF(dir, mdName, sms);
+			TwoStepSecondaryModelFile.writePMFX(dir, mdName, sms);
 		}
 	}
 
@@ -580,7 +724,7 @@ class TwoStepSecondaryModelParser implements Parser {
 			Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
 
 			SBMLDocument sbmlDoc = m1Parser.getDocument();
-			String sbmlDocName = String.format("%s.sbml", sbmlDoc.getModel().getId());
+			String sbmlDocName = String.format("%s.pmf", sbmlDoc.getModel().getId());
 
 			XMLNode metadataNode = sbmlDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
 					"");
@@ -608,7 +752,7 @@ class TwoStepSecondaryModelParser implements Parser {
 		Model2Parser m2Parser = new Model2Parser(firstTuple, metadata, notes);
 
 		SBMLDocument secDoc = m2Parser.getDocument();
-		String secDocName = String.format("%s_%d.sbml", mdName, modelNum);
+		String secDocName = String.format("%s_%d.pmf", mdName, modelNum);
 		// Adds annotation for the primary models
 		XMLNode metadataNode = secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
 		for (PrimaryModelWData pmwd : primModels) {
@@ -658,10 +802,10 @@ class OneStepSecondaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<OneStepSecondaryModel> model = new LinkedList<>();
 				model.add(sms.get(numModel));
-				OneStepSecondaryModelFile.writePMF(dir, modelName, model);
+				OneStepSecondaryModelFile.writePMFX(dir, modelName, model);
 			}
 		} else {
-			OneStepSecondaryModelFile.writePMF(dir, mdName, sms);
+			OneStepSecondaryModelFile.writePMFX(dir, mdName, sms);
 		}
 	}
 
@@ -674,7 +818,7 @@ class OneStepSecondaryModelParser implements Parser {
 
 		Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
 		SBMLDocument doc = m1Parser.getDocument();
-		String docName = String.format("%s_%d.sbml", mdName, modelNum);
+		String docName = String.format("%s_%d.pmf", mdName, modelNum);
 
 		Model model = doc.getModel();
 		model.setId(PMFUtil.createId("model" + secEstModel.getId()));
@@ -730,10 +874,10 @@ class ManualSecondaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<ManualSecondaryModel> model = new LinkedList<>();
 				model.add(sms.get(numModel));
-				ManualSecondaryModelFile.writePMF(dir, modelName, model);
+				ManualSecondaryModelFile.writePMFX(dir, modelName, model);
 			}
 		} else {
-			ManualSecondaryModelFile.writePMF(dir, mdName, sms);
+			ManualSecondaryModelFile.writePMFX(dir, mdName, sms);
 		}
 	}
 
@@ -762,7 +906,7 @@ class ManualSecondaryModelParser implements Parser {
 			constXmls.add((ParamXml) item);
 		}
 
-		String docName = String.format("%s_%d.sbml", mdName, mdNum);
+		String docName = String.format("%s_%d.pmf", mdName, mdNum);
 		SBMLDocument doc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
 		// Enables Hierarchical Composition package
 		doc.enablePackage(CompConstants.shortLabel);
@@ -882,10 +1026,10 @@ class TwoStepTertiaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<TwoStepTertiaryModel> model = new LinkedList<>();
 				model.add(tms.get(numModel));
-				TwoStepTertiaryModelFile.writePMF(dir, modelName, model);
+				TwoStepTertiaryModelFile.writePMFX(dir, modelName, model);
 			}
 		} else {
-			TwoStepTertiaryModelFile.writePMF(dir, mdName, tms);
+			TwoStepTertiaryModelFile.writePMFX(dir, mdName, tms);
 		}
 	}
 
@@ -907,7 +1051,7 @@ class TwoStepTertiaryModelParser implements Parser {
 			Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
 
 			SBMLDocument sbmlDoc = m1Parser.getDocument();
-			String sbmlDocName = String.format("%s_%d_%d.sbml", mdName, modelNum, instanceNum);
+			String sbmlDocName = String.format("%s_%d_%d.pmf", mdName, modelNum, instanceNum);
 			XMLNode metadataNode = sbmlDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
 					"");
 
@@ -945,7 +1089,7 @@ class TwoStepTertiaryModelParser implements Parser {
 		}
 
 		// Creates tertiary model
-		String tertDocName = String.format("%s_%s.sbml", mdName, modelNum);
+		String tertDocName = String.format("%s_%s.pmf", mdName, modelNum);
 		SBMLDocument tertDoc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
 		// Enable Hierarchical Compositon package
 		tertDoc.enablePackage(CompConstants.shortLabel);
@@ -1012,7 +1156,7 @@ class TwoStepTertiaryModelParser implements Parser {
 			// Gets model definition id from secDoc
 			String mdId = secDoc.getModel().getId();
 
-			String secDocName = secDoc.getModel().getId() + ".sbml";
+			String secDocName = secDoc.getModel().getId() + ".pmf";
 			secDocNames.add(secDocName);
 
 			// Creates and adds an ExternalModelDefinition to the tertiary model
@@ -1080,10 +1224,10 @@ class OneStepTertiaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<OneStepTertiaryModel> model = new LinkedList<>();
 				model.add(tms.get(numModel));
-				OneStepTertiaryModelFile.writePMF(dir, modelName, model);
+				OneStepTertiaryModelFile.writePMFX(dir, modelName, model);
 			}
 		} else {
-			OneStepTertiaryModelFile.writePMF(dir, mdName, tms);
+			OneStepTertiaryModelFile.writePMFX(dir, mdName, tms);
 		}
 	}
 
@@ -1205,10 +1349,10 @@ class ManualTertiaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<ManualTertiaryModel> model = new LinkedList<>();
 				model.add(tms.get(numModel));
-				ManualTertiaryModelFile.writePMF(dir, modelName, model);
+				ManualTertiaryModelFile.writePMFX(dir, modelName, model);
 			}
 		} else {
-			ManualTertiaryModelFile.writePMF(dir, mdName, tms);
+			ManualTertiaryModelFile.writePMFX(dir, mdName, tms);
 		}
 	}
 
@@ -1222,7 +1366,7 @@ class ManualTertiaryModelParser implements Parser {
 		// Creates SBMLDocument for the tertiary model
 		Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
 		SBMLDocument tertDoc = m1Parser.getDocument();
-		String tertDocName = String.format("%s_%s.sbml", mdName, modelNum);
+		String tertDocName = String.format("%s_%s.pmf", mdName, modelNum);
 
 		CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
 		CompModelPlugin compModelPlugin = (CompModelPlugin) tertDoc.getModel().getPlugin(CompConstants.shortLabel);
@@ -1238,7 +1382,7 @@ class ManualTertiaryModelParser implements Parser {
 			SBMLDocument secDoc = m2Parser.getDocument();
 
 			String emdId = secDoc.getModel().getId();
-			String secDocName = String.format("%s_%s.sbml", mdName, emdId);
+			String secDocName = String.format("%s_%s.pmf", mdName, emdId);
 
 			secDocNames.add(secDocName);
 			secDocs.add(secDoc);

@@ -116,7 +116,7 @@ public class TwoStepTertiaryModelFile {
 		Map<String, SBMLDocument> primDocs = new HashMap<>();
 		Map<String, SBMLDocument> secDocs = new HashMap<>();
 
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(modelURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();

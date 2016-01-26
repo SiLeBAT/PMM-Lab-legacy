@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfwriter;
+package de.bund.bfr.knime.pmm.pmfxwriter;
 
 import javax.swing.JFileChooser;
 
@@ -33,67 +33,48 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import de.bund.bfr.knime.pmm.common.writer.DialogComponentDate;
 
 /**
- * <code>NodeDialog</code> for the "SBMLWriter" Node.
- * 
- * 
- * 
- * creation of a simple dialog with standard components. If you need a more
- * complex dialog please derive directly from
- * 
- * 
  * @author Christian Thoens
  */
-public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
+public class PMFXWriterNodeDialog extends DefaultNodeSettingsPane {
 
 	private static final String OUT_HISTORY = "Out History";
 
-	/**
-	 * New pane for configuring the SBMLWriter node.
-	 */
-	protected PMFWriterNodeDialog() {
+	protected PMFXWriterNodeDialog() {
+		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
+				new SettingsModelString(PMFXWriterNodeModel.CFG_OUT_PATH, null), OUT_HISTORY, JFileChooser.SAVE_DIALOG,
+				true);
+		DialogComponentString nameComp = new DialogComponentString(
+				new SettingsModelString(PMFXWriterNodeModel.CFG_MODEL_NAME, null), "File Name");
+		DialogComponentString givenNameComp = new DialogComponentString(
+				new SettingsModelString(PMFXWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null), "Creator Given Name");
+		DialogComponentString familyNameComp = new DialogComponentString(
+				new SettingsModelString(PMFXWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null), "Creator Family Name");
+		DialogComponentString creatorContactComp = new DialogComponentString(
+				new SettingsModelString(PMFXWriterNodeModel.CFG_CREATOR_CONTACT, null), "Creator Contact");
 
-		SettingsModelString outSettings = new SettingsModelString(PMFWriterNodeModel.CFG_OUT_PATH, null);
-		DialogComponentFileChooser outComp = new DialogComponentFileChooser(outSettings, OUT_HISTORY,
-				JFileChooser.SAVE_DIALOG, true);
-
-		SettingsModelString nameSettings = new SettingsModelString(PMFWriterNodeModel.CFG_MODEL_NAME, null);
-		DialogComponentString nameComp = new DialogComponentString(nameSettings, "File Name");
-
-		SettingsModelString givenNameSettings = new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_GIVEN_NAME,
-				null);
-		DialogComponentString givenNameComp = new DialogComponentString(givenNameSettings, "Creator Given Name");
-
-		SettingsModelString familyNameSettings = new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_FAMILY_NAME,
-				null);
-		DialogComponentString familyNameComp = new DialogComponentString(familyNameSettings, "Creator Family Name");
-
-		SettingsModelString creatorContactSettings = new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_CONTACT,
-				null);
-		DialogComponentString creatorContactComp = new DialogComponentString(creatorContactSettings, "Creator Contact");
-
-		SettingsModelDate createdDateModel = new SettingsModelDate(PMFWriterNodeModel.CFG_CREATED_DATE);
+		SettingsModelDate createdDateModel = new SettingsModelDate(PMFXWriterNodeModel.CFG_CREATED_DATE);
 		DialogComponentDate createdComp = new DialogComponentDate(createdDateModel, "Created");
 
-		SettingsModelDate modifiedDateModel = new SettingsModelDate(PMFWriterNodeModel.CFG_LAST_MODIFIED_DATE);
+		SettingsModelDate modifiedDateModel = new SettingsModelDate(PMFXWriterNodeModel.CFG_LAST_MODIFIED_DATE);
 		DialogComponentDate modifiedComp = new DialogComponentDate(modifiedDateModel, "Last Modified");
 
-		SettingsModelBoolean isSecondary = new SettingsModelBoolean(PMFWriterNodeModel.CFG_ISSECONDARY, false);
+		SettingsModelBoolean isSecondary = new SettingsModelBoolean(PMFXWriterNodeModel.CFG_ISSECONDARY, false);
 		DialogComponentBoolean isSecondaryCheckbox = new DialogComponentBoolean(isSecondary, "Is secondary?");
 
-		SettingsModelBoolean overwrite = new SettingsModelBoolean(PMFWriterNodeModel.CFG_OVERWRITE, true);
+		SettingsModelBoolean overwrite = new SettingsModelBoolean(PMFXWriterNodeModel.CFG_OVERWRITE, true);
 		DialogComponentBoolean overwriteCheckbox = new DialogComponentBoolean(overwrite, "Overwrite, ok?");
 
-		SettingsModelBoolean splitModels = new SettingsModelBoolean(PMFWriterNodeModel.CFG_SPLITMODELS, false);
+		SettingsModelBoolean splitModels = new SettingsModelBoolean(PMFXWriterNodeModel.CFG_SPLITMODELS, false);
 		DialogComponentBoolean splitCheckbox = new DialogComponentBoolean(splitModels, "Split top level models?");
 
-		SettingsModelString referenceLink = new SettingsModelString(PMFWriterNodeModel.CFG_REFERENCE_LINK, null);
+		SettingsModelString referenceLink = new SettingsModelString(PMFXWriterNodeModel.CFG_REFERENCE_LINK, null);
 		DialogComponentString referenceLinkComp = new DialogComponentString(referenceLink,
 				"Model reference description link");
 
-		SettingsModelString license = new SettingsModelString(PMFWriterNodeModel.CFG_LIC, null);
+		SettingsModelString license = new SettingsModelString(PMFXWriterNodeModel.CFG_LIC, null);
 		DialogComponentString licenseComp = new DialogComponentString(license, "License");
 
-		SettingsModelString notes = new SettingsModelString(PMFWriterNodeModel.CFG_NOTES, null);
+		SettingsModelString notes = new SettingsModelString(PMFXWriterNodeModel.CFG_NOTES, null);
 		DialogComponentMultiLineString notesComp = new DialogComponentMultiLineString(notes, "Notes");
 
 		outComp.setBorderTitle("Output Path");

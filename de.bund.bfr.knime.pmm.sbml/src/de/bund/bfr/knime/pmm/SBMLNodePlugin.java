@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfreader;
+package de.bund.bfr.knime.pmm;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
@@ -31,14 +31,14 @@ import org.osgi.framework.BundleContext;
  * Author: Miguel de Alba Aparicio
  * Contact: malba@optimumquality.es
  */
-public class PMFReaderNodePlugin extends Plugin {
+public class SBMLNodePlugin extends Plugin {
 	// The shared instance.
-	private static PMFReaderNodePlugin plugin;
+	private static SBMLNodePlugin plugin;
 
 	/**
 	 * The constructor.
 	 */
-	public PMFReaderNodePlugin() {
+	public SBMLNodePlugin() {
 		super();
 		plugin = this;
 	}
@@ -75,7 +75,7 @@ public class PMFReaderNodePlugin extends Plugin {
 	 * 
 	 * @return Singleton instance of the Plugin
 	 */
-	public static PMFReaderNodePlugin getDefault() {
+	public static SBMLNodePlugin getDefault() {
 		return plugin;
 	}
 }

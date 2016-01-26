@@ -78,7 +78,7 @@ public class PrimaryModelWDataFile {
 	 * Writes experiments to PrimaryModelWDataFile.
 	 */
 	public static void writePMFX(String dir, String filename, List<PrimaryModelWData> models) throws Exception {
-		String caName = String.format("%s/%s.pmf", dir, filename);
+		String caName = String.format("%s/%s.pmfx", dir, filename);
 		write(caName, PMF_URI, models);
 	}
 

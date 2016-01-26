@@ -17,25 +17,52 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfreader;
+package de.bund.bfr.knime.pmm.pmfxreader;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
-public class MetadataSchema extends KnimeSchema {
-	
-	public static final String ATT_GIVEN_NAME = "GivenName";
-	public static final String ATT_FAMILY_NAME = "FamilyName";
-	public static final String ATT_CONTACT = "Contact";
-	public static final String ATT_CREATED_DATE = "CreatedDate";
-	public static final String ATT_MODIFIED_DATE = "ModifiedDate";
-	public static final String ATT_TYPE = "Type";
-	
-	public MetadataSchema() {
-		addStringAttribute(ATT_GIVEN_NAME);
-		addStringAttribute(ATT_FAMILY_NAME);
-		addStringAttribute(ATT_CONTACT);
-		addStringAttribute(ATT_CREATED_DATE);
-		addStringAttribute(ATT_MODIFIED_DATE);
-		addStringAttribute(ATT_TYPE);
+public class PMFXReaderNodeFactory extends NodeFactory<PMFXReaderNodeModel> {
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PMFXReaderNodeModel createNodeModel() {
+		return new PMFXReaderNodeModel();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<PMFXReaderNodeModel> createNodeView(final int viewIndex, final PMFXReaderNodeModel nodeModel) {
+		return new PMFXReaderNodeView(nodeModel);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new PMFXReaderNodeDialog();
+	}
+
 }

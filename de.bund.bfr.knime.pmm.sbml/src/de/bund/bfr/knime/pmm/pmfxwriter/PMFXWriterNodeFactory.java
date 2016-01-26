@@ -17,53 +17,54 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.sbmlreader;
+package de.bund.bfr.knime.pmm.pmfxwriter;
 
-import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.BundleContext;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
-public class SBMLReaderNodePlugin extends Plugin {
+/**
+ * @author Christian Thoens
+ */
+public class PMFXWriterNodeFactory extends NodeFactory<PMFXWriterNodeModel> {
 
-	// The shared instance
-	private static SBMLReaderNodePlugin plugin;
-	
 	/**
-	 * The constructor
-	 */
-	public SBMLReaderNodePlugin() {
-		super();
-		plugin = this;
-	}
-	
-	/**
-	 * This method is calle upon plug-in activation.
-	 * 
-	 * @param context The OSFI bundle context
-	 * @throws Exception If this plugin could not be started
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void start(final BundleContext context) throws Exception {
-		super.start(context);
+	public PMFXWriterNodeModel createNodeModel() {
+		return new PMFXWriterNodeModel();
 	}
-	
+
 	/**
-	 * This method is called when the plug-in is stopped.
-	 * 
-	 * @param context The OSGI bundle context
-	 * @throws Exception If this plugin could not bet stopped
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void stop(final BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
+	public int getNrNodeViews() {
+		return 0;
 	}
-	
+
 	/**
-	 * Returns the shared instance.
-	 * 
-	 * @return Singleton instance of the Plugin.
+	 * {@inheritDoc}
 	 */
-	public static SBMLReaderNodePlugin getDefault() {
-		return plugin;
+	@Override
+	public NodeView<PMFXWriterNodeModel> createNodeView(final int viewIndex, final PMFXWriterNodeModel nodeModel) {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new PMFXWriterNodeDialog();
 	}
 }

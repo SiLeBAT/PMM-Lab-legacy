@@ -664,10 +664,11 @@ button.ui-button::-moz-focus-inner {
 	text-align: left;
 }
 .ui-slider .ui-slider-handle {
+	padding-top: 6px;
 	position: absolute;
 	z-index: 2;
-	width: 1.0em;
-	height: 1.0em;
+	width: 0.7em;
+	height: 0.6em;
 	cursor: default;
 	-ms-touch-action: none;
 	touch-action: none;

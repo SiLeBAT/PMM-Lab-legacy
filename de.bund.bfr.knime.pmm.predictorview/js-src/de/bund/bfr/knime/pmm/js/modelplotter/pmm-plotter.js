@@ -333,7 +333,7 @@ pmm_plotter = function() {
 						},
 					"matrix": ""
 				};
-			addFunctionObject(_globalNumber, "x*0.1" + _globalNumber*2, null, model);
+			addFunctionObject(selection, "x*0.1" + _globalNumber*2, null, model);
 		}
 	}
 	
@@ -491,7 +491,8 @@ pmm_plotter = function() {
 		// function parameter
 		addMetaParagraph("Initiale Parameter", unfoldScope(modelObject.scope), "Keine Parameter gegeben");
 		// quality score
-		addMetaParagraph("Matrix", modelObject.modelData.matrix.name + "; " + modelObject.modelData.matrix.detail, "Keine Matrixinformationen gegeben");
+		var matrix = modelObject.modelData.matrix;
+		addMetaParagraph("Matrix", (matrix.name || "") + "; " + (matrix.detail || ""), "Keine Matrixinformationen gegeben");
 		
 		// ... add more paragraphs/attributes here ...
 		

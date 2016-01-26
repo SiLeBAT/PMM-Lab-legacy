@@ -34,6 +34,8 @@ pmm_plotter = function() {
 	var _plotWidth = 600;
 	var _plotHeight = 400;
 	
+	// TODO: eliminate msg strings from code
+	
 	modelPlotter.init = function(representation, value) {
 
 		_rawModels = value.models.models;
@@ -124,10 +126,9 @@ pmm_plotter = function() {
 		
 		// dynamic options
 		addSelectOptions(_rawModels);
-		addSelectOption("23325234", "Beispiel 1", "Tests");
-		addSelectOption("34242", "Beispiel 2", "Tests");
-		addSelectOption("45123", "Beispiel 3", "Tests");
-		addSelectOption("556633", "Beispiel 4", "Tests");
+		addSelectOption("g325234", "Modell Alpha", "Beispiele");
+		addSelectOption("g948342", "Modell Beta 1", "Beispiele");
+		addSelectOption("g451263", "Modell Beta 2", "Beispiele");
 				
 		/*
 		 * jQueryUI
@@ -178,7 +179,7 @@ pmm_plotter = function() {
 		var form = $("<form>", { style: _buttonWidth });
 		$.each(inputMember, function(i) {
 			var paragraph = $("<p>", { style: _buttonWidth });
-			var label = $("<div>", { text: inputMember[i], style: "font-weight: bold;" + _buttonWidth });
+			var label = $("<div>", { text: inputMember[i], style: "font-weight: bold;  font-size: 10px;" + _buttonWidth });
 			var input = $('<input>', { id: "input_" + inputMember[i].replace(/\s/g,""), style: "width: 224px;" })
 			  .button()
 			  .css({
@@ -224,7 +225,7 @@ pmm_plotter = function() {
 		
 		var option = document.createElement("option");
 		option.setAttribute("value", dbuuid);
-		option.innerHTML = "(" + dbuuid + ") " + modelName;
+		option.innerHTML = "[" + dbuuid + "] " + modelName;
 		
 		var groupId = "optGroup_" + type;
 		var group = document.getElementById(groupId);
@@ -359,9 +360,10 @@ pmm_plotter = function() {
 			 modelData: model
 		};
 		_modelObjects.push(modelObj);
-		// update plot after adding new function
-		updateParameterSliders();
 		addMetaData(modelObj);
+
+		// update plot and sliders after adding new function
+		updateParameterSliders();
 		drawD3Plot();
 	}
 	
@@ -371,19 +373,38 @@ pmm_plotter = function() {
 	 */
 	function deleteFunctionObject(id)
 	{
-		$.each(_modelObjects, function (index, object) {
-			if(object.dbuuid == id)
-			{
-				_modelObjects.splice(index, 1);
-				return true;
-			}
-		});
-
+		deleteMetaDataSection(id);
+		try
+		{
+			deleteModelObject(id);
+		}
+		catch (e)
+		{
+			show(e);
+		}
 		if(_modelObjects.length == 0)
 		{
 			$("#nextButton").button( "option", "disabled", true);
 		}
-		
+		updateParameterSliders();
+		drawD3Plot();
+	}
+	
+	function deleteModelObject(id)
+	{
+		$.each(_modelObjects, function (index, object) 
+			{
+				if(object && object.dbuuid == id)
+				{
+					_modelObjects.splice(index, 1);
+					return true;
+				}
+			}
+		);
+	}
+	
+	function deleteMetaDataSection(id)
+	{
 		// remove meta data header
 		var header = document.getElementById("h" + id);
 		header.parentElement.removeChild(header);
@@ -393,8 +414,6 @@ pmm_plotter = function() {
 		data.parentElement.removeChild(data);
 		
 		$("#metaDataWrapper").accordion("refresh");
-		updateParameterSliders();
-		drawD3Plot();
 	}
 	
 	/*
@@ -485,8 +504,8 @@ pmm_plotter = function() {
 		
 		function addMetaParagraph(title, content, alt) 
 		{
-			var header = "<div style='font-weight: bold;'>" + title + "</div>";
-			if(!content)
+			var header = "<div style='font-weight: bold; font-size:10px;'>" + title + "</div>";
+			if(!content || content == "; ")
 				var content = alt;
 			var inner = "<div>" + content + "</div>";
 			
@@ -522,6 +541,7 @@ pmm_plotter = function() {
 	    var sliderWrapper = document.getElementById("sliderWrapper");
 	    var sliderIds = []; // ids of all sliders that correspond to a constant
 	    
+	    
 	    for (var modelIndex in _modelObjects)
 	    {
 	    	var constants = _modelObjects[modelIndex].scope;
@@ -553,7 +573,7 @@ pmm_plotter = function() {
 				    
 					var sliderLabel = document.createElement("div");
 					sliderLabel.innerHTML = constant;
-					sliderLabel.setAttribute("style" , "font-weight: bold;");
+					sliderLabel.setAttribute("style" , "font-weight: bold; font-size: 10px;");
 					sliderBox.appendChild(sliderLabel);
 					
 					var slider = document.createElement("div");

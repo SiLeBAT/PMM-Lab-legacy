@@ -300,7 +300,7 @@ class ExperimentalDataReader implements Reader {
 		BufferedDataContainer dataContainer = exec.createDataContainer(dataSpec);
 
 		// Reads in experimental data from file
-		List<ExperimentalData> eds = ExperimentalDataFile.read(filepath);
+		List<ExperimentalData> eds = ExperimentalDataFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (ExperimentalData ed : eds) {
@@ -333,7 +333,7 @@ class PrimaryModelWDataReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
-		List<PrimaryModelWData> models = PrimaryModelWDataFile.read(filepath);
+		List<PrimaryModelWData> models = PrimaryModelWDataFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (PrimaryModelWData model : models) {
@@ -398,7 +398,7 @@ class PrimaryModelWODataReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
-		List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(filepath);
+		List<PrimaryModelWOData> models = PrimaryModelWODataFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (PrimaryModelWOData model : models) {
@@ -464,7 +464,7 @@ class TwoStepSecondaryModelReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
-		List<TwoStepSecondaryModel> models = TwoStepSecondaryModelFile.read(filepath);
+		List<TwoStepSecondaryModel> models = TwoStepSecondaryModelFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (TwoStepSecondaryModel tssm : models) {
@@ -522,7 +522,7 @@ class OneStepSecondaryModelReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
-		List<OneStepSecondaryModel> models = OneStepSecondaryModelFile.read(filepath);
+		List<OneStepSecondaryModel> models = OneStepSecondaryModelFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (OneStepSecondaryModel ossm : models) {
@@ -578,7 +578,7 @@ class ManualSecondaryModelReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Reads in models from file
-		List<ManualSecondaryModel> models = ManualSecondaryModelFile.read(filepath);
+		List<ManualSecondaryModel> models = ManualSecondaryModelFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (ManualSecondaryModel model : models) {
@@ -611,7 +611,7 @@ class TwoStepTertiaryModelReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Read in models from file
-		List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile.read(filepath);
+		List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (TwoStepTertiaryModel tssm : models) {
@@ -665,7 +665,7 @@ class OneStepTertiaryModelReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Read in models from file
-		List<OneStepTertiaryModel> models = OneStepTertiaryModelFile.read(filepath);
+		List<OneStepTertiaryModel> models = OneStepTertiaryModelFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (OneStepTertiaryModel ostm : models) {
@@ -725,7 +725,7 @@ class ManualTertiaryModelReader implements Reader {
 		BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
 		// Read in models from file
-		List<ManualTertiaryModel> models = ManualTertiaryModelFile.read(filepath);
+		List<ManualTertiaryModel> models = ManualTertiaryModelFile.readPMF(filepath);
 
 		// Creates tuples and adds them to the container
 		for (ManualTertiaryModel mtm : models) {

@@ -20,18 +20,24 @@
 package de.bund.bfr.pmf.file.uri;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
-public class URIFactory {
-	
-	public static URI createSBMLURI() {
-		return new SBMLURI().createURI();
-	}
-	
-	public static URI createNuMLURI() {
-		return new NuMLURI().createURI();
-	}
-	
-	public static URI createPMFURI() {
-		return new PMFURI().createURI();
+/**
+ * Generic SBML URI
+ * 
+ * @author Miguel de Alba
+ * @see <a href="http://co.mbine.org/specifications/sbml">http://co.mbine.org/
+ *      specifications/sbml</a>
+ */
+public class PMFURI implements URIBase {
+
+	public URI createURI() {
+		URI uri = null;
+		try {
+			uri = new URI("http://sourceforge.net/projects/microbialmodelingexchange/files/");
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return uri;
 	}
 }

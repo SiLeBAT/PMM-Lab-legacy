@@ -20,20 +20,15 @@
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.text.ParseException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
@@ -43,7 +38,6 @@ import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.bund.bfr.pmf.model.ManualSecondaryModel;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
-import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -54,12 +48,34 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 public class ManualSecondaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
-	
+	private static final URI PMF_URI = URIFactory.createPMFURI();
+
 	private static final SBMLReader READER = new SBMLReader();
 	private static final SBMLWriter WRITER = new SBMLWriter();
 
-	public static List<ManualSecondaryModel> read(String filename)
-			throws IOException, JDOMException, ParseException, CombineArchiveException, XMLStreamException {
+	public static List<ManualSecondaryModel> readPMF(String filename) throws Exception {
+		return read(filename, SBML_URI);
+	}
+
+	public static List<ManualSecondaryModel> readPMFX(String filename) throws Exception {
+		return read(filename, PMF_URI);
+	}
+
+	public static void writePMF(String dir, String filename, List<ManualSecondaryModel> models) throws Exception {
+
+		// Creates CombineArchive name
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, SBML_URI, models);
+	}
+
+	public static void writePMFX(String dir, String filename, List<ManualSecondaryModel> models) throws Exception {
+
+		// Creates CombineArchive name
+		String caName = String.format("%s/%s.pmfx", dir, filename);
+		write(caName, PMF_URI, models);
+	}
+
+	private static List<ManualSecondaryModel> read(String filename, URI modelURI) throws Exception {
 
 		List<ManualSecondaryModel> models = new LinkedList<>();
 
@@ -67,7 +83,7 @@ public class ManualSecondaryModelFile {
 		CombineArchive ca = new CombineArchive(new File(filename));
 
 		// Parse models in the PMF file
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(modelURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument sbmlDoc = READER.readSBMLFromStream(stream);
 			stream.close();
@@ -79,23 +95,17 @@ public class ManualSecondaryModelFile {
 		return models;
 	}
 
-	public static void write(String dir, String filename, List<ManualSecondaryModel> models) throws Exception {
-
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
+	private static void write(String filename, URI modelURI, List<ManualSecondaryModel> models) throws Exception {
 
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
 
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
+		CombineArchive ca = new CombineArchive(new File(filename));
 
-		// Creates SBML URI
-		URI sbmlURI = URIFactory.createSBMLURI();
-		
 		// Add models and data
 		for (ManualSecondaryModel model : models) {
 			// Creates tmp file for the model
@@ -104,7 +114,7 @@ public class ManualSecondaryModelFile {
 
 			// Writes model to sbmlTmp and add it to the file
 			WRITER.write(model.getDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp, model.getDocName(), sbmlURI);
+			ca.addEntry(sbmlTmp, model.getDocName(), modelURI);
 		}
 
 		// Adds description with model type

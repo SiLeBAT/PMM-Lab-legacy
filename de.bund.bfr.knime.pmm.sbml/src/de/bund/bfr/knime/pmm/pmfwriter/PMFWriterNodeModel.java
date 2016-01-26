@@ -625,7 +625,7 @@ class ExperimentalDataParser implements Parser {
 			ExperimentalData ed = new ExperimentalData(docName, doc);
 			eds.add(ed);
 		}
-		ExperimentalDataFile.write(dir, mdName, eds);
+		ExperimentalDataFile.writePMF(dir, mdName, eds);
 	}
 }
 
@@ -663,7 +663,7 @@ class PrimaryModelWDataParser implements Parser {
 			pms.add(pm);
 		}
 
-		PrimaryModelWDataFile.write(dir, mdName, pms);
+		PrimaryModelWDataFile.writePMF(dir, mdName, pms);
 	}
 }
 
@@ -686,7 +686,7 @@ class PrimaryModelWODataParser implements Parser {
 			PrimaryModelWOData pm = new PrimaryModelWOData(sbmlDocName, sbmlDoc);
 			pms.add(pm);
 		}
-		PrimaryModelWODataFile.write(dir, mdName, pms);
+		PrimaryModelWODataFile.writePMF(dir, mdName, pms);
 	}
 }
 
@@ -725,10 +725,10 @@ class TwoStepSecondaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<TwoStepSecondaryModel> model = new LinkedList<>();
 				model.add(sms.get(numModel));
-				TwoStepSecondaryModelFile.write(dir, modelName, model);
+				TwoStepSecondaryModelFile.writePMF(dir, modelName, model);
 			}
 		} else {
-			TwoStepSecondaryModelFile.write(dir, mdName, sms);
+			TwoStepSecondaryModelFile.writePMF(dir, mdName, sms);
 		}
 	}
 
@@ -827,10 +827,10 @@ class OneStepSecondaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<OneStepSecondaryModel> model = new LinkedList<>();
 				model.add(sms.get(numModel));
-				OneStepSecondaryModelFile.write(dir, modelName, model);
+				OneStepSecondaryModelFile.writePMF(dir, modelName, model);
 			}
 		} else {
-			OneStepSecondaryModelFile.write(dir, mdName, sms);
+			OneStepSecondaryModelFile.writePMF(dir, mdName, sms);
 		}
 	}
 
@@ -899,10 +899,10 @@ class ManualSecondaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<ManualSecondaryModel> model = new LinkedList<>();
 				model.add(sms.get(numModel));
-				ManualSecondaryModelFile.write(dir, modelName, model);
+				ManualSecondaryModelFile.writePMF(dir, modelName, model);
 			}
 		} else {
-			ManualSecondaryModelFile.write(dir, mdName, sms);
+			ManualSecondaryModelFile.writePMF(dir, mdName, sms);
 		}
 	}
 
@@ -1051,10 +1051,10 @@ class TwoStepTertiaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<TwoStepTertiaryModel> model = new LinkedList<>();
 				model.add(tms.get(numModel));
-				TwoStepTertiaryModelFile.write(dir, modelName, model);
+				TwoStepTertiaryModelFile.writePMF(dir, modelName, model);
 			}
 		} else {
-			TwoStepTertiaryModelFile.write(dir, mdName, tms);
+			TwoStepTertiaryModelFile.writePMF(dir, mdName, tms);
 		}
 	}
 
@@ -1249,10 +1249,10 @@ class OneStepTertiaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<OneStepTertiaryModel> model = new LinkedList<>();
 				model.add(tms.get(numModel));
-				OneStepTertiaryModelFile.write(dir, modelName, model);
+				OneStepTertiaryModelFile.writePMF(dir, modelName, model);
 			}
 		} else {
-			OneStepTertiaryModelFile.write(dir, mdName, tms);
+			OneStepTertiaryModelFile.writePMF(dir, mdName, tms);
 		}
 	}
 
@@ -1374,10 +1374,10 @@ class ManualTertiaryModelParser implements Parser {
 				String modelName = mdName + Integer.toString(numModel);
 				List<ManualTertiaryModel> model = new LinkedList<>();
 				model.add(tms.get(numModel));
-				ManualTertiaryModelFile.write(dir, modelName, model);
+				ManualTertiaryModelFile.writePMF(dir, modelName, model);
 			}
 		} else {
-			ManualTertiaryModelFile.write(dir, mdName, tms);
+			ManualTertiaryModelFile.writePMF(dir, mdName, tms);
 		}
 	}
 

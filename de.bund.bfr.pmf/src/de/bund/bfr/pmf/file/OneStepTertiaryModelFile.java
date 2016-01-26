@@ -61,12 +61,31 @@ import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 public class OneStepTertiaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
+	private static final URI PMF_URI = URIFactory.createPMFURI();
 	private static final URI NuML_URI = URIFactory.createNuMLURI();
 	
 	private static final SBMLReader READER = new SBMLReader();
 	private static final SBMLWriter WRITER = new SBMLWriter();
 
-	public static List<OneStepTertiaryModel> read(String filename) throws Exception {
+	public static List<OneStepTertiaryModel> readPMF(String filename) throws Exception {
+		return read(filename, SBML_URI);
+	}
+
+	public static List<OneStepTertiaryModel> readPMFX(String filename) throws Exception {
+		return read(filename, PMF_URI);
+	}
+
+	public static void writePMF(String dir, String filename, List<OneStepTertiaryModel> models) throws Exception {
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, SBML_URI, models);
+	}
+
+	public static void writePMFX(String dir, String filename, List<OneStepTertiaryModel> models) throws Exception {
+		String caName = String.format("%s/%s.pmfx", dir, filename);
+		write(caName, PMF_URI, models);
+	}
+
+	public static List<OneStepTertiaryModel> read(String filename, URI modelURI) throws Exception {
 
 		List<OneStepTertiaryModel> models = new LinkedList<>();
 
@@ -92,7 +111,7 @@ public class OneStepTertiaryModelFile {
 		PMFMetadataNode metadataAnnotation = new PMFMetadataNode(metaParent);
 		Set<String> masterFiles = metadataAnnotation.masterFiles;
 
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(modelURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();
@@ -146,19 +165,16 @@ public class OneStepTertiaryModelFile {
 		return models;
 	}
 
-	public static void write(String dir, String filename, List<OneStepTertiaryModel> models) throws Exception {
-
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
+	private static void write(String filename, URI modelURI, List<OneStepTertiaryModel> models) throws Exception {
 
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
 
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
+		CombineArchive ca = new CombineArchive(new File(filename));
 		
 		Set<String> masterFiles = new HashSet<>(models.size());
 		// Add models and data
@@ -183,7 +199,7 @@ public class OneStepTertiaryModelFile {
 
 			// Writes tertiary model to tertTmp and adds it to the file
 			WRITER.write(model.getTertiaryDoc(), tertTmp);
-			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTertiaryDocName(), SBML_URI);
+			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTertiaryDocName(), modelURI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
 
 			for (int i = 0; i < model.getSecDocs().size(); i++) {
@@ -196,7 +212,7 @@ public class OneStepTertiaryModelFile {
 
 				// Writes model to secTmp and adds it to the file
 				WRITER.write(secDoc, secTmp);
-				ca.addEntry(secTmp, secDocName, SBML_URI);
+				ca.addEntry(secTmp, secDocName, modelURI);
 			}
 		}
 

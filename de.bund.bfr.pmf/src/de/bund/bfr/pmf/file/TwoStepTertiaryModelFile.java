@@ -64,12 +64,33 @@ import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 public class TwoStepTertiaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
+	private static final URI PMF_URI = URIFactory.createPMFURI();
 	private static final URI NUML_URI = URIFactory.createNuMLURI();
 	
 	private static final SBMLReader READER = new SBMLReader();
 	private static final SBMLWriter WRITER = new SBMLWriter();
 
-	public static List<TwoStepTertiaryModel> read(String filename) throws Exception {
+	public static List<TwoStepTertiaryModel> readPMF(String filename) throws Exception {
+		return read(filename, SBML_URI);
+	}
+
+	public static List<TwoStepTertiaryModel> readPMFX(String filename) throws Exception {
+		return read(filename, PMF_URI);
+	}
+
+	/**
+	 */
+	public static void writePMF(String dir, String filename, List<TwoStepTertiaryModel> models) throws Exception {
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, SBML_URI, models);
+	}
+
+	public static void writePMFX(String dir, String filename, List<TwoStepTertiaryModel> models) throws Exception {
+		String caName = String.format("%s/%s.pmfx", dir, filename);
+		write(caName, PMF_URI, models);
+	}
+
+	private static List<TwoStepTertiaryModel> read(String filename, URI modelURI) throws Exception {
 
 		List<TwoStepTertiaryModel> models = new LinkedList<>();
 
@@ -163,21 +184,16 @@ public class TwoStepTertiaryModelFile {
 		return models;
 	}
 
-	/**
-	 */
-	public static void write(String dir, String filename, List<TwoStepTertiaryModel> models) throws Exception {
-
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
+	private static void write(String filename, URI modelURI, List<TwoStepTertiaryModel> models) throws Exception {
 
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
 
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
+		CombineArchive ca = new CombineArchive(new File(filename));
 
 		Set<String> masterFiles = new HashSet<>(models.size());
 
@@ -206,7 +222,7 @@ public class TwoStepTertiaryModelFile {
 
 				// Writes model to sbmlTmp and add it to the file
 				WRITER.write(pm.getModelDoc(), sbmlTmp);
-				ca.addEntry(sbmlTmp, pm.getModelDocName(), SBML_URI);
+				ca.addEntry(sbmlTmp, pm.getModelDocName(), modelURI);
 			}
 
 			for (int i = 0; i < model.getSecDocs().size(); i++) {
@@ -219,7 +235,7 @@ public class TwoStepTertiaryModelFile {
 
 				// Writes model to secTmp and adds it to the file
 				WRITER.write(secDoc, secTmp);
-				ca.addEntry(secTmp, secDocName, SBML_URI);
+				ca.addEntry(secTmp, secDocName, modelURI);
 			}
 
 			// Creates tmp file for the secondary model
@@ -228,7 +244,7 @@ public class TwoStepTertiaryModelFile {
 
 			// Writes tertiary model to tertTmp and adds it to the file
 			WRITER.write(model.getTertDoc(), tertTmp);
-			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTertDocName(), SBML_URI);
+			ArchiveEntry masterEntry = ca.addEntry(tertTmp, model.getTertDocName(), modelURI);
 			masterFiles.add(masterEntry.getPath().getFileName().toString());
 		}
 

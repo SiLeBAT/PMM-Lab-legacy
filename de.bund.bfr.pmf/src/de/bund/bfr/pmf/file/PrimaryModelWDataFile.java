@@ -53,11 +53,36 @@ public class PrimaryModelWDataFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
 	private static final URI NUML_URI = URIFactory.createNuMLURI();
+	private static final URI PMF_URI = URIFactory.createPMFURI();
 	
 	private static final SBMLReader READER = new SBMLReader();
 	private static final SBMLWriter WRITER = new SBMLWriter();
 
-	public static List<PrimaryModelWData> read(String filename) throws Exception {
+	public static List<PrimaryModelWData> readPMF(String filename) throws Exception {
+		return read(filename, SBML_URI);
+	}
+	
+	public static List<PrimaryModelWData> readPMFX(String filename) throws Exception {
+		return read(filename, PMF_URI);
+	}
+
+	/**
+	 * Writes experiments to PrimaryModelWDataFile.
+	 */
+	public static void writePMF(String dir, String filename, List<PrimaryModelWData> models) throws Exception {
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, SBML_URI, models);
+	}
+
+	/**
+	 * Writes experiments to PrimaryModelWDataFile.
+	 */
+	public static void writePMFX(String dir, String filename, List<PrimaryModelWData> models) throws Exception {
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, PMF_URI, models);
+	}
+
+	private static List<PrimaryModelWData> read(String filename, URI modelURI) throws Exception {
 
 		List<PrimaryModelWData> models = new LinkedList<>();
 
@@ -72,7 +97,7 @@ public class PrimaryModelWDataFile {
 		}
 
 		// Parse models in the PMF file
-		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(SBML_URI);
+		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(modelURI);
 		for (ArchiveEntry modelEntry : modelEntries) {
 
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
@@ -114,22 +139,16 @@ public class PrimaryModelWDataFile {
 		return models;
 	}
 
-	/**
-	 * Writes experiments to PrimaryModelWDataFile.
-	 */
-	public static void write(String dir, String filename, List<PrimaryModelWData> models) throws Exception {
-
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
+	private static void write(String filename, URI modelURI, List<PrimaryModelWData> models) throws Exception {
 
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
 
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
+		CombineArchive ca = new CombineArchive(new File(filename));
 		
 		// Add models and data
 		for (PrimaryModelWData model : models) {
@@ -150,7 +169,7 @@ public class PrimaryModelWDataFile {
 
 			// Writes model to sbmlTmp and adds it to the file
 			WRITER.write(model.getModelDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp, model.getModelDocName(), SBML_URI);
+			ca.addEntry(sbmlTmp, model.getModelDocName(), modelURI);
 		}
 
 		// Adds description with model type

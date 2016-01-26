@@ -179,7 +179,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 		switch (modelType) {
 		case EXPERIMENTAL_DATA:
 			// Obtain an OpenFSMR template per data file
-			for (ExperimentalData ed : ExperimentalDataFile.read(filepath)) {
+			for (ExperimentalData ed : ExperimentalDataFile.readPMF(filepath)) {
 				NuMLDocument doc = ed.getDoc();
 				FSMRTemplate template = FSMRUtils.processData(doc);
 				templates.add(template);
@@ -187,7 +187,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case PRIMARY_MODEL_WDATA:
 			// Obtain an OpenFSMR template per primary model
-			for (PrimaryModelWData pm : PrimaryModelWDataFile.read(filepath)) {
+			for (PrimaryModelWData pm : PrimaryModelWDataFile.readPMF(filepath)) {
 				SBMLDocument primModelDoc = pm.getModelDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(primModelDoc);
 				templates.add(template);
@@ -195,7 +195,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case PRIMARY_MODEL_WODATA:
 			// Obtain an OpenFSMR template per primary model
-			for (PrimaryModelWOData pm : PrimaryModelWODataFile.read(filepath)) {
+			for (PrimaryModelWOData pm : PrimaryModelWODataFile.readPMF(filepath)) {
 				SBMLDocument primModelDoc = pm.getDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(primModelDoc);
 				templates.add(template);
@@ -203,7 +203,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case TWO_STEP_SECONDARY_MODEL:
 			// Obtain an OpenFSMR template per secondary model
-			for (TwoStepSecondaryModel sm : TwoStepSecondaryModelFile.read(filepath)) {
+			for (TwoStepSecondaryModel sm : TwoStepSecondaryModelFile.readPMF(filepath)) {
 				// Gets the model from the first primary model
 				SBMLDocument primModelDoc = sm.getPrimModels().get(0).getModelDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(primModelDoc);
@@ -212,7 +212,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case ONE_STEP_SECONDARY_MODEL:
 			// Obtain an OpenFSMR template per secondary model
-			for (OneStepSecondaryModel sm : OneStepSecondaryModelFile.read(filepath)) {
+			for (OneStepSecondaryModel sm : OneStepSecondaryModelFile.readPMF(filepath)) {
 				SBMLDocument primModelDoc = sm.getModelDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(primModelDoc);
 				templates.add(template);
@@ -220,7 +220,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case MANUAL_SECONDARY_MODEL:
 			// Obtain an OpenFSMR template per secondary model
-			for (ManualSecondaryModel sm : ManualSecondaryModelFile.read(filepath)) {
+			for (ManualSecondaryModel sm : ManualSecondaryModelFile.readPMF(filepath)) {
 				SBMLDocument doc = sm.getDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithoutMicrobialData(doc);
 				templates.add(template);
@@ -228,7 +228,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case TWO_STEP_TERTIARY_MODEL:
 			// Obtain a OpenFSMR template per tertiary model
-			for (TwoStepTertiaryModel tm : TwoStepTertiaryModelFile.read(filepath)) {
+			for (TwoStepTertiaryModel tm : TwoStepTertiaryModelFile.readPMF(filepath)) {
 				SBMLDocument tertDoc = tm.getTertDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(tertDoc);
 				templates.add(template);
@@ -236,7 +236,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case ONE_STEP_TERTIARY_MODEL:
 			// Obtain a OpenFSMR template per tertiary model
-			for (OneStepTertiaryModel tm : OneStepTertiaryModelFile.read(filepath)) {
+			for (OneStepTertiaryModel tm : OneStepTertiaryModelFile.readPMF(filepath)) {
 				SBMLDocument tertDoc = tm.getTertiaryDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(tertDoc);
 				templates.add(template);
@@ -244,7 +244,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 			break;
 		case MANUAL_TERTIARY_MODEL:
 			// Obtain a OpenFSMR template per tertiary model
-			for (ManualTertiaryModel tm : ManualTertiaryModelFile.read(filepath)) {
+			for (ManualTertiaryModel tm : ManualTertiaryModelFile.readPMF(filepath)) {
 				SBMLDocument tertDoc = tm.getTertiaryDoc();
 				FSMRTemplate template = FSMRUtils.processModelWithMicrobialData(tertDoc);
 				templates.add(template);

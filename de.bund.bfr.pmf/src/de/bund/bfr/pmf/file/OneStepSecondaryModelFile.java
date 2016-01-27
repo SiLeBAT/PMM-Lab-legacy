@@ -32,6 +32,8 @@ import java.util.Map;
 
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
@@ -57,9 +59,37 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 public class OneStepSecondaryModelFile {
 
 	private static final URI SBML_URI = URIFactory.createSBMLURI();
+	private static final URI PMF_URI = URIFactory.createPMFURI();
 	private static final URI NuML_URI = URIFactory.createNuMLURI();
+	
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
 
-	public static List<OneStepSecondaryModel> read(String filename) throws Exception {
+	public static List<OneStepSecondaryModel> readPMF(String filename) throws Exception {
+		return read(filename, SBML_URI);
+	}
+	
+	public static List<OneStepSecondaryModel> readPMFX(String filename) throws Exception {
+		return read(filename, PMF_URI);
+	}
+
+	/**
+	 */
+	public static void writePMF(String dir, String filename, List<OneStepSecondaryModel> models) throws Exception {
+
+		// Creates CombineArchive name
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, SBML_URI, models);
+	}
+
+	public static void writePMFX(String dir, String filename, List<OneStepSecondaryModel> models) throws Exception {
+
+		// Creates CombineArchive name
+		String caName = String.format("%s/%s.pmfx", dir, filename);
+		write(caName, PMF_URI, models);
+	}
+
+	private static List<OneStepSecondaryModel> read(String filename, URI modelURI) throws Exception {
 
 		List<OneStepSecondaryModel> models = new LinkedList<>();
 
@@ -76,10 +106,10 @@ public class OneStepSecondaryModelFile {
 			dataEntriesMap.put(entry.getFileName(), doc);
 		}
 
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(SBML_URI)) {
+		for (ArchiveEntry entry : ca.getEntriesWithFormat(modelURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			String docName = entry.getFileName();
-			SBMLDocument doc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument doc = READER.readSBMLFromStream(stream);
 			stream.close();
 
 			// look for DataSourceNode
@@ -106,22 +136,17 @@ public class OneStepSecondaryModelFile {
 		return models;
 	}
 
-	/**
-	 */
-	public static void write(String dir, String filename, List<OneStepSecondaryModel> models) throws Exception {
-
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
+	private static void write(String filename, URI modelURI, List<OneStepSecondaryModel> models) throws Exception {
 
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
 
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
-
+		CombineArchive ca = new CombineArchive(new File(filename));
+		
 		// Add models and data
 		for (OneStepSecondaryModel model : models) {
 
@@ -143,8 +168,8 @@ public class OneStepSecondaryModelFile {
 			sbmlTmp.deleteOnExit();
 
 			// Writes model to secTmp and adds it to the file
-			SBMLWriter.write(model.getModelDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp, model.getModelDocName(), SBML_URI);
+			WRITER.write(model.getModelDoc(), sbmlTmp);
+			ca.addEntry(sbmlTmp, model.getModelDocName(), modelURI);
 		}
 
 		// Adds description with model type

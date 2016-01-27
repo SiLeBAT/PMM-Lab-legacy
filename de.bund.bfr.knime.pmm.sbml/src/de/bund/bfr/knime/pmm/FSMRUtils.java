@@ -490,13 +490,15 @@ abstract class ModelTemplateCreator extends TemplateCreator {
 
 	public void setReferenceDescriptionLink() {
 		Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
-		String referenceLinkAsString = metadata.getReferenceLink();
-		try {
-			URL referenceLinkAsURL = new URL(referenceLinkAsString);
-			template.setReferenceDescriptionLink(referenceLinkAsURL);
-		} catch (MalformedURLException e) {
-			System.err.println(referenceLinkAsString + " is not a valid URL");
-			e.printStackTrace();
+		if (metadata.isSetReferenceLink()) {
+			String referenceLinkAsString = metadata.getReferenceLink();
+			try {
+				URL referenceLinkAsURL = new URL(referenceLinkAsString);
+				template.setReferenceDescriptionLink(referenceLinkAsURL);
+			} catch (MalformedURLException e) {
+				System.err.println(referenceLinkAsString + " is not a valid URL");
+				e.printStackTrace();
+			}
 		}
 	}
 

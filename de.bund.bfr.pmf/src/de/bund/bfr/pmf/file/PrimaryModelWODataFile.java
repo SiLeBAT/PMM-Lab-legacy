@@ -30,6 +30,8 @@ import java.util.List;
 
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.SBMLWriter;
 
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
@@ -46,8 +48,30 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 public class PrimaryModelWODataFile {
 	
 	private static final URI SBML_URI = URIFactory.createNuMLURI();
+	private static final URI PMF_URI = URIFactory.createPMFURI();
 	
-	public static List<PrimaryModelWOData> read(String filename) throws Exception {
+	private static final SBMLReader READER = new SBMLReader();
+	private static final SBMLWriter WRITER = new SBMLWriter();
+	
+	public static List<PrimaryModelWOData> readPMF(String filename) throws Exception {
+		return read(filename, SBML_URI);
+	}
+	
+	public static List<PrimaryModelWOData> readPMFX(String filename) throws Exception {
+		return read(filename, PMF_URI);
+	}
+	
+	public static void writePMF(String dir, String filename, List<PrimaryModelWOData> models) throws Exception {
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, SBML_URI, models);
+	}
+
+	public static void writePMFX(String dir, String filename, List<PrimaryModelWOData> models) throws Exception {
+		String caName = String.format("%s/%s.pmfx", dir, filename);
+		write(caName, PMF_URI, models);
+	}
+
+	private static List<PrimaryModelWOData> read(String filename, URI modelURI) throws Exception {
 		
 		List<PrimaryModelWOData> models = new LinkedList<>();
 		
@@ -55,10 +79,10 @@ public class PrimaryModelWODataFile {
 		CombineArchive ca = new CombineArchive(new File(filename));
 		
 		// Parse models in the PMF file
-		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(SBML_URI);
+		List<ArchiveEntry> modelEntries = ca.getEntriesWithFormat(modelURI);
 		for (ArchiveEntry modelEntry : modelEntries) {
 			InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = SBMLReader.readSBMLFromStream(stream);
+			SBMLDocument sbmlDoc = READER.readSBMLFromStream(stream);
 			stream.close();
 			String sbmlDocName = modelEntry.getFileName();
 			PrimaryModelWOData model = new PrimaryModelWOData(sbmlDocName, sbmlDoc);
@@ -68,20 +92,17 @@ public class PrimaryModelWODataFile {
 		ca.close();
 		return models;
 	}
-	
-	public static void write(String dir, String filename, List<PrimaryModelWOData> models) throws Exception {
-		
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
+
+	private static void write(String filename, URI modelURI, List<PrimaryModelWOData> models) throws Exception {
 		
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
 		
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
+		CombineArchive ca = new CombineArchive(new File(filename));
 		
 		// Adds models and data
 		for (PrimaryModelWOData model : models) {
@@ -90,8 +111,8 @@ public class PrimaryModelWODataFile {
 			sbmlTmp.deleteOnExit();
 			
 			// Writes model to sbmlTmp and adds it to the file
-			SBMLWriter.write(model.getDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp,  model.getDocName(), SBML_URI);
+			WRITER.write(model.getDoc(), sbmlTmp);
+			ca.addEntry(sbmlTmp,  model.getDocName(), modelURI);
 		}
 		
 		// Adds description with model type

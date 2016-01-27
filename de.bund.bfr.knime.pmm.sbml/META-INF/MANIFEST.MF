@@ -4,7 +4,7 @@ Bundle-Name: SBML nodes extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.sbml;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: sbmlreader.jar
-Bundle-Activator: de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodePlugin
+Bundle-Activator: de.bund.bfr.knime.pmm.SBMLNodePlugin
 Require-Bundle: org.knime.workbench.core,
  org.knime.base,
  org.hsh.bfr.db,

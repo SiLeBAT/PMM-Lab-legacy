@@ -48,16 +48,34 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 public class ExperimentalDataFile {
 
 	private static final URI numlURI = URIFactory.createNuMLURI();
-	
-	private ExperimentalDataFile() {}
-	
-	public static List<ExperimentalData> read(String filename) throws Exception {
-		
+
+	private ExperimentalDataFile() {
+	}
+
+	public static List<ExperimentalData> readPMF(String filename) throws Exception {
+		return read(filename);
+	}
+
+	public static List<ExperimentalData> readPMFX(String filename) throws Exception {
+		return read(filename);
+	}
+
+	public static void writePMF(String dir, String filename, List<ExperimentalData> dataRecords) throws Exception {
+		String caName = String.format("%s/%s.pmf", dir, filename);
+		write(caName, dataRecords);
+	}
+
+	public static void writePMFX(String dir, String filename, List<ExperimentalData> dataRecords) throws Exception {
+		String caName = String.format("%s/%s.pmfx", dir, filename);
+		write(caName, dataRecords);
+	}
+
+	private static List<ExperimentalData> read(String filename) throws Exception {
 		List<ExperimentalData> dataRecords = new LinkedList<>();
-		
+
 		// Creates Combine Archive
 		CombineArchive ca = new CombineArchive(new File(filename));
-		
+
 		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
 			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
 			String docName = entry.getFileName();
@@ -67,25 +85,22 @@ public class ExperimentalDataFile {
 			ExperimentalData ed = new ExperimentalData(docName, doc);
 			dataRecords.add(ed);
 		}
-		
+
 		ca.close();
 		return dataRecords;
 	}
-	
-	public static void write(String dir, String filename, List<ExperimentalData> dataRecords) throws Exception {
-		
-		// Creates name for the CombineArchive
-		String caName = String.format("%s/%s.pmf", dir, filename);
-		
+
+	private static void write(String filename, List<ExperimentalData> dataRecords) throws Exception {
+
 		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(caName);
+		File fileTmp = new File(filename);
 		if (fileTmp.exists()) {
 			fileTmp.delete();
 		}
-		
+
 		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(caName));
-		
+		CombineArchive ca = new CombineArchive(new File(filename));
+
 		// Add dataRecords
 		for (int i = 0; i < dataRecords.size(); i++) {
 			ExperimentalData ed = dataRecords.get(i);
@@ -93,16 +108,16 @@ public class ExperimentalDataFile {
 			// Creates tmp file for ed
 			File numlTmp = File.createTempFile("numlTmp", "");
 			numlTmp.deleteOnExit();
-			
+
 			// Writes data to numlTmp and adds it to the PMF file (ca)
 			NuMLWriter.write(ed.getDoc(), numlTmp);
 			ca.addEntry(numlTmp, ed.getDocName(), numlURI);
 		}
-		
+
 		ModelType modelType = ModelType.EXPERIMENTAL_DATA;
 		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
 		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
-		
+
 		ca.pack();
 		ca.close();
 	}

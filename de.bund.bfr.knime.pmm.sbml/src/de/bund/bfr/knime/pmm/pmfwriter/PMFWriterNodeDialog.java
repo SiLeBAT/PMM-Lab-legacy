@@ -30,14 +30,16 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
+import de.bund.bfr.knime.pmm.common.writer.DialogComponentDate;
+
 /**
  * <code>NodeDialog</code> for the "SBMLWriter" Node.
  * 
  * 
-
+ * 
  * creation of a simple dialog with standard components. If you need a more
  * complex dialog please derive directly from
-
+ * 
  * 
  * @author Christian Thoens
  */
@@ -49,17 +51,25 @@ public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
 	 * New pane for configuring the SBMLWriter node.
 	 */
 	protected PMFWriterNodeDialog() {
-		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
-				new SettingsModelString(PMFWriterNodeModel.CFG_OUT_PATH, null), OUT_HISTORY, JFileChooser.SAVE_DIALOG,
-				true);
-		DialogComponentString nameComp = new DialogComponentString(
-				new SettingsModelString(PMFWriterNodeModel.CFG_MODEL_NAME, null), "File Name");
-		DialogComponentString givenNameComp = new DialogComponentString(
-				new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_GIVEN_NAME, null), "Creator Given Name");
-		DialogComponentString familyNameComp = new DialogComponentString(
-				new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_FAMILY_NAME, null), "Creator Family Name");
-		DialogComponentString creatorContactComp = new DialogComponentString(
-				new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_CONTACT, null), "Creator Contact");
+
+		SettingsModelString outSettings = new SettingsModelString(PMFWriterNodeModel.CFG_OUT_PATH, null);
+		DialogComponentFileChooser outComp = new DialogComponentFileChooser(outSettings, OUT_HISTORY,
+				JFileChooser.SAVE_DIALOG, true);
+
+		SettingsModelString nameSettings = new SettingsModelString(PMFWriterNodeModel.CFG_MODEL_NAME, null);
+		DialogComponentString nameComp = new DialogComponentString(nameSettings, "File Name");
+
+		SettingsModelString givenNameSettings = new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_GIVEN_NAME,
+				null);
+		DialogComponentString givenNameComp = new DialogComponentString(givenNameSettings, "Creator Given Name");
+
+		SettingsModelString familyNameSettings = new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_FAMILY_NAME,
+				null);
+		DialogComponentString familyNameComp = new DialogComponentString(familyNameSettings, "Creator Family Name");
+
+		SettingsModelString creatorContactSettings = new SettingsModelString(PMFWriterNodeModel.CFG_CREATOR_CONTACT,
+				null);
+		DialogComponentString creatorContactComp = new DialogComponentString(creatorContactSettings, "Creator Contact");
 
 		SettingsModelDate createdDateModel = new SettingsModelDate(PMFWriterNodeModel.CFG_CREATED_DATE);
 		DialogComponentDate createdComp = new DialogComponentDate(createdDateModel, "Created");
@@ -75,13 +85,14 @@ public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
 
 		SettingsModelBoolean splitModels = new SettingsModelBoolean(PMFWriterNodeModel.CFG_SPLITMODELS, false);
 		DialogComponentBoolean splitCheckbox = new DialogComponentBoolean(splitModels, "Split top level models?");
-		
+
 		SettingsModelString referenceLink = new SettingsModelString(PMFWriterNodeModel.CFG_REFERENCE_LINK, null);
-		DialogComponentString referenceLinkComp = new DialogComponentString(referenceLink, "Model reference description link");
+		DialogComponentString referenceLinkComp = new DialogComponentString(referenceLink,
+				"Model reference description link");
 
 		SettingsModelString license = new SettingsModelString(PMFWriterNodeModel.CFG_LIC, null);
 		DialogComponentString licenseComp = new DialogComponentString(license, "License");
-		
+
 		SettingsModelString notes = new SettingsModelString(PMFWriterNodeModel.CFG_NOTES, null);
 		DialogComponentMultiLineString notesComp = new DialogComponentMultiLineString(notes, "Notes");
 

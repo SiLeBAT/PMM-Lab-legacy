@@ -30,4 +30,8 @@ public class URIFactory {
 	public static URI createNuMLURI() {
 		return new NuMLURI().createURI();
 	}
+	
+	public static URI createPMFURI() {
+		return new PMFURI().createURI();
+	}
 }

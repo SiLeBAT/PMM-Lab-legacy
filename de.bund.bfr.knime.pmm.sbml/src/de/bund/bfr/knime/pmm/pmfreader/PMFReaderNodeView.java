@@ -22,10 +22,7 @@ package de.bund.bfr.knime.pmm.pmfreader;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeView</code> for the "SBMLReader" Node.
- * 
  * Author: Miguel de Alba Aparicio
- * Contact: malba@optimumquality.es
  */
 public class PMFReaderNodeView extends NodeView<PMFReaderNodeModel> {
 

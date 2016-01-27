@@ -6,23 +6,34 @@ pmm_plotter = function() {
 	 * Please try to avoid native JavaScript for the creation of DOM elements. 
 	 * Use jQuery for the sake of clarity whenever possible. Improvements of 
 	 * code readability are welcome.
+	 * 
+	 * - Global variables are marked with an underscore prefix ("_") or as messages ("msg")
+	 * - Functions that are only used once are nested in the closest scope.
+	 * - Functions are roughly ordered in the order of first usage.
 	 */
 
 	var modelPlotter = {
-			version: "1.0.0"
+			version: "2.0.0"
 	};
 	modelPlotter.name = "PMM Model Plotter";
 	
-	var plotterValue;
-	var plotterRep;
+	var _plotterValue;
+//	var plotterRep;
 	
 	var _globalNumber = 1;
 	var _modelObjects = [];
 	var _colorsArray = [];
 	var _rawModels = [];
 	
-	var msgAdd = "Hinzufügen";
-	var msgChoose = "Modell auswählen";
+	var msgAdd = "Add Model";
+	var msgChoose = "Select Model";
+	var msgTime = "Time";
+	var msgNoMatrix = "Keine Matrixinformationen gegeben";
+	var msgNoParameter = "Keine Parameter gegeben";
+	var msgNoName = "Kein Name gegeben";
+	var msgNoMatrix = "Keine Funktion gegeben";
+	var msgNoFunction = "Keine Funktion gegeben";
+	var msgNoScore = "Kein Quality Score gegeben";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -33,86 +44,157 @@ pmm_plotter = function() {
 	var _totalHeight = "height: 800px;";
 	var _plotWidth = 600;
 	var _plotHeight = 400;
+	var _logConst = 2.3025851; 
 	
 	// TODO: eliminate msg strings from code
 	
 	modelPlotter.init = function(representation, value) {
 
 		_rawModels = value.models.models;
-		plotterValue = value;
-		plotterRep = representation; // not used
+		_plotterValue = value;
+		// plotterRep = representation; // not used
 
+		initLayout();
+		initData();
+		initJQuery();
+	};
+	
+	/*
+	 * initializes data that is necessary from the very beginning (models to select)
+	 */
+	function initData() 
+	{
+		// parse models and create selection menu
+		addSelectOptions(_rawModels);
+		
+		// to be removed:
+		addSelectOption("325234", "Modell Alpha", "Examples");
+		addSelectOption("948342", "Modell Beta 1", "Examples");
+		addSelectOption("451263", "Modell Beta 2", "Examples");
+	}
+	
+	/*
+	 * initializes all layout elements, e.g. calls jQuery methods to create jQuery 
+	 * objects from th DOM elements
+	 */
+	function initJQuery() 
+	{
+		// make all html buttons jquery buttons
+		$("#nextButton").button({
+			icons: {
+				primary: "ui-icon-arrow-1-e"
+			},
+			disabled: true
+		});
+		
+		// make all html buttons jquery buttons
+		$("#addModelButton").button({
+			icons: {
+				primary: "ui-icon-plus"
+			},
+			disabled: true
+		}).click( function () 
+				// once a model is added, we can activate the "next" button
+				{
+			$("#nextButton").button( "option", "disabled", false );
+				}
+		);
+		
+		// make the selection a jquery select menu
+		$("#modelSelectionMenu").selectmenu({
+			change: function () {
+				$("#addModelButton").button( "option", "disabled", false );
+			}
+		});
+		
+		// setup the div for the meta section as jQuery accordion
+		$("#metaDataWrapper").accordion({
+			content: "height-style",
+			collapsible: true
+		});
+	}
+	
+	/*
+	 * initalizes all DOM elements, divs and placeholders
+	 */
+	function initLayout()
+	{
 		// body
 		var body = document.getElementsByTagName("body")[0];
-		body.setAttribute("style", "background: #fdfdfd; width:100%; height:100%; font-family:Verdana,Helvetica,sans-serif; font-size:12px; overflow:hidden;");
-
+		$('body').css({
+			"width": "100%", 
+			"height": "100%",
+			"background": "#fdfdfd", 
+			"font-family": "Verdana,Helvetica,sans-serif",
+			"font-size": "12px",
+			"overflow": "hidden"
+		});
+		
 		/*
 		 * layout
 		 */
 		var layoutWrapper = document.createElement("div");
 		layoutWrapper.setAttribute("id", "layoutWrapper");
-		layoutWrapper.setAttribute("style", "width:900px;");
+		layoutWrapper.setAttribute("style", "width: 900px;");
 		body.appendChild(layoutWrapper);
 		
+		// left Pane
 		var leftWrapper = document.createElement("div");
 		leftWrapper.setAttribute("id", "leftWrapper");
-		leftWrapper.setAttribute("style", "width:300px; display: block; float: left;" + _totalHeight);
-		
-		var rightWrapper = document.createElement("div");
-		rightWrapper.setAttribute("id", "rightWrapper");
-		rightWrapper.setAttribute("style", "width:600px; display: block; float: left;" + _totalHeight);
-		layoutWrapper.appendChild(leftWrapper);
-		layoutWrapper.appendChild(rightWrapper);
-		
+		leftWrapper.setAttribute("style", "width: 300px; display: block; float: left;" + _totalHeight);
+		layoutWrapper.appendChild(leftWrapper);		
+
 		// selection
 		var modelSelectionMenu = document.createElement("select");
 		modelSelectionMenu.innerHTML = msgChoose;
 		modelSelectionMenu.setAttribute("id", "modelSelectionMenu");
 		modelSelectionMenu.setAttribute("style" , _buttonWidth);
-		modelSelectionMenu.setAttribute("required");
 		leftWrapper.appendChild(modelSelectionMenu);
 		
-		// selection + options
-		var option0 = document.createElement("option");
-		option0.setAttribute("hidden");
-		option0.setAttribute("disabled");
-		option0.setAttribute("selected");
-		option0.setAttribute("value", "");
-		option0.innerHTML = msgChoose;
-		modelSelectionMenu.appendChild(option0);
-		
-		var optGroup1 = document.createElement("optgroup");
-		optGroup1.setAttribute("label", "Typ A");
-		optGroup1.setAttribute("id", "optGroupA");
-		modelSelectionMenu.appendChild(optGroup1);
+		// inactive selection option serves both as a text hint for the user and a as placeholder
+		var selectionPlaceholder = document.createElement("option");
+		selectionPlaceholder.setAttribute("hidden");
+		selectionPlaceholder.setAttribute("disabled");
+		selectionPlaceholder.setAttribute("selected");
+		selectionPlaceholder.setAttribute("value", "");
+		selectionPlaceholder.innerHTML = msgChoose;
+		modelSelectionMenu.appendChild(selectionPlaceholder);
 		
 		// add button
-		var addButton = document.createElement("button");
-		addButton.innerHTML = msgAdd;
-		addButton.setAttribute("id", "addButton");
-		addButton.setAttribute("style", _buttonWidth + "margin-bottom: 3px;");
-		addButton.addEventListener("click", function() 
-			{ 
+		var addModelButton = document.createElement("button");
+		addModelButton.innerHTML = msgAdd;
+		addModelButton.setAttribute("id", "addModelButton");
+		addModelButton.setAttribute("style", _buttonWidth + "margin-bottom: 3px;");
+		addModelButton.addEventListener("click", function() { 
 				addFunctionFromSelection(); 
-			}
-		);
-		leftWrapper.appendChild(addButton);
-		
+		});
+		leftWrapper.appendChild(addModelButton);
 		// slider wrapper
 		var sliderWrapper = document.createElement("div");
 		sliderWrapper.setAttribute("id", "sliderWrapper");
 		sliderWrapper.setAttribute("style" , _buttonWidth);
 		leftWrapper.appendChild(sliderWrapper);
 		
-		var nextButton = $("<button>", {id: "nextButton", style: _buttonWidth, text: "Weiter" });
+		var nextButton = $("<button>", {
+			id: "nextButton", 
+			style: _buttonWidth, 
+			text: "Weiter" 
+		});
+		$("#leftWrapper").append(nextButton);
 		nextButton.on("click", function() 
 			{ 
 				$("#layoutWrapper").fadeOut(500);
 				showInputForm();
 			}
 		);
-		$("#leftWrapper").append(nextButton);
 		
+		// right pane
+		var rightWrapper = document.createElement("div");
+		rightWrapper.setAttribute("id", "rightWrapper");
+		rightWrapper.setAttribute("style", "width: 600px; display: block; float: left;" + _totalHeight);
+		layoutWrapper.appendChild(rightWrapper);
+		
+		// div that includes the plotted functions
 		var plotterWrapper = document.createElement("div");
 		plotterWrapper.setAttribute("id", "plotterWrapper");
 		rightWrapper.appendChild(plotterWrapper);
@@ -121,105 +203,37 @@ pmm_plotter = function() {
 		var metaDataWrapper = document.createElement("div");
 		metaDataWrapper.setAttribute("id", "metaDataWrapper");
 		rightWrapper.appendChild(metaDataWrapper);
-		
-		// --- //
-		
-		// dynamic options
-		addSelectOptions(_rawModels);
-		addSelectOption("g325234", "Modell Alpha", "Beispiele");
-		addSelectOption("g948342", "Modell Beta 1", "Beispiele");
-		addSelectOption("g451263", "Modell Beta 2", "Beispiele");
-				
-		/*
-		 * jQueryUI
-		 */
-		$(function() {
-			
-			// make all html buttons jquery buttons
-			$("#nextButton").button({
-				icons: {
-					primary: "ui-icon-arrow-1-e"
-				},
-				disabled: true
-			});
-			
-			// make all html buttons jquery buttons
-			$("#addButton").button({
-			    icons: {
-			        primary: "ui-icon-plus"
-			    },
-			    disabled: true
-			}).click( function () 
-				// once a model is added, we can activate the "next" button
-				{
-					$("#nextButton").button( "option", "disabled", false );
-				}
-			);
-			
-			// make select menu a jquery select menu
-			$("#modelSelectionMenu").selectmenu({
-				change: function () {
-					$("#addButton").button( "option", "disabled", false );
-				}
-			});
-			
-			$("#metaDataWrapper").accordion({
-				content: "height-style",
-				collapsible: true
-			});
-		});
-		/***/
-	};
-	
-	function showInputForm()
-	{
-		$("#layoutWrapper").empty();
-		inputMember = ["Name des Berichts", "Namen der Autoren", "Kommentar"]
-		
-		var form = $("<form>", { style: _buttonWidth });
-		$.each(inputMember, function(i) {
-			var paragraph = $("<p>", { style: _buttonWidth });
-			var label = $("<div>", { text: inputMember[i], style: "font-weight: bold;  font-size: 10px;" + _buttonWidth });
-			var input = $('<input>', { id: "input_" + inputMember[i].replace(/\s/g,""), style: "width: 224px;" })
-			  .button()
-			  .css({
-			    'font' : 'inherit',
-			    'background': '#eeeeee',
-			    'color' : 'inherit',
-			    'text-align' : 'left',
-			    'outline' : 'thick',
-			    'cursor' : 'text'
-			  });
-			form.append(paragraph);
-			paragraph.append(label);
-			paragraph.append(input);
-		})
-		$(document.body).append(form);
-		
-		var finishButton = $("<button>", {id: "finishButton", style: _buttonWidth, text: "Fertig" }).button();
-		finishButton.on("click", function() 
-			{ 
-				plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
-				plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
-				plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
-				
-				show(plotterValue.reportName);
-				show(plotterValue.authors);
-				show(plotterValue.comment);
-				
-				$(document.body).fadeOut();
-			}
-		);
-		$(document.body).append(finishButton);
 	}
+	
 	/*
 	 * adds a new option to the selection menu
+	 * 
+	 * @param dbuuid id of the model
+	 * @param modelName name of the model
+	 */
+	function addSelectOptions(modelsArray)
+	{
+		if(modelsArray)
+		{
+			$.each(modelsArray, function(i) 
+				{
+					var type = modelsArray[i].type;
+					var dbuuid = modelsArray[i].dbuuid;
+					var modelName = modelsArray[i].estModel.name;
+					addSelectOption(dbuuid, modelName, type);
+				}
+			);
+		}
+	}
+	
+	/*
+	 * adds a new option to the selection menu
+	 * 
 	 * @param dbuuid id of the model
 	 * @param modelName name of the model
 	 */
 	function addSelectOption(dbuuid, modelName, type)
 	{
-		// TODO: dynamisches Mappen von Typen zu Gruppen
 		if(!type || type == "")
 			type = "Kein Typ";
 		
@@ -238,58 +252,9 @@ pmm_plotter = function() {
 		}
 		group.appendChild(option);
 	}
-	
-	/*
-	 * adds a new option to the selection menu
-	 * @param dbuuid id of the model
-	 * @param modelName name of the model
-	 */
-	function addSelectOptions(modelsArray)
-	{
-		if(modelsArray)
-			$.each(modelsArray, function(i) 
-				{
-					var type = modelsArray[i].type;
-					var dbuuid = modelsArray[i].dbuuid;
-					var modelName = modelsArray[i].estModel.name;
-					addSelectOption(dbuuid, modelName, type);
-				}
-			);
-	}
 
 	/*
-	 * parse function from model and modify it according to framework needs
-	 * @param functionString formula as delivered by the java class
-	 * @return parsed function 
-	 */
-	function prepareFunction(functionString) {
-		// replace "T" and "Time" with "x" using regex
-		// gi: global, case-insensitive
-		var newString = functionString;
-		if(newString.indexOf("=") != -1)
-			newString = newString.split("=")[1];
-		newString = newString.replace(/Time/gi, "x");
-		newString = newString.replace(/\bT\b/gi, "x");
-		return newString;
-	}
-	
-	/*
-	 * extract paremter names and values
-	 * @param functionString formula as delivered by the java class
-	 * @return reduced parameter array
-	 */
-	function prepareConstants(parameterArray) 
-	{
-		var newParameterArray = {};
-		$.each(parameterArray, function(index, param) {
-			var name = param["name"];
-			var value = param["value"];
-			newParameterArray[name] = value; 
-		});
-		return newParameterArray;
-	}
-	
-	/*
+	 * Add-Button event in three steps:
 	 * 1. determines the selected model from the selection menu
 	 * 2. gets the model data
 	 * 3. calls addFunctionObject() with the model data
@@ -313,7 +278,7 @@ pmm_plotter = function() {
 
 		if(model)
 		{
-			model.params.params.Y0 = plotterValue.y0; // set the value from the settings here
+			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
 			var functionAsString = prepareFunction(model.catModel.formula);
 			var functionConstants = prepareConstants(model.params.params);
 			var dbuuid = model.dbuuid;
@@ -325,20 +290,77 @@ pmm_plotter = function() {
 		else
 		{
 			_globalNumber++;
-			model =
-				{
-					"estModel": 
-						{
-							"name": "Test " + _globalNumber
-						},
-					"matrix": ""
-				};
-			addFunctionObject(selection, "x*0.1" + _globalNumber*2, null, model);
+			model =	{
+				"estModel": 
+					{
+						"name": "Test " + _globalNumber
+					},
+				"matrix": "",
+			};
+			var scope = prepareConstants([
+			    {
+			    	"name": "aw",
+			    	"value": 0.3,
+			    	"min": 0,
+			    	"max": 10
+			    },
+			    {
+			    	"name": "temp",
+			    	"value": 25,
+			    	"min": 1,
+			    	"max": 20
+			    },
+			    {
+			    	"name": "ph",
+			    	"value": 0.4,
+			    	"min": 0,
+			    	"max": 100
+			    }
+			]);
+			var formula = "(aw+(temp/5-aw)/(1+exp(4*ph*(0.97/ph-x)/(temp/5-aw)+2))) * " + (selection/500000) ;
+			addFunctionObject(selection, formula, scope, model);
+		}
+		
+		/*
+		 * nested function
+		 * parse function formula from model and modify it according to framework needs
+		 * 
+		 * @param functionString formula as delivered by the java class
+		 * @return parsed function 
+		 */
+		function prepareFunction(functionString) {
+			// replace "T" and "Time" with "x" using regex
+			// gi: global, case-insensitive
+			var newString = functionString;
+			if(newString.indexOf("=") != -1)
+				newString = newString.split("=")[1];
+			newString = newString.replace(/Time/gi, "x");
+			newString = newString.replace(/\bT\b/gi, "x");
+			return newString;
+		}
+		
+		/*
+		 * nested function
+		 * extract parameter names and values
+		 * 
+		 * @param functionString formula as delivered by the java class
+		 * @return reduced parameter array
+		 */
+		function prepareConstants(parameterArray) 
+		{
+			var newParameterArray = {};
+			$.each(parameterArray, function(index, param) {
+				var name = param["name"];
+				var value = param["value"];
+				newParameterArray[name] = value; 
+			});
+			return newParameterArray;
 		}
 	}
 	
 	/*
 	 * adds a function to the functions array and redraws the plot
+	 * 
 	 * @param dbuuid
 	 * @param functionAsString the function string as returend by prepareFunction()
 	 * @param the function constants as an array 
@@ -346,7 +368,7 @@ pmm_plotter = function() {
 	function addFunctionObject(dbuuid, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
-		var maxRange = plotterValue.maxXAxis; // obligatoric for the range feature // TODO: dynamic maximum
+		var maxRange = _plotterValue.maxXAxis; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
 		
 		var modelObj = { 
@@ -359,61 +381,78 @@ pmm_plotter = function() {
 			 skipTip: false,
 			 modelData: model
 		};
+		show(modelObj);
+		// add model to the list of used models
 		_modelObjects.push(modelObj);
+		
+		// create dom elements in the meta accordion
 		addMetaData(modelObj);
 
 		// update plot and sliders after adding new function
 		updateParameterSliders();
+		
+		// redraw with all models
 		drawD3Plot();
 	}
 	
 	/*
 	 * deletes a model for good - including graph and meta data
+	 * 
 	 * @param id dbuuid of the model
 	 */
 	function deleteFunctionObject(id)
 	{
 		deleteMetaDataSection(id);
-		try
-		{
-			deleteModelObject(id);
-		}
-		catch (e)
-		{
-			show(e);
-		}
+		removeModel(id);
+		updateParameterSliders();
+		drawD3Plot();
+		
+		/* 
+		 * if there are no models to show left, the user cannot continue to the next 
+		 * page anymore
+		 */
 		if(_modelObjects.length == 0)
 		{
 			$("#nextButton").button( "option", "disabled", true);
 		}
-		updateParameterSliders();
-		drawD3Plot();
-	}
-	
-	function deleteModelObject(id)
-	{
-		$.each(_modelObjects, function (index, object) 
-			{
+		
+		/*
+		 * nested function
+		 * removes the model from the used model array
+		 * 
+		 * @param id dbuuid of the model
+		 */
+		function removeModel(id)
+		{
+			$.each(_modelObjects, function (index, object) 
+					{
 				if(object && object.dbuuid == id)
 				{
 					_modelObjects.splice(index, 1);
 					return true;
 				}
-			}
-		);
-	}
-	
-	function deleteMetaDataSection(id)
-	{
-		// remove meta data header
-		var header = document.getElementById("h" + id);
-		header.parentElement.removeChild(header);
+					}
+			);
+		}
 		
-		// remove meta data
-		var data = document.getElementById(id);
-		data.parentElement.removeChild(data);
-		
-		$("#metaDataWrapper").accordion("refresh");
+		/*
+		 * nested function
+		 * deletes the dom elements that belong to the meta data in the accordion
+		 * 
+		 * @param id dbuuid of the model
+		 */
+		function deleteMetaDataSection(id)
+		{
+			// remove meta data header
+			var header = document.getElementById("h" + id);
+			header.parentElement.removeChild(header);
+			
+			// remove meta data
+			var data = document.getElementById(id);
+			data.parentElement.removeChild(data);
+			
+			$("#metaDataWrapper").accordion("refresh");
+		}
 	}
 	
 	/*
@@ -483,16 +522,16 @@ pmm_plotter = function() {
 		$("#metaDataWrapper").append(metaDiv);
 
 		// name of the model
-		addMetaParagraph("Name", modelObject.name, "Kein Name gegeben");
+		addMetaParagraph("Name", modelObject.name, msgNoName);
 		// model formula (function)
-		addMetaParagraph("Quality Score", modelObject.modelData.estModel.qualityScore, "Kein Quality Score gegeben");
+		addMetaParagraph("Quality Score", modelObject.modelData.estModel.qualityScore, msgNoScore);
 		// matrix data
-		addMetaParagraph("Funktion", reparseFunction(modelObject.fn), "Keine Funktion gegeben");
+		addMetaParagraph("Funktion", reparseFunction(modelObject.fn), msgNoFunction);
 		// function parameter
-		addMetaParagraph("Initiale Parameter", unfoldScope(modelObject.scope), "Keine Parameter gegeben");
+		addMetaParagraph("Initiale Parameter", unfoldScope(modelObject.scope), msgNoParameter);
 		// quality score
 		var matrix = modelObject.modelData.matrix;
-		addMetaParagraph("Matrix", (matrix.name || "") + "; " + (matrix.detail || ""), "Keine Matrixinformationen gegeben");
+		addMetaParagraph("Matrix", (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
 		
 		// ... add more paragraphs/attributes here ...
 		
@@ -503,6 +542,13 @@ pmm_plotter = function() {
 		// open last index
 		$("#metaDataWrapper").accordion({ active: (numSections - 1) });
 		
+		/*
+		 * adds a paragraph in the section for passed parameter data
+		 * 
+		 * @param title bold header title of the parameter (its name)
+		 * @param content the value of the parameter
+		 * @param alternative msg if parameter is null or empty
+		 */
 		function addMetaParagraph(title, content, alt) 
 		{
 			var header = "<div style='font-weight: bold; font-size:10px;'>" + title + "</div>";
@@ -514,11 +560,22 @@ pmm_plotter = function() {
 			$(metaDiv).append(paragraph);
 		}
 		
+		/*
+		 * adapt formula for readability
+		 * 
+		 * @param formula function formula
+		 */
 		function reparseFunction(formula)
 		{
-			return formula.replace(/\bx\b/gi, "Zeit");
+			return formula.replace(/\bx\b/gi, msgTime);
 		}
 		
+		/*
+		 * parses the parameter array in creates a DOM list from its items
+		 * 
+		 * @param paramArray an array of key value pairs that contains the parameters and 
+		 * their respective values
+		 */
 		function unfoldScope(paramArray)
 		{
 			if(!paramArray)
@@ -535,14 +592,14 @@ pmm_plotter = function() {
 	}
 
     /*
-     * adds sliders for all dynamic constants
+     * adds, updates and removes sliders for all dynamic constants
      */
 	function updateParameterSliders()
 	{
 	    var sliderWrapper = document.getElementById("sliderWrapper");
-	    var sliderIds = []; // ids of all sliders that correspond to a constant
+	    var sliderIds = []; // ids of all sliders that correspond to a constant from the used models
 	    
-	    
+	    // add or update sliders
 	    for (var modelIndex in _modelObjects)
 	    {
 	    	var constants = _modelObjects[modelIndex].scope;
@@ -642,14 +699,15 @@ pmm_plotter = function() {
 	    }
 	    
 	    // at last, we delete unused sliders
-	    var allIds = []; // ids of all shown sliders
-	    
+	    var allIds = []; // ids of all shown sliders (may include obsolete sliders)
 	    var sliderWrapperChildren = sliderWrapper.children;
+
 	    for(var i = 0; i < sliderWrapperChildren.length; i++) 
 	    {
 	    	allIds.push(sliderWrapperChildren[i].id);
 	    };
 
+	    // delete obsolete sliders
 	    $.each(allIds, function(i) {
 	    	// check if slider is still used
 	    	var found = sliderIds.indexOf(allIds[i]);
@@ -716,8 +774,8 @@ pmm_plotter = function() {
 		// plot
 		functionPlot({
 		    target: '#d3plotter',
-		    xDomain: [plotterValue.minXAxis, plotterValue.maxXAxis],
-		    yDomain: [plotterValue.minYAxis, plotterValue.maxYAxis],
+		    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
+		    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
 		    xLabel: xUnit,
 		    yLabel: yUnit,
 		    height: _plotHeight,
@@ -735,7 +793,68 @@ pmm_plotter = function() {
 	}
 	
 	/*
+	 * Deletes the view and opens a "second page" for the input of the user data.
+	 * This function is meant to be called when the user has finished the plot.
+	 */
+	function showInputForm()
+	{
+		$("#layoutWrapper").empty();
+		inputMember = ["Name des Berichts", "Namen der Autoren", "Kommentar"]
+		
+		var form = $("<form>", { style: _buttonWidth });
+		$.each(inputMember, function(i) {
+			var paragraph = $("<p>", { style: _buttonWidth });
+			var label = $("<div>", { text: inputMember[i], style: "font-weight: bold;  font-size: 10px;" + _buttonWidth });
+			var input = $('<input>', { id: "input_" + inputMember[i].replace(/\s/g,""), style: "width: 224px;" })
+			  .button()
+			  .css({
+			    'font' : 'inherit',
+			    'background': '#eeeeee',
+			    'color' : 'inherit',
+			    'text-align' : 'left',
+			    'outline' : 'thick',
+			    'cursor' : 'text'
+			  });
+			form.append(paragraph);
+			paragraph.append(label);
+			paragraph.append(input);
+		})
+		$(document.body).append(form);
+		
+		var finishButton = $("<button>", {id: "finishButton", style: _buttonWidth, text: "Fertig" }).button();
+		finishButton.on("click", function() 
+			{ 
+				_plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
+				_plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
+				_plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
+				
+				show(_plotterValue.reportName);
+				show(_plotterValue.authors);
+				show(_plotterValue.comment);
+				
+				$(document.body).fadeOut();
+			}
+		);
+		$(document.body).append(finishButton);
+	}
+	
+	/*
+	 * convert parameter/formula units
+	 * 
+	 * @param lnValue natural logarithm value (ln)
+	 * 
+	 * @return passed value as log_10 value
+	 */
+	function calcLogToLn(lnValue)
+	{
+		var logValue = lnValue / _logConst;
+		return logvalue;
+	}
+	
+	/*
 	 * color iterator based on the colors delivered by functionPlot (10 colors)
+	 * 
+	 * @return a color value
 	 */
 	function getNextColor()
 	{
@@ -743,9 +862,6 @@ pmm_plotter = function() {
 			_colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
 		return _colorsArray.shift();
 	}
-	
-	/*******/
-	
 	
 	// maintenance function
 	function show(obj)
@@ -768,7 +884,7 @@ pmm_plotter = function() {
 	
 	modelPlotter.getComponentValue = function() 
 	{
-	    return plotterValue;
+	    return _plotterValue;
 	}
 	
 	/*

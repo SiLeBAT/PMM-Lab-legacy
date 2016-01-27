@@ -45,6 +45,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.editor.ModelEditorNodeModel;
 import de.bund.bfr.knime.pmm.js.common.Model1DataTuple;
 import de.bund.bfr.knime.pmm.js.common.ModelList;
@@ -67,14 +68,15 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	static final String AUTHORS = "authors";
 	static final String REPORT_NAME = "reportName";
 	static final String COMMENT = "comments";
+	
 	/*
 	 * deprecated
-	private static final String PMM_MODEL_ARG_TIME = "Time";
-	private static final String PMM_MODEL_ARG_TEMP = "temp";
-	private static final String PMM_MODEL_ARG_AW = "aw";
-	private static final String PMM_MODEL_ARG_CO2 = "CO2";
-	private static final String PMM_MODEL_ARG_PS = "PhysiologicalState";
-	private static final String PMM_MODEL_ARG_PH = "pH";
+		private static final String PMM_MODEL_ARG_TIME = "Time";
+		private static final String PMM_MODEL_ARG_TEMP = "temp";
+		private static final String PMM_MODEL_ARG_AW = "aw";
+		private static final String PMM_MODEL_ARG_CO2 = "CO2";
+		private static final String PMM_MODEL_ARG_PS = "PhysiologicalState";
+		private static final String PMM_MODEL_ARG_PH = "pH";
 	 */
 	
 	private final ModelPlotterViewConfig m_config;
@@ -169,14 +171,13 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			Model1DataTuple[] m1DataTuples = new Model1DataTuple[tuples.size()];
 			for (int i = 0; i < tuples.size(); i++) {
 				m1DataTuples[i] = ModelEditorNodeModel.codeTuple(tuples.get(i));
-				
 				// as long as there is no dbuuid, we generate one
-				if(m1DataTuples[i].getDbuuid().isEmpty() || m1DataTuples[i].getDbuuid().equals("?"))
+				if(m1DataTuples[i].getCondId() == null)
 				{
 					LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
 					int seed = m1DataTuples[i].getCatModel().getFormula().hashCode();
-					String id = "g" + String.valueOf((new Random(seed)).nextInt(999999)); // "g" for "generated", max 6 digits
-					m1DataTuples[i].setDbuuid(id);
+					String globalId = "g" + String.valueOf((new Random(seed)).nextInt(999999)); // "g" for "generated", max 6 digits
+					m1DataTuples[i].setDbuuid(globalId);
 				}
 			}
 			ModelList modelList = new ModelList();

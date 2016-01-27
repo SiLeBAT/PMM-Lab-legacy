@@ -28,12 +28,26 @@ pmm_plotter = function() {
 	var msgAdd = "Add Model";
 	var msgChoose = "Select Model";
 	var msgTime = "Time";
-	var msgNoMatrix = "Keine Matrixinformationen gegeben";
-	var msgNoParameter = "Keine Parameter gegeben";
-	var msgNoName = "Kein Name gegeben";
-	var msgNoMatrix = "Keine Funktion gegeben";
-	var msgNoFunction = "Keine Funktion gegeben";
-	var msgNoScore = "Kein Quality Score gegeben";
+	var msgNoMatrix = "no matrix data provided";
+	var msgNoParameter = "no parameter provided";
+	var msgNoName = "no name found";
+	var msgNoFunction = "no function provided";
+	var msgNoScore = "no quality score provided";
+	
+	var msgNext = "Next";
+	var msgNoType = "No Type";
+	var msgDone = "Done";
+	var msgReportName = "Report Name";
+	var msgAuthorsNames = "Authors";
+	var msgComment = "Comment";
+	var msgUnknown = "unknown";
+	var msgIn = " in ";
+	var msgName = "Name";
+	var msgScore = "Quality Score";
+	var msgFunction = "Function";
+	var msgParameter = "Initial Parameters";
+	var msgMatrix = "Matrix";
+	var msgExamples = "Examples";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -68,9 +82,9 @@ pmm_plotter = function() {
 		addSelectOptions(_rawModels);
 		
 		// to be removed:
-		addSelectOption("325234", "Modell Alpha", "Examples");
-		addSelectOption("948342", "Modell Beta 1", "Examples");
-		addSelectOption("451263", "Modell Beta 2", "Examples");
+		addSelectOption("325234", "Modell Alpha", msgExamples);
+		addSelectOption("948342", "Modell Beta 1", msgExamples);
+		addSelectOption("451263", "Modell Beta 2", msgExamples);
 	}
 	
 	/*
@@ -178,7 +192,7 @@ pmm_plotter = function() {
 		var nextButton = $("<button>", {
 			id: "nextButton", 
 			style: _buttonWidth, 
-			text: "Weiter" 
+			text: msgNext 
 		});
 		$("#leftWrapper").append(nextButton);
 		nextButton.on("click", function() 
@@ -208,7 +222,7 @@ pmm_plotter = function() {
 	/*
 	 * adds a new option to the selection menu
 	 * 
-	 * @param dbuuid id of the model
+	 * @param condId id of the model
 	 * @param modelName name of the model
 	 */
 	function addSelectOptions(modelsArray)
@@ -218,9 +232,9 @@ pmm_plotter = function() {
 			$.each(modelsArray, function(i) 
 				{
 					var type = modelsArray[i].type;
-					var dbuuid = modelsArray[i].dbuuid;
+					var condId = modelsArray[i].condId;
 					var modelName = modelsArray[i].estModel.name;
-					addSelectOption(dbuuid, modelName, type);
+					addSelectOption(condId, modelName, type);
 				}
 			);
 		}
@@ -229,17 +243,17 @@ pmm_plotter = function() {
 	/*
 	 * adds a new option to the selection menu
 	 * 
-	 * @param dbuuid id of the model
+	 * @param condId id of the model
 	 * @param modelName name of the model
 	 */
-	function addSelectOption(dbuuid, modelName, type)
+	function addSelectOption(condId, modelName, type)
 	{
 		if(!type || type == "")
-			type = "Kein Typ";
+			type = msgNoType;
 		
 		var option = document.createElement("option");
-		option.setAttribute("value", dbuuid);
-		option.innerHTML = "[" + dbuuid + "] " + modelName;
+		option.setAttribute("value", condId);
+		option.innerHTML = "[" + condId + "] " + modelName;
 		
 		var groupId = "optGroup_" + type;
 		var group = document.getElementById(groupId);
@@ -269,7 +283,7 @@ pmm_plotter = function() {
 		var model;
 		$.each(_rawModels, function(i, object)
 		{
-			if(_rawModels[i].dbuuid == selection)
+			if(_rawModels[i].condId == selection)
 			{
 				model = _rawModels[i];
 				return true;
@@ -281,10 +295,10 @@ pmm_plotter = function() {
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
 			var functionAsString = prepareFunction(model.catModel.formula);
 			var functionConstants = prepareConstants(model.params.params);
-			var dbuuid = model.dbuuid;
+			var condId = model.condId;
 			var modelName = model.estModel.name;
 			// call subsequent method
-			addFunctionObject(dbuuid, functionAsString, functionConstants, model);
+			addFunctionObject(condId, functionAsString, functionConstants, model);
 		}
 		// TODO: just for testing purposes
 		else
@@ -336,6 +350,8 @@ pmm_plotter = function() {
 				newString = newString.split("=")[1];
 			newString = newString.replace(/Time/gi, "x");
 			newString = newString.replace(/\bT\b/gi, "x");
+			// math.js does not know "ln", ln equals log
+			newString = newString.replace(/\bln\b/gi, "log");
 			return newString;
 		}
 		
@@ -361,19 +377,20 @@ pmm_plotter = function() {
 	/*
 	 * adds a function to the functions array and redraws the plot
 	 * 
-	 * @param dbuuid
+	 * @param condId
 	 * @param functionAsString the function string as returend by prepareFunction()
 	 * @param the function constants as an array 
 	 */
-	function addFunctionObject(dbuuid, functionAsString, functionConstants, model)
+	function addFunctionObject(condId, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
-		var maxRange = _plotterValue.maxXAxis; // obligatoric for the range feature // TODO: dynamic maximum
+		var maxRange = _plotterValue.maxXAxis * 10; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
 		
 		var modelObj = { 
+			 fnType: 'linear',
 			 name: model.estModel.name,
-			 dbuuid: dbuuid,
+			 condId: condId,
 			 fn: functionAsString,
 			 scope: functionConstants,
 			 color: color,
@@ -381,7 +398,6 @@ pmm_plotter = function() {
 			 skipTip: false,
 			 modelData: model
 		};
-		show(modelObj);
 		// add model to the list of used models
 		_modelObjects.push(modelObj);
 		
@@ -398,7 +414,7 @@ pmm_plotter = function() {
 	/*
 	 * deletes a model for good - including graph and meta data
 	 * 
-	 * @param id dbuuid of the model
+	 * @param id condId of the model
 	 */
 	function deleteFunctionObject(id)
 	{
@@ -420,13 +436,13 @@ pmm_plotter = function() {
 		 * nested function
 		 * removes the model from the used model array
 		 * 
-		 * @param id dbuuid of the model
+		 * @param id condId of the model
 		 */
 		function removeModel(id)
 		{
 			$.each(_modelObjects, function (index, object) 
 					{
-				if(object && object.dbuuid == id)
+				if(object && object.condId == id)
 				{
 					_modelObjects.splice(index, 1);
 					return true;
@@ -439,7 +455,7 @@ pmm_plotter = function() {
 		 * nested function
 		 * deletes the dom elements that belong to the meta data in the accordion
 		 * 
-		 * @param id dbuuid of the model
+		 * @param id condId of the model
 		 */
 		function deleteMetaDataSection(id)
 		{
@@ -479,8 +495,8 @@ pmm_plotter = function() {
 		 * ...
 		 */
 		var header = document.createElement("h3");
-		header.setAttribute("id", "h" + modelObject.dbuuid);
-		header.innerHTML = modelObject.dbuuid;
+		header.setAttribute("id", "h" + modelObject.condId);
+		header.innerHTML = modelObject.condId;
 		
 		// accordion-specific jQuery semantic for append()
 		$("#metaDataWrapper").append(header);
@@ -496,7 +512,7 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    }).click(function(event) {
-	    	deleteFunctionObject(modelObject.dbuuid);
+	    	deleteFunctionObject(modelObject.condId);
 	    });
 	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");
 		deleteDiv.appendChild(deleteButton);
@@ -518,20 +534,20 @@ pmm_plotter = function() {
 		
 		// meta content divs divs
 		var metaDiv = document.createElement("div");
-		metaDiv.setAttribute("id", modelObject.dbuuid);
+		metaDiv.setAttribute("id", modelObject.condId);
 		$("#metaDataWrapper").append(metaDiv);
 
 		// name of the model
-		addMetaParagraph("Name", modelObject.name, msgNoName);
+		addMetaParagraph(msgName, modelObject.name, msgNoName);
 		// model formula (function)
-		addMetaParagraph("Quality Score", modelObject.modelData.estModel.qualityScore, msgNoScore);
+		addMetaParagraph(msgScore, modelObject.modelData.estModel.qualityScore, msgNoScore);
 		// matrix data
-		addMetaParagraph("Funktion", reparseFunction(modelObject.fn), msgNoFunction);
+		addMetaParagraph(msgFunction, reparseFunction(modelObject.fn), msgNoFunction);
 		// function parameter
-		addMetaParagraph("Initiale Parameter", unfoldScope(modelObject.scope), msgNoParameter);
+		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter);
 		// quality score
 		var matrix = modelObject.modelData.matrix;
-		addMetaParagraph("Matrix", (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
+		addMetaParagraph(msgMatrix, (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
 		
 		// ... add more paragraphs/attributes here ...
 		
@@ -567,7 +583,9 @@ pmm_plotter = function() {
 		 */
 		function reparseFunction(formula)
 		{
-			return formula.replace(/\bx\b/gi, msgTime);
+			newFormula = formula.replace(/\bx\b/gi, msgTime);
+			newFormula = newFormula.replace(/\blog\b/gi, "ln");
+			return newFormula;
 		}
 		
 		/*
@@ -751,17 +769,17 @@ pmm_plotter = function() {
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
 		
-		var xUnit = "unknown";
+		var xUnit = msgUnknown;
 		$.each(_rawModels[0].indeps.indeps, function(i) {
 			var currentIndep = _rawModels[0].indeps.indeps[i];
 			if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
 			{
-				xUnit = currentIndep["name"] + " in " + currentIndep["unit"];
+				xUnit = currentIndep["name"] + msgIn + currentIndep["unit"];
 				return true;
 			}
 		});
 		
-		var yUnit = "unknown";
+		var yUnit = msgUnknown;
 		$.each(_rawModels[0].params.params, function(i) {
 			var currentParam = _rawModels[0].params.params[i];
 			if(currentParam["unit"])
@@ -772,24 +790,29 @@ pmm_plotter = function() {
 		});
 		
 		// plot
-		functionPlot({
-		    target: '#d3plotter',
-		    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
-		    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
-		    xLabel: xUnit,
-		    yLabel: yUnit,
-		    height: _plotHeight,
-		    witdh: _plotWidth,
-		    tip: 
-		    {
-		    	xLine: true,    // dashed line parallel to y = 0
-			    yLine: true,    // dashed line parallel to x = 0
-			    renderer: function (x, y, index) {
-			    	return y;
-				}
-			},
-		    data: _modelObjects
-		});
+		try{
+			functionPlot({
+			    target: '#d3plotter',
+			    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
+			    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
+			    xLabel: xUnit,
+			    yLabel: yUnit,
+			    height: _plotHeight,
+			    witdh: _plotWidth,
+			    tip: 
+			    {
+			    	xLine: true,    // dashed line parallel to y = 0
+				    yLine: true,    // dashed line parallel to x = 0
+				    renderer: function (x, y, index) {
+				    	return y;
+					}
+				},
+			    data: _modelObjects
+			});
+		} catch(e)
+		{
+			show(e);
+		}
 	}
 	
 	/*
@@ -799,7 +822,7 @@ pmm_plotter = function() {
 	function showInputForm()
 	{
 		$("#layoutWrapper").empty();
-		inputMember = ["Name des Berichts", "Namen der Autoren", "Kommentar"]
+		inputMember = [magReportName, msgAuthorsNames, msgComment]
 		
 		var form = $("<form>", { style: _buttonWidth });
 		$.each(inputMember, function(i) {
@@ -821,16 +844,12 @@ pmm_plotter = function() {
 		})
 		$(document.body).append(form);
 		
-		var finishButton = $("<button>", {id: "finishButton", style: _buttonWidth, text: "Fertig" }).button();
+		var finishButton = $("<button>", {id: "finishButton", style: _buttonWidth, text: msgDone }).button();
 		finishButton.on("click", function() 
 			{ 
 				_plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
 				_plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
 				_plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
-				
-				show(_plotterValue.reportName);
-				show(_plotterValue.authors);
-				show(_plotterValue.comment);
 				
 				$(document.body).fadeOut();
 			}

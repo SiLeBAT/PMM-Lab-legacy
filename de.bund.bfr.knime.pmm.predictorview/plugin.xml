@@ -57,31 +57,6 @@
       </webResourceBundle>
       <webResourceBundle
             debug="true"
-            name="JSX Graph"
-            version="1.0.0"
-            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
-         <webResource
-               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js"
-               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js">
-         </webResource>
-         <importResource
-               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js"
-               type="JAVASCRIPT">
-         </importResource>
-         <webResource
-               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
-               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css">
-         </webResource>
-         <importResource
-               relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
-               type="CSS">
-         </importResource>
-         <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
-         </webDependency>
-      </webResourceBundle>
-      <webResourceBundle
-            debug="true"
             name="Function Plot"
             version="1.0.0"
             webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
@@ -174,9 +149,6 @@
                relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">
          </webResource>
          <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
-         </webDependency>
-         <webDependency
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
          </webDependency>
          <importResource
@@ -193,9 +165,6 @@
                relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js"
                relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js">
          </webResource>
-         <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
-         </webDependency>
          <webDependency
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3">
          </webDependency>

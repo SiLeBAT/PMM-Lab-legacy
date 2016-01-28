@@ -168,18 +168,18 @@ public class Model2Tuple {
 			metadata.addLiteratureItem(emLiteratureItem);
 		}
 
-		setTuple(new KnimeTuple(schema));
-		getTuple().setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		getTuple().setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		getTuple().setValue(Model2Schema.ATT_INDEPENDENT, indeps);
-		getTuple().setValue(Model2Schema.ATT_PARAMETER, consts);
-		getTuple().setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		getTuple().setValue(Model2Schema.ATT_MLIT, mLits);
-		getTuple().setValue(Model2Schema.ATT_EMLIT, emLits);
-		getTuple().setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
-		getTuple().setValue(Model2Schema.ATT_DBUUID, "?");
-		getTuple().setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
-		getTuple().setValue(Model2Schema.ATT_METADATA, metadata);
+		tuple = new KnimeTuple(schema);
+		tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+		tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indeps);
+		tuple.setValue(Model2Schema.ATT_PARAMETER, consts);
+		tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+		tuple.setValue(Model2Schema.ATT_MLIT, mLits);
+		tuple.setValue(Model2Schema.ATT_EMLIT, emLits);
+		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
+		tuple.setValue(Model2Schema.ATT_DBUUID, "?");
+		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
+		tuple.setValue(Model2Schema.ATT_METADATA, metadata);
 	}
 
 	private ParamXml processCoefficient(Parameter param, ListOf<UnitDefinition> unitDefs, Map<String, Limits> limits) {

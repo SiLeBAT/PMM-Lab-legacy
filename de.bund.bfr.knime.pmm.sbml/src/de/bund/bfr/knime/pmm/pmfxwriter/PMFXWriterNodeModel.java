@@ -1241,7 +1241,7 @@ class OneStepTertiaryModelParser implements Parser {
 			KnimeTuple tuple = instance.get(0);
 			if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
 				int dataCounter = numlDocs.size();
-				String numlDocName = String.format("dasta_%d_%d.numl", mdNum, dataCounter);
+				String numlDocName = String.format("data_%d_%d.numl", mdNum, dataCounter);
 				numlDocNames.add(numlDocName);
 
 				DataParser dataParser = new DataParser(tuple, metadata, notes);

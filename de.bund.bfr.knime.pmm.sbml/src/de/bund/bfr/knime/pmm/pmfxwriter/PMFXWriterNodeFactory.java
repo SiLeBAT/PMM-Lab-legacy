@@ -23,9 +23,8 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-/**
- * @author Christian Thoens
- */
+import de.bund.bfr.knime.pmm.common.writer.PMFWriterNodeDialog;
+
 public class PMFXWriterNodeFactory extends NodeFactory<PMFXWriterNodeModel> {
 
 	/**
@@ -65,6 +64,6 @@ public class PMFXWriterNodeFactory extends NodeFactory<PMFXWriterNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new PMFXWriterNodeDialog();
+		return new PMFWriterNodeDialog();
 	}
 }

@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfreader;
+package de.bund.bfr.knime.pmm.common.reader;
 
 import javax.swing.JFileChooser;
 
@@ -44,11 +44,11 @@ public class PMFReaderNodeDialog extends DefaultNodeSettingsPane {
 	/**
 	 * New pane for configuring SBMLReader node dialog.
 	 */
-	protected PMFReaderNodeDialog() {
+	public PMFReaderNodeDialog() {
 		super();
 
 		// Set model strings
-		final SettingsModelString fileName = new SettingsModelString(PMFReaderNodeModel.CFGKEY_FILE, "");
+		final SettingsModelString fileName = new SettingsModelString(PMFReaderNodeModelBase.CFGKEY_FILE, "");
 		fileName.setEnabled(true);
 
 		// Create fileChooser

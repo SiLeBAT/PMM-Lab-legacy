@@ -23,6 +23,8 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.reader.PMFReaderNodeDialog;
+
 public class PMFXReaderNodeFactory extends NodeFactory<PMFXReaderNodeModel> {
 
 	/**
@@ -62,7 +64,7 @@ public class PMFXReaderNodeFactory extends NodeFactory<PMFXReaderNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new PMFXReaderNodeDialog();
+		return new PMFReaderNodeDialog();
 	}
 
 }

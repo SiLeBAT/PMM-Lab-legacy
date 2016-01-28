@@ -58,19 +58,19 @@ import de.bund.bfr.pmf.sbml.SBMLFactory;
  */
 public abstract class PMFWriterNodeModelBase extends NodeModel {
 
-	public static final String CFG_OUT_PATH = "outPath";
-	public static final String CFG_MODEL_NAME = "modelName";
-	public static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
-	public static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
-	public static final String CFG_CREATOR_CONTACT = "CreatorContact";
-	public static final String CFG_CREATED_DATE = "CreationDate";
-	public static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
-	public static final String CFG_ISSECONDARY = "isSecondary";
-	public static final String CFG_OVERWRITE = "overwrite";
-	public static final String CFG_SPLITMODELS = "splitModels";
-	public static final String CFG_REFERENCE_LINK = "referenceLink";
-	public static final String CFG_LIC = "license";
-	public static final String CFG_NOTES = "notes";
+	protected static final String CFG_OUT_PATH = "outPath";
+	protected static final String CFG_MODEL_NAME = "modelName";
+	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
+	protected static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
+	protected static final String CFG_CREATOR_CONTACT = "CreatorContact";
+	protected static final String CFG_CREATED_DATE = "CreationDate";
+	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
+	protected static final String CFG_ISSECONDARY = "isSecondary";
+	protected static final String CFG_OVERWRITE = "overwrite";
+	protected static final String CFG_SPLITMODELS = "splitModels";
+	protected static final String CFG_REFERENCE_LINK = "referenceLink";
+	protected static final String CFG_LIC = "license";
+	protected static final String CFG_NOTES = "notes";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH, null);
 	private SettingsModelString modelName = new SettingsModelString(CFG_MODEL_NAME, null);

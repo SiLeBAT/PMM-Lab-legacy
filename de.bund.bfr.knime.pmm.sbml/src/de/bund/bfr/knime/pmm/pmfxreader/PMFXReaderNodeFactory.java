@@ -64,7 +64,7 @@ public class PMFXReaderNodeFactory extends NodeFactory<PMFXReaderNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new PMFReaderNodeDialog();
+		return new PMFReaderNodeDialog(true);
 	}
 
 }

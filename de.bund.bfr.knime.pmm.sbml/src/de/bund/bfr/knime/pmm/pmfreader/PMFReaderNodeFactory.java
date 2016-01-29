@@ -71,7 +71,7 @@ public class PMFReaderNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new PMFReaderNodeDialog();
+        return new PMFReaderNodeDialog(false);
     }
 
 }

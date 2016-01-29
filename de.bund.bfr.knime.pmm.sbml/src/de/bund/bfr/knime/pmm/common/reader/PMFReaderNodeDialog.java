@@ -44,7 +44,7 @@ public class PMFReaderNodeDialog extends DefaultNodeSettingsPane {
 	/**
 	 * New pane for configuring SBMLReader node dialog.
 	 */
-	public PMFReaderNodeDialog() {
+	public PMFReaderNodeDialog(boolean isPMFX) {
 		super();
 
 		// Set model strings
@@ -52,7 +52,8 @@ public class PMFReaderNodeDialog extends DefaultNodeSettingsPane {
 		fileName.setEnabled(true);
 
 		// Create fileChooser
-		fileChooser = new DialogComponentFileChooser(fileName, "filename-history", JFileChooser.OPEN_DIALOG, ".pmf");
+		final String fileExtension = isPMFX ? ".pmfx" : ".pmf";
+		fileChooser = new DialogComponentFileChooser(fileName, "filename-history", JFileChooser.OPEN_DIALOG, fileExtension);
 
 		// Add widgets
 		createNewGroup("Data Source");

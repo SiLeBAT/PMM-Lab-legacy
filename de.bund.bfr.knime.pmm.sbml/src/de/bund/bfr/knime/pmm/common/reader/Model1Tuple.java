@@ -67,7 +67,9 @@ public class Model1Tuple {
 			} else {
 				String depUnitName = model.getUnitDefinition(depUnitID).getName();
 				depXml.setUnit(depUnitName);
-				depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+				if (DBUnits.getDBUnits().containsKey(depUnitName)) {
+					depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+				}
 			}
 		}
 		if (species.isSetDescription()) {
@@ -111,7 +113,9 @@ public class Model1Tuple {
 			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+				if (DBUnits.getDBUnits().containsKey(unitName)) {
+					paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+				}
 			}
 
 			PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(param);

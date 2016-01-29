@@ -618,8 +618,10 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
 
 			// Sets dependent variable
 			if (!depUnitID.equals("dimensionless")) {
-				String depUnitCategory = DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity();
-				template.setDependentVariable(depUnitCategory);
+				if (DBUnits.getDBUnits().containsKey(depUnitName)) {
+					String depUnitCategory = DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity();
+					template.setDependentVariable(depUnitCategory);
+				}
 			}
 
 			// Sets dependent variable min & max
@@ -652,9 +654,11 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
 			String unitName = model.getUnitDefinition(unitID).getName();
 
 			if (!unitID.equals("dimensionless")) {
-				String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-				if (!indepVarCategories.contains(unitCategory)) {
-					indepVarCategories.add(unitCategory);
+				if (DBUnits.getDBUnits().containsKey(unitName)) {
+					String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+					if (!indepVarCategories.contains(unitCategory)) {
+						indepVarCategories.add(unitCategory);
+					}
 				}
 			}
 		}

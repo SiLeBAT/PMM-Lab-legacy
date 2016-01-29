@@ -121,18 +121,18 @@ public class Model2Tuple {
 		// Gets model literature
 		PmmXmlDoc mLits = new PmmXmlDoc();
 		for (Reference ref : rule.getReferences()) {
-			String author = ref.getAuthor();
-			Integer year = ref.getYear();
-			String title = ref.getTitle();
-			String abstractText = ref.getAbstractText();
-			String journal = ref.getJournal();
-			String volume = ref.getVolume();
-			String issue = ref.getIssue();
-			Integer page = ref.getPage();
-			Integer approvalMode = ref.getApprovalMode();
-			String website = ref.getWebsite();
-			Integer type = ref.isSetType() ? ref.getType().value() : null;
-			String comment = ref.getComment();
+			final String author = ref.getAuthor();
+			final Integer year = ref.getYear();
+			final String title = ref.getTitle();
+			final String abstractText = ref.getAbstractText();
+			final String journal = ref.getJournal();
+			final String volume = ref.getVolume();
+			final String issue = ref.getIssue();
+			final Integer page = ref.getPage();
+			final Integer approvalMode = ref.getApprovalMode();
+			final String website = ref.getWebsite();
+			final Integer type = ref.isSetType() ? ref.getType().value() : null;
+			final String comment = ref.getComment();
 
 			LiteratureItem literatureItem = new LiteratureItem(author, year, title, abstractText, journal, volume,
 					issue, page, approvalMode, website, type, comment);
@@ -146,18 +146,18 @@ public class Model2Tuple {
 		// Gets estimated model literature
 		PmmXmlDoc emLits = new PmmXmlDoc();
 		for (Reference ref : m2Annot.getReferences()) {
-			String author = ref.getAuthor();
-			Integer year = ref.getYear();
-			String title = ref.getTitle();
-			String abstractText = ref.getAbstractText();
-			String journal = ref.getJournal();
-			String volume = ref.getVolume();
-			String issue = ref.getIssue();
-			Integer page = ref.getPage();
-			Integer approvalMode = ref.getApprovalMode();
-			String website = ref.getWebsite();
-			Integer type = ref.isSetType() ? ref.getType().value() : null;
-			String comment = ref.getComment();
+			final String author = ref.getAuthor();
+			final Integer year = ref.getYear();
+			final String title = ref.getTitle();
+			final String abstractText = ref.getAbstractText();
+			final String journal = ref.getJournal();
+			final String volume = ref.getVolume();
+			final String issue = ref.getIssue();
+			final Integer page = ref.getPage();
+			final Integer approvalMode = ref.getApprovalMode();
+			final String website = ref.getWebsite();
+			final Integer type = ref.isSetType() ? ref.getType().value() : null;
+			final String comment = ref.getComment();
 
 			LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page,
 					approvalMode, website, type, comment);

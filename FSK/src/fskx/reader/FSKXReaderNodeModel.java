@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,16 +48,21 @@ import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Unit;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.reader.Util;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
@@ -65,6 +71,7 @@ import de.bund.bfr.pmf.sbml.Correlation;
 import de.bund.bfr.pmf.sbml.Limits;
 import de.bund.bfr.pmf.sbml.Model1Annotation;
 import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.ModelVariable;
 import de.bund.bfr.pmf.sbml.PMFCoefficient;
 import de.bund.bfr.pmf.sbml.PMFCompartment;
 import de.bund.bfr.pmf.sbml.PMFSpecies;
@@ -152,14 +159,14 @@ public class FSKXReaderNodeModel extends NodeModel {
     modelContainer.addRowToTable(processMetadata(sbmlDoc));
     modelContainer.close();
 
-    return new BufferedDataTable[] { dataContainer.getTable(), modelContainer.getTable() };
+    return new BufferedDataTable[] {dataContainer.getTable(), modelContainer.getTable()};
   }
 
   /** {@inheritDoc} */
   @Override
   protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] { null, null };
+    return new DataTableSpec[] {null, null};
   }
 
   /** {@inheritDoc} */
@@ -203,6 +210,7 @@ public class FSKXReaderNodeModel extends NodeModel {
      * <li>Gets rule and converts it to CatalogModelXml
      * <li>Parse constraints
      * <li>Gets species
+     * <li>Gets matrix
      * <li>Gets dependent variable
      * <li>Gets limits for the dependent variable
      * <li>Parse independent variables
@@ -215,7 +223,9 @@ public class FSKXReaderNodeModel extends NodeModel {
      * <li>Reads model literature
      * <li>Reads estimated model literature
      * <li>Creates and returns tuple
-     */ 
+     * <li>Creates PmmXmlDoc with MiscXmls
+     * <li>Creates MdInfoXml
+     */
 
     // Gets SBML model
     final Model model = sbmlDocument.getModel();
@@ -235,6 +245,13 @@ public class FSKXReaderNodeModel extends NodeModel {
 
     // Gets species
     final PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+    final AgentXml agentXml = new AgentXml(MathUtilities.getRandomNegativeInt(), species.getName(),
+        species.getDetail(), null);
+
+    // Creates PMFCompartment
+    final PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+    final MatrixXml matrixXml = new MatrixXml(MathUtilities.getRandomNegativeInt(),
+        compartment.getName(), compartment.getDetail(), null);
 
     // Gets dependent variable
     final DepXml depXml = new DepXml("Value");
@@ -266,7 +283,8 @@ public class FSKXReaderNodeModel extends NodeModel {
     final Parameter indepParam = model.getParameter(Categories.getTime());
     final IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
     final String indepUnitID = indepParam.getUnits();
-    if (!indepUnitID.isEmpty() && !indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.getName())) {
+    if (!indepUnitID.isEmpty()
+        && !indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.getName())) {
       final String unitName = model.getUnitDefinition(indepUnitID).getName();
       indepXml.setUnit(unitName);
       indepXml.setCategory(Categories.getTimeCategory().getName());
@@ -330,9 +348,6 @@ public class FSKXReaderNodeModel extends NodeModel {
       estModel.setName(model.getName());
     }
 
-    // Creates PMFCompartment
-    final PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
-
     // Reads model literature
     final PmmXmlDoc mLit = new PmmXmlDoc();
     for (final Reference ref : rule.getReferences()) {
@@ -350,7 +365,7 @@ public class FSKXReaderNodeModel extends NodeModel {
       final String comment = ref.getComment();
 
       final LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal,
-        volume, issue, page, approvalMode, website, type, comment);
+          volume, issue, page, approvalMode, website, type, comment);
       mLit.add(lit);
     }
 
@@ -371,12 +386,38 @@ public class FSKXReaderNodeModel extends NodeModel {
       final String comment = ref.getComment();
 
       final LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal,
-        volume, issue, page, approvalMode, website, type, comment);
+          volume, issue, page, approvalMode, website, type, comment);
       emLit.add(lit);
     }
 
+    // Creates PmmXmlDoc with MiscXmls
+    final PmmXmlDoc miscCell;
+    if (compartment.isSetModelVariables()) {
+      final Map<String, Double> miscs = new HashMap<>(compartment.getModelVariables().length);
+      for (final ModelVariable modelVariable : compartment.getModelVariables()) {
+        miscs.put(modelVariable.getName(), modelVariable.getValue());
+      }
+      miscCell = Util.parseMiscs(miscs);
+    } else {
+      miscCell = new PmmXmlDoc();
+    }
+
+    // Creates MdInfoXml
+    final MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
+
     // Creates and return tuple
     final KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
+    // TimeSeriesSchema cells
+    tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
+    tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
+    tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(agentXml));
+    tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(matrixXml));
+    tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
+    tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
+    tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
+    tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
+    tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+    // Model1Schema cells
     tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
     tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
     tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));

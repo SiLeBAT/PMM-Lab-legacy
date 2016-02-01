@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?><plugin>
+
+	<extension point="org.knime.workbench.repository.nodes">
+  <node
+        category-path="/pmmlab/writer"
+        deprecated="false"
+        factory-class="fskx.writer.FSKXWriterNodeFactory"
+        id="FSKXWriterNodeFactory">
+  </node>
+  <node
+        category-path="/pmmlab/reader"
+        deprecated="false"
+        factory-class="fskx.reader.FSKXReaderNodeFactory"
+        id="FSKXReaderNodeFactory">
+  </node>
+	</extension>	
+   
+</plugin>

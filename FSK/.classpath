@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="/de.bund.bfr.knime.pmm.common"/>
+	<classpathentry kind="lib" path="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.knime.core_3.1.1.v201512111505/knime-core.jar" sourcepath="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.knime.core.source_3.1.1.v201512111505.jar">
+		<accessrules>
+			<accessrule kind="accessible" pattern="log4j/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/append/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/blob/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/collection/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/container/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/date/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/def/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/filestore/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/icon/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/image/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/image/png/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/model/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/property/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/renderer/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/sort/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/util/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/util/memory/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/vector/bitvector/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/vector/bytevector/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/xml/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/xml/io/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/data/xml/util/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/eclipseUtil/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/internal/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/config/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/defaultnodesettings/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/dialog/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/exec/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/exec/dataexchange/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/exec/dataexchange/in/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/icon/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/interactive/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/interrupt/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/aggregation/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/aggregation/function/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/aggregation/function/booleanoption/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/aggregation/function/column/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/aggregation/function/concatenate/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/binning/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/pivoting/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/reader/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/database/writer/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/flowvariable/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/image/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/inactive/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/pmml/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/pmml/preproc/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/pmml/schemata/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/port/viewproperty/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/property/hilite/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/streamable/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/streamable/simple/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/tableview/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/util/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/util/filter/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/util/filter/column/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/util/filter/variable/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/web/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/wizard/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/action/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/execresult/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/virtual/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/virtual/parchunk/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/virtual/subnode/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/quickform/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/quickform/in/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/quickform/out/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/pathresolve/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/tokenizer/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/xml/*"/>
+			<accessrule kind="accessible" pattern="org/knime/node/v210/*"/>
+			<accessrule kind="accessible" pattern="org/knime/node/v212/*"/>
+			<accessrule kind="accessible" pattern="org/knime/node/v28/*"/>
+			<accessrule kind="accessible" pattern="org/knime/node2012/*"/>
+			<accessrule kind="accessible" pattern="org/knime/node2012/impl/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.knime.core.util_5.3.1.v201512151318.jar" sourcepath="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.knime.core.util.source_5.3.1.v201512151318.jar">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/apache/commons/io/*"/>
+			<accessrule kind="accessible" pattern="org/apache/commons/io/comparator/*"/>
+			<accessrule kind="accessible" pattern="org/apache/commons/io/filefilter/*"/>
+			<accessrule kind="accessible" pattern="org/apache/commons/io/input/*"/>
+			<accessrule kind="accessible" pattern="org/apache/commons/io/output/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/config/base/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/dialog/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/node/workflow/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/crypto/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/node/config/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/node/config/display/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/node/quickform/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/node/quickform/in/*"/>
+			<accessrule kind="accessible" pattern="org/knime/core/util/node/quickform/out/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.eclipse.core.runtime_3.11.0.v20150405-1723.jar" sourcepath="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.eclipse.core.runtime.source_3.11.0.v20150405-1723.jar">
+		<accessrules>
+			<accessrule kind="discouraged" pattern="org/eclipse/core/internal/preferences/legacy/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/core/internal/runtime/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/core/runtime/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.eclipse.osgi_3.10.100.v20150529-1857.jar" sourcepath="D:/workspace/.metadata/.plugins/org.eclipse.pde.core/.bundle_pool/plugins/org.eclipse.osgi.source_3.10.100.v20150529-1857.jar">
+		<accessrules>
+			<accessrule kind="discouraged" pattern="org/eclipse/core/runtime/adaptor/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/core/runtime/internal/adaptor/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/equinox/log/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/container/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/container/builders/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/container/namespaces/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/framework/console/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/framework/eventmgr/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/framework/internal/reliablefile/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/framework/log/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/framework/util/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/debug/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/framework/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/hookregistry/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/loader/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/loader/buddy/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/loader/classpath/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/loader/sources/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/location/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/messages/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/provisional/service/security/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/provisional/verifier/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/service/security/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/serviceregistry/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/signedcontent/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/internal/url/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/launch/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/report/resolution/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/datalocation/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/debug/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/environment/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/localization/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/pluginconversion/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/resolver/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/runnable/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/security/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/service/urlconversion/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/signedcontent/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/storage/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/storage/bundlefile/*"/>
+			<accessrule kind="discouraged" pattern="org/eclipse/osgi/storage/url/reference/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/storagemanager/*"/>
+			<accessrule kind="accessible" pattern="org/eclipse/osgi/util/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/bundle/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/resolver/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/service/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/hooks/weaving/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/launch/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/namespace/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/startlevel/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/startlevel/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/wiring/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/framework/wiring/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/resource/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/resource/dto/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/condpermadmin/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/log/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/packageadmin/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/permissionadmin/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/resolver/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/startlevel/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/service/url/*"/>
+			<accessrule kind="accessible" pattern="org/osgi/util/tracker/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="/de.bund.bfr.pmf"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

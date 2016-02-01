@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: FSK
+Bundle-SymbolicName: FSK;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: fskx.FSKNodePlugin
+Require-Bundle: org.knime.workbench.core,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.common;visibility:=reexport,
+ org.knime.core,
+ de.bund.bfr.pmf;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: BfR
+Export-Package: fskx.writer
+Bundle-ClassPath: fskNodes.jar
+

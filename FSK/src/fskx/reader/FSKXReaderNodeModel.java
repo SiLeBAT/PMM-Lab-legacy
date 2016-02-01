@@ -77,7 +77,7 @@ public class FSKXReaderNodeModel extends NodeModel {
     final String mainScript = metaDataNode.getMainScript();
     final String vizScript = metaDataNode.getVisualizationScript();
 
-    List<ArchiveEntry> rEntries = ca.getEntriesWithFormat(new RUri().createURI());
+    final List<ArchiveEntry> rEntries = ca.getEntriesWithFormat(new RUri().createURI());
 
     String mainScriptString = "";
     String vizScriptString = "";

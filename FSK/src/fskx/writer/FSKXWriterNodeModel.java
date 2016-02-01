@@ -60,32 +60,34 @@ public class FSKXWriterNodeModel extends NodeModel {
       final ExecutionContext exec) throws Exception {
 
     // Creates file for the CombineArchive
-    File caFile = new File(filePath.getStringValue());
+    final File caFile = new File(filePath.getStringValue());
     if (caFile.exists()) {
       caFile.delete();
     }
 
-    DataRow row = inData[0].iterator().next();
-    StringCell modelCell = (StringCell) row.getCell(1);
-    StringCell visualizationScriptCell = (StringCell) row.getCell(0);
+    // The input of the writer currently can be any table generated in KNIME that has the model
+    // script and the visualization script as the 1st and 2nd columns respectively. However, it
+    // is desirable to use FSKXTuple in the future.
+    final DataRow row = inData[0].iterator().next();
+    final StringCell modelCell = (StringCell) row.getCell(1);
+    final StringCell visualizationScriptCell = (StringCell) row.getCell(0);
 
     // Creates file with the R model
-    File rFile = File.createTempFile("rFile", "");
+    final File rFile = File.createTempFile("modelFile", "");
     rFile.deleteOnExit();
-    FileWriter fileWriter = new FileWriter(rFile);
-    fileWriter.write(modelCell.getStringValue());
-    fileWriter.close();
+    final FileWriter modelFileWriter = new FileWriter(rFile);
+    modelFileWriter.write(modelCell.getStringValue());
+    modelFileWriter.close();
 
     // Creates file with the visualization script
-    File visualizationFile = File.createTempFile("vizFile", "");
+    final File visualizationFile = File.createTempFile("vizFile", "");
     visualizationFile.deleteOnExit();
-    fileWriter = new FileWriter(visualizationFile);
-    fileWriter.write(visualizationScriptCell.getStringValue());
-    fileWriter.close();
+    final FileWriter vizFileWriter = new FileWriter(visualizationFile);
+    vizFileWriter.write(visualizationScriptCell.getStringValue());
+    vizFileWriter.close();
 
     final String mainScript = "model.R";
     final String visualizationScript = "visualization.R";
-    final Element node = new RMetaDataNode(mainScript, visualizationScript).getNode();
 
     // Creates CombineArchive and adds entries
     final URI rURI = new RUri().createURI();
@@ -93,6 +95,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     ca.addEntry(rFile, mainScript, rURI);
     ca.addEntry(visualizationFile, visualizationScript, rURI);
 
+    final Element node = new RMetaDataNode(mainScript, visualizationScript).getNode();
     ca.addDescription(new DefaultMetaDataObject(node));
     ca.pack();
     ca.close();

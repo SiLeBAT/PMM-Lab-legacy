@@ -210,7 +210,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     
     new SBMLWriter().write(sbmlDoc, sbmlTmp);
     final String sbmlDocName = sbmlDoc.getModel().getId() + ".pmf";
-    ca.addEntry(sbmlTmp, sbmlDocName, URIFactory.createSBMLURI());
+    ca.addEntry(sbmlTmp, sbmlDocName, URIFactory.createPMFURI());
 
     ca.pack();
     ca.close();

@@ -16,6 +16,7 @@
 		</option>
 	</fullDescription>
 	<ports>
-		<inPort index="0" name="Models"></inPort>
+		<outPort name="R code" index="0"></outPort>
+		<outPort name="Model metadata" index="1"></outPort>
 	</ports>
 </knimeNode>

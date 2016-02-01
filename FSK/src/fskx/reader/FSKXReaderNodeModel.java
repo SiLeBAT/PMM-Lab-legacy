@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Element;
@@ -39,7 +40,36 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.sbml.jsbml.AssignmentRule;
+import org.sbml.jsbml.Model;
+import org.sbml.jsbml.Parameter;
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
+import org.sbml.jsbml.Unit;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
+import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.reader.Util;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.dbutil.DBUnits;
+import de.bund.bfr.pmf.file.uri.URIFactory;
+import de.bund.bfr.pmf.sbml.Correlation;
+import de.bund.bfr.pmf.sbml.Limits;
+import de.bund.bfr.pmf.sbml.Model1Annotation;
+import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.PMFCompartment;
+import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.Reference;
+import de.bund.bfr.pmf.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import fskx.FSKXTuple;
@@ -58,8 +88,8 @@ public class FSKXReaderNodeModel extends NodeModel {
   private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
   protected FSKXReaderNodeModel() {
-    // 0 input ports and 1 input port
-    super(0, 1);
+    // 0 input ports and 2 input port
+    super(0, 2);
   }
 
   /** {@inheritDoc} */
@@ -94,6 +124,11 @@ public class FSKXReaderNodeModel extends NodeModel {
         vizScriptString = IOUtils.toString(vizScriptStream, "UTF-8");
       }
     }
+
+    final ArchiveEntry modelEntry = ca.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
+    final InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
+    final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
+
     ca.close();
 
     // Creates column spec, table spec and container
@@ -111,14 +146,20 @@ public class FSKXReaderNodeModel extends NodeModel {
     dataContainer.addRowToTable(row);
     dataContainer.close();
 
-    return new BufferedDataTable[] {dataContainer.getTable()};
+    // Creates model table spec and container
+    final DataTableSpec modelTableSpec = SchemaFactory.createM1DataSchema().createSpec();
+    final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
+    modelContainer.addRowToTable(processMetadata(sbmlDoc));
+    modelContainer.close();
+
+    return new BufferedDataTable[] { dataContainer.getTable(), modelContainer.getTable() };
   }
 
   /** {@inheritDoc} */
   @Override
   protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] {null};
+    return new DataTableSpec[] { null, null };
   }
 
   /** {@inheritDoc} */
@@ -153,5 +194,199 @@ public class FSKXReaderNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void reset() {}
+
+  private KnimeTuple processMetadata(final SBMLDocument sbmlDocument) {
+    /**
+     * <ol>
+     * <li>Gets SBML model
+     * <li>Parses annotation
+     * <li>Gets rule and converts it to CatalogModelXml
+     * <li>Parse constraints
+     * <li>Gets species
+     * <li>Gets dependent variable
+     * <li>Gets limits for the dependent variable
+     * <li>Parse independent variables
+     * <li>Gets limits for the independent variables
+     * <li>Parse independent variables
+     * <li>Gets limits for the independent variables
+     * <li>Parse constant parameters
+     * <li>Creates EstModelXml
+     * <li>Creates PMFCompartment
+     * <li>Reads model literature
+     * <li>Reads estimated model literature
+     * <li>Creates and returns tuple
+     */ 
+
+    // Gets SBML model
+    final Model model = sbmlDocument.getModel();
+
+    // Parses annotation
+    final Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
+
+    // Gets rule and converts it to CatalogModelXml
+    final ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+    final int formulaId = rule.getPmmlabID();
+    final String formulaName = rule.getFormulaName();
+    final int modelClass = rule.getModelClass().ordinal();
+    final CatalogModelXml catModel = new CatalogModelXml(formulaId, formulaName, null, modelClass);
+
+    // Parse constraints
+    final Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
+
+    // Gets species
+    final PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+
+    // Gets dependent variable
+    final DepXml depXml = new DepXml("Value");
+    final String depUnitID = species.getUnits();
+    if (depUnitID != null) {
+      if (depUnitID.equals("dimensionless")) {
+        depXml.setUnit("dimensionless");
+        depXml.setCategory("Dimensionless quantity");
+      } else {
+        final String depUnitName = model.getUnitDefinition(depUnitID).getName();
+        depXml.setUnit(depUnitName);
+        if (DBUnits.getDBUnits().containsKey(depUnitName)) {
+          depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+        }
+      }
+    }
+    if (species.isSetDescription()) {
+      depXml.setDescription(species.getDescription());
+    }
+
+    // Gets limits for the dependent variable
+    if (limits.containsKey(species.getId())) {
+      final Limits depLimits = limits.get(species.getId());
+      depXml.setMax(depLimits.getMax());
+      depXml.setMin(depLimits.getMin());
+    }
+
+    // Parse independent variables
+    final Parameter indepParam = model.getParameter(Categories.getTime());
+    final IndepXml indepXml = new IndepXml(indepParam.getId(), null, null);
+    final String indepUnitID = indepParam.getUnits();
+    if (!indepUnitID.isEmpty() && !indepUnitID.equalsIgnoreCase(Unit.Kind.DIMENSIONLESS.getName())) {
+      final String unitName = model.getUnitDefinition(indepUnitID).getName();
+      indepXml.setUnit(unitName);
+      indepXml.setCategory(Categories.getTimeCategory().getName());
+      indepXml.setDescription(Categories.getTime());
+    }
+
+    // Get limits for the independent variable
+    if (limits.containsKey(indepParam.getId())) {
+      final Limits indepLimits = limits.get(indepParam.getId());
+      indepXml.setMax(indepLimits.getMax());
+      indepXml.setMin(indepLimits.getMin());
+    }
+
+    // Parse constant parameters
+    final PmmXmlDoc paramCell = new PmmXmlDoc();
+    for (final Parameter param : model.getListOfParameters()) {
+      if (!param.isConstant())
+        continue;
+
+      final ParamXml paramXml = new ParamXml(param.getId(), null, param.getValue());
+
+      final String unitID = param.getUnits();
+      if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
+        final String unitName = model.getUnitDefinition(unitID).getName();
+        paramXml.setUnit(unitName);
+        if (DBUnits.getDBUnits().containsKey(unitName)) {
+          paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+        }
+      }
+
+      final PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(param);
+      if (coefficient.isSetP()) {
+        paramXml.setP(coefficient.getP());
+      }
+      if (coefficient.isSetError()) {
+        paramXml.setError(coefficient.getError());
+      }
+      if (coefficient.isSetT()) {
+        paramXml.setT(coefficient.getT());
+      }
+      if (coefficient.isSetDescription()) {
+        paramXml.setDescription(coefficient.getDescription());
+      }
+      if (coefficient.isSetCorrelations()) {
+        for (Correlation correlation : coefficient.getCorrelations()) {
+          paramXml.addCorrelation(correlation.getName(), correlation.getValue());
+        }
+      }
+      // Adds limits
+      if (limits.containsKey(param.getId())) {
+        final Limits constLimits = limits.get(param.getId());
+        paramXml.setMax(constLimits.getMax());
+        paramXml.setMin(constLimits.getMin());
+      }
+      paramCell.add(paramXml);
+    }
+
+    // Creates EstModelXml
+    final EstModelXml estModel = Util.uncertainties2EstModel(m1Annot.getUncertainties());
+    if (model.isSetName()) {
+      estModel.setName(model.getName());
+    }
+
+    // Creates PMFCompartment
+    final PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+
+    // Reads model literature
+    final PmmXmlDoc mLit = new PmmXmlDoc();
+    for (final Reference ref : rule.getReferences()) {
+      final String author = ref.getAuthor();
+      final Integer year = ref.getYear();
+      final String title = ref.getTitle();
+      final String abstractText = ref.getAbstractText();
+      final String journal = ref.getJournal();
+      final String volume = ref.getVolume();
+      final String issue = ref.getIssue();
+      final Integer page = ref.getPage();
+      final Integer approvalMode = ref.getApprovalMode();
+      final String website = ref.getWebsite();
+      final Integer type = ref.isSetType() ? ref.getType().value() : null;
+      final String comment = ref.getComment();
+
+      final LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal,
+        volume, issue, page, approvalMode, website, type, comment);
+      mLit.add(lit);
+    }
+
+    // Reads estimated model literature
+    final PmmXmlDoc emLit = new PmmXmlDoc();
+    for (final Reference ref : rule.getReferences()) {
+      final String author = ref.getAuthor();
+      final Integer year = ref.getYear();
+      final String title = ref.getTitle();
+      final String abstractText = ref.getAbstractText();
+      final String journal = ref.getJournal();
+      final String volume = ref.getVolume();
+      final String issue = ref.getIssue();
+      final Integer page = ref.getPage();
+      final Integer approvalMode = ref.getApprovalMode();
+      final String website = ref.getWebsite();
+      final Integer type = ref.isSetType() ? ref.getType().value() : null;
+      final String comment = ref.getComment();
+
+      final LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal,
+        volume, issue, page, approvalMode, website, type, comment);
+      emLit.add(lit);
+    }
+
+    // Creates and return tuple
+    final KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
+    tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+    tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+    tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
+    tuple.setValue(Model1Schema.ATT_PARAMETER, paramCell);
+    tuple.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+    tuple.setValue(Model1Schema.ATT_MLIT, mLit);
+    tuple.setValue(Model1Schema.ATT_EMLIT, emLit);
+    tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
+    tuple.setValue(Model1Schema.ATT_DBUUID, "?");
+    return tuple;
+  }
 
 }

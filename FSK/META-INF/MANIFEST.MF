@@ -14,4 +14,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
 Export-Package: fskx.writer
 Bundle-ClassPath: fskNodes.jar
+Import-Package: de.bund.bfr.knime.pmm.common.writer
 

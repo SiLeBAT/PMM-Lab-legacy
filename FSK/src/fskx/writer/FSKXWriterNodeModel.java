@@ -145,28 +145,16 @@ public class FSKXWriterNodeModel extends NodeModel {
     final DataRow row = inData[0].iterator().next();
     final StringCell modelCell = (StringCell) row.getCell(1);
     final StringCell paramsScriptCell = (StringCell) row.getCell(2);
-    final StringCell visualizationScriptCell = (StringCell) row.getCell(0);
+    final StringCell vizScriptCell = (StringCell) row.getCell(0);
 
     // Creates file with the R model
-    final File rFile = File.createTempFile("modelFile", "");
-    rFile.deleteOnExit();
-    final FileWriter modelFileWriter = new FileWriter(rFile);
-    modelFileWriter.write(modelCell.getStringValue());
-    modelFileWriter.close();
-
+    final File rFile = writeToTempFile(modelCell.getStringValue());
+    
     // Creates file with the parameters
-    final File paramFile = File.createTempFile("paramFile", "");
-    paramFile.deleteOnExit();
-    final FileWriter paramFileWriter = new FileWriter(paramFile);
-    paramFileWriter.write(paramsScriptCell.getStringValue());
-    paramFileWriter.close();
+    final File paramFile = writeToTempFile(paramsScriptCell.getStringValue());
 
     // Creates file with the visualization script
-    final File visualizationFile = File.createTempFile("vizFile", "");
-    visualizationFile.deleteOnExit();
-    final FileWriter vizFileWriter = new FileWriter(visualizationFile);
-    vizFileWriter.write(visualizationScriptCell.getStringValue());
-    vizFileWriter.close();
+    final File vizFile = writeToTempFile(vizScriptCell.getStringValue());
 
     final String mainScript = "model.R";
     final String paramsScript = "params.R";
@@ -177,7 +165,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     CombineArchive ca = new CombineArchive(new File(filePath.getStringValue()));
     ca.addEntry(rFile, mainScript, rURI);
     ca.addEntry(paramFile, paramsScript, rURI);
-    ca.addEntry(visualizationFile, visualizationScript, rURI);
+    ca.addEntry(vizFile, visualizationScript, rURI);
 
     final Element node = new RMetaDataNode(mainScript, paramsScript, visualizationScript).getNode();
     ca.addDescription(new DefaultMetaDataObject(node));
@@ -452,6 +440,16 @@ public class FSKXWriterNodeModel extends NodeModel {
     model.addRule(rule);
 
     return sbmlDocument;
+  }
+
+  private File writeToTempFile(final String content) throws IOException {
+    final File tempFile = File.createTempFile("tmpFile", "");
+    tempFile.deleteOnExit();
+    final FileWriter fileWriter = new FileWriter(tempFile);
+    fileWriter.write(content);
+    fileWriter.close();
+    
+    return tempFile;
   }
 }
 

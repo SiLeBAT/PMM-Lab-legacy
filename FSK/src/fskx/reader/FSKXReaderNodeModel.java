@@ -120,21 +120,17 @@ public class FSKXReaderNodeModel extends NodeModel {
     String mainScriptString = "";
     String paramsScriptString = "";
     String vizScriptString = "";
-    for (ArchiveEntry entry : rEntries) {
-      if (entry.getFileName().equals(mainScript)) {
-        // Deals with main script
-        final InputStream mainScriptStream =
-            Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-        mainScriptString = IOUtils.toString(mainScriptStream, "UTF-8");
-      } else if (entry.getFileName().equals(paramsScript)) {
-        // Deals with parameters script
-        final InputStream paramsScriptStream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-        paramsScriptString = IOUtils.toString(paramsScriptStream, "UTF-8");
-      } else if (entry.getFileName().equals(vizScript)) {
-        // Deals with viz script
-        final InputStream vizScriptStream =
-            Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-        vizScriptString = IOUtils.toString(vizScriptStream, "UTF-8");
+    for (final ArchiveEntry entry : rEntries) {
+      final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
+      final String entryContent = IOUtils.toString(stream, "UTF-8");
+      final String filename = entry.getFileName();
+
+      if (filename.equals(mainScript)) {
+        mainScriptString = entryContent;
+      } else if (filename.equals(paramsScript)) {
+        paramsScriptString = entryContent;
+      } else if (filename.equals(vizScript)) {
+        vizScriptString = entryContent;
       }
     }
 
@@ -148,7 +144,7 @@ public class FSKXReaderNodeModel extends NodeModel {
     final DataColumnSpecCreator mainScriptSpecCreator =
         new DataColumnSpecCreator("RModel", StringCell.TYPE);
     final DataColumnSpecCreator paramsScriptSpecCreator =
-      new DataColumnSpecCreator("Parameters", StringCell.TYPE);
+        new DataColumnSpecCreator("Parameters", StringCell.TYPE);
     final DataColumnSpecCreator vizScriptSpecCreator =
         new DataColumnSpecCreator("Visualization", StringCell.TYPE);
     final DataColumnSpec[] colSpec = new DataColumnSpec[] {mainScriptSpecCreator.createSpec(),

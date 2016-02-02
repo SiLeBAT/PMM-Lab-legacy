@@ -29,16 +29,17 @@ public class FSKXTuple implements DataRow {
   private DataCell[] cell;
   private final RowKey key;
 
-  public FSKXTuple(final String modelScript, final String vizScript) {
+  public FSKXTuple(final String modelScript, final String paramScript, final String vizScript) {
     cell = new DataCell[2];
     cell[0] = new StringCell(modelScript);
     cell[1] = new StringCell(vizScript);
+    cell[2] = new StringCell(paramScript);
     key = new RowKey(String.valueOf(new Random().nextInt()));
   }
 
   @Override
   public int getNumCells() {
-    return 2;
+    return cell.length;
   }
 
   @Override

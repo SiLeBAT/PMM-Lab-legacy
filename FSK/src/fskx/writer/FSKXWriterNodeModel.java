@@ -144,6 +144,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     // is desirable to use FSKXTuple in the future.
     final DataRow row = inData[0].iterator().next();
     final StringCell modelCell = (StringCell) row.getCell(1);
+    final StringCell paramsScriptCell = (StringCell) row.getCell(2);
     final StringCell visualizationScriptCell = (StringCell) row.getCell(0);
 
     // Creates file with the R model
@@ -153,6 +154,13 @@ public class FSKXWriterNodeModel extends NodeModel {
     modelFileWriter.write(modelCell.getStringValue());
     modelFileWriter.close();
 
+    // Creates file with the parameters
+    final File paramFile = File.createTempFile("paramFile", "");
+    paramFile.deleteOnExit();
+    final FileWriter paramFileWriter = new FileWriter(paramFile);
+    paramFileWriter.write(paramsScriptCell.getStringValue());
+    paramFileWriter.close();
+
     // Creates file with the visualization script
     final File visualizationFile = File.createTempFile("vizFile", "");
     visualizationFile.deleteOnExit();
@@ -161,15 +169,17 @@ public class FSKXWriterNodeModel extends NodeModel {
     vizFileWriter.close();
 
     final String mainScript = "model.R";
+    final String paramsScript = "params.R";
     final String visualizationScript = "visualization.R";
 
     // Creates CombineArchive and adds entries
     final URI rURI = new RUri().createURI();
     CombineArchive ca = new CombineArchive(new File(filePath.getStringValue()));
     ca.addEntry(rFile, mainScript, rURI);
+    ca.addEntry(paramFile, paramsScript, rURI);
     ca.addEntry(visualizationFile, visualizationScript, rURI);
 
-    final Element node = new RMetaDataNode(mainScript, visualizationScript).getNode();
+    final Element node = new RMetaDataNode(mainScript, paramsScript, visualizationScript).getNode();
     ca.addDescription(new DefaultMetaDataObject(node));
 
     // Handles model metadata table

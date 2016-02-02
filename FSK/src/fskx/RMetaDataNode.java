@@ -22,21 +22,29 @@ package fskx;
 import org.jdom2.Element;
 
 /**
- * Keeps the names of the main script and the visualization script.
+ * Keeps the names of the R scripts:
+ * <ul>
+ * <li>main script
+ * <li>visualization script
+ * <li>parameters script
  *
  * @author Miguel de Alba
  */
 public class RMetaDataNode {
 
 	private static final String MAIN_SCRIPT_TAG = "mainScript";
+	private static final String PARAM_SCRIPT_TAG = "parametersScript";
 	private static final String VIZ_SCRIPT_TAG = "visualizationScript";
 
 	private String mainScript;
+	private String paramsScript;
 	private String vizScript;
 	private Element node;
 
-	public RMetaDataNode(final String mainScript, final String vizScript) {
+	public RMetaDataNode(final String mainScript, final String paramsScript, final String
+		vizScript) {
 		this.mainScript = mainScript;
+		this.paramsScript = paramsScript;
 		this.vizScript = vizScript;
 
 		node = new Element("metaParent");
@@ -46,6 +54,11 @@ public class RMetaDataNode {
 		mainScriptElement.addContent(mainScript);
 		node.addContent(mainScriptElement);
 
+		// Parameters script annotation
+		final Element paramsScriptElement = new Element("paramsScript");
+		paramsScriptElement.addContent(paramsScript);
+		node.addContent(paramsScriptElement);
+
 		// Visualization script annotation
 		final Element vizScriptElement = new Element("visualizationScript");
 		vizScriptElement.addContent(vizScript);
@@ -54,12 +67,17 @@ public class RMetaDataNode {
 
 	public RMetaDataNode(final Element node) {
 		mainScript = node.getChildText(MAIN_SCRIPT_TAG);
+		paramsScript = node.getChildText(PARAM_SCRIPT_TAG);
 		vizScript = node.getChildText(VIZ_SCRIPT_TAG);
 		this.node = node;
 	}
 
 	public String getMainScript() {
 		return mainScript;
+	}
+
+	public String getParametersScript() {
+		return paramsScript;
 	}
 
 	public String getVisualizationScript() {

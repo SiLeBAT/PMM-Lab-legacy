@@ -112,11 +112,13 @@ public class FSKXReaderNodeModel extends NodeModel {
     final RMetaDataNode metaDataNode = new RMetaDataNode(xmlElement);
 
     final String mainScript = metaDataNode.getMainScript();
+    final String paramsScript = metaDataNode.getParametersScript();
     final String vizScript = metaDataNode.getVisualizationScript();
 
     final List<ArchiveEntry> rEntries = ca.getEntriesWithFormat(new RUri().createURI());
 
     String mainScriptString = "";
+    String paramsScriptString = "";
     String vizScriptString = "";
     for (ArchiveEntry entry : rEntries) {
       if (entry.getFileName().equals(mainScript)) {
@@ -124,6 +126,10 @@ public class FSKXReaderNodeModel extends NodeModel {
         final InputStream mainScriptStream =
             Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
         mainScriptString = IOUtils.toString(mainScriptStream, "UTF-8");
+      } else if (entry.getFileName().equals(paramsScript)) {
+        // Deals with parameters script
+        final InputStream paramsScriptStream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
+        paramsScriptString = IOUtils.toString(paramsScriptStream, "UTF-8");
       } else if (entry.getFileName().equals(vizScript)) {
         // Deals with viz script
         final InputStream vizScriptStream =
@@ -141,15 +147,17 @@ public class FSKXReaderNodeModel extends NodeModel {
     // Creates column spec, table spec and container
     final DataColumnSpecCreator mainScriptSpecCreator =
         new DataColumnSpecCreator("RModel", StringCell.TYPE);
+    final DataColumnSpecCreator paramsScriptSpecCreator =
+      new DataColumnSpecCreator("Parameters", StringCell.TYPE);
     final DataColumnSpecCreator vizScriptSpecCreator =
         new DataColumnSpecCreator("Visualization", StringCell.TYPE);
     final DataColumnSpec[] colSpec = new DataColumnSpec[] {mainScriptSpecCreator.createSpec(),
-        vizScriptSpecCreator.createSpec()};
+        paramsScriptSpecCreator.createSpec(), vizScriptSpecCreator.createSpec()};
     final DataTableSpec tableSpec = new DataTableSpec(colSpec);
     final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
-    final FSKXTuple row = new FSKXTuple(mainScriptString, vizScriptString);
+    final FSKXTuple row = new FSKXTuple(mainScriptString, paramsScriptString, vizScriptString);
     dataContainer.addRowToTable(row);
     dataContainer.close();
 

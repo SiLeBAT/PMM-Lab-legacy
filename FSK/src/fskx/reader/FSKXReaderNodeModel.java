@@ -16,14 +16,19 @@
  *******************************************************************************/
 package fskx.reader;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Element;
@@ -134,6 +139,9 @@ public class FSKXReaderNodeModel extends NodeModel {
       }
     }
 
+    final List<String> mainScriptLines = extractLinesFromText(mainScriptString);
+    final List<String> mainScriptLibs = extractLibrariesFromLines(mainScriptLines);
+
     final ArchiveEntry modelEntry = ca.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
     final InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
     final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
@@ -147,13 +155,17 @@ public class FSKXReaderNodeModel extends NodeModel {
         new DataColumnSpecCreator("Parameters", StringCell.TYPE);
     final DataColumnSpecCreator vizScriptSpecCreator =
         new DataColumnSpecCreator("Visualization", StringCell.TYPE);
+    final DataColumnSpecCreator rLibsSpecCreator =
+        new DataColumnSpecCreator("RLibraries", StringCell.TYPE);
     final DataColumnSpec[] colSpec = new DataColumnSpec[] {mainScriptSpecCreator.createSpec(),
-        paramsScriptSpecCreator.createSpec(), vizScriptSpecCreator.createSpec()};
+        paramsScriptSpecCreator.createSpec(), vizScriptSpecCreator.createSpec(),
+        rLibsSpecCreator.createSpec()};
     final DataTableSpec tableSpec = new DataTableSpec(colSpec);
     final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
-    final FSKXTuple row = new FSKXTuple(mainScriptString, paramsScriptString, vizScriptString);
+    final FSKXTuple row = new FSKXTuple(mainScriptString, paramsScriptString, vizScriptString,
+      mainScriptLibs);
     dataContainer.addRowToTable(row);
     dataContainer.close();
 
@@ -434,4 +446,60 @@ public class FSKXReaderNodeModel extends NodeModel {
     return tuple;
   }
 
+  /**
+   * Reads all the lines in a text string. Skips empty lines or lines with only whitespace
+   * characters (tabs, newline, ...).
+   * 
+   * @param text
+   * @return List of lines.
+   */
+  private List<String> extractLinesFromText(final String text) {
+    final List<String> lines = new LinkedList<>();
+    final BufferedReader reader = new BufferedReader(new StringReader(text));
+
+    while (true) {
+      String line;
+      try {
+        line = reader.readLine();
+        if (line == null) {
+          break;
+        } else {
+          line = line.trim(); // Remove leading and trailing whitespace
+          if (!line.isEmpty()) {
+            lines.add(line);
+          }
+        }
+      } catch (IOException e) {
+        // If an I/O error occurs while reading this line, skips this line
+        e.printStackTrace();
+      }
+    }
+
+    return lines;
+  }
+
+  /**
+   * Obtain the libraries used in a list of lines from an R code.
+   * 
+   * @param lines Lines from an R code.
+   * @return List of libraries names.
+   */
+  private List<String> extractLibrariesFromLines(final List<String> lines) {
+    final List<String> libraryNames = new LinkedList<>();
+
+    final String regex1 = "^\\s*\\b(library|require)\\((\"?.+\"?)\\)";
+    // final String regex2 = "library|require\((\w)\)";
+
+    final Pattern PATTERN = Pattern.compile(regex1);
+    for (final String line : lines) {
+      final Matcher matcher = PATTERN.matcher(line);
+      if (matcher.find()) {
+        final String libraryName = matcher.group(2).replace("\"", "");
+        System.out.println(libraryName);
+        libraryNames.add(libraryName);
+      }
+    }
+
+    return libraryNames;
+  }
 }

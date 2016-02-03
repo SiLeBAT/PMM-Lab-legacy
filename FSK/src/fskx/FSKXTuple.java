@@ -17,6 +17,7 @@
 package fskx;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import org.knime.core.data.DataCell;
@@ -29,11 +30,13 @@ public class FSKXTuple implements DataRow {
   private DataCell[] cell;
   private final RowKey key;
 
-  public FSKXTuple(final String modelScript, final String paramScript, final String vizScript) {
-    cell = new DataCell[3];
+  public FSKXTuple(final String modelScript, final String paramScript, final String vizScript,
+      final List<String> libraries) {
+    cell = new DataCell[4];
     cell[0] = new StringCell(modelScript);
     cell[1] = new StringCell(paramScript);
     cell[2] = new StringCell(vizScript);
+    cell[3] = new StringCell(String.join("|", libraries));
     key = new RowKey(String.valueOf(new Random().nextInt()));
   }
 

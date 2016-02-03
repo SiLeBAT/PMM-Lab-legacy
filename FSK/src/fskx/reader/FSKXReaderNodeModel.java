@@ -24,9 +24,11 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -142,6 +144,14 @@ public class FSKXReaderNodeModel extends NodeModel {
     final List<String> mainScriptLines = extractLinesFromText(mainScriptString);
     final List<String> mainScriptLibs = extractLibrariesFromLines(mainScriptLines);
 
+    final List<String> paramsScriptLines = extractLinesFromText(paramsScriptString);
+    final List<String> paramsScriptLibs = extractLibrariesFromLines(paramsScriptLines);
+
+    // Builds set of libraries
+    final Set<String> librariesSet = new HashSet<>();
+    librariesSet.addAll(mainScriptLibs);
+    librariesSet.addAll(paramsScriptLibs);
+
     final ArchiveEntry modelEntry = ca.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
     final InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
     final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
@@ -165,7 +175,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
     // Adds row and closes the container
     final FSKXTuple row = new FSKXTuple(mainScriptString, paramsScriptString, vizScriptString,
-      mainScriptLibs);
+      librariesSet);
     dataContainer.addRowToTable(row);
     dataContainer.close();
 

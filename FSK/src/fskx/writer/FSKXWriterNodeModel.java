@@ -143,9 +143,9 @@ public class FSKXWriterNodeModel extends NodeModel {
     // script and the visualization script as the 1st and 2nd columns respectively. However, it
     // is desirable to use FSKXTuple in the future.
     final DataRow row = inData[0].iterator().next();
-    final StringCell modelCell = (StringCell) row.getCell(1);
-    final StringCell paramsScriptCell = (StringCell) row.getCell(2);
-    final StringCell vizScriptCell = (StringCell) row.getCell(0);
+    final StringCell modelCell = (StringCell) row.getCell(0);
+    final StringCell paramsScriptCell = (StringCell) row.getCell(1);
+    final StringCell vizScriptCell = (StringCell) row.getCell(2);
 
     // Creates file with the R model
     final File rFile = writeToTempFile(modelCell.getStringValue());

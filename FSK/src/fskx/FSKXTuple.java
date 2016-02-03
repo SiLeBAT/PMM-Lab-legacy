@@ -32,8 +32,8 @@ public class FSKXTuple implements DataRow {
   public FSKXTuple(final String modelScript, final String paramScript, final String vizScript) {
     cell = new DataCell[3];
     cell[0] = new StringCell(modelScript);
-    cell[1] = new StringCell(vizScript);
-    cell[2] = new StringCell(paramScript);
+    cell[1] = new StringCell(paramScript);
+    cell[2] = new StringCell(vizScript);
     key = new RowKey(String.valueOf(new Random().nextInt()));
   }
 

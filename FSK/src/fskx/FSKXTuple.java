@@ -30,7 +30,7 @@ public class FSKXTuple implements DataRow {
   private final RowKey key;
 
   public FSKXTuple(final String modelScript, final String paramScript, final String vizScript) {
-    cell = new DataCell[2];
+    cell = new DataCell[3];
     cell[0] = new StringCell(modelScript);
     cell[1] = new StringCell(vizScript);
     cell[2] = new StringCell(paramScript);

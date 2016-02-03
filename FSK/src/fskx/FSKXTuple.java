@@ -31,12 +31,13 @@ public class FSKXTuple implements DataRow {
   private final RowKey key;
 
   public FSKXTuple(final String modelScript, final String paramScript, final String vizScript,
-      final Set<String> libraries) {
-    cell = new DataCell[4];
+      final Set<String> libraries, final Set<String> sources) {
+    cell = new DataCell[5];
     cell[0] = new StringCell(modelScript);
     cell[1] = new StringCell(paramScript);
     cell[2] = new StringCell(vizScript);
     cell[3] = new StringCell(String.join("|", libraries));
+    cell[4] = new StringCell(String.join("|", sources));
     key = new RowKey(String.valueOf(new Random().nextInt()));
   }
 

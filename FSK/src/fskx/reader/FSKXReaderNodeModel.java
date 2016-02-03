@@ -141,16 +141,25 @@ public class FSKXReaderNodeModel extends NodeModel {
       }
     }
 
+    // Extract libraries and sources from the main script
     final List<String> mainScriptLines = extractLinesFromText(mainScriptString);
     final List<String> mainScriptLibs = extractLibrariesFromLines(mainScriptLines);
+    final List<String> mainScriptSources = extractSourcesFromLines(mainScriptLines);
 
+    // Extract libraries and sources from the parameters script
     final List<String> paramsScriptLines = extractLinesFromText(paramsScriptString);
     final List<String> paramsScriptLibs = extractLibrariesFromLines(paramsScriptLines);
+    final List<String> paramsScriptSources = extractSourcesFromLines(paramsScriptLines);
 
     // Builds set of libraries
     final Set<String> librariesSet = new HashSet<>();
     librariesSet.addAll(mainScriptLibs);
     librariesSet.addAll(paramsScriptLibs);
+
+    // Builds set of sources
+    final Set<String> sourcesSet = new HashSet<>();
+    sourcesSet.addAll(mainScriptSources);
+    sourcesSet.addAll(paramsScriptSources);
 
     final ArchiveEntry modelEntry = ca.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
     final InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
@@ -167,15 +176,19 @@ public class FSKXReaderNodeModel extends NodeModel {
         new DataColumnSpecCreator("Visualization", StringCell.TYPE);
     final DataColumnSpecCreator rLibsSpecCreator =
         new DataColumnSpecCreator("RLibraries", StringCell.TYPE);
+    final DataColumnSpecCreator rSourcesSpecCreator =
+        new DataColumnSpecCreator("RSources", StringCell.TYPE);
+
+
     final DataColumnSpec[] colSpec = new DataColumnSpec[] {mainScriptSpecCreator.createSpec(),
         paramsScriptSpecCreator.createSpec(), vizScriptSpecCreator.createSpec(),
-        rLibsSpecCreator.createSpec()};
+        rLibsSpecCreator.createSpec(), rSourcesSpecCreator.createSpec()};
     final DataTableSpec tableSpec = new DataTableSpec(colSpec);
     final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
     final FSKXTuple row = new FSKXTuple(mainScriptString, paramsScriptString, vizScriptString,
-      librariesSet);
+        librariesSet, sourcesSet);
     dataContainer.addRowToTable(row);
     dataContainer.close();
 
@@ -505,11 +518,34 @@ public class FSKXReaderNodeModel extends NodeModel {
       final Matcher matcher = PATTERN.matcher(line);
       if (matcher.find()) {
         final String libraryName = matcher.group(2).replace("\"", "");
-        System.out.println(libraryName);
         libraryNames.add(libraryName);
       }
     }
 
     return libraryNames;
+  }
+
+  /**
+   * Obtain the sources files used in a list of lines from an R code.
+   * 
+   * @param lines Lines from an R code.
+   * @return List of source filenames.
+   */
+  private List<String> extractSourcesFromLines(final List<String> lines) {
+    final List<String> sourceNames = new LinkedList<>();
+
+    final String regex1 = "^\\s*\\b(source)\\((\"?.+\"?)\\)";
+    // final String regex2 = "library|require\((\w)\)";
+
+    final Pattern PATTERN = Pattern.compile(regex1);
+    for (final String line : lines) {
+      final Matcher matcher = PATTERN.matcher(line);
+      if (matcher.find()) {
+        final String sourceName = matcher.group(2).replace("\"", "");
+        sourceNames.add(sourceName);
+      }
+    }
+
+    return sourceNames;
   }
 }

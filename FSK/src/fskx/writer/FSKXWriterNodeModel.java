@@ -149,7 +149,7 @@ public class FSKXWriterNodeModel extends NodeModel {
 
     // Creates file with the R model
     final File rFile = writeToTempFile(modelCell.getStringValue());
-    
+
     // Creates file with the parameters
     final File paramFile = writeToTempFile(paramsScriptCell.getStringValue());
 
@@ -202,10 +202,10 @@ public class FSKXWriterNodeModel extends NodeModel {
     }
 
     final SBMLDocument sbmlDoc = createSBMLDocument(tuple, metadata, notes.getStringValue());
-    
+
     final File sbmlTmp = File.createTempFile("tempSbml", "");
     sbmlTmp.deleteOnExit();
-    
+
     new SBMLWriter().write(sbmlDoc, sbmlTmp);
     final String sbmlDocName = sbmlDoc.getModel().getId() + ".pmf";
     ca.addEntry(sbmlTmp, sbmlDocName, URIFactory.createPMFURI());
@@ -448,7 +448,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     final FileWriter fileWriter = new FileWriter(tempFile);
     fileWriter.write(content);
     fileWriter.close();
-    
+
     return tempFile;
   }
 }

@@ -5,18 +5,32 @@
 	<name>FSKX Writer</name>
 
 	<shortDescription>
+	This node writes R scripts and model model metadata into a FSKX file.
     </shortDescription>
 
 	<fullDescription>
 		<intro>
+			This node creates a FSKX with the following structure:
+			<ul>
+				<li>Model script</li>
+				<li>Parameters script</li>
+				<li>Visualization script</li>
+			</ul>
 		</intro>
-		<option name="Output Path">
-		</option>
-		<option name="Model Name">
-		</option>
+		<option name="Output Path">File path of the generated FSKX file.</option>
+		<option name="creatorGivenName">Creator given name</option>
+		<option name="creatorFamilyName">Creator family name</option>
+		<option name="creatorContact">Creator contact</option>
+		<option name="createdDate">Creation date</option>
+		<option name="modifiedDate">Last modification date</option>
+		<option name="refDescLink">Model reference description link</option>
+		<option name="license">License</option>
+		<option name="notes">Handwritten notes</option>
 	</fullDescription>
+
 	<ports>
-		<inPort index="0" name="R code"></inPort>
-		<inPort name="Model metadata" index="1"></inPort>
+		<inPort index="0" name="R code">R scripts: model, parameters and
+			visualization scripts</inPort>
+		<inPort name="Model metadata" index="1">Model meta data</inPort>
 	</ports>
 </knimeNode>

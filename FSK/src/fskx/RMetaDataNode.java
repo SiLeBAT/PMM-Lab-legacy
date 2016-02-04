@@ -46,17 +46,17 @@ public class RMetaDataNode {
     node = new Element("metaParent");
 
     // Main script annotation
-    final Element mainScriptElement = new Element("mainScript");
+    final Element mainScriptElement = new Element(MAIN_SCRIPT_TAG);
     mainScriptElement.addContent(mainScript);
     node.addContent(mainScriptElement);
 
     // Parameters script annotation
-    final Element paramsScriptElement = new Element("paramsScript");
+    final Element paramsScriptElement = new Element(PARAM_SCRIPT_TAG);
     paramsScriptElement.addContent(paramsScript);
     node.addContent(paramsScriptElement);
 
     // Visualization script annotation
-    final Element vizScriptElement = new Element("visualizationScript");
+    final Element vizScriptElement = new Element(VIZ_SCRIPT_TAG);
     vizScriptElement.addContent(vizScript);
     node.addContent(vizScriptElement);
   }

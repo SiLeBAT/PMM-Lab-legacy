@@ -1,34 +1,39 @@
 /*******************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
  *
- * Contributors:
- *     Department Biological Safety - BfR
+ * Contributors: Department Biological Safety - BfR
  *******************************************************************************/
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.xml.sax.SAXException;
 
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
@@ -38,6 +43,7 @@ import de.bund.bfr.pmf.numl.NuMLReader;
 import de.bund.bfr.pmf.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -47,78 +53,124 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  */
 public class ExperimentalDataFile {
 
-	private static final URI numlURI = URIFactory.createNuMLURI();
+  private static final URI numlURI = URIFactory.createNuMLURI();
 
-	private ExperimentalDataFile() {
-	}
+  private ExperimentalDataFile() {}
 
-	public static List<ExperimentalData> readPMF(String filename) throws Exception {
-		return read(filename);
-	}
+  public static List<ExperimentalData> readPMF(final String filename)
+      throws CombineArchiveException {
+    return read(filename);
+  }
 
-	public static List<ExperimentalData> readPMFX(String filename) throws Exception {
-		return read(filename);
-	}
+  public static List<ExperimentalData> readPMFX(final String filename)
+      throws CombineArchiveException {
+    return read(filename);
+  }
 
-	public static void writePMF(String dir, String filename, List<ExperimentalData> dataRecords) throws Exception {
-		String caName = String.format("%s/%s.pmf", dir, filename);
-		write(caName, dataRecords);
-	}
+  public static void writePMF(final String dir, final String filename,
+      List<ExperimentalData> dataRecords) throws CombineArchiveException {
+    String caName = String.format("%s/%s.pmf", dir, filename);
+    write(caName, dataRecords);
+  }
 
-	public static void writePMFX(String dir, String filename, List<ExperimentalData> dataRecords) throws Exception {
-		String caName = String.format("%s/%s.pmfx", dir, filename);
-		write(caName, dataRecords);
-	}
+  public static void writePMFX(final String dir, final String filename,
+      List<ExperimentalData> dataRecords) throws CombineArchiveException {
+    String caName = String.format("%s/%s.pmfx", dir, filename);
+    write(caName, dataRecords);
+  }
 
-	private static List<ExperimentalData> read(String filename) throws Exception {
-		List<ExperimentalData> dataRecords = new LinkedList<>();
+  /**
+   * Reads experimental data files from a PMF or PMFX file. Faulty data files are skipped.
+   * 
+   * @param filename
+   * @return List of experimental data files
+   * @throws CombineArchiveException if the CombineArchive could not be opened or closed properly
+   */
+  private static List<ExperimentalData> read(final String filename) throws CombineArchiveException {
 
-		// Creates Combine Archive
-		CombineArchive ca = new CombineArchive(new File(filename));
+    final CombineArchive combineArchive;
+    try {
+      combineArchive = new CombineArchive(new File(filename));
+    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
+      throw new CombineArchiveException(filename + " could not opened");
+    }
 
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(numlURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			String docName = entry.getFileName();
-			NuMLDocument doc = NuMLReader.read(stream);
-			stream.close();
+    final List<ExperimentalData> dataRecords = new LinkedList<>();
 
-			ExperimentalData ed = new ExperimentalData(docName, doc);
-			dataRecords.add(ed);
-		}
+    for (final ArchiveEntry entry : combineArchive.getEntriesWithFormat(numlURI)) {
+      final String docName = entry.getFileName();
+      try {
+        final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
+        final NuMLDocument doc = NuMLReader.read(stream);
 
-		ca.close();
-		return dataRecords;
-	}
+        dataRecords.add(new ExperimentalData(docName, doc));
+      } catch (IOException | ParserConfigurationException | SAXException e) {
+        System.err.println(docName + " could not be retrieved");
+        e.printStackTrace();
+      }
+    }
 
-	private static void write(String filename, List<ExperimentalData> dataRecords) throws Exception {
+    try {
+      combineArchive.close();
+    } catch (IOException e) {
+      throw new CombineArchiveException(filename + " could not be closed");
+    }
 
-		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(filename);
-		if (fileTmp.exists()) {
-			fileTmp.delete();
-		}
+    return dataRecords;
+  }
 
-		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(filename));
+  /**
+   * Writes experimental data files to a PMF or PMFX file. Faulty data files are skipped Existent
+   * files with the same filename are overwritten.
+   * 
+   * @param filename
+   * @param dataRecords
+   * @throws CombineArchiveException if the CombineArchive cannot be opened or closed properly
+   */
+  private static void write(final String filename, final List<ExperimentalData> dataRecords)
+      throws CombineArchiveException {
 
-		// Add dataRecords
-		for (int i = 0; i < dataRecords.size(); i++) {
-			ExperimentalData ed = dataRecords.get(i);
+    // Removes previous CombineArchive if it exists
+    final File fileTmp = new File(filename);
+    if (fileTmp.exists()) {
+      fileTmp.delete();
+    }
 
-			// Creates tmp file for ed
-			File numlTmp = File.createTempFile("numlTmp", "");
-			numlTmp.deleteOnExit();
+    // Creates new CombineArchive
+    final CombineArchive combineArchive;
+    try {
+      combineArchive = new CombineArchive(new File(filename));
+    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
+      throw new CombineArchiveException(filename + " could not be opened");
+    }
 
-			// Writes data to numlTmp and adds it to the PMF file (ca)
-			NuMLWriter.write(ed.getDoc(), numlTmp);
-			ca.addEntry(numlTmp, ed.getDocName(), numlURI);
-		}
+    // Add data records
+    for (final ExperimentalData ed : dataRecords) {
+      try {
+        // Creates temporary file for ed
+        final File tmpNuML = File.createTempFile("tmpNuML", "");
+        tmpNuML.deleteOnExit();
 
-		ModelType modelType = ModelType.EXPERIMENTAL_DATA;
-		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
-		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
+        // Writes data to tmpNuML and adds it to combineArchive
+        NuMLWriter.write(ed.getDoc(), tmpNuML);
+        combineArchive.addEntry(tmpNuML, ed.getDocName(), numlURI);
+      } catch (IOException | TransformerFactoryConfigurationError | TransformerException
+          | ParserConfigurationException e) {
+        System.err.println(ed.getDocName() + " could not be saved");
+        e.printStackTrace();
+      }
+    }
 
-		ca.pack();
-		ca.close();
-	}
+    ModelType modelType = ModelType.EXPERIMENTAL_DATA;
+    Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
+    combineArchive.addDescription(new DefaultMetaDataObject(metadataAnnotation));
+
+    // Packs and closes the combineArchive
+    try {
+      combineArchive.pack();
+      combineArchive.close();
+    } catch (IOException | TransformerException e) {
+      throw new CombineArchiveException(filename + " could not be closed");
+    }
+  }
 }

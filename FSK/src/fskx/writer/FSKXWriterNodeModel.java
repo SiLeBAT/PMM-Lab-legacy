@@ -20,14 +20,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
 
-import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.StringCell;
@@ -46,6 +49,7 @@ import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
@@ -86,6 +90,7 @@ import de.bund.bfr.pmf.sbml.ReferenceSBMLNode;
 import de.bund.bfr.pmf.sbml.SBMLFactory;
 import de.bund.bfr.pmf.sbml.Uncertainties;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 import fskx.RMetaDataNode;
 import fskx.RUri;
@@ -128,10 +133,12 @@ public class FSKXWriterNodeModel extends NodeModel {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws FileCreationException If a critical file could not be created. E.g. model script.
    */
   @Override
   protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-      final ExecutionContext exec) throws Exception {
+      final ExecutionContext exec) throws FileCreationException {
 
     // Creates file for the CombineArchive
     final File caFile = new File(filePath.getStringValue());
@@ -147,28 +154,71 @@ public class FSKXWriterNodeModel extends NodeModel {
     final StringCell paramsScriptCell = (StringCell) row.getCell(1);
     final StringCell vizScriptCell = (StringCell) row.getCell(2);
 
-    // Creates file with the R model
-    final File rFile = writeToTempFile(modelCell.getStringValue());
-
-    // Creates file with the parameters
-    final File paramFile = writeToTempFile(paramsScriptCell.getStringValue());
-
-    // Creates file with the visualization script
-    final File vizFile = writeToTempFile(vizScriptCell.getStringValue());
-
-    final String mainScript = "model.R";
-    final String paramsScript = "params.R";
-    final String visualizationScript = "visualization.R";
-
-    // Creates CombineArchive and adds entries
+    // Variables for the CombineArchive
     final URI rURI = new RUri().createURI();
-    CombineArchive ca = new CombineArchive(new File(filePath.getStringValue()));
-    ca.addEntry(rFile, mainScript, rURI);
-    ca.addEntry(paramFile, paramsScript, rURI);
-    ca.addEntry(vizFile, visualizationScript, rURI);
+    final RMetaDataNode metaDataNode = new RMetaDataNode();
 
-    final Element node = new RMetaDataNode(mainScript, paramsScript, visualizationScript).getNode();
-    ca.addDescription(new DefaultMetaDataObject(node));
+    // Try to create CombineArchive. If an error occurs a FileCreationException will be thrown.
+    final CombineArchive combineArchive;
+    try {
+      combineArchive = new CombineArchive(new File(filePath.getStringValue()));
+    } catch (IOException | JDOMException | ParseException | CombineArchiveException
+        | FileSystemAlreadyExistsException e) {
+      throw new FileCreationException("CombineArchive could not be created");
+    }
+
+    /**
+     * Creates a file with the R model and adds it to the CombineArchive. Since the R model is
+     * mandatory, should an I/O error occur the CombineArchive would be immediately closed and a
+     * FileCreationException would be thrown.
+     */
+    try {
+      final File rFile = writeToTempFile(modelCell.getStringValue());
+      final String fileName = "model.R";
+      combineArchive.addEntry(rFile, fileName, rURI);
+      metaDataNode.setMainScript(fileName);
+    } catch (IOException e) {
+      try {
+        combineArchive.close();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+      throw new FileCreationException("Model script could not be created");
+    }
+
+    /**
+     * Creates a file with the R parameters and adds it to the CombineArchive. Since the R
+     * parameters file is optional, should an I/O error occur it would be ignored.
+     */
+    final String paramScript = paramsScriptCell.getStringValue();
+    if (!paramScript.isEmpty()) {
+      try {
+        final File paramFile = writeToTempFile(paramScript);
+        final String fileName = "params.R";
+        combineArchive.addEntry(paramFile, fileName, rURI);
+        metaDataNode.setParamScript(fileName);
+      } catch (IOException e) {
+        e.printStackTrace(); // Print the stack trace and ignore the error
+      }
+    }
+
+    /**
+     * Creates a file with the R visualization script and adds it to the CombineArchive. Since the R
+     * visualization script is optional, should a I/O error occur it would be ignored.
+     */
+    final String vizScript = vizScriptCell.getStringValue();
+    if (!vizScript.isEmpty()) {
+      try {
+        final File vizFile = writeToTempFile(vizScript);
+        final String fileName = "visualization.R";
+        combineArchive.addEntry(vizFile, fileName, rURI);
+        metaDataNode.setVisualizationScript(fileName);
+      } catch (IOException e) {
+        e.printStackTrace(); // Print the stack trace and ignore the error
+      }
+    }
+
+    combineArchive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
 
     // Handles model metadata table
     final KnimeSchema schema = SchemaFactory.createM1DataSchema(); // Only support primary models
@@ -203,15 +253,46 @@ public class FSKXWriterNodeModel extends NodeModel {
 
     final SBMLDocument sbmlDoc = createSBMLDocument(tuple, metadata, notes.getStringValue());
 
-    final File sbmlTmp = File.createTempFile("tempSbml", "");
-    sbmlTmp.deleteOnExit();
+    /**
+     * Creates a file with the model meta data (SBML) and adds it to the CombineArchive. Since the
+     * meta data is mandatory, should an I/O error occur the CombineArchive would be immediately
+     * closed and a FileCreationException would be thrown.
+     */
+    try {
+      final File sbmlTmp = File.createTempFile("tempSbml", "");
+      sbmlTmp.deleteOnExit();
 
-    new SBMLWriter().write(sbmlDoc, sbmlTmp);
-    final String sbmlDocName = sbmlDoc.getModel().getId() + ".pmf";
-    ca.addEntry(sbmlTmp, sbmlDocName, URIFactory.createPMFURI());
+      new SBMLWriter().write(sbmlDoc, sbmlTmp);
+      final String fileName = sbmlDoc.getModel().getId() + ".pmf";
+      combineArchive.addEntry(sbmlTmp, fileName, URIFactory.createPMFURI());
+    } catch (IOException | SBMLException | XMLStreamException ex) {
+      try {
+        combineArchive.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      throw new FileCreationException("Model meta data file could not be created");
+    }
 
-    ca.pack();
-    ca.close();
+    // A TranformerException may occur when packing the CombineArchive
+    try {
+      combineArchive.pack();
+    } catch (TransformerException | IOException ex) {
+      try {
+        combineArchive.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      throw new FileCreationException("CombineArchive could not be packed properly");
+    }
+
+    // An IOException may occur when packing and closing the CombineArchive.
+    try {
+      combineArchive.close();
+    } catch (IOException e) {
+      throw new FileCreationException("CombineArchive could not be created (not closed properly)");
+    }
+
     return new BufferedDataTable[] {};
   }
 
@@ -442,6 +523,13 @@ public class FSKXWriterNodeModel extends NodeModel {
     return sbmlDocument;
   }
 
+  /**
+   * Write a String into a temporary file.
+   * 
+   * @param content
+   * @return Temporary file.
+   * @throws IOException If an I/O error occurs
+   */
   private File writeToTempFile(final String content) throws IOException {
     final File tempFile = File.createTempFile("tmpFile", "");
     tempFile.deleteOnExit();
@@ -450,6 +538,14 @@ public class FSKXWriterNodeModel extends NodeModel {
     fileWriter.close();
 
     return tempFile;
+  }
+
+  class FileCreationException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public FileCreationException(final String descr) {
+      super(descr);
+    }
   }
 }
 

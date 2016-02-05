@@ -33,54 +33,59 @@ public class RMetaDataNode {
   private static final String PARAM_SCRIPT_TAG = "parametersScript";
   private static final String VIZ_SCRIPT_TAG = "visualizationScript";
 
-  private String mainScript;
-  private String paramsScript;
-  private String vizScript;
   private Element node;
 
-  public RMetaDataNode(final String mainScript, final String paramsScript, final String vizScript) {
-    this.mainScript = mainScript;
-    this.paramsScript = paramsScript;
-    this.vizScript = vizScript;
-
+  public RMetaDataNode() {
     node = new Element("metaParent");
-
-    // Main script annotation
-    final Element mainScriptElement = new Element(MAIN_SCRIPT_TAG);
-    mainScriptElement.addContent(mainScript);
-    node.addContent(mainScriptElement);
-
-    // Parameters script annotation
-    final Element paramsScriptElement = new Element(PARAM_SCRIPT_TAG);
-    paramsScriptElement.addContent(paramsScript);
-    node.addContent(paramsScriptElement);
-
-    // Visualization script annotation
-    final Element vizScriptElement = new Element(VIZ_SCRIPT_TAG);
-    vizScriptElement.addContent(vizScript);
-    node.addContent(vizScriptElement);
   }
 
   public RMetaDataNode(final Element node) {
-    mainScript = node.getChildText(MAIN_SCRIPT_TAG);
-    paramsScript = node.getChildText(PARAM_SCRIPT_TAG);
-    vizScript = node.getChildText(VIZ_SCRIPT_TAG);
     this.node = node;
   }
 
+  /** @return null if the main script is not set */
   public String getMainScript() {
-    return mainScript;
+    return node.getChildText(MAIN_SCRIPT_TAG);
   }
 
+  public void setMainScript(final String mainScript) {
+    setText(MAIN_SCRIPT_TAG, mainScript);
+  }
+
+  /** @return null if the parameters script is not set */
   public String getParametersScript() {
-    return paramsScript;
+    return node.getChildText(PARAM_SCRIPT_TAG);
   }
 
+  public void setParamScript(final String paramScript) {
+    setText(PARAM_SCRIPT_TAG, paramScript);
+  }
+
+  /** @return null if the visualization script is not set */
   public String getVisualizationScript() {
-    return vizScript;
+    return node.getChildText(VIZ_SCRIPT_TAG);
+  }
+  
+  public void setVisualizationScript(final String vizScript) {
+    setText(VIZ_SCRIPT_TAG, vizScript);
   }
 
   public Element getNode() {
     return node;
+  }
+  
+  private void setText(final String cname, final String value) {
+    Element child = node.getChild(cname);
+    
+    // if the script is not set, create a new Element and add it to the node
+    if (child == null) {
+      child = new Element(cname);
+      child.addContent(value);
+      node.addContent(child);
+    } 
+    // otherwise just update it
+    else {
+      child.setText(value);
+    }
   }
 }

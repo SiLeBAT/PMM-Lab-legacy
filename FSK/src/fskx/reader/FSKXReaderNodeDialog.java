@@ -29,8 +29,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  */
 public class FSKXReaderNodeDialog extends DefaultNodeSettingsPane {
 
-  DialogComponentFileChooser fileChooser;
-
   protected FSKXReaderNodeDialog() {
     super();
 
@@ -40,8 +38,8 @@ public class FSKXReaderNodeDialog extends DefaultNodeSettingsPane {
     fileName.setEnabled(true);
 
     // Creates fileChooser
-    fileChooser = new DialogComponentFileChooser(fileName, "filename-history",
-        JFileChooser.OPEN_DIALOG, ".fskx");
+    final DialogComponentFileChooser fileChooser = new DialogComponentFileChooser(fileName,
+        "filename-history", JFileChooser.OPEN_DIALOG, ".fskx");
 
     // Adds widgets
     createNewGroup("Data source");

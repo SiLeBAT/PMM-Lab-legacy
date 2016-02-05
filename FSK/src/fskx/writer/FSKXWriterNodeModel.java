@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystemAlreadyExistsException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -162,8 +161,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     final CombineArchive combineArchive;
     try {
       combineArchive = new CombineArchive(new File(filePath.getStringValue()));
-    } catch (IOException | JDOMException | ParseException | CombineArchiveException
-        | FileSystemAlreadyExistsException e) {
+    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
       throw new FileCreationException("CombineArchive could not be created");
     }
 
@@ -178,11 +176,7 @@ public class FSKXWriterNodeModel extends NodeModel {
       combineArchive.addEntry(rFile, fileName, rURI);
       metaDataNode.setMainScript(fileName);
     } catch (IOException e) {
-      try {
-        combineArchive.close();
-      } catch (IOException e1) {
-        e1.printStackTrace();
-      }
+      closeCombineArchive(combineArchive);
       throw new FileCreationException("Model script could not be created");
     }
 
@@ -266,11 +260,7 @@ public class FSKXWriterNodeModel extends NodeModel {
       final String fileName = sbmlDoc.getModel().getId() + ".pmf";
       combineArchive.addEntry(sbmlTmp, fileName, URIFactory.createPMFURI());
     } catch (IOException | SBMLException | XMLStreamException ex) {
-      try {
-        combineArchive.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      closeCombineArchive(combineArchive);
       throw new FileCreationException("Model meta data file could not be created");
     }
 
@@ -278,15 +268,14 @@ public class FSKXWriterNodeModel extends NodeModel {
     try {
       combineArchive.pack();
     } catch (TransformerException | IOException ex) {
-      try {
-        combineArchive.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      closeCombineArchive(combineArchive);
       throw new FileCreationException("CombineArchive could not be packed properly");
     }
 
-    // An IOException may occur when packing and closing the CombineArchive.
+    /**
+     * An IOException may occur when packing and closing the CombineArchive (when the file already
+     * exists)
+     */
     try {
       combineArchive.close();
     } catch (IOException e) {
@@ -499,7 +488,6 @@ public class FSKXWriterNodeModel extends NodeModel {
     }
 
     // Creates rule of the model and adds it to the rest of rules
-    // TODO: ...
     Reference[] modelReferences = new ReferenceImpl[mLits.size()];
     for (int i = 0; i < mLits.size(); i++) {
       modelReferences[i] = Util.literatureItem2Reference(mLits.get(i));
@@ -538,6 +526,14 @@ public class FSKXWriterNodeModel extends NodeModel {
     fileWriter.close();
 
     return tempFile;
+  }
+  
+  private void closeCombineArchive(final CombineArchive combineArchive) {
+    try {
+      combineArchive.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   class FileCreationException extends Exception {

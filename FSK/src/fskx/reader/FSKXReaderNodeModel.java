@@ -21,8 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,8 +34,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
@@ -86,6 +91,7 @@ import de.bund.bfr.pmf.sbml.Reference;
 import de.bund.bfr.pmf.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import fskx.FSKXTuple;
 import fskx.RMetaDataNode;
 import fskx.RUri;
@@ -109,63 +115,116 @@ public class FSKXReaderNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-      final ExecutionContext exec) throws Exception {
+      final ExecutionContext exec) throws FileAccessException {
 
     String filepath = filename.getStringValue();
-    CombineArchive ca = new CombineArchive(new File(filepath));
+
+    /**
+     * Try to open the CombineArchive. Should an error occur, a FileAccessException would be thrown.
+     */
+    CombineArchive combineArchive;
+    try {
+      combineArchive = new CombineArchive(new File(filepath));
+    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
+      throw new FileAccessException("Error opening " + filepath);
+    }
+
+    final Set<String> librariesSet = new HashSet<>(); // Set of libraries
+    final Set<String> sourcesSet = new HashSet<>(); // Set of sources
 
     // Gets annotation
-    final Element xmlElement = ca.getDescriptions().get(0).getXmlDescription();
+    final Element xmlElement = combineArchive.getDescriptions().get(0).getXmlDescription();
     final RMetaDataNode metaDataNode = new RMetaDataNode(xmlElement);
 
-    final String mainScript = metaDataNode.getMainScript();
-    final String paramsScript = metaDataNode.getParametersScript();
-    final String vizScript = metaDataNode.getVisualizationScript();
+    final List<ArchiveEntry> rEntriesList =
+        combineArchive.getEntriesWithFormat(new RUri().createURI());
+    final Map<String, ArchiveEntry> rEntriesMap = new HashMap<>(rEntriesList.size());
+    for (final ArchiveEntry entry : rEntriesList) {
+      rEntriesMap.put(entry.getFileName(), entry);
+    }
 
-    final List<ArchiveEntry> rEntries = ca.getEntriesWithFormat(new RUri().createURI());
+    /**
+     * Looks for model script. Since the model script is mandatory, it closes the CombineArchive and
+     * throws a FileAccessException when the model script cannot be retrieved.
+     */
+    final String modelScriptFileName = metaDataNode.getMainScript();
+    final String modelScriptString;
+    if (modelScriptFileName == null) {
+      closeCombineArchive(combineArchive);
+      throw new FileAccessException("Model script could not be accessed");
+    } else {
+      try {
+        modelScriptString = getTextFromArchiveEntry(rEntriesMap.get(modelScriptFileName));
 
-    String mainScriptString = "";
-    String paramsScriptString = "";
-    String vizScriptString = "";
-    for (final ArchiveEntry entry : rEntries) {
-      final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-      final String entryContent = IOUtils.toString(stream, "UTF-8");
-      final String filename = entry.getFileName();
-
-      if (filename.equals(mainScript)) {
-        mainScriptString = entryContent;
-      } else if (filename.equals(paramsScript)) {
-        paramsScriptString = entryContent;
-      } else if (filename.equals(vizScript)) {
-        vizScriptString = entryContent;
+        // Extract libraries and sources from the parameters script
+        final List<String> modelScriptLines = extractLinesFromText(modelScriptString);
+        librariesSet.addAll(extractLibrariesFromLines(modelScriptLines));
+        sourcesSet.addAll(extractSourcesFromLines(modelScriptLines));
+      } catch (IOException e) {
+        closeCombineArchive(combineArchive);
+        throw new FileAccessException("Model script could not be accessed");
       }
     }
 
-    // Extract libraries and sources from the main script
-    final List<String> mainScriptLines = extractLinesFromText(mainScriptString);
-    final List<String> mainScriptLibs = extractLibrariesFromLines(mainScriptLines);
-    final List<String> mainScriptSources = extractSourcesFromLines(mainScriptLines);
+    /**
+     * Looks for parameters script. Since the parameter script is optional, it produces an empty
+     * script (empty string) if the parameter script could not be retrieved.
+     */
+    final String paramScriptFileName = metaDataNode.getParametersScript();
+    String paramScriptString;
+    if (paramScriptFileName == null) {
+      paramScriptString = "";
+    } else {
+      try {
+        paramScriptString = getTextFromArchiveEntry(rEntriesMap.get(paramScriptFileName));
 
-    // Extract libraries and sources from the parameters script
-    final List<String> paramsScriptLines = extractLinesFromText(paramsScriptString);
-    final List<String> paramsScriptLibs = extractLibrariesFromLines(paramsScriptLines);
-    final List<String> paramsScriptSources = extractSourcesFromLines(paramsScriptLines);
+        // Extract libraries and sources from the parameters script
+        final List<String> paramScriptLines = extractLinesFromText(paramScriptString);
+        librariesSet.addAll(extractLibrariesFromLines(paramScriptLines));
+        sourcesSet.addAll(extractSourcesFromLines(paramScriptLines));
+      } catch (IOException e) {
+        paramScriptString = "";
+      }
+    }
 
-    // Builds set of libraries
-    final Set<String> librariesSet = new HashSet<>();
-    librariesSet.addAll(mainScriptLibs);
-    librariesSet.addAll(paramsScriptLibs);
+    /**
+     * Looks for visualization script. Since the visualization script is optional, it produces an
+     * empty script (empty string) if the visualization script could not be retrieved.
+     */
+    final String vizScriptFileName = metaDataNode.getVisualizationScript();
+    String vizScriptString;
+    if (vizScriptFileName == null) {
+      vizScriptString = "";
+    } else {
+      try {
+        vizScriptString = getTextFromArchiveEntry(rEntriesMap.get(vizScriptFileName));
 
-    // Builds set of sources
-    final Set<String> sourcesSet = new HashSet<>();
-    sourcesSet.addAll(mainScriptSources);
-    sourcesSet.addAll(paramsScriptSources);
+        // Extract libraries and sources from the visualization script
+        final List<String> vizScriptLines = extractLinesFromText(vizScriptString);
+        librariesSet.addAll(extractLibrariesFromLines(vizScriptLines));
+        sourcesSet.addAll(extractSourcesFromLines(vizScriptLines));
+      } catch (IOException e) {
+        vizScriptString = "";
+      }
+    }
 
-    final ArchiveEntry modelEntry = ca.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
-    final InputStream stream = Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-    final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
+    /**
+     * Process the SBMLDocument with the model meta data. Should an error occur the meta data table
+     * will be empty.
+     */
+    final ArchiveEntry modelEntry =
+        combineArchive.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
+    KnimeTuple tuple;
+    try {
+      final InputStream stream =
+          Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
+      final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
+      tuple = processMetadata(sbmlDoc);
+    } catch (IOException | XMLStreamException e) {
+      tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
+    }
 
-    ca.close();
+    closeCombineArchive(combineArchive);
 
     // Creates column spec, table spec and container
     final DataColumnSpecCreator mainScriptSpecCreator =
@@ -187,7 +246,7 @@ public class FSKXReaderNodeModel extends NodeModel {
     final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
-    final FSKXTuple row = new FSKXTuple(mainScriptString, paramsScriptString, vizScriptString,
+    final FSKXTuple row = new FSKXTuple(modelScriptString, paramScriptString, vizScriptString,
         librariesSet, sourcesSet);
     dataContainer.addRowToTable(row);
     dataContainer.close();
@@ -195,7 +254,7 @@ public class FSKXReaderNodeModel extends NodeModel {
     // Creates model table spec and container
     final DataTableSpec modelTableSpec = SchemaFactory.createM1DataSchema().createSpec();
     final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
-    modelContainer.addRowToTable(processMetadata(sbmlDoc));
+    modelContainer.addRowToTable(tuple);
     modelContainer.close();
 
     return new BufferedDataTable[] {dataContainer.getTable(), modelContainer.getTable()};
@@ -547,5 +606,35 @@ public class FSKXReaderNodeModel extends NodeModel {
     }
 
     return sourceNames;
+  }
+
+  /**
+   * Gets text content from an ArchiveEntry of a CombineArchive.
+   * 
+   * @throws IOException if an I/O error occurs
+   */
+  private String getTextFromArchiveEntry(final ArchiveEntry entry) throws IOException {
+    final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
+    final String text = IOUtils.toString(stream, StandardCharsets.UTF_8);
+
+    return text;
+  }
+
+  private void closeCombineArchive(final CombineArchive combineArchive) {
+    try {
+      combineArchive.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  class FileAccessException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
+    public FileAccessException(final String descr) {
+      super(descr);
+    }
   }
 }

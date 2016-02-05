@@ -12,7 +12,9 @@ Require-Bundle: org.knime.workbench.core,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
-Export-Package: fskx.writer
+Export-Package: fskx,
+ fskx.reader,
+ fskx.writer
 Bundle-ClassPath: fskNodes.jar
 Import-Package: de.bund.bfr.knime.pmm.common.reader,
  de.bund.bfr.knime.pmm.common.writer,

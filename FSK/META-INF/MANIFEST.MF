@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FSK
-Bundle-SymbolicName: FSK;singleton:=true
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.fsk;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: fskx.FSKNodePlugin
 Require-Bundle: org.knime.workbench.core,

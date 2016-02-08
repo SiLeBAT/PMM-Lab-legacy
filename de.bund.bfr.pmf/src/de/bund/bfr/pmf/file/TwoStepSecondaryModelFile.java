@@ -190,7 +190,7 @@ public class TwoStepSecondaryModelFile {
   }
 
   /**
-   * Writes primary models with data to a PMF or PMFX file. Faulty models are skipped. Existent
+   * Writes two step secondary models to a PMF or PMFX file. Faulty models are skipped. Existent
    * files are overwritten.
    *
    * @param filename

@@ -65,13 +65,13 @@ public class PrimaryModelWODataFile {
   }
 
   public static void writePMF(String dir, String filename, List<PrimaryModelWOData> models)
-      throws Exception {
+      throws CombineArchiveException {
     String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
   public static void writePMFX(String dir, String filename, List<PrimaryModelWOData> models)
-      throws Exception {
+      throws CombineArchiveException {
     String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }

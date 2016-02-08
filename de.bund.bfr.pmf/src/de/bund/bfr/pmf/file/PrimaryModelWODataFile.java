@@ -1,4 +1,4 @@
-/***************************************************************************************************
+/*******************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the
@@ -13,15 +13,12 @@
  * not, see <http://www.gnu.org/licenses/>.
  *
  * Contributors: Department Biological Safety - BfR
- **************************************************************************************************/
+ *******************************************************************************/
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,8 +28,6 @@ import javax.xml.stream.XMLStreamException;
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
-import org.sbml.jsbml.SBMLReader;
-import org.sbml.jsbml.SBMLWriter;
 
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.PMFURI;
@@ -53,9 +48,6 @@ public class PrimaryModelWODataFile {
   private static final URI SBML_URI = URIFactory.createNuMLURI();
   private static final URI PMF_URI = URIFactory.createPMFURI();
 
-  private static final SBMLReader READER = new SBMLReader();
-  private static final SBMLWriter WRITER = new SBMLWriter();
-
   public static List<PrimaryModelWOData> readPMF(String filename) throws CombineArchiveException {
     return read(filename, SBML_URI);
   }
@@ -65,13 +57,13 @@ public class PrimaryModelWODataFile {
   }
 
   public static void writePMF(String dir, String filename, List<PrimaryModelWOData> models)
-      throws CombineArchiveException {
+      throws Exception {
     String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
   public static void writePMFX(String dir, String filename, List<PrimaryModelWOData> models)
-      throws CombineArchiveException {
+      throws Exception {
     String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
@@ -97,10 +89,7 @@ public class PrimaryModelWODataFile {
       final String docName = entry.getFileName();
 
       try {
-        final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-        final SBMLDocument doc = READER.readSBMLFromStream(stream);
-        stream.close();
-
+        final SBMLDocument doc = CombineArchiveUtil.readModel(entry.getPath());
         models.add(new PrimaryModelWOData(docName, doc));
       } catch (IOException | XMLStreamException e) {
         System.err.println(docName + " could not be retrieved");
@@ -136,13 +125,7 @@ public class PrimaryModelWODataFile {
     // Add models
     for (final PrimaryModelWOData model : models) {
       try {
-        // Creates temporary file for the model
-        File sbmlFile = File.createTempFile("temp", "");
-        sbmlFile.deleteOnExit();
-
-        // Writes model to tmpFile and adds it to the file
-        WRITER.write(model.getDoc(), sbmlFile);
-        combineArchive.addEntry(sbmlFile, model.getDocName(), modelURI);
+        CombineArchiveUtil.writeModel(combineArchive, model.getDoc(), model.getDocName(), modelURI);
       } catch (SBMLException | XMLStreamException | IOException e) {
         System.err.println(model.getDocName() + " could not be saved");
         e.printStackTrace();

@@ -18,10 +18,7 @@ package de.bund.bfr.pmf.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,8 +34,6 @@ import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.bund.bfr.pmf.model.ExperimentalData;
 import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.NuMLReader;
-import de.bund.bfr.pmf.numl.NuMLWriter;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
@@ -93,9 +88,7 @@ public class ExperimentalDataFile {
     for (final ArchiveEntry entry : combineArchive.getEntriesWithFormat(numlURI)) {
       final String docName = entry.getFileName();
       try {
-        final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-        final NuMLDocument doc = NuMLReader.read(stream);
-
+        final NuMLDocument doc = CombineArchiveUtil.readData(entry.getPath());
         dataRecords.add(new ExperimentalData(docName, doc));
       } catch (IOException | ParserConfigurationException | SAXException e) {
         System.err.println(docName + " could not be retrieved");
@@ -131,13 +124,7 @@ public class ExperimentalDataFile {
     // Add data records
     for (final ExperimentalData ed : dataRecords) {
       try {
-        // Creates temporary file for ed
-        final File tmpNuML = File.createTempFile("tmpNuML", "");
-        tmpNuML.deleteOnExit();
-
-        // Writes data to tmpNuML and adds it to combineArchive
-        NuMLWriter.write(ed.getDoc(), tmpNuML);
-        combineArchive.addEntry(tmpNuML, ed.getDocName(), numlURI);
+        CombineArchiveUtil.writeData(combineArchive, ed.getDoc(), ed.getDocName());
       } catch (IOException | TransformerFactoryConfigurationError | TransformerException
           | ParserConfigurationException e) {
         System.err.println(ed.getDocName() + " could not be saved");

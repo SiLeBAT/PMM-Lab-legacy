@@ -1,43 +1,40 @@
-/*******************************************************************************
+/***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
  *
- * Contributors:
- *     Department Biological Safety - BfR
- *******************************************************************************/
+ * Contributors: Department Biological Safety - BfR
+ **************************************************************************************************/
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.jdom2.Element;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
-import org.sbml.jsbml.SBMLWriter;
+import org.sbml.jsbml.SBMLException;
 
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.bund.bfr.pmf.model.ManualSecondaryModel;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -47,82 +44,99 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  */
 public class ManualSecondaryModelFile {
 
-	private static final URI SBML_URI = URIFactory.createSBMLURI();
-	private static final URI PMF_URI = URIFactory.createPMFURI();
+  private static final URI SBML_URI = URIFactory.createSBMLURI();
+  private static final URI PMF_URI = URIFactory.createPMFURI();
 
-	private static final SBMLReader READER = new SBMLReader();
-	private static final SBMLWriter WRITER = new SBMLWriter();
+  public static List<ManualSecondaryModel> readPMF(String filename) throws Exception {
+    return read(filename, SBML_URI);
+  }
 
-	public static List<ManualSecondaryModel> readPMF(String filename) throws Exception {
-		return read(filename, SBML_URI);
-	}
+  public static List<ManualSecondaryModel> readPMFX(String filename) throws Exception {
+    return read(filename, PMF_URI);
+  }
 
-	public static List<ManualSecondaryModel> readPMFX(String filename) throws Exception {
-		return read(filename, PMF_URI);
-	}
+  public static void writePMF(String dir, String filename, List<ManualSecondaryModel> models)
+      throws Exception {
 
-	public static void writePMF(String dir, String filename, List<ManualSecondaryModel> models) throws Exception {
+    // Creates CombineArchive name
+    String caName = String.format("%s/%s.pmf", dir, filename);
+    write(caName, SBML_URI, models);
+  }
 
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmf", dir, filename);
-		write(caName, SBML_URI, models);
-	}
+  public static void writePMFX(String dir, String filename, List<ManualSecondaryModel> models)
+      throws Exception {
 
-	public static void writePMFX(String dir, String filename, List<ManualSecondaryModel> models) throws Exception {
+    // Creates CombineArchive name
+    String caName = String.format("%s/%s.pmfx", dir, filename);
+    write(caName, PMF_URI, models);
+  }
 
-		// Creates CombineArchive name
-		String caName = String.format("%s/%s.pmfx", dir, filename);
-		write(caName, PMF_URI, models);
-	}
+  /**
+   * Reads manual secondary models from a PMF or PMFX file. Faulty models are skipped.
+   *
+   * @param filename
+   * @param modelURI
+   * @throws CombineArchiveException if the CombineArchive could not be opened or closed properly
+   */
+  private static List<ManualSecondaryModel> read(final String filename, final URI modelURI)
+      throws CombineArchiveException {
+    final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
 
-	private static List<ManualSecondaryModel> read(String filename, URI modelURI) throws Exception {
+    final List<ManualSecondaryModel> models = new LinkedList<>();
 
-		List<ManualSecondaryModel> models = new LinkedList<>();
+    for (final ArchiveEntry entry : combineArchive.getEntriesWithFormat(modelURI)) {
+      final String docName = entry.getFileName();
+      try {
+        final SBMLDocument doc = CombineArchiveUtil.readModel(entry.getPath());
 
-		// Creates CombineArchive
-		CombineArchive ca = new CombineArchive(new File(filename));
+        models.add(new ManualSecondaryModel(docName, doc));
+      } catch (IOException | XMLStreamException e) {
+        System.err.println(docName + " could not be retrieved");
+        e.printStackTrace();
+      }
+    }
 
-		// Parse models in the PMF file
-		for (ArchiveEntry entry : ca.getEntriesWithFormat(modelURI)) {
-			InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-			SBMLDocument sbmlDoc = READER.readSBMLFromStream(stream);
-			stream.close();
-			String sbmlDocName = entry.getFileName();
-			models.add(new ManualSecondaryModel(sbmlDocName, sbmlDoc));
-		}
+    CombineArchiveUtil.close(combineArchive);
 
-		ca.close();
-		return models;
-	}
+    return models;
+  }
 
-	private static void write(String filename, URI modelURI, List<ManualSecondaryModel> models) throws Exception {
+  /**
+   * Writes manual secondary models to a PMF or PMFX file. Faulty models are skipped. Existent files
+   * with the same filename are overwritten.
+   *
+   * @param filename
+   * @param models
+   * @throws CombineArchiveException if the CombineArchive cannot be opened or closed properly
+   */
+  private static void write(final String filename, final URI modelURI,
+      final List<ManualSecondaryModel> models) throws CombineArchiveException {
 
-		// Removes previous CombineArchive if it exists
-		File fileTmp = new File(filename);
-		if (fileTmp.exists()) {
-			fileTmp.delete();
-		}
+    // Removes previous CombineArchive if it exists
+    final File tmpFile = new File(filename);
+    if (tmpFile.exists()) {
+      tmpFile.delete();
+    }
 
-		// Creates new CombineArchive
-		CombineArchive ca = new CombineArchive(new File(filename));
+    // Creates new CombineArchive
+    final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
 
-		// Add models and data
-		for (ManualSecondaryModel model : models) {
-			// Creates tmp file for the model
-			File sbmlTmp = File.createTempFile("temp1", "");
-			sbmlTmp.deleteOnExit();
+    // Adds models
+    for (final ManualSecondaryModel model : models) {
+      try {
+        CombineArchiveUtil.writeModel(combineArchive, model.getDoc(), model.getDocName(), modelURI);
+      } catch (SBMLException | XMLStreamException | IOException e) {
+        System.err.println(model.getDocName() + " could not be saved");
+        e.printStackTrace();
+      }
+    }
 
-			// Writes model to sbmlTmp and add it to the file
-			WRITER.write(model.getDoc(), sbmlTmp);
-			ca.addEntry(sbmlTmp, model.getDocName(), modelURI);
-		}
+    // Adds description with model type
+    final ModelType modelType = ModelType.MANUAL_SECONDARY_MODEL;
+    final Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
+    combineArchive.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
-		// Adds description with model type
-		ModelType modelType = ModelType.MANUAL_SECONDARY_MODEL;
-		Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
-		ca.addDescription(new DefaultMetaDataObject(metadataAnnotation));
-
-		ca.pack();
-		ca.close();
-	}
+    CombineArchiveUtil.pack(combineArchive);
+    CombineArchiveUtil.close(combineArchive);
+  }
 }

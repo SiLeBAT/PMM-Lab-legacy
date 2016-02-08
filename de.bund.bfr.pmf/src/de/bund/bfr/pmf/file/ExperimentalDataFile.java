@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the
@@ -13,7 +13,7 @@
  * not, see <http://www.gnu.org/licenses/>.
  *
  * Contributors: Department Biological Safety - BfR
- *******************************************************************************/
+ **************************************************************************************************/
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.text.ParseException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +31,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.xml.sax.SAXException;
 
 import de.bund.bfr.pmf.ModelType;
@@ -88,12 +86,7 @@ public class ExperimentalDataFile {
    */
   private static List<ExperimentalData> read(final String filename) throws CombineArchiveException {
 
-    final CombineArchive combineArchive;
-    try {
-      combineArchive = new CombineArchive(new File(filename));
-    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
-      throw new CombineArchiveException(filename + " could not opened");
-    }
+    final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
 
     final List<ExperimentalData> dataRecords = new LinkedList<>();
 
@@ -110,11 +103,7 @@ public class ExperimentalDataFile {
       }
     }
 
-    try {
-      combineArchive.close();
-    } catch (IOException e) {
-      throw new CombineArchiveException(filename + " could not be closed");
-    }
+    CombineArchiveUtil.close(combineArchive);
 
     return dataRecords;
   }
@@ -137,12 +126,7 @@ public class ExperimentalDataFile {
     }
 
     // Creates new CombineArchive
-    final CombineArchive combineArchive;
-    try {
-      combineArchive = new CombineArchive(new File(filename));
-    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
-      throw new CombineArchiveException(filename + " could not be opened");
-    }
+    final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
 
     // Add data records
     for (final ExperimentalData ed : dataRecords) {
@@ -161,16 +145,12 @@ public class ExperimentalDataFile {
       }
     }
 
-    ModelType modelType = ModelType.EXPERIMENTAL_DATA;
-    Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
+    final ModelType modelType = ModelType.EXPERIMENTAL_DATA;
+    final Element metadataAnnotation = new PMFMetadataNode(modelType, new HashSet<String>(0)).node;
     combineArchive.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
     // Packs and closes the combineArchive
-    try {
-      combineArchive.pack();
-      combineArchive.close();
-    } catch (IOException | TransformerException e) {
-      throw new CombineArchiveException(filename + " could not be closed");
-    }
+    CombineArchiveUtil.pack(combineArchive);
+    CombineArchiveUtil.close(combineArchive);
   }
 }

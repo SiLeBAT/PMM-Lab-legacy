@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the
@@ -13,7 +13,7 @@
  * not, see <http://www.gnu.org/licenses/>.
  *
  * Contributors: Department Biological Safety - BfR
- *******************************************************************************/
+ **************************************************************************************************/
 package de.bund.bfr.pmf.file;
 
 import java.io.File;
@@ -22,16 +22,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.text.ParseException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.SBMLReader;
@@ -90,12 +87,7 @@ public class PrimaryModelWODataFile {
   private static List<PrimaryModelWOData> read(final String filename, final URI modelURI)
       throws CombineArchiveException {
 
-    final CombineArchive combineArchive;
-    try {
-      combineArchive = new CombineArchive(new File(filename));
-    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
-      throw new CombineArchiveException(filename + " could not be opened");
-    }
+    final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
 
     final List<PrimaryModelWOData> models = new LinkedList<>();
 
@@ -116,11 +108,7 @@ public class PrimaryModelWODataFile {
       }
     }
 
-    try {
-      combineArchive.close();
-    } catch (IOException e) {
-      throw new CombineArchiveException(filename + " could not be closed");
-    }
+    CombineArchiveUtil.close(combineArchive);
 
     return models;
   }
@@ -142,14 +130,8 @@ public class PrimaryModelWODataFile {
       tmpFile.delete();
     }
 
-
     // Creates new CombineArchive
-    final CombineArchive combineArchive;
-    try {
-      combineArchive = new CombineArchive(new File(filename));
-    } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
-      throw new CombineArchiveException(filename + " could not be opened");
-    }
+    final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
 
     // Add models
     for (final PrimaryModelWOData model : models) {
@@ -173,11 +155,7 @@ public class PrimaryModelWODataFile {
     combineArchive.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
     // Packs and closes the combineArchive
-    try {
-      combineArchive.pack();
-      combineArchive.close();
-    } catch (IOException | TransformerException e) {
-      throw new CombineArchiveException(filename + " could not be created");
-    }
+    CombineArchiveUtil.pack(combineArchive);
+    CombineArchiveUtil.close(combineArchive);
   }
 }

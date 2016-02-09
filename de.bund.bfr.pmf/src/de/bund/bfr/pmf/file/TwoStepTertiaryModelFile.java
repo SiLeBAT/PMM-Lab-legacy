@@ -214,11 +214,7 @@ public class TwoStepTertiaryModelFile {
   private static void write(final String filename, final URI modelURI,
       final List<TwoStepTertiaryModel> models) throws CombineArchiveException {
 
-    // Removes previous CombineArchvie if it exists
-    final File fileTmp = new File(filename);
-    if (fileTmp.exists()) {
-      fileTmp.delete();
-    }
+    CombineArchiveUtil.removeExistentFile(filename);
 
     // Creates new CombineArchive
     final CombineArchive combineArchive = CombineArchiveUtil.open(filename);

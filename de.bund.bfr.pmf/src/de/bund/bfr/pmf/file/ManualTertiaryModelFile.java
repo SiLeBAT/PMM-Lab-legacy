@@ -161,11 +161,7 @@ public class ManualTertiaryModelFile {
   private static void write(final String filename, final URI modelURI,
       final List<ManualTertiaryModel> models) throws CombineArchiveException {
 
-    // Removes previous CombineArchive if it exists
-    File fileTmp = new File(filename);
-    if (fileTmp.exists()) {
-      fileTmp.delete();
-    }
+    CombineArchiveUtil.removeExistentFile(filename);
 
     // Creates new CombineArchive
     final CombineArchive combineArchive = CombineArchiveUtil.open(filename);
@@ -191,7 +187,7 @@ public class ManualTertiaryModelFile {
       for (int i = 0; i < model.getSecDocs().size(); i++) {
         final SBMLDocument secDoc = model.getSecDocs().get(i);
         final String secDocName = model.getSecDocNames().get(i);
-        
+
         try {
           CombineArchiveUtil.writeModel(combineArchive, secDoc, secDocName, modelURI);
         } catch (IOException | SBMLException | XMLStreamException e) {

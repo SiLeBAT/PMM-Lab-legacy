@@ -16,7 +16,6 @@
  **************************************************************************************************/
 package de.bund.bfr.pmf.file;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
@@ -112,11 +111,7 @@ public class ExperimentalDataFile {
   private static void write(final String filename, final List<ExperimentalData> dataRecords)
       throws CombineArchiveException {
 
-    // Removes previous CombineArchive if it exists
-    final File fileTmp = new File(filename);
-    if (fileTmp.exists()) {
-      fileTmp.delete();
-    }
+    CombineArchiveUtil.removeExistentFile(filename);
 
     // Creates new CombineArchive
     final CombineArchive combineArchive = CombineArchiveUtil.open(filename);

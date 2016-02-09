@@ -282,11 +282,7 @@ public class OneStepTertiaryModelFile {
   private static void write(final String filename, final URI modelURI,
       final List<OneStepTertiaryModel> models) throws CombineArchiveException {
 
-    // Removes previous CombineArchive if it exists
-    final File tmpFile = new File(filename);
-    if (tmpFile.exists()) {
-      tmpFile.delete();
-    }
+    CombineArchiveUtil.removeExistentFile(filename);
 
     // Creates new CombineArchive
     final CombineArchive combineArchive = CombineArchiveUtil.open(filename);

@@ -135,4 +135,12 @@ public class CombineArchiveUtil {
     WRITER.write(doc, tmpFile);
     combineArchive.addEntry(tmpFile, docName, modelURI);
   }
+
+  /** Removes previous CombineArchive if it exists */
+  public static void removeExistentFile(final String filename) {
+    final File tmpFile = new File(filename);
+    if (tmpFile.exists()) {
+      tmpFile.delete();
+    }
+  }
 }

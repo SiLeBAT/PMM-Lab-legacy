@@ -14,6 +14,12 @@
         factory-class="fskx.reader.FSKXReaderNodeFactory"
         id="FSKXReaderNodeFactory">
   </node>
+  <node
+        category-path="/pmmlab/reader"
+        deprecated="false"
+        factory-class="fskx.r2fsk.R2FSKNodeFactory"
+        id="R2FSKNodeFactory">
+  </node>
 	</extension>	
    
 </plugin>

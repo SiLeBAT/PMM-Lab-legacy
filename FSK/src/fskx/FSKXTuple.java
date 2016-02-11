@@ -16,9 +16,9 @@
  ******************************************************************************/
 package fskx;
 
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
@@ -27,18 +27,19 @@ import org.knime.core.data.def.StringCell;
 
 public class FSKXTuple implements DataRow {
 
-  private DataCell[] cell;
-  private final RowKey key;
+  public enum KEYS {
+    ORIG_MODEL, SIMP_MODEL, ORIG_PARAM, SIMP_PARAM, ORIG_VIZ, SIMP_VIZ, LIBS, SOURCES
+  };
 
-  public FSKXTuple(final String modelScript, final String paramScript, final String vizScript,
-      final Set<String> libraries, final Set<String> sources) {
-    cell = new DataCell[5];
-    cell[0] = new StringCell(modelScript);
-    cell[1] = new StringCell(paramScript);
-    cell[2] = new StringCell(vizScript);
-    cell[3] = new StringCell(String.join(";", libraries));
-    cell[4] = new StringCell(String.join(";", sources));
-    key = new RowKey(String.valueOf(new Random().nextInt()));
+  private DataCell[] cell;
+  private final RowKey rowKey;
+
+  public FSKXTuple(EnumMap<KEYS, String> values) {
+    cell = new DataCell[KEYS.values().length];
+    for (KEYS key : KEYS.values()) {
+      cell[key.ordinal()] = new StringCell(values.get(key));
+    }
+    rowKey = new RowKey(String.valueOf(new Random().nextInt()));
   }
 
   @Override
@@ -48,7 +49,7 @@ public class FSKXTuple implements DataRow {
 
   @Override
   public RowKey getKey() {
-    return key;
+    return rowKey;
   }
 
   @Override

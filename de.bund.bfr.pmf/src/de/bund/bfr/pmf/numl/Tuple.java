@@ -1,22 +1,19 @@
-/*******************************************************************************
+/***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
  *
- * Contributors:
- *     Department Biological Safety - BfR
- *******************************************************************************/
+ * Contributors: Department Biological Safety - BfR
+ **************************************************************************************************/
 package de.bund.bfr.pmf.numl;
 
 import org.w3c.dom.Document;
@@ -27,47 +24,47 @@ import org.w3c.dom.NodeList;
  * @author Miguel Alba
  */
 public class Tuple {
-	
-	static final String ELEMENT_NAME = "tuple";
 
-	AtomicValue concValue;
-	AtomicValue timeValue;
-	
-	public Tuple(AtomicValue concValue, AtomicValue timeValue) {
-		this.concValue = concValue;
-		this.timeValue = timeValue;
-	}
-	
-	public Tuple(Element node) {
-		NodeList nodeList = node.getElementsByTagName(AtomicValue.ELEMENT_NAME);
-		concValue = new AtomicValue((Element) nodeList.item(0));
-		timeValue = new AtomicValue((Element) nodeList.item(1));
-	}
-	
-	public AtomicValue getConcValue() {
-		return concValue;
-	}
-	
-	public AtomicValue getTimeValue() { 
-		return timeValue;
-	}
-	
-	@Override
-	public String toString() {
-		String string = String.format("Tuple [atomicValues=%s %s]", concValue, timeValue);
-		return string;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		Tuple other = (Tuple) obj;
-		return concValue.equals(other.concValue) && timeValue.equals(other.timeValue);
-	}
-	
-	public Element toNode(Document doc) {
-		Element node = doc.createElement(ELEMENT_NAME);
-		node.appendChild(concValue.toNode(doc));
-		node.appendChild(timeValue.toNode(doc));
-		return node;
-	}
+  static final String ELEMENT_NAME = "tuple";
+
+  AtomicValue concValue;
+  AtomicValue timeValue;
+
+  public Tuple(final AtomicValue concValue, final AtomicValue timeValue) {
+    this.concValue = concValue;
+    this.timeValue = timeValue;
+  }
+
+  public Tuple(final Element node) {
+    final NodeList nodeList = node.getElementsByTagName(AtomicValue.ELEMENT_NAME);
+    concValue = new AtomicValue((Element) nodeList.item(0));
+    timeValue = new AtomicValue((Element) nodeList.item(1));
+  }
+
+  public AtomicValue getConcValue() {
+    return concValue;
+  }
+
+  public AtomicValue getTimeValue() {
+    return timeValue;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Tuple [atomicValues=%s %s]", concValue, timeValue);
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    Tuple other = (Tuple) obj;
+    return concValue.equals(other.concValue) && timeValue.equals(other.timeValue);
+  }
+
+  public Element toNode(final Document doc) {
+    final Element node = doc.createElement(ELEMENT_NAME);
+    node.appendChild(concValue.toNode(doc));
+    node.appendChild(timeValue.toNode(doc));
+
+    return node;
+  }
 }

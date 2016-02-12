@@ -1,4 +1,4 @@
-package fskx.r2fsk;
+package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import javax.swing.JFileChooser;
 

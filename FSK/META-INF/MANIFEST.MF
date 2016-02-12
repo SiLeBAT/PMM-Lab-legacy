@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FSK
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.fsk;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: fskx.FSKNodePlugin
+Bundle-Activator: de.bund.bfr.knime.pmm.fskx.FSKNodePlugin
 Require-Bundle: org.knime.workbench.core,
  org.knime.base,
  de.bund.bfr.knime.pmm.common;visibility:=reexport,
@@ -13,9 +13,9 @@ Require-Bundle: org.knime.workbench.core,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
-Export-Package: fskx,
- fskx.reader,
- fskx.writer
+Export-Package: de.bund.bfr.knime.pmm.fskx,
+ de.bund.bfr.knime.pmm.fskx.reader,
+ de.bund.bfr.knime.pmm.fskx.writer
 Bundle-ClassPath: fskNodes.jar
 Import-Package: de.bund.bfr.knime.pmm.common.reader,
  de.bund.bfr.knime.pmm.common.writer,

@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  *******************************************************************************/
-package fskx.reader;
+package de.bund.bfr.knime.pmm.fskx.reader;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;

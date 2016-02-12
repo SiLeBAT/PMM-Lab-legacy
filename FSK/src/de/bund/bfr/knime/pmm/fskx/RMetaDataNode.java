@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  ******************************************************************************/
-package fskx;
+package de.bund.bfr.knime.pmm.fskx;
 
 import org.jdom2.Element;
 

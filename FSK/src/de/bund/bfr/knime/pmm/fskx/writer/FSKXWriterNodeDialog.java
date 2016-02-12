@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  *******************************************************************************/
-package fskx.writer;
+package de.bund.bfr.knime.pmm.fskx.writer;
 
 import javax.swing.JFileChooser;
 

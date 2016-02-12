@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  *******************************************************************************/
-package fskx.writer;
+package de.bund.bfr.knime.pmm.fskx.writer;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -70,6 +70,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.Util;
+import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
+import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.RUri;
 import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.PMFUtil;
@@ -90,9 +93,6 @@ import de.bund.bfr.pmf.sbml.Uncertainties;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
-import fskx.FSKXTuple;
-import fskx.RMetaDataNode;
-import fskx.RUri;
 
 /**
  */

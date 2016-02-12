@@ -1,4 +1,4 @@
-package fskx;
+package de.bund.bfr.knime.pmm.fskx;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;

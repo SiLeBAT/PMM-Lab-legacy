@@ -1,4 +1,4 @@
-package fskx.r2fsk;
+package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;

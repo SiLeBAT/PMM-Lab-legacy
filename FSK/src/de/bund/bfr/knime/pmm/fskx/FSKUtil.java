@@ -1,4 +1,4 @@
-package fskx;
+package de.bund.bfr.knime.pmm.fskx;
 
 import java.util.HashMap;
 import java.util.LinkedList;

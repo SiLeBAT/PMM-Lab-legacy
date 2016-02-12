@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  *******************************************************************************/
-package fskx.reader;
+package de.bund.bfr.knime.pmm.fskx.reader;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,16 +52,16 @@ import org.sbml.jsbml.SBMLReader;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.fskx.FSKUtil;
+import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
+import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.RUri;
+import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.pmf.file.CombineArchiveUtil;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
-import fskx.FSKUtil;
-import fskx.FSKXTuple;
-import fskx.FSKXTuple.KEYS;
-import fskx.RMetaDataNode;
-import fskx.RUri;
 
 public class FSKXReaderNodeModel extends NodeModel {
 

@@ -1,4 +1,4 @@
-package fskx.r2fsk;
+package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,9 +31,9 @@ import com.google.common.io.Files;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import fskx.FSKUtil;
-import fskx.FSKXTuple;
-import fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.FSKUtil;
+import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
+import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 
 public class R2FSKNodeModel extends NodeModel {
 

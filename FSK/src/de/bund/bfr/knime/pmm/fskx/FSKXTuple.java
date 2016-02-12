@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  ******************************************************************************/
-package fskx;
+package de.bund.bfr.knime.pmm.fskx;
 
 import java.util.EnumMap;
 import java.util.Iterator;

@@ -75,13 +75,13 @@ public class OneStepTertiaryModelFile {
 
   public static void writePMF(final String dir, final String filename, final List<OneStepTertiaryModel> models)
       throws Exception {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
   public static void writePMFX(String dir, final String filename, final List<OneStepTertiaryModel> models)
       throws Exception {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 
@@ -171,9 +171,6 @@ public class OneStepTertiaryModelFile {
         final NuMLDocument numlDoc = dataEntriesMap.get(numlDocName);
         numlDocs.add(numlDoc);
       }
-      OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDocName, tertDoc, secModelNames,
-          secModels, numlDocNames, numlDocs);
-      models.add(tstm);
       models.add(new OneStepTertiaryModel(tertDocName, tertDoc, secModelNames, secModels,
           numlDocNames, numlDocs));
     }

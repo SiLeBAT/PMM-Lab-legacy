@@ -47,23 +47,25 @@ public class PrimaryModelWODataFile {
   private static final URI SBML_URI = URIFactory.createNuMLURI();
   private static final URI PMF_URI = URIFactory.createPMFURI();
 
-  public static List<PrimaryModelWOData> readPMF(String filename) throws CombineArchiveException {
+  public static List<PrimaryModelWOData> readPMF(final String filename)
+      throws CombineArchiveException {
     return read(filename, SBML_URI);
   }
 
-  public static List<PrimaryModelWOData> readPMFX(String filename) throws CombineArchiveException {
+  public static List<PrimaryModelWOData> readPMFX(final String filename)
+      throws CombineArchiveException {
     return read(filename, PMF_URI);
   }
 
-  public static void writePMF(String dir, String filename, List<PrimaryModelWOData> models)
-      throws Exception {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+  public static void writePMF(final String dir, final String filename,
+      final List<PrimaryModelWOData> models) throws Exception {
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, String filename, List<PrimaryModelWOData> models)
-      throws Exception {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+  public static void writePMFX(final String dir, final String filename,
+      final List<PrimaryModelWOData> models) throws Exception {
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 
@@ -106,7 +108,7 @@ public class PrimaryModelWODataFile {
    * Existent files with the same filename are overwritten.
    *
    * @param filename
-   * @parma models
+   * @param models
    * @throws CombineArchiveException if the CombineArchive cannot be opened or closed properly
    */
   private static void write(final String filename, final URI modelURI,

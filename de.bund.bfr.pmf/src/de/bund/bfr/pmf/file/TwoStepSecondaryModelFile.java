@@ -67,25 +67,25 @@ public class TwoStepSecondaryModelFile {
 
   private static final SBMLWriter WRITER = new SBMLWriter();
 
-  public static List<TwoStepSecondaryModel> readPMF(String filename) throws Exception {
+  public static List<TwoStepSecondaryModel> readPMF(final String filename) throws Exception {
     return read(filename, SBML_URI);
   }
 
-  public static List<TwoStepSecondaryModel> readPMFX(String filename) throws Exception {
+  public static List<TwoStepSecondaryModel> readPMFX(final String filename) throws Exception {
     return read(filename, PMF_URI);
   }
 
   /**
    */
-  public static void writePMF(String dir, String filename, List<TwoStepSecondaryModel> models)
+  public static void writePMF(final String dir, final String filename, final List<TwoStepSecondaryModel> models)
       throws Exception {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, String filename, List<TwoStepSecondaryModel> models)
+  public static void writePMFX(final String dir, final String filename, final List<TwoStepSecondaryModel> models)
       throws Exception {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 
@@ -236,8 +236,8 @@ public class TwoStepSecondaryModelFile {
     }
 
     // Adds description with model type
-    ModelType modelType = ModelType.TWO_STEP_SECONDARY_MODEL;
-    Element metadataAnnotation = new PMFMetadataNode(modelType, masterFiles).node;
+    final ModelType modelType = ModelType.TWO_STEP_SECONDARY_MODEL;
+    final Element metadataAnnotation = new PMFMetadataNode(modelType, masterFiles).node;
     combineArchive.addDescription(new DefaultMetaDataObject(metadataAnnotation));
 
     CombineArchiveUtil.pack(combineArchive);

@@ -60,29 +60,29 @@ public class OneStepSecondaryModelFile {
   private static final URI PMF_URI = URIFactory.createPMFURI();
   private static final URI NuML_URI = URIFactory.createNuMLURI();
 
-  public static List<OneStepSecondaryModel> readPMF(String filename) throws Exception {
+  public static List<OneStepSecondaryModel> readPMF(final String filename) throws Exception {
     return read(filename, SBML_URI);
   }
 
-  public static List<OneStepSecondaryModel> readPMFX(String filename) throws Exception {
+  public static List<OneStepSecondaryModel> readPMFX(final String filename) throws Exception {
     return read(filename, PMF_URI);
   }
 
   /**
    */
-  public static void writePMF(String dir, String filename, List<OneStepSecondaryModel> models)
-      throws Exception {
+  public static void writePMF(final String dir, final String filename,
+      final List<OneStepSecondaryModel> models) throws Exception {
 
     // Creates CombineArchive name
-    String caName = String.format("%s/%s.pmf", dir, filename);
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, String filename, List<OneStepSecondaryModel> models)
-      throws Exception {
+  public static void writePMFX(final String dir, final String filename,
+      final List<OneStepSecondaryModel> models) throws Exception {
 
     // Creates CombineArchive name
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 

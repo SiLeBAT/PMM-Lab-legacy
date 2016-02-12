@@ -73,14 +73,14 @@ public class OneStepTertiaryModelFile {
     return read(filename, PMF_URI);
   }
 
-  public static void writePMF(final String dir, final String filename, final List<OneStepTertiaryModel> models)
-      throws Exception {
+  public static void writePMF(final String dir, final String filename,
+      final List<OneStepTertiaryModel> models) throws Exception {
     final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, final String filename, final List<OneStepTertiaryModel> models)
-      throws Exception {
+  public static void writePMFX(String dir, final String filename,
+      final List<OneStepTertiaryModel> models) throws Exception {
     final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }

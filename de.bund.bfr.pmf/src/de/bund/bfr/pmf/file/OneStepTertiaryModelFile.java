@@ -18,10 +18,7 @@ package de.bund.bfr.pmf.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,7 +35,6 @@ import org.jdom2.Element;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
-import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
@@ -50,13 +46,11 @@ import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.bund.bfr.pmf.model.OneStepTertiaryModel;
 import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.NuMLReader;
 import de.bund.bfr.pmf.sbml.DataSourceNode;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
-import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 /**
  * Case 3b: File with tertiary model generated with 1-step fit approach.
@@ -69,109 +63,26 @@ public class OneStepTertiaryModelFile {
   private static final URI PMF_URI = URIFactory.createPMFURI();
   private static final URI NuML_URI = URIFactory.createNuMLURI();
 
-  private static final SBMLReader READER = new SBMLReader();
   private static final SBMLWriter WRITER = new SBMLWriter();
 
-  public static List<OneStepTertiaryModel> readPMF(String filename) throws Exception {
+  public static List<OneStepTertiaryModel> readPMF(final String filename) throws Exception {
     return read(filename, SBML_URI);
   }
 
-  public static List<OneStepTertiaryModel> readPMFX(String filename) throws Exception {
+  public static List<OneStepTertiaryModel> readPMFX(final String filename) throws Exception {
     return read(filename, PMF_URI);
   }
 
-  public static void writePMF(String dir, String filename, List<OneStepTertiaryModel> models)
-      throws Exception {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+  public static void writePMF(final String dir, final String filename,
+      final List<OneStepTertiaryModel> models) throws Exception {
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, String filename, List<OneStepTertiaryModel> models)
-      throws Exception {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+  public static void writePMFX(String dir, final String filename,
+      final List<OneStepTertiaryModel> models) throws Exception {
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
-  }
-
-  public static List<OneStepTertiaryModel> originalRead(String filename, URI modelURI)
-      throws Exception {
-
-    List<OneStepTertiaryModel> models = new LinkedList<>();
-
-    // Creates CombineArchive
-    CombineArchive ca = new CombineArchive(new File(filename));
-
-    // Get data entries
-    List<ArchiveEntry> dataEntries = ca.getEntriesWithFormat(NuML_URI);
-    HashMap<String, NuMLDocument> dataEntriesMap = new HashMap<>(dataEntries.size());
-    for (ArchiveEntry entry : dataEntries) {
-      InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-      NuMLDocument doc = NuMLReader.read(stream);
-      stream.close();
-      dataEntriesMap.put(entry.getFileName(), doc);
-    }
-
-    // Classify models into tertiary or secondary models
-    Map<String, SBMLDocument> tertDocs = new HashMap<>();
-    Map<String, SBMLDocument> secDocs = new HashMap<>();
-
-    MetaDataObject mdo = ca.getDescriptions().get(0);
-    Element metaParent = mdo.getXmlDescription();
-    PMFMetadataNode metadataAnnotation = new PMFMetadataNode(metaParent);
-    Set<String> masterFiles = metadataAnnotation.masterFiles;
-
-    for (ArchiveEntry entry : ca.getEntriesWithFormat(modelURI)) {
-      InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-      SBMLDocument doc = READER.readSBMLFromStream(stream);
-      stream.close();
-
-      if (masterFiles.contains(entry.getFileName())) {
-        tertDocs.put(entry.getFileName(), doc);
-      } else {
-        secDocs.put(entry.getFileName(), doc);
-      }
-    }
-
-    ca.close();
-
-    for (Map.Entry<String, SBMLDocument> entry : tertDocs.entrySet()) {
-      String tertDocName = entry.getKey();
-      SBMLDocument tertDoc = entry.getValue();
-
-      List<SBMLDocument> secModels = new LinkedList<>();
-      List<String> secModelNames = new LinkedList<>();
-
-      CompSBMLDocumentPlugin tertPlugin =
-          (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
-      // Gets secondary model ids
-      ListOf<ExternalModelDefinition> emds = tertPlugin.getListOfExternalModelDefinitions();
-      for (ExternalModelDefinition emd : emds) {
-        String secModelName = emd.getSource();
-        secModelNames.add(secModelName);
-
-        SBMLDocument secDoc = secDocs.get(secModelName);
-        secModels.add(secDoc);
-      }
-
-      // Gets data files from the tertiary model document
-      List<String> numlDocNames = new LinkedList<>();
-      List<NuMLDocument> numlDocs = new LinkedList<>();
-
-      XMLNode tertAnnot = tertDoc.getModel().getAnnotation().getNonRDFannotation();
-      XMLNode tertAnnotMetadata = tertAnnot.getChildElement("metadata", "");
-      for (XMLNode node : tertAnnotMetadata.getChildElements(DataSourceNode.TAG, "")) {
-        DataSourceNode dsn = new DataSourceNode(node);
-        String numlDocName = dsn.getFile();
-        numlDocNames.add(numlDocName);
-
-        NuMLDocument numlDoc = dataEntriesMap.get(numlDocName);
-        numlDocs.add(numlDoc);
-      }
-      OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDocName, tertDoc, secModelNames,
-          secModels, numlDocNames, numlDocs);
-      models.add(tstm);
-    }
-
-    return models;
   }
 
   /**
@@ -260,9 +171,6 @@ public class OneStepTertiaryModelFile {
         final NuMLDocument numlDoc = dataEntriesMap.get(numlDocName);
         numlDocs.add(numlDoc);
       }
-      OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDocName, tertDoc, secModelNames,
-          secModels, numlDocNames, numlDocs);
-      models.add(tstm);
       models.add(new OneStepTertiaryModel(tertDocName, tertDoc, secModelNames, secModels,
           numlDocNames, numlDocs));
     }

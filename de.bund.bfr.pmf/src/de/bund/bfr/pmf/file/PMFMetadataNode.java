@@ -36,37 +36,37 @@ public class PMFMetadataNode {
   Set<String> masterFiles;
   Element node;
 
-  public PMFMetadataNode(ModelType modelType, Set<String> masterFiles) {
+  public PMFMetadataNode(final ModelType modelType, final Set<String> masterFiles) {
     this.modelType = modelType;
     this.masterFiles = masterFiles;
 
     node = new Element("metaParent");
-    Element modelTypeElement = new Element(MODEL_TYPE_TAG);
+    final Element modelTypeElement = new Element(MODEL_TYPE_TAG);
     modelTypeElement.addContent(modelType.name());
     node.addContent(modelTypeElement);
-    for (String masterFile : masterFiles) {
-      Element masterFileElement = new Element(MASTER_FILE_TAG);
+    for (final String masterFile : masterFiles) {
+      final Element masterFileElement = new Element(MASTER_FILE_TAG);
       masterFileElement.addContent(masterFile);
       node.addContent(masterFileElement);
     }
   }
 
-  public PMFMetadataNode(Element node) {
+  public PMFMetadataNode(final Element node) {
     this.node = node;
 
     modelType = ModelType.valueOf(node.getChildText(MODEL_TYPE_TAG));
-    List<Element> masterFileElements = node.getChildren(MASTER_FILE_TAG);
+    final List<Element> masterFileElements = node.getChildren(MASTER_FILE_TAG);
     masterFiles = new HashSet<>(masterFileElements.size());
-    for (Element masterFileElement : masterFileElements) {
+    for (final Element masterFileElement : masterFileElements) {
       masterFiles.add(masterFileElement.getText());
     }
   }
 
-  public ModelType getModelType() {
+  public final ModelType getModelType() {
     return modelType;
   }
 
-  public Set<String> masterFiles() {
+  public final Set<String> masterFiles() {
     return masterFiles;
   }
 }

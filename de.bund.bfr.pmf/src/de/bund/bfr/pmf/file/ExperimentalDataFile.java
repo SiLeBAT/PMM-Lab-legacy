@@ -61,13 +61,13 @@ public class ExperimentalDataFile {
 
   public static void writePMF(final String dir, final String filename,
       List<ExperimentalData> dataRecords) throws CombineArchiveException {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, dataRecords);
   }
 
   public static void writePMFX(final String dir, final String filename,
       List<ExperimentalData> dataRecords) throws CombineArchiveException {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, dataRecords);
   }
 

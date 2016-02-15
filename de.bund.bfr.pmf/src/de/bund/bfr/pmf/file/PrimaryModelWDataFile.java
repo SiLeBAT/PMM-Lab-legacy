@@ -55,29 +55,31 @@ public class PrimaryModelWDataFile {
   private static final URI NUML_URI = URIFactory.createNuMLURI();
   private static final URI PMF_URI = URIFactory.createPMFURI();
 
-  public static List<PrimaryModelWData> readPMF(String filename) throws CombineArchiveException {
+  public static List<PrimaryModelWData> readPMF(final String filename)
+      throws CombineArchiveException {
     return read(filename, SBML_URI);
   }
 
-  public static List<PrimaryModelWData> readPMFX(String filename) throws CombineArchiveException {
+  public static List<PrimaryModelWData> readPMFX(final String filename)
+      throws CombineArchiveException {
     return read(filename, PMF_URI);
   }
 
   /**
    * Writes experiments to PrimaryModelWDataFile.
    */
-  public static void writePMF(String dir, String filename, List<PrimaryModelWData> models)
-      throws CombineArchiveException {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+  public static void writePMF(final String dir, final String filename,
+      final List<PrimaryModelWData> models) throws CombineArchiveException {
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
   /**
    * Writes experiments to PrimaryModelWDataFile.
    */
-  public static void writePMFX(String dir, String filename, List<PrimaryModelWData> models)
-      throws CombineArchiveException {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+  public static void writePMFX(final String dir, final String filename,
+      final List<PrimaryModelWData> models) throws CombineArchiveException {
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 

@@ -32,12 +32,11 @@ import java.net.URISyntaxException;
 public class NuMLURI implements URIBase {
 
 	public URI createURI() {
-		URI uri = null;
 		try {
-			uri = new URI("https://raw.githubusercontent.com/NuML/NuML/master/NUMLSchema.xsd");
+			return new URI("https://raw.githubusercontent.com/NuML/NuML/master/NUMLSchema.xsd");
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
+			return null;
 		}
-		return uri;
 	}
 }

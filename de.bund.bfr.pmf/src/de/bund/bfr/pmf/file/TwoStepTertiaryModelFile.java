@@ -68,26 +68,26 @@ public class TwoStepTertiaryModelFile {
 
   private static final SBMLWriter WRITER = new SBMLWriter();
 
-  public static List<TwoStepTertiaryModel> readPMF(String filename) throws CombineArchiveException {
+  public static List<TwoStepTertiaryModel> readPMF(final String filename) throws CombineArchiveException {
     return read(filename, SBML_URI);
   }
 
-  public static List<TwoStepTertiaryModel> readPMFX(String filename)
+  public static List<TwoStepTertiaryModel> readPMFX(final String filename)
       throws CombineArchiveException {
     return read(filename, PMF_URI);
   }
 
   /**
    */
-  public static void writePMF(String dir, String filename, List<TwoStepTertiaryModel> models)
+  public static void writePMF(final String dir, final String filename, final List<TwoStepTertiaryModel> models)
       throws Exception {
-    String caName = String.format("%s/%s.pmf", dir, filename);
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, String filename, List<TwoStepTertiaryModel> models)
+  public static void writePMFX(final String dir, final String filename, final List<TwoStepTertiaryModel> models)
       throws Exception {
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 

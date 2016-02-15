@@ -46,28 +46,29 @@ public class ManualSecondaryModelFile {
   private static final URI SBML_URI = URIFactory.createSBMLURI();
   private static final URI PMF_URI = URIFactory.createPMFURI();
 
-  public static List<ManualSecondaryModel> readPMF(String filename) throws CombineArchiveException {
+  public static List<ManualSecondaryModel> readPMF(final String filename)
+      throws CombineArchiveException {
     return read(filename, SBML_URI);
   }
 
-  public static List<ManualSecondaryModel> readPMFX(String filename)
+  public static List<ManualSecondaryModel> readPMFX(final String filename)
       throws CombineArchiveException {
     return read(filename, PMF_URI);
   }
 
-  public static void writePMF(String dir, String filename, List<ManualSecondaryModel> models)
-      throws CombineArchiveException {
+  public static void writePMF(final String dir, final String filename,
+      final List<ManualSecondaryModel> models) throws CombineArchiveException {
 
     // Creates CombineArchive name
-    String caName = String.format("%s/%s.pmf", dir, filename);
+    final String caName = String.format("%s/%s.pmf", dir, filename);
     write(caName, SBML_URI, models);
   }
 
-  public static void writePMFX(String dir, String filename, List<ManualSecondaryModel> models)
-      throws CombineArchiveException {
+  public static void writePMFX(final String dir, final String filename,
+      final List<ManualSecondaryModel> models) throws CombineArchiveException {
 
     // Creates CombineArchive name
-    String caName = String.format("%s/%s.pmfx", dir, filename);
+    final String caName = String.format("%s/%s.pmfx", dir, filename);
     write(caName, PMF_URI, models);
   }
 

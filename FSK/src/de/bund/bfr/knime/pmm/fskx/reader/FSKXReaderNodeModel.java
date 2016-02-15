@@ -33,10 +33,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Element;
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -54,9 +51,9 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
+import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
-import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.pmf.file.CombineArchiveUtil;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
@@ -200,27 +197,12 @@ public class FSKXReaderNodeModel extends NodeModel {
 
     CombineArchiveUtil.close(combineArchive);
 
-    // Creates column spec, table spec and container
-    final DataColumnSpecCreator[] columnSpecCreators =
-        new DataColumnSpecCreator[] {new DataColumnSpecCreator("origModel", StringCell.TYPE),
-            new DataColumnSpecCreator("simpModel", StringCell.TYPE),
-            new DataColumnSpecCreator("origParams", StringCell.TYPE),
-            new DataColumnSpecCreator("simpParams", StringCell.TYPE),
-            new DataColumnSpecCreator("origVisualization", StringCell.TYPE),
-            new DataColumnSpecCreator("simpVisualization", StringCell.TYPE),
-            new DataColumnSpecCreator("RLibraries", StringCell.TYPE),
-            new DataColumnSpecCreator("RSources", StringCell.TYPE)};
-
-    final DataColumnSpec[] columnSpec = new DataColumnSpec[columnSpecCreators.length];
-    for (int i = 0; i < columnSpecCreators.length; i++) {
-      columnSpec[i] = columnSpecCreators[i].createSpec();
-    }
-
-    final DataTableSpec tableSpec = new DataTableSpec(columnSpec);
+    // Creates table spec and container
+    final DataTableSpec tableSpec = FSKUtil.createFSKTableSpec();
     final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
-    EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(FSKXTuple.KEYS.class);
+    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(FSKXTuple.KEYS.class);
     valuesMap.put(KEYS.ORIG_MODEL, origModelScript); // Adds original model script
     valuesMap.put(KEYS.SIMP_MODEL, simpModelScript); // Adds simplified model script
     valuesMap.put(KEYS.ORIG_PARAM, origParamScript); // Adds original parameters script

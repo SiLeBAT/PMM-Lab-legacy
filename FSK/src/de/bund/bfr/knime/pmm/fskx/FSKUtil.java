@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.StringCell;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
@@ -43,7 +47,7 @@ import de.bund.bfr.pmf.sbml.Reference;
 import de.bund.bfr.pmf.sbml.SBMLFactory;
 
 public class FSKUtil {
-  
+
   private FSKUtil() {}
 
   public static KnimeTuple processMetaData(final SBMLDocument sbmlDocument) {
@@ -297,7 +301,7 @@ public class FSKUtil {
 
     return libraryNames;
   }
-  
+
   /**
    * Obtain the source files used in a list of lines from an R code.
    * 
@@ -333,5 +337,15 @@ public class FSKUtil {
       }
     }
     return sb.toString();
+  }
+
+  public static DataTableSpec createFSKTableSpec() {
+    final String[] columnNames = {"origModel", "simpModel", "origParams", "simpParams",
+        "origVisualization", "simpVisualization", "RLibraries", "RSources"};
+    final DataType[] columnTypes = {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE,
+        StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
+    final DataColumnSpec[] columnSpecs = DataTableSpec.createColumnSpecs(columnNames, columnTypes);
+
+    return new DataTableSpec(columnSpecs);
   }
 }

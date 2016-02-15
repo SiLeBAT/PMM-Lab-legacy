@@ -9,10 +9,7 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.Charsets;
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -200,22 +197,8 @@ public class R2FSKNodeModel extends NodeModel {
       }
     }
 
-    // Creates column spec, table spec and container
-    final DataColumnSpecCreator[] columnSpecCreators =
-        new DataColumnSpecCreator[] {new DataColumnSpecCreator("origModel", StringCell.TYPE),
-            new DataColumnSpecCreator("simpModel", StringCell.TYPE),
-            new DataColumnSpecCreator("origParams", StringCell.TYPE),
-            new DataColumnSpecCreator("simpParams", StringCell.TYPE),
-            new DataColumnSpecCreator("origVisualization", StringCell.TYPE),
-            new DataColumnSpecCreator("simpVisualization", StringCell.TYPE),
-            new DataColumnSpecCreator("RLibraries", StringCell.TYPE),
-            new DataColumnSpecCreator("RSources", StringCell.TYPE)};
-
-    final DataColumnSpec[] columnSpec = new DataColumnSpec[columnSpecCreators.length];
-    for (int i = 0; i < columnSpecCreators.length; i++) {
-      columnSpec[i] = columnSpecCreators[i].createSpec();
-    }
-    final DataTableSpec tableSpec = new DataTableSpec(columnSpec);
+    // Creates table spec and container
+    final DataTableSpec tableSpec = FSKUtil.createFSKTableSpec();
     final BufferedDataContainer container = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container

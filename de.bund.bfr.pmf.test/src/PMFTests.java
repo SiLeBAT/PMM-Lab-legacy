@@ -21,6 +21,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import de.bund.bfr.pmf.ModelClassTest;
+import de.bund.bfr.pmf.file.uri.URIFactoryTest;
 import de.bund.bfr.pmf.model.ExperimentalDataTest;
 import de.bund.bfr.pmf.model.ManualSecondaryModelTest;
 import de.bund.bfr.pmf.model.ManualTertiaryModelTest;
@@ -66,6 +67,8 @@ import de.bund.bfr.pmf.sbml.UncertaintyNodeTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
+    // de.bund.bfr.pmf.file
+    URIFactoryTest.class,
     // de.bund.bfr.pmf.model
     ExperimentalDataTest.class, PrimaryModelWDataTest.class, PrimaryModelWODataTest.class,
     TwoStepSecondaryModelTest.class, OneStepSecondaryModelTest.class,

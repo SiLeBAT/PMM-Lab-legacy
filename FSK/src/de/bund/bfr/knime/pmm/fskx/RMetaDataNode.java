@@ -32,6 +32,7 @@ public class RMetaDataNode {
   private static final String MAIN_SCRIPT_TAG = "mainScript";
   private static final String PARAM_SCRIPT_TAG = "parametersScript";
   private static final String VIZ_SCRIPT_TAG = "visualizationScript";
+  private static final String WORKSPACE_TAG = "workspace";
 
   private Element node;
 
@@ -68,6 +69,15 @@ public class RMetaDataNode {
   
   public void setVisualizationScript(final String vizScript) {
     setText(VIZ_SCRIPT_TAG, vizScript);
+  }
+  
+  /** @return null if the workspace file is not set */
+  public String getWorkspaceFile() {
+    return node.getChildText(WORKSPACE_TAG);
+  }
+  
+  public void setWorkspaceFile(final String workspaceFile) {
+    setText(WORKSPACE_TAG, workspaceFile);
   }
 
   public Element getNode() {

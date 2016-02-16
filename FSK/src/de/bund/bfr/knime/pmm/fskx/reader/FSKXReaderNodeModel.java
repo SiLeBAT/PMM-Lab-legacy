@@ -44,6 +44,10 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.port.PortType;
+import org.knime.ext.r.node.local.port.RPortObject;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 
@@ -53,8 +57,8 @@ import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
-import de.bund.bfr.knime.pmm.fskx.RUri;
 import de.bund.bfr.pmf.file.CombineArchiveUtil;
+import de.bund.bfr.pmf.file.uri.RUri;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
@@ -71,15 +75,19 @@ public class FSKXReaderNodeModel extends NodeModel {
   // defaults for persistent state
   private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
+  private static final PortType[] inPortTypes = {};
+  private static final PortType[] outPortTypes =
+      {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE};
+
   protected FSKXReaderNodeModel() {
-    // 0 input ports and 2 input port
-    super(0, 2);
+    // 0 input ports and 3 output ports
+    super(inPortTypes, outPortTypes);
   }
 
   /** {@inheritDoc} */
   @Override
-  protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-      final ExecutionContext exec) throws CombineArchiveException, FileAccessException {
+  protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
+      throws CombineArchiveException, FileAccessException {
 
     String filepath = filename.getStringValue();
 
@@ -194,6 +202,18 @@ public class FSKXReaderNodeModel extends NodeModel {
     } catch (IOException | XMLStreamException e) {
       tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
     }
+    
+    // Gets R workspace
+    RPortObject rPort;
+    try {
+      final String workspaceFileName = metaDataNode.getWorkspaceFile();
+      final File tempFile = File.createTempFile("workspace", "");
+      final ArchiveEntry entry = rEntriesMap.get(workspaceFileName);
+      entry.extractFile(tempFile);
+      rPort = new RPortObject(tempFile);
+    } catch (IOException e) {
+      throw new FileAccessException("Error accessing R workspace");
+    }
 
     CombineArchiveUtil.close(combineArchive);
 
@@ -221,14 +241,14 @@ public class FSKXReaderNodeModel extends NodeModel {
     modelContainer.addRowToTable(tuple);
     modelContainer.close();
 
-    return new BufferedDataTable[] {dataContainer.getTable(), modelContainer.getTable()};
+    return new PortObject[] {dataContainer.getTable(), modelContainer.getTable(), rPort};
   }
 
   /** {@inheritDoc} */
   @Override
-  protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+  protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] {null, null};
+    return new PortObjectSpec[] {null, null, null};
   }
 
   /** {@inheritDoc} */

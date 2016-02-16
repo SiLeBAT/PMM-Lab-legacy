@@ -29,7 +29,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -41,6 +40,10 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.port.PortType;
+import org.knime.ext.r.node.local.port.RPortObject;
 import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Model;
@@ -72,11 +75,11 @@ import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.Util;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
-import de.bund.bfr.knime.pmm.fskx.RUri;
 import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.PMFUtil;
 import de.bund.bfr.pmf.file.CombineArchiveUtil;
+import de.bund.bfr.pmf.file.uri.RUri;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.bund.bfr.pmf.sbml.LimitsConstraint;
 import de.bund.bfr.pmf.sbml.Metadata;
@@ -121,8 +124,12 @@ public class FSKXWriterNodeModel extends NodeModel {
   private SettingsModelString license = new SettingsModelString(CFG_LICENSE, null);
   private SettingsModelString notes = new SettingsModelString(CFG_NOTES, null);
 
+  private static final PortType[] inPortTypes =
+      {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE};
+  private static final PortType[] outPortTypes = {};
+
   protected FSKXWriterNodeModel() {
-    super(2, 0);
+    super(inPortTypes, outPortTypes);
 
     // Sets current date in the dialog components
     long currentDate = Calendar.getInstance().getTimeInMillis();
@@ -134,10 +141,11 @@ public class FSKXWriterNodeModel extends NodeModel {
    * {@inheritDoc}
    * 
    * @throws FileCreationException If a critical file could not be created. E.g. model script.
+   * @throws IOException
    */
   @Override
-  protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-      final ExecutionContext exec) throws CombineArchiveException, FileCreationException {
+  protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
+      throws CombineArchiveException, FileCreationException, IOException {
 
     CombineArchiveUtil.removeExistentFile(filePath.getStringValue());
 
@@ -145,7 +153,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     // script and the visualization script as the 1st and 2nd columns respectively. However, it
     // is desirable to use FSKXTuple in the future.
 
-    final DataRow row = inData[0].iterator().next();
+    final DataRow row = ((BufferedDataTable) inData[0]).iterator().next();
     final StringCell modelCell = (StringCell) row.getCell(FSKXTuple.KEYS.ORIG_MODEL.ordinal());
     final StringCell paramCell = (StringCell) row.getCell(FSKXTuple.KEYS.ORIG_PARAM.ordinal());
     final StringCell vizCell = (StringCell) row.getCell(FSKXTuple.KEYS.ORIG_VIZ.ordinal());
@@ -204,11 +212,16 @@ public class FSKXWriterNodeModel extends NodeModel {
       }
     }
 
+    // R workspace
+    RPortObject rPort = (RPortObject) inData[2];
+    combineArchive.addEntry(rPort.getFile(), rPort.getFile().getName(), rURI);
+    metaDataNode.setWorkspaceFile(rPort.getFile().getName());
+
     combineArchive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
 
     // Handles model metadata table
     final KnimeSchema schema = SchemaFactory.createM1DataSchema(); // Only support primary models
-    final KnimeTuple tuple = PmmUtilities.getTuples(inData[1], schema).get(0);
+    final KnimeTuple tuple = PmmUtilities.getTuples((BufferedDataTable) inData[1], schema).get(0);
 
     // Gets info from dialog
     Metadata metadata = SBMLFactory.createMetadata();
@@ -275,9 +288,11 @@ public class FSKXWriterNodeModel extends NodeModel {
 
   /** {@inheritDoc} */
   @Override
-  protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+  protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] {};
+    return new PortObjectSpec[] {
+
+    };
   }
 
   /** {@inheritDoc} */

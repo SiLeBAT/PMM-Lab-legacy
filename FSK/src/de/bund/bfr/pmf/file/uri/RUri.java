@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.fskx;
+package de.bund.bfr.pmf.file.uri;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -10,7 +10,8 @@ Require-Bundle: org.knime.workbench.core,
  org.knime.core,
  de.bund.bfr.pmf;bundle-version="1.0.0",
  com.google.guava,
- org.knime.workbench.repository
+ org.knime.workbench.repository,
+ org.knime.ext.r.type;bundle-version="3.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR

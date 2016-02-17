@@ -31,6 +31,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -293,6 +294,16 @@ public final class ModelEditorNodeModel
 		catalogModel.setComment(catalogModelXml.getComment());
 		catalogModel.setDbuuid(catalogModelXml.getDbuuid());
 		outTuple.setCatModel(catalogModel);
+		
+		CatalogModelXml catalogModelSecXml = (CatalogModelXml) inTuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
+		CatalogModel catalogModelSec = new CatalogModel();
+		catalogModelSec.setId(catalogModelSecXml.getId());
+		catalogModelSec.setName(catalogModelSecXml.getName());
+		catalogModelSec.setFormula(catalogModelSecXml.getFormula());
+		catalogModelSec.setModelClass(catalogModelSecXml.getModelClass());
+		catalogModelSec.setComment(catalogModelSecXml.getComment());
+		catalogModelSec.setDbuuid(catalogModelSecXml.getDbuuid());
+		outTuple.setCatModelSec(catalogModelSec);
 
 		EstModelXml estModelXml = (EstModelXml) inTuple.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0);
 		EstModel estModel = new EstModel();
@@ -359,6 +370,45 @@ public final class ModelEditorNodeModel
 		ParamList paramList = new ParamList();
 		paramList.setParams(paramArray);
 		outTuple.setParams(paramList);
+		
+		PmmXmlDoc paramSecDoc = inTuple.getPmmXml(Model2Schema.ATT_PARAMETER);
+		Param[] paramSecArray = new Param[paramSecDoc.size()];
+		for (int i = 0; i < paramSecDoc.size(); i++) {
+			ParamXml paramSecXml = (ParamXml) paramSecDoc.get(i);
+			
+			HashMap<String, Double> obtainedCorrelations = paramSecXml.getAllCorrelations();
+			String[] obtainedCorrelationNames = new String[obtainedCorrelations.size()];
+			double[] obtainedCorrelationValues = new double[obtainedCorrelations.size()];
+			int j = 0;
+			for (Map.Entry<String, Double> entry : obtainedCorrelations.entrySet()) {
+				obtainedCorrelationNames[j] = entry.getKey();
+				obtainedCorrelationValues[j] = entry.getValue();
+				j++;
+			}
+			
+			Param paramSec = new Param();
+			paramSec.setName(paramSecXml.getName());
+			paramSec.setOrigName(paramSecXml.getOrigName());
+			paramSec.setIsStart(paramSecXml.isStartParam());
+			paramSec.setValue(paramSecXml.getValue());
+			paramSec.setError(paramSecXml.getError());
+			paramSec.setMin(paramSecXml.getMin());
+			paramSec.setMax(paramSecXml.getMax());
+			paramSec.setP(paramSecXml.getP());
+			paramSec.setT(paramSecXml.getT());
+			paramSec.setMinGuess(paramSecXml.getMinGuess());
+			paramSec.setMaxGuess(paramSecXml.getMaxGuess());
+			paramSec.setCategory(paramSecXml.getCategory());
+			paramSec.setUnit(paramSecXml.getUnit());
+			paramSec.setDescription(paramSecXml.getDescription());
+			paramSec.setCorrelationNames(obtainedCorrelationNames);
+			paramSec.setCorrelationValues(obtainedCorrelationValues);
+			
+			paramSecArray[i] = paramSec;
+		}
+		ParamList paramSecList = new ParamList();
+		paramSecList.setParams(paramSecArray);
+		outTuple.setParamsSec(paramSecList);
 
 		PmmXmlDoc indepDoc = inTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 		Indep[] indepArray = new Indep[indepDoc.size()];
@@ -377,6 +427,24 @@ public final class ModelEditorNodeModel
 		IndepList indepList = new IndepList();
 		indepList.setIndeps(indepArray);
 		outTuple.setIndeps(indepList);
+		
+		PmmXmlDoc indepSecDoc = inTuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+		Indep[] indepSecArray = new Indep[indepSecDoc.size()];
+		for (int i = 0; i < indepSecDoc.size(); i++) {
+			IndepXml indepSecXml = (IndepXml) indepSecDoc.get(i);
+			Indep indepSec = new Indep();
+			indepSec.setName(indepSecXml.getName());
+			indepSec.setOrigname(indepSecXml.getOrigName());
+			indepSec.setMin(indepSecXml.getMin());
+			indepSec.setMax(indepSecXml.getMax());
+			indepSec.setCategory(indepSecXml.getCategory());
+			indepSec.setUnit(indepSecXml.getUnit());
+			indepSec.setDescription(indepSecXml.getDescription());
+			indepSecArray[i] = indepSec;
+		}
+		IndepList indepSecList = new IndepList();
+		indepSecList.setIndeps(indepSecArray);
+		outTuple.setIndepsSec(indepSecList);
 
 		PmmXmlDoc mLitDoc = (PmmXmlDoc) inTuple.getPmmXml(Model1Schema.ATT_MLIT);
 		Literature[] mLiteratureArray = new Literature[mLitDoc.size()];

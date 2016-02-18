@@ -121,18 +121,18 @@ public class Model2Tuple {
 		// Gets model literature
 		PmmXmlDoc mLits = new PmmXmlDoc();
 		for (Reference ref : rule.getReferences()) {
-			String author = ref.getAuthor();
-			Integer year = ref.getYear();
-			String title = ref.getTitle();
-			String abstractText = ref.getAbstractText();
-			String journal = ref.getJournal();
-			String volume = ref.getVolume();
-			String issue = ref.getIssue();
-			Integer page = ref.getPage();
-			Integer approvalMode = ref.getApprovalMode();
-			String website = ref.getWebsite();
-			Integer type = ref.isSetType() ? ref.getType().value() : null;
-			String comment = ref.getComment();
+			final String author = ref.getAuthor();
+			final Integer year = ref.getYear();
+			final String title = ref.getTitle();
+			final String abstractText = ref.getAbstractText();
+			final String journal = ref.getJournal();
+			final String volume = ref.getVolume();
+			final String issue = ref.getIssue();
+			final Integer page = ref.getPage();
+			final Integer approvalMode = ref.getApprovalMode();
+			final String website = ref.getWebsite();
+			final Integer type = ref.isSetType() ? ref.getType().value() : null;
+			final String comment = ref.getComment();
 
 			LiteratureItem literatureItem = new LiteratureItem(author, year, title, abstractText, journal, volume,
 					issue, page, approvalMode, website, type, comment);
@@ -146,18 +146,18 @@ public class Model2Tuple {
 		// Gets estimated model literature
 		PmmXmlDoc emLits = new PmmXmlDoc();
 		for (Reference ref : m2Annot.getReferences()) {
-			String author = ref.getAuthor();
-			Integer year = ref.getYear();
-			String title = ref.getTitle();
-			String abstractText = ref.getAbstractText();
-			String journal = ref.getJournal();
-			String volume = ref.getVolume();
-			String issue = ref.getIssue();
-			Integer page = ref.getPage();
-			Integer approvalMode = ref.getApprovalMode();
-			String website = ref.getWebsite();
-			Integer type = ref.isSetType() ? ref.getType().value() : null;
-			String comment = ref.getComment();
+			final String author = ref.getAuthor();
+			final Integer year = ref.getYear();
+			final String title = ref.getTitle();
+			final String abstractText = ref.getAbstractText();
+			final String journal = ref.getJournal();
+			final String volume = ref.getVolume();
+			final String issue = ref.getIssue();
+			final Integer page = ref.getPage();
+			final Integer approvalMode = ref.getApprovalMode();
+			final String website = ref.getWebsite();
+			final Integer type = ref.isSetType() ? ref.getType().value() : null;
+			final String comment = ref.getComment();
 
 			LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page,
 					approvalMode, website, type, comment);
@@ -168,18 +168,18 @@ public class Model2Tuple {
 			metadata.addLiteratureItem(emLiteratureItem);
 		}
 
-		setTuple(new KnimeTuple(schema));
-		getTuple().setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		getTuple().setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		getTuple().setValue(Model2Schema.ATT_INDEPENDENT, indeps);
-		getTuple().setValue(Model2Schema.ATT_PARAMETER, consts);
-		getTuple().setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		getTuple().setValue(Model2Schema.ATT_MLIT, mLits);
-		getTuple().setValue(Model2Schema.ATT_EMLIT, emLits);
-		getTuple().setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
-		getTuple().setValue(Model2Schema.ATT_DBUUID, "?");
-		getTuple().setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
-		getTuple().setValue(Model2Schema.ATT_METADATA, metadata);
+		tuple = new KnimeTuple(schema);
+		tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+		tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indeps);
+		tuple.setValue(Model2Schema.ATT_PARAMETER, consts);
+		tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+		tuple.setValue(Model2Schema.ATT_MLIT, mLits);
+		tuple.setValue(Model2Schema.ATT_EMLIT, emLits);
+		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
+		tuple.setValue(Model2Schema.ATT_DBUUID, "?");
+		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
+		tuple.setValue(Model2Schema.ATT_METADATA, metadata);
 	}
 
 	private ParamXml processCoefficient(Parameter param, ListOf<UnitDefinition> unitDefs, Map<String, Limits> limits) {

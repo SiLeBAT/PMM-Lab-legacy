@@ -6,16 +6,6 @@
 		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory" id="sbmlreader.SBMLReaderNodeFactory" />
 		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.openfsmr.OpenFSMRConverterNodeFactory" id="openfsmr.OpenFSMRConverterFactory" />
   <node
-        category-path="/pmmlab/reader"        
-        factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory"
-        id="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory">
-  </node>
-  <node
-        category-path="/pmmlab/writer"        
-        factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory"
-        id="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory">
-  </node>
-  <node
         category-path="/pmmlab/writer"
         deprecated="false"
         factory-class="de.bund.bfr.knime.pmm.pmfxwriter.PMFXWriterNodeFactory"

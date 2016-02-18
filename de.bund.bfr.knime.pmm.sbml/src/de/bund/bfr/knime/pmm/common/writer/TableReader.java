@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.UnitDefinition;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -25,6 +26,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
+import de.bund.bfr.pmf.PMFUtil;
 import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
 
 public class TableReader {
@@ -118,7 +120,10 @@ public class TableReader {
 		// of units
 		for (String unit : units) {
 			PMFUnitDefinition unitDefinition = Util.createUnitFromDB(unit);
-			if (unitDefinition != null) {
+			if (unitDefinition == null) {
+				UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
+				ud.setName(unit);
+			} else {
 				model.addUnitDefinition(unitDefinition.getUnitDefinition());
 			}
 		}

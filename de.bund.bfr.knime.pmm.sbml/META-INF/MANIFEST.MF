@@ -14,7 +14,9 @@ Require-Bundle: org.knime.workbench.core,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
-Export-Package: de.bund.bfr.knime.pmm.dbutil, 
+Export-Package: de.bund.bfr.knime.pmm.common.reader,
+ de.bund.bfr.knime.pmm.common.writer,
+ de.bund.bfr.knime.pmm.dbutil,
  de.bund.bfr.knime.pmm.numl,
  de.bund.bfr.knime.pmm.openfsmr,
  de.bund.bfr.knime.pmm.pmfreader,

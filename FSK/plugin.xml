@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?><plugin>
+
+	<extension point="org.knime.workbench.repository.nodes">
+  <node
+        category-path="/pmmlab/writer"
+        deprecated="false"
+        factory-class="de.bund.bfr.knime.pmm.fskx.writer.FSKXWriterNodeFactory"
+        id="FSKXWriterNodeFactory">
+  </node>
+  <node
+        category-path="/pmmlab/reader"
+        deprecated="false"
+        factory-class="de.bund.bfr.knime.pmm.fskx.reader.FSKXReaderNodeFactory"
+        id="FSKXReaderNodeFactory">
+  </node>
+  <node
+        category-path="/pmmlab/reader"
+        deprecated="false"
+        factory-class="de.bund.bfr.knime.pmm.fskx.r2fsk.R2FSKNodeFactory"
+        id="R2FSKNodeFactory">
+  </node>
+	</extension>
+ <extension
+       point="org.knime.workbench.repository.metanode">
+    <PersistedMetaNode
+          category-path="/pmmlab"
+          expert-flag="false"
+          id="de.bund.bfr.knime.pmm.fsk.testrmodel"
+          name="Test R model"
+          workflowDir="metanodes_templates/Test R model/">
+    </PersistedMetaNode>
+ </extension>	
+   
+</plugin>

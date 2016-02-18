@@ -23,12 +23,8 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-/**
- * <code>NodeFactory</code> for the "SBMLWriter" Node.
- * 
- *
- * @author Christian Thoens
- */
+import de.bund.bfr.knime.pmm.common.writer.PMFWriterNodeDialog;
+
 public class PMFWriterNodeFactory 
         extends NodeFactory<PMFWriterNodeModel> {
 

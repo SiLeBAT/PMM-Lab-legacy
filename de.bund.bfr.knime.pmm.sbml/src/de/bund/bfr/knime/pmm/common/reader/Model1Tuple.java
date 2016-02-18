@@ -67,7 +67,9 @@ public class Model1Tuple {
 			} else {
 				String depUnitName = model.getUnitDefinition(depUnitID).getName();
 				depXml.setUnit(depUnitName);
-				depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+				if (DBUnits.getDBUnits().containsKey(depUnitName)) {
+					depXml.setCategory(DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity());
+				}
 			}
 		}
 		if (species.isSetDescription()) {
@@ -111,7 +113,9 @@ public class Model1Tuple {
 			if (!unitID.equals(Unit.Kind.DIMENSIONLESS.getName())) {
 				String unitName = model.getUnitDefinition(unitID).getName();
 				paramXml.setUnit(unitName);
-				paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+				if (DBUnits.getDBUnits().containsKey(unitName)) {
+					paramXml.setCategory(DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity());
+				}
 			}
 
 			PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(param);
@@ -207,17 +211,17 @@ public class Model1Tuple {
 			emLit.add(lit);
 		}
 
-		setTuple(new KnimeTuple(schema));
-		getTuple().setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-		getTuple().setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-		getTuple().setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
-		getTuple().setValue(Model1Schema.ATT_PARAMETER, paramCell);
-		getTuple().setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-		getTuple().setValue(Model1Schema.ATT_MLIT, mLit);
-		getTuple().setValue(Model1Schema.ATT_EMLIT, emLit);
-		getTuple().setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
-		getTuple().setValue(Model1Schema.ATT_DBUUID, "?");
-		getTuple().setValue(Model1Schema.ATT_METADATA, metadata);
+		tuple = new KnimeTuple(schema);
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+		tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+		tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
+		tuple.setValue(Model1Schema.ATT_PARAMETER, paramCell);
+		tuple.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+		tuple.setValue(Model1Schema.ATT_MLIT, mLit);
+		tuple.setValue(Model1Schema.ATT_EMLIT, emLit);
+		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
+		tuple.setValue(Model1Schema.ATT_DBUUID, "?");
+		tuple.setValue(Model1Schema.ATT_METADATA, metadata);
 	}
 
 	public KnimeTuple getTuple() {

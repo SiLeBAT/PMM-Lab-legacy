@@ -48,6 +48,7 @@ pmm_plotter = function() {
 	var msgParameter = "Initial Parameters";
 	var msgMatrix = "Matrix";
 	var msgExamples = "Examples";
+	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula."
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -58,9 +59,8 @@ pmm_plotter = function() {
 	var _totalHeight = "height: 800px;";
 	var _plotWidth = 600;
 	var _plotHeight = 400;
-	var _logConst = 2.3025851; 
-	
-	// TODO: eliminate msg strings from code
+	var _logConst = 2.3025851;
+	var _xUnit = msgUnknown;
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -93,7 +93,7 @@ pmm_plotter = function() {
 	 */
 	function initJQuery() 
 	{
-		// make all html buttons jquery buttons
+		// make buttons jquery buttons
 		$("#nextButton").button({
 			icons: {
 				primary: "ui-icon-arrow-1-e"
@@ -101,17 +101,16 @@ pmm_plotter = function() {
 			disabled: true
 		});
 		
-		// make all html buttons jquery buttons
 		$("#addModelButton").button({
 			icons: {
 				primary: "ui-icon-plus"
 			},
 			disabled: true
 		}).click( function () 
+			{
 				// once a model is added, we can activate the "next" button
-				{
-			$("#nextButton").button( "option", "disabled", false );
-				}
+				$("#nextButton").button( "option", "disabled", false );
+			}
 		);
 		
 		// make the selection a jquery select menu
@@ -129,11 +128,13 @@ pmm_plotter = function() {
 	}
 	
 	/*
-	 * initalizes all DOM elements, divs and placeholders
+	 * initalizes and style all DOM elements, divs and placeholders
 	 */
 	function initLayout()
 	{
-		// body
+		/*
+		 * body
+		 */
 		var body = document.getElementsByTagName("body")[0];
 		$('body').css({
 			"width": "100%", 
@@ -183,6 +184,7 @@ pmm_plotter = function() {
 				addFunctionFromSelection(); 
 		});
 		leftWrapper.appendChild(addModelButton);
+		
 		// slider wrapper
 		var sliderWrapper = document.createElement("div");
 		sliderWrapper.setAttribute("id", "sliderWrapper");
@@ -220,21 +222,28 @@ pmm_plotter = function() {
 	}
 	
 	/*
-	 * adds a new option to the selection menu
+	 * chooses models to add to the selection menu and triggers adding
 	 * 
-	 * @param condId id of the model
-	 * @param modelName name of the model
+	 * @param modelsArray the original model array delivered by the java class
 	 */
 	function addSelectOptions(modelsArray)
-	{
+	{	
+		idList = []; // used to make sure there is only one option per global model id
 		if(modelsArray)
 		{
 			$.each(modelsArray, function(i) 
 				{
-					var type = modelsArray[i].type;
 					var condId = modelsArray[i].condId;
-					var modelName = modelsArray[i].estModel.name;
-					addSelectOption(condId, modelName, type);
+					// only add if not added before
+					if(idList.indexOf(condId) == -1)
+					{
+						var type = modelsArray[i].type;
+						var modelName = modelsArray[i].estModel.name;
+						// pass data
+						addSelectOption(condId, modelName, type);
+						// remember id
+						idList.push(condId);
+					}
 				}
 			);
 		}
@@ -242,6 +251,8 @@ pmm_plotter = function() {
 	
 	/*
 	 * adds a new option to the selection menu
+	 * options of the same type are grouped (group name is type)
+	 * options with no type have the "no type" group
 	 * 
 	 * @param condId id of the model
 	 * @param modelName name of the model
@@ -251,10 +262,12 @@ pmm_plotter = function() {
 		if(!type || type == "")
 			type = msgNoType;
 		
+		// html <option>
 		var option = document.createElement("option");
 		option.setAttribute("value", condId);
 		option.innerHTML = "[" + condId + "] " + modelName;
 		
+		// find or create html <optgroup>
 		var groupId = "optGroup_" + type;
 		var group = document.getElementById(groupId);
 		if(!group) 
@@ -281,26 +294,31 @@ pmm_plotter = function() {
 
 		// get the model data
 		var model;
+		var modelList = [];
+		
+		// TODO: gather all models to condId, and parse CatModelSec
 		$.each(_rawModels, function(i, object)
 		{
 			if(_rawModels[i].condId == selection)
 			{
-				model = _rawModels[i];
-				return true;
+				modelList.push(_rawModels[i]);
 			}
 		});
-
-		if(model)
+		
+		if(modelList.length >= 1)
 		{
+			model = createTertiaryModel(modelList);
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
-			var functionAsString = prepareFunction(model.catModel.formula);
-			var functionConstants = prepareConstants(model.params.params);
+			var functionAsString = prepareFunction(model.formula);
+			var functionConstants = prepareConstants(model.indeps);
 			var condId = model.condId;
 			var modelName = model.estModel.name;
+			_xUnit = model.xUnit;
 			// call subsequent method
 			addFunctionObject(condId, functionAsString, functionConstants, model);
 		}
 		// TODO: just for testing purposes
+		// if an example model is selected
 		else
 		{
 			_globalNumber++;
@@ -343,15 +361,27 @@ pmm_plotter = function() {
 		 * @return parsed function 
 		 */
 		function prepareFunction(functionString) {
-			// replace "T" and "Time" with "x" using regex
-			// gi: global, case-insensitive
+
 			var newString = functionString;
+			
+			// cut the left part of the formula
 			if(newString.indexOf("=") != -1)
 				newString = newString.split("=")[1];
+			// replace "T" and "Time" with "x" using regex
+			// gi: global, case-insensitive
 			newString = newString.replace(/Time/gi, "x");
 			newString = newString.replace(/\bT\b/gi, "x");
 			// math.js does not know "ln", ln equals log
 			newString = newString.replace(/\bln\b/gi, "log");
+			/*
+			 * replaces "expression^(0.5)" with "sqrt(expression)"
+			 */
+			newString = newString.replace(/\(([^)^()]+)\)\^\(0\.5\)/g, function(part) {
+				part = part.replace("^(0.5)", "");
+				part = "sqrt(" + part + ")";
+				return part
+			});
+			
 			return newString;
 		}
 		
@@ -367,10 +397,104 @@ pmm_plotter = function() {
 			var newParameterArray = {};
 			$.each(parameterArray, function(index, param) {
 				var name = param["name"];
-				var value = param["value"];
+				var value = param["min"];
 				newParameterArray[name] = value; 
 			});
 			return newParameterArray;
+		}
+		
+		/**
+		 * nested function
+		 * use the primary and secondary models to create the tertiary model
+		 * parses all nested formula and secondary parameters and injects them
+		 * into the primary model (tertiary model)
+		 * 
+		 * @param modelList all models (data rows) that belong to the same model id
+		 * @return tertiary model
+		 */
+		function createTertiaryModel(modelList)
+		{
+			/*
+			 * we use the primary model data as a foundation for the tertiary model
+			 * this applies to the attributes that are equal in all secondary models/data rows
+			 */
+			var tertiaryModel = modelList[0]; // primary model data is shared
+			var formulaPrim = tertiaryModel.catModel.formula; // main formula is shared
+			var paramsPrim = tertiaryModel.params.params; // so are the primary parameters
+			
+			var secondaryIndeps = []; // gather the variable independents for the sliders
+			
+			// get the global xUnit from the model
+			$.each(tertiaryModel.indeps.indeps, function(i) {
+				var currentIndep = tertiaryModel.indeps.indeps[i];
+				if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
+				{
+					tertiaryModel.xUnit = currentIndep["name"] + msgIn + currentIndep["unit"];
+					return true;
+				}
+			});
+			
+			// add primary independents (which are in the parameters here)
+			$.each(tertiaryModel.params.params, function(index, indep) {
+				secondaryIndeps.push(indep);
+			});
+			// extract secondary independents
+			$.each(modelList, function(index, modelSec) {
+				var indepsSec = modelSec.indepsSec.indeps;
+				$.each(indepsSec, function(index, indep) {
+					secondaryIndeps.push(indep);
+				});
+			});
+			
+			// extract and replace secondary parameters (constants)
+			$.each(modelList, function(index, modelSec) {
+				var paramsSec = modelSec.paramsSec.params;
+				var formulaSec = modelSec.catModelSec.formula;
+				
+				$.each(paramsSec, function(index, param) {
+					formulaSec = formulaSec.replace(param["name"], param["value"]);			
+				});
+				modelSec.formula = formulaSec; // new field holds the flat formula
+			});
+			
+			// inject nested formula in primary formula
+			$.each(modelList, function(index, modelSec) {
+				var formulaSecRaw = modelSec.formula;
+				var formulaSec;
+				var parameterPrim;  
+				
+				if(formulaSecRaw.indexOf("=") != -1)
+				{
+					// parameter name
+					parameterPrim = formulaSecRaw.split("=")[0];
+					// its formula from the secondary model
+					formulaSec = formulaSecRaw.split("=")[1];
+
+					// we exchange the primary parameter with its formula from the secondary model
+					// the parameter itself is computed dpending on independents and cannot be changed directly
+					// therefore we remove it from the independents list of the tertiary model
+					var indexToDelete;
+					$.each(secondaryIndeps, function(index, indep){
+						 if(indep["name"] == parameterPrim)
+						 {
+							 indexToDelete = index;
+							 return true;
+						 }
+					});
+					secondaryIndeps.splice(indexToDelete, 1);
+				}
+				else
+				{
+					show(msg_error_noFormulaSec);
+				}
+				var regex = new RegExp("\\b" + parameterPrim + "\\b", "gi");
+				formulaPrim = formulaPrim.replace(regex, "(" + formulaSec + ")");
+			});
+			
+			tertiaryModel.formula = formulaPrim;
+			tertiaryModel.indeps = secondaryIndeps;
+			
+			return tertiaryModel;
 		}
 	}
 	
@@ -406,7 +530,6 @@ pmm_plotter = function() {
 
 		// update plot and sliders after adding new function
 		updateParameterSliders();
-		
 		// redraw with all models
 		drawD3Plot();
 	}
@@ -769,16 +892,6 @@ pmm_plotter = function() {
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
 		
-		var xUnit = msgUnknown;
-		$.each(_rawModels[0].indeps.indeps, function(i) {
-			var currentIndep = _rawModels[0].indeps.indeps[i];
-			if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
-			{
-				xUnit = currentIndep["name"] + msgIn + currentIndep["unit"];
-				return true;
-			}
-		});
-		
 		var yUnit = msgUnknown;
 		$.each(_rawModels[0].params.params, function(i) {
 			var currentParam = _rawModels[0].params.params[i];
@@ -795,7 +908,7 @@ pmm_plotter = function() {
 			    target: '#d3plotter',
 			    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
 			    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
-			    xLabel: xUnit,
+			    xLabel: _xUnit,
 			    yLabel: yUnit,
 			    height: _plotHeight,
 			    witdh: _plotWidth,

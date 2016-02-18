@@ -150,7 +150,8 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	protected PortObject[] performExecute(PortObject[] inObjects,
 			ExecutionContext exec) throws Exception {
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
-		List<KnimeTuple> tuples = PmmUtilities.getTuples(table, SchemaFactory.createM1DataSchema());
+		List<KnimeTuple> tuples = getTuples(table);
+//		List<KnimeTuple> tuples = PmmUtilities.getTuples(table, SchemaFactory.createM12DataSchema());
 
 		ModelPlotterViewValue viewValue = getViewValue();
 		if (viewValue == null) {
@@ -168,20 +169,20 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			viewValue.setMaxYAxis(m_config.getMaxYAxis());
 	
 			// Convert KNIME tuples to Model1DataTuple
-			Model1DataTuple[] m1DataTuples = new Model1DataTuple[tuples.size()];
+			Model1DataTuple[] dataTuples = new Model1DataTuple[tuples.size()];
 			for (int i = 0; i < tuples.size(); i++) {
-				m1DataTuples[i] = ModelEditorNodeModel.codeTuple(tuples.get(i));
+				dataTuples[i] = ModelEditorNodeModel.codeTuple(tuples.get(i));
 				// as long as there is no dbuuid, we generate one
-				if(m1DataTuples[i].getCondId() == null)
+				if(dataTuples[i].getCondId() == null)
 				{
 					LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
-					int seed = m1DataTuples[i].getCatModel().getFormula().hashCode();
+					int seed = dataTuples[i].getCatModel().getFormula().hashCode();
 					String globalId = "g" + String.valueOf((new Random(seed)).nextInt(999999)); // "g" for "generated", max 6 digits
-					m1DataTuples[i].setDbuuid(globalId);
+					dataTuples[i].setDbuuid(globalId);
 				}
 			}
 			ModelList modelList = new ModelList();
-			modelList.setModels(m1DataTuples);
+			modelList.setModels(dataTuples);
 			viewValue.setModels(modelList);
 
 			setViewValue(viewValue);

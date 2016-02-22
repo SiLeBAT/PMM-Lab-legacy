@@ -86,7 +86,7 @@ public class Backup extends FileFilter {
 	}
 
 	private static void dbBackup(final JFrame frame, final File backupFile, final boolean silent) {
-		if (backupFile != null && backupFile.getParentFile().exists() && DBKernel.DBFilesDa(DBKernel.HSHDB_PATH)) {
+		if (backupFile != null && backupFile.getParentFile().exists() && DBKernel.DBFilesDa(DBKernel.HSHDB_PATH, DBKernel.dbKennung)) {
 			try {
 				if (backupFile.exists()) {
 					backupFile.delete();
@@ -189,7 +189,7 @@ public class Backup extends FileFilter {
 
 			// Also los!
 			String answerErr = "";
-			if (DBKernel.DBFilesDa(path)) {
+			if (DBKernel.DBFilesDa(path, DBKernel.dbKennung)) {
 				boolean isAdmin = DBKernel.isAdmin();
 				if (!isAdmin) {
 					if (myDB != null) {
@@ -283,7 +283,7 @@ public class Backup extends FileFilter {
 
 	private static void deleteOldFiles(String path) {
 		java.io.File f = new java.io.File(path);
-		String fileKennung = "DB.";
+		String fileKennung = DBKernel.dbKennung + ".";
 		java.io.File[] files = f.listFiles();
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {

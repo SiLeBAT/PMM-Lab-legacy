@@ -33,6 +33,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
@@ -107,7 +111,7 @@ public class Login extends JFrame {
 
 	private void startTheDB(Boolean autoUpdate, boolean openTheGui) {
 		MainFrame mf = null;
-		DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
+		DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + DBKernel.dbKennung + ".xml");
 		if (DBKernel.myDBi != null) {
 			DBKernel.HSHDB_PATH = textField2.getText();
 			mf = loadDBNew(DBKernel.myDBi, textField2.getText(), autoUpdate, openTheGui, autoUpdate == null);
@@ -265,7 +269,12 @@ public class Login extends JFrame {
 		boolean doUpdates = false;
 		try {
 			// Datenbank schon vorhanden?
-			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);
+			if (DBKernel.softwareVersion.equals("1.8.6")) DBKernel.dbKennung = "pmm";
+			boolean noDBThere = !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH, DBKernel.dbKennung);
+			if (noDBThere && DBKernel.softwareVersion.equals("1.8.6")) {
+				noDBThere = !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH, "DB");
+				if (!noDBThere) DBKernel.dbKennung = "DB";
+			}
 
 			myDB = new MyDBTable();
 			// Login fehlgeschlagen
@@ -401,7 +410,7 @@ public class Login extends JFrame {
 				mf = initGui(myDB);
 
 				if (doUpdates) {
-					if (doTheUpdates()) return loadDB(autoUpdate, openTheGui, beInteractive);
+					if (doTheUpdates(DBKernel.HSHDB_PATH)) return loadDB(autoUpdate, openTheGui, beInteractive);
 					else return mf;
 				}
 			}
@@ -413,7 +422,7 @@ public class Login extends JFrame {
 		return mf;
 	}
 
-	private boolean doTheUpdates() {
+	private boolean doTheUpdates(String dbPath) {
 		boolean dl = DBKernel.dontLog;
 		DBKernel.dontLog = true;
 		try {
@@ -482,6 +491,16 @@ public class Login extends JFrame {
 				UpdateChecker.check4Updates_182_183();
 				DBKernel.setDBVersion("1.8.3");
 			}
+			if (DBKernel.getDBVersionFromDB().equals("1.8.3")) {
+				DBKernel.setDBVersion("1.8.5");				
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.8.5")) {
+				// rename
+				DBKernel.closeDBConnections(true);
+				copyFiles2NewKennung(dbPath, "DB", "pmm");
+				DBKernel.dbKennung = "pmm";
+				DBKernel.setDBVersion("1.8.6");
+			}
 
 			DBKernel.closeDBConnections(false);
 		} catch (Exception e) {
@@ -491,6 +510,21 @@ public class Login extends JFrame {
 		}
 		DBKernel.dontLog = dl;
 		return true;
+	}
+	private void copyFiles2NewKennung(String path, String oldKennung, String newKennung) throws IOException {
+		java.io.File f = new java.io.File(path);
+		String fileKennung = oldKennung + ".";
+		java.io.File[] files = f.listFiles();
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].getName().startsWith(fileKennung)) {
+					System.gc();
+					Path from = files[i].toPath();
+					Path to = new File(files[i].getParent() + File.separator + newKennung + files[i].getName().substring(oldKennung.length())).toPath();
+					Files.copy(from, to, StandardCopyOption.COPY_ATTRIBUTES);
+				}
+			}
+		}
 	}
 
 	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui) {
@@ -533,7 +567,7 @@ public class Login extends JFrame {
 		File[] files = f.listFiles();
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
-				if (files[i].isFile() && files[i].getName().startsWith("DB.")) {
+				if (files[i].isFile() && files[i].getName().startsWith(DBKernel.dbKennung + ".")) {
 					files[i].delete();
 				}
 			}
@@ -610,7 +644,12 @@ public class Login extends JFrame {
 		boolean doUpdates = false;
 		try {
 			// Datenbank schon vorhanden?
-			boolean noDBThere = !DBKernel.DBFilesDa(dbPath);
+			if (myDBi.getSoftwareVersion().equals("1.8.6")) DBKernel.dbKennung = "pmm";
+			boolean noDBThere = !DBKernel.DBFilesDa(dbPath, DBKernel.dbKennung);
+			if (noDBThere && myDBi.getSoftwareVersion().equals("1.8.6")) {
+				noDBThere = !DBKernel.DBFilesDa(dbPath, "DB");
+				if (!noDBThere) DBKernel.dbKennung = "DB";
+			}
 
 			myDB = new MyDBTable();
 			// Login fehlgeschlagen
@@ -695,7 +734,7 @@ public class Login extends JFrame {
 				myDBi.bootstrapDB();
 			} else {
 				if (doUpdates) {
-					if (doTheUpdates()) return loadDBNew(myDBi, dbPath, autoUpdate, openTheGui, beInteractive);
+					if (doTheUpdates(dbPath)) return loadDBNew(myDBi, dbPath, autoUpdate, openTheGui, beInteractive);
 					else return mf;
 				}
 			}
@@ -707,12 +746,15 @@ public class Login extends JFrame {
 		return mf;
 	}
 
+	private String getSoftwareVersion(MyDBI myDBi) {
+		return myDBi == null ? DBKernel.softwareVersion : myDBi.getSoftwareVersion();
+	}
 	private int isDBVeraltet(boolean beInteractive, MyDBI myDBi) {
 		int result = JOptionPane.NO_OPTION;
 
 		String dbVersion = (myDBi == null ? DBKernel.getDBVersionFromDB() : myDBi.getDBVersionFromDB());
 		MyLogger.handleMessage("DBVersion: " + dbVersion);
-		if (dbVersion == null || !dbVersion.equals(myDBi == null ? DBKernel.softwareVersion : myDBi.getSoftwareVersion())) {
+		if (dbVersion == null || !dbVersion.equals(getSoftwareVersion(myDBi))) {
 			if (beInteractive) result = askVeraltetDBBackup(myDBi);
 			else result = JOptionPane.YES_OPTION;
 		}

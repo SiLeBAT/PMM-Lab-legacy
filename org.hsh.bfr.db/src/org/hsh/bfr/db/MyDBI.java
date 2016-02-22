@@ -216,7 +216,7 @@ public abstract class MyDBI {
 				System.gc();
 				System.runFinalization();
 				saveWindowState();
-				if (kompakt) MyDBI.saveDB(path2XmlFile + System.getProperty("file.separator") + "DB.xml", this);
+				if (kompakt) MyDBI.saveDB(path2XmlFile + System.getProperty("file.separator") + DBKernel.dbKennung + ".xml", this);
 			}
 		} catch (SQLException e) {
 			result = false;
@@ -282,7 +282,7 @@ public abstract class MyDBI {
 		closeDBConnections(false);
 		try {
 			Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
-			String connStr = isServerConnection ? "jdbc:hsqldb:hsql://" + dbPath : "jdbc:hsqldb:file:" + dbPath + "DB";
+			String connStr = isServerConnection ? "jdbc:hsqldb:hsql://" + dbPath : "jdbc:hsqldb:file:" + dbPath + DBKernel.dbKennung;
 			conn = DriverManager.getConnection(connStr, dbUsername, dbPassword);
 			conn.setReadOnly(DBKernel.isReadOnly());
 		} catch (Exception e) {
@@ -533,9 +533,9 @@ public abstract class MyDBI {
 				zos.write(buffer, 0, len);
 			}
 			in.close();
-			ze = new ZipEntry("DB.xml");
+			ze = new ZipEntry(DBKernel.dbKennung + ".xml");
 			zos.putNextEntry(ze);
-			in = new FileInputStream(path2XmlFile + System.getProperty("file.separator") + "DB.xml");
+			in = new FileInputStream(path2XmlFile + System.getProperty("file.separator") + DBKernel.dbKennung + ".xml");
 			while ((len = in.read(buffer)) > 0) {
 				zos.write(buffer, 0, len);
 			}
@@ -579,7 +579,7 @@ public abstract class MyDBI {
 
 			answerErr = unzipNExtract(filename, dbPath);
 
-			DBKernel.myDBi = MyDBI.loadDB(dbPath + "DB.xml");
+			DBKernel.myDBi = MyDBI.loadDB(dbPath + DBKernel.dbKennung + ".xml");
 			DBKernel.myDBi.establishDefaultAdminConn();
 
 			DBKernel.myDBi.establishDBConnection(dbUsername, dbPassword, path2XmlFile);
@@ -641,7 +641,7 @@ public abstract class MyDBI {
 
 	private void deleteOldFiles(String path) {
 		java.io.File f = new java.io.File(path);
-		String fileKennung = "DB.";
+		String fileKennung = DBKernel.dbKennung + ".";
 		java.io.File[] files = f.listFiles();
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {

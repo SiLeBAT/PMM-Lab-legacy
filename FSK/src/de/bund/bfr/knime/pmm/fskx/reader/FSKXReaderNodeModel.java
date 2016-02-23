@@ -51,12 +51,14 @@ import org.knime.ext.r.node.local.port.RPortObject;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.FSMRUtils;
+import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.pmf.file.CombineArchiveUtil;
 import de.bund.bfr.pmf.file.uri.RUri;
 import de.bund.bfr.pmf.file.uri.URIFactory;
@@ -193,16 +195,18 @@ public class FSKXReaderNodeModel extends NodeModel {
      */
     final ArchiveEntry modelEntry =
         combineArchive.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
-    KnimeTuple tuple;
+    KnimeTuple metaDataTuple;
     try {
       final InputStream stream =
           Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
       final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
-      tuple = FSKUtil.processMetaData(sbmlDoc);
+      stream.close();
+      FSMRTemplate template = FSMRUtils.processPrevalenceModel(sbmlDoc);
+      metaDataTuple = FSMRUtils.createTupleFromTemplate(template);
     } catch (IOException | XMLStreamException e) {
-      tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
+      metaDataTuple = new KnimeTuple(new OpenFSMRSchema());
     }
-    
+
     // Gets R workspace
     RPortObject rPort;
     try {
@@ -236,9 +240,9 @@ public class FSKXReaderNodeModel extends NodeModel {
     dataContainer.close();
 
     // Creates model table spec and container
-    final DataTableSpec modelTableSpec = SchemaFactory.createM1DataSchema().createSpec();
+    final DataTableSpec modelTableSpec = new OpenFSMRSchema().createSpec();
     final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
-    modelContainer.addRowToTable(tuple);
+    modelContainer.addRowToTable(metaDataTuple);
     modelContainer.close();
 
     return new PortObject[] {dataContainer.getTable(), modelContainer.getTable(), rPort};

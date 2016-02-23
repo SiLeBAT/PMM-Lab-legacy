@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./some_missing.png" type="Source" deprecated="false"
-	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+<knimeNode icon="./some_missing.png" type="Source" deprecated="false" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
 	<name>R to FSK</name>
 
 	<shortDescription>
@@ -30,8 +29,7 @@
 		<option name="Selected R visualization script">File path of the R script with visualization
 			script
 		</option>
-		<option name="Selected SBML Document">File path of the SBML document with the model meta
-			data</option>
+		<option name="Selected XLSX spreadsheet">File path of the XLSX spreadsheet with meta data</option>
 	</fullDescription>
 	<ports>
 		<outPort name="R code" index="0">R scripts</outPort>

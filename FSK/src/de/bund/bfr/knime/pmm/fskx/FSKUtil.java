@@ -50,6 +50,7 @@ public class FSKUtil {
 
   private FSKUtil() {}
 
+  // TODO: to be removed
   public static KnimeTuple processMetaData(final SBMLDocument sbmlDocument) {
     /**
      * <ol>
@@ -277,6 +278,7 @@ public class FSKUtil {
     tuple.setValue(Model1Schema.ATT_DBUUID, "?");
     return tuple;
   }
+
 
   /**
    * Obtain the libraries used in a list of lines from an R code.

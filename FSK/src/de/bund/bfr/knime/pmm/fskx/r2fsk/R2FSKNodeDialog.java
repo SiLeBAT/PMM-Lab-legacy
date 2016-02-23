@@ -40,10 +40,10 @@ public class R2FSKNodeDialog extends DefaultNodeSettingsPane {
 
     // File chooser with the path to the meta data document
     final SettingsModelString metaDataDocSettingsModel =
-        new SettingsModelString(R2FSKNodeModel.CFGKEY_META_DATA_DOC, null);
+        new SettingsModelString(R2FSKNodeModel.CFGKEY_SPREADSHEET, null);
     final DialogComponentFileChooser metaDataDocChooser = new DialogComponentFileChooser(
-        metaDataDocSettingsModel, "metaDataDoc-history", dialogType, ".sbml|.SBML");
-    metaDataDocChooser.setBorderTitle("Selected meta data document");
+        metaDataDocSettingsModel, "metaDataDoc-history", dialogType, ".xlsx|.XLSX");
+    metaDataDocChooser.setBorderTitle("Selected spreadsheet");
     addDialogComponent(metaDataDocChooser);
   }
 }

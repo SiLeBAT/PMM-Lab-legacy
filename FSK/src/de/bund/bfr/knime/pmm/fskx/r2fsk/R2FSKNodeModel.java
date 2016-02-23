@@ -1,14 +1,14 @@
 package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.commons.io.Charsets;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -20,17 +20,18 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.sbml.jsbml.JSBML;
-import org.sbml.jsbml.SBMLDocument;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 
 public class R2FSKNodeModel extends NodeModel {
 
@@ -43,15 +44,15 @@ public class R2FSKNodeModel extends NodeModel {
   // configuration key of the path of the R visualization script
   static final String CFGKEY_VISUALIZATION_SCRIPT = "visualizationScript";
 
-  // configuration key of the path of the SBML document with the model meta data
-  static final String CFGKEY_META_DATA_DOC = "metaDataDoc";
+  // configuration key of the path of the XLSX spreadsheet with the model meta data
+  static final String CFGKEY_SPREADSHEET = "spreadsheet";
 
   // Settings models
   private SettingsModelString modelScriptPath = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
   private SettingsModelString paramScriptPath = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
   private SettingsModelString visualizationScriptPath =
       new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
-  private SettingsModelString metaDataDocPath = new SettingsModelString(CFGKEY_META_DATA_DOC, null);
+  private SettingsModelString spreadsheetPath = new SettingsModelString(CFGKEY_SPREADSHEET, null);
 
   /** {@inheritDoc} */
   protected R2FSKNodeModel() {
@@ -74,7 +75,7 @@ public class R2FSKNodeModel extends NodeModel {
     modelScriptPath.saveSettingsTo(settings);
     paramScriptPath.saveSettingsTo(settings);
     visualizationScriptPath.saveSettingsTo(settings);
-    metaDataDocPath.saveSettingsTo(settings);
+    spreadsheetPath.saveSettingsTo(settings);
   }
 
   /** {@inheritDoc} */
@@ -83,7 +84,7 @@ public class R2FSKNodeModel extends NodeModel {
     modelScriptPath.validateSettings(settings);
     paramScriptPath.validateSettings(settings);
     visualizationScriptPath.validateSettings(settings);
-    metaDataDocPath.validateSettings(settings);
+    spreadsheetPath.validateSettings(settings);
   }
 
   /** {@inheritDoc} */
@@ -93,7 +94,7 @@ public class R2FSKNodeModel extends NodeModel {
     modelScriptPath.loadSettingsFrom(settings);
     paramScriptPath.loadSettingsFrom(settings);
     visualizationScriptPath.loadSettingsFrom(settings);
-    metaDataDocPath.loadSettingsFrom(settings);
+    spreadsheetPath.loadSettingsFrom(settings);
   }
 
   /** {@inheritDoc} */
@@ -183,14 +184,18 @@ public class R2FSKNodeModel extends NodeModel {
      * specified the data table will be empty.
      */
     KnimeTuple metaDataTuple;
-    final String metaDataDocPathString = metaDataDocPath.getStringValue();
-    if (Strings.isNullOrEmpty(metaDataDocPathString)) {
+    final String spreadsheetPathString = spreadsheetPath.getStringValue();
+    if (Strings.isNullOrEmpty(spreadsheetPathString)) {
       metaDataTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
     } else {
       try {
-        final SBMLDocument doc = JSBML.readSBML(metaDataDocPathString); // may throw errors
-        metaDataTuple = FSKUtil.processMetaData(doc);
-      } catch (IOException | XMLStreamException e) {
+        FileInputStream fis = new FileInputStream(new File(spreadsheetPathString));
+        // Finds the workbook instance for XLSX file
+        XSSFWorkbook myWorkbook = new XSSFWorkbook(fis);
+        fis.close();
+        FSMRTemplate template = FSMRUtils.processSpreadsheet(myWorkbook);
+        metaDataTuple = FSMRUtils.createTupleFromTemplate(template);
+      } catch (IOException e) {
         // creates empty table and print error trace
         metaDataTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
         e.printStackTrace();
@@ -216,7 +221,7 @@ public class R2FSKNodeModel extends NodeModel {
     container.close();
 
     // Meta data table: creates model table spec and container
-    final DataTableSpec modelTableSpec = SchemaFactory.createM1DataSchema().createSpec();
+    final DataTableSpec modelTableSpec = new OpenFSMRSchema().createSpec();
     final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
     modelContainer.addRowToTable(metaDataTuple);
     modelContainer.close();

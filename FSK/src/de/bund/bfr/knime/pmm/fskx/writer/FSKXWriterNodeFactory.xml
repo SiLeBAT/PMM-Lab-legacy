@@ -32,5 +32,6 @@
 		<inPort index="0" name="R code">R scripts: model, parameters and
 			visualization scripts</inPort>
 		<inPort name="Model metadata" index="1">Model meta data</inPort>
+		<inPort name="R workspace" index="2">R workspace</inPort>
 	</ports>
 </knimeNode>

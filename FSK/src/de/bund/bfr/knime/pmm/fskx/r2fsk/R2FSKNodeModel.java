@@ -26,8 +26,8 @@ import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
-import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 
@@ -126,7 +126,7 @@ public class R2FSKNodeModel extends NodeModel {
       throw new InvalidSettingsException("Unespecified model script");
     }
     try {
-      RScript modelScript = new RScript(modelScriptPath.getStringValue()); // throws IOException
+      RScript modelScript = new RScript(new File(modelScriptPath.getStringValue()));
 
       valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
       valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
@@ -151,7 +151,7 @@ public class R2FSKNodeModel extends NodeModel {
       valuesMap.put(KEYS.SIMP_PARAM, "");
     } else {
       try {
-        RScript paramScript = new RScript(paramScriptPath.getStringValue()); // IOException
+        RScript paramScript = new RScript(new File(paramScriptPath.getStringValue()));
 
         valuesMap.put(KEYS.ORIG_PARAM, paramScript.getOriginalScript());
         valuesMap.put(KEYS.SIMP_PARAM, paramScript.getSimplifiedScript());
@@ -178,7 +178,7 @@ public class R2FSKNodeModel extends NodeModel {
       valuesMap.put(KEYS.SIMP_VIZ, "");
     } else {
       try {
-        RScript vizScript = new RScript(visualizationScriptPath.getStringValue()); // IOException
+        RScript vizScript = new RScript(new File(visualizationScriptPath.getStringValue()));
 
         valuesMap.put(KEYS.ORIG_VIZ, vizScript.getOriginalScript());
         valuesMap.put(KEYS.SIMP_VIZ, vizScript.getSimplifiedScript());

@@ -19,7 +19,6 @@ package de.bund.bfr.knime.pmm.fskx.reader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.EnumMap;
@@ -31,7 +30,6 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.io.IOUtils;
 import org.jdom2.Element;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -57,6 +55,7 @@ import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.pmf.file.CombineArchiveUtil;
@@ -112,31 +111,34 @@ public class FSKXReaderNodeModel extends NodeModel {
       rEntriesMap.put(entry.getFileName(), entry);
     }
 
+    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(FSKXTuple.KEYS.class);
+
     /**
      * Looks for model script. Since the model script is mandatory, it closes the CombineArchive and
      * throws a FileAccessException when the model script cannot be retrieved.
      */
     final String modelScriptFileName = metaDataNode.getMainScript();
-    String origModelScript; // original model script (with comments)
-    String simpModelScript; // simplified model script (with no comments)
+
     if (modelScriptFileName == null) {
       CombineArchiveUtil.close(combineArchive);
       throw new FileAccessException("Model script could not be accessed");
-    } else {
-      try {
-        origModelScript = getTextFromArchiveEntry(rEntriesMap.get(modelScriptFileName));
+    }
+    try {
+      // Extracts model script to file
+      File modelScriptFile = File.createTempFile("modelScript", "");
+      modelScriptFile.deleteOnExit();
+      rEntriesMap.get(modelScriptFileName).extractFile(modelScriptFile);
 
-        // Extract libraries and sources from the parameters script
-        final String[] lines = origModelScript.split("\\r?\\n");
-        librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-        sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+      RScript modelScript = new RScript(modelScriptFile); // throws IOException
 
-        // Creates simplified model script
-        simpModelScript = FSKUtil.createSimplifiedScript(lines);
-      } catch (IOException e) {
-        CombineArchiveUtil.close(combineArchive);
-        throw new FileAccessException("Model script could not be accessed");
-      }
+      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
+      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
+
+      librariesSet.addAll(modelScript.getLibraries());
+      sourcesSet.addAll(modelScript.getSources());
+    } catch (IOException e) {
+      CombineArchiveUtil.close(combineArchive);
+      throw new FileAccessException("Model script could not be accessed");
     }
 
     /**
@@ -144,23 +146,27 @@ public class FSKXReaderNodeModel extends NodeModel {
      * script (empty string) if the parameter script could not be retrieved.
      */
     final String paramScriptFileName = metaDataNode.getParametersScript();
-    String origParamScript; // original model script (with comments)
-    String simpParamScript; // simplified model script (without comments)
+
     if (paramScriptFileName == null) {
-      origParamScript = simpParamScript = "";
+      valuesMap.put(KEYS.ORIG_PARAM, "");
+      valuesMap.put(KEYS.SIMP_PARAM, "");
     } else {
       try {
-        origParamScript = getTextFromArchiveEntry(rEntriesMap.get(paramScriptFileName));
+        // Extracts parameter script to file
+        File paramScriptFile = File.createTempFile("paramScript", "");
+        paramScriptFile.deleteOnExit();
+        rEntriesMap.get(paramScriptFileName).extractFile(paramScriptFile);
 
-        // Extract libraries and sources from the parameters script
-        final String[] lines = origParamScript.split("\\r?\\n");
-        librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-        sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+        RScript paramScript = new RScript(paramScriptFile); // throws IOException
 
-        // Creates simplified parameters script
-        simpParamScript = FSKUtil.createSimplifiedScript(lines);
+        valuesMap.put(KEYS.ORIG_PARAM, paramScript.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_PARAM, paramScript.getSimplifiedScript());
+
+        librariesSet.addAll(paramScript.getLibraries());
+        sourcesSet.addAll(paramScript.getSources());
       } catch (IOException e) {
-        origParamScript = simpParamScript = "";
+        valuesMap.put(KEYS.ORIG_PARAM, "");
+        valuesMap.put(KEYS.SIMP_PARAM, "");
       }
     }
 
@@ -169,25 +175,32 @@ public class FSKXReaderNodeModel extends NodeModel {
      * empty script (empty string) if the visualization script could not be retrieved.
      */
     final String vizScriptFileName = metaDataNode.getVisualizationScript();
-    String origVisualizationScript; // original visualization script
-    String simpVisualizationScript; // simplified visualization script
+    
     if (vizScriptFileName == null) {
-      origVisualizationScript = simpVisualizationScript = "";
+      valuesMap.put(KEYS.ORIG_VIZ, "");
+      valuesMap.put(KEYS.SIMP_VIZ, "");
     } else {
       try {
-        origVisualizationScript = getTextFromArchiveEntry(rEntriesMap.get(vizScriptFileName));
+        // Extracts parameter script to file
+        File vizScriptFile = File.createTempFile("vizFile", "");
+        vizScriptFile.deleteOnExit();
+        rEntriesMap.get(vizScriptFile).extractFile(vizScriptFile);
 
-        // Extract libraries and sources from the visualization script
-        final String[] lines = origVisualizationScript.split("\\r?\\n");
-        librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-        sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+        RScript vizScript = new RScript(vizScriptFile); // throws IOException
 
-        // Creates simplified visualization script
-        simpVisualizationScript = FSKUtil.createSimplifiedScript(lines);
+        valuesMap.put(KEYS.ORIG_PARAM, vizScript.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_PARAM, vizScript.getSimplifiedScript());
+
+        librariesSet.addAll(vizScript.getLibraries());
+        sourcesSet.addAll(vizScript.getSources());
       } catch (IOException e) {
-        origVisualizationScript = simpVisualizationScript = "";
+        valuesMap.put(KEYS.ORIG_VIZ, "");
+        valuesMap.put(KEYS.SIMP_VIZ, "");
       }
     }
+    
+    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // Adds R libraries
+    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // Adds R sources
 
     /**
      * Process the SBMLDocument with the model meta data. Should an error occur the meta data table
@@ -226,15 +239,6 @@ public class FSKXReaderNodeModel extends NodeModel {
     final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
-    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(FSKXTuple.KEYS.class);
-    valuesMap.put(KEYS.ORIG_MODEL, origModelScript); // Adds original model script
-    valuesMap.put(KEYS.SIMP_MODEL, simpModelScript); // Adds simplified model script
-    valuesMap.put(KEYS.ORIG_PARAM, origParamScript); // Adds original parameters script
-    valuesMap.put(KEYS.SIMP_PARAM, simpParamScript); // Adds simplified parameters script
-    valuesMap.put(KEYS.ORIG_VIZ, origVisualizationScript); // Adds original visualization script
-    valuesMap.put(KEYS.SIMP_VIZ, simpVisualizationScript); // Adds simplified visualization script
-    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // Adds R libraries
-    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // Adds R sources
     final FSKXTuple row = new FSKXTuple(valuesMap);
     dataContainer.addRowToTable(row);
     dataContainer.close();
@@ -287,18 +291,6 @@ public class FSKXReaderNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void reset() {}
-
-  /**
-   * Gets text content from an ArchiveEntry of a CombineArchive.
-   * 
-   * @throws IOException if an I/O error occurs
-   */
-  private String getTextFromArchiveEntry(final ArchiveEntry entry) throws IOException {
-    final InputStream stream = Files.newInputStream(entry.getPath(), StandardOpenOption.READ);
-    final String text = IOUtils.toString(stream, StandardCharsets.UTF_8);
-
-    return text;
-  }
 
   class FileAccessException extends Exception {
 

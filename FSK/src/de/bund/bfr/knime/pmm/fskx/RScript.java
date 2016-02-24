@@ -24,12 +24,11 @@ public class RScript {
   /**
    * Process R script.
    * 
-   * @param path File path to the R script.
+   * @param file
    * @throws NullPointerException if path is null.
    * @throws IOException if the file specified by path cannot be read.
    */
-  public RScript(final String path) throws NullPointerException, IOException {
-    final File file = new File(path); // throws NullPointerException
+  public RScript(final File file) throws NullPointerException, IOException {
     setOriginalScript(Files.toString(file, Charsets.UTF_8)); // throws IOException
 
     // If no errors are thrown, proceed to extract libraries and sources

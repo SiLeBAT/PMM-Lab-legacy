@@ -23,6 +23,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
@@ -126,7 +127,7 @@ public class R2FSKNodeModel extends NodeModel {
       throw new InvalidSettingsException("Unespecified model script");
     }
     try {
-      RScript modelScript = new RScript(new File(modelScriptPath.getStringValue()));
+      RScript modelScript = new RScript(KnimeUtils.getFile(modelScriptPath.getStringValue()));
 
       valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
       valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
@@ -148,7 +149,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     if (paramScriptPath.getStringValue() != null) {
       try {
-        RScript paramScript = new RScript(new File(paramScriptPath.getStringValue()));
+        RScript paramScript = new RScript(KnimeUtils.getFile(paramScriptPath.getStringValue()));
 
         valuesMap.put(KEYS.ORIG_PARAM, paramScript.getOriginalScript());
         valuesMap.put(KEYS.SIMP_PARAM, paramScript.getSimplifiedScript());
@@ -172,7 +173,8 @@ public class R2FSKNodeModel extends NodeModel {
 
     if (visualizationScriptPath.getStringValue() != null) {
       try {
-        RScript vizScript = new RScript(new File(visualizationScriptPath.getStringValue()));
+        RScript vizScript =
+            new RScript(KnimeUtils.getFile(visualizationScriptPath.getStringValue()));
 
         valuesMap.put(KEYS.ORIG_VIZ, vizScript.getOriginalScript());
         valuesMap.put(KEYS.SIMP_VIZ, vizScript.getSimplifiedScript());
@@ -222,7 +224,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     if (!Strings.isNullOrEmpty(path)) {
       try {
-        FileInputStream fis = new FileInputStream(path);
+        FileInputStream fis = new FileInputStream(KnimeUtils.getFile(path));
         // Finds the workbook instance for XLSX file
         XSSFWorkbook workbook = new XSSFWorkbook(fis);
         fis.close();

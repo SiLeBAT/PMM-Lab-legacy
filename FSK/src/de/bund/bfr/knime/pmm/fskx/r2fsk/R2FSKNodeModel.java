@@ -139,43 +139,56 @@ public class R2FSKNodeModel extends NodeModel {
     // paramScriptLines will be assigned an empty list
     String origParamScript;
     String simpParamScript;
-    try {
-      origParamScript = readFile(paramScriptPath.getStringValue()); // may throw errors
 
-      // If no errors are thrown, proceed to extract libraries and sources
-      final String[] lines = origParamScript.split("\\r?\\n");
-      librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-      sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+    // Does nothing if origParamScriptPath is not set
+    if (paramScriptPath.getStringValue() != null) {
+      paramScriptPath.setStringValue(paramScriptPath.getStringValue().trim());
+    }
 
-      // Creates simplified parameters list
-      simpParamScript = FSKUtil.createSimplifiedScript(lines);
-    } catch (NullPointerException e) {
-      // do not do anything if paramScriptPath is not set
+    if (Strings.isNullOrEmpty(paramScriptPath.getStringValue())) {
       origParamScript = simpParamScript = "";
-    } catch (IOException e) {
-      throw new InvalidSettingsException(paramScriptPath.getStringValue() + ": cannot be read");
+    } else {
+      try {
+        origParamScript = readFile(paramScriptPath.getStringValue());
+
+        // If no errors are thrown, proceed to extract libraries and sources
+        final String[] lines = origParamScript.split("\\r?\\n");
+        librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
+        sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+
+        // Creates simplified parameters script
+        simpParamScript = FSKUtil.createSimplifiedScript(lines);
+      } catch (IOException e) {
+        throw new InvalidSettingsException(paramScriptPath.getStringValue() + ": cannot be read");
+      }
     }
 
     // Reads visualization script. The visualization script is optional, thus if
     // visualizationScriptPath is not set visualizationScriptLines will be assigned an empty list
     String origVisualizationScript;
     String simpVisualizationScript;
-    try {
-      origVisualizationScript = readFile(visualizationScriptPath.getStringValue());
 
-      // If no errors are thrown, proceed to extract libraries and sources
-      final String[] lines = origVisualizationScript.split("\\r?\\n");
-      librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-      sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
-
-      // Creates simplified visualization script
-      simpVisualizationScript = FSKUtil.createSimplifiedScript(lines);
-    } catch (NullPointerException e) {
-      // do not do anything if visualizationScriptPath is not set
+    // Does nothing if visualizationScriptPath is not set
+    if (visualizationScriptPath.getStringValue() != null) {
+      visualizationScriptPath.setStringValue(visualizationScriptPath.getStringValue().trim());
+    }
+    if (Strings.isNullOrEmpty(visualizationScriptPath.getStringValue())) {
       origVisualizationScript = simpVisualizationScript = "";
-    } catch (IOException e) {
-      throw new InvalidSettingsException(
-          visualizationScriptPath.getStringValue() + ": cannot be read");
+    } else {
+      try {
+        origVisualizationScript = readFile(visualizationScriptPath.getStringValue());
+
+        // If no errors are thrown, proceed to extract libraries and sources
+        final String[] lines = origVisualizationScript.split("\\r?\\n");
+        librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
+        sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+
+        // Creates simplified visualization script
+        simpVisualizationScript = FSKUtil.createSimplifiedScript(lines);
+      } catch (IOException e) {
+        throw new InvalidSettingsException(
+            visualizationScriptPath.getStringValue() + ": cannot be read");
+      }
     }
 
     // Creates table spec and container
@@ -222,7 +235,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     return contents;
   }
-  
+
   /**
    * Creates a {@link BufferedDataTable} with the meta data obtained from the given spreadsheet. If
    * an error occurs or the path is not specified the table will be empty.
@@ -232,17 +245,17 @@ public class R2FSKNodeModel extends NodeModel {
    * @return BufferedDataTable
    */
   private BufferedDataTable createMetaDataTable(final ExecutionContext exec, String path) {
-    
+
     DataTableSpec spec = new OpenFSMRSchema().createSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
-    
+
     if (!Strings.isNullOrEmpty(path)) {
       try {
         FileInputStream fis = new FileInputStream(path);
         // Finds the workbook instance for XLSX file
-        XSSFWorkbook  workbook = new XSSFWorkbook(fis);
+        XSSFWorkbook workbook = new XSSFWorkbook(fis);
         fis.close();
-        
+
         FSMRTemplate template = FSMRUtils.processSpreadsheet(workbook);
         KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
         container.addRowToTable(tuple);
@@ -250,9 +263,9 @@ public class R2FSKNodeModel extends NodeModel {
         e.printStackTrace();
       }
     }
-    
+
     container.close();
-    
+
     return container.getTable();
   }
 

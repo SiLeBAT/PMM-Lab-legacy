@@ -29,7 +29,8 @@
 		<option name="Selected R visualization script">File path of the R script with visualization
 			script
 		</option>
-		<option name="Selected XLSX spreadsheet">File path of the XLSX spreadsheet with meta data</option>
+		<option name="Selected XLSX spreadsheet">File path of the XLSX spreadsheet with meta data. If unspecified or error occurs the table will
+			be empty.</option>
 	</fullDescription>
 	<ports>
 		<outPort name="R code" index="0">R scripts</outPort>

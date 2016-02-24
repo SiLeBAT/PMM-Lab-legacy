@@ -25,7 +25,6 @@ import com.google.common.base.Strings;
 import com.google.common.io.Files;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
@@ -179,29 +178,6 @@ public class R2FSKNodeModel extends NodeModel {
           visualizationScriptPath.getStringValue() + ": cannot be read");
     }
 
-    /**
-     * Process the SBMLDocument with the model meta data. If an error occurs or the file is not
-     * specified the data table will be empty.
-     */
-    KnimeTuple metaDataTuple;
-    final String spreadsheetPathString = spreadsheetPath.getStringValue();
-    if (Strings.isNullOrEmpty(spreadsheetPathString)) {
-      metaDataTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
-    } else {
-      try {
-        FileInputStream fis = new FileInputStream(new File(spreadsheetPathString));
-        // Finds the workbook instance for XLSX file
-        XSSFWorkbook myWorkbook = new XSSFWorkbook(fis);
-        fis.close();
-        FSMRTemplate template = FSMRUtils.processSpreadsheet(myWorkbook);
-        metaDataTuple = FSMRUtils.createTupleFromTemplate(template);
-      } catch (IOException e) {
-        // creates empty table and print error trace
-        metaDataTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
-        e.printStackTrace();
-      }
-    }
-
     // Creates table spec and container
     final DataTableSpec tableSpec = FSKUtil.createFSKTableSpec();
     final BufferedDataContainer container = exec.createDataContainer(tableSpec);
@@ -214,19 +190,15 @@ public class R2FSKNodeModel extends NodeModel {
     valuesMap.put(KEYS.SIMP_PARAM, simpParamScript); // adds simplified parameters script
     valuesMap.put(KEYS.ORIG_VIZ, origVisualizationScript); // adds original visualization script
     valuesMap.put(KEYS.SIMP_VIZ, simpVisualizationScript); // adds simplified visualization script
-    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet));  // adds R libraries
-    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet));  // adds R sources
+    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // adds R libraries
+    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // adds R sources
 
     container.addRowToTable(new FSKXTuple(valuesMap));
     container.close();
 
-    // Meta data table: creates model table spec and container
-    final DataTableSpec modelTableSpec = new OpenFSMRSchema().createSpec();
-    final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
-    modelContainer.addRowToTable(metaDataTuple);
-    modelContainer.close();
+    BufferedDataTable metaDataTable = createMetaDataTable(exec, spreadsheetPath.getStringValue());
 
-    return new BufferedDataTable[] {container.getTable(), modelContainer.getTable()};
+    return new BufferedDataTable[] {container.getTable(), metaDataTable};
   }
 
   /** {@inheritDoc} */
@@ -249,6 +221,39 @@ public class R2FSKNodeModel extends NodeModel {
     final String contents = Files.toString(file, Charsets.UTF_8); // throws IOException
 
     return contents;
+  }
+  
+  /**
+   * Creates a {@link BufferedDataTable} with the meta data obtained from the given spreadsheet. If
+   * an error occurs or the path is not specified the table will be empty.
+   * 
+   * @param exec Execution context
+   * @param path File path to the XLSX spreadsheet
+   * @return BufferedDataTable
+   */
+  private BufferedDataTable createMetaDataTable(final ExecutionContext exec, String path) {
+    
+    DataTableSpec spec = new OpenFSMRSchema().createSpec();
+    BufferedDataContainer container = exec.createDataContainer(spec);
+    
+    if (!Strings.isNullOrEmpty(path)) {
+      try {
+        FileInputStream fis = new FileInputStream(path);
+        // Finds the workbook instance for XLSX file
+        XSSFWorkbook  workbook = new XSSFWorkbook(fis);
+        fis.close();
+        
+        FSMRTemplate template = FSMRUtils.processSpreadsheet(workbook);
+        KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
+        container.addRowToTable(tuple);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    container.close();
+    
+    return container.getTable();
   }
 
 }

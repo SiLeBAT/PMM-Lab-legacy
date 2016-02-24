@@ -36,9 +36,22 @@ public class FSKXTuple implements DataRow {
 
   public FSKXTuple(EnumMap<KEYS, String> values) {
     cell = new DataCell[KEYS.values().length];
-    for (KEYS key : KEYS.values()) {
-      cell[key.ordinal()] = new StringCell(values.get(key));
-    }
+    // mandatory columns
+    cell[KEYS.ORIG_MODEL.ordinal()] = new StringCell(values.get(KEYS.ORIG_MODEL));
+    cell[KEYS.SIMP_MODEL.ordinal()] = new StringCell(values.get(KEYS.SIMP_MODEL));
+    cell[KEYS.LIBS.ordinal()] = new StringCell(values.get(KEYS.LIBS));
+    cell[KEYS.SOURCES.ordinal()] = new StringCell(values.get(KEYS.SOURCES));
+
+    // optional columns
+    cell[KEYS.ORIG_PARAM.ordinal()] =
+        new StringCell(values.containsKey(KEYS.ORIG_PARAM) ? values.get(KEYS.ORIG_PARAM) : "");
+    cell[KEYS.SIMP_PARAM.ordinal()] =
+        new StringCell(values.containsKey(KEYS.SIMP_PARAM) ? values.get(KEYS.SIMP_PARAM) : "");
+    cell[KEYS.ORIG_VIZ.ordinal()] =
+        new StringCell(values.containsKey(KEYS.ORIG_VIZ) ? values.get(KEYS.ORIG_VIZ) : "");
+    cell[KEYS.SIMP_VIZ.ordinal()] =
+        new StringCell(values.containsKey(KEYS.SIMP_VIZ) ? values.get(KEYS.SIMP_VIZ) : "");
+
     rowKey = new RowKey(String.valueOf(new Random().nextInt()));
   }
 

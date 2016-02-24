@@ -146,10 +146,7 @@ public class R2FSKNodeModel extends NodeModel {
       paramScriptPath.setStringValue(Strings.emptyToNull(paramScriptPath.getStringValue().trim()));
     }
 
-    if (paramScriptPath.getStringValue() == null) {
-      valuesMap.put(KEYS.ORIG_PARAM, "");
-      valuesMap.put(KEYS.SIMP_PARAM, "");
-    } else {
+    if (paramScriptPath.getStringValue() != null) {
       try {
         RScript paramScript = new RScript(new File(paramScriptPath.getStringValue()));
 
@@ -173,10 +170,7 @@ public class R2FSKNodeModel extends NodeModel {
           .setStringValue(Strings.emptyToNull(visualizationScriptPath.getStringValue().trim()));
     }
 
-    if (visualizationScriptPath.getStringValue() == null) {
-      valuesMap.put(KEYS.ORIG_VIZ, "");
-      valuesMap.put(KEYS.SIMP_VIZ, "");
-    } else {
+    if (visualizationScriptPath.getStringValue() != null) {
       try {
         RScript vizScript = new RScript(new File(visualizationScriptPath.getStringValue()));
 

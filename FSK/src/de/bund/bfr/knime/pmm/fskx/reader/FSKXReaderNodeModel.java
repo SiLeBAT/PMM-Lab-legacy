@@ -147,10 +147,7 @@ public class FSKXReaderNodeModel extends NodeModel {
      */
     final String paramScriptFileName = metaDataNode.getParametersScript();
 
-    if (paramScriptFileName == null) {
-      valuesMap.put(KEYS.ORIG_PARAM, "");
-      valuesMap.put(KEYS.SIMP_PARAM, "");
-    } else {
+    if (paramScriptFileName != null) {
       try {
         // Extracts parameter script to file
         File paramScriptFile = File.createTempFile("paramScript", "");
@@ -164,10 +161,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         librariesSet.addAll(paramScript.getLibraries());
         sourcesSet.addAll(paramScript.getSources());
-      } catch (IOException e) {
-        valuesMap.put(KEYS.ORIG_PARAM, "");
-        valuesMap.put(KEYS.SIMP_PARAM, "");
-      }
+      } catch (IOException e) { }
     }
 
     /**
@@ -175,30 +169,24 @@ public class FSKXReaderNodeModel extends NodeModel {
      * empty script (empty string) if the visualization script could not be retrieved.
      */
     final String vizScriptFileName = metaDataNode.getVisualizationScript();
-    
-    if (vizScriptFileName == null) {
-      valuesMap.put(KEYS.ORIG_VIZ, "");
-      valuesMap.put(KEYS.SIMP_VIZ, "");
-    } else {
+
+    if (vizScriptFileName != null) {
       try {
         // Extracts parameter script to file
         File vizScriptFile = File.createTempFile("vizFile", "");
         vizScriptFile.deleteOnExit();
-        rEntriesMap.get(vizScriptFile).extractFile(vizScriptFile);
+        rEntriesMap.get(vizScriptFileName).extractFile(vizScriptFile);
 
         RScript vizScript = new RScript(vizScriptFile); // throws IOException
 
-        valuesMap.put(KEYS.ORIG_PARAM, vizScript.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_PARAM, vizScript.getSimplifiedScript());
+        valuesMap.put(KEYS.ORIG_VIZ, vizScript.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_VIZ, vizScript.getSimplifiedScript());
 
         librariesSet.addAll(vizScript.getLibraries());
         sourcesSet.addAll(vizScript.getSources());
-      } catch (IOException e) {
-        valuesMap.put(KEYS.ORIG_VIZ, "");
-        valuesMap.put(KEYS.SIMP_VIZ, "");
-      }
+      } catch (IOException e) { }
     }
-    
+
     valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // Adds R libraries
     valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // Adds R sources
 

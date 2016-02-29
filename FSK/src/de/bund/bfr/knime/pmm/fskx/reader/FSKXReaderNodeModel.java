@@ -54,6 +54,7 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
@@ -85,10 +86,14 @@ public class FSKXReaderNodeModel extends NodeModel {
     super(inPortTypes, outPortTypes);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   * 
+   * @throws MissingValueError
+   */
   @Override
   protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-      throws CombineArchiveException, FileAccessException {
+      throws CombineArchiveException, FileAccessException, MissingValueError {
 
     String filepath = filename.getStringValue();
 
@@ -161,7 +166,8 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         librariesSet.addAll(paramScript.getLibraries());
         sourcesSet.addAll(paramScript.getSources());
-      } catch (IOException e) { }
+      } catch (IOException e) {
+      }
     }
 
     /**
@@ -184,7 +190,8 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         librariesSet.addAll(vizScript.getLibraries());
         sourcesSet.addAll(vizScript.getSources());
-      } catch (IOException e) { }
+      } catch (IOException e) {
+      }
     }
 
     valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // Adds R libraries

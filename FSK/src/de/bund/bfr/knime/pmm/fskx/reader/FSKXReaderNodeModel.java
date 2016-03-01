@@ -273,6 +273,9 @@ public class FSKXReaderNodeModel extends NodeModel {
      */
     public FSKFiles() throws CombineArchiveException {
       File archiveFile = new File(filename.getStringValue());
+      if (!archiveFile.exists()) {
+        throw new CombineArchiveException(filename.getStringValue() + " does not exist");
+      }
       CombineArchive archive = null;
       try {
         archive = new CombineArchive(archiveFile);

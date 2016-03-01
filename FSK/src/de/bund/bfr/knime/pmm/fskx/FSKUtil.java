@@ -1,11 +1,7 @@
 package de.bund.bfr.knime.pmm.fskx;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
@@ -50,6 +46,7 @@ public class FSKUtil {
 
   private FSKUtil() {}
 
+  // TODO: to be removed
   public static KnimeTuple processMetaData(final SBMLDocument sbmlDocument) {
     /**
      * <ol>
@@ -276,67 +273,6 @@ public class FSKUtil {
     tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
     tuple.setValue(Model1Schema.ATT_DBUUID, "?");
     return tuple;
-  }
-
-  /**
-   * Obtain the libraries used in a list of lines from an R code.
-   * 
-   * @param lines Lines from an R code.
-   * @return List of libraries names.
-   */
-  public static List<String> extractLibrariesFromLines(final String[] lines) {
-    final List<String> libraryNames = new LinkedList<>();
-
-    final String regex1 = "^\\s*\\b(library|require)\\((\"?.+\"?)\\)";
-    // final String regex2 = "library|require\((\w)\)";
-
-    final Pattern PATTERN = Pattern.compile(regex1);
-    for (final String line : lines) {
-      final Matcher matcher = PATTERN.matcher(line);
-      if (matcher.find()) {
-        final String libraryName = matcher.group(2).replace("\"", "");
-        libraryNames.add(libraryName);
-      }
-    }
-
-    return libraryNames;
-  }
-
-  /**
-   * Obtain the source files used in a list of lines from an R code.
-   * 
-   * @param lines Lines from an R code.
-   * @return List of source filenames.
-   */
-  public static List<String> extractSourcesFromLines(final String[] lines) {
-    final List<String> sourceNames = new LinkedList<>();
-
-    final String regex1 = "^\\s*\\b(source)\\((\"?.+\"?)\\)";
-    // final String regex2 = "library|require\((\w)\)";
-
-    final Pattern PATTERN = Pattern.compile(regex1);
-    for (final String line : lines) {
-      final Matcher matcher = PATTERN.matcher(line);
-      if (matcher.find()) {
-        final String sourceName = matcher.group(2).replace("\"", "");
-        sourceNames.add(sourceName);
-      }
-    }
-
-    return sourceNames;
-  }
-
-  /**
-   * 
-   */
-  public static String createSimplifiedScript(final String[] lines) {
-    final StringBuilder sb = new StringBuilder();
-    for (String line : lines) {
-      if (!line.startsWith("#")) {
-        sb.append(line + '\n');
-      }
-    }
-    return sb.toString();
   }
 
   public static DataTableSpec createFSKTableSpec() {

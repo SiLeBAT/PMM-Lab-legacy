@@ -64,7 +64,7 @@ public class MainKernel {
 				//s.setDaemon(true);
 				for (int i=0;i<dbDefs.length;i++) {
 					s.setDatabaseName(i, dbDefs[i][0]);
-					s.setDatabasePath(i, dbFolder + dbDefs[i][1] + "/DB");					
+					s.setDatabasePath(i, dbFolder + dbDefs[i][1] + "/" + DBKernel.dbKennung);					
 				}
 				s.start();
 				s.setNoSystemExit(false);

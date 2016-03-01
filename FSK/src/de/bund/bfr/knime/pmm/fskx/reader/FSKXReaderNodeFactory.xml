@@ -29,5 +29,6 @@
 	<ports>
 		<outPort name="R code" index="0">R scripts</outPort>
 		<outPort name="Model metadata" index="1">Model metadata</outPort>
+		<outPort name="R workspace" index="2">R workspace</outPort>
 	</ports>
 </knimeNode>

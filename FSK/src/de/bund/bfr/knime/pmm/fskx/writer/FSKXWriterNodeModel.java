@@ -20,9 +20,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
@@ -51,30 +50,21 @@ import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.SBMLWriter;
+import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-import de.bund.bfr.knime.pmm.common.DepXml;
-import de.bund.bfr.knime.pmm.common.EstModelXml;
-import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
-import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.Util;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.pmf.ModelClass;
 import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.PMFUtil;
@@ -84,15 +74,14 @@ import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.bund.bfr.pmf.sbml.LimitsConstraint;
 import de.bund.bfr.pmf.sbml.Metadata;
 import de.bund.bfr.pmf.sbml.MetadataAnnotation;
-import de.bund.bfr.pmf.sbml.Model1Annotation;
-import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.MetadataImpl;
 import de.bund.bfr.pmf.sbml.PMFCompartment;
 import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
 import de.bund.bfr.pmf.sbml.Reference;
 import de.bund.bfr.pmf.sbml.ReferenceImpl;
 import de.bund.bfr.pmf.sbml.ReferenceSBMLNode;
 import de.bund.bfr.pmf.sbml.SBMLFactory;
-import de.bund.bfr.pmf.sbml.Uncertainties;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
@@ -220,7 +209,7 @@ public class FSKXWriterNodeModel extends NodeModel {
     combineArchive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
 
     // Handles model metadata table
-    final KnimeSchema schema = SchemaFactory.createM1DataSchema(); // Only support primary models
+    final KnimeSchema schema = new OpenFSMRSchema();
     final KnimeTuple tuple = PmmUtilities.getTuples((BufferedDataTable) inData[1], schema).get(0);
 
     // Gets info from dialog
@@ -250,7 +239,7 @@ public class FSKXWriterNodeModel extends NodeModel {
       setWarningMessage("Modified date msising");
     }
 
-    final SBMLDocument sbmlDoc = createSBMLDocument(tuple, metadata, notes.getStringValue());
+    final SBMLDocument sbmlDoc = createSBMLDocument(tuple);
 
     /**
      * Creates a file with the model meta data (SBML) and adds it to the CombineArchive. Since the
@@ -348,45 +337,10 @@ public class FSKXWriterNodeModel extends NodeModel {
   protected void saveInternals(final File internDir, final ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {}
 
-  private SBMLDocument createSBMLDocument(final KnimeTuple tuple, final Metadata metadata,
-      final String notes) {
-    /**
-     * <ul>
-     * <li>Retrieves TimeSeriesSchema cells
-     * <li>Retrieves Model1Schema cells
-     * <li>Creates SBMLDocument for the primary model
-     * <li>Adds namespaces to the SBMLDocument
-     * <li>Adds document annotation
-     * <li>Creates model and names it
-     * <li>Sets model notes
-     * <li>Gets model references
-     * <li>Gets estimated model references
-     * <li>Gets uncertainty measures
-     * <li>Creates and sets compartment
-     * <li>Creates and sets species
-     * <li>Adds dep constraint
-     * <li>Adds independent parameter
-     * <li>Adds independent parameter constraint
-     * <li>Adds constant parameters
-     * <li>Adds unit definitions
-     * <li>Adds rule **
-     */
+  /** Creates SBMLDocument out of a OpenFSMR tuple. */
+  private SBMLDocument createSBMLDocument(final KnimeTuple tuple) {
 
-    // Retrieves TimeSeriesSchema cells
-    AgentXml agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
-    MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
-    int condId = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
-    PmmXmlDoc miscDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-    // Retrieves Model1Schema cells
-    CatalogModelXml catModel =
-        (CatalogModelXml) tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
-    EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0);
-    DepXml dep = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-    IndepXml indep = (IndepXml) tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).get(0);
-    PmmXmlDoc paramsDoc = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-    String modelId = PMFUtil.createId("model" + estModel.getId());
+    final FSMRTemplate template = FSMRUtils.createTemplateFromTuple(tuple);
 
     // Creates SBMLDocument for the primary model
     final SBMLDocument sbmlDocument = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
@@ -395,116 +349,133 @@ public class FSKXWriterNodeModel extends NodeModel {
     TableReader.addNamespaces(sbmlDocument);
 
     // Adds document annotation
-    sbmlDocument.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
+    Metadata metaData = new MetadataImpl();
+    if (template.isSetCreator()) {
+      metaData.setGivenName(template.getCreator());
+    }
+    if (template.isSetFamilyName()) {
+      metaData.setFamilyName(template.getFamilyName());
+    }
+    if (template.isSetContact()) {
+      metaData.setContact(template.getContact());
+    }
+    if (template.isSetCreatedDate()) {
+      metaData.setCreatedDate(template.getCreatedDate().toString());
+    }
+    if (template.isSetModifiedDate()) {
+      metaData.setModifiedDate(template.getModifiedDate().toString());
+    }
+    if (template.isSetCreatedDate()) {
+      metaData.setType(template.getModelType());
+    }
+    if (template.isSetRights()) {
+      metaData.setRights(template.getRights());
+    }
+    if (template.isSetReferenceDescriptionLink()) {
+      metaData.setReferenceLink(template.getReferenceDescriptionLink().toString());
+    }
+
+    sbmlDocument.setAnnotation(new MetadataAnnotation(metaData).getAnnotation());
 
     // Creates model and names it
-    Model model = sbmlDocument.createModel(modelId);
-    if (estModel.getName() != null) {
-      model.setName(estModel.getName());
+    Model model = sbmlDocument.createModel(PMFUtil.createId(template.getModelId()));
+    if (template.isSetModelName()) {
+      model.setName(template.getModelName());
     }
 
     // Sets model notes
-    if (notes != null) {
+    if (template.isSetNotes()) {
       try {
-        model.setNotes(notes);
+        model.setNotes(template.getNotes());
       } catch (XMLStreamException e) {
         e.printStackTrace();
       }
     }
 
-    // Gets model references
-    List<LiteratureItem> mLits = new LinkedList<>();
-    PmmXmlDoc mLitDoc = tuple.getPmmXml(Model1Schema.ATT_MLIT);
-    for (PmmXmlElementConvertable item : mLitDoc.getElementSet()) {
-      mLits.add((LiteratureItem) item);
-    }
-
-    // Gets estimated model references
-    List<Reference> emLits = new LinkedList<>();
-    PmmXmlDoc emLitDoc = tuple.getPmmXml(Model1Schema.ATT_EMLIT);
-    for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
-      emLits.add(Util.literatureItem2Reference((LiteratureItem) item));
-    }
-
-    // Gets uncertainty measures
-    Uncertainties uncertainties = Util.estModel2Uncertainties(estModel);
-    model.setAnnotation(new Model1Annotation(uncertainties, emLits, condId).getAnnotation());
-
     // Creates and adds compartment to the model
-    PMFCompartment compartment = Util.matrixXml2Compartment(matrixXml, miscDoc);
+    PMFCompartment compartment = SBMLFactory
+        .createPMFCompartment(PMFUtil.createId(template.getMatrixName()), template.getMatrixName());
+    compartment.setDetail(template.getMatrixDetails());
     model.addCompartment(compartment.getCompartment());
 
-    // Creates and add species to the model
-    PMFSpecies species = Util.createSpecies(agentXml, dep.getUnit(), compartment.getId());
+    // Creates and adds species to the model
+    String speciesId = PMFUtil.createId(template.getOrganismName());
+    String speciesName = template.getOrganismName();
+    String speciesUnit = PMFUtil.createId(template.getDependentVariableUnit());
+    PMFSpecies species =
+        SBMLFactory.createPMFSpecies(compartment.getId(), speciesId, speciesName, speciesUnit);
     model.addSpecies(species.getSpecies());
 
+    // Adds dep parameter
+    Parameter depParam = new Parameter(PMFUtil.createId(template.getDependentVariable()));
+    depParam.setName(template.getDependentVariable());
+    depParam.setUnits(template.getDependentVariableUnit());
+    model.addParameter(depParam);
+
     // Adds dep constraint
-    LimitsConstraint depLc = new LimitsConstraint(species.getId(), dep.getMin(), dep.getMax());
-    if (depLc.getConstraint() != null) {
-      model.addConstraint(depLc.getConstraint());
-    }
-
-    // Adds independent parameter
-    Parameter indepParam = new Parameter(Categories.getTime());
-    indepParam.setValue(0.0);
-    indepParam.setConstant(false);
-    indepParam.setUnits(indep.getUnit());
-    model.addParameter(indepParam);
-
-    // Adds independent parameter constraint
-    if (!indep.getName().isEmpty()) {
-      LimitsConstraint lc = new LimitsConstraint(indep.getName(), indep.getMin(), indep.getMax());
+    if (template.isSetDependentVariableMin() || template.isSetDependentVariableMax()) {
+      LimitsConstraint lc = new LimitsConstraint(template.getDependentVariable(),
+          template.getDependentVariableMin(), template.getDependentVariableMax());
       if (lc.getConstraint() != null) {
         model.addConstraint(lc.getConstraint());
       }
     }
 
-    // Add constant parameters
-    List<ParamXml> constXmls = new LinkedList<>();
-    for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
-      constXmls.add((ParamXml) item);
-    }
+    // Adds independent parameters
+    for (int i = 0; i < template.getIndependentVariables().length; i++) {
+      String var = template.getIndependentVariables()[i];
+      Parameter param = model.createParameter(PMFUtil.createId(var));
+      param.setName(var);
 
-    for (ParamXml paramXml : constXmls) {
-      // Adds constant parameter
-      PMFCoefficient coefficient = Util.paramXml2Coefficient(paramXml);
-      model.addParameter(coefficient.getParameter());
+      String unit = template.getIndependentVariablesUnits()[i];
+      try {
+        param.setUnits(unit);
+      } catch (IllegalArgumentException e) {
+        e.printStackTrace();
+      }
 
-      // Adds constraint
-      LimitsConstraint lc =
-          new LimitsConstraint(paramXml.getName(), paramXml.getMin(), paramXml.getMax());
+      Double min = template.isSetIndependentVariablesMins()
+          ? template.getIndependentVariablesMins()[i] : null;
+      Double max = template.isSetIndependentVariablesMaxs()
+          ? template.getIndependentVariablesMaxs()[i] : null;
+      LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
       if (lc.getConstraint() != null) {
         model.addConstraint(lc.getConstraint());
       }
     }
 
     // Adds unit definitions
-    List<IndepXml> indepXmls = new LinkedList<>(Arrays.asList(indep));
-    try {
-      TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
-    } catch (XMLStreamException e) {
-      e.printStackTrace();
+    HashSet<String> units = new HashSet<>();
+    for (Parameter p : model.getListOfParameters()) {
+      units.add(p.getUnits());
     }
 
-    // Creates rule of the model and adds it to the rest of rules
-    Reference[] modelReferences = new ReferenceImpl[mLits.size()];
-    for (int i = 0; i < mLits.size(); i++) {
-      modelReferences[i] = Util.literatureItem2Reference(mLits.get(i));
+    for (String unit : units) {
+      PMFUnitDefinition unitDefinition;
+      try {
+        unitDefinition = Util.createUnitFromDB(unit);
+        if (unitDefinition == null) {
+          UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
+          ud.setName(unit);
+        } else {
+          model.addUnitDefinition(unitDefinition.getUnitDefinition());
+        }
+      } catch (XMLStreamException e) {
+        e.printStackTrace();
+      }
     }
 
-    ModelClass modelClass;
-    if (catModel.getModelClass() == null) {
-      modelClass = ModelClass.UNKNOWN;
-    } else {
-      modelClass = ModelClass.fromValue(catModel.getModelClass());
-    }
-    String formulaName = catModel.getName() == null ? catModel.getName() : "Missing formula name";
-    int catModelId = catModel.getId();
+
+    // Add rule
+    String formulaName = "Missing formula name";
+    ModelClass modelClass = template.getModelSubject();
+    int modelId = MathUtilities.getRandomNegativeInt();
+    Reference[] references = new Reference[0];
 
     AssignmentRule rule = new AssignmentRule(3, 1);
+    rule.setVariable(depParam.getId());
     rule.setAnnotation(
-        new ModelRuleAnnotation(formulaName, modelClass, catModelId, modelReferences).annotation);
-
+        new ModelRuleAnnotation(formulaName, modelClass, modelId, references).annotation);
     model.addRule(rule);
 
     return sbmlDocument;

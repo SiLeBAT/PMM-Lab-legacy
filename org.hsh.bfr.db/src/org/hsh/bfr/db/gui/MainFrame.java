@@ -714,11 +714,11 @@ public class MainFrame extends JFrame {
 
 			} else {
 				if (!DBKernel.isServerConnection) {
-					MyLogger.handleMessage("vor closeDBConnections COMPACT: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
+					MyLogger.handleMessage("vor closeDBConnections COMPACT: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + DBKernel.dbKennung + ".data"));
 				}
 				DBKernel.closeDBConnections(true); // lieber false???
 				if (!DBKernel.isServerConnection) {
-					MyLogger.handleMessage("nach closeDBConnections COMPACT: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
+					MyLogger.handleMessage("nach closeDBConnections COMPACT: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + DBKernel.dbKennung + ".data"));
 				}
 				this.dispose();
 				System.exit(0);

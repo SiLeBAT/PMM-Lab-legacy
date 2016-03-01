@@ -100,7 +100,8 @@ public class DBKernel {
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 
-	public static String softwareVersion = "1.8.3";
+	public static String softwareVersion = "1.8.6";
+	public static String dbKennung = softwareVersion.startsWith("1.") ? "DB" : "pmm";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 
@@ -689,7 +690,7 @@ public class DBKernel {
 		if (isServerConnection) {
 			return getNewServerConnection(dbUsername, dbPassword, path, suppressWarnings);
 		} else {
-			return getNewLocalConnection(dbUsername, dbPassword, path + "DB", suppressWarnings);
+			return getNewLocalConnection(dbUsername, dbPassword, path + dbKennung, suppressWarnings);
 		}
 	}
 
@@ -1332,12 +1333,12 @@ public class DBKernel {
 		}
 	}
 
-	public static boolean DBFilesDa(String path) {
+	public static boolean DBFilesDa(String path, String dbKennung) {
 		boolean result = false;
 		if (!path.endsWith(System.getProperty("file.separator"))) path += System.getProperty("file.separator");
-		File f = new File(path + "DB.script");
+		File f = new File(path + dbKennung + ".script");
 		if (!f.exists()) {
-			f = new File(path + "DB.data");
+			f = new File(path + dbKennung + ".data");
 		}
 		result = f.exists();
 		return result;
@@ -1475,7 +1476,7 @@ public class DBKernel {
 		catch (Exception he) { //HeadlessException
 			DBKernel.m_Username = username;
 			DBKernel.m_Password = password;
-			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);
+			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH, dbKennung);
 			if (noDBThere) {
 				File temp = DBKernel.getCopyOfInternalDB();
 				if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {

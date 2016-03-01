@@ -82,6 +82,12 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	private Double dependentVariableMax = null;
 
 	private String[] independentVariables = null;
+	
+	private String[] independentVariableUnits = null;
+	
+	private Double[] independentVariableMins = null;
+
+	private Double[] independentVariableMaxs = null;
 
 	private Boolean hasData;
 
@@ -208,6 +214,21 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public String[] getIndependentVariables() {
 		return independentVariables;
+	}
+	
+	/** {@inheritDoc} */
+	public String[] getIndependentVariablesUnits() {
+		return independentVariableUnits;
+	}
+	
+	/** {@inheritDoc} */
+	public Double[] getIndependentVariablesMins() {
+		return independentVariableMins;
+	}
+	
+	/** {@inheritDoc} */
+	public Double[] getIndependentVariablesMaxs() {
+		return independentVariableMaxs;
 	}
 
 	/** {@inheritDoc} */
@@ -338,6 +359,21 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	public void setIndependentVariables(String[] independentVariables) {
 		this.independentVariables = independentVariables;
 	}
+	
+	/** {@inheritDoc} */
+	public void setIndependentVariablesUnits(String[] independentVariableUnits) {
+		this.independentVariableUnits = independentVariableUnits;
+	}
+	
+	/** {@inheritDoc} */
+	public void setIndependentVariablesMins(Double[] independentVariableMins) {
+		this.independentVariableMins = independentVariableMins;
+	}
+	
+	/** {@inheritDoc} */
+	public void setIndependentVariablesMaxs(Double[] independentVariableMaxs) {
+		this.independentVariableMaxs = independentVariableMaxs;
+	}
 
 	/** {@inheritDoc} */
 	public void setHasData(boolean hasData) {
@@ -462,6 +498,21 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public void unsetIndependentVariables() {
 		independentVariables = null;
+	}
+	
+	/** {@inheritDoc} */
+	public void unsetIndependentVariableUnits() {
+		independentVariableUnits = null;
+	}
+	
+	/** {@inheritDoc} */
+	public void unsetIndependentVariableMins() {
+		independentVariableMins = null;
+	}
+	
+	/** {@inheritDoc} */
+	public void unsetIndependentVariableMaxs() {
+		independentVariableMaxs = null;
 	}
 
 	/** {@inheritDoc} */
@@ -592,6 +643,21 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 	/** {@inheritDoc} */
 	public boolean isSetIndependentVariables() {
 		return independentVariables != null;
+	}
+	
+	/** {@inheritDoc} */
+	public boolean isSetIndependentVariablesUnits() {
+		return independentVariableUnits != null;
+	}
+	
+	/** {@inheritDoc} */
+	public boolean isSetIndependentVariablesMins() {
+		return independentVariableMins != null;
+	}
+
+	/** {@inheritDoc} */
+	public boolean isSetIndependentVariablesMaxs() {
+		return independentVariableMaxs != null;
 	}
 
 	/** {@inheritDoc} */

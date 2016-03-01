@@ -1,14 +1,13 @@
 package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.commons.io.Charsets;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -20,17 +19,18 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.sbml.jsbml.JSBML;
-import org.sbml.jsbml.SBMLDocument;
 
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.FSMRUtils;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
+import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.RScript;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 
 public class R2FSKNodeModel extends NodeModel {
 
@@ -43,15 +43,15 @@ public class R2FSKNodeModel extends NodeModel {
   // configuration key of the path of the R visualization script
   static final String CFGKEY_VISUALIZATION_SCRIPT = "visualizationScript";
 
-  // configuration key of the path of the SBML document with the model meta data
-  static final String CFGKEY_META_DATA_DOC = "metaDataDoc";
+  // configuration key of the path of the XLSX spreadsheet with the model meta data
+  static final String CFGKEY_SPREADSHEET = "spreadsheet";
 
   // Settings models
   private SettingsModelString modelScriptPath = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
   private SettingsModelString paramScriptPath = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
   private SettingsModelString visualizationScriptPath =
       new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
-  private SettingsModelString metaDataDocPath = new SettingsModelString(CFGKEY_META_DATA_DOC, null);
+  private SettingsModelString spreadsheetPath = new SettingsModelString(CFGKEY_SPREADSHEET, null);
 
   /** {@inheritDoc} */
   protected R2FSKNodeModel() {
@@ -74,7 +74,7 @@ public class R2FSKNodeModel extends NodeModel {
     modelScriptPath.saveSettingsTo(settings);
     paramScriptPath.saveSettingsTo(settings);
     visualizationScriptPath.saveSettingsTo(settings);
-    metaDataDocPath.saveSettingsTo(settings);
+    spreadsheetPath.saveSettingsTo(settings);
   }
 
   /** {@inheritDoc} */
@@ -83,7 +83,7 @@ public class R2FSKNodeModel extends NodeModel {
     modelScriptPath.validateSettings(settings);
     paramScriptPath.validateSettings(settings);
     visualizationScriptPath.validateSettings(settings);
-    metaDataDocPath.validateSettings(settings);
+    spreadsheetPath.validateSettings(settings);
   }
 
   /** {@inheritDoc} */
@@ -93,7 +93,7 @@ public class R2FSKNodeModel extends NodeModel {
     modelScriptPath.loadSettingsFrom(settings);
     paramScriptPath.loadSettingsFrom(settings);
     visualizationScriptPath.loadSettingsFrom(settings);
-    metaDataDocPath.loadSettingsFrom(settings);
+    spreadsheetPath.loadSettingsFrom(settings);
   }
 
   /** {@inheritDoc} */
@@ -116,112 +116,90 @@ public class R2FSKNodeModel extends NodeModel {
      * Reads model script. Since the model script is mandatory, if modelScriptPath is not set, then
      * a InvalidSettingsException will be thrown
      */
-    final String origModelScript; // original model script (with comments)
-    final String simpModelScript; // simplified model script (without comments)
+    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(KEYS.class);
+
+    // trim white spaces and convert empty string to null
+    if (modelScriptPath.getStringValue() != null) {
+      modelScriptPath.setStringValue(Strings.emptyToNull(modelScriptPath.getStringValue().trim()));
+    }
+
+    if (modelScriptPath.getStringValue() == null) {
+      throw new InvalidSettingsException("Unespecified model script");
+    }
     try {
-      origModelScript = readFile(modelScriptPath.getStringValue()); // may throw errors
+      RScript modelScript = new RScript(KnimeUtils.getFile(modelScriptPath.getStringValue()));
 
-      // If no errors are thrown, proceed to extract libraries and sources
-      final String[] lines = origModelScript.split("\\r?\\n");
-      librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-      sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
+      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
 
-      // Creates simplified model script
-      simpModelScript = FSKUtil.createSimplifiedScript(lines);
-    } catch (NullPointerException e) {
-      // modelScriptPath is not set (null)
-      throw new InvalidSettingsException("Unspecified model script");
+      librariesSet.addAll(modelScript.getLibraries());
+      sourcesSet.addAll(modelScript.getSources());
     } catch (IOException e) {
       throw new InvalidSettingsException(modelScriptPath.getStringValue() + ": cannot be read");
     }
 
-    // Reads parameters script. The parameters script is optional, thus if paraScriptPath is not set
-    // paramScriptLines will be assigned an empty list
-    String origParamScript;
-    String simpParamScript;
-    try {
-      origParamScript = readFile(paramScriptPath.getStringValue()); // may throw errors
-
-      // If no errors are thrown, proceed to extract libraries and sources
-      final String[] lines = origParamScript.split("\\r?\\n");
-      librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-      sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
-
-      // Creates simplified parameters list
-      simpParamScript = FSKUtil.createSimplifiedScript(lines);
-    } catch (NullPointerException e) {
-      // do not do anything if paramScriptPath is not set
-      origParamScript = simpParamScript = "";
-    } catch (IOException e) {
-      throw new InvalidSettingsException(paramScriptPath.getStringValue() + ": cannot be read");
+    /**
+     * Reads parameters script. The parameters script is optional, thus if paraScriptPath is not set
+     * paramScriptLines will be assigned an empty list
+     */
+    // trim white spaces and convert empty string to null
+    if (paramScriptPath.getStringValue() != null) {
+      paramScriptPath.setStringValue(Strings.emptyToNull(paramScriptPath.getStringValue().trim()));
     }
 
-    // Reads visualization script. The visualization script is optional, thus if
-    // visualizationScriptPath is not set visualizationScriptLines will be assigned an empty list
-    String origVisualizationScript;
-    String simpVisualizationScript;
-    try {
-      origVisualizationScript = readFile(visualizationScriptPath.getStringValue());
+    if (paramScriptPath.getStringValue() != null) {
+      try {
+        RScript paramScript = new RScript(KnimeUtils.getFile(paramScriptPath.getStringValue()));
 
-      // If no errors are thrown, proceed to extract libraries and sources
-      final String[] lines = origVisualizationScript.split("\\r?\\n");
-      librariesSet.addAll(FSKUtil.extractLibrariesFromLines(lines));
-      sourcesSet.addAll(FSKUtil.extractSourcesFromLines(lines));
+        valuesMap.put(KEYS.ORIG_PARAM, paramScript.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_PARAM, paramScript.getSimplifiedScript());
 
-      // Creates simplified visualization script
-      simpVisualizationScript = FSKUtil.createSimplifiedScript(lines);
-    } catch (NullPointerException e) {
-      // do not do anything if visualizationScriptPath is not set
-      origVisualizationScript = simpVisualizationScript = "";
-    } catch (IOException e) {
-      throw new InvalidSettingsException(
-          visualizationScriptPath.getStringValue() + ": cannot be read");
+        librariesSet.addAll(paramScript.getLibraries());
+        sourcesSet.addAll(paramScript.getSources());
+      } catch (IOException e) {
+        throw new InvalidSettingsException(paramScriptPath.getStringValue() + ": cannot be read");
+      }
     }
 
     /**
-     * Process the SBMLDocument with the model meta data. If an error occurs or the file is not
-     * specified the data table will be empty.
+     * Reads visualization script. The visualization script is optional, thus if
+     * visualizationScriptPath is not set visualizationScriptLines will be assigned an empty list
      */
-    KnimeTuple metaDataTuple;
-    final String metaDataDocPathString = metaDataDocPath.getStringValue();
-    if (Strings.isNullOrEmpty(metaDataDocPathString)) {
-      metaDataTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
-    } else {
+    // trim white spaces and convert empty string to null
+    if (visualizationScriptPath.getStringValue() != null) {
+      visualizationScriptPath
+          .setStringValue(Strings.emptyToNull(visualizationScriptPath.getStringValue().trim()));
+    }
+
+    if (visualizationScriptPath.getStringValue() != null) {
       try {
-        final SBMLDocument doc = JSBML.readSBML(metaDataDocPathString); // may throw errors
-        metaDataTuple = FSKUtil.processMetaData(doc);
-      } catch (IOException | XMLStreamException e) {
-        // creates empty table and print error trace
-        metaDataTuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
-        e.printStackTrace();
+        RScript vizScript =
+            new RScript(KnimeUtils.getFile(visualizationScriptPath.getStringValue()));
+
+        valuesMap.put(KEYS.ORIG_VIZ, vizScript.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_VIZ, vizScript.getSimplifiedScript());
+
+        librariesSet.addAll(vizScript.getLibraries());
+        sourcesSet.addAll(vizScript.getSources());
+      } catch (IOException e) {
+        throw new InvalidSettingsException(
+            visualizationScriptPath.getStringValue() + ": cannot be read");
       }
     }
+    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // adds R libraries
+    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // adds R sources
 
     // Creates table spec and container
     final DataTableSpec tableSpec = FSKUtil.createFSKTableSpec();
     final BufferedDataContainer container = exec.createDataContainer(tableSpec);
 
     // Adds row and closes the container
-    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(KEYS.class);
-    valuesMap.put(KEYS.ORIG_MODEL, origModelScript); // adds original model script
-    valuesMap.put(KEYS.SIMP_MODEL, simpModelScript); // adds simplified model script
-    valuesMap.put(KEYS.ORIG_PARAM, origParamScript); // adds original parameters script
-    valuesMap.put(KEYS.SIMP_PARAM, simpParamScript); // adds simplified parameters script
-    valuesMap.put(KEYS.ORIG_VIZ, origVisualizationScript); // adds original visualization script
-    valuesMap.put(KEYS.SIMP_VIZ, simpVisualizationScript); // adds simplified visualization script
-    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet));  // adds R libraries
-    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet));  // adds R sources
-
     container.addRowToTable(new FSKXTuple(valuesMap));
     container.close();
 
-    // Meta data table: creates model table spec and container
-    final DataTableSpec modelTableSpec = SchemaFactory.createM1DataSchema().createSpec();
-    final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
-    modelContainer.addRowToTable(metaDataTuple);
-    modelContainer.close();
+    BufferedDataTable metaDataTable = createMetaDataTable(exec, spreadsheetPath.getStringValue());
 
-    return new BufferedDataTable[] {container.getTable(), modelContainer.getTable()};
+    return new BufferedDataTable[] {container.getTable(), metaDataTable};
   }
 
   /** {@inheritDoc} */
@@ -232,18 +210,35 @@ public class R2FSKNodeModel extends NodeModel {
   }
 
   /**
-   * Reads content of a text file.
+   * Creates a {@link BufferedDataTable} with the meta data obtained from the given spreadsheet. If
+   * an error occurs or the path is not specified the table will be empty.
    * 
-   * @param filepath
-   * @throw NullPointerException if filepath is null
-   * @throw IOException if the file specified by filepath cannot be read
-   * @return string with the contents of the file
+   * @param exec Execution context
+   * @param path File path to the XLSX spreadsheet
+   * @return BufferedDataTable
    */
-  private String readFile(final String filepath) throws NullPointerException, IOException {
-    final File file = new File(filepath); // throws NullPointerException
-    final String contents = Files.toString(file, Charsets.UTF_8); // throws IOException
+  private BufferedDataTable createMetaDataTable(final ExecutionContext exec, String path) {
 
-    return contents;
+    DataTableSpec spec = new OpenFSMRSchema().createSpec();
+    BufferedDataContainer container = exec.createDataContainer(spec);
+
+    if (!Strings.isNullOrEmpty(path)) {
+      try {
+        FileInputStream fis = new FileInputStream(KnimeUtils.getFile(path));
+        // Finds the workbook instance for XLSX file
+        XSSFWorkbook workbook = new XSSFWorkbook(fis);
+        fis.close();
+
+        FSMRTemplate template = FSMRUtils.processSpreadsheet(workbook);
+        KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
+        container.addRowToTable(tuple);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    container.close();
+
+    return container.getTable();
   }
-
 }

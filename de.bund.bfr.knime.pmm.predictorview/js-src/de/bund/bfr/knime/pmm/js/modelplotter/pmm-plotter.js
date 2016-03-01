@@ -24,6 +24,7 @@ pmm_plotter = function() {
 	var _modelObjects = [];
 	var _colorsArray = [];
 	var _rawModels = [];
+	var _parameterRangeMap = [];
 	
 	var msgAdd = "Add Model";
 	var msgChoose = "Select Model";
@@ -296,12 +297,15 @@ pmm_plotter = function() {
 		var model;
 		var modelList = [];
 		
-		// TODO: gather all models to condId, and parse CatModelSec
-		$.each(_rawModels, function(i, object)
+		// we do a primitive clone for the iteration over the original data 
+		// (it helps to start fresh for each model)
+		var rawDataClone = JSON.parse(JSON.stringify(_rawModels));
+		
+		$.each(rawDataClone, function(i, object)
 		{
-			if(_rawModels[i].condId == selection)
+			if(object.condId == selection)
 			{
-				modelList.push(_rawModels[i]);
+				modelList.push(object);
 			}
 		});
 		
@@ -309,10 +313,10 @@ pmm_plotter = function() {
 		{
 			model = createTertiaryModel(modelList);
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
-			var functionAsString = prepareFunction(model.formula);
-			var functionConstants = prepareConstants(model.indeps);
 			var condId = model.condId;
 			var modelName = model.estModel.name;
+			var functionAsString = prepareFunction(model.formula);
+			var functionConstants = prepareConstants(model.indeps, condId);
 			_xUnit = model.xUnit;
 			// call subsequent method
 			addFunctionObject(condId, functionAsString, functionConstants, model);
@@ -390,15 +394,40 @@ pmm_plotter = function() {
 		 * extract parameter names and values
 		 * 
 		 * @param functionString formula as delivered by the java class
+		 * @param modelId used for the ranges
 		 * @return reduced parameter array
 		 */
-		function prepareConstants(parameterArray) 
+		function prepareConstants(parameterArray, modelId) 
 		{
 			var newParameterArray = {};
 			$.each(parameterArray, function(index, param) {
 				var name = param["name"];
 				var value = param["min"];
 				newParameterArray[name] = value; 
+				
+				// save ranges for each parameter
+				// exchange min and max if lower/higher resp.
+				var newRange = {
+					name: name,
+					model: modelId,
+					min: param.min,
+					max: param.max
+				};
+				
+				var existent = false;
+				$.each(_parameterRangeMap, function(i, range) {
+					if(range.name == newRange.name)
+					{
+						if(newRange.min < range.min)
+							range.min = newRange.min;
+						if(newRange.max > range.max)
+							range.max = newRange.max;
+						existent = true;
+						return true;
+					}
+				});
+				if(!existent)
+					_parameterRangeMap.push(newRange);
 			});
 			return newParameterArray;
 		}
@@ -433,7 +462,6 @@ pmm_plotter = function() {
 					return true;
 				}
 			});
-			
 			// add primary independents (which are in the parameters here)
 			$.each(tertiaryModel.params.params, function(index, indep) {
 				secondaryIndeps.push(indep);
@@ -788,24 +816,20 @@ pmm_plotter = function() {
 					sliderValueInput.setAttribute("style" , _sliderInputWidth + "font-weight: bold;");
 					sliderValueDiv.appendChild(sliderValueInput);
 					
-					var sliderMin;
-					var sliderMax;
+					// standard values if no range given
+					var sliderMin = value - 5.1;
+					var sliderMax = value + 5.1;
 					
-					if(value > 0)
-					{
-						sliderMin = value / 2;
-						sliderMax = value * 2;
-					}
-					else if(value < 0) 
-					{
-						sliderMin = value + value;
-						sliderMax = 0;
-		    		}
-					else
-					{
-						sliderMin = 0;
-						sliderMax = 1;
-					}
+					$.each(_parameterRangeMap, function (index, range) {
+						if(range.name == constant)
+						{
+							if(range.min != undefined)
+								sliderMin = range.min;
+							if(range.max != undefined)
+								sliderMax = range.max;
+						}
+					});
+					
 					sliderValueInput.setAttribute("min", sliderMin);
 					sliderValueInput.setAttribute("max", sliderMax);
 					

@@ -18,19 +18,16 @@ package de.bund.bfr.knime.pmm.fskx.reader;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.net.URI;
+import java.text.ParseException;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -59,10 +56,7 @@ import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.file.CombineArchiveUtil;
-import de.bund.bfr.pmf.file.uri.RUri;
 import de.bund.bfr.pmf.file.uri.URIFactory;
-import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 
@@ -88,163 +82,21 @@ public class FSKXReaderNodeModel extends NodeModel {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @throws MissingValueError
    */
   @Override
   protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
       throws CombineArchiveException, FileAccessException, MissingValueError {
 
-    String filepath = filename.getStringValue();
+    FSKFiles files = new FSKFiles();
 
-    /**
-     * Try to open the CombineArchive. Should an error occur, a FileAccessException would be thrown.
-     */
-    CombineArchive combineArchive = CombineArchiveUtil.open(filepath);
+    // Creates R table, meta data table and R port with the R workspace
+    BufferedDataTable rTable = createRTable(files, exec);
+    BufferedDataTable metaDataTable = createMetaDataTable(files, exec);
+    RPortObject rPort = files.workspace == null ? null : new RPortObject(files.workspace);
 
-    final Set<String> librariesSet = new HashSet<>(); // Set of libraries
-    final Set<String> sourcesSet = new HashSet<>(); // Set of sources
-
-    // Gets annotation
-    final Element xmlElement = combineArchive.getDescriptions().get(0).getXmlDescription();
-    final RMetaDataNode metaDataNode = new RMetaDataNode(xmlElement);
-
-    final List<ArchiveEntry> rEntriesList =
-        combineArchive.getEntriesWithFormat(new RUri().createURI());
-    final Map<String, ArchiveEntry> rEntriesMap = new HashMap<>(rEntriesList.size());
-    for (final ArchiveEntry entry : rEntriesList) {
-      rEntriesMap.put(entry.getFileName(), entry);
-    }
-
-    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(FSKXTuple.KEYS.class);
-
-    /**
-     * Looks for model script. Since the model script is mandatory, it closes the CombineArchive and
-     * throws a FileAccessException when the model script cannot be retrieved.
-     */
-    final String modelScriptFileName = metaDataNode.getMainScript();
-
-    if (modelScriptFileName == null) {
-      CombineArchiveUtil.close(combineArchive);
-      throw new FileAccessException("Model script could not be accessed");
-    }
-    try {
-      // Extracts model script to file
-      File modelScriptFile = File.createTempFile("modelScript", "");
-      modelScriptFile.deleteOnExit();
-      rEntriesMap.get(modelScriptFileName).extractFile(modelScriptFile);
-
-      RScript modelScript = new RScript(modelScriptFile); // throws IOException
-
-      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
-
-      librariesSet.addAll(modelScript.getLibraries());
-      sourcesSet.addAll(modelScript.getSources());
-    } catch (IOException e) {
-      CombineArchiveUtil.close(combineArchive);
-      throw new FileAccessException("Model script could not be accessed");
-    }
-
-    /**
-     * Looks for parameters script. Since the parameter script is optional, it produces an empty
-     * script (empty string) if the parameter script could not be retrieved.
-     */
-    final String paramScriptFileName = metaDataNode.getParametersScript();
-
-    if (paramScriptFileName != null) {
-      try {
-        // Extracts parameter script to file
-        File paramScriptFile = File.createTempFile("paramScript", "");
-        paramScriptFile.deleteOnExit();
-        rEntriesMap.get(paramScriptFileName).extractFile(paramScriptFile);
-
-        RScript paramScript = new RScript(paramScriptFile); // throws IOException
-
-        valuesMap.put(KEYS.ORIG_PARAM, paramScript.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_PARAM, paramScript.getSimplifiedScript());
-
-        librariesSet.addAll(paramScript.getLibraries());
-        sourcesSet.addAll(paramScript.getSources());
-      } catch (IOException e) {
-      }
-    }
-
-    /**
-     * Looks for visualization script. Since the visualization script is optional, it produces an
-     * empty script (empty string) if the visualization script could not be retrieved.
-     */
-    final String vizScriptFileName = metaDataNode.getVisualizationScript();
-
-    if (vizScriptFileName != null) {
-      try {
-        // Extracts parameter script to file
-        File vizScriptFile = File.createTempFile("vizFile", "");
-        vizScriptFile.deleteOnExit();
-        rEntriesMap.get(vizScriptFileName).extractFile(vizScriptFile);
-
-        RScript vizScript = new RScript(vizScriptFile); // throws IOException
-
-        valuesMap.put(KEYS.ORIG_VIZ, vizScript.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_VIZ, vizScript.getSimplifiedScript());
-
-        librariesSet.addAll(vizScript.getLibraries());
-        sourcesSet.addAll(vizScript.getSources());
-      } catch (IOException e) {
-      }
-    }
-
-    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // Adds R libraries
-    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // Adds R sources
-
-    /**
-     * Process the SBMLDocument with the model meta data. Should an error occur the meta data table
-     * will be empty.
-     */
-    final ArchiveEntry modelEntry =
-        combineArchive.getEntriesWithFormat(URIFactory.createPMFURI()).get(0);
-    KnimeTuple metaDataTuple;
-    try {
-      final InputStream stream =
-          Files.newInputStream(modelEntry.getPath(), StandardOpenOption.READ);
-      final SBMLDocument sbmlDoc = new SBMLReader().readSBMLFromStream(stream);
-      stream.close();
-      FSMRTemplate template = FSMRUtils.processPrevalenceModel(sbmlDoc);
-      metaDataTuple = FSMRUtils.createTupleFromTemplate(template);
-    } catch (IOException | XMLStreamException e) {
-      metaDataTuple = new KnimeTuple(new OpenFSMRSchema());
-    }
-
-    // Gets R workspace
-    RPortObject rPort;
-    try {
-      final String workspaceFileName = metaDataNode.getWorkspaceFile();
-      final File tempFile = File.createTempFile("workspace", "");
-      final ArchiveEntry entry = rEntriesMap.get(workspaceFileName);
-      entry.extractFile(tempFile);
-      rPort = new RPortObject(tempFile);
-    } catch (IOException e) {
-      throw new FileAccessException("Error accessing R workspace");
-    }
-
-    CombineArchiveUtil.close(combineArchive);
-
-    // Creates table spec and container
-    final DataTableSpec tableSpec = FSKUtil.createFSKTableSpec();
-    final BufferedDataContainer dataContainer = exec.createDataContainer(tableSpec);
-
-    // Adds row and closes the container
-    final FSKXTuple row = new FSKXTuple(valuesMap);
-    dataContainer.addRowToTable(row);
-    dataContainer.close();
-
-    // Creates model table spec and container
-    final DataTableSpec modelTableSpec = new OpenFSMRSchema().createSpec();
-    final BufferedDataContainer modelContainer = exec.createDataContainer(modelTableSpec);
-    modelContainer.addRowToTable(metaDataTuple);
-    modelContainer.close();
-
-    return new PortObject[] {dataContainer.getTable(), modelContainer.getTable(), rPort};
+    return new PortObject[] {rTable, metaDataTable, rPort};
   }
 
   /** {@inheritDoc} */
@@ -293,6 +145,244 @@ public class FSKXReaderNodeModel extends NodeModel {
 
     public FileAccessException(final String descr) {
       super(descr);
+    }
+  }
+
+  /**
+   * Creates a {@link BufferedDataTable} with the R code: model, parameters and visualization
+   * script.
+   * 
+   * @param files {@link {@link FSKXReaderNodeModel.FSKFiles}
+   * @param exec {@link ExecutionContext}
+   * @throws FileAccessException
+   * @throws MissingValueError
+   * @return {@link BufferedDataTable}
+   */
+  private BufferedDataTable createRTable(final FSKXReaderNodeModel.FSKFiles files,
+      final ExecutionContext exec) throws FileAccessException, MissingValueError {
+    final Set<String> librariesSet = new HashSet<>(); // Set of libraries
+    final Set<String> sourcesSet = new HashSet<>(); // Set of sources
+
+    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(FSKXTuple.KEYS.class);
+
+    // R model script
+    try {
+      RScript modelScript = new RScript(files.modelScript);
+
+      // no IOException occur -> process content of model script and add libraries and sources
+      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
+      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
+      librariesSet.addAll(modelScript.getLibraries());
+      sourcesSet.addAll(modelScript.getSources());
+    } catch (IOException e) {
+      throw new FileAccessException("Model script could not be accessed");
+    }
+
+    // R parameters script
+    if (files.paramScript != null) {
+      try {
+        RScript script = new RScript(files.paramScript);
+
+        // no IOException occur -> process content of parameters script and add libraries and
+        // sources
+        valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_PARAM, script.getSimplifiedScript());
+        librariesSet.addAll(script.getLibraries());
+        sourcesSet.addAll(script.getSources());
+      } catch (IOException e) {
+        String msg = files.paramScript.getName() + ": cannot be read";
+        System.err.println(msg);
+        setWarningMessage(msg);
+      }
+    }
+
+    // R visualization script
+    if (files.vizScript != null) {
+      try {
+        RScript script = new RScript(files.vizScript);
+
+        // no IOException occur -> process content of parameters script and add libraries and
+        // sources
+        valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
+        valuesMap.put(KEYS.SIMP_VIZ, script.getSimplifiedScript());
+        librariesSet.addAll(script.getLibraries());
+        sourcesSet.addAll(script.getSources());
+      } catch (IOException e) {
+        String msg = files.vizScript.getName() + ": cannot be read";
+        System.err.println(msg);
+        setWarningMessage(msg);
+      }
+    }
+
+    // copy libraries and sources to valuesMap
+    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // Adds R libraries
+    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // Adds R sources
+
+    // Creates model table spec and container
+    DataTableSpec spec = FSKUtil.createFSKTableSpec();
+    BufferedDataContainer container = exec.createDataContainer(spec);
+    container.addRowToTable(new FSKXTuple(valuesMap));
+    container.close();
+
+    return container.getTable();
+  }
+
+  /**
+   * Creates a {@link BufferedDataTable} with the model meta data. If an error occurs the table will
+   * be empty and the will show a warning.
+   * 
+   * @param files {@link FSKXReaderNodeModel.FSKFiles}
+   * @param exec {@link ExecutionContext}
+   * @return {@link BufferedDataTable}
+   */
+  private BufferedDataTable createMetaDataTable(final FSKFiles files, final ExecutionContext exec) {
+    BufferedDataContainer container = exec.createDataContainer(new OpenFSMRSchema().createSpec());
+    if (files.metaData != null) {
+
+      SBMLDocument doc;
+      try {
+        doc = new SBMLReader().readSBML(files.metaData);
+
+        // No errors occur -> process doc and populate table
+        FSMRTemplate template = FSMRUtils.processPrevalenceModel(doc);
+        KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
+        container.addRowToTable(tuple);
+      } catch (XMLStreamException | IOException e) {
+        setWarningMessage(e.getMessage());
+        e.printStackTrace(System.err);
+      }
+    }
+    container.close(); 
+    
+    return container.getTable();
+  }
+
+  /** Contents of a FSKX archive. */
+  class FSKFiles {
+    File modelScript;
+    File paramScript;
+    File vizScript;
+    File workspace;
+    File metaData;
+
+    /**
+     * Reads the contents of a FSKX archive
+     * 
+     * @return {@link FSKFiles} with the {@link File}s of the FSKX archive.
+     * @throws CombineArchiveException if the model script cannot be read
+     */
+    public FSKFiles() throws CombineArchiveException {
+      File archiveFile = new File(filename.getStringValue());
+      CombineArchive archive = null;
+      try {
+        archive = new CombineArchive(archiveFile);
+      } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
+        throw new CombineArchiveException(e.getMessage());
+      }
+
+      // Gets annotation
+      Element xmlElement = archive.getDescriptions().get(0).getXmlDescription();
+      RMetaDataNode node = new RMetaDataNode(xmlElement);
+
+
+      // Add model script file
+      String modelFileName = node.getMainScript();
+      if (modelFileName == null) {
+        try {
+          archive.close();
+        } catch (IOException e) {
+        }
+        throw new CombineArchiveException("Missing model file name in FSK metadata");
+      }
+      try {
+        File modelFile = File.createTempFile("modelScript", ".R");
+        modelFile.deleteOnExit();
+        archive.getEntry(modelFileName).extractFile(modelFile);
+
+        // no errors occur -> assigns R model script
+        modelScript = modelFile;
+      } catch (IOException e) {
+        // an IOException occur -> throws a CombineArchiveException
+        try {
+          archive.close();
+        } catch (IOException e1) {
+        }
+        throw new CombineArchiveException(e.getMessage());
+      }
+
+      // Add parameters script file
+      String paramFileName = node.getParametersScript();
+      if (paramFileName != null) {
+        try {
+          File paramFile = File.createTempFile("paramScript", ".R");
+          paramFile.deleteOnExit();
+          archive.getEntry(paramFileName).extractFile(paramFile);
+
+          // no errors occur -> assigns R parameters script
+          paramScript = paramFile;
+        } catch (IOException e) {
+          String msg = paramFileName + ": cannot be read";
+          System.err.println(msg);
+          setWarningMessage(msg);
+        }
+      }
+
+      // Add visualization script file
+      String vizFileName = node.getVisualizationScript();
+      if (vizFileName != null) {
+        try {
+          File vizFile = File.createTempFile("vizScript", ".R");
+          vizFile.deleteOnExit();
+          archive.getEntry(vizFileName).extractFile(vizFile);
+
+          // no errors occur -> assigns R visualization script
+          vizScript = vizFile;
+        } catch (IOException e) {
+          String msg = vizFileName + ": cannot be read";
+          System.err.println(msg);
+          setWarningMessage(msg);
+        }
+      }
+
+      // Add workspace file
+      String workspaceFileName = node.getWorkspaceFile();
+      if (workspaceFileName != null) {
+        try {
+          File workspaceFile = File.createTempFile("workspace", ".R");
+          workspaceFile.deleteOnExit();
+          archive.getEntry(workspaceFileName).extractFile(workspaceFile);
+
+          // no errors occur -> assigns R workspace file
+          workspace = workspaceFile;
+        } catch (IOException e) {
+          String msg = workspaceFileName + ": cannot be read";
+          System.err.println(msg);
+          setWarningMessage(msg);
+        }
+      }
+
+      // Adds meta data file (SBMLDocument)
+      URI pmfURI = URIFactory.createPMFURI();
+      if (archive.getNumEntriesWithFormat(pmfURI) == 1) {
+        try {
+          File metaDataFile = File.createTempFile("metadata", ".pmf");
+          metaDataFile.deleteOnExit();
+          archive.getEntriesWithFormat(pmfURI).get(0).extractFile(metaDataFile);
+
+          // no errors occur -> assigns meta data file
+          metaData = metaDataFile;
+        } catch (IOException e) {
+          String msg = workspaceFileName + ": cannot be read";
+          System.err.println(msg);
+          setWarningMessage(msg);
+        }
+      }
+
+      try {
+        archive.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 }

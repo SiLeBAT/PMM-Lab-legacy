@@ -62,6 +62,7 @@ pmm_plotter = function() {
 	var _plotHeight = 400;
 	var _logConst = 2.3025851;
 	var _xUnit = msgUnknown;
+	var _yUnit = msgUnknown;
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -311,13 +312,13 @@ pmm_plotter = function() {
 		
 		if(modelList.length >= 1)
 		{
-			model = createTertiaryModel(modelList);
+			model = createTertiaryModel(modelList); // this has to be done first
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
 			var condId = model.condId;
 			var modelName = model.estModel.name;
-			var functionAsString = prepareFunction(model.formula);
+			var functionAsString = prepareFunction(model.indeps, model.formula);
 			var functionConstants = prepareConstants(model.indeps, condId);
-			_xUnit = model.xUnit;
+
 			// call subsequent method
 			addFunctionObject(condId, functionAsString, functionConstants, model);
 		}
@@ -364,7 +365,7 @@ pmm_plotter = function() {
 		 * @param functionString formula as delivered by the java class
 		 * @return parsed function 
 		 */
-		function prepareFunction(functionString) {
+		function prepareFunction(parameterArray, functionString) {
 
 			var newString = functionString;
 			
@@ -384,6 +385,25 @@ pmm_plotter = function() {
 				part = part.replace("^(0.5)", "");
 				part = "sqrt(" + part + ")";
 				return part
+			});
+			
+			/*
+			 * In some formula, brackets after logarithm applications are left out
+			 * leading to errors in both parameter recognition and logarithm application.
+			 * We add the brackets here, so that  logarithms and parameters are parsed correctly.
+			 * We therefore lock up all parameter names in the function and exchange them with their
+			 * "bracketized" equivalent. This applies to _all_ parameters, regardless of logarithms.
+			 */
+			$.each(parameterArray, function(index, param) {
+				var oldParam = param["name"];
+				var log10 = "log10";
+				if(oldParam.indexOf(log10) != -1)
+				{
+					var paramPart = oldParam.split(log10)[1];
+					var newParam = log10 + "(" + paramPart + ")";
+					var regex = new RegExp(oldParam, "g");
+					newString = newString.replace(regex, "(" + newParam + ")");
+				}
 			});
 			
 			return newString;
@@ -458,14 +478,29 @@ pmm_plotter = function() {
 				var currentIndep = tertiaryModel.indeps.indeps[i];
 				if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
 				{
-					tertiaryModel.xUnit = currentIndep["name"] + msgIn + currentIndep["unit"];
+					var xName = currentIndep["name"] + msgIn + currentIndep["unit"];
+					if(_xUnit != msgUnknown && xName != _xUnit)
+						show("unequal xUnit: " + _xUnit + " vs. " + xName);
+					else
+						_xUnit = xName
 					return true;
 				}
 			});
+
 			// add primary independents (which are in the parameters here)
+			// search for yUnit
 			$.each(tertiaryModel.params.params, function(index, indep) {
 				secondaryIndeps.push(indep);
+				if(indep["unit"])
+				{
+					var yName = indep["unit"];
+					if(_yUnit != msgUnknown && yName != _yUnit)
+						show("unequal xUnit: " + _yUnit + " vs. " + yName);
+					else
+						_yUnit = yName;
+				}
 			});
+			
 			// extract secondary independents
 			$.each(modelList, function(index, modelSec) {
 				var indepsSec = modelSec.indepsSec.indeps;
@@ -817,8 +852,8 @@ pmm_plotter = function() {
 					sliderValueDiv.appendChild(sliderValueInput);
 					
 					// standard values if no range given
-					var sliderMin = value - 5.1;
-					var sliderMax = value + 5.1;
+					var sliderMin = value - 13.37;
+					var sliderMax = value + 13.37;
 					
 					$.each(_parameterRangeMap, function (index, range) {
 						if(range.name == constant)
@@ -915,16 +950,7 @@ pmm_plotter = function() {
 		
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
-		
-		var yUnit = msgUnknown;
-		$.each(_rawModels[0].params.params, function(i) {
-			var currentParam = _rawModels[0].params.params[i];
-			if(currentParam["unit"])
-			{
-				yUnit = currentParam["unit"];
-				return true;
-			}
-		});
+
 		
 		// plot
 		try{
@@ -933,7 +959,7 @@ pmm_plotter = function() {
 			    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
 			    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
 			    xLabel: _xUnit,
-			    yLabel: yUnit,
+			    yLabel: _yUnit,
 			    height: _plotHeight,
 			    witdh: _plotWidth,
 			    tip: 

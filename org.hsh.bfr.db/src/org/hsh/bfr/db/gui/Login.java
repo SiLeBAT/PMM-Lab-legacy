@@ -33,10 +33,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
@@ -497,7 +493,7 @@ public class Login extends JFrame {
 			if (DBKernel.getDBVersionFromDB().equals("1.8.5")) {
 				// rename
 				DBKernel.closeDBConnections(true);
-				copyFiles2NewKennung(dbPath, "DB", "pmm");
+				DBKernel.copyFiles2NewKennung(dbPath, "DB", "pmm", false);
 				DBKernel.dbKennung = "pmm";
 				DBKernel.setDBVersion("1.8.6");
 			}
@@ -510,21 +506,6 @@ public class Login extends JFrame {
 		}
 		DBKernel.dontLog = dl;
 		return true;
-	}
-	private void copyFiles2NewKennung(String path, String oldKennung, String newKennung) throws IOException {
-		java.io.File f = new java.io.File(path);
-		String fileKennung = oldKennung + ".";
-		java.io.File[] files = f.listFiles();
-		if (files != null) {
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].getName().startsWith(fileKennung)) {
-					System.gc();
-					Path from = files[i].toPath();
-					Path to = new File(files[i].getParent() + File.separator + newKennung + files[i].getName().substring(oldKennung.length())).toPath();
-					Files.copy(from, to, StandardCopyOption.COPY_ATTRIBUTES);
-				}
-			}
-		}
 	}
 
 	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui) {

@@ -174,9 +174,9 @@ public class Backup extends FileFilter {
 		return doRestore(DBKernel.HSHDB_PATH, myDB, scriptFile, silent, true);
 	}
 
-	private static boolean doRestore(String path, final MyDBTable myDB, final File scriptFile, final boolean silent, boolean doReconnect) {
+	private static boolean doRestore(String path, final MyDBTable myDB, final File targzFile, final boolean silent, boolean doReconnect) {
 		boolean result = true;
-		if (scriptFile != null && scriptFile.exists()) {
+		if (targzFile != null && targzFile.exists()) {
 			if (!silent) {
 				int returnVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame,
 						GuiMessages.getString("Die Datenbank wird gelöscht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
@@ -206,11 +206,19 @@ public class Backup extends FileFilter {
 				DBKernel.closeDBConnections(false);
 				System.gc();
 			}
-			deleteOldFiles(path);
+			deleteOldFiles(path, DBKernel.dbKennung);
 			System.gc();
+			
+			boolean fclDBpresent = DBKernel.DBFilesDa(path, "DB"); // FCL Database
 			//org.hsqldb.lib.tar.DbBackup dbb = new org.hsqldb.lib.tar.DbBackup(scriptFile, DBKernel.HSHDB_PATH + "DB");
 			try {
-				org.hsqldb.lib.tar.DbBackupMain.main(new String[] { "--extract", scriptFile.getAbsolutePath(), path });
+				if (fclDBpresent) DBKernel.copyFiles2NewKennung(path, "DB", "DBtmp", true);
+				org.hsqldb.lib.tar.DbBackupMain.main(new String[] { "--extract", targzFile.getAbsolutePath(), path });
+				System.gc();
+				if (DBKernel.DBFilesDa(path, "DB")) { // Backup was an old one before 1.8.5/1.8.6 and therefore saved with "DB"-Kennung
+					DBKernel.copyFiles2NewKennung(path, "DB", DBKernel.dbKennung, true);					
+				}
+				if (fclDBpresent) DBKernel.copyFiles2NewKennung(path, "DBtmp", "DB", true);
 			} catch (Exception e) {
 				answerErr += e.getMessage();
 				MyLogger.handleException(e);
@@ -281,9 +289,9 @@ public class Backup extends FileFilter {
 		return conn;
 	}
 
-	private static void deleteOldFiles(String path) {
+	private static void deleteOldFiles(String path, String dbKennung) {
 		java.io.File f = new java.io.File(path);
-		String fileKennung = DBKernel.dbKennung + ".";
+		String fileKennung = dbKennung + ".";
 		java.io.File[] files = f.listFiles();
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {

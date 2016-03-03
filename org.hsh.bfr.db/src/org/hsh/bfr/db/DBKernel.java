@@ -34,6 +34,9 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -1905,6 +1908,22 @@ public class DBKernel {
 			HashMap<String, HashMap<Integer, Integer>> hm = foreignDbIds.get(rowuuid);
 			for (String tableName : hm.keySet()) {
 				DBKernel.setKnownIDs4PMM(conn, hm.get(tableName), tableName, rowuuid);
+			}
+		}
+	}
+	public static void copyFiles2NewKennung(String path, String oldKennung, String newKennung, boolean doMove) throws IOException {
+		java.io.File f = new java.io.File(path);
+		String fileKennung = oldKennung + ".";
+		java.io.File[] files = f.listFiles();
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].getName().startsWith(fileKennung)) {
+					System.gc();
+					Path from = files[i].toPath();
+					Path to = new File(files[i].getParent() + File.separator + newKennung + files[i].getName().substring(oldKennung.length())).toPath();
+					if (doMove) Files.move(from, to, StandardCopyOption.ATOMIC_MOVE);
+					else Files.copy(from, to, StandardCopyOption.COPY_ATTRIBUTES);
+				}
 			}
 		}
 	}

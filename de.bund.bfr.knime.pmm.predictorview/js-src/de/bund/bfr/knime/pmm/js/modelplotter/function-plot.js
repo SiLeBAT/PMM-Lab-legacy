@@ -5868,7 +5868,7 @@ algebra.pow = function (x, power) {
   }
 
   // power > 0
-  if (isSafeInteger(power)) {
+  if (true) { // MFR: condition removed
     // power is integer
     if (x.hi < 0) {
       // [negative, negative]

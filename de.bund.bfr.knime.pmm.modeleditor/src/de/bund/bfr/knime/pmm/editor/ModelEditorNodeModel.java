@@ -189,6 +189,7 @@ public final class ModelEditorNodeModel
 		// process
 		outTuple.setCondId(inTuple.getInt(TimeSeriesSchema.ATT_CONDID));
 		outTuple.setCombaseId(inTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
+		outTuple.setGlobalModelId(inTuple.getInt(TimeSeriesSchema.ATT_GLOBALMODELID));
 
 		PmmXmlDoc miscDoc = (PmmXmlDoc) inTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 		Misc[] miscs = new Misc[miscDoc.size()];

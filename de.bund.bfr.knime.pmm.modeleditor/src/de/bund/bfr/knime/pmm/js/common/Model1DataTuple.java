@@ -33,6 +33,7 @@ public class Model1DataTuple implements ViewValue {
 	private static final String DATABASEWRITABLE = "DatabaseWritable";
 
 	private Integer condId;
+	private Integer globalModelId;
 	private String combaseId;
 	private Agent agent = new Agent();
 	private Matrix matrix = new Matrix();
@@ -57,6 +58,10 @@ public class Model1DataTuple implements ViewValue {
 		return condId;
 	}
 
+	public Integer getGlobalModelId() {
+		return globalModelId;
+	};
+	
 	public String getCombaseId() {
 		return combaseId;
 	}
@@ -136,6 +141,10 @@ public class Model1DataTuple implements ViewValue {
 	public void setCondId(final Integer condId) {
 		this.condId = condId;
 	}
+	
+	public void setGlobalModelId(final Integer globalModelId) {
+		this.globalModelId = globalModelId;
+	};
 
 	public void setCombaseId(final String combaseId) {
 		this.combaseId = Strings.emptyToNull(combaseId);

@@ -81,28 +81,28 @@ public class R2FSKNodeModel extends NodeModel {
     }
 
     try {
-      this.modelScriptPath.setStringValue(settings.getString(CFGKEY_MODEL_SCRIPT));
+      this.modelScriptPath.loadSettingsFrom(settings);
     } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
+      System.err.println(e);
       this.modelScriptPath.setStringValue("");
     }
 
     try {
-      this.paramScriptPath.setStringValue(settings.getString(CFGKEY_PARAM_SCRIPT));
+      this.paramScriptPath.loadSettingsFrom(settings);
     } catch (InvalidSettingsException e) {
       System.err.println(e.getMessage());
       this.paramScriptPath.setStringValue("");
     }
-
+    
     try {
-      this.visualizationScriptPath.setStringValue(settings.getString(CFGKEY_VISUALIZATION_SCRIPT));
+      this.visualizationScriptPath.loadSettingsFrom(settings);
     } catch (InvalidSettingsException e) {
       System.err.println(e.getMessage());
       this.visualizationScriptPath.setStringValue("");
     }
-
+    
     try {
-      this.spreadsheetPath.setStringValue(settings.getString(CFGKEY_VISUALIZATION_SCRIPT));
+      this.spreadsheetPath.loadSettingsFrom(settings);
     } catch (InvalidSettingsException e) {
       System.err.println(e.getMessage());
       this.spreadsheetPath.setStringValue("");
@@ -114,11 +114,10 @@ public class R2FSKNodeModel extends NodeModel {
   protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
     NodeSettings settings = new NodeSettings(INTERNAL_MODEL);
-
-    settings.addString(CFGKEY_MODEL_SCRIPT, this.modelScriptPath.getStringValue());
-    settings.addString(CFGKEY_PARAM_SCRIPT, this.paramScriptPath.getStringValue());
-    settings.addString(CFGKEY_VISUALIZATION_SCRIPT, this.visualizationScriptPath.getStringValue());
-    settings.addString(CFGKEY_SPREADSHEET, this.spreadsheetPath.getStringValue());
+    this.modelScriptPath.saveSettingsTo(settings);
+    this.paramScriptPath.saveSettingsTo(settings);
+    this.visualizationScriptPath.saveSettingsTo(settings);
+    this.spreadsheetPath.saveSettingsTo(settings);
 
     // Creates and saves a file in the given directory
     File file = new File(nodeInternDir, FILE_NAME);
@@ -160,10 +159,6 @@ public class R2FSKNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void reset() {
-    this.modelScriptPath.setStringValue("");
-    this.paramScriptPath.setStringValue("");
-    this.visualizationScriptPath.setStringValue("");
-    this.spreadsheetPath.setStringValue("");
   }
 
   /**

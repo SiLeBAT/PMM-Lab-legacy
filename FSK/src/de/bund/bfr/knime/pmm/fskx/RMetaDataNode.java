@@ -38,7 +38,7 @@ public class RMetaDataNode {
   private Element node;
 
   public RMetaDataNode() {
-    node = new Element("metaParent");
+    this.node = new Element("metaParent");
   }
 
   public RMetaDataNode(final Element node) {
@@ -47,7 +47,7 @@ public class RMetaDataNode {
 
   /** @return null if the main script is not set */
   public String getMainScript() {
-    return node.getChildText(MAIN_SCRIPT_TAG);
+    return this.node.getChildText(MAIN_SCRIPT_TAG);
   }
 
   public void setMainScript(final String mainScript) {
@@ -56,7 +56,7 @@ public class RMetaDataNode {
 
   /** @return null if the parameters script is not set */
   public String getParametersScript() {
-    return node.getChildText(PARAM_SCRIPT_TAG);
+    return this.node.getChildText(PARAM_SCRIPT_TAG);
   }
 
   public void setParamScript(final String paramScript) {
@@ -65,7 +65,7 @@ public class RMetaDataNode {
 
   /** @return null if the visualization script is not set */
   public String getVisualizationScript() {
-    return node.getChildText(VIZ_SCRIPT_TAG);
+    return this.node.getChildText(VIZ_SCRIPT_TAG);
   }
   
   public void setVisualizationScript(final String vizScript) {
@@ -74,7 +74,7 @@ public class RMetaDataNode {
   
   /** @return null if the workspace file is not set */
   public String getWorkspaceFile() {
-    return node.getChildText(WORKSPACE_TAG);
+    return this.node.getChildText(WORKSPACE_TAG);
   }
   
   public void setWorkspaceFile(final String workspaceFile) {
@@ -82,17 +82,17 @@ public class RMetaDataNode {
   }
 
   public Element getNode() {
-    return node;
+    return this.node;
   }
   
   private void setText(final String cname, final String value) {
-    Element child = node.getChild(cname);
+    Element child = this.node.getChild(cname);
     
     // if the script is not set, create a new Element and add it to the node
     if (child == null) {
       child = new Element(cname);
       child.addContent(value);
-      node.addContent(child);
+      this.node.addContent(child);
     } 
     // otherwise just update it
     else {

@@ -44,7 +44,7 @@ public class FSKXTuple implements DataRow {
     LIBS,
     /** sources */
     SOURCES
-  };
+  }
 
   private DataCell[] cell;
   private final RowKey rowKey;
@@ -62,7 +62,7 @@ public class FSKXTuple implements DataRow {
    * @throws MissingValueError if a mandatory values is missing.
    */
   public FSKXTuple(EnumMap<KEYS, String> values) throws MissingValueError {
-    cell = new DataCell[KEYS.values().length];
+    this.cell = new DataCell[KEYS.values().length];
     
     // checks optional columns
     if (!values.containsKey(KEYS.ORIG_MODEL)) throw new MissingValueError("Missing original model");
@@ -71,42 +71,42 @@ public class FSKXTuple implements DataRow {
     if (!values.containsKey(KEYS.SOURCES)) throw new MissingValueError("Missing sources");
 
     // assigns mandatory columns
-    cell[KEYS.ORIG_MODEL.ordinal()] = new StringCell(values.get(KEYS.ORIG_MODEL));
-    cell[KEYS.SIMP_MODEL.ordinal()] = new StringCell(values.get(KEYS.SIMP_MODEL));
-    cell[KEYS.LIBS.ordinal()] = new StringCell(values.get(KEYS.LIBS));
-    cell[KEYS.SOURCES.ordinal()] = new StringCell(values.get(KEYS.SOURCES));
+    this.cell[KEYS.ORIG_MODEL.ordinal()] = new StringCell(values.get(KEYS.ORIG_MODEL));
+    this.cell[KEYS.SIMP_MODEL.ordinal()] = new StringCell(values.get(KEYS.SIMP_MODEL));
+    this.cell[KEYS.LIBS.ordinal()] = new StringCell(values.get(KEYS.LIBS));
+    this.cell[KEYS.SOURCES.ordinal()] = new StringCell(values.get(KEYS.SOURCES));
 
     // assigns optional columns
-    cell[KEYS.ORIG_PARAM.ordinal()] =
+    this.cell[KEYS.ORIG_PARAM.ordinal()] =
         new StringCell(values.containsKey(KEYS.ORIG_PARAM) ? values.get(KEYS.ORIG_PARAM) : "");
-    cell[KEYS.SIMP_PARAM.ordinal()] =
+    this.cell[KEYS.SIMP_PARAM.ordinal()] =
         new StringCell(values.containsKey(KEYS.SIMP_PARAM) ? values.get(KEYS.SIMP_PARAM) : "");
-    cell[KEYS.ORIG_VIZ.ordinal()] =
+    this.cell[KEYS.ORIG_VIZ.ordinal()] =
         new StringCell(values.containsKey(KEYS.ORIG_VIZ) ? values.get(KEYS.ORIG_VIZ) : "");
-    cell[KEYS.SIMP_VIZ.ordinal()] =
+    this.cell[KEYS.SIMP_VIZ.ordinal()] =
         new StringCell(values.containsKey(KEYS.SIMP_VIZ) ? values.get(KEYS.SIMP_VIZ) : "");
 
-    rowKey = new RowKey(String.valueOf(new Random().nextInt()));
+    this.rowKey = new RowKey(String.valueOf(new Random().nextInt()));
   }
 
   @Override
   public int getNumCells() {
-    return cell.length;
+    return this.cell.length;
   }
 
   @Override
   public RowKey getKey() {
-    return rowKey;
+    return this.rowKey;
   }
 
   @Override
   public DataCell getCell(final int index) {
-    return cell[index];
+    return this.cell[index];
   }
 
   @Override
   public Iterator<DataCell> iterator() {
-    return new FSKXTupleIterator(cell);
+    return new FSKXTupleIterator(this.cell);
   }
 
   class FSKXTupleIterator implements Iterator<DataCell> {
@@ -115,18 +115,18 @@ public class FSKXTuple implements DataRow {
     private DataCell[] cell;
 
     public FSKXTupleIterator(final DataCell[] cell) {
-      i = 0;
+      this.i = 0;
       this.cell = cell;
     }
 
     @Override
     public boolean hasNext() {
-      return i < cell.length;
+      return this.i < this.cell.length;
     }
 
     @Override
     public DataCell next() {
-      return cell[i++];
+      return this.cell[this.i++];
     }
   }
 }

@@ -49,7 +49,8 @@ pmm_plotter = function() {
 	var msgParameter = "Initial Parameters";
 	var msgMatrix = "Matrix";
 	var msgExamples = "Examples";
-	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula."
+	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula.";
+	var	msg_error_unknownUnit = "unknown unit: ";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -314,7 +315,7 @@ pmm_plotter = function() {
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
 			var globalModelId = model.globalModelId;
 			var modelName = model.estModel.name;
-			var functionAsString = prepareFunction(model.indeps, model.formula);
+			var functionAsString = prepareFunction(model.indeps, model.formula, model.xUnit, model.yUnit);
 			var functionConstants = prepareConstants(model.indeps, globalModelId);
 
 			// call subsequent method
@@ -363,7 +364,7 @@ pmm_plotter = function() {
 		 * @param functionString formula as delivered by the java class
 		 * @return parsed function 
 		 */
-		function prepareFunction(parameterArray, functionString) {
+		function prepareFunction(parameterArray, functionString, xUnit, yUnit) {
 
 			var newString = functionString;
 			
@@ -409,6 +410,27 @@ pmm_plotter = function() {
 //					newString = newString.replace(regex, "(" + newParam + ")");
 				}
 			});
+			
+			// do these at last because we assume the "x" here
+			if(_xUnit != msgUnknown && xUnit != _xUnit)
+			{
+				show("unequal xUnit: " + _xUnit + " vs. " + xUnit);
+				newString = unifyX(newString, xUnit);
+			}
+			else
+			{
+				_xUnit = xUnit;
+			}
+			
+			if(_yUnit != msgUnknown && yUnit != _yUnit)
+			{
+				show("unequal yUnit: " + _yUnit + " vs. " + yUnit);
+				newString = unifyY(newString, yUnit);
+			}
+			else
+			{
+				_yUnit = yUnit;
+			}
 			
 			return newString;
 		}
@@ -489,36 +511,21 @@ pmm_plotter = function() {
 			$.each(indepsPrim, function(i) {
 				var currentIndep = indepsPrim[i];
 				
-				// here happens all xAxis action
 				if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
 				{
 					var xName = currentIndep["name"] + msgIn + currentIndep["unit"];
-					if(_xUnit != msgUnknown && xName != _xUnit)
-						show("unequal xUnit: " + _xUnit + " vs. " + xName);
-					else
-						_xUnit = xName
+					tertiaryModel.xUnit = xName;
 					return true;
 				}
 			});
+			if(depPrim)
+			{
+				tertiaryModel.yUnit = depPrim.unit;
+			}
 
 			// add primary independents (which are in the parameters here)
-			// search for yUnit
-			/*
-			// Some models contain a parameter that is equal to time. This
-			// parameter has to be filtered and translated.
-			var equivalentsForTime = [];
-			*/
 			$.each(paramsPrim, function(index, indep) {
 				secondaryIndeps.push(indep);
-
-				if(depPrim)
-				{
-					var yName = depPrim.unit;
-					if(_yUnit != msgUnknown && yName != _yUnit)
-						show("unequal xUnit: " + _yUnit + " vs. " + yName);
-					else
-						_yUnit = yName;
-				}
 			});
 			
 			// extract secondary independents
@@ -1055,12 +1062,113 @@ pmm_plotter = function() {
 	 * 
 	 * @param lnValue natural logarithm value (ln)
 	 * 
-	 * @return passed value as log_10 value
+	 * @return log10 value
 	 */
-	function calcLogToLn(lnValue)
+	function convertLnToLog(lnValue)
 	{
 		var logValue = lnValue / _logConst;
 		return logvalue;
+	}
+	
+	/*
+	 * convert parameter/formula units
+	 * 
+	 * @param logValue logarithm10 value (lgn10)
+	 * 
+	 * @return ln value
+	 */
+	function convertLogToLn(logValue)
+	{
+		var lnValue = logValue * _logConst;
+		return lnValue;
+	}
+	
+	/*
+	 * convert parameter/formula units
+	 * 
+	 * @param dayFunction function with days
+	 * @return converted function for x in hours
+	 */
+	function convertDayFunctionToHourFunction(dayFunction)
+	{
+		hourFunction = dayFunction.replace(/\bx\b/gi, "(x/24)");
+		return hourFunction;
+	}
+	
+	/*
+	 * convert parameter/formula units
+	 * 
+	 * @param hourFunction function with hours
+	 * @return converted function for x in days
+	 */
+	function convertHourFunctionToDayFunction(hourFunction)
+	{
+		dayFunction = hourFunction.replace(/\bx\b/gi, "(x*24)");
+		return dayFunction;
+	}
+	
+	/*
+	 * convert parameter/formula units
+	 * 
+	 * @param lnFunction
+	 * @return converted function for log10
+	 */
+	function convertLnFuncToLogFunc(lnFunction)
+	{
+		logFunction = "(" + lnFunction + ")/" + _logConst;
+		return logFunction;
+	}
+	
+	/*
+	 * convert parameter/formula units
+	 * 
+	 * @param logFunction
+	 * @return converted function for ln
+	 */
+	function convertLogFuncToLnFunc(logFunction)
+	{
+		lnFunction = "(" + logFunction + ")*" + _logConst;
+		return lnFunction;
+	}
+	
+	/*
+	 * Rearranges formula to fit to a common xAxis. We assume here, 
+	 * that time is either counted in days or hours.
+	 * 
+	 * @param oldFunction non-unified function
+	 * @param xUnit unit of the model to the oldFunction
+	 * @return unified function (String)
+	 */
+	function unifyX(oldFunction, xUnit)
+	{
+		var newFunction;
+		if(xUnit.indexOf("in d") != -1 || xUnit.indexOf("in D") != -1)
+			newFunction = convertDayFunctionToHourFunction(oldFunction);
+		else if(xUnit.indexOf("in h") != -1  || xUnit.indexOf("in H") != -1)
+			newFunction = convertHourFunctionToDayFunction(oldFunction);
+		else
+			show(msg_error_unknownUnit + xUnit);
+		return newFunction;
+	}
+	
+	/*
+	 * Rearranges formula to fit to a common yAxis. We assume here, 
+	 * that the unit is either given in ln or log10
+	 * 
+	 * @param oldFunction non-unified function
+	 * @param yUnit unit of the model to the oldFunction
+	 * @return unified function (String)
+	 */
+	function unifyY(oldFunction, yUnit)
+	{
+		var newFunction;
+		if(yUnit.indexOf("ln") != -1)
+			newFunction = convertLnFuncToLogFunc(oldFunction);
+		else if(yUnit.indexOf("log") != -1  || yUnit.indexOf("LOG") != -1)
+			newFunction = convertLogFuncToLnFunc(oldFunction);
+		else
+			show(msg_error_unknownUnit + yUnit);
+		return newFunction;
 	}
 	
 	/*

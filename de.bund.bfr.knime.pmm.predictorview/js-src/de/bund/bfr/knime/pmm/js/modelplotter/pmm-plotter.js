@@ -81,7 +81,7 @@ pmm_plotter = function() {
 	function initData() 
 	{
 		// parse models and create selection menu
-		addSelectOptions(_rawModels);
+		addSelectOptions();
 		
 		// to be removed:
 		addSelectOption("325234", "Modell Alpha", msgExamples);
@@ -225,26 +225,24 @@ pmm_plotter = function() {
 	
 	/*
 	 * chooses models to add to the selection menu and triggers adding
-	 * 
-	 * @param modelsArray the original model array delivered by the java class
 	 */
 	function addSelectOptions(modelsArray)
 	{	
 		idList = []; // used to make sure there is only one option per global model id
-		if(modelsArray)
+		if(_rawModels)
 		{
-			$.each(modelsArray, function(i) 
+			$.each(_rawModels, function(i) 
 				{
-					var condId = modelsArray[i].condId;
+					var globalModelId = _rawModels[i].globalModelId;
 					// only add if not added before
-					if(idList.indexOf(condId) == -1)
+					if(idList.indexOf(globalModelId) == -1)
 					{
-						var type = modelsArray[i].type;
-						var modelName = modelsArray[i].estModel.name;
+						var type = _rawModels[i].type;
+						var modelName = _rawModels[i].estModel.name;
 						// pass data
-						addSelectOption(condId, modelName, type);
+						addSelectOption(globalModelId, modelName, type);
 						// remember id
-						idList.push(condId);
+						idList.push(globalModelId);
 					}
 				}
 			);
@@ -256,18 +254,18 @@ pmm_plotter = function() {
 	 * options of the same type are grouped (group name is type)
 	 * options with no type have the "no type" group
 	 * 
-	 * @param condId id of the model
+	 * @param globalModelId id of the model
 	 * @param modelName name of the model
 	 */
-	function addSelectOption(condId, modelName, type)
+	function addSelectOption(globalModelId, modelName, type)
 	{
 		if(!type || type == "")
 			type = msgNoType;
 		
 		// html <option>
 		var option = document.createElement("option");
-		option.setAttribute("value", condId);
-		option.innerHTML = "[" + condId + "] " + modelName;
+		option.setAttribute("value", globalModelId);
+		option.innerHTML = "[" + globalModelId + "] " + modelName;
 		
 		// find or create html <optgroup>
 		var groupId = "optGroup_" + type;
@@ -304,7 +302,7 @@ pmm_plotter = function() {
 		
 		$.each(rawDataClone, function(i, object)
 		{
-			if(object.condId == selection)
+			if(object.globalModelId == selection)
 			{
 				modelList.push(object);
 			}
@@ -314,13 +312,13 @@ pmm_plotter = function() {
 		{
 			model = createTertiaryModel(modelList); // this has to be done first
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
-			var condId = model.condId;
+			var globalModelId = model.globalModelId;
 			var modelName = model.estModel.name;
 			var functionAsString = prepareFunction(model.indeps, model.formula);
-			var functionConstants = prepareConstants(model.indeps, condId);
+			var functionConstants = prepareConstants(model.indeps, globalModelId);
 
 			// call subsequent method
-			addFunctionObject(condId, functionAsString, functionConstants, model);
+			addFunctionObject(globalModelId, functionAsString, functionConstants, model);
 		}
 		// TODO: just for testing purposes
 		// if an example model is selected
@@ -397,12 +395,18 @@ pmm_plotter = function() {
 			$.each(parameterArray, function(index, param) {
 				var oldParam = param["name"];
 				var log10 = "log10";
-				if(oldParam.indexOf(log10) != -1)
+				var log10_c = "LOG10";
+				if(oldParam.indexOf(log10) != -1 || oldParam.indexOf(log10_c) != -1)
 				{
-					var paramPart = oldParam.split(log10)[1];
+					var paramPart;
+					if(oldParam.indexOf(log10) != -1)
+						paramPart = oldParam.split(log10)[1];
+					else
+						paramPart = oldParam.split(log10_c)[1];
+					
 					var newParam = log10 + "(" + paramPart + ")";
 					var regex = new RegExp(oldParam, "g");
-					newString = newString.replace(regex, "(" + newParam + ")");
+//					newString = newString.replace(regex, "(" + newParam + ")");
 				}
 			});
 			
@@ -421,8 +425,14 @@ pmm_plotter = function() {
 		{
 			var newParameterArray = {};
 			$.each(parameterArray, function(index, param) {
-				var name = param["name"];
-				var value = param["min"];
+				var name = param.name;
+				var value;
+				if (param.value)
+					value = param.value;
+				else if(param.min)
+					value = param.min;
+				else value = 0;
+					
 				newParameterArray[name] = value; 
 				
 				// save ranges for each parameter
@@ -470,12 +480,16 @@ pmm_plotter = function() {
 			var tertiaryModel = modelList[0]; // primary model data is shared
 			var formulaPrim = tertiaryModel.catModel.formula; // main formula is shared
 			var paramsPrim = tertiaryModel.params.params; // so are the primary parameters
+			var indepsPrim = tertiaryModel.indeps.indeps; // so are the primary parameters
+			var depPrim = tertiaryModel.dep; // so are the primary parameters
 			
 			var secondaryIndeps = []; // gather the variable independents for the sliders
 			
 			// get the global xUnit from the model
-			$.each(tertiaryModel.indeps.indeps, function(i) {
-				var currentIndep = tertiaryModel.indeps.indeps[i];
+			$.each(indepsPrim, function(i) {
+				var currentIndep = indepsPrim[i];
+				
+				// here happens all xAxis action
 				if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
 				{
 					var xName = currentIndep["name"] + msgIn + currentIndep["unit"];
@@ -489,11 +503,17 @@ pmm_plotter = function() {
 
 			// add primary independents (which are in the parameters here)
 			// search for yUnit
-			$.each(tertiaryModel.params.params, function(index, indep) {
+			/*
+			// Some models contain a parameter that is equal to time. This
+			// parameter has to be filtered and translated.
+			var equivalentsForTime = [];
+			*/
+			$.each(paramsPrim, function(index, indep) {
 				secondaryIndeps.push(indep);
-				if(indep["unit"])
+
+				if(depPrim)
 				{
-					var yName = indep["unit"];
+					var yName = depPrim.unit;
 					if(_yUnit != msgUnknown && yName != _yUnit)
 						show("unequal xUnit: " + _yUnit + " vs. " + yName);
 					else
@@ -511,11 +531,16 @@ pmm_plotter = function() {
 			
 			// extract and replace secondary parameters (constants)
 			$.each(modelList, function(index, modelSec) {
-				var paramsSec = modelSec.paramsSec.params;
+				// in catModelSec, a formula is expected
 				var formulaSec = modelSec.catModelSec.formula;
+				// in paramsSec, the values for that formula are expected
+				var paramsSec = modelSec.paramsSec.params;
 				
+				// we now simply replace the parameters from catModelSec with
+				// the values from paramsSec
 				$.each(paramsSec, function(index, param) {
-					formulaSec = formulaSec.replace(param["name"], param["value"]);			
+					var regex = new RegExp("\\b" + param["name"] + "\\b", "gi");
+					formulaSec = formulaSec.replace(regex, param["value"]);			
 				});
 				modelSec.formula = formulaSec; // new field holds the flat formula
 			});
@@ -525,7 +550,6 @@ pmm_plotter = function() {
 				var formulaSecRaw = modelSec.formula;
 				var formulaSec;
 				var parameterPrim;  
-				
 				if(formulaSecRaw.indexOf("=") != -1)
 				{
 					// parameter name
@@ -544,7 +568,8 @@ pmm_plotter = function() {
 							 return true;
 						 }
 					});
-					secondaryIndeps.splice(indexToDelete, 1);
+					if(indexToDelete)
+						secondaryIndeps.splice(indexToDelete, 1);
 				}
 				else
 				{
@@ -564,11 +589,11 @@ pmm_plotter = function() {
 	/*
 	 * adds a function to the functions array and redraws the plot
 	 * 
-	 * @param condId
+	 * @param globalModelId
 	 * @param functionAsString the function string as returend by prepareFunction()
 	 * @param the function constants as an array 
 	 */
-	function addFunctionObject(condId, functionAsString, functionConstants, model)
+	function addFunctionObject(globalModelId, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
 		var maxRange = _plotterValue.maxXAxis * 10; // obligatoric for the range feature // TODO: dynamic maximum
@@ -577,7 +602,7 @@ pmm_plotter = function() {
 		var modelObj = { 
 			 fnType: 'linear',
 			 name: model.estModel.name,
-			 condId: condId,
+			 globalModelId: globalModelId,
 			 fn: functionAsString,
 			 scope: functionConstants,
 			 color: color,
@@ -600,7 +625,7 @@ pmm_plotter = function() {
 	/*
 	 * deletes a model for good - including graph and meta data
 	 * 
-	 * @param id condId of the model
+	 * @param id globalModelId of the model
 	 */
 	function deleteFunctionObject(id)
 	{
@@ -615,25 +640,30 @@ pmm_plotter = function() {
 		 */
 		if(_modelObjects.length == 0)
 		{
+			// disable button
 			$("#nextButton").button( "option", "disabled", true);
+			// reset variables
+			_parameterRangeMap = [];
+			_xUnit = msgUnknown;
+			_yUnit = msgUnknown;
 		}
 		
 		/*
 		 * nested function
 		 * removes the model from the used model array
 		 * 
-		 * @param id condId of the model
+		 * @param id globalModelId of the model
 		 */
 		function removeModel(id)
 		{
 			$.each(_modelObjects, function (index, object) 
-					{
-				if(object && object.condId == id)
 				{
-					_modelObjects.splice(index, 1);
-					return true;
-				}
+					if(object && object.globalModelId == id)
+					{
+						_modelObjects.splice(index, 1);
+						return true;
 					}
+				}
 			);
 		}
 		
@@ -641,7 +671,7 @@ pmm_plotter = function() {
 		 * nested function
 		 * deletes the dom elements that belong to the meta data in the accordion
 		 * 
-		 * @param id condId of the model
+		 * @param id globalModelId of the model
 		 */
 		function deleteMetaDataSection(id)
 		{
@@ -681,8 +711,8 @@ pmm_plotter = function() {
 		 * ...
 		 */
 		var header = document.createElement("h3");
-		header.setAttribute("id", "h" + modelObject.condId);
-		header.innerHTML = modelObject.condId;
+		header.setAttribute("id", "h" + modelObject.globalModelId);
+		header.innerHTML = modelObject.globalModelId;
 		
 		// accordion-specific jQuery semantic for append()
 		$("#metaDataWrapper").append(header);
@@ -698,7 +728,7 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    }).click(function(event) {
-	    	deleteFunctionObject(modelObject.condId);
+	    	deleteFunctionObject(modelObject.globalModelId);
 	    });
 	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");
 		deleteDiv.appendChild(deleteButton);
@@ -720,7 +750,7 @@ pmm_plotter = function() {
 		
 		// meta content divs divs
 		var metaDiv = document.createElement("div");
-		metaDiv.setAttribute("id", modelObject.condId);
+		metaDiv.setAttribute("id", modelObject.globalModelId);
 		$("#metaDataWrapper").append(metaDiv);
 
 		// name of the model

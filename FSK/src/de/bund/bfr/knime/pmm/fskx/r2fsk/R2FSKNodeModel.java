@@ -72,40 +72,13 @@ public class R2FSKNodeModel extends NodeModel {
   protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
     File file = new File(nodeInternDir, FILE_NAME);
-
-    NodeSettingsRO settings;
-    try (FileInputStream fis = new FileInputStream(file);) {
-      settings = NodeSettings.loadFromXML(fis);
+    try (FileInputStream fis = new FileInputStream(file)) {
+      NodeSettingsRO settings = NodeSettings.loadFromXML(fis);
+      loadValidatedSettingsFrom(settings);
+    } catch (InvalidSettingsException e) {
+      System.err.println(e.getMessage());
     } catch (IOException e) {
       throw e;
-    }
-
-    try {
-      this.modelScriptPath.loadSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e);
-      this.modelScriptPath.setStringValue("");
-    }
-
-    try {
-      this.paramScriptPath.loadSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
-      this.paramScriptPath.setStringValue("");
-    }
-    
-    try {
-      this.visualizationScriptPath.loadSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
-      this.visualizationScriptPath.setStringValue("");
-    }
-    
-    try {
-      this.spreadsheetPath.loadSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
-      this.spreadsheetPath.setStringValue("");
     }
   }
 
@@ -113,16 +86,10 @@ public class R2FSKNodeModel extends NodeModel {
   @Override
   protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-    NodeSettings settings = new NodeSettings(INTERNAL_MODEL);
-    this.modelScriptPath.saveSettingsTo(settings);
-    this.paramScriptPath.saveSettingsTo(settings);
-    this.visualizationScriptPath.saveSettingsTo(settings);
-    this.spreadsheetPath.saveSettingsTo(settings);
-
     // Creates and saves a file in the given directory
     File file = new File(nodeInternDir, FILE_NAME);
     try (FileOutputStream fos = new FileOutputStream(file)) {
-      settings.saveToXML(fos);
+      saveSettingsTo(new NodeSettings(INTERNAL_MODEL));
     } catch (IOException e) {
       throw e;
     }
@@ -159,6 +126,7 @@ public class R2FSKNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void reset() {
+    // does nothing
   }
 
   /**

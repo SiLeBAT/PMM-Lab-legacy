@@ -64,6 +64,7 @@ pmm_plotter = function() {
 	var _logConst = 2.3025851;
 	var _xUnit = msgUnknown;
 	var _yUnit = msgUnknown;
+	var _defaultFadeTime = 500;
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -202,8 +203,9 @@ pmm_plotter = function() {
 		$("#leftWrapper").append(nextButton);
 		nextButton.on("click", function() 
 			{ 
-				$("#layoutWrapper").fadeOut(500);
-				showInputForm();
+				$("#layoutWrapper").fadeOut(_defaultFadeTime, function() {
+					showInputForm();
+				});
 			}
 		);
 		
@@ -1045,9 +1047,12 @@ pmm_plotter = function() {
 	function showInputForm()
 	{
 		$("#layoutWrapper").empty();
-		inputMember = [magReportName, msgAuthorsNames, msgComment]
+		inputMember = [msgReportName, msgAuthorsNames, msgComment]
 		
-		var form = $("<form>", { style: _buttonWidth });
+		var form = $("<form>", { 
+			style: _buttonWidth + "; display: none;"
+			
+			});
 		$.each(inputMember, function(i) {
 			var paragraph = $("<p>", { style: _buttonWidth });
 			var label = $("<div>", { 
@@ -1073,17 +1078,24 @@ pmm_plotter = function() {
 		})
 		$(document.body).append(form);
 		
-		var finishButton = $("<button>", {id: "finishButton", style: _buttonWidth, text: msgDone }).button();
+		var finishButton = $("<button>", {
+			id: "finishButton", 
+			style: _buttonWidth + "; display: none;", 
+			text: msgDone 
+		}).button();
+		
 		finishButton.on("click", function() 
 			{ 
 				_plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
 				_plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
 				_plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
 				
-				$(document.body).fadeOut();
+				$(document.body).fadeOut(_defaultFadeTime);
 			}
 		);
 		$(document.body).append(finishButton);
+		$(form).fadeIn(_defaultFadeTime);
+		$(finishButton).fadeIn(_defaultFadeTime);
 	}
 	
 	/*

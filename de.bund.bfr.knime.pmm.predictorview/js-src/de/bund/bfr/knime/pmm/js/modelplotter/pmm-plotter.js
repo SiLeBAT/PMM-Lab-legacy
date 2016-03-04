@@ -389,9 +389,10 @@ pmm_plotter = function() {
 			/*
 			 * In some formula, brackets after logarithm applications are left out
 			 * leading to errors in both parameter recognition and logarithm application.
-			 * We add the brackets here, so that  logarithms and parameters are parsed correctly.
-			 * We therefore lock up all parameter names in the function and exchange them with their
-			 * "bracketized" equivalent. This applies to _all_ parameters, regardless of logarithms.
+			 * We add the brackets here, so that  logarithms and parameters are parsed 
+			 * correctly. We therefore lock up all parameter names in the function and 
+			 * exchange them with their "bracketized" equivalent. This applies to _all_ 
+			 * parameters, regardless of logarithms.
 			 */
 			$.each(parameterArray, function(index, param) {
 				var oldParam = param["name"];
@@ -411,7 +412,6 @@ pmm_plotter = function() {
 				}
 			});
 			
-			// do these at last because we assume the "x" here
 			if(_xUnit != msgUnknown && xUnit != _xUnit)
 			{
 				show("unequal xUnit: " + _xUnit + " vs. " + xUnit);
@@ -513,7 +513,7 @@ pmm_plotter = function() {
 				
 				if(currentIndep["name"] == "Time" || currentIndep["name"] == "T")
 				{
-					var xName = currentIndep["name"] + msgIn + currentIndep["unit"];
+					var xName = currentIndep["unit"];
 					tertiaryModel.xUnit = xName;
 					return true;
 				}
@@ -529,9 +529,9 @@ pmm_plotter = function() {
 			});
 			
 			// extract secondary independents
-			$.each(modelList, function(index, modelSec) {
+			$.each(modelList, function(i1, modelSec) {
 				var indepsSec = modelSec.indepsSec.indeps;
-				$.each(indepsSec, function(index, indep) {
+				$.each(indepsSec, function(i2, indep) {
 					secondaryIndeps.push(indep);
 				});
 			});
@@ -564,9 +564,12 @@ pmm_plotter = function() {
 					// its formula from the secondary model
 					formulaSec = formulaSecRaw.split("=")[1];
 
-					// we exchange the primary parameter with its formula from the secondary model
-					// the parameter itself is computed dpending on independents and cannot be changed directly
-					// therefore we remove it from the independents list of the tertiary model
+					/* 
+					* we exchange the primary parameter with its formula from the secondary model
+					* the parameter itself is computed depending on independents and cannot be 
+					* changed directly therefore we remove it from the independents list of the 
+					* tertiary model
+					*/
 					var indexToDelete;
 					$.each(secondaryIndeps, function(index, indep){
 						 if(indep["name"] == parameterPrim)
@@ -575,7 +578,7 @@ pmm_plotter = function() {
 							 return true;
 						 }
 					});
-					if(indexToDelete)
+					if(indexToDelete != undefined)
 						secondaryIndeps.splice(indexToDelete, 1);
 				}
 				else
@@ -586,6 +589,20 @@ pmm_plotter = function() {
 				formulaPrim = formulaPrim.replace(regex, "(" + formulaSec + ")");
 			});
 			
+			// post check
+			
+			$.each(secondaryIndeps, function(index, indep){
+				/* 
+				 * special handling for indeps that are called "T" (sometimes used 
+				 * for temperature), because "T" also sometimes refers to time and 
+				 * will otherwise be exchanged with "x" in the formula
+				 */
+				if(indep.name == "T") 
+				{
+					indep.name = "T1";
+					formulaPrim = formulaPrim.replace(/\bT\b/g, "T1");
+				}
+			});
 			tertiaryModel.formula = formulaPrim;
 			tertiaryModel.indeps = secondaryIndeps;
 			
@@ -603,7 +620,7 @@ pmm_plotter = function() {
 	function addFunctionObject(globalModelId, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
-		var maxRange = _plotterValue.maxXAxis * 10; // obligatoric for the range feature // TODO: dynamic maximum
+		var maxRange = _plotterValue.maxXAxis * 1000; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
 		
 		var modelObj = { 
@@ -742,7 +759,10 @@ pmm_plotter = function() {
 		
 		// color field
 		var colorDiv = document.createElement("span");
-		colorDiv.setAttribute("style", "float: left; color: " + modelObject.color + "; background:  " + modelObject.color + "; border: 1px solid #cac3c3; margin-right: 5px; height: 10px; width: 10px; margin-top: 3px;")
+		colorDiv.setAttribute("style", 
+				"float: left; color: " + modelObject.color 
+				+ "; background:  " + modelObject.color 
+				+ "; border: 1px solid #cac3c3; margin-right: 5px; height: 10px; width: 10px; margin-top: 3px;")
 		header.appendChild(colorDiv);
 
 		var colorDivSub = document.createElement("button");
@@ -752,7 +772,10 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    });
-		colorDivSub.setAttribute("style", "float: left; color: " + modelObject.color + "; background: " + modelObject.color + "; border: 0px; height: 10px; width: 10px;")
+		colorDivSub.setAttribute("style", 
+				"float: left; color: " 
+				+ modelObject.color + "; background: " 
+				+ modelObject.color + "; border: 0px; height: 10px; width: 10px;")
 		colorDiv.appendChild(colorDivSub);
 		
 		// meta content divs divs
@@ -995,7 +1018,7 @@ pmm_plotter = function() {
 			    target: '#d3plotter',
 			    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
 			    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
-			    xLabel: _xUnit,
+			    xLabel: "Time" + msgIn + _xUnit,
 			    yLabel: _yUnit,
 			    height: _plotHeight,
 			    witdh: _plotWidth,
@@ -1027,17 +1050,23 @@ pmm_plotter = function() {
 		var form = $("<form>", { style: _buttonWidth });
 		$.each(inputMember, function(i) {
 			var paragraph = $("<p>", { style: _buttonWidth });
-			var label = $("<div>", { text: inputMember[i], style: "font-weight: bold;  font-size: 10px;" + _buttonWidth });
-			var input = $('<input>', { id: "input_" + inputMember[i].replace(/\s/g,""), style: "width: 224px;" })
-			  .button()
-			  .css({
+			var label = $("<div>", { 
+				text: inputMember[i], 
+				style: "font-weight: bold;  font-size: 10px;" + _buttonWidth 
+			});
+			var input = $('<input>', { 
+				id: "input_" + inputMember[i].replace(/\s/g,""), 
+				style: "width: 224px;" 
+			})
+			.button()
+			.css({
 			    'font' : 'inherit',
 			    'background': '#eeeeee',
 			    'color' : 'inherit',
 			    'text-align' : 'left',
 			    'outline' : 'thick',
 			    'cursor' : 'text'
-			  });
+			});
 			form.append(paragraph);
 			paragraph.append(label);
 			paragraph.append(input);
@@ -1084,27 +1113,15 @@ pmm_plotter = function() {
 	}
 	
 	/*
-	 * convert parameter/formula units
+	 * convert x of a formula according to a common scale unit
 	 * 
-	 * @param dayFunction function with days
+	 * @param modifier includes operator + number that modify x
 	 * @return converted function for x in hours
 	 */
-	function convertDayFunctionToHourFunction(dayFunction)
+	function modifyX(oldFunction, modifier)
 	{
-		hourFunction = dayFunction.replace(/\bx\b/gi, "(x/24)");
-		return hourFunction;
-	}
-	
-	/*
-	 * convert parameter/formula units
-	 * 
-	 * @param hourFunction function with hours
-	 * @return converted function for x in days
-	 */
-	function convertHourFunctionToDayFunction(hourFunction)
-	{
-		dayFunction = hourFunction.replace(/\bx\b/gi, "(x*24)");
-		return dayFunction;
+		newFunction = oldFunction.replace(/\bx\b/gi, "(x" + modifier + ")");
+		return newFunction;
 	}
 	
 	/*
@@ -1133,7 +1150,8 @@ pmm_plotter = function() {
 	
 	/*
 	 * Rearranges formula to fit to a common xAxis. We assume here, 
-	 * that time is either counted in days or hours.
+	 * that time is either counted in minutes ("min"), days ("d") or 
+	 * hours ("h").
 	 * 
 	 * @param oldFunction non-unified function
 	 * @param xUnit unit of the model to the oldFunction
@@ -1142,12 +1160,59 @@ pmm_plotter = function() {
 	function unifyX(oldFunction, xUnit)
 	{
 		var newFunction;
-		if(xUnit.indexOf("in d") != -1 || xUnit.indexOf("in D") != -1)
-			newFunction = convertDayFunctionToHourFunction(oldFunction);
-		else if(xUnit.indexOf("in h") != -1  || xUnit.indexOf("in H") != -1)
-			newFunction = convertHourFunctionToDayFunction(oldFunction);
+		var oldUnit;
+		var newUnit;
+		var modifier;
+		
+		// for readability
+		var minutes = 1;
+		var days = 2;
+		var hours = 3;
+		
+		// determine incoming unit
+		if(xUnit == "min" || xUnit == "MIN")
+			newUnit = minutes
+		else if(xUnit == "h" || xUnit == "H")
+			newUnit = hours
+		else if(xUnit == "d" || xUnit == "D")
+			newUnit = days
 		else
 			show(msg_error_unknownUnit + xUnit);
+		
+		// determine existing unit
+		if(_xUnit == "min" || _xUnit == "MIN")
+			oldUnit = minutes
+		else if(_xUnit == "h" || _xUnit == "H")
+			oldUnit = hours
+		else if(_xUnit == "d" || _xUnit == "D")
+			oldUnit = days
+		else
+			show(msg_error_unknownUnit + _xUnit);
+		
+		// determine modifier according to units
+		// assumption: the units are distinct
+		if(newUnit == minutes) 
+		{
+			if(oldUnit == hours)
+				modifier = "*60"
+			else // oldUnit must be days
+				modifier = "*60*24"
+		}
+		else if(newUnit == hours) 
+		{
+			if(oldUnit == minutes)
+				modifier = "/60"
+			else // oldUnit must be days
+				modifier = "*24"
+		}
+		else // newUnit must be days
+		{
+			if(oldUnit == minutes)
+				modifier = "/60/24"
+			else // must be hours
+				modifier = "/24"
+		}
+		newFunction = modifyX(oldFunction, modifier);
 		return newFunction;
 	}
 	

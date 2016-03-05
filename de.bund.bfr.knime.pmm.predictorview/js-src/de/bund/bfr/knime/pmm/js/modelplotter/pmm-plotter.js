@@ -318,7 +318,7 @@ pmm_plotter = function() {
 			var globalModelId = model.globalModelId;
 			var modelName = model.estModel.name;
 			var functionAsString = prepareFunction(model.indeps, model.formula, model.xUnit, model.yUnit);
-			var functionConstants = prepareConstants(model.indeps, globalModelId);
+			var functionConstants = prepareParameters(model.indeps, globalModelId);
 
 			// call subsequent method
 			addFunctionObject(globalModelId, functionAsString, functionConstants, model);
@@ -335,7 +335,7 @@ pmm_plotter = function() {
 					},
 				"matrix": "",
 			};
-			var scope = prepareConstants([
+			var scope = prepareParameters([
 			    {
 			    	"name": "aw",
 			    	"value": 0.3,
@@ -424,7 +424,7 @@ pmm_plotter = function() {
 				_xUnit = xUnit;
 			}
 			
-			if(_yUnit != msgUnknown && yUnit != _yUnit)
+			if(_yUnit != msgUnknown && _yUnit != yUnit)
 			{
 				show("unequal yUnit: " + _yUnit + " vs. " + yUnit);
 				newString = unifyY(newString, yUnit);
@@ -445,9 +445,10 @@ pmm_plotter = function() {
 		 * @param modelId used for the ranges
 		 * @return reduced parameter array
 		 */
-		function prepareConstants(parameterArray, modelId) 
+		function prepareParameters(parameterArray, modelId) 
 		{
 			var newParameterArray = {};
+			
 			$.each(parameterArray, function(index, param) {
 				var name = param.name;
 				var value;
@@ -592,19 +593,33 @@ pmm_plotter = function() {
 			});
 			
 			// post check
-			
+			// if you want to rename parameters consistently for all upcoming actions,
+			// do it here
 			$.each(secondaryIndeps, function(index, indep){
+				var oldName = indep.name;
+				var newName = oldName;
+				var category = indep.category
+				
+				if(category == "Temperature")
+					newName = "Temperature";
+				else if(category == "Time")
+					newName = "Time";
 				/* 
 				 * special handling for indeps that are called "T" (sometimes used 
 				 * for temperature), because "T" also sometimes refers to time and 
 				 * will otherwise be exchanged with "x" in the formula
 				 */
-				if(indep.name == "T") 
-				{
-					indep.name = "T1";
-					formulaPrim = formulaPrim.replace(/\bT\b/g, "T1");
-				}
+				else if(oldName == "T")
+					newName = "T1";
+				// else dont do anything
+					
+				var oldNamePattern = new RegExp("\\b" + oldName + "\\b", "gi");
+				
+				formulaPrim = formulaPrim.replace(oldNamePattern, newName);
+				// renaming at last
+				indep.name = newName;
 			});
+			
 			tertiaryModel.formula = formulaPrim;
 			tertiaryModel.indeps = secondaryIndeps;
 			
@@ -1239,10 +1254,37 @@ pmm_plotter = function() {
 	function unifyY(oldFunction, yUnit)
 	{
 		var newFunction;
+		// get the applied logarithm
+		var oldLog = _yUnit.split("(")[0];
+		var newLog = yUnit.split("(")[0];
+
+		if (oldLog == newLog) // don't do anything in this case
+			return oldFunction;
+		/*
+		 * intercept if one formula has a non-logarithmic y unit
+		 * WIP: nice to have
+		 *
+		if(!newLog && oldLog) // new unit is not logarithmic
+		{
+			if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
+				modifier = "log10"; // log to base 100
+			else
+				modifier = "log"; // which is "ln" in Math.js
+		}
+		
+		if(!newLog && oldLog) // new unit is not logarithmic
+		{
+			if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
+				modifier = "log10"; // log to base 100
+			else
+				modifier = "log"; // which is "ln" in Math.js
+		}
+		*/
+		
 		if(yUnit.indexOf("ln") != -1)
-			newFunction = convertLnFuncToLogFunc(oldFunction);
+			newFunction = modifyY(oldFunction, modifier);
 		else if(yUnit.indexOf("log") != -1  || yUnit.indexOf("LOG") != -1)
-			newFunction = convertLogFuncToLnFunc(oldFunction);
+			newFunction = modifyY(oldFunction, modifier);
 		else
 			show(msg_error_unknownUnit + yUnit);
 		return newFunction;

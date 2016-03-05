@@ -24,7 +24,7 @@ pmm_plotter = function() {
 	var _modelObjects = [];
 	var _colorsArray = [];
 	var _rawModels = [];
-	var _parameterRangeMap = [];
+	var _parameterMap = [];
 	
 	var msgAdd = "Add Model";
 	var msgChoose = "Select Model";
@@ -64,7 +64,8 @@ pmm_plotter = function() {
 	var _logConst = 2.3025851;
 	var _xUnit = msgUnknown;
 	var _yUnit = msgUnknown;
-	var _defaultFadeTime = 500;
+	var _defaultFadeTime = 500; // ms
+	var _defaultTimeout = 200; // ms // responsiveness (lower) vs. performance/fluence (higher)
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -447,42 +448,54 @@ pmm_plotter = function() {
 		 */
 		function prepareParameters(parameterArray, modelId) 
 		{
+			// this will be returned containing the preprocessed parameters
 			var newParameterArray = {};
 			
 			$.each(parameterArray, function(index, param) {
-				var name = param.name;
-				var value;
-				if (param.value)
-					value = param.value;
-				else if(param.min)
-					value = param.min;
-				else value = 0;
-					
-				newParameterArray[name] = value; 
+				var paramName = param.name;
+				var paramValue;
+				if (param.value != undefined)
+					paramValue = param.value;
+				else if(param.min != undefined)
+					paramValue = param.min;
+				else paramValue = 0;
+				
+				newParameterArray[paramName] = paramValue; 
 				
 				// save ranges for each parameter
 				// exchange min and max if lower/higher resp.
-				var newRange = {
-					name: name,
+				var parameterData = {
+					name: paramName,
+					value: paramValue,
 					model: modelId,
 					min: param.min,
 					max: param.max
 				};
 				
 				var existent = false;
-				$.each(_parameterRangeMap, function(i, range) {
-					if(range.name == newRange.name)
+				
+				$.each(_parameterMap, function(i, existingEntry) {
+					if(existingEntry.name == parameterData.name)
 					{
-						if(newRange.min < range.min)
-							range.min = newRange.min;
-						if(newRange.max > range.max)
-							range.max = newRange.max;
+						// set value to existing value - new model will get current values
+						// override initial value
+						newParameterArray[paramName] = existingEntry.value
+						// override global map
+						parameterData.value = existingEntry.value;
+						
+						
+						// extend existing ranges
+						if(parameterData.min < existingEntry.min)
+							existingEntry.min = parameterData.min;
+						if(parameterData.max > existingEntry.max)
+							existingEntry.max = parameterData.max;
 						existent = true;
+						
 						return true;
 					}
 				});
 				if(!existent)
-					_parameterRangeMap.push(newRange);
+					_parameterMap.push(parameterData);
 			});
 			return newParameterArray;
 		}
@@ -659,6 +672,7 @@ pmm_plotter = function() {
 
 		// update plot and sliders after adding new function
 		updateParameterSliders();
+		
 		// redraw with all models
 		drawD3Plot();
 	}
@@ -683,8 +697,9 @@ pmm_plotter = function() {
 		{
 			// disable button
 			$("#nextButton").button( "option", "disabled", true);
+			
 			// reset variables
-			_parameterRangeMap = [];
+			_parameterMap = [];
 			_xUnit = msgUnknown;
 			_yUnit = msgUnknown;
 		}
@@ -932,7 +947,7 @@ pmm_plotter = function() {
 					var sliderMin = value - 13.37;
 					var sliderMax = value + 13.37;
 					
-					$.each(_parameterRangeMap, function (index, range) {
+					$.each(_parameterMap, function (index, range) {
 						if(range.name == constant)
 						{
 							if(range.min != undefined)
@@ -958,14 +973,14 @@ pmm_plotter = function() {
 				        slide: function( event, ui ) {
 				            $(sliderValueInput).val( ui.value );
 				            // delay prevents excessive redrawing
-				            window.setTimeout(updateFunctionConstant(constant, ui.value), 100);
+				            window.setTimeout(updateFunctionParameter(constant, ui.value), _defaultTimeout);
 				        }
 				    });
 					$(sliderValueInput).change(function() {
 						// changing the input field changes the slider
 						$(slider).slider("value", this.value);
 							// delay prevents excessive redrawing
-							window.setTimeout(updateFunctionConstant(constant, this.value), 100);
+							window.setTimeout(updateFunctionParameter(constant, this.value), _defaultTimeout);
 					});
 					// react immediately on key input
 					$(sliderValueInput).keyup(function() {
@@ -999,15 +1014,24 @@ pmm_plotter = function() {
 	 * @param constant parameter name
 	 * @param constant (new) parameter value
 	 */
-	function updateFunctionConstant(constant, value)
+	function updateFunctionParameter(parameter, value)
 	{
-		newValue = parseFloat(value);
+		var newValue = parseFloat(value);
+		// update formula for all existing models
 		for(var modelIndex in _modelObjects)
 		{
 			var constants = _modelObjects[modelIndex].scope;
-			if(constants && constants[constant] != undefined)
-				constants[constant] = newValue;
+			if(constants && constants[parameter] != undefined)
+				constants[parameter] = newValue;
 		}
+		// update global map for future models
+		$.each(_parameterMap, function(index, parameterEntry) {
+			if(parameterEntry.name == parameter)
+			{	
+				parameterEntry.value = newValue;
+			}
+		});
+		
 		drawD3Plot();
 	}
 
@@ -1020,7 +1044,7 @@ pmm_plotter = function() {
 		var d3Plot = document.getElementById("d3plotter");
 		if(d3Plot)
 		{
-			d3Plot.parentElement.removeChild(d3Plot)
+			d3Plot.parentElement.removeChild(d3Plot);
 		}
 		d3Plot = document.createElement("div");
 		d3Plot.setAttribute("id", "d3plotter");

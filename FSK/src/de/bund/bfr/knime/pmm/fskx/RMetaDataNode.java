@@ -24,6 +24,7 @@ import org.jdom2.Element;
  * <li>main script
  * <li>visualization script
  * <li>parameters script
+ * </ul>
  *
  * @author Miguel de Alba
  */

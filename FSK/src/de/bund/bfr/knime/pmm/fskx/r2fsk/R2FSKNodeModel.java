@@ -28,6 +28,7 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
@@ -103,103 +104,16 @@ public class R2FSKNodeModel extends NodeModel {
   /**
    * {@inheritDoc}
    * 
-   * @throws InvalidSettingsException if the model script is not specified
+   * @throws MissingValueError
+   * @throws Exception
    */
   @Override
   protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-      final ExecutionContext exec) throws InvalidSettingsException {
+      final ExecutionContext exec) throws InvalidSettingsException, IOException, MissingValueError {
+    BufferedDataTable rTable = createRTable(exec);
+    BufferedDataTable metaDataTable = createMetaDataTable(exec);
 
-    final Set<String> librariesSet = new HashSet<>(); // Set of libraries
-    final Set<String> sourcesSet = new HashSet<>(); // Set of sources
-
-    /**
-     * Reads model script. Since the model script is mandatory, if modelScriptPath is not set, then
-     * a InvalidSettingsException will be thrown
-     */
-    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(KEYS.class);
-
-    // trim white spaces and convert empty string to null
-    if (modelScriptPath.getStringValue() != null) {
-      modelScriptPath.setStringValue(Strings.emptyToNull(modelScriptPath.getStringValue().trim()));
-    }
-
-    if (modelScriptPath.getStringValue() == null) {
-      throw new InvalidSettingsException("Unespecified model script");
-    }
-    try {
-      RScript modelScript = new RScript(KnimeUtils.getFile(modelScriptPath.getStringValue()));
-
-      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
-
-      librariesSet.addAll(modelScript.getLibraries());
-      sourcesSet.addAll(modelScript.getSources());
-    } catch (IOException e) {
-      throw new InvalidSettingsException(modelScriptPath.getStringValue() + ": cannot be read");
-    }
-
-    /**
-     * Reads parameters script. The parameters script is optional, thus if paraScriptPath is not set
-     * paramScriptLines will be assigned an empty list
-     */
-    // trim white spaces and convert empty string to null
-    if (paramScriptPath.getStringValue() != null) {
-      paramScriptPath.setStringValue(Strings.emptyToNull(paramScriptPath.getStringValue().trim()));
-    }
-
-    if (paramScriptPath.getStringValue() != null) {
-      try {
-        RScript paramScript = new RScript(KnimeUtils.getFile(paramScriptPath.getStringValue()));
-
-        valuesMap.put(KEYS.ORIG_PARAM, paramScript.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_PARAM, paramScript.getSimplifiedScript());
-
-        librariesSet.addAll(paramScript.getLibraries());
-        sourcesSet.addAll(paramScript.getSources());
-      } catch (IOException e) {
-        throw new InvalidSettingsException(paramScriptPath.getStringValue() + ": cannot be read");
-      }
-    }
-
-    /**
-     * Reads visualization script. The visualization script is optional, thus if
-     * visualizationScriptPath is not set visualizationScriptLines will be assigned an empty list
-     */
-    // trim white spaces and convert empty string to null
-    if (visualizationScriptPath.getStringValue() != null) {
-      visualizationScriptPath
-          .setStringValue(Strings.emptyToNull(visualizationScriptPath.getStringValue().trim()));
-    }
-
-    if (visualizationScriptPath.getStringValue() != null) {
-      try {
-        RScript vizScript =
-            new RScript(KnimeUtils.getFile(visualizationScriptPath.getStringValue()));
-
-        valuesMap.put(KEYS.ORIG_VIZ, vizScript.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_VIZ, vizScript.getSimplifiedScript());
-
-        librariesSet.addAll(vizScript.getLibraries());
-        sourcesSet.addAll(vizScript.getSources());
-      } catch (IOException e) {
-        throw new InvalidSettingsException(
-            visualizationScriptPath.getStringValue() + ": cannot be read");
-      }
-    }
-    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // adds R libraries
-    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // adds R sources
-
-    // Creates table spec and container
-    final DataTableSpec tableSpec = FSKUtil.createFSKTableSpec();
-    final BufferedDataContainer container = exec.createDataContainer(tableSpec);
-
-    // Adds row and closes the container
-    container.addRowToTable(new FSKXTuple(valuesMap));
-    container.close();
-
-    BufferedDataTable metaDataTable = createMetaDataTable(exec, spreadsheetPath.getStringValue());
-
-    return new BufferedDataTable[] {container.getTable(), metaDataTable};
+    return new BufferedDataTable[] {rTable, metaDataTable};
   }
 
   /** {@inheritDoc} */
@@ -210,21 +124,132 @@ public class R2FSKNodeModel extends NodeModel {
   }
 
   /**
+   * Reads R script.
+   * 
+   * @param path File path to R model script.
+   * @throws InvalidSettingsException if {@link path} is null or whitespace.
+   * @throws IOException if the file cannot be read.
+   */
+  private RScript readScript(final String path) throws InvalidSettingsException, IOException {
+
+    // throws InvalidSettingsException if path is null
+    if (path == null) {
+      throw new InvalidSettingsException("Unespecified script");
+    }
+
+    // throws InvalidSettingsException if path is whitespace
+    String trimmedPath = Strings.emptyToNull(path.trim());
+    if (trimmedPath == null) {
+      throw new InvalidSettingsException("Unespecified model script");
+    }
+
+    // path is not null or whitespace, thus try to read it
+    try {
+      RScript script = new RScript(KnimeUtils.getFile(trimmedPath)); // may throw IOException
+      return script;
+    } catch (IOException e) {
+      throw new IOException(trimmedPath + ": cannot be read");
+    }
+  }
+
+  /**
+   * Creates R table.
+   * 
+   * @param exec Execution context
+   * @throws InvalidSettingsException if the path to the model script is null or whitespace
+   * @throws IOException if the model script file cannot be read
+   * @return BufferedDataTable
+   * @throws InvalidSettingsException | IOException
+   * @throws MissingValueError
+   */
+  private BufferedDataTable createRTable(final ExecutionContext exec)
+      throws InvalidSettingsException, IOException, MissingValueError {
+    final Set<String> librariesSet = new HashSet<>(); // Set of libraries
+    final Set<String> sourcesSet = new HashSet<>(); // Set of sources
+    final EnumMap<FSKXTuple.KEYS, String> valuesMap = new EnumMap<>(KEYS.class);
+
+    // Reads model script. Since the model script is mandatory, if any error occurs it re-throws it.
+    try {
+      RScript script = readScript(modelScriptPath.getStringValue()); // may throw errors
+
+      // if no errors occur, add scripts, libraries and sources
+      valuesMap.put(KEYS.ORIG_MODEL, script.getOriginalScript());
+      valuesMap.put(KEYS.SIMP_MODEL, script.getSimplifiedScript());
+      librariesSet.addAll(script.getLibraries());
+      sourcesSet.addAll(script.getSources());
+      exec.setProgress(0.25);
+    } catch (InvalidSettingsException | IOException e) {
+      throw e;
+    }
+
+    // Reads parameters script. The parameters script is optional.
+    try {
+      RScript script = readScript(paramScriptPath.getStringValue()); // may throw errors
+
+      // if no errors occur, add scripts, libraries, and sources
+      valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
+      valuesMap.put(KEYS.SIMP_PARAM, script.getSimplifiedScript());
+      librariesSet.addAll(script.getLibraries());
+      sourcesSet.addAll(script.getSources());
+      exec.setProgress(0.5);
+    } catch (InvalidSettingsException e) {
+      System.err.println(e.getMessage());
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      setWarningMessage(e.getMessage());
+    }
+
+    /**
+     * Reads visualization script. The visualization script is optional, thus if the path is null or
+     * whitespace only a warning will be printed.
+     */
+    try {
+      RScript script = readScript(visualizationScriptPath.getStringValue()); // may throw errors
+
+      // if no errors occur, add scripts, libraries, and sources
+      valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
+      valuesMap.put(KEYS.SIMP_VIZ, script.getSimplifiedScript());
+      librariesSet.addAll(script.getLibraries());
+      sourcesSet.addAll(script.getSources());
+      exec.setProgress(0.75);
+    } catch (InvalidSettingsException e) {
+      System.err.println(e.getMessage());
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      setWarningMessage(e.getMessage());
+    }
+
+    valuesMap.put(KEYS.LIBS, String.join(";", librariesSet)); // adds R libraries
+    valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // adds R sources
+
+    // Creates table spec and container
+    DataTableSpec spec = FSKUtil.createFSKTableSpec();
+    BufferedDataContainer container = exec.createDataContainer(spec);
+
+    // Adds row and closes the container
+    FSKXTuple tuple = new FSKXTuple(valuesMap);
+    container.addRowToTable(tuple);
+    container.close();
+
+    return container.getTable();
+  }
+
+  /**
    * Creates a {@link BufferedDataTable} with the meta data obtained from the given spreadsheet. If
    * an error occurs or the path is not specified the table will be empty.
    * 
    * @param exec Execution context
-   * @param path File path to the XLSX spreadsheet
    * @return BufferedDataTable
    */
-  private BufferedDataTable createMetaDataTable(final ExecutionContext exec, String path) {
+  private BufferedDataTable createMetaDataTable(final ExecutionContext exec) {
 
     DataTableSpec spec = new OpenFSMRSchema().createSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
 
-    if (!Strings.isNullOrEmpty(path)) {
+    if (!Strings.isNullOrEmpty(spreadsheetPath.getStringValue())) {
       try {
-        FileInputStream fis = new FileInputStream(KnimeUtils.getFile(path));
+        FileInputStream fis =
+            new FileInputStream(KnimeUtils.getFile(spreadsheetPath.getStringValue()));
         // Finds the workbook instance for XLSX file
         XSSFWorkbook workbook = new XSSFWorkbook(fis);
         fis.close();

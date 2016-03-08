@@ -49,8 +49,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="com.fasterxml.jackson.core.jackson-annotations" version="2.4.3" match="greaterOrEqual"/>
       <import plugin="com.fasterxml.jackson.core.jackson-core" version="2.4.3" match="greaterOrEqual"/>
       <import plugin="com.fasterxml.jackson.core.jackson-databind" version="2.4.3" match="greaterOrEqual"/>
-      <import plugin="org.apache.log4j"/>
-      <import plugin="org.apache.commons.lang"/>
+      <import plugin="org.knime.ext.r.type"/>
       <import feature="org.knime.features.r" version="3.1.1.v201601281446"/>
    </requires>
 

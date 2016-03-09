@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -392,6 +393,9 @@ public class ModelCombiner {
 		Map<Integer, Map<String, Double>> paramSums = new LinkedHashMap<>();
 		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
 		Map<Integer, Map<String, Double>> paramValues = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> errorValues = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> tValues = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> pValues = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			int id = -1;
@@ -415,18 +419,43 @@ public class ModelCombiner {
 
 				paramSums.put(id, sums);
 				paramCounts.put(id, counts);
-				paramValues.put(id, new LinkedHashMap<String, Double>());
+				paramValues.put(id, new LinkedHashMap<>());
+				errorValues.put(id, new LinkedHashMap<>());
+				tValues.put(id, new LinkedHashMap<>());
+				pValues.put(id, new LinkedHashMap<>());
 			}
 
 			Map<String, Double> sums = paramSums.get(id);
 			Map<String, Integer> counts = paramCounts.get(id);
+			Map<String, Double> errors = errorValues.get(id);
+			Map<String, Double> ts = tValues.get(id);
+			Map<String, Double> ps = pValues.get(id);
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(Model1Schema.ATT_PARAMETER).getElementSet()) {
 				ParamXml param = (ParamXml) el;
+				String name = param.getName();
 
 				if (param.getValue() != null) {
-					sums.put(param.getName(), sums.get(param.getName()) + param.getValue());
-					counts.put(param.getName(), counts.get(param.getName()) + 1);
+					sums.put(name, sums.get(name) + param.getValue());
+					counts.put(name, counts.get(name) + 1);
+				}
+
+				if (!errors.containsKey(name)) {
+					errors.put(name, param.getError());
+				} else if (!Objects.equals(errors.get(name), param.getError())) {
+					errors.put(name, null);
+				}
+
+				if (!ts.containsKey(name)) {
+					ts.put(name, param.getT());
+				} else if (!Objects.equals(ts.get(name), param.getT())) {
+					ts.put(name, null);
+				}
+
+				if (!ps.containsKey(name)) {
+					ps.put(name, param.getP());
+				} else if (!Objects.equals(ps.get(name), param.getP())) {
+					ps.put(name, null);
 				}
 			}
 		}
@@ -451,9 +480,9 @@ public class ModelCombiner {
 				if (param.getValue() == null && paramValues.get(id).get(param.getName()) != null) {
 					param.setValue(paramValues.get(id).get(param.getName()));
 					param.getAllCorrelations().clear();
-					param.setError(null);
-					param.setT(null);
-					param.setP(null);
+					param.setError(errorValues.get(id).get(param.getName()));
+					param.setT(tValues.get(id).get(param.getName()));
+					param.setP(pValues.get(id).get(param.getName()));
 				}
 			}
 

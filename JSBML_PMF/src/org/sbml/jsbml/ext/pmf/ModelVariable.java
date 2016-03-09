@@ -5,7 +5,7 @@ package org.sbml.jsbml.ext.pmf;
 
 import java.util.Map;
 
-import org.sbml.jsbml.AbstractNamedSBase;
+import org.sbml.jsbml.AbstractSBase;
 import org.sbml.jsbml.LevelVersionError;
 import org.sbml.jsbml.PropertyUndefinedError;
 import org.sbml.jsbml.util.StringTools;
@@ -15,47 +15,46 @@ import org.sbml.jsbml.util.StringTools;
  * 
  * @author Miguel Alba
  */
-public class ModelVariable extends AbstractNamedSBase {
+public class ModelVariable extends AbstractSBase {
 
   private static final long serialVersionUID = 5419651814539473485L;
+  private String            name;
   private Double            value;
-  
+
+
   /** Creates a {@link ModelVariable} instance. */
   public ModelVariable() {
     super();
-    setPackageVersion(-1);
     this.packageName = PMFConstants.shortLabel;
   }
 
-  /** Creates a {@link ModelVariable} instance with an id and no value. */
-  public ModelVariable(String id) {
-    super(id);
-    setPackageVersion(-1);
+
+  /** Creates a {@link ModelVariable} instance from a name. */
+  public ModelVariable(String name) {
+    super();
+    this.name = name;
     this.packageName = PMFConstants.shortLabel;
   }
 
-  /** Creates a {@link ModelVariable} instance with an id and value. */
-  public ModelVariable(String id, double value) {
-    super(id);
+
+  /** Creates a {@link ModelVariable} instance from a name and value. */
+  public ModelVariable(String name, double value) {
+    super();
+    this.name = name;
     this.value = Double.valueOf(value);
-    setPackageVersion(-1);
     this.packageName = PMFConstants.shortLabel;
   }
 
 
   /**
-   * Creates a {@link ModelVariable} instance with an id, value, level and
+   * Creates a {@link ModelVariable} instance from a name, value, level and
    * version.
    */
-  public ModelVariable(String id, double value, int level, int version)
+  public ModelVariable(String name, double value, int level, int version)
     throws LevelVersionError {
-    super(id, null, level, version);
+    super(level, version);
+    this.name = name;
     this.value = Double.valueOf(value);
-    Integer minSBMLLevel = Integer.valueOf(PMFConstants.MIN_SBML_LEVEL);
-    Integer minSBMLVersion = Integer.valueOf(PMFConstants.MIN_SBML_VERSION);
-    if (getLevelAndVersion().compareTo(minSBMLLevel, minSBMLVersion) < 0) {
-      throw new LevelVersionError(getElementName(), level, version);
-    }
     this.packageName = PMFConstants.shortLabel;
   }
 
@@ -63,6 +62,9 @@ public class ModelVariable extends AbstractNamedSBase {
   /** Clone constructor */
   public ModelVariable(ModelVariable mv) {
     super(mv);
+    if (mv.isSetName()) {
+      setName(mv.name);
+    }
     if (mv.isSetValue()) {
       setValue(mv.value.doubleValue());
     }
@@ -76,12 +78,36 @@ public class ModelVariable extends AbstractNamedSBase {
   }
 
 
-  @Override
-  public boolean isIdMandatory() {
-    return true;
+  // *** name methods ***
+  public String getName() {
+    return this.name;
   }
 
 
+  public boolean isSetName() {
+    return this.name != null && !this.name.isEmpty();
+  }
+
+
+  public void setName(String name) {
+    String oldName = this.name;
+    this.name = name;
+    firePropertyChange("name", oldName, this.name);
+  }
+
+
+  public boolean unsetName() {
+    if (isSetName()) {
+      String oldName = this.name;
+      this.name = null;
+      firePropertyChange("name", oldName, this.name);
+      return true;
+    }
+    return false;
+  }
+
+
+  // *** value methods ***
   public double getValue() {
     if (isSetValue()) {
       return this.value.doubleValue();
@@ -126,9 +152,9 @@ public class ModelVariable extends AbstractNamedSBase {
   @Override
   public Map<String, String> writeXMLAttributes() {
     Map<String, String> attributes = super.writeXMLAttributes();
-    if (isSetId()) {
-      attributes.remove("id");
-      attributes.put("id", getId());
+    if (isSetName()) {
+      attributes.remove("name");
+      attributes.put("name", getName());
     }
     if (isSetValue()) {
       attributes.remove("value");
@@ -141,26 +167,22 @@ public class ModelVariable extends AbstractNamedSBase {
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {
-    boolean isAttributeRead = super.readAttribute(attributeName, prefix, value);
-    if (!isAttributeRead) {
-      isAttributeRead = true;
-      if (attributeName.equals("value")) {
-        setValue(StringTools.parseSBMLDouble(value));
-      } else {
-        isAttributeRead = false;
-      }
+    if (attributeName.equals("name")) {
+      setName(value);
+      return true;
     }
-    return isAttributeRead;
+    if (attributeName.equals("value")) {
+      setValue(StringTools.parseSBMLDouble(value));
+      return true;
+    }
+    
+    return false;
   }
 
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(PMFConstants.modelVariable + " [id=\"" + getId() + "\"");
-    if (isSetValue()) {
-      sb.append(", value=\"" + this.value.toString() + "\"");
-    }
-    sb.append("]");
-    return sb.toString();
+    return "ModelVariable [name=" + getName()
+      + (isSetValue() ? ", value=\"" + getValue() + "\"" : "") + "]";
   }
 }

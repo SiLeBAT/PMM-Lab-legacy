@@ -4,6 +4,7 @@
 package org.sbml.jsbml.ext.pmf;
 
 import java.text.MessageFormat;
+import java.util.Collection;
 
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
@@ -16,7 +17,7 @@ import org.sbml.jsbml.ext.AbstractSBasePlugin;
  */
 public class PMFModelPlugin extends AbstractSBasePlugin {
 
-  private static final long serialVersionUID = 5078386942266911188L;
+  private static final long       serialVersionUID = 5078386942266911188L;
   protected ListOf<ModelVariable> listOfModelVariables;
 
 
@@ -104,7 +105,8 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
   public String getURI() {
     return getElementNamespace();
   }
-  
+
+
   private void initDefaults() {
     setPackageVersion(-1);
   }
@@ -135,13 +137,21 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    */
   @Override
   public SBase getChildAt(int childIndex) {
-    if (childIndex < 0 || childIndex >= 1) {
-      Integer childCount = Integer.valueOf(Math.min(getChildCount(), 0));
+    if (childIndex < 0) {
       throw new IndexOutOfBoundsException(MessageFormat.format(
-        resourceBundle.getString("IndexExceedsBoundsException"),
-        Integer.valueOf(childIndex), childCount));
+        resourceBundle.getString("IndexSurpassesBoundsException"),
+        Integer.valueOf(childIndex), Integer.valueOf(0)));
     }
-    return this.listOfModelVariables;
+    int pos = 0;
+    if (isSetListOfModelVariables()) {
+      if (pos == childIndex) {
+        return getListOfModelVariables();
+      }
+      pos++;
+    }
+    throw new IndexOutOfBoundsException(
+      MessageFormat.format("Index {0, number, integer} >= {1, number, integer}",
+        Integer.valueOf(childIndex), Integer.valueOf(Math.min(pos, 0))));
   }
 
 
@@ -163,7 +173,7 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    * Adds a new element to the listOfModelVariables.
    * listOfModelVariables is initialized if necessary.
    *
-   * @return {code true} (as specified by {link Collection#add})
+   * @return {code true} (as specified by {@link Collection#add})
    */
   public boolean addModelVariable(ModelVariable modelVariable) {
     return getListOfModelVariables().add(modelVariable);
@@ -174,12 +184,12 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    * Creates a new instance of {@link ModelVariable} and add it to this
    * {@link PMFModelPlugin}.
    *
-   * @param id
+   * @param name
    *        the name to be set to the new {@link ModelVariable}.
    * @return the new {@link ModelVariable} instance.
    */
-  public ModelVariable createModelVariable(String id) {
-    ModelVariable mv = new ModelVariable(id);
+  public ModelVariable createModelVariable(String name) {
+    ModelVariable mv = new ModelVariable(name);
     addModelVariable(mv);
     return mv;
   }
@@ -189,14 +199,14 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    * Creates a new instance of {@link ModelVariable} and add it to this
    * {@link PMFModelPlugin}.
    *
-   * @param id
+   * @param name
    *        the name to be set to the new {@link ModelVariable}.
    * @param value
    *        the value to be set to the new {@link ModelVariable}.
    * @return the new {@link ModelVariable} instance.
    */
-  public ModelVariable createModelVariable(String id, double value) {
-    ModelVariable mv = new ModelVariable(id, value, getLevel(), getVersion());
+  public ModelVariable createModelVariable(String name, double value) {
+    ModelVariable mv = new ModelVariable(name, value, getLevel(), getVersion());
     addModelVariable(mv);
     return mv;
   }
@@ -247,7 +257,7 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
 
 
   public void setListOfModelVariables(
-    ListOf<ModelVariable> listOfModelVariables) {
+    final ListOf<ModelVariable> listOfModelVariables) {
     unsetListOfModelVariables();
     this.listOfModelVariables = listOfModelVariables;
     if (listOfModelVariables != null) {
@@ -285,5 +295,99 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
 
   public boolean isSetListOfModelVariables() {
     return this.listOfModelVariables != null;
+  }
+
+
+  // *** Parameter methods ***
+  /**
+   * Adds a Parameter instance to the listOfParameters of this PMFModelPlugin.
+   * listOfCompartments is initialized if necessary.
+   *
+   * @see org.sbml.jsbml.Model#addParameter()
+   * @return {code true} if the {@link #listOfParameters} was changed as a
+   *         result of this call.
+   */
+  public boolean addParameter(final Parameter parameter) {
+    return ((Model) this.extendedSBase).getListOfParameters().add(parameter);
+  }
+
+
+  /**
+   * Creates a new {@link Parameter} inside this {@link PMFModelPlugin} and
+   * returns it.
+   * <p>
+   * 
+   * @return the {@link Parameter} object created
+   * @see #addPMFParameter(PMFParameter parameter)
+   */
+  public Parameter createParameter(final String id) {
+    Parameter parameter = new Parameter(id, getLevel(), getVersion());
+    addParameter(parameter);
+    return parameter;
+  }
+
+
+  // *** UnitDefinition methods ***
+  /**
+   * Adds an {@link UnitDefinition} instance to the
+   * {@link #listOfUnitDefinitions} of this {@link Model}.
+   * 
+   * @param unitDefinition
+   * @return {@code true} if the {@link #listOfUnitDefinitions} was changed
+   *         as a result of this call.
+   */
+  public boolean addUnitDefinition(UnitDefinition unitDefinition) {
+    return ((Model) this.extendedSBase).getListOfUnitDefinitions()
+                                       .add(unitDefinition);
+  }
+
+
+  /**
+   * Checks whether an identical {@link UnitDefinition} like the given
+   * {@link UnitDefinition} is already in this {@link Model}'s
+   * {@link #listOfUnitDefinitions}. If yes, the identifier of the identical
+   * {@link UnitDefinition} will be returned. Otherwise, the given unit is added
+   * to the {@link #listOfUnitDefinitions} and its identifier will be returned.
+   * In any case, this method returns the identifier of a {@link UnitDefinition}
+   * that is part of this {@link Model} at least after calling this method.
+   * 
+   * @param units
+   *        The unit to be checked and added if no identical
+   *        {@link UnitDefinition} can be found.
+   * @return
+   */
+  public String addUnitDefinitionOrReturnIdenticalUnit(UnitDefinition units) {
+    return ((Model) this.extendedSBase).addUnitDefinitionOrReturnIdenticalUnit(
+      units);
+  }
+
+
+  /**
+   * Creates a new {@link UnitDefinition} inside this {@link Model} and returns
+   * it.
+   * <p>
+   * 
+   * @return the {@link UnitDefinition} object created
+   *         <p>
+   * @see #addUnitDefinition(UnitDefinition ud)
+   */
+  public UnitDefinition createUnitDefinition() {
+    return createUnitDefinition(null);
+  }
+
+
+  /**
+   * Creates a new {@link UnitDefinition} inside this {@link Model} and returns
+   * it.
+   * 
+   * @param id
+   *        the id of the new element to create
+   * @return the {@link UnitDefinition} object created
+   */
+  public UnitDefinition createUnitDefinition(String id) {
+    UnitDefinition unitDefinition =
+      new UnitDefinition(id, getLevel(), getVersion());
+    addUnitDefinition(unitDefinition);
+    return unitDefinition;
   }
 }

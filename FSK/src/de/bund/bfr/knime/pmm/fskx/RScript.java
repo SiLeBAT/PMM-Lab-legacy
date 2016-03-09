@@ -61,7 +61,7 @@ public class RScript {
   }
 
   public List<String> getSources() {
-    return sources;
+    return this.sources;
   }
 
   public void setSources(List<String> sources) {
@@ -69,7 +69,7 @@ public class RScript {
   }
 
   public String getSimplifiedScript() {
-    return simplifiedScript;
+    return this.simplifiedScript;
   }
 
   public void setSimplifiedScript(String simplifiedScript) {
@@ -77,7 +77,7 @@ public class RScript {
   }
 
   public String getOriginalScript() {
-    return originalScript;
+    return this.originalScript;
   }
 
   public void setOriginalScript(String originalScript) {
@@ -85,7 +85,7 @@ public class RScript {
   }
 
   public List<String> getLibraries() {
-    return libraries;
+    return this.libraries;
   }
 
   public void setLibraries(List<String> libraries) {

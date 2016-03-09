@@ -17,17 +17,15 @@
 package de.bund.bfr.knime.pmm.fskx.reader;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.text.ParseException;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -36,6 +34,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -48,16 +47,14 @@ import org.sbml.jsbml.SBMLReader;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.fskx.FSKFiles;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
-import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.file.uri.URIFactory;
-import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 
 public class FSKXReaderNodeModel extends NodeModel {
@@ -70,6 +67,10 @@ public class FSKXReaderNodeModel extends NodeModel {
 
   // defaults for persistent state
   private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
+
+  // *** Internal Model Keys ***
+  private static final String FILE_NAME = "fskreaderNodeInternals.xml";
+  private static final String INTERNAL_MODEL = "internalModel";
 
   private static final PortType[] inPortTypes = {};
   private static final PortType[] outPortTypes =
@@ -89,12 +90,12 @@ public class FSKXReaderNodeModel extends NodeModel {
   protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
       throws CombineArchiveException, FileAccessException, MissingValueError {
 
-    FSKFiles files = new FSKFiles();
+    FSKFiles files = new FSKFiles(this.filename.getStringValue());
 
     // Creates R table, meta data table and R port with the R workspace
     BufferedDataTable rTable = createRTable(files, exec);
     BufferedDataTable metaDataTable = createMetaDataTable(files, exec);
-    RPortObject rPort = files.workspace == null ? null : new RPortObject(files.workspace);
+    RPortObject rPort = files.getWorkspace() == null ? null : new RPortObject(files.getWorkspace());
 
     return new PortObject[] {rTable, metaDataTable, rPort};
   }
@@ -109,35 +110,58 @@ public class FSKXReaderNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void saveSettingsTo(final NodeSettingsWO settings) {
-    filename.saveSettingsTo(settings);
+    this.filename.saveSettingsTo(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
       throws InvalidSettingsException {
-    filename.loadSettingsFrom(settings);
+    this.filename.loadSettingsFrom(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-    filename.validateSettings(settings);
+    this.filename.validateSettings(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {}
+      throws IOException, CanceledExecutionException {
+    File file = new File(nodeInternDir, FILE_NAME);
+    try (FileInputStream fis = new FileInputStream(file)) {
+      NodeSettingsRO settings = NodeSettings.loadFromXML(fis);
+      loadValidatedSettingsFrom(settings);
+    } catch (InvalidSettingsException e) {
+      System.err.println(e.getMessage());
+    } catch (IOException e) {
+      throw e;
+    }
+  }
 
   /** {@inheritDoc} */
   @Override
   protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {};
+      throws IOException, CanceledExecutionException {
+
+    NodeSettings settings = new NodeSettings(INTERNAL_MODEL);
+    this.filename.saveSettingsTo(settings);
+
+    File file = new File(nodeInternDir, FILE_NAME);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      settings.saveToXML(fos);
+    } catch (IOException e) {
+      throw e;
+    }
+  }
 
   /** {@inheritDoc} */
   @Override
-  protected void reset() {}
+  protected void reset() {
+    // does nothing
+  }
 
   class FileAccessException extends Exception {
 
@@ -158,8 +182,8 @@ public class FSKXReaderNodeModel extends NodeModel {
    * @throws MissingValueError
    * @return {@link BufferedDataTable}
    */
-  private BufferedDataTable createRTable(final FSKXReaderNodeModel.FSKFiles files,
-      final ExecutionContext exec) throws FileAccessException, MissingValueError {
+  private BufferedDataTable createRTable(final FSKFiles files, final ExecutionContext exec)
+      throws FileAccessException, MissingValueError {
     final Set<String> librariesSet = new HashSet<>(); // Set of libraries
     final Set<String> sourcesSet = new HashSet<>(); // Set of sources
 
@@ -167,7 +191,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
     // R model script
     try {
-      RScript modelScript = new RScript(files.modelScript);
+      RScript modelScript = new RScript(files.getModelScript());
 
       // no IOException occur -> process content of model script and add libraries and sources
       valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
@@ -175,13 +199,14 @@ public class FSKXReaderNodeModel extends NodeModel {
       librariesSet.addAll(modelScript.getLibraries());
       sourcesSet.addAll(modelScript.getSources());
     } catch (IOException e) {
+      System.err.println(e);
       throw new FileAccessException("Model script could not be accessed");
     }
 
     // R parameters script
-    if (files.paramScript != null) {
+    if (files.getParamScript() != null) {
       try {
-        RScript script = new RScript(files.paramScript);
+        RScript script = new RScript(files.getParamScript());
 
         // no IOException occur -> process content of parameters script and add libraries and
         // sources
@@ -190,16 +215,15 @@ public class FSKXReaderNodeModel extends NodeModel {
         librariesSet.addAll(script.getLibraries());
         sourcesSet.addAll(script.getSources());
       } catch (IOException e) {
-        String msg = files.paramScript.getName() + ": cannot be read";
-        System.err.println(msg);
-        setWarningMessage(msg);
+        System.err.println(e.getMessage());
+        setWarningMessage(files.getParamScript().getName() + ": cannot be read");
       }
     }
 
     // R visualization script
-    if (files.vizScript != null) {
+    if (files.getVizScript() != null) {
       try {
-        RScript script = new RScript(files.vizScript);
+        RScript script = new RScript(files.getVizScript());
 
         // no IOException occur -> process content of parameters script and add libraries and
         // sources
@@ -208,9 +232,8 @@ public class FSKXReaderNodeModel extends NodeModel {
         librariesSet.addAll(script.getLibraries());
         sourcesSet.addAll(script.getSources());
       } catch (IOException e) {
-        String msg = files.vizScript.getName() + ": cannot be read";
-        System.err.println(msg);
-        setWarningMessage(msg);
+        System.err.println(e.getMessage());
+        setWarningMessage(e.getMessage());
       }
     }
 
@@ -237,11 +260,11 @@ public class FSKXReaderNodeModel extends NodeModel {
    */
   private BufferedDataTable createMetaDataTable(final FSKFiles files, final ExecutionContext exec) {
     BufferedDataContainer container = exec.createDataContainer(new OpenFSMRSchema().createSpec());
-    if (files.metaData != null) {
+    if (files.getMetaData() != null) {
 
       SBMLDocument doc;
       try {
-        doc = new SBMLReader().readSBML(files.metaData);
+        doc = new SBMLReader().readSBML(files.getMetaData());
 
         // No errors occur -> process doc and populate table
         FSMRTemplate template = FSMRUtils.processPrevalenceModel(doc);
@@ -252,140 +275,8 @@ public class FSKXReaderNodeModel extends NodeModel {
         e.printStackTrace(System.err);
       }
     }
-    container.close(); 
-    
+    container.close();
+
     return container.getTable();
-  }
-
-  /** Contents of a FSKX archive. */
-  class FSKFiles {
-    File modelScript;
-    File paramScript;
-    File vizScript;
-    File workspace;
-    File metaData;
-
-    /**
-     * Reads the contents of a FSKX archive
-     * 
-     * @return {@link FSKFiles} with the {@link File}s of the FSKX archive.
-     * @throws CombineArchiveException if the model script cannot be read
-     */
-    public FSKFiles() throws CombineArchiveException {
-      File archiveFile = new File(filename.getStringValue());
-      if (!archiveFile.exists()) {
-        throw new CombineArchiveException(filename.getStringValue() + " does not exist");
-      }
-      CombineArchive archive = null;
-      try {
-        archive = new CombineArchive(archiveFile);
-      } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
-        throw new CombineArchiveException(e.getMessage());
-      }
-
-      // Gets annotation
-      Element xmlElement = archive.getDescriptions().get(0).getXmlDescription();
-      RMetaDataNode node = new RMetaDataNode(xmlElement);
-
-
-      // Add model script file
-      String modelFileName = node.getMainScript();
-      if (modelFileName == null) {
-        try {
-          archive.close();
-        } catch (IOException e) {
-        }
-        throw new CombineArchiveException("Missing model file name in FSK metadata");
-      }
-      try {
-        File modelFile = File.createTempFile("modelScript", ".R");
-        modelFile.deleteOnExit();
-        archive.getEntry(modelFileName).extractFile(modelFile);
-
-        // no errors occur -> assigns R model script
-        modelScript = modelFile;
-      } catch (IOException e) {
-        // an IOException occur -> throws a CombineArchiveException
-        try {
-          archive.close();
-        } catch (IOException e1) {
-        }
-        throw new CombineArchiveException(e.getMessage());
-      }
-
-      // Add parameters script file
-      String paramFileName = node.getParametersScript();
-      if (paramFileName != null) {
-        try {
-          File paramFile = File.createTempFile("paramScript", ".R");
-          paramFile.deleteOnExit();
-          archive.getEntry(paramFileName).extractFile(paramFile);
-
-          // no errors occur -> assigns R parameters script
-          paramScript = paramFile;
-        } catch (IOException e) {
-          String msg = paramFileName + ": cannot be read";
-          System.err.println(msg);
-          setWarningMessage(msg);
-        }
-      }
-
-      // Add visualization script file
-      String vizFileName = node.getVisualizationScript();
-      if (vizFileName != null) {
-        try {
-          File vizFile = File.createTempFile("vizScript", ".R");
-          vizFile.deleteOnExit();
-          archive.getEntry(vizFileName).extractFile(vizFile);
-
-          // no errors occur -> assigns R visualization script
-          vizScript = vizFile;
-        } catch (IOException e) {
-          String msg = vizFileName + ": cannot be read";
-          System.err.println(msg);
-          setWarningMessage(msg);
-        }
-      }
-
-      // Add workspace file
-      String workspaceFileName = node.getWorkspaceFile();
-      if (workspaceFileName != null) {
-        try {
-          File workspaceFile = File.createTempFile("workspace", ".R");
-          workspaceFile.deleteOnExit();
-          archive.getEntry(workspaceFileName).extractFile(workspaceFile);
-
-          // no errors occur -> assigns R workspace file
-          workspace = workspaceFile;
-        } catch (IOException e) {
-          String msg = workspaceFileName + ": cannot be read";
-          System.err.println(msg);
-          setWarningMessage(msg);
-        }
-      }
-
-      // Adds meta data file (SBMLDocument)
-      URI pmfURI = URIFactory.createPMFURI();
-      if (archive.getNumEntriesWithFormat(pmfURI) == 1) {
-        try {
-          File metaDataFile = File.createTempFile("metadata", ".pmf");
-          metaDataFile.deleteOnExit();
-          archive.getEntriesWithFormat(pmfURI).get(0).extractFile(metaDataFile);
-
-          // no errors occur -> assigns meta data file
-          metaData = metaDataFile;
-        } catch (IOException e) {
-          String msg = workspaceFileName + ": cannot be read";
-          System.err.println(msg);
-          setWarningMessage(msg);
-        }
-      }
-
-      try {
-        archive.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
   }
 }

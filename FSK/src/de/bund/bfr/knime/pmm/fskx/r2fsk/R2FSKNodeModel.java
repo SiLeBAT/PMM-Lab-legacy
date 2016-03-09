@@ -2,7 +2,9 @@ package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,9 +18,11 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.util.FileUtil;
 
 import com.google.common.base.Strings;
 
@@ -54,6 +58,10 @@ public class R2FSKNodeModel extends NodeModel {
       new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
   private SettingsModelString spreadsheetPath = new SettingsModelString(CFGKEY_SPREADSHEET, null);
 
+  // *** Internal Model Keys ***
+  private static final String FILE_NAME = "r2fskNodeInternals.xml";
+  private static final String INTERNAL_MODEL = "internalModel";
+
   /** {@inheritDoc} */
   protected R2FSKNodeModel() {
     super(0, 2);
@@ -62,44 +70,64 @@ public class R2FSKNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {}
+      throws IOException, CanceledExecutionException {
+    File file = new File(nodeInternDir, FILE_NAME);
+    try (FileInputStream fis = new FileInputStream(file)) {
+      NodeSettingsRO settings = NodeSettings.loadFromXML(fis);
+      loadValidatedSettingsFrom(settings);
+    } catch (InvalidSettingsException e) {
+      System.err.println(e.getMessage());
+    } catch (IOException e) {
+      throw e;
+    }
+  }
 
   /** {@inheritDoc} */
   @Override
   protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {}
+      throws IOException, CanceledExecutionException {
+    // Creates and saves a file in the given directory
+    File file = new File(nodeInternDir, FILE_NAME);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      saveSettingsTo(new NodeSettings(INTERNAL_MODEL));
+    } catch (IOException e) {
+      throw e;
+    }
+  }
 
   /** {@inheritDoc} */
   @Override
   protected void saveSettingsTo(NodeSettingsWO settings) {
-    modelScriptPath.saveSettingsTo(settings);
-    paramScriptPath.saveSettingsTo(settings);
-    visualizationScriptPath.saveSettingsTo(settings);
-    spreadsheetPath.saveSettingsTo(settings);
+    this.modelScriptPath.saveSettingsTo(settings);
+    this.paramScriptPath.saveSettingsTo(settings);
+    this.visualizationScriptPath.saveSettingsTo(settings);
+    this.spreadsheetPath.saveSettingsTo(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-    modelScriptPath.validateSettings(settings);
-    paramScriptPath.validateSettings(settings);
-    visualizationScriptPath.validateSettings(settings);
-    spreadsheetPath.validateSettings(settings);
+    this.modelScriptPath.validateSettings(settings);
+    this.paramScriptPath.validateSettings(settings);
+    this.visualizationScriptPath.validateSettings(settings);
+    this.spreadsheetPath.validateSettings(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void loadValidatedSettingsFrom(NodeSettingsRO settings)
       throws InvalidSettingsException {
-    modelScriptPath.loadSettingsFrom(settings);
-    paramScriptPath.loadSettingsFrom(settings);
-    visualizationScriptPath.loadSettingsFrom(settings);
-    spreadsheetPath.loadSettingsFrom(settings);
+    this.modelScriptPath.loadSettingsFrom(settings);
+    this.paramScriptPath.loadSettingsFrom(settings);
+    this.visualizationScriptPath.loadSettingsFrom(settings);
+    this.spreadsheetPath.loadSettingsFrom(settings);
   }
 
   /** {@inheritDoc} */
   @Override
-  protected void reset() {}
+  protected void reset() {
+    // does nothing
+  }
 
   /**
    * {@inheritDoc}
@@ -130,7 +158,8 @@ public class R2FSKNodeModel extends NodeModel {
    * @throws InvalidSettingsException if {@link path} is null or whitespace.
    * @throws IOException if the file cannot be read.
    */
-  private RScript readScript(final String path) throws InvalidSettingsException, IOException {
+  private static RScript readScript(final String path)
+      throws InvalidSettingsException, IOException {
 
     // throws InvalidSettingsException if path is null
     if (path == null) {
@@ -148,6 +177,7 @@ public class R2FSKNodeModel extends NodeModel {
       RScript script = new RScript(KnimeUtils.getFile(trimmedPath)); // may throw IOException
       return script;
     } catch (IOException e) {
+      System.err.println(e.getMessage());
       throw new IOException(trimmedPath + ": cannot be read");
     }
   }
@@ -170,7 +200,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     // Reads model script. Since the model script is mandatory, if any error occurs it re-throws it.
     try {
-      RScript script = readScript(modelScriptPath.getStringValue()); // may throw errors
+      RScript script = readScript(this.modelScriptPath.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries and sources
       valuesMap.put(KEYS.ORIG_MODEL, script.getOriginalScript());
@@ -184,7 +214,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     // Reads parameters script. The parameters script is optional.
     try {
-      RScript script = readScript(paramScriptPath.getStringValue()); // may throw errors
+      RScript script = readScript(this.paramScriptPath.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries, and sources
       valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
@@ -204,7 +234,8 @@ public class R2FSKNodeModel extends NodeModel {
      * whitespace only a warning will be printed.
      */
     try {
-      RScript script = readScript(visualizationScriptPath.getStringValue()); // may throw errors
+      RScript script = readScript(this.visualizationScriptPath.getStringValue()); // may throw
+                                                                                  // errors
 
       // if no errors occur, add scripts, libraries, and sources
       valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
@@ -246,10 +277,8 @@ public class R2FSKNodeModel extends NodeModel {
     DataTableSpec spec = new OpenFSMRSchema().createSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
 
-    if (!Strings.isNullOrEmpty(spreadsheetPath.getStringValue())) {
-      try {
-        FileInputStream fis =
-            new FileInputStream(KnimeUtils.getFile(spreadsheetPath.getStringValue()));
+    if (!Strings.isNullOrEmpty(this.spreadsheetPath.getStringValue())) {
+      try (InputStream fis = FileUtil.openInputStream(this.spreadsheetPath.getStringValue())) {
         // Finds the workbook instance for XLSX file
         XSSFWorkbook workbook = new XSSFWorkbook(fis);
         fis.close();
@@ -257,7 +286,7 @@ public class R2FSKNodeModel extends NodeModel {
         FSMRTemplate template = FSMRUtils.processSpreadsheet(workbook);
         KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
         container.addRowToTable(tuple);
-      } catch (IOException e) {
+      } catch (IOException | InvalidSettingsException e) {
         e.printStackTrace();
       }
     }

@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
  */
 public class RUri {
 
-  public URI createURI() {
+  public static URI createURI() {
     URI uri = null;
     try {
       uri = new URI("http://www.r-project.org");

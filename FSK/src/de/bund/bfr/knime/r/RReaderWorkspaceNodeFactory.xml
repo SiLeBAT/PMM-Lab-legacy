@@ -53,10 +53,13 @@
 			  The code to be applied to your expression editor.
 		  </option>
 	    </tab>
+        <tab name="R Home">
+            <option name="Path"> Provides another R distribution to run the R script.</option>
+        </tab>
     </fullDescription>
     
     <ports>
-        <outPort index="0" name="R Worrkspace">A workspace containing new data from within R</outPort>
+        <outPort index="0" name="R Workspace">A workspace containing new data from within R</outPort>
     </ports>    
     <views>
         <view index="0" name="R Std Output">

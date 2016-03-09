@@ -51,7 +51,9 @@
 	          current R script to the list of templates.</p>
           </option>
         </tab>
-        
+		<tab name="R Home">
+			<option name="Path"> Provides another R distribution to run the R script.</option>
+		</tab>
 	</fullDescription>
 
 	<ports>

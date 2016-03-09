@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 import org.knime.core.data.DataTableSpec;
@@ -65,6 +66,8 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -138,10 +141,18 @@ public class RSnippetNodeDialog extends DataAwareNodeDialogPane {
 			}
 
 		};
+		
+		// R home panel
+		SettingsModelString rHome = new SettingsModelString(RSnippetSettings.ORIG_RHOME, "");
+		rHome.setEnabled(true);
+		DialogComponentFileChooser filechooser = new DialogComponentFileChooser(rHome, "rHome-history", JFileChooser.OPEN_DIALOG, true);
+		filechooser.setBorderTitle("Path");
 
 		addTab(SNIPPET_TAB, m_panel);
 		// The preview does not have the templates tab
 		addTab("Templates", createTemplatesPanel());
+		
+		addTab("R Home", filechooser.getComponentPanel());
 
 		// currently there is only one advanced option which applies only for R
 		// nodes with table output.

@@ -53,6 +53,9 @@
 			  The code to be applied to your expression editor.
 		  </option>
 	    </tab>
+      <tab name="R Home">
+        <option name="Path"> Provides another R distribution to run the R script.</option>
+      </tab>
 	</fullDescription>
 	<ports>
         <inPort name="Data Input" index="0">Data Table Input</inPort>

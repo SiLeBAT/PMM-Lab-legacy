@@ -50,6 +50,7 @@ package de.bund.bfr.knime.r;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
+import org.knime.ext.r.bin.preferences.RPreferenceInitializer;
 
 /**
  * The settings of the java snippet node.
@@ -61,6 +62,8 @@ public class RSnippetSettings {
 	private static final String TEMPLATE_UUID = "templateUUID";
 	private static final String VERSION = "version";
 	private static final String OUT_NON_NUMBERS_AS_MISSING = "Output non numbers (NaN, Inf, -Inf) as missing cells";
+	static final String ORIG_RHOME = "origRHome";
+	static final String NEW_RHOME = "newRHome";
 
 	/** Custom script. */
 	private String m_script;
@@ -77,6 +80,12 @@ public class RSnippetSettings {
 	 */
 	private boolean m_outNonNumbersAsMissing;
 
+	 /** Original R home from the preferences. */
+	 private String m_origPath;
+
+	 /** New R home defined in the interface of the node. */
+	 private String m_newPath;
+
 	/**
 	 * Create a new instance.
 	 */
@@ -85,6 +94,8 @@ public class RSnippetSettings {
 		m_templateUUID = null;
 		m_version = RSnippet.VERSION_1_X;
 		m_outNonNumbersAsMissing = false;
+	    this.m_origPath = RPreferenceInitializer.getRProvider().getRHome();
+	    this.m_newPath = null;
 	}
 
 	/**
@@ -98,6 +109,8 @@ public class RSnippetSettings {
 		settings.addString(TEMPLATE_UUID, getTemplateUUID());
 		settings.addString(VERSION, getVersion());
 		settings.addBoolean(OUT_NON_NUMBERS_AS_MISSING, m_outNonNumbersAsMissing);
+	    settings.addString(ORIG_RHOME, this.m_origPath);
+	    settings.addString(NEW_RHOME, this.m_newPath);
 	}
 
 	/**
@@ -120,6 +133,10 @@ public class RSnippetSettings {
 			setOutNonNumbersAsMissing(true);
 		}
 		setVersion(settings.getString(VERSION));
+	    setOrigRHome(settings.getString(ORIG_RHOME));
+	    if (settings.containsKey(NEW_RHOME)) {
+	      setNewRHome(settings.getString(NEW_RHOME));
+	    }
 	}
 
 	/**
@@ -138,6 +155,10 @@ public class RSnippetSettings {
 			// keep backward compatibility
 			setOutNonNumbersAsMissing(settings.getBoolean(OUT_NON_NUMBERS_AS_MISSING, true));
 		}
+	    setOrigRHome(settings.getString(ORIG_RHOME, ""));
+	    if (settings.containsKey(NEW_RHOME)) {
+	      setNewRHome(settings.getString(NEW_RHOME, ""));
+	    }
 	}
 
 	public void loadSettings(final RSnippetSettings s) {
@@ -145,6 +166,8 @@ public class RSnippetSettings {
 		setTemplateUUID(s.getTemplateUUID());
 		setVersion(s.getVersion());
 		setOutNonNumbersAsMissing(s.getOutNonNumbersAsMissing());
+	    setOrigRHome(s.getOrigRHome());
+	    setNewRHome(s.getNewRHome());
 	}
 
 	/**
@@ -213,4 +236,19 @@ public class RSnippetSettings {
 		m_outNonNumbersAsMissing = outNonNumbersAsMissing;
 	}
 
+  String getOrigRHome() {
+    return this.m_origPath;
+  }
+
+  void setOrigRHome(String origRHome) {
+    this.m_origPath = origRHome;
+  }
+
+  String getNewRHome() {
+    return this.m_newPath;
+  }
+
+  void setNewRHome(String newRHome) {
+    this.m_newPath = newRHome;
+  }
 }

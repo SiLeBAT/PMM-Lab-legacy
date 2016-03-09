@@ -48,6 +48,9 @@
 			  The code to be applied to your expression editor.
 		  </option>
 	    </tab>
+		<tab name="R Home">
+			<option name="Path"> Provides another R distribution to run the R script.</option>
+		</tab>
 	</fullDescription>
 	
 	<ports>

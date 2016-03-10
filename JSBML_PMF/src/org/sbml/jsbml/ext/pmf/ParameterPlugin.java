@@ -18,6 +18,7 @@ import org.sbml.jsbml.util.StringTools;
  * Extends {@link org.sbml.jsbml.Parameter} with:
  * <ul>
  * <li>p
+ * <li>error
  * <li>list of {@link Correlation}
  * </ul>
  */
@@ -26,6 +27,7 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   private static final long   serialVersionUID = 1945330721734938898L;
   private ListOf<Correlation> listOfCorrelations;
   private Double              p;
+  private Double              error;
 
 
   /**
@@ -36,6 +38,9 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     // We do not clone the pointer to the containing model
     if (plugin.isSetP()) {
       setP(plugin.getP());
+    }
+    if (plugin.isSetError()) {
+      setError(plugin.getError());
     }
     if (plugin.isSetListOfCorrelations()) {
       setListOfCorrelations(plugin.listOfCorrelations.clone());
@@ -173,6 +178,9 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     case "p":
       setP(StringTools.parseSBMLDouble(value));
       break;
+    case "error":
+      setError(StringTools.parseSBMLDouble(value));
+      break;
     default: // fails to read the attribute
       return false;
     }
@@ -188,12 +196,13 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   public Map<String, String> writeXMLAttributes() {
     // TODO: so far we only have one attribute. Need to keep updating the size
     // as I keep adding attributes to ParameterPlugin
-    Map<String, String> attributes = new HashMap<>(1);
-    
+    Map<String, String> attributes = new HashMap<>(2);
     if (isSetP()) {
       attributes.put("p", StringTools.toString(Locale.ENGLISH, getP()));
     }
-    
+    if (isSetError()) {
+      attributes.put("error", StringTools.toString(Locale.ENGLISH, getError()));
+    }
     return attributes;
   }
 
@@ -249,6 +258,11 @@ public class ParameterPlugin extends AbstractSBasePlugin {
 
 
   // *** p methods ***
+  /**
+   * Returns the value of p.
+   * 
+   * @return the value of p.
+   */
   public double getP() {
     if (isSetP()) {
       return this.p.doubleValue();
@@ -258,11 +272,21 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   }
 
 
+  /**
+   * Returns whether p is set.
+   * 
+   * @return whether p is set.
+   */
   public boolean isSetP() {
     return this.p != null;
   }
 
 
+  /**
+   * Sets the value of p.
+   * 
+   * @param p
+   */
   public void setP(double p) {
     Double oldP = this.p;
     this.p = Double.valueOf(p);
@@ -270,6 +294,11 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   }
 
 
+  /**
+   * Unsets the variable p.
+   * 
+   * @return {@code true}, if p was set before, otherwise {@code false}.
+   */
   public boolean unsetP() {
     if (isSetP()) {
       Double oldP = this.p;
@@ -281,10 +310,62 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   }
 
 
+  // *** error methods ***
+  /**
+   * Returns the value of error.
+   * 
+   * @return the value of error.
+   */
+  public double getError() {
+    if (isSetError()) {
+      return this.error.doubleValue();
+    }
+    // This is necessary because we cannot return null here.
+    throw new PropertyUndefinedError("error", this);
+  }
+
+
+  /**
+   * Returns whether error is set.
+   * 
+   * @return whether error is set.
+   */
+  public boolean isSetError() {
+    return this.error != null;
+  }
+
+
+  /**
+   * Sets the value of error.
+   * 
+   * @param error
+   */
+  public void setError(double error) {
+    Double oldError = this.error;
+    this.error = Double.valueOf(error);
+    firePropertyChange("error", oldError, this.error);
+  }
+
+
+  /**
+   * Unsets the variable error.
+   * 
+   * @return {@code true}, if error was set before, otherwise {@code false}
+   */
+  public boolean unsetError() {
+    if (isSetError()) {
+      Double oldError = this.error;
+      this.error = null;
+      firePropertyChange("error", oldError, this.error);
+      return true;
+    }
+    return false;
+  }
+
+
   // *** listOfCorrelation methods ***
   /**
-   * Returns the listOfCorrelations. If the {@link ListOf} is not defined,
-   * creates an empty one.
+   * Returns the listOfCorrelations. Creates it if it is not already existing.
    * 
    * @return the listOfCorrelations.
    */
@@ -304,11 +385,23 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   }
 
 
+  /**
+   * Returns {@code true}, if listOfCorrelations contains at least one element.
+   * 
+   * @return {@code true}, if listOfCorrelations contains at least one element,
+   *         otherwise {@code false}
+   */
   public boolean isSetListOfCorrelations() {
     return this.listOfCorrelations != null;
   }
 
 
+  /**
+   * Sets the optional {@code ListOf<Correlation>}. If listOfCorrelations was
+   * defined before and contains some elements, they are all unset.
+   * 
+   * @param listOfCorrelations
+   */
   public void setListOfCorrelations(ListOf<Correlation> listOfCorrelations) {
     unsetListOfCorrelations();
     this.listOfCorrelations = listOfCorrelations;
@@ -325,12 +418,11 @@ public class ParameterPlugin extends AbstractSBasePlugin {
 
 
   /**
-   * Removes the {@linkn #listOfCorrelations} from this {@link ParameterPlugin}
-   * and notifies all the registered instance of
-   * {@link org.sbml.jsbml.util.TreeNodeChangeListener}.
+   * Returns {@code true}, if listOfCorrelations contain at least one element,
+   * otherwise {@code false}
    * 
-   * @return {code true) if calling this method lead to a change in this data
-   *         structure.
+   * @return {code true), if listOfCorrelations contain at least one element,
+   *         otherwise {@code false}
    */
   public boolean unsetListOfCorrelations() {
     if (this.listOfCorrelations != null) {

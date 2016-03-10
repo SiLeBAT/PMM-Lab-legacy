@@ -86,11 +86,6 @@ pmm_plotter = function() {
 	{
 		// parse models and create selection menu
 		addSelectOptions();
-		
-		// to be removed:
-		addSelectOption("325234", "Modell Alpha", msgExamples);
-		addSelectOption("948342", "Modell Beta 1", msgExamples);
-		addSelectOption("451263", "Modell Beta 2", msgExamples);
 	}
 	
 	/*
@@ -356,13 +351,15 @@ pmm_plotter = function() {
 			});
 			
 			/*
+			 * deprecated code. "LOG10N0" is meant to stay like that.
+			 *
 			 * In some formula, brackets after logarithm applications are left out
 			 * leading to errors in both parameter recognition and logarithm application.
 			 * We add the brackets here, so that  logarithms and parameters are parsed 
 			 * correctly. We therefore lock up all parameter names in the function and 
 			 * exchange them with their "bracketized" equivalent. This applies to _all_ 
 			 * parameters, regardless of logarithms.
-			 */
+			 *
 			$.each(parameterArray, function(index, param) {
 				var oldParam = param["name"];
 				var log10 = "log10";
@@ -377,13 +374,13 @@ pmm_plotter = function() {
 					
 					var newParam = log10 + "(" + paramPart + ")";
 					var regex = new RegExp(oldParam, "g");
-//					newString = newString.replace(regex, "(" + newParam + ")");
+					newString = newString.replace(regex, "(" + newParam + ")");
 				}
-			});
+			});*/
 			
 			if(_xUnit != msgUnknown && xUnit != _xUnit)
 			{
-				show("unequal xUnit: " + _xUnit + " vs. " + xUnit);
+//				show("unequal xUnit: " + _xUnit + " vs. " + xUnit);
 				newString = unifyX(newString, xUnit);
 			}
 			else
@@ -393,7 +390,7 @@ pmm_plotter = function() {
 			
 			if(_yUnit != msgUnknown && _yUnit != yUnit)
 			{
-				show("unequal yUnit: " + _yUnit + " vs. " + yUnit);
+//				show("unequal yUnit: " + _yUnit + " vs. " + yUnit);
 				newString = unifyY(newString, yUnit);
 			}
 			else
@@ -1062,7 +1059,7 @@ pmm_plotter = function() {
 			functionPlot({
 			    target: '#d3plotter',
 			    xDomain: [-1, _plotterValue.maxXAxis],
-			    yDomain: [-1, _plotterValue.maxXAxis*0.5],
+			    yDomain: [-1, _plotterValue.maxYAxis],
 			    xLabel: "Time" + msgIn + _xUnit,
 			    yLabel: _yUnit,
 			    height: _plotHeight,
@@ -1292,29 +1289,35 @@ pmm_plotter = function() {
 		 * intercept if one formula has a non-logarithmic y unit
 		 * WIP: nice to have
 		 *
-		if(!newLog && oldLog) // new unit is not logarithmic
-		{
-			if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
-				modifier = "log10"; // log to base 100
-			else
-				modifier = "log"; // which is "ln" in Math.js
-		}
-		
-		if(!newLog && oldLog) // new unit is not logarithmic
-		{
-			if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
-				modifier = "log10"; // log to base 100
-			else
-				modifier = "log"; // which is "ln" in Math.js
-		}
+			if(!newLog && oldLog) // new unit is not logarithmic
+			{
+				if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
+					modifier = "log10"; // log to base 100
+				else
+					modifier = "log"; // which is "ln" in Math.js
+			}
+			
+			if(!newLog && oldLog) // new unit is not logarithmic
+			{
+				if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
+					modifier = "log10"; // log to base 100
+				else
+					modifier = "log"; // which is "ln" in Math.js
+			}
 		*/
 		
 		if(yUnit.indexOf("ln") != -1)
-			newFunction = modifyY(oldFunction, modifier);
+			newFunction = modifyY(oldFunction, "/" + _logConst);
 		else if(yUnit.indexOf("log") != -1  || yUnit.indexOf("LOG") != -1)
-			newFunction = modifyY(oldFunction, modifier);
+			newFunction = modifyY(oldFunction, "*" + _logConst);
 		else
 			show(msg_error_unknownUnit + yUnit);
+		return newFunction;
+	}
+	
+	function modifyY(oldFunction, modifier)
+	{
+		var newFunction = "(" + oldFunction + ")" + modifier;
 		return newFunction;
 	}
 	

@@ -19,15 +19,17 @@ import org.sbml.jsbml.util.StringTools;
  * <ul>
  * <li>p
  * <li>error
+ * <li>t
  * <li>list of {@link Correlation}
  * </ul>
  */
 public class ParameterPlugin extends AbstractSBasePlugin {
 
   private static final long   serialVersionUID = 1945330721734938898L;
-  private ListOf<Correlation> listOfCorrelations;
   private Double              p;
   private Double              error;
+  private Double t;
+  private ListOf<Correlation> listOfCorrelations;
 
 
   /**
@@ -41,6 +43,9 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     }
     if (plugin.isSetError()) {
       setError(plugin.getError());
+    }
+    if (plugin.isSetT()) {
+      setT(plugin.getT());
     }
     if (plugin.isSetListOfCorrelations()) {
       setListOfCorrelations(plugin.listOfCorrelations.clone());
@@ -181,6 +186,9 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     case "error":
       setError(StringTools.parseSBMLDouble(value));
       break;
+    case "t":
+      setT(StringTools.parseSBMLDouble(value));
+      break;
     default: // fails to read the attribute
       return false;
     }
@@ -196,12 +204,15 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   public Map<String, String> writeXMLAttributes() {
     // TODO: so far we only have one attribute. Need to keep updating the size
     // as I keep adding attributes to ParameterPlugin
-    Map<String, String> attributes = new HashMap<>(2);
+    Map<String, String> attributes = new HashMap<>(3);
     if (isSetP()) {
       attributes.put("p", StringTools.toString(Locale.ENGLISH, getP()));
     }
     if (isSetError()) {
       attributes.put("error", StringTools.toString(Locale.ENGLISH, getError()));
+    }
+    if (isSetT()) {
+      attributes.put("t", StringTools.toString(Locale.ENGLISH, getT()));
     }
     return attributes;
   }
@@ -357,6 +368,58 @@ public class ParameterPlugin extends AbstractSBasePlugin {
       Double oldError = this.error;
       this.error = null;
       firePropertyChange("error", oldError, this.error);
+      return true;
+    }
+    return false;
+  }
+  
+  // *** t methods ***
+  /**
+   * Returns the value of t.
+   * 
+   * @return the value of t.
+   */
+  public double getT() {
+    if (isSetT()) {
+      return this.t.doubleValue();
+    }
+    // This is necessary because we cannot return null here.
+    throw new PropertyUndefinedError("t", this);
+  }
+
+
+  /**
+   * Returns whether t is set.
+   * 
+   * @return whether t is set.
+   */
+  public boolean isSetT() {
+    return this.t != null;
+  }
+
+
+  /**
+   * Sets the value of t.
+   * 
+   * @param t
+   */
+  public void setT(double t) {
+    Double oldT = this.t;
+    this.t = Double.valueOf(t);
+    firePropertyChange("t", oldT, this.t);
+  }
+
+
+  /**
+   * Unsets the variable t.
+   * 
+   * @return {@code true}, if t was set before, otherwise {@code false}.
+   */
+  public boolean unsetT() {
+    if (isSetT()) {
+      Double oldT = this.t;
+      this.t = null;
+      firePropertyChange("t", oldT, this.t);
       return true;
     }
     return false;

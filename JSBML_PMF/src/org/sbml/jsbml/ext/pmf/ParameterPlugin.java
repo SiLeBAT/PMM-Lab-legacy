@@ -4,21 +4,29 @@
 package org.sbml.jsbml.ext.pmf;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import org.sbml.jsbml.ListOf;
+import org.sbml.jsbml.PropertyUndefinedError;
 import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.ext.AbstractSBasePlugin;
+import org.sbml.jsbml.util.StringTools;
 
 /**
  * Extends {@link org.sbml.jsbml.Parameter} with:
  * <ul>
+ * <li>p
  * <li>list of {@link Correlation}
  * </ul>
  */
 public class ParameterPlugin extends AbstractSBasePlugin {
 
-  private static final long     serialVersionUID = 1945330721734938898L;
+  private static final long   serialVersionUID = 1945330721734938898L;
   private ListOf<Correlation> listOfCorrelations;
+  private Double              p;
+
 
   /**
    * Creates a new {@link ParameterPlugin} instance cloned from 'plugin'.
@@ -26,6 +34,9 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   public ParameterPlugin(ParameterPlugin plugin) {
     super(plugin);
     // We do not clone the pointer to the containing model
+    if (plugin.isSetP()) {
+      setP(plugin.getP());
+    }
     if (plugin.isSetListOfCorrelations()) {
       setListOfCorrelations(plugin.listOfCorrelations.clone());
     }
@@ -34,10 +45,12 @@ public class ParameterPlugin extends AbstractSBasePlugin {
 
   /**
    * Creates a new {@link ParameterPlugin} instance from a {@link Parameter}.
+   * TODO: replace {@link org.sbml.jsbml.ext.pmf.Parameter} with
+   * {@link org.sbml.jsbml.Parameter}.
    */
   public ParameterPlugin(Parameter parameter) {
     super(parameter);
-    initDefaults();
+    setPackageVersion(-1);
   }
 
 
@@ -105,11 +118,6 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   }
 
 
-  private void initDefaults() {
-    setPackageVersion(-1);
-  }
-
-
   @Override
   public boolean getAllowsChildren() {
     return true;
@@ -161,8 +169,32 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {
-    // No attribute defined on this plugin
-    return false;
+    switch (attributeName) {
+    case "p":
+      setP(StringTools.parseSBMLDouble(value));
+      break;
+    default: // fails to read the attribute
+      return false;
+    }
+    return true;
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.Parameter#writeXMLAttributes()
+   */
+  @Override
+  public Map<String, String> writeXMLAttributes() {
+    // TODO: so far we only have one attribute. Need to keep updating the size
+    // as I keep adding attributes to ParameterPlugin
+    Map<String, String> attributes = new HashMap<>(1);
+    
+    if (isSetP()) {
+      attributes.put("p", StringTools.toString(Locale.ENGLISH, getP()));
+    }
+    
+    return attributes;
   }
 
 
@@ -213,6 +245,39 @@ public class ParameterPlugin extends AbstractSBasePlugin {
    */
   public int getNumCorrelations() {
     return getCorrelationCount();
+  }
+
+
+  // *** p methods ***
+  public double getP() {
+    if (isSetP()) {
+      return this.p.doubleValue();
+    }
+    // This is necessary because we cannot return null here.
+    throw new PropertyUndefinedError("p", this);
+  }
+
+
+  public boolean isSetP() {
+    return this.p != null;
+  }
+
+
+  public void setP(double p) {
+    Double oldP = this.p;
+    this.p = Double.valueOf(p);
+    firePropertyChange("p", oldP, this.p);
+  }
+
+
+  public boolean unsetP() {
+    if (isSetP()) {
+      Double oldP = this.p;
+      this.p = null;
+      firePropertyChange("p", oldP, this.p);
+      return true;
+    }
+    return false;
   }
 
 

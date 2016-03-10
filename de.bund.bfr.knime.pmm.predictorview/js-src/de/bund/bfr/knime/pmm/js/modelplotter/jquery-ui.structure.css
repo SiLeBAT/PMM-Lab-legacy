@@ -672,6 +672,10 @@ button.ui-button::-moz-focus-inner {
 	cursor: default;
 	-ms-touch-action: none;
 	touch-action: none;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 .ui-slider .ui-slider-range {
 	position: absolute;

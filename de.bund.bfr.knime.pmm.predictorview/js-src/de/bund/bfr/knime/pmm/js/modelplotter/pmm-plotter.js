@@ -60,12 +60,13 @@ pmm_plotter = function() {
 	var _sliderStepSize = 0.0001; // aligns perfectly with the input field size
 	var _totalHeight = "height: 800px;";
 	var _plotWidth = 600;
-	var _plotHeight = 400;
+	var _plotHeight = 300;
 	var _logConst = 2.3025851;
 	var _xUnit = msgUnknown;
 	var _yUnit = msgUnknown;
 	var _defaultFadeTime = 500; // ms
 	var _defaultTimeout = 200; // ms // responsiveness (lower) vs. performance/fluence (higher)
+	var _internalId = 0;
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -155,7 +156,7 @@ pmm_plotter = function() {
 		 */
 		var layoutWrapper = document.createElement("div");
 		layoutWrapper.setAttribute("id", "layoutWrapper");
-		layoutWrapper.setAttribute("style", "width: 900px;");
+		layoutWrapper.setAttribute("style", "width: 1000px;");
 		body.appendChild(layoutWrapper);
 		
 		// left Pane
@@ -323,41 +324,6 @@ pmm_plotter = function() {
 
 			// call subsequent method
 			addFunctionObject(globalModelId, functionAsString, functionConstants, model);
-		}
-		// TODO: just for testing purposes
-		// if an example model is selected
-		else
-		{
-			_globalNumber++;
-			model =	{
-				"estModel": 
-					{
-						"name": "Test " + _globalNumber
-					},
-				"matrix": "",
-			};
-			var scope = prepareParameters([
-			    {
-			    	"name": "aw",
-			    	"value": 0.3,
-			    	"min": 0,
-			    	"max": 10
-			    },
-			    {
-			    	"name": "temp",
-			    	"value": 25,
-			    	"min": 1,
-			    	"max": 20
-			    },
-			    {
-			    	"name": "ph",
-			    	"value": 0.4,
-			    	"min": 0,
-			    	"max": 100
-			    }
-			]);
-			var formula = "(aw+(temp/5-aw)/(1+exp(4*ph*(0.97/ph-x)/(temp/5-aw)+2))) * " + (selection/500000) ;
-			addFunctionObject(selection, formula, scope, model);
 		}
 		
 		/*
@@ -605,6 +571,15 @@ pmm_plotter = function() {
 				formulaPrim = formulaPrim.replace(regex, "(" + formulaSec + ")");
 			});
 			
+			var points = [];
+			$.each(modelList, function(index, model) {
+				if(model.dataColumn != undefined)
+				{
+					points.push(model.dataColumn); // TODO: implement
+				}
+			});
+			tertiaryModel.dataPoints = points;		
+			
 			// post check
 			// if you want to rename parameters consistently for all upcoming actions,
 			// do it here
@@ -652,11 +627,13 @@ pmm_plotter = function() {
 		var color = getNextColor(); // functionPlot provides 9 colors
 		var maxRange = _plotterValue.maxXAxis * 1000; // obligatoric for the range feature // TODO: dynamic maximum
 		var range = [0, maxRange];
+		var id = ++_internalId;
 		
 		var modelObj = { 
+			 id: id,
+             globalModelId: globalModelId,
 			 fnType: 'linear',
 			 name: model.estModel.name,
-			 globalModelId: globalModelId,
 			 fn: functionAsString,
 			 scope: functionConstants,
 			 color: color,
@@ -664,6 +641,22 @@ pmm_plotter = function() {
 			 skipTip: false,
 			 modelData: model
 		};
+		
+		// for given data, we add an additional graph that only includes the data points
+		if(model.dataPoints)
+		{
+			var modelPointObj = {
+				id: id,
+				globalModelId: globalModelId,
+				points: model.dataPoints,
+			    color: color,
+			    skipTip: false,
+			    fnType: 'points',
+			    graphType: 'scatter'
+			};
+			_modelObjects.push(modelPointObj);
+		}
+		
 		// add model to the list of used models
 		_modelObjects.push(modelObj);
 		
@@ -675,6 +668,7 @@ pmm_plotter = function() {
 		
 		// redraw with all models
 		drawD3Plot();
+		
 	}
 	
 	/*
@@ -682,12 +676,11 @@ pmm_plotter = function() {
 	 * 
 	 * @param id globalModelId of the model
 	 */
-	function deleteFunctionObject(id)
+	function deleteFunctionObject(internalId)
 	{
-		deleteMetaDataSection(id);
-		removeModel(id);
+		deleteMetaDataSection(internalId);
+		removeModel(internalId);
 		updateParameterSliders();
-		drawD3Plot();
 		
 		/* 
 		 * if there are no models to show left, the user cannot continue to the next 
@@ -704,6 +697,9 @@ pmm_plotter = function() {
 			_yUnit = msgUnknown;
 		}
 		
+		drawD3Plot();
+		
+		
 		/*
 		 * nested function
 		 * removes the model from the used model array
@@ -712,15 +708,18 @@ pmm_plotter = function() {
 		 */
 		function removeModel(id)
 		{
-			$.each(_modelObjects, function (index, object) 
+			var reducedArray = [];
+			$.each(_modelObjects, function (index, model) 
 				{
-					if(object && object.globalModelId == id)
+					// if id and color equal, it is the model that is meant to be deleted
+					if(model && model.id != id)
 					{
-						_modelObjects.splice(index, 1);
-						return true;
+						// only non-deleted models remain
+						reducedArray.push(model)
 					}
 				}
 			);
+			_modelObjects = reducedArray;
 		}
 		
 		/*
@@ -767,7 +766,7 @@ pmm_plotter = function() {
 		 * ...
 		 */
 		var header = document.createElement("h3");
-		header.setAttribute("id", "h" + modelObject.globalModelId);
+		header.setAttribute("id", "h" + modelObject.id);
 		header.innerHTML = modelObject.globalModelId;
 		
 		// accordion-specific jQuery semantic for append()
@@ -784,7 +783,8 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    }).click(function(event) {
-	    	deleteFunctionObject(modelObject.globalModelId);
+	    	// we use color as an additional identifier in case the same model was added more than once
+	    	deleteFunctionObject(modelObject.id);
 	    });
 	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");
 		deleteDiv.appendChild(deleteButton);
@@ -812,7 +812,7 @@ pmm_plotter = function() {
 		
 		// meta content divs divs
 		var metaDiv = document.createElement("div");
-		metaDiv.setAttribute("id", modelObject.globalModelId);
+		metaDiv.setAttribute("id", modelObject.id);
 		$("#metaDataWrapper").append(metaDiv);
 
 		// name of the model
@@ -1057,12 +1057,12 @@ pmm_plotter = function() {
 		try{
 			functionPlot({
 			    target: '#d3plotter',
-			    xDomain: [_plotterValue.minXAxis, _plotterValue.maxXAxis],
-			    yDomain: [_plotterValue.minYAxis, _plotterValue.maxYAxis],
+			    xDomain: [-1, _plotterValue.maxXAxis],
+			    yDomain: [-1, _plotterValue.maxXAxis*0.5],
 			    xLabel: "Time" + msgIn + _xUnit,
 			    yLabel: _yUnit,
 			    height: _plotHeight,
-			    witdh: _plotWidth,
+			    width: _plotWidth,
 			    tip: 
 			    {
 			    	xLine: true,    // dashed line parallel to y = 0

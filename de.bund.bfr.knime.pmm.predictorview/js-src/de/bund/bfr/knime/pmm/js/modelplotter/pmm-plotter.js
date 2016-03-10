@@ -913,6 +913,23 @@ pmm_plotter = function() {
 						return true;
 					}
 					
+					// determine slider range
+					// standard values if no range given
+					var sliderMin = value - 13.37;
+					var sliderMax = value + 13.37;
+					
+					$.each(_parameterMap, function (index, range) {
+						if(range.name == constant)
+						{
+							if(range.min != undefined)
+								sliderMin = range.min;
+							if(range.max != undefined)
+								sliderMax = range.max;
+						}
+					});
+					
+					sliderMin = roundValue(sliderMin);
+					sliderMax = roundValue(sliderMax);
 					/*
 					 * the layout structure is as follows:
 					 * > sliderBox
@@ -926,7 +943,8 @@ pmm_plotter = function() {
 				    sliderWrapper.appendChild(sliderBox);
 				    
 					var sliderLabel = document.createElement("div");
-					sliderLabel.innerHTML = constant;
+					var labelText = constant + " (" + sliderMin + " to " + sliderMax + ")";
+					sliderLabel.innerHTML = labelText;
 					sliderLabel.setAttribute("style" , "font-weight: bold; font-size: 10px;");
 					sliderBox.appendChild(sliderLabel);
 					
@@ -942,20 +960,6 @@ pmm_plotter = function() {
 					sliderValueInput.setAttribute("type", "number");
 					sliderValueInput.setAttribute("style" , _sliderInputWidth + "font-weight: bold;");
 					sliderValueDiv.appendChild(sliderValueInput);
-					
-					// standard values if no range given
-					var sliderMin = value - 13.37;
-					var sliderMax = value + 13.37;
-					
-					$.each(_parameterMap, function (index, range) {
-						if(range.name == constant)
-						{
-							if(range.min != undefined)
-								sliderMin = range.min;
-							if(range.max != undefined)
-								sliderMax = range.max;
-						}
-					});
 					
 					sliderValueInput.setAttribute("min", sliderMin);
 					sliderValueInput.setAttribute("max", sliderMax);
@@ -1068,7 +1072,7 @@ pmm_plotter = function() {
 			    	xLine: true,    // dashed line parallel to y = 0
 				    yLine: true,    // dashed line parallel to x = 0
 				    renderer: function (x, y, index) {
-				    	return y;
+				    	return roundValue(y);
 					}
 				},
 			    data: _modelObjects
@@ -1330,6 +1334,18 @@ pmm_plotter = function() {
 	function show(obj)
 	{
 		alert(JSON.stringify(obj, null, 4));
+	}
+	
+	/*
+	 * rounds a decimal value to at most 2 places
+	 * 
+	 * @param any decimal value
+	 * @return rounded value
+	 */
+	function roundValue(value)
+	{
+		var roundedValue = Math.round((value + 0.00001) * 100) /  100;
+		return roundedValue;
 	}
 
 	/*

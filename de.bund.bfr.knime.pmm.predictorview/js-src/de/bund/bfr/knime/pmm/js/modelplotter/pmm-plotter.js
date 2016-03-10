@@ -1,6 +1,6 @@
 pmm_plotter = function() {
 	
-	/*
+	/**
 	 * @author Markus Freitag, EITCO GmbH, MFreitag@eitco.de, 2015
 	 * 
 	 * Please try to avoid native JavaScript for the creation of DOM elements. 
@@ -36,6 +36,7 @@ pmm_plotter = function() {
 	var msgNoScore = "no quality score provided";
 	
 	var msgNext = "Next";
+	var msg_To_ = " to ";
 	var msgNoType = "No Type";
 	var msgDone = "Done";
 	var msgReportName = "Report Name";
@@ -79,7 +80,7 @@ pmm_plotter = function() {
 		initJQuery();
 	};
 	
-	/*
+	/**
 	 * initializes data that is necessary from the very beginning (models to select)
 	 */
 	function initData() 
@@ -88,7 +89,7 @@ pmm_plotter = function() {
 		addSelectOptions();
 	}
 	
-	/*
+	/**
 	 * initializes all layout elements, e.g. calls jQuery methods to create jQuery 
 	 * objects from th DOM elements
 	 */
@@ -128,7 +129,7 @@ pmm_plotter = function() {
 		});
 	}
 	
-	/*
+	/**
 	 * initalizes and style all DOM elements, divs and placeholders
 	 */
 	function initLayout()
@@ -223,8 +224,10 @@ pmm_plotter = function() {
 		rightWrapper.appendChild(metaDataWrapper);
 	}
 	
-	/*
+	/**
 	 * chooses models to add to the selection menu and triggers adding
+	 * 
+	 * @param modelsArray list of models decoded by the node
 	 */
 	function addSelectOptions(modelsArray)
 	{	
@@ -249,13 +252,14 @@ pmm_plotter = function() {
 		}
 	}
 	
-	/*
+	/**
 	 * adds a new option to the selection menu
 	 * options of the same type are grouped (group name is type)
 	 * options with no type have the "no type" group
 	 * 
 	 * @param globalModelId id of the model
 	 * @param modelName name of the model
+	 * @param type type of the model
 	 */
 	function addSelectOption(globalModelId, modelName, type)
 	{
@@ -280,7 +284,7 @@ pmm_plotter = function() {
 		group.appendChild(option);
 	}
 
-	/*
+	/**
 	 * Add-Button event in three steps:
 	 * 1. determines the selected model from the selection menu
 	 * 2. gets the model data
@@ -321,7 +325,7 @@ pmm_plotter = function() {
 			addFunctionObject(globalModelId, functionAsString, functionConstants, model);
 		}
 		
-		/*
+		/**
 		 * nested function
 		 * parse function formula from model and modify it according to framework needs
 		 * 
@@ -401,7 +405,7 @@ pmm_plotter = function() {
 			return newString;
 		}
 		
-		/*
+		/**
 		 * nested function
 		 * extract parameter names and values
 		 * 
@@ -612,7 +616,7 @@ pmm_plotter = function() {
 		}
 	}
 	
-	/*
+	/**
 	 * adds a function to the functions array and redraws the plot
 	 * 
 	 * @param globalModelId
@@ -668,7 +672,7 @@ pmm_plotter = function() {
 		
 	}
 	
-	/*
+	/**
 	 * deletes a model for good - including graph and meta data
 	 * 
 	 * @param id globalModelId of the model
@@ -739,7 +743,7 @@ pmm_plotter = function() {
 		}
 	}
 	
-	/*
+	/**
 	 * adds a new entry for a new model object and shows it in the accordion below the plot
 	 * @param modelObject the recently added modelObject
 	 */
@@ -833,7 +837,7 @@ pmm_plotter = function() {
 		// open last index
 		$("#metaDataWrapper").accordion({ active: (numSections - 1) });
 		
-		/*
+		/**
 		 * adds a paragraph in the section for passed parameter data
 		 * 
 		 * @param title bold header title of the parameter (its name)
@@ -851,7 +855,7 @@ pmm_plotter = function() {
 			$(metaDiv).append(paragraph);
 		}
 		
-		/*
+		/**
 		 * adapt formula for readability
 		 * 
 		 * @param formula function formula
@@ -863,7 +867,7 @@ pmm_plotter = function() {
 			return newFormula;
 		}
 		
-		/*
+		/**
 		 * parses the parameter array in creates a DOM list from its items
 		 * 
 		 * @param paramArray an array of key value pairs that contains the parameters and 
@@ -884,7 +888,7 @@ pmm_plotter = function() {
 		}
 	}
 
-    /*
+    /**
      * adds, updates and removes sliders for all dynamic constants
      */
 	function updateParameterSliders()
@@ -940,7 +944,7 @@ pmm_plotter = function() {
 				    sliderWrapper.appendChild(sliderBox);
 				    
 					var sliderLabel = document.createElement("div");
-					var labelText = constant + " (" + sliderMin + " to " + sliderMax + ")";
+					var labelText = constant + " (" + sliderMin + msg_To_ + sliderMax + ")";
 					sliderLabel.innerHTML = labelText;
 					sliderLabel.setAttribute("style" , "font-weight: bold; font-size: 10px;");
 					sliderBox.appendChild(sliderLabel);
@@ -980,6 +984,8 @@ pmm_plotter = function() {
 					$(sliderValueInput).change(function() {
 						// changing the input field changes the slider
 						$(slider).slider("value", this.value);
+							if(this.value == undefined || this.value == "")
+								return;
 							// delay prevents excessive redrawing
 							window.setTimeout(updateFunctionParameter(constant, this.value), _defaultTimeout);
 					});
@@ -1010,8 +1016,9 @@ pmm_plotter = function() {
 	    });
 	}
 
-	/* 
+	/** 
 	 * update a constant value in all functions
+	 * 
 	 * @param constant parameter name
 	 * @param constant (new) parameter value
 	 */
@@ -1036,7 +1043,7 @@ pmm_plotter = function() {
 		drawD3Plot();
 	}
 
-	/*
+	/**
 	 * redraws the plot and all graphs based on the modelObjects array and its data
 	 */
 	function drawD3Plot() 
@@ -1080,7 +1087,7 @@ pmm_plotter = function() {
 		}
 	}
 	
-	/*
+	/**
 	 * Deletes the view and opens a "second page" for the input of the user data.
 	 * This function is meant to be called when the user has finished the plot.
 	 */
@@ -1137,70 +1144,8 @@ pmm_plotter = function() {
 		$(form).fadeIn(_defaultFadeTime);
 		$(finishButton).fadeIn(_defaultFadeTime);
 	}
-	
-	/*
-	 * convert parameter/formula units
-	 * 
-	 * @param lnValue natural logarithm value (ln)
-	 * 
-	 * @return log10 value
-	 */
-	function convertLnToLog(lnValue)
-	{
-		var logValue = lnValue / _logConst;
-		return logvalue;
-	}
-	
-	/*
-	 * convert parameter/formula units
-	 * 
-	 * @param logValue logarithm10 value (lgn10)
-	 * 
-	 * @return ln value
-	 */
-	function convertLogToLn(logValue)
-	{
-		var lnValue = logValue * _logConst;
-		return lnValue;
-	}
-	
-	/*
-	 * convert x of a formula according to a common scale unit
-	 * 
-	 * @param modifier includes operator + number that modify x
-	 * @return converted function for x in hours
-	 */
-	function modifyX(oldFunction, modifier)
-	{
-		newFunction = oldFunction.replace(/\bx\b/gi, "(x" + modifier + ")");
-		return newFunction;
-	}
-	
-	/*
-	 * convert parameter/formula units
-	 * 
-	 * @param lnFunction
-	 * @return converted function for log10
-	 */
-	function convertLnFuncToLogFunc(lnFunction)
-	{
-		logFunction = "(" + lnFunction + ")/" + _logConst;
-		return logFunction;
-	}
-	
-	/*
-	 * convert parameter/formula units
-	 * 
-	 * @param logFunction
-	 * @return converted function for ln
-	 */
-	function convertLogFuncToLnFunc(logFunction)
-	{
-		lnFunction = "(" + logFunction + ")*" + _logConst;
-		return lnFunction;
-	}
-	
-	/*
+		
+	/**
 	 * Rearranges formula to fit to a common xAxis. We assume here, 
 	 * that time is either counted in minutes ("min"), days ("d") or 
 	 * hours ("h").
@@ -1265,10 +1210,24 @@ pmm_plotter = function() {
 				modifier = "/24"
 		}
 		newFunction = modifyX(oldFunction, modifier);
+		
 		return newFunction;
 	}
 	
-	/*
+	/**
+	 * convert x of a formula according to a common scale unit
+	 * 
+	 * @param unmodified function
+	 * @param modifier includes operator + number that modify x
+	 * @return converted function for x in hours
+	 */
+	function modifyX(oldFunction, modifier)
+	{
+		newFunction = oldFunction.replace(/\bx\b/gi, "(x" + modifier + ")");
+		return newFunction;
+	}
+	
+	/**
 	 * Rearranges formula to fit to a common yAxis. We assume here, 
 	 * that the unit is either given in ln or log10
 	 * 
@@ -1315,13 +1274,20 @@ pmm_plotter = function() {
 		return newFunction;
 	}
 	
+	/**
+	 * Modifies a function to match the current value unit
+	 * 
+	 * @param oldFunction non-unified function
+	 * @param modifier operation to perform
+	 * @return unified function (String)
+	 */
 	function modifyY(oldFunction, modifier)
 	{
 		var newFunction = "(" + oldFunction + ")" + modifier;
 		return newFunction;
 	}
 	
-	/*
+	/**
 	 * color iterator based on the colors delivered by functionPlot (10 colors)
 	 * 
 	 * @return a color value
@@ -1339,7 +1305,7 @@ pmm_plotter = function() {
 		alert(JSON.stringify(obj, null, 4));
 	}
 	
-	/*
+	/**
 	 * rounds a decimal value to at most 2 places
 	 * 
 	 * @param any decimal value

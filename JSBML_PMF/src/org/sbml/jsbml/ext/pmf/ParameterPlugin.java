@@ -4,11 +4,12 @@
 package org.sbml.jsbml.ext.pmf;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.sbml.jsbml.ListOf;
+import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.PropertyUndefinedError;
 import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.ext.AbstractSBasePlugin;
@@ -20,6 +21,7 @@ import org.sbml.jsbml.util.StringTools;
  * <li>p
  * <li>error
  * <li>t
+ * <li>description
  * <li>list of {@link Correlation}
  * </ul>
  */
@@ -28,7 +30,10 @@ public class ParameterPlugin extends AbstractSBasePlugin {
   private static final long   serialVersionUID = 1945330721734938898L;
   private Double              p;
   private Double              error;
-  private Double t;
+  private Double              t;
+  private String              description;
+  private Double              min;
+  private Double              max;
   private ListOf<Correlation> listOfCorrelations;
 
 
@@ -47,6 +52,15 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     if (plugin.isSetT()) {
       setT(plugin.getT());
     }
+    if (plugin.isSetDescription()) {
+      setDescription(plugin.getDescription());
+    }
+    if (plugin.isSetMin()) {
+      setMin(plugin.getMin());
+    }
+    if (plugin.isSetMax()) {
+      setMax(plugin.getMax());
+    }
     if (plugin.isSetListOfCorrelations()) {
       setListOfCorrelations(plugin.listOfCorrelations.clone());
     }
@@ -55,8 +69,6 @@ public class ParameterPlugin extends AbstractSBasePlugin {
 
   /**
    * Creates a new {@link ParameterPlugin} instance from a {@link Parameter}.
-   * TODO: replace {@link org.sbml.jsbml.ext.pmf.Parameter} with
-   * {@link org.sbml.jsbml.Parameter}.
    */
   public ParameterPlugin(Parameter parameter) {
     super(parameter);
@@ -189,6 +201,15 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     case "t":
       setT(StringTools.parseSBMLDouble(value));
       break;
+    case "description":
+      setDescription(value);
+      break;
+    case "min":
+      setMin(StringTools.parseSBMLDouble(value));
+      break;
+    case "max":
+      setMax(StringTools.parseSBMLDouble(value));
+      break;
     default: // fails to read the attribute
       return false;
     }
@@ -202,9 +223,7 @@ public class ParameterPlugin extends AbstractSBasePlugin {
    */
   @Override
   public Map<String, String> writeXMLAttributes() {
-    // TODO: so far we only have one attribute. Need to keep updating the size
-    // as I keep adding attributes to ParameterPlugin
-    Map<String, String> attributes = new HashMap<>(3);
+    Map<String, String> attributes = new TreeMap<>();
     if (isSetP()) {
       attributes.put("p", StringTools.toString(Locale.ENGLISH, getP()));
     }
@@ -213,6 +232,15 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     }
     if (isSetT()) {
       attributes.put("t", StringTools.toString(Locale.ENGLISH, getT()));
+    }
+    if (isSetDescription()) {
+      attributes.put("description", getDescription());
+    }
+    if (isSetMin()) {
+      attributes.put("min", StringTools.toString(Locale.ENGLISH, getMin()));
+    }
+    if (isSetMax()) {
+      attributes.put("max", StringTools.toString(Locale.ENGLISH, getMax()));
     }
     return attributes;
   }
@@ -372,7 +400,8 @@ public class ParameterPlugin extends AbstractSBasePlugin {
     }
     return false;
   }
-  
+
+
   // *** t methods ***
   /**
    * Returns the value of t.
@@ -420,6 +449,160 @@ public class ParameterPlugin extends AbstractSBasePlugin {
       Double oldT = this.t;
       this.t = null;
       firePropertyChange("t", oldT, this.t);
+      return true;
+    }
+    return false;
+  }
+
+
+  // *** description methods ***
+  /**
+   * Returns the value of description.
+   * 
+   * @return the value of description.
+   */
+  public String getDescription() {
+    return this.description;
+  }
+
+
+  /**
+   * Returns whether description is set.
+   * 
+   * @return whether description is set.
+   */
+  public boolean isSetDescription() {
+    return this.description != null && !this.description.isEmpty();
+  }
+
+
+  /**
+   * Sets the value of description.
+   * 
+   * @param description
+   */
+  public void setDescription(String description) {
+    String oldDescription = this.description;
+    this.description = description;
+    firePropertyChange("description", oldDescription, this.description);
+  }
+
+
+  /**
+   * Unsets the variable description.
+   * 
+   * @return {@code true}, if description was set before, otherwise
+   *         {@code false}.
+   */
+  public void unsetDescription() {
+    if (isSetDescription()) {
+      String oldDescription = this.description;
+      this.description = null;
+      firePropertyChange("description", oldDescription, this.description);
+    }
+  }
+
+
+  // *** min methods ***
+  /**
+   * Returns the value of min.
+   * 
+   * @return the value of min.
+   */
+  public double getMin() {
+    if (isSetMin()) {
+      return this.min.doubleValue();
+    }
+    // This is necessary because we cannot return null here.
+    throw new PropertyUndefinedError("min", this);
+  }
+
+
+  /**
+   * Returns whether min is set.
+   * 
+   * @return whether min is set.
+   */
+  public boolean isSetMin() {
+    return this.min != null;
+  }
+
+
+  /**
+   * Sets the value of min.
+   * 
+   * @param min
+   */
+  public void setMin(double min) {
+    Double oldMin = this.min;
+    this.min = Double.valueOf(min);
+    firePropertyChange("min", oldMin, this.min);
+  }
+
+
+  /**
+   * Unsets the variable min.
+   * 
+   * @return {@code true}, if min was set before, otherwise {@code false}.
+   */
+  public boolean unsetMin() {
+    if (isSetMin()) {
+      Double oldMin = this.min;
+      this.min = null;
+      firePropertyChange("min", oldMin, this.min);
+      return true;
+    }
+    return false;
+  }
+
+
+  // *** max methods ***
+  /**
+   * Returns the value of max.
+   * 
+   * @return the value of max.
+   */
+  public double getMax() {
+    if (isSetMax()) {
+      return this.max.doubleValue();
+    }
+    // This is necessary because we cannot return null here.
+    throw new PropertyUndefinedError("max", this);
+  }
+
+
+  /**
+   * Returns whether max is set.
+   * 
+   * @return whether max is set.
+   */
+  public boolean isSetMax() {
+    return this.max != null;
+  }
+
+
+  /**
+   * Sets the value of max.
+   * 
+   * @param max
+   */
+  public void setMax(double max) {
+    Double oldMax = this.max;
+    this.max = Double.valueOf(max);
+    firePropertyChange("max", oldMax, this.max);
+  }
+
+
+  /**
+   * Unsets the variable max.
+   * 
+   * @return {@code true}, if max was set before, otherwise {@code false}.
+   */
+  public boolean unsetMax() {
+    if (isSetMax()) {
+      Double oldMax = this.max;
+      this.max = null;
+      firePropertyChange("min", oldMax, this.max);
       return true;
     }
     return false;

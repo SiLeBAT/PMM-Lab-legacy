@@ -54,8 +54,6 @@ public class Plotable {
 	public static final int FUNCTION_SAMPLE = 5;
 
 	private int type;
-	private String modelName;
-	private String dbuuid;
 	private Map<String, List<Double>> valueLists;
 	private String function;
 	private String functionValue;
@@ -83,7 +81,6 @@ public class Plotable {
 		covariances = new LinkedHashMap<>();
 		samples = new ArrayList<>();
 		degreesOfFreedom = null;
-		modelName = null;
 	}
 
 	public int getType() {
@@ -126,22 +123,6 @@ public class Plotable {
 		return maxValue;
 	}
 	
-	public void setModelName(String modelName) {
-		this.modelName = modelName;
-	}
-	
-	public String getModelName() {
-		return modelName;
-	}
-	
-	public void setDbuuid(String dbuuid) {
-		this.dbuuid = dbuuid;
-	}
-	
-	public String getDbuuid() {
-		return dbuuid;
-	}
-
 	public void setMaxValue(Double maxValue) {
 		this.maxValue = maxValue;
 	}

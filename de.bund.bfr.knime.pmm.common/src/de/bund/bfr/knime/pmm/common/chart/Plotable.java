@@ -122,7 +122,7 @@ public class Plotable {
 	public Double getMaxValue() {
 		return maxValue;
 	}
-
+	
 	public void setMaxValue(Double maxValue) {
 		this.maxValue = maxValue;
 	}

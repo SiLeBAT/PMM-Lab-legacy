@@ -35,6 +35,7 @@ public class PMFConstants {
   // Objects defined in this plugin
   public static final String modelVariable = "modelVariable";
   public static final String correlation = "correlation";
+  public static final String unitTransformation = "unitTransformation";
   
   public static final String listOfModelVariables = "listOfModelVariables";
   public static final String listOfConstraints = "listOfConstraints";

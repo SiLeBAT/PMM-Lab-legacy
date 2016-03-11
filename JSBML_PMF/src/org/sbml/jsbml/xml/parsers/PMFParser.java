@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.sbml.jsbml.ext.parsers;
+package org.sbml.jsbml.xml.parsers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +12,14 @@ import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBase;
+import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.ASTNodePlugin;
 import org.sbml.jsbml.ext.SBasePlugin;
 import org.sbml.jsbml.ext.pmf.ModelVariable;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
+import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
+import org.sbml.jsbml.ext.pmf.UnitTransformation;
 import org.sbml.jsbml.xml.parsers.AbstractReaderWriter;
 import org.sbml.jsbml.xml.parsers.PackageParser;
 import org.sbml.jsbml.xml.parsers.ReadingParser;
@@ -39,14 +42,11 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
    */
   @Override
   public List<Object> getListOfSBMLElementsToWrite(Object sbase) {
-    // TODO: getListOfSBMLElements
-
     if (logger.isDebugEnabled()) {
-      logger.debug("getListOfSBMLElementsToWrite: " + sbase.getClass().getCanonicalName());
+      logger.debug(
+        "getListOfSBMLElementsToWrite: " + sbase.getClass().getCanonicalName());
     }
-
     List<Object> listOfElementsToWrite = new ArrayList<>();
-
     // test if this treeNode is an extended SBase
     if (sbase instanceof Model) {
       SBasePlugin modelPlugin = ((Model) sbase).getExtension(getNamespaceURI());
@@ -56,7 +56,6 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     } else {
       listOfElementsToWrite = super.getListOfSBMLElementsToWrite(sbase);
     }
-
     return listOfElementsToWrite;
   }
 
@@ -71,84 +70,94 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
   public Object processStartElement(String elementName, String uri,
     String prefix, boolean hasAttributes, boolean hasNamespaces,
     Object contextObject) {
-
     // contextObject is the parent node of the found object
     if (logger.isDebugEnabled()) {
       logger.debug("processStartElement: " + elementName);
     }
-    
-    // Need to check for every class that may be a parent node of the classes in the extension: Model and ListOf
-    
+    // Need to check for every class that may be a parent node of the classes in
+    // the extension: Model and ListOf
     // Parent=Model -> Child=listOfModelVariables
     if (contextObject instanceof Model) {
       Model model = (Model) contextObject;
       if (elementName.equals(PMFConstants.listOfModelVariables)) {
         PMFModelPlugin plugin = new PMFModelPlugin(model);
+        model.addExtension(PMFConstants.shortLabel, plugin);
         return plugin.getListOfModelVariables();
       }
     }
-    
     // Parent=listOfModelVariables -> Child=ModelVariable
     else if (contextObject instanceof ListOf<?>) {
       @SuppressWarnings("unchecked")
       ListOf<SBase> listOf = (ListOf<SBase>) contextObject;
       if (elementName.equals(PMFConstants.modelVariable)) {
         Model model = (Model) listOf.getParentSBMLObject();
-        PMFModelPlugin plugin = (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
-        
+        PMFModelPlugin plugin =
+          (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
         ModelVariable mv = new ModelVariable();
         plugin.addModelVariable(mv);
-        
         return mv;
       }
     }
-
+    
+    // Parent=UnitDefinition -> Child=UnitTransformation
+    else if (contextObject instanceof UnitDefinition) {
+      UnitDefinition unitDefinition = (UnitDefinition) contextObject;
+      PMFUnitDefinitionPlugin plugin = new PMFUnitDefinitionPlugin(unitDefinition);
+      unitDefinition.addExtension(PMFConstants.shortLabel, plugin);
+      UnitTransformation unitTransformation = new UnitTransformation();
+      plugin.setUnitTransformation(unitTransformation);
+      return unitTransformation;
+    }
     return contextObject;
   }
-  
-  /* (non-Javadoc)
+
+
+  /*
+   * (non-Javadoc)
    * @see org.sbml.jsbml.xml.parsers.AbstractReaderWriter#getShortLabel()
    */
   @Override
   public String getShortLabel() {
     return PMFConstants.shortLabel;
   }
-  
-  /* (non-Javadoc)
+
+
+  /*
+   * (non-Javadoc)
    * @see org.sbml.jsbml.xml.parsers.AbstractReaderWriter#getNamespaceURI
    */
   @Override
   public String getNamespaceURI() {
-     return PMFConstants.namespaceURI;
+    return PMFConstants.namespaceURI;
   }
-  
+
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.sbml.jsbml.xml.parsers.PackageParser#getNamespaceFor(java.lang.
    * String, java.lang.String, java.lang.String)
    */
   @Override
   public String getNamespaceFor(int level, int version, int packageVersion) {
-
     if (level == 3 && version == 1 && packageVersion == 1) {
       return PMFConstants.namespaceURI_L3V1V1;
     }
-
     return null;
   }
-  
-  /* (non-Javadoc)
+
+
+  /*
+   * (non-Javadoc)
    * @see org.sbml.jsbml.xml.parsers.ReadingParser#getNamespaces()
    */
   @Override
   public List<String> getNamespaces() {
     return PMFConstants.namespaces;
   }
-  
+
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.sbml.jsbml.xml.parsers.PackageParser#getPackageNamespaces()
    */
   @Override
@@ -156,19 +165,19 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     return getNamespaces();
   }
 
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.sbml.jsbml.xml.parsers.AbstractReaderWriter#getNamespaceURI()
    */
   @Override
   public String getPackageName() {
     return PMFConstants.shortLabel;
   }
-  
+
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.sbml.jsbml.xml.parsers.PackageParser#isRequired()
    */
   @Override
@@ -176,21 +185,23 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     return true;
   }
 
+
   @Override
   public SBasePlugin createPluginFor(SBase sbase) {
     if (sbase != null) {
       if (sbase instanceof Model) {
         return new PMFModelPlugin((Model) sbase);
+      } else if (sbase instanceof UnitDefinition) {
+        return new PMFUnitDefinitionPlugin((UnitDefinition) sbase);
       }
     }
-
     return null;
   }
+
 
   @Override
   public ASTNodePlugin createPluginFor(ASTNode astNode) {
     // This package does not extends ASTNode
     return null;
   }
-  
 }

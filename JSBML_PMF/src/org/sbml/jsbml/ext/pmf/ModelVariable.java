@@ -6,7 +6,6 @@ package org.sbml.jsbml.ext.pmf;
 import java.util.Map;
 
 import org.sbml.jsbml.AbstractSBase;
-import org.sbml.jsbml.LevelVersionError;
 import org.sbml.jsbml.PropertyUndefinedError;
 import org.sbml.jsbml.util.StringTools;
 
@@ -26,6 +25,7 @@ public class ModelVariable extends AbstractSBase {
   public ModelVariable() {
     super();
     this.packageName = PMFConstants.shortLabel;
+    setPackageVersion(-1);
   }
 
 
@@ -34,6 +34,7 @@ public class ModelVariable extends AbstractSBase {
     super();
     this.name = name;
     this.packageName = PMFConstants.shortLabel;
+    setPackageVersion(-1);
   }
 
 
@@ -43,6 +44,7 @@ public class ModelVariable extends AbstractSBase {
     this.name = name;
     this.value = Double.valueOf(value);
     this.packageName = PMFConstants.shortLabel;
+    setPackageVersion(-1);
   }
 
 
@@ -50,12 +52,12 @@ public class ModelVariable extends AbstractSBase {
    * Creates a {@link ModelVariable} instance from a name, value, level and
    * version.
    */
-  public ModelVariable(String name, double value, int level, int version)
-    throws LevelVersionError {
+  public ModelVariable(String name, double value, int level, int version) {
     super(level, version);
     this.name = name;
     this.value = Double.valueOf(value);
     this.packageName = PMFConstants.shortLabel;
+    setPackageVersion(-1);
   }
 
 
@@ -175,7 +177,6 @@ public class ModelVariable extends AbstractSBase {
       setValue(StringTools.parseSBMLDouble(value));
       return true;
     }
-    
     return false;
   }
 

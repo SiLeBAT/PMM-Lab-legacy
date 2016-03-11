@@ -10,10 +10,9 @@ public class FSKUtil {
   private FSKUtil() {}
 
   public static DataTableSpec createFSKTableSpec() {
-    final String[] columnNames = {"origModel", "simpModel", "origParams", "simpParams",
-        "origVisualization", "simpVisualization", "RLibraries", "RSources"};
-    final DataType[] columnTypes = {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE,
-        StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
+    final String[] columnNames = {"model", "params", "visualization", "RLibraries", "RSources"};
+    final DataType[] columnTypes =
+        {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
     final DataColumnSpec[] columnSpecs = DataTableSpec.createColumnSpecs(columnNames, columnTypes);
 
     return new DataTableSpec(columnSpecs);

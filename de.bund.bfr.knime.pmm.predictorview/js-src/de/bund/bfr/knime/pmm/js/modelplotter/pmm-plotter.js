@@ -573,13 +573,21 @@ pmm_plotter = function() {
 			});
 			
 			var points = [];
-			$.each(modelList, function(index, model) {
-				if(model.dataColumn != undefined)
+			
+			$.each(modelList, function(i1, modelSec) {
+				var timeSeries = modelSec.timeSeriesList.timeSeries;
+				if(timeSeries.length > 0)
 				{
-					points.push(model.dataColumn); // TODO: implement
+					$.each(timeSeries, function(i2, dataPointItem) {
+						var point = [ 
+							dataPointItem.time, 
+							dataPointItem.concentration 
+						];
+						points.push(point);
+					});
 				}
 			});
-			tertiaryModel.dataPoints = points;		
+			tertiaryModel.dataPoints = points;	
 			
 			// post check
 			// if you want to rename parameters consistently for all upcoming actions,
@@ -644,7 +652,7 @@ pmm_plotter = function() {
 		};
 		
 		// for given data, we add an additional graph that only includes the data points
-		if(model.dataPoints)
+		if(model.dataPoints.length > 0)
 		{
 			var modelPointObj = {
 				id: id,
@@ -944,9 +952,9 @@ pmm_plotter = function() {
 				    sliderWrapper.appendChild(sliderBox);
 				    
 					var sliderLabel = document.createElement("div");
-					var labelText = constant + " (" + sliderMin + msg_To_ + sliderMax + ")";
+					var labelText = "<b>" + constant + "</b>" + " (" + sliderMin + msg_To_ + sliderMax + ")";
 					sliderLabel.innerHTML = labelText;
-					sliderLabel.setAttribute("style" , "font-weight: bold; font-size: 10px;");
+					sliderLabel.setAttribute("style" , "font-size: 10px;");
 					sliderBox.appendChild(sliderLabel);
 					
 					var slider = document.createElement("div");

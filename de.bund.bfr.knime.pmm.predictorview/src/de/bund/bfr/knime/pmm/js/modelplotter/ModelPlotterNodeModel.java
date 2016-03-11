@@ -69,18 +69,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	static final String REPORT_NAME = "reportName";
 	static final String COMMENT = "comments";
 	
-	/*
-	 * deprecated
-		private static final String PMM_MODEL_ARG_TIME = "Time";
-		private static final String PMM_MODEL_ARG_TEMP = "temp";
-		private static final String PMM_MODEL_ARG_AW = "aw";
-		private static final String PMM_MODEL_ARG_CO2 = "CO2";
-		private static final String PMM_MODEL_ARG_PS = "PhysiologicalState";
-		private static final String PMM_MODEL_ARG_PH = "pH";
-	 */
-	
 	private final ModelPlotterViewConfig m_config;
-	
 	private boolean m_executed = false;
 	
     /**
@@ -151,7 +140,6 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			ExecutionContext exec) throws Exception {
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
 		List<KnimeTuple> tuples = getTuples(table);
-//		List<KnimeTuple> tuples = PmmUtilities.getTuples(table, SchemaFactory.createM12DataSchema());
 
 		ModelPlotterViewValue viewValue = getViewValue();
 		if (viewValue == null) {
@@ -161,7 +149,6 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 
 		if (!m_executed) {
 			// Config of JavaScript view
-			// viewValue.setModels(m_config.getModels());
 			viewValue.setY0(m_config.getY0());
 			viewValue.setMinXAxis(m_config.getMinXAxis());
 			viewValue.setMinYAxis(m_config.getMinYAxis());

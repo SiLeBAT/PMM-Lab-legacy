@@ -528,8 +528,6 @@ public class TableReader {
 					((EstModelXml) estModelXml.get(0)).getAic());
 
 			plotable.setFunction(modelXml.getFormula());
-			plotable.setDbuuid(dbuuid);
-			plotable.setModelName(modelName);
 			plotable.setFunctionValue(depVar);
 			plotable.setFunctionArguments(variables);
 			plotable.setMinValue(depXml.getMin());

@@ -194,8 +194,7 @@ public class FSKXReaderNodeModel extends NodeModel {
       RScript modelScript = new RScript(files.getModelScript());
 
       // no IOException occur -> process content of model script and add libraries and sources
-      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
+      valuesMap.put(KEYS.MODEL_SCRIPT, modelScript.getScript());
       librariesSet.addAll(modelScript.getLibraries());
       sourcesSet.addAll(modelScript.getSources());
     } catch (IOException e) {
@@ -210,8 +209,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         // no IOException occur -> process content of parameters script and add libraries and
         // sources
-        valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_PARAM, script.getSimplifiedScript());
+        valuesMap.put(KEYS.PARAM_SCRIPT, script.getScript());
         librariesSet.addAll(script.getLibraries());
         sourcesSet.addAll(script.getSources());
       } catch (IOException e) {
@@ -227,8 +225,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         // no IOException occur -> process content of parameters script and add libraries and
         // sources
-        valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_VIZ, script.getSimplifiedScript());
+        valuesMap.put(KEYS.VIZ_SCRIPT, script.getScript());
         librariesSet.addAll(script.getLibraries());
         sourcesSet.addAll(script.getSources());
       } catch (IOException e) {

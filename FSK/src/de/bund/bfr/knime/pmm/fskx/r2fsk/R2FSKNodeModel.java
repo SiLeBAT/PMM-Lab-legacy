@@ -203,8 +203,7 @@ public class R2FSKNodeModel extends NodeModel {
       RScript script = readScript(this.modelScriptPath.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries and sources
-      valuesMap.put(KEYS.ORIG_MODEL, script.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_MODEL, script.getSimplifiedScript());
+      valuesMap.put(KEYS.MODEL_SCRIPT, script.getScript());
       librariesSet.addAll(script.getLibraries());
       sourcesSet.addAll(script.getSources());
       exec.setProgress(0.25);
@@ -217,8 +216,7 @@ public class R2FSKNodeModel extends NodeModel {
       RScript script = readScript(this.paramScriptPath.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries, and sources
-      valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_PARAM, script.getSimplifiedScript());
+      valuesMap.put(KEYS.PARAM_SCRIPT, script.getScript());
       librariesSet.addAll(script.getLibraries());
       sourcesSet.addAll(script.getSources());
       exec.setProgress(0.5);
@@ -238,8 +236,7 @@ public class R2FSKNodeModel extends NodeModel {
                                                                                   // errors
 
       // if no errors occur, add scripts, libraries, and sources
-      valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_VIZ, script.getSimplifiedScript());
+      valuesMap.put(KEYS.VIZ_SCRIPT, script.getScript());
       librariesSet.addAll(script.getLibraries());
       sourcesSet.addAll(script.getSources());
       exec.setProgress(0.75);

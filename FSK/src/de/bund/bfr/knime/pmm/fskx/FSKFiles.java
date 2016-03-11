@@ -74,9 +74,9 @@ public class FSKFiles {
       throws IOException {
 
     DataRow row = rTable.iterator().next();
-    StringCell modelCell = (StringCell) row.getCell(FSKXTuple.KEYS.ORIG_MODEL.ordinal());
-    StringCell paramCell = (StringCell) row.getCell(FSKXTuple.KEYS.ORIG_PARAM.ordinal());
-    StringCell vizCell = (StringCell) row.getCell(FSKXTuple.KEYS.ORIG_VIZ.ordinal());
+    StringCell modelCell = (StringCell) row.getCell(FSKXTuple.KEYS.MODEL_SCRIPT.ordinal());
+    StringCell paramCell = (StringCell) row.getCell(FSKXTuple.KEYS.PARAM_SCRIPT.ordinal());
+    StringCell vizCell = (StringCell) row.getCell(FSKXTuple.KEYS.VIZ_SCRIPT.ordinal());
 
     // write modelCell to File
     this.setModelScript(FileUtil.createTempFile("model", ".R"));

@@ -37,6 +37,13 @@ public class PMFConstants {
   public static final String correlation = "correlation";
   public static final String unitTransformation = "unitTransformation";
   
+  public static final String p = "parameterP";
+  public static final String t = "parameterT";
+  public static final String error = "parameterError";
+  public static final String description = "parameterDescription";
+  public static final String paramMin = "paramMin";
+  public static final String paramMax = "paramMax";
+  
   public static final String listOfModelVariables = "listOfModelVariables";
-  public static final String listOfConstraints = "listOfConstraints";
+  public static final String listOfCorrelations = "listOfCorrelations";
 }

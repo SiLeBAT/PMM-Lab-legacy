@@ -11,18 +11,24 @@ import org.mangosdk.spi.ProviderFor;
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
+import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.ASTNodePlugin;
 import org.sbml.jsbml.ext.SBasePlugin;
+import org.sbml.jsbml.ext.pmf.Correlation;
 import org.sbml.jsbml.ext.pmf.ModelVariable;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
+import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
+import org.sbml.jsbml.ext.pmf.ParamMax;
+import org.sbml.jsbml.ext.pmf.ParamMin;
+import org.sbml.jsbml.ext.pmf.ParameterDescription;
+import org.sbml.jsbml.ext.pmf.ParameterError;
+import org.sbml.jsbml.ext.pmf.ParameterP;
+import org.sbml.jsbml.ext.pmf.ParameterT;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
-import org.sbml.jsbml.xml.parsers.AbstractReaderWriter;
-import org.sbml.jsbml.xml.parsers.PackageParser;
-import org.sbml.jsbml.xml.parsers.ReadingParser;
 
 /**
  * @author Miguel Alba
@@ -96,18 +102,86 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         ModelVariable mv = new ModelVariable();
         plugin.addModelVariable(mv);
         return mv;
+      } else if (elementName.equals(PMFConstants.correlation)) {
+        Parameter parameter = (Parameter) listOf.getParentSBMLObject();
+        PMFParameterPlugin plugin =
+          (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
+        Correlation correlation = new Correlation();
+        plugin.addCorrelation(correlation);
+        return correlation;
       }
     }
-    
     // Parent=UnitDefinition -> Child=UnitTransformation
     else if (contextObject instanceof UnitDefinition) {
       UnitDefinition unitDefinition = (UnitDefinition) contextObject;
-      PMFUnitDefinitionPlugin plugin = new PMFUnitDefinitionPlugin(unitDefinition);
+      PMFUnitDefinitionPlugin plugin =
+        new PMFUnitDefinitionPlugin(unitDefinition);
       unitDefinition.addExtension(PMFConstants.shortLabel, plugin);
       UnitTransformation unitTransformation = new UnitTransformation();
       plugin.setUnitTransformation(unitTransformation);
       return unitTransformation;
     }
+    // Parent=Parameter -> Child=P|T|Error|Description
+    else if (contextObject instanceof Parameter) {
+      Parameter parameter = (Parameter) contextObject;
+      PMFParameterPlugin plugin;
+      if (parameter.getExtension(PMFConstants.shortLabel) == null) {
+        plugin = new PMFParameterPlugin(parameter);
+        parameter.addExtension(PMFConstants.shortLabel, plugin);
+      } else {
+        plugin =
+          (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
+      }
+      if (elementName.equals(PMFConstants.p)) {
+        ParameterP p = new ParameterP();
+        plugin.setP(p);
+        return p;
+      } else if (elementName.equals(PMFConstants.t)) {
+        ParameterT t = new ParameterT();
+        plugin.setT(t);
+        return t;
+      } else if (elementName.equals(PMFConstants.error)) {
+        ParameterError error = new ParameterError();
+        plugin.setError(error);
+        return error;
+      } else if (elementName.equals(PMFConstants.description)) {
+        ParameterDescription description = new ParameterDescription();
+        plugin.setDescription(description);
+        return description;
+      } else if (elementName.equals(PMFConstants.paramMin)) {
+        ParamMin min = new ParamMin();
+        plugin.setMin(min);
+        return min;
+      } else if (elementName.equals(PMFConstants.paramMax)) {
+        ParamMax max = new ParamMax();
+        plugin.setMax(max);
+        return max;
+      } else if (elementName.equals(PMFConstants.listOfCorrelations)) {
+        return plugin.getListOfCorrelations();
+      }
+    }
+    // // Parent listOfCorrelations -> Child=Correlation
+    // else if (contextObject instanceof Correlation) {
+    // @SuppressWarnings("unchecked")
+    // ListOf<SBase> listOf = (ListOf<SBase>) contextObject;
+    // if (elementName.equals(PMFConstants.correlation)) {
+    // Parameter parameter = (Parameter) listOf.getParentSBMLObject();
+    //
+    // // Gets plugin
+    // PMFParameterPlugin plugin;
+    // if (parameter.getExtension(PMFConstants.shortLabel) == null) {
+    // plugin = new PMFParameterPlugin(parameter);
+    // parameter.addExtension(PMFConstants.shortLabel, plugin);
+    // } else {
+    // plugin = (PMFParameterPlugin) parameter.getExtension(
+    // PMFConstants.shortLabel);
+    // }
+    //
+    // Correlation correlation = new Correlation();
+    // plugin.addCorrelation(correlation);
+    // return correlation;
+    // }
+    // }
     return contextObject;
   }
 
@@ -193,6 +267,8 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         return new PMFModelPlugin((Model) sbase);
       } else if (sbase instanceof UnitDefinition) {
         return new PMFUnitDefinitionPlugin((UnitDefinition) sbase);
+      } else if (sbase instanceof Parameter) {
+        return new PMFParameterPlugin((Parameter) sbase);
       }
     }
     return null;

@@ -19,7 +19,7 @@ public class PMFUnitDefinitionPlugin extends AbstractSBasePlugin {
 
 
   /**
-   * Creates a new {@link PMFUnitDefinitionPlugin} instance clones from
+   * Creates a new {@link PMFUnitDefinitionPlugin} instance cloned from
    * 'plugin'.
    */
   public PMFUnitDefinitionPlugin(PMFUnitDefinitionPlugin plugin) {

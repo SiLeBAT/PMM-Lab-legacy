@@ -10,12 +10,11 @@ import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBase;
-import org.sbml.jsbml.ext.AbstractSBasePlugin;
 
 /**
  * @author Miguel Alba
  */
-public class PMFModelPlugin extends AbstractSBasePlugin {
+public class PMFModelPlugin extends PMFSBasePlugin {
 
   private static final long       serialVersionUID = 5078386942266911188L;
   protected ListOf<ModelVariable> listOfModelVariables;
@@ -39,7 +38,6 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    */
   public PMFModelPlugin(Model model) {
     super(model);
-    initDefaults();
   }
 
 
@@ -50,65 +48,6 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
   @Override
   public PMFModelPlugin clone() {
     return new PMFModelPlugin(this);
-  }
-
-
-  // *** plugin methods ***
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#getPackageName()
-   */
-  @Override
-  public String getPackageName() {
-    return PMFConstants.shortLabel;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.AbstractTreeNode#getParent()
-   */
-  @Override
-  public SBMLDocument getParent() {
-    if (isSetExtendedSBase()) {
-      return (SBMLDocument) getExtendedSBase().getParent();
-    }
-    return null;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getParentSBMLObject()
-   */
-  @Override
-  public SBMLDocument getParentSBMLObject() {
-    return getParent();
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getPrefix()
-   */
-  @Override
-  public String getPrefix() {
-    return PMFConstants.shortLabel;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getURI()
-   */
-  @Override
-  public String getURI() {
-    return getElementNamespace();
-  }
-
-
-  private void initDefaults() {
-    setPackageVersion(-1);
   }
 
 
@@ -152,6 +91,29 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
     throw new IndexOutOfBoundsException(
       MessageFormat.format("Index {0, number, integer} >= {1, number, integer}",
         Integer.valueOf(childIndex), Integer.valueOf(Math.min(pos, 0))));
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.AbstractTreeNode#getParent()
+   */
+  @Override
+  public SBMLDocument getParent() {
+    if (isSetExtendedSBase()) {
+      return (SBMLDocument) getExtendedSBase().getParent();
+    }
+    return null;
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getParentSBMLObject()
+   */
+  @Override
+  public SBMLDocument getParentSBMLObject() {
+    return getParent();
   }
 
 

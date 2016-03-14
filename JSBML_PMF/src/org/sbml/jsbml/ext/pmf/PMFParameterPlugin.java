@@ -9,12 +9,11 @@ import java.util.Collection;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBase;
-import org.sbml.jsbml.ext.AbstractSBasePlugin;
 
 /**
  * @author Miguel Alba
  */
-public class PMFParameterPlugin extends AbstractSBasePlugin {
+public class PMFParameterPlugin extends PMFSBasePlugin {
 
   private static final long    serialVersionUID = 4478024757743081671L;
   private ParameterP           p;
@@ -58,7 +57,6 @@ public class PMFParameterPlugin extends AbstractSBasePlugin {
    */
   public PMFParameterPlugin(Parameter parameter) {
     super(parameter);
-    setPackageVersion(-1);
   }
 
 
@@ -71,16 +69,6 @@ public class PMFParameterPlugin extends AbstractSBasePlugin {
     return new PMFParameterPlugin(this);
   }
   // *** plugin methods ***
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.SBasePlugin#getPackageName()
-   */
-  @Override
-  public String getPackageName() {
-    return PMFConstants.shortLabel;
-  }
 
 
   /*
@@ -105,27 +93,6 @@ public class PMFParameterPlugin extends AbstractSBasePlugin {
     return getParent();
   }
 
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.AbstractSBasePlugin#getPrefix()
-   */
-  @Override
-  public String getPrefix() {
-    return PMFConstants.shortLabel;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.AbstractSBase#getURI()
-   */
-  @Override
-  public String getURI() {
-    return getElementNamespace();
-  }
-
-
   /*
    * (non-Javadoc)
    * @see javax.swing.tree.TreeNode#getAllowsChildren()
@@ -134,7 +101,6 @@ public class PMFParameterPlugin extends AbstractSBasePlugin {
   public boolean getAllowsChildren() {
     return true;
   }
-
 
   /*
    * (non-Javadoc)

@@ -7,12 +7,11 @@ import java.text.MessageFormat;
 
 import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.UnitDefinition;
-import org.sbml.jsbml.ext.AbstractSBasePlugin;
 
 /**
  * @author Miguel Alba
  */
-public class PMFUnitDefinitionPlugin extends AbstractSBasePlugin {
+public class PMFUnitDefinitionPlugin extends PMFSBasePlugin {
 
   private static final long  serialVersionUID = -6800100413364930861L;
   private UnitTransformation unitTransformation;
@@ -48,19 +47,8 @@ public class PMFUnitDefinitionPlugin extends AbstractSBasePlugin {
   public PMFUnitDefinitionPlugin clone() {
     return new PMFUnitDefinitionPlugin(this);
   }
+  
   // *** plugin methods
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.SBasePlugin#getPackageName()
-   */
-  @Override
-  public String getPackageName() {
-    return PMFConstants.shortLabel;
-  }
-
-
   /*
    * (non-Javadoc)
    * @see org.sbml.jsbml.AbstractTreeNode#getParent()
@@ -82,27 +70,6 @@ public class PMFUnitDefinitionPlugin extends AbstractSBasePlugin {
   public UnitDefinition getParentSBMLObject() {
     return getParent();
   }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.AbstractSBasePlugin#getPrefix()
-   */
-  @Override
-  public String getPrefix() {
-    return PMFConstants.shortLabel;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.AbstractSBasePlugin#getURI()
-   */
-  @Override
-  public String getURI() {
-    return getElementNamespace();
-  }
-
 
   /*
    * (non-Javadoc)

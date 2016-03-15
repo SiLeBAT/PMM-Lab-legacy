@@ -33,6 +33,7 @@ import org.sbml.jsbml.ext.pmf.ParameterError;
 import org.sbml.jsbml.ext.pmf.ParameterP;
 import org.sbml.jsbml.ext.pmf.ParameterT;
 import org.sbml.jsbml.ext.pmf.PmmLabId;
+import org.sbml.jsbml.ext.pmf.RuleClass;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
 
 /**
@@ -230,6 +231,10 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
       PmmLabId pli = new PmmLabId();
       plugin.setPmmLabId(pli);
       return pli;
+    } else if (elementName.equals(PMFConstants.ruleClass)) {
+      RuleClass ruleClass = new RuleClass();
+      plugin.setRuleClass(ruleClass);
+      return ruleClass;
     }
     return contextObject;
   }

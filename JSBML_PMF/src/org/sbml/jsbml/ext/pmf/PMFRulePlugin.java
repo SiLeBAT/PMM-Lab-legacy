@@ -18,6 +18,7 @@ public class PMFRulePlugin extends PMFSBasePlugin {
   private static final long    serialVersionUID = 3663783888654852712L;
   private FormulaName          formulaName;
   private PmmLabId             pli;
+  private RuleClass ruleClass;
   private ListOf<PMFReference> listOfReferences;
 
 
@@ -30,10 +31,12 @@ public class PMFRulePlugin extends PMFSBasePlugin {
     if (plugin.isSetPmmLabId()) {
       setPmmLabId(plugin.getPmmLabId().clone());
     }
+    if (plugin.isSetRuleClass()) {
+      setRuleClass(plugin.getRuleClass().clone());
+    }
     if (plugin.isSetListOfReferences()) {
       setListOfReferences(plugin.getListOfReferences().clone());
     }
-    // ...
   }
 
 
@@ -100,6 +103,9 @@ public class PMFRulePlugin extends PMFSBasePlugin {
     if (isSetPmmLabId()) {
       childCount++;
     }
+    if (isSetRuleClass()) {
+      childCount++;
+    }
     if (isSetListOfReferences()) {
       childCount++;
     }
@@ -128,6 +134,12 @@ public class PMFRulePlugin extends PMFSBasePlugin {
     if (isSetPmmLabId()) {
       if (pos == childIndex) {
         return getPmmLabId();
+      }
+      pos++;
+    }
+    if (isSetRuleClass()) {
+      if (pos == childIndex) {
+        return getRuleClass();
       }
       pos++;
     }
@@ -269,6 +281,55 @@ public class PMFRulePlugin extends PMFSBasePlugin {
       PmmLabId oldPli = this.pli;
       this.pli = null;
       oldPli.fireNodeRemovedEvent();
+      return true;
+    }
+    return false;
+  }
+
+  // *** ruleClass methods ***
+
+  /**
+   * Returns the {@link RuleClass} of this {@link PMFRulePlugin}.
+   *
+   * @return the {@link RuleClass} of this {@link PMFRulePlugin}.
+   */
+  public RuleClass getRuleClass() {
+    return this.ruleClass;
+  }
+
+  /**
+   * Returns whether ruleClass is set.
+   *
+   * @return whehter ruleClass is set.
+   */
+  public boolean isSetRuleClass() {
+    return this.ruleClass != null;
+  }
+
+  /**
+   * Sets the {@link RuleClass} of this {@link PMFRulePlugin}.
+   *
+   * @param ruleClass
+   */
+  public void setRuleClass(RuleClass ruleClass) {
+    unsetRuleClass();
+    this.ruleClass = ruleClass;
+    if (this.extendedSBase != null) {
+      this.ruleClass.setPackageVersion(-1);
+      this.extendedSBase.registerChild(this.ruleClass);
+    }
+  }
+
+  /**
+   * Unsets the {@link RuleClass} of this {@link PMFRulePlugin} and returns a pointer to it.
+   *
+   * @return {@code true}, if the {@link RuleClass} was set before, otherwise {@code false}.
+   */
+  public boolean unsetRuleClass() {
+    if (this.ruleClass != null) {
+      RuleClass oldRuleClass = this.ruleClass;
+      this.ruleClass = null;
+      oldRuleClass.fireNodeRemovedEvent();
       return true;
     }
     return false;

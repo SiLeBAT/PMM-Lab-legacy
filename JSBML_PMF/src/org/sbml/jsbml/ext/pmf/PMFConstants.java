@@ -47,6 +47,7 @@ public class PMFConstants {
   public static final String formulaName = "formulaName";
   public static final String pmfReference = "pMFReference";
   public static final String pmmlabId = "pmmLabId";
+  public static final String ruleClass = "ruleClass";
   
   public static final String listOfModelVariables = "listOfModelVariables";
   public static final String listOfCorrelations = "listOfCorrelations";

@@ -12,15 +12,19 @@ import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
+import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.ASTNodePlugin;
 import org.sbml.jsbml.ext.SBasePlugin;
 import org.sbml.jsbml.ext.pmf.Correlation;
+import org.sbml.jsbml.ext.pmf.FormulaName;
 import org.sbml.jsbml.ext.pmf.ModelVariable;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
+import org.sbml.jsbml.ext.pmf.PMFReference;
+import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
 import org.sbml.jsbml.ext.pmf.ParamMax;
 import org.sbml.jsbml.ext.pmf.ParamMin;
@@ -109,6 +113,13 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         Correlation correlation = new Correlation();
         plugin.addCorrelation(correlation);
         return correlation;
+      } else if (elementName.equals(PMFConstants.pmfReference)) {
+        Rule rule = (Rule) listOf.getParentSBMLObject();
+        PMFRulePlugin plugin =
+          (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
+        PMFReference ref = new PMFReference();
+        plugin.addReference(ref);
+        return ref;
       }
     }
     // Parent=UnitDefinition -> Child=UnitTransformation
@@ -160,28 +171,25 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         return plugin.getListOfCorrelations();
       }
     }
-    // // Parent listOfCorrelations -> Child=Correlation
-    // else if (contextObject instanceof Correlation) {
-    // @SuppressWarnings("unchecked")
-    // ListOf<SBase> listOf = (ListOf<SBase>) contextObject;
-    // if (elementName.equals(PMFConstants.correlation)) {
-    // Parameter parameter = (Parameter) listOf.getParentSBMLObject();
-    //
-    // // Gets plugin
-    // PMFParameterPlugin plugin;
-    // if (parameter.getExtension(PMFConstants.shortLabel) == null) {
-    // plugin = new PMFParameterPlugin(parameter);
-    // parameter.addExtension(PMFConstants.shortLabel, plugin);
-    // } else {
-    // plugin = (PMFParameterPlugin) parameter.getExtension(
-    // PMFConstants.shortLabel);
-    // }
-    //
-    // Correlation correlation = new Correlation();
-    // plugin.addCorrelation(correlation);
-    // return correlation;
-    // }
-    // }
+    // Parent=Rule -> Child=FormulaName|listOfReferences
+    else if (contextObject instanceof Rule) {
+      Rule rule = (Rule) contextObject;
+      PMFRulePlugin plugin;
+      if (rule.getExtension(PMFConstants.shortLabel) == null) {
+        plugin = new PMFRulePlugin(rule);
+        rule.addExtension(PMFConstants.shortLabel, plugin);
+      } else {
+        plugin = (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
+      }
+      
+      if (elementName.equals(PMFConstants.formulaName)) {
+        FormulaName formulaName = new FormulaName();
+        plugin.setFormulaName(formulaName);
+        return formulaName;
+      } else if (elementName.equals(PMFConstants.listOfReferences)) {
+        return plugin.getListOfReferences();
+      }
+    }
     return contextObject;
   }
 
@@ -269,6 +277,8 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         return new PMFUnitDefinitionPlugin((UnitDefinition) sbase);
       } else if (sbase instanceof Parameter) {
         return new PMFParameterPlugin((Parameter) sbase);
+      } else if (sbase instanceof Rule) {
+        return new PMFRulePlugin((Rule) sbase);
       }
     }
     return null;

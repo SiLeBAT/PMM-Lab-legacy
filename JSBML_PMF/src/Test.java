@@ -2,15 +2,20 @@ import java.io.IOException;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
+import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
+import org.sbml.jsbml.ext.pmf.PMFReference;
+import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
+import org.sbml.jsbml.text.parser.ParseException;
 
 public class Test {
   
@@ -38,6 +43,18 @@ public class Test {
     ud.setName("ln(count/g)");
     PMFUnitDefinitionPlugin unitDefinitionPlugin = (PMFUnitDefinitionPlugin) ud.createPlugin(PMFConstants.shortLabel);
     unitDefinitionPlugin.createUnitTransformation("ln");
+    
+    Rule rule = model.createAlgebraicRule();
+    try {
+    rule.setMath(ASTNode.parseFormula("2+2"));
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    PMFRulePlugin rulePlugin = (PMFRulePlugin) rule.createPlugin(PMFConstants.shortLabel);
+    rulePlugin.createFormulaName("2 plus 2");
+    PMFReference ref = new PMFReference();
+    ref.setTitle("Baranyi latest model");
+    rulePlugin.addReference(ref);
     
     try {
       System.out.println(JSBML.writeSBMLToString(doc));

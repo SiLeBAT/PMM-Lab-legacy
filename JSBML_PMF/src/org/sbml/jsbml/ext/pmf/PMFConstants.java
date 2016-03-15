@@ -44,6 +44,10 @@ public class PMFConstants {
   public static final String paramMin = "paramMin";
   public static final String paramMax = "paramMax";
   
+  public static final String formulaName = "formulaName";
+  public static final String pmfReference = "pMFReference";
+  
   public static final String listOfModelVariables = "listOfModelVariables";
   public static final String listOfCorrelations = "listOfCorrelations";
+  public static final String listOfReferences = "listOfPMFReferences";
 }

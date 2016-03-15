@@ -17,6 +17,7 @@ public class PMFRulePlugin extends PMFSBasePlugin {
 
   private static final long    serialVersionUID = 3663783888654852712L;
   private FormulaName          formulaName;
+  private PmmLabId             pli;
   private ListOf<PMFReference> listOfReferences;
 
 
@@ -25,6 +26,9 @@ public class PMFRulePlugin extends PMFSBasePlugin {
     super(plugin);
     if (plugin.isSetFormulaName()) {
       setFormulaName(plugin.getFormulaName().clone());
+    }
+    if (plugin.isSetPmmLabId()) {
+      setPmmLabId(plugin.getPmmLabId().clone());
     }
     if (plugin.isSetListOfReferences()) {
       setListOfReferences(plugin.getListOfReferences().clone());
@@ -93,6 +97,9 @@ public class PMFRulePlugin extends PMFSBasePlugin {
     if (isSetFormulaName()) {
       childCount++;
     }
+    if (isSetPmmLabId()) {
+      childCount++;
+    }
     if (isSetListOfReferences()) {
       childCount++;
     }
@@ -115,6 +122,12 @@ public class PMFRulePlugin extends PMFSBasePlugin {
     if (isSetFormulaName()) {
       if (pos == childIndex) {
         return getFormulaName();
+      }
+      pos++;
+    }
+    if (isSetPmmLabId()) {
+      if (pos == childIndex) {
+        return getPmmLabId();
       }
       pos++;
     }
@@ -205,6 +218,60 @@ public class PMFRulePlugin extends PMFSBasePlugin {
   public FormulaName createFormulaName(String formulaName) {
     setFormulaName(new FormulaName(formulaName, getLevel(), getVersion()));
     return getFormulaName();
+  }
+
+
+  // *** PmmLabId methods ***
+  /**
+   * Returns the {@link PmmLabId} of this {@link PMFRulePlugin}.
+   * 
+   * @return the {@link PmmLabId} of this {@link PMFRulePlugin}.
+   */
+  public PmmLabId getPmmLabId() {
+    return this.pli;
+  }
+
+
+  /**
+   * Returns whether pli is set.
+   * 
+   * @return whether pli is set.
+   */
+  public boolean isSetPmmLabId() {
+    return this.pli != null;
+  }
+
+
+  /**
+   * Sets the {@link PmmLabId} of this {@link PMFRulePlugin}.
+   * 
+   * @param id
+   */
+  public void setPmmLabId(PmmLabId pli) {
+    unsetPmmLabId();
+    this.pli = pli;
+    if (this.extendedSBase != null) {
+      this.pli.setPackageVersion(-1);
+      this.extendedSBase.registerChild(this.pli);
+    }
+  }
+
+
+  /**
+   * Unsets the {@link PmmLabId} of this {@link PMFRulePlugin} and returns a
+   * pointer to it.
+   * 
+   * @return {@code true}, if the {@link PmmLabId} was set before, otherwise
+   *         {@code false}.
+   */
+  public boolean unsetPmmLabId() {
+    if (this.pli != null) {
+      PmmLabId oldPli = this.pli;
+      this.pli = null;
+      oldPli.fireNodeRemovedEvent();
+      return true;
+    }
+    return false;
   }
 
 

@@ -32,6 +32,7 @@ import org.sbml.jsbml.ext.pmf.ParameterDescription;
 import org.sbml.jsbml.ext.pmf.ParameterError;
 import org.sbml.jsbml.ext.pmf.ParameterP;
 import org.sbml.jsbml.ext.pmf.ParameterT;
+import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
 
 /**
@@ -171,7 +172,7 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         return plugin.getListOfCorrelations();
       }
     }
-    // Parent=Rule -> Child=FormulaName|listOfReferences
+    // Parent=Rule -> Child=FormulaName|listOfReferences|PmmLabId
     else if (contextObject instanceof Rule) {
       Rule rule = (Rule) contextObject;
       PMFRulePlugin plugin;
@@ -188,6 +189,10 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         return formulaName;
       } else if (elementName.equals(PMFConstants.listOfReferences)) {
         return plugin.getListOfReferences();
+      } else if (elementName.equals(PMFConstants.pmmlabId)) {
+        PmmLabId pli = new PmmLabId();
+        plugin.setPmmLabId(pli);
+        return pli;
       }
     }
     return contextObject;

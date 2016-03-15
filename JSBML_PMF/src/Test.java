@@ -15,6 +15,7 @@ import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
 import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
+import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.text.parser.ParseException;
 
 public class Test {
@@ -55,6 +56,7 @@ public class Test {
     PMFReference ref = new PMFReference();
     ref.setTitle("Baranyi latest model");
     rulePlugin.addReference(ref);
+    rulePlugin.setPmmLabId(new PmmLabId(1));
     
     try {
       System.out.println(JSBML.writeSBMLToString(doc));

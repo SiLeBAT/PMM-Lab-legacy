@@ -93,6 +93,7 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
     return getParent();
   }
 
+
   /*
    * (non-Javadoc)
    * @see javax.swing.tree.TreeNode#getAllowsChildren()
@@ -101,6 +102,7 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
   public boolean getAllowsChildren() {
     return true;
   }
+
 
   /*
    * (non-Javadoc)
@@ -261,8 +263,7 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
 
   /**
    * Creates a new {@link ParameterP} inside this {@link PMFParameterPlugin},
-   * and
-   * returns a pointer to it.
+   * and returns a pointer to it.
    *
    * @return the new {@link ParameterP} instance.
    */
@@ -602,7 +603,6 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
 
 
   // *** listOfCorrelations ***
-
   /**
    * Adds a new element to the listOfCorrelations. listOfCorrelations is
    * initialized if necessary.
@@ -613,16 +613,20 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
     return getListOfCorrelations().add(correlation);
   }
 
+
   /**
    * Creates a new instance of {@link Correlation} and add it to this
    * {@link Correlation}.
    *
-   * @param name the name to be set to the new {@link Correlation}.
-   * @param value the value to be set to the new {@link Correlation}.
+   * @param name
+   *        the name to be set to the new {@link Correlation}.
+   * @param value
+   *        the value to be set to the new {@link Correlation}.
    * @return the new {@link Correlation} instance.
    */
   public Correlation createCorrelation(String name, double value) {
-    Correlation correlation = new Correlation(name, value, getLevel(), getVersion());
+    Correlation correlation =
+      new Correlation(name, value, getLevel(), getVersion());
     addCorrelation(correlation);
     return correlation;
   }

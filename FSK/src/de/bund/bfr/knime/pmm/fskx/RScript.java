@@ -37,10 +37,6 @@ public class RScript {
 
     StringBuilder sb = new StringBuilder();
     for (final String line : lines) {
-
-      if (line.startsWith("#"))
-        continue;
-      
       sb.append(line + '\n');
 
       final Matcher libMatcher = libPattern.matcher(line);

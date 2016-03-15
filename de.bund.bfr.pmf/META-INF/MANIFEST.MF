@@ -5,7 +5,7 @@ Bundle-SymbolicName: de.bund.bfr.pmf
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
- lib/CombineArchive-0.9.4.4.jar,
+ lib/CombineArchive-1.1.jar,
  lib/jsbml-1.2-SNAPSHOT-with-dependencies.jar
 Export-Package: com.ctc.wstx.api,
  com.ctc.wstx.cfg,

@@ -89,111 +89,147 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     // the extension: Model and ListOf
     // Parent=Model -> Child=listOfModelVariables
     if (contextObject instanceof Model) {
-      Model model = (Model) contextObject;
-      if (elementName.equals(PMFConstants.listOfModelVariables)) {
-        PMFModelPlugin plugin = new PMFModelPlugin(model);
-        model.addExtension(PMFConstants.shortLabel, plugin);
-        return plugin.getListOfModelVariables();
-      }
+      return processStartElementInModel(contextObject, elementName);
     }
     // Parent=listOfModelVariables -> Child=ModelVariable
     else if (contextObject instanceof ListOf<?>) {
-      @SuppressWarnings("unchecked")
-      ListOf<SBase> listOf = (ListOf<SBase>) contextObject;
-      if (elementName.equals(PMFConstants.modelVariable)) {
-        Model model = (Model) listOf.getParentSBMLObject();
-        PMFModelPlugin plugin =
-          (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
-        ModelVariable mv = new ModelVariable();
-        plugin.addModelVariable(mv);
-        return mv;
-      } else if (elementName.equals(PMFConstants.correlation)) {
-        Parameter parameter = (Parameter) listOf.getParentSBMLObject();
-        PMFParameterPlugin plugin =
-          (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
-        Correlation correlation = new Correlation();
-        plugin.addCorrelation(correlation);
-        return correlation;
-      } else if (elementName.equals(PMFConstants.pmfReference)) {
-        Rule rule = (Rule) listOf.getParentSBMLObject();
-        PMFRulePlugin plugin =
-          (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
-        PMFReference ref = new PMFReference();
-        plugin.addReference(ref);
-        return ref;
-      }
+      return processStartElementInListOf(contextObject, elementName);
     }
     // Parent=UnitDefinition -> Child=UnitTransformation
     else if (contextObject instanceof UnitDefinition) {
-      UnitDefinition unitDefinition = (UnitDefinition) contextObject;
-      PMFUnitDefinitionPlugin plugin =
-        new PMFUnitDefinitionPlugin(unitDefinition);
-      unitDefinition.addExtension(PMFConstants.shortLabel, plugin);
-      UnitTransformation unitTransformation = new UnitTransformation();
-      plugin.setUnitTransformation(unitTransformation);
-      return unitTransformation;
+      return processStartElementInUnitDefinition(contextObject);
     }
     // Parent=Parameter -> Child=P|T|Error|Description
     else if (contextObject instanceof Parameter) {
-      Parameter parameter = (Parameter) contextObject;
-      PMFParameterPlugin plugin;
-      if (parameter.getExtension(PMFConstants.shortLabel) == null) {
-        plugin = new PMFParameterPlugin(parameter);
-        parameter.addExtension(PMFConstants.shortLabel, plugin);
-      } else {
-        plugin =
-          (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
-      }
-      if (elementName.equals(PMFConstants.p)) {
-        ParameterP p = new ParameterP();
-        plugin.setP(p);
-        return p;
-      } else if (elementName.equals(PMFConstants.t)) {
-        ParameterT t = new ParameterT();
-        plugin.setT(t);
-        return t;
-      } else if (elementName.equals(PMFConstants.error)) {
-        ParameterError error = new ParameterError();
-        plugin.setError(error);
-        return error;
-      } else if (elementName.equals(PMFConstants.description)) {
-        ParameterDescription description = new ParameterDescription();
-        plugin.setDescription(description);
-        return description;
-      } else if (elementName.equals(PMFConstants.paramMin)) {
-        ParamMin min = new ParamMin();
-        plugin.setMin(min);
-        return min;
-      } else if (elementName.equals(PMFConstants.paramMax)) {
-        ParamMax max = new ParamMax();
-        plugin.setMax(max);
-        return max;
-      } else if (elementName.equals(PMFConstants.listOfCorrelations)) {
-        return plugin.getListOfCorrelations();
-      }
+      return processStartElementInParameter(contextObject, elementName);
     }
     // Parent=Rule -> Child=FormulaName|listOfReferences|PmmLabId
     else if (contextObject instanceof Rule) {
-      Rule rule = (Rule) contextObject;
-      PMFRulePlugin plugin;
-      if (rule.getExtension(PMFConstants.shortLabel) == null) {
-        plugin = new PMFRulePlugin(rule);
-        rule.addExtension(PMFConstants.shortLabel, plugin);
-      } else {
-        plugin = (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
-      }
-      
-      if (elementName.equals(PMFConstants.formulaName)) {
-        FormulaName formulaName = new FormulaName();
-        plugin.setFormulaName(formulaName);
-        return formulaName;
-      } else if (elementName.equals(PMFConstants.listOfReferences)) {
-        return plugin.getListOfReferences();
-      } else if (elementName.equals(PMFConstants.pmmlabId)) {
-        PmmLabId pli = new PmmLabId();
-        plugin.setPmmLabId(pli);
-        return pli;
-      }
+      return processStartElementInRule(contextObject, elementName);
+    }
+    return contextObject;
+  }
+
+
+  private static Object processStartElementInModel(Object contextObject,
+    String elementName) {
+    Model model = (Model) contextObject;
+    if (elementName.equals(PMFConstants.listOfModelVariables)) {
+      PMFModelPlugin plugin = new PMFModelPlugin(model);
+      model.addExtension(PMFConstants.shortLabel, plugin);
+      return plugin.getListOfModelVariables();
+    }
+    return contextObject;
+  }
+
+
+  private static Object processStartElementInListOf(Object contextObject,
+    String elementName) {
+    @SuppressWarnings("unchecked")
+    ListOf<SBase> listOf = (ListOf<SBase>) contextObject;
+    if (elementName.equals(PMFConstants.modelVariable)) {
+      Model model = (Model) listOf.getParentSBMLObject();
+      PMFModelPlugin plugin =
+        (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
+      ModelVariable mv = new ModelVariable();
+      plugin.addModelVariable(mv);
+      return mv;
+    } else if (elementName.equals(PMFConstants.correlation)) {
+      Parameter parameter = (Parameter) listOf.getParentSBMLObject();
+      PMFParameterPlugin plugin =
+        (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
+      Correlation correlation = new Correlation();
+      plugin.addCorrelation(correlation);
+      return correlation;
+    } else if (elementName.equals(PMFConstants.pmfReference)) {
+      Rule rule = (Rule) listOf.getParentSBMLObject();
+      PMFRulePlugin plugin =
+        (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
+      PMFReference ref = new PMFReference();
+      plugin.addReference(ref);
+      return ref;
+    }
+    return contextObject;
+  }
+
+
+  private static Object processStartElementInUnitDefinition(Object object) {
+    UnitDefinition unitDefinition = (UnitDefinition) object;
+    PMFUnitDefinitionPlugin plugin =
+      new PMFUnitDefinitionPlugin(unitDefinition);
+    unitDefinition.addExtension(PMFConstants.shortLabel, plugin);
+    UnitTransformation unitTransformation = new UnitTransformation();
+    plugin.setUnitTransformation(unitTransformation);
+    return unitTransformation;
+  }
+
+
+  private static Object processStartElementInParameter(Object contextObject,
+    String elementName) {
+    Parameter parameter = (Parameter) contextObject;
+    // creates / gets plugin for this parameter
+    PMFParameterPlugin plugin;
+    if (parameter.getExtension(PMFConstants.shortLabel) == null) {
+      plugin = new PMFParameterPlugin(parameter);
+      parameter.addExtension(PMFConstants.shortLabel, plugin);
+    } else {
+      plugin =
+        (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
+    }
+    // Creates element according to elementName
+    switch (elementName) {
+    case PMFConstants.p:
+      ParameterP p = new ParameterP();
+      plugin.setP(p);
+      return p;
+    case PMFConstants.t:
+      ParameterT t = new ParameterT();
+      plugin.setT(t);
+      return t;
+    case PMFConstants.error:
+      ParameterError error = new ParameterError();
+      plugin.setError(error);
+      return error;
+    case PMFConstants.description:
+      ParameterDescription description = new ParameterDescription();
+      plugin.setDescription(description);
+      return description;
+    case PMFConstants.paramMin:
+      ParamMin min = new ParamMin();
+      plugin.setMin(min);
+      return min;
+    case PMFConstants.paramMax:
+      ParamMax max = new ParamMax();
+      plugin.setMax(max);
+      return max;
+    case PMFConstants.listOfCorrelations:
+      return plugin.getListOfCorrelations();
+    default:
+      return contextObject;
+    }
+  }
+
+
+  private static Object processStartElementInRule(Object contextObject,
+    String elementName) {
+    Rule rule = (Rule) contextObject;
+    PMFRulePlugin plugin;
+    if (rule.getExtension(PMFConstants.shortLabel) == null) {
+      plugin = new PMFRulePlugin(rule);
+      rule.addExtension(PMFConstants.shortLabel, plugin);
+    } else {
+      plugin = (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
+    }
+    if (elementName.equals(PMFConstants.formulaName)) {
+      FormulaName formulaName = new FormulaName();
+      plugin.setFormulaName(formulaName);
+      return formulaName;
+    } else if (elementName.equals(PMFConstants.listOfReferences)) {
+      return plugin.getListOfReferences();
+    } else if (elementName.equals(PMFConstants.pmmlabId)) {
+      PmmLabId pli = new PmmLabId();
+      plugin.setPmmLabId(pli);
+      return pli;
     }
     return contextObject;
   }

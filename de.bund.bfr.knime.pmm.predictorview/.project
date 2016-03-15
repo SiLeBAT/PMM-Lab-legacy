@@ -3,6 +3,7 @@
 	<name>de.bund.bfr.knime.pmm.predictorview</name>
 	<comment></comment>
 	<projects>
+		<project>de.bund.bfr.knime.pmm.modeleditor</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1,8 +1,6 @@
 package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumMap;
@@ -18,7 +16,6 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -58,10 +55,6 @@ public class R2FSKNodeModel extends NodeModel {
       new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
   private SettingsModelString spreadsheetPath = new SettingsModelString(CFGKEY_SPREADSHEET, null);
 
-  // *** Internal Model Keys ***
-  private static final String FILE_NAME = "r2fskNodeInternals.xml";
-  private static final String INTERNAL_MODEL = "internalModel";
-
   /** {@inheritDoc} */
   protected R2FSKNodeModel() {
     super(0, 2);
@@ -71,28 +64,14 @@ public class R2FSKNodeModel extends NodeModel {
   @Override
   protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-    File file = new File(nodeInternDir, FILE_NAME);
-    try (FileInputStream fis = new FileInputStream(file)) {
-      NodeSettingsRO settings = NodeSettings.loadFromXML(fis);
-      loadValidatedSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
-    } catch (IOException e) {
-      throw e;
-    }
+    // nothing
   }
 
   /** {@inheritDoc} */
   @Override
   protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-    // Creates and saves a file in the given directory
-    File file = new File(nodeInternDir, FILE_NAME);
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      saveSettingsTo(new NodeSettings(INTERNAL_MODEL));
-    } catch (IOException e) {
-      throw e;
-    }
+    // nothing
   }
 
   /** {@inheritDoc} */
@@ -203,8 +182,7 @@ public class R2FSKNodeModel extends NodeModel {
       RScript script = readScript(this.modelScriptPath.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries and sources
-      valuesMap.put(KEYS.ORIG_MODEL, script.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_MODEL, script.getSimplifiedScript());
+      valuesMap.put(KEYS.MODEL_SCRIPT, script.getScript());
       librariesSet.addAll(script.getLibraries());
       sourcesSet.addAll(script.getSources());
       exec.setProgress(0.25);
@@ -217,8 +195,7 @@ public class R2FSKNodeModel extends NodeModel {
       RScript script = readScript(this.paramScriptPath.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries, and sources
-      valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_PARAM, script.getSimplifiedScript());
+      valuesMap.put(KEYS.PARAM_SCRIPT, script.getScript());
       librariesSet.addAll(script.getLibraries());
       sourcesSet.addAll(script.getSources());
       exec.setProgress(0.5);
@@ -238,8 +215,7 @@ public class R2FSKNodeModel extends NodeModel {
                                                                                   // errors
 
       // if no errors occur, add scripts, libraries, and sources
-      valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_VIZ, script.getSimplifiedScript());
+      valuesMap.put(KEYS.VIZ_SCRIPT, script.getScript());
       librariesSet.addAll(script.getLibraries());
       sourcesSet.addAll(script.getSources());
       exec.setProgress(0.75);

@@ -16,8 +16,7 @@ import com.google.common.io.Files;
 
 public class RScript {
 
-  private String originalScript;
-  private String simplifiedScript;
+  private String script;
   private List<String> libraries = new LinkedList<>();
   private List<String> sources = new LinkedList<>();
 
@@ -28,20 +27,16 @@ public class RScript {
    * @throws IOException if the file specified by path cannot be read.
    */
   public RScript(final File file) throws IOException {
-    setOriginalScript(Files.toString(file, Charsets.UTF_8)); // throws IOException
+    String script = Files.toString(file, Charsets.UTF_8);  // throws IOException
 
     // If no errors are thrown, proceed to extract libraries and sources
-    final String[] lines = getOriginalScript().split("\\r?\\n");
-
+    final String[] lines = script.split("\\r?\\n");
+    
     final Pattern libPattern = Pattern.compile("^\\s*\\b(library|require)\\((\"?.+\"?)\\)");
     final Pattern srcPattern = Pattern.compile("^\\s*\\b(source)\\((\"?.+\"?)\\)");
 
-    final StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
     for (final String line : lines) {
-
-      if (line.startsWith("#"))
-        continue;
-
       sb.append(line + '\n');
 
       final Matcher libMatcher = libPattern.matcher(line);
@@ -55,9 +50,16 @@ public class RScript {
         getSources().add(srcName);
       }
     }
+    
+    this.script = sb.toString();
+  }
 
-    // Creates simplified visualization script
-    setSimplifiedScript(sb.toString());
+  public String getScript() {
+    return this.script;
+  }
+
+  public void setScript(String script) {
+    this.script = script;
   }
 
   public List<String> getSources() {
@@ -66,22 +68,6 @@ public class RScript {
 
   public void setSources(List<String> sources) {
     this.sources = sources;
-  }
-
-  public String getSimplifiedScript() {
-    return this.simplifiedScript;
-  }
-
-  public void setSimplifiedScript(String simplifiedScript) {
-    this.simplifiedScript = simplifiedScript;
-  }
-
-  public String getOriginalScript() {
-    return this.originalScript;
-  }
-
-  public void setOriginalScript(String originalScript) {
-    this.originalScript = originalScript;
   }
 
   public List<String> getLibraries() {

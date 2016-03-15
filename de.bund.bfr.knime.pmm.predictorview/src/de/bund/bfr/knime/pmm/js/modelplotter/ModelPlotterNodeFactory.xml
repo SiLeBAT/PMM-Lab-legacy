@@ -50,9 +50,8 @@
             Constant names and values used in the model function. Values are shown and can be 
             changed in the view.
         </outPort>
-        <outPort index="1" name="Model variables">
-            Variable names and values used in the model function. Values are shown and can be 
-            changed in the view.
+        <outPort index="1" name="User Data">
+            Includes at least the authors' names, a comment, and the report name.
         </outPort>
     </ports>    
 

@@ -17,8 +17,6 @@
 package de.bund.bfr.knime.pmm.fskx.writer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -34,7 +32,6 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
@@ -78,10 +75,6 @@ public class FSKXWriterNodeModel extends NodeModel {
   private SettingsModelString referenceLink = new SettingsModelString(CFG_REFERENCE_LINK, null);
   private SettingsModelString license = new SettingsModelString(CFG_LICENSE, null);
   private SettingsModelString notes = new SettingsModelString(CFG_NOTES, null);
-
-  // *** Internal Model Keys ***
-  private static final String FILE_NAME = "fskwriterNodeInternals.xml";
-  private static final String INTERNAL_MODEL = "internalModel";
 
   private static final PortType[] inPortTypes =
       {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE};
@@ -233,35 +226,14 @@ public class FSKXWriterNodeModel extends NodeModel {
   @Override
   protected void loadInternals(final File internDir, final ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-
-    File file = new File(internDir, FILE_NAME);
-    NodeSettingsRO settings;
-    try (FileInputStream fis = new FileInputStream(file);) {
-      settings = NodeSettings.loadFromXML(fis);
-    } catch (IOException e) {
-      throw e;
-    }
-
-    try {
-      loadValidatedSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
-    }
+    // nothing
   }
 
   /** {@inheritDoc} */
   @Override
   protected void saveInternals(final File internDir, final ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-
-    // Creates and saves a file in the given directory
-    File file = new File(internDir, FILE_NAME);
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      NodeSettings settings = new NodeSettings(INTERNAL_MODEL);
-      saveSettingsTo(settings);
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-    }
+    // nothing
   }
 
   class FileCreationException extends Exception {

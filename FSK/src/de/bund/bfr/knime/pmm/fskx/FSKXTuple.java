@@ -28,18 +28,9 @@ import org.knime.core.data.def.StringCell;
 public class FSKXTuple implements DataRow {
 
   public enum KEYS {
-    /** original model script */
-    ORIG_MODEL,
-    /** simplified model script */
-    SIMP_MODEL,
-    /** original parameters script */
-    ORIG_PARAM,
-    /** simplified parameters script */
-    SIMP_PARAM,
-    /** original visualization script */
-    ORIG_VIZ,
-    /** simplified visualization script */
-    SIMP_VIZ,
+    MODEL_SCRIPT,
+    PARAM_SCRIPT,
+    VIZ_SCRIPT,
     /** libraries */
     LIBS,
     /** sources */
@@ -64,27 +55,20 @@ public class FSKXTuple implements DataRow {
   public FSKXTuple(EnumMap<KEYS, String> values) throws MissingValueError {
     this.cell = new DataCell[KEYS.values().length];
     
-    // checks optional columns
-    if (!values.containsKey(KEYS.ORIG_MODEL)) throw new MissingValueError("Missing original model");
-    if (!values.containsKey(KEYS.SIMP_MODEL)) throw new MissingValueError("Missing simplified model");
-    if (!values.containsKey(KEYS.LIBS)) throw new MissingValueError("Missing libraries");
-    if (!values.containsKey(KEYS.SOURCES)) throw new MissingValueError("Missing sources");
+//    // checks optional columns
+//    if (!values.containsKey(KEYS.ORIG_MODEL)) throw new MissingValueError("Missing original model");
+//    if (!values.containsKey(KEYS.SIMP_MODEL)) throw new MissingValueError("Missing simplified model");
+//    if (!values.containsKey(KEYS.LIBS)) throw new MissingValueError("Missing libraries");
+//    if (!values.containsKey(KEYS.SOURCES)) throw new MissingValueError("Missing sources");
 
     // assigns mandatory columns
-    this.cell[KEYS.ORIG_MODEL.ordinal()] = new StringCell(values.get(KEYS.ORIG_MODEL));
-    this.cell[KEYS.SIMP_MODEL.ordinal()] = new StringCell(values.get(KEYS.SIMP_MODEL));
+    this.cell[KEYS.MODEL_SCRIPT.ordinal()] = new StringCell(values.get(KEYS.MODEL_SCRIPT));
     this.cell[KEYS.LIBS.ordinal()] = new StringCell(values.get(KEYS.LIBS));
     this.cell[KEYS.SOURCES.ordinal()] = new StringCell(values.get(KEYS.SOURCES));
 
     // assigns optional columns
-    this.cell[KEYS.ORIG_PARAM.ordinal()] =
-        new StringCell(values.containsKey(KEYS.ORIG_PARAM) ? values.get(KEYS.ORIG_PARAM) : "");
-    this.cell[KEYS.SIMP_PARAM.ordinal()] =
-        new StringCell(values.containsKey(KEYS.SIMP_PARAM) ? values.get(KEYS.SIMP_PARAM) : "");
-    this.cell[KEYS.ORIG_VIZ.ordinal()] =
-        new StringCell(values.containsKey(KEYS.ORIG_VIZ) ? values.get(KEYS.ORIG_VIZ) : "");
-    this.cell[KEYS.SIMP_VIZ.ordinal()] =
-        new StringCell(values.containsKey(KEYS.SIMP_VIZ) ? values.get(KEYS.SIMP_VIZ) : "");
+    this.cell[KEYS.PARAM_SCRIPT.ordinal()] = new StringCell(values.containsKey(KEYS.PARAM_SCRIPT) ? values.get(KEYS.PARAM_SCRIPT) : "");
+    this.cell[KEYS.VIZ_SCRIPT.ordinal()] = new StringCell(values.containsKey(KEYS.VIZ_SCRIPT) ? values.get(KEYS.VIZ_SCRIPT) : "");
 
     this.rowKey = new RowKey(String.valueOf(new Random().nextInt()));
   }

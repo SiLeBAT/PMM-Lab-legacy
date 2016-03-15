@@ -19,20 +19,15 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.modelplotter;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Random;
 
+import org.dmg.pmml.DATATYPE;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.RowKey;
-import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.DataType;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -46,13 +41,14 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.node.AbstractWizardNodeModel;
 
-import de.bund.bfr.knime.pmm.common.chart.Plotable;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewValue.Variable;
-//import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewRepresentation.Variable;
-import de.bund.bfr.knime.pmm.predictorview.TableReader;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.editor.ModelEditorNodeModel;
+import de.bund.bfr.knime.pmm.js.common.Model1DataTuple;
+import de.bund.bfr.knime.pmm.js.common.ModelList;
 
 /**
  * Model Plotter node model.
@@ -69,16 +65,11 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	static final String FLOWVAR_FUNCTION_ORIG = "Original Function";
 	static final String FLOWVAR_FUNCTION_FULL = "Full Function";
 	static final String FLOWVAR_FUNCTION_APPLIED = "Applied Function";
-	
-	private static final String PMM_MODEL_ARG_TIME = "Time";
-	private static final String PMM_MODEL_ARG_TEMP = "temp";
-	private static final String PMM_MODEL_ARG_AW = "aw";
-	private static final String PMM_MODEL_ARG_CO2 = "CO2";
-	private static final String PMM_MODEL_ARG_PS = "PhysiologicalState";
-	private static final String PMM_MODEL_ARG_PH = "pH";
+	static final String AUTHORS = "authors";
+	static final String REPORT_NAME = "reportName";
+	static final String COMMENT = "comments";
 	
 	private final ModelPlotterViewConfig m_config;
-	
 	private boolean m_executed = false;
 	
     /**
@@ -147,168 +138,90 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	@Override
 	protected PortObject[] performExecute(PortObject[] inObjects,
 			ExecutionContext exec) throws Exception {
-		
-		BufferedDataTable table = (BufferedDataTable)inObjects[0];
-		TableReader reader = new TableReader(
-				ModelPlotterNodeModel.getTuples(table),
-				new LinkedHashMap<String, String>(),
-				new LinkedHashMap<String, String>(), true);
-		
-		// read all plotables
-		Map<String, Plotable> plotables = reader.getPlotables();
-		Plotable p;
-		
-		// warn if more than one plotables
-		if (plotables.size() <= 0) {
-			setWarningMessage("No model functions to plot in input data table!");
-			LOGGER.error("No model functions to plot in input data table!");
-			throw new IllegalStateException("No model functions to plot in input data table!");
-		} else if (plotables.size() > 1) {
-			setWarningMessage("More than one model function to plot in input data table."
-					+ " Plotting first function only.");
-		}
-		
-		// get first plotable
-		p = plotables.entrySet().iterator().next().getValue();
-		
+		BufferedDataTable table = (BufferedDataTable) inObjects[0];
+		List<KnimeTuple> tuples = getTuples(table);
+
 		ModelPlotterViewValue viewValue = getViewValue();
 		if (viewValue == null) {
 			viewValue = createEmptyViewValue();
 			setViewValue(viewValue);
 		}
+
 		if (!m_executed) {
-			// CONFIG of JavaScript view
-			viewValue.setChartTitle(m_config.getChartTitle());
+			// Config of JavaScript view
 			viewValue.setY0(m_config.getY0());
 			viewValue.setMinXAxis(m_config.getMinXAxis());
-			viewValue.setMaxXAxis(m_config.getMaxXAxis());
 			viewValue.setMinYAxis(m_config.getMinYAxis());
+			viewValue.setMaxXAxis(m_config.getMaxXAxis());
 			viewValue.setMaxYAxis(m_config.getMaxYAxis());
-
-			// set units
-			viewValue.setxUnit(p.getUnits().get("Time"));
-			viewValue.setyUnit(p.getUnits().get("Value"));
-
-			// DATA: specify function (substring after '=')
-			viewValue.setFunc(p.getFunction().substring(
-					p.getFunction().indexOf("=") + 1));
-
-			// DATA: specify arguments that can be adjusted via sliders in
-			// JavaScript view
-			List<Variable> variables = new LinkedList<>();
-			Map<String, List<Double>> args = p.getFunctionArguments();
-			for (Map.Entry<String, List<Double>> a : args.entrySet()) {
-				// ignore time argument
-				if (!a.getKey().equals(PMM_MODEL_ARG_TIME)) {
-					Variable v = new Variable();
-					v.setName(a.getKey());
-
-					// set min value
-					Double min = p.getMinArguments().get(a.getKey());
-					if (min == null) {
-						min = 0.0;
-					}
-					v.setMin(min);
-
-					// set max value
-					Double max = p.getMaxArguments().get(a.getKey());
-					if (max == null) {
-						max = 0.0;
-					}
-					v.setMax(max);
-
-					// set default value (different for each argument)
-					if (a.getKey().equals(PMM_MODEL_ARG_AW)) {
-						v.setDef(0.997);
-					} else if (a.getKey().equals(PMM_MODEL_ARG_CO2)) {
-						v.setDef(0);
-					} else if (a.getKey().equals(PMM_MODEL_ARG_PH)) {
-						v.setDef(7.0);
-					} else if (a.getKey().equals(PMM_MODEL_ARG_PS)) {
-						v.setDef(0.0005);
-					} else if (a.getKey().equals(PMM_MODEL_ARG_TEMP)) {
-						v.setDef(20);
-					}
-
-					// add variable
-					variables.add(v);
+	
+			// Convert KNIME tuples to Model1DataTuple
+			Model1DataTuple[] dataTuples = new Model1DataTuple[tuples.size()];
+			for (int i = 0; i < tuples.size(); i++) {
+				dataTuples[i] = ModelEditorNodeModel.codeTuple(tuples.get(i));
+				// as long as there is no dbuuid, we generate one
+				if(dataTuples[i].getCondId() == null)
+				{
+					LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
+					int seed = dataTuples[i].getCatModel().getFormula().hashCode();
+					String globalId = "g" + String.valueOf((new Random(seed)).nextInt(999999)); // "g" for "generated", max 6 digits
+					dataTuples[i].setDbuuid(globalId);
 				}
 			}
-			viewValue.setVariables(variables);
+			ModelList modelList = new ModelList();
+			modelList.setModels(dataTuples);
+			viewValue.setModels(modelList);
 
-			// DATA: specify constants and values
-			Map<String, Double> constants = new HashMap<>();
-			Map<String, Double> params = p.getFunctionParameters();
-			for (Map.Entry<String, Double> param : params.entrySet()) {
-				Double val = param.getValue();
-				if (val == null) {
-					val = 0.0;
-				}
-				constants.put(param.getKey(), val);
-			}
-			viewValue.setConstants(constants);
-			
 			setViewValue(viewValue);
 			m_executed = true;
-		}		
-		
+		}
+
 		exec.setProgress(1);
+
+		// return edited table
+		BufferedDataContainer container = exec.createDataContainer(SchemaFactory.createM1DataSchema().createSpec());
+		ModelList outModelList = getViewValue().getModels();
+		for (Model1DataTuple m1DataTuple : outModelList.getModels()) {
+			KnimeTuple outTuple = ModelEditorNodeModel.decodeTuple(m1DataTuple);
+			container.addRowToTable(outTuple);
+		}
+		container.close();
 		
-		pushFlowVariableString(FLOWVAR_FUNCTION_ORIG, getViewValue().getFunc());
-		pushFlowVariableString(FLOWVAR_FUNCTION_FULL, getViewValue().getFunctionFull());		
-		return createOutputDataTables(exec);
+		BufferedDataContainer userContainer = exec.createDataContainer(getUserSpec());
+		String reportName = getViewValue().getReportName();
+		String authors = getViewValue().getAuthors();
+		String comment = getViewValue().getComments();
+		
+		KnimeSchema userSchema = new KnimeSchema();
+		userSchema.addStringAttribute(REPORT_NAME);
+		userSchema.addStringAttribute(AUTHORS);
+		userSchema.addStringAttribute(COMMENT);
+		
+		KnimeTuple userTuple = new KnimeTuple(userSchema);
+		userTuple.setValue(REPORT_NAME, reportName);
+		userTuple.setValue(AUTHORS, authors);
+		userTuple.setValue(COMMENT, comment);
+		
+		userContainer.addRowToTable(userTuple);
+		userContainer.close();
+		
+		// TODO: finish output
+		return new BufferedDataTable[] { container.getTable(), userContainer.getTable() };
 	}
 
 	private DataTableSpec[] createOutputDataTableSpecs() {
-		DataColumnSpec constantName = new DataColumnSpecCreator(
-				"Constant name", StringCell.TYPE).createSpec();
-		DataColumnSpec constantValue = new DataColumnSpecCreator(
-				"Constant value", DoubleCell.TYPE).createSpec();
-		DataTableSpec constantSpec = new DataTableSpec(constantName, constantValue);
-		
-		DataColumnSpec varName = new DataColumnSpecCreator(
-				"Variable name", StringCell.TYPE).createSpec();
-		DataColumnSpec varValue = new DataColumnSpecCreator(
-				"Variable value", DoubleCell.TYPE).createSpec();
-		DataColumnSpec varMin = new DataColumnSpecCreator(
-				"Variable min ", DoubleCell.TYPE).createSpec();		
-		DataColumnSpec varMax = new DataColumnSpecCreator(
-				"Variable max", DoubleCell.TYPE).createSpec();		
-		DataTableSpec varSpec = new DataTableSpec(varName, varValue, varMin, varMax);		
-		
-		return new DataTableSpec[]{ constantSpec, varSpec };		
+
+		return new DataTableSpec[]{ 
+			SchemaFactory.createM1DataSchema().createSpec(), 
+			getUserSpec()
+		};		
 	}
 	
-	private BufferedDataTable[] createOutputDataTables(final ExecutionContext exec) {
-		ModelPlotterViewValue value = getViewValue();
-		DataTableSpec[] outSpces = createOutputDataTableSpecs();
-		
-		BufferedDataContainer constBC = exec.createDataContainer(outSpces[0]);
-		long i = 0;
-		if (value.getConstants() != null) {
-			for (Entry<String, Double> e : value.getConstants().entrySet()) {
-				RowKey key = RowKey.createRowKey(i);
-				constBC.addRowToTable(new DefaultRow(key, new StringCell(e
-						.getKey()), new DoubleCell(e.getValue())));
-				i++;
-			}
-		}
-		constBC.close();
-		
-		BufferedDataContainer varBC = exec.createDataContainer(outSpces[1]);
-		i = 0;
-		if (value.getVariables() != null) {
-			for (Variable v : value.getVariables()) {
-				RowKey key = RowKey.createRowKey(i);
-				varBC.addRowToTable(new DefaultRow(key, new StringCell(v
-						.getName()), new DoubleCell(v.getDef()),
-						new DoubleCell(v.getMin()), new DoubleCell(v.getMax())));
-				i++;
-			}
-		}
-		varBC.close();
-		
-		return new BufferedDataTable[]{ constBC.getTable(), varBC.getTable() };
+	private DataTableSpec getUserSpec(){
+		String[] fields = {AUTHORS, REPORT_NAME, COMMENT};
+		DataType[] types = {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
+		DataTableSpec userDataSpec = new DataTableSpec(fields, types);
+		return userDataSpec;
 	}
 	
 	@Override

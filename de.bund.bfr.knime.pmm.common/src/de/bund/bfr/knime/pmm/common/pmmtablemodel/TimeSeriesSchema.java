@@ -26,6 +26,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 	
 	public static final String ATT_CONDID = "CondID";
 	public static final String ATT_COMBASEID = "CombaseID";
+	public static final String ATT_GLOBALMODELID = "GlobalModelID";
 	public static final String ATT_MISC = "Misc";
 
 	public static final String ATT_AGENT = "Organism";

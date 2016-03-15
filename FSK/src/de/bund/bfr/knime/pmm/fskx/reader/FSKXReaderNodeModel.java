@@ -17,8 +17,6 @@
 package de.bund.bfr.knime.pmm.fskx.reader;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -34,7 +32,6 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -67,10 +64,6 @@ public class FSKXReaderNodeModel extends NodeModel {
 
   // defaults for persistent state
   private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
-
-  // *** Internal Model Keys ***
-  private static final String FILE_NAME = "fskreaderNodeInternals.xml";
-  private static final String INTERNAL_MODEL = "internalModel";
 
   private static final PortType[] inPortTypes = {};
   private static final PortType[] outPortTypes =
@@ -130,31 +123,14 @@ public class FSKXReaderNodeModel extends NodeModel {
   @Override
   protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-    File file = new File(nodeInternDir, FILE_NAME);
-    try (FileInputStream fis = new FileInputStream(file)) {
-      NodeSettingsRO settings = NodeSettings.loadFromXML(fis);
-      loadValidatedSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      System.err.println(e.getMessage());
-    } catch (IOException e) {
-      throw e;
-    }
+    // nothing
   }
 
   /** {@inheritDoc} */
   @Override
   protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {
-
-    NodeSettings settings = new NodeSettings(INTERNAL_MODEL);
-    this.filename.saveSettingsTo(settings);
-
-    File file = new File(nodeInternDir, FILE_NAME);
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      settings.saveToXML(fos);
-    } catch (IOException e) {
-      throw e;
-    }
+    // nothing
   }
 
   /** {@inheritDoc} */
@@ -194,8 +170,7 @@ public class FSKXReaderNodeModel extends NodeModel {
       RScript modelScript = new RScript(files.getModelScript());
 
       // no IOException occur -> process content of model script and add libraries and sources
-      valuesMap.put(KEYS.ORIG_MODEL, modelScript.getOriginalScript());
-      valuesMap.put(KEYS.SIMP_MODEL, modelScript.getSimplifiedScript());
+      valuesMap.put(KEYS.MODEL_SCRIPT, modelScript.getScript());
       librariesSet.addAll(modelScript.getLibraries());
       sourcesSet.addAll(modelScript.getSources());
     } catch (IOException e) {
@@ -210,8 +185,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         // no IOException occur -> process content of parameters script and add libraries and
         // sources
-        valuesMap.put(KEYS.ORIG_PARAM, script.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_PARAM, script.getSimplifiedScript());
+        valuesMap.put(KEYS.PARAM_SCRIPT, script.getScript());
         librariesSet.addAll(script.getLibraries());
         sourcesSet.addAll(script.getSources());
       } catch (IOException e) {
@@ -227,8 +201,7 @@ public class FSKXReaderNodeModel extends NodeModel {
 
         // no IOException occur -> process content of parameters script and add libraries and
         // sources
-        valuesMap.put(KEYS.ORIG_VIZ, script.getOriginalScript());
-        valuesMap.put(KEYS.SIMP_VIZ, script.getSimplifiedScript());
+        valuesMap.put(KEYS.VIZ_SCRIPT, script.getScript());
         librariesSet.addAll(script.getLibraries());
         sourcesSet.addAll(script.getSources());
       } catch (IOException e) {

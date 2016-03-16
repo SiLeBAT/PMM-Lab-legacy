@@ -36,7 +36,7 @@ public class PMFConstants {
   public static final String modelVariable = "modelVariable";
   public static final String correlation = "correlation";
   public static final String dataSource = "dataSource";
-  
+  public static final String primaryModel = "primaryModel";
   
   public static final String unitTransformation = "unitTransformation";
   
@@ -51,4 +51,5 @@ public class PMFConstants {
   public static final String listOfDataSources = "listOfDataSources";
   public static final String listOfCorrelations = "listOfCorrelations";
   public static final String listOfReferences = "listOfPMFReferences";
+  public static final String listOfPrimaryModels = "listOfPrimaryModels";
 }

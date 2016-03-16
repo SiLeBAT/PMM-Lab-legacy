@@ -33,6 +33,8 @@ public class Test {
     
     plugin.createDataSource("someData.numl");
     
+    plugin.createPrimaryModel("someModel.sbml");
+    
     Parameter p = model.createParameter("p");
     PMFParameterPlugin parameterPlugin = (PMFParameterPlugin) p.createPlugin(PMFConstants.shortLabel);
     

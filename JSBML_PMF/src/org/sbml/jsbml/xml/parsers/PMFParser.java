@@ -29,6 +29,7 @@ import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
 import org.sbml.jsbml.ext.pmf.ParameterMetadata;
 import org.sbml.jsbml.ext.pmf.PmmLabId;
+import org.sbml.jsbml.ext.pmf.PrimaryModel;
 import org.sbml.jsbml.ext.pmf.RuleClass;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
 
@@ -126,6 +127,8 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
       return plugin.getListOfModelVariables();
     } else if (elementName.equals(PMFConstants.listOfDataSources)) {
       return plugin.getListOfDataSources();
+    } else if (elementName.equals(PMFConstants.listOfPrimaryModels)) {
+      return plugin.getListOfPrimaryModels();
     }
     return contextObject;
   }
@@ -169,6 +172,14 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
       DataSource dataSource = new DataSource();
       plugin.addDataSource(dataSource);
       return dataSource;
+    }
+    
+    else if (elementName.equals(PMFConstants.primaryModel)) {
+      Model model = (Model) listOf.getParentSBMLObject();
+      PMFModelPlugin plugin = (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
+      PrimaryModel primaryModel = new PrimaryModel();
+      plugin.addPrimaryModel(primaryModel);
+      return primaryModel;
     }
     return contextObject;
   }

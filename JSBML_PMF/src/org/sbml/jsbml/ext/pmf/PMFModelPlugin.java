@@ -18,6 +18,7 @@ public class PMFModelPlugin extends PMFSBasePlugin {
   private static final long     serialVersionUID = 5078386942266911188L;
   private ListOf<ModelVariable> listOfModelVariables;
   private ListOf<DataSource>    listOfDataSources;
+  private ListOf<PrimaryModel>  listOfPrimaryModels;
 
 
   /**
@@ -32,6 +33,9 @@ public class PMFModelPlugin extends PMFSBasePlugin {
     }
     if (plugin.isSetListOfDataSources()) {
       setListOfDataSources(plugin.listOfDataSources.clone());
+    }
+    if (plugin.isSetListOfPrimaryModels()) {
+      setListOfPrimaryModels(plugin.listOfPrimaryModels.clone());
     }
   }
 
@@ -73,6 +77,9 @@ public class PMFModelPlugin extends PMFSBasePlugin {
     if (isSetListOfDataSources()) {
       childCount++;
     }
+    if (isSetListOfPrimaryModels()) {
+      childCount++;
+    }
     return childCount;
   }
 
@@ -98,6 +105,12 @@ public class PMFModelPlugin extends PMFSBasePlugin {
     if (isSetListOfDataSources()) {
       if (pos == childIndex) {
         return getListOfDataSources();
+      }
+      pos++;
+    }
+    if (isSetListOfPrimaryModels()) {
+      if (pos == childIndex) {
+        return getListOfPrimaryModels();
       }
       pos++;
     }
@@ -494,6 +507,195 @@ public class PMFModelPlugin extends PMFSBasePlugin {
       ListOf<DataSource> oldDataSources = this.listOfDataSources;
       this.listOfDataSources = null;
       oldDataSources.fireNodeRemovedEvent();
+      return true;
+    }
+    return false;
+  }
+
+
+  // *** listOfPrimaryModels ***
+  /**
+   * Adds a new {@link PrimaryModel} to the {@link #listOfPrimaryModels}.
+   * <p>
+   * The listOfPrimaryModels is initialized if necessary.
+   *
+   * @param PrimaryModel
+   *        the element to add to the list
+   * @return {@code true} (as specified by {@link java.util.Collection#add})
+   * @see java.util.Collection#add(Object)
+   */
+  public boolean addPrimaryModel(PrimaryModel PrimaryModel) {
+    return getListOfPrimaryModels().add(PrimaryModel);
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfPrimaryModels}.
+   *
+   * @param PrimaryModel
+   *        the element to be removed from the list.
+   * @return {@code true} if the list contained the specified element and it was
+   *         removed.
+   * @see java.util.List#remove(Object)
+   */
+  public boolean removePrimaryModel(PrimaryModel PrimaryModel) {
+    if (isSetListOfPrimaryModels()) {
+      return getListOfPrimaryModels().remove(PrimaryModel);
+    }
+    return false;
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfPrimaryModels} at the given
+   * index.
+   *
+   * @param i
+   *        the index where to remove the {@link PrimaryModel}.
+   * @return the specified element if it was successfully found and removed.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or if the index is
+   *         out of bound ({@code (i < 0) || (i > listOfPrimaryModels)}).
+   */
+  public PrimaryModel removePrimaryModel(int i) {
+    if (!isSetListOfPrimaryModels()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfPrimaryModels().remove(i);
+  }
+
+
+  /**
+   * Creates a new {@link PrimaryModel} element and adds it to the
+   * {@link #listOfPrimaryModels} list.
+   * 
+   * @param src
+   * @return the newly created {@link PrimaryModel} element, which is the last
+   *         element in the {@link #listOfPrimaryModels}.
+   */
+  public PrimaryModel createPrimaryModel(String src) {
+    PrimaryModel primaryModel = new PrimaryModel(src);
+    addPrimaryModel(primaryModel);
+    return primaryModel;
+  }
+
+
+  /**
+   * Gets an element from the {@link #listOfPrimaryModels} at the given index.
+   *
+   * @param i
+   *        the index of the {@link PrimaryModel} element to get.
+   * @return an element from the listOfPrimaryModels at the given index.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or
+   *         if the index is out of bound (index < 0 || index > list.size).
+   */
+  public PrimaryModel getPrimaryModel(int i) {
+    if (!isSetListOfPrimaryModels()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfPrimaryModels().get(i);
+  }
+
+
+  /**
+   * Returns the number of {@link PrimaryModel}s in this
+   * {@link PMFModelPlugin}.
+   * 
+   * @return the number of {@link PrimaryModel}s in this
+   *         {@link PMFModelPlugin}.
+   */
+  public int getPrimaryModelCount() {
+    return isSetListOfPrimaryModels() ? getListOfPrimaryModels().size() : 0;
+  }
+
+
+  /**
+   * Returns the number of {@link PrimaryModel}s in this
+   * {@link PMFModelPlugin}.
+   * 
+   * @return the number of {@link PrimaryModel}s in this
+   *         {@link PMFModelPlugin}.
+   * @libsbml.deprecated same as {@link #getPrimaryModelCount()}
+   */
+  public int getNumPrimaryModels() {
+    return getPrimaryModelCount();
+  }
+
+
+  /**
+   * Returns the {@link #listOfPrimaryModels}.
+   * Creates it if it does not already exist.
+   *
+   * @return the {@link #listOfPrimaryModels}.
+   */
+  public ListOf<PrimaryModel> getListOfPrimaryModels() {
+    if (this.listOfPrimaryModels == null) {
+      this.listOfPrimaryModels = new ListOf<>();
+      this.listOfPrimaryModels.setPackageVersion(-1);
+      // changing the listOf package name from 'core' to 'pmf'
+      this.listOfPrimaryModels.setPackageName(null);
+      this.listOfPrimaryModels.setPackageName(PMFConstants.shortLabel);
+      listOfPrimaryModels.setSBaseListType(ListOf.Type.other);
+      if (isSetExtendedSBase()) {
+        extendedSBase.registerChild(listOfPrimaryModels);
+      }
+    }
+    return listOfPrimaryModels;
+  }
+
+
+  /**
+   * Returns {@code true} if {@link #listOfPrimaryModels} contains at least
+   * one element.
+   *
+   * @return {@code true} if {@link #listOfPrimaryModels} contains at least
+   *         one element, otherwise {@code false}.
+   */
+  public boolean isSetListOfPrimaryModels() {
+    if ((this.listOfPrimaryModels == null)
+      || this.listOfPrimaryModels.isEmpty()) {
+      return false;
+    }
+    return true;
+  }
+
+
+  /**
+   * Sets the given {@code ListOf<PrimaryModel>}.
+   * If {@link #listOfPrimaryModels} was defined before and contains some
+   * elements, they are all unset.
+   *
+   * @param listOfPrimaryModels
+   */
+  public void setListOfPrimaryModels(ListOf<PrimaryModel> listOfPrimaryModels) {
+    unsetListOfPrimaryModels();
+    this.listOfPrimaryModels = listOfPrimaryModels;
+    if (this.listOfPrimaryModels != null) {
+      this.listOfPrimaryModels.setPackageVersion(-1);
+      // changing the ListOf package name from 'core' to 'pmf'
+      this.listOfPrimaryModels.setPackageName(null);
+      this.listOfPrimaryModels.setPackageName(PMFConstants.shortLabel);
+      this.listOfPrimaryModels.setSBaseListType(ListOf.Type.other);
+      if (isSetExtendedSBase()) {
+        this.extendedSBase.registerChild(listOfPrimaryModels);
+      }
+    }
+  }
+
+
+  /**
+   * Returns {@code true} if {@link #listOfPrimaryModels} contains at least
+   * one element, otherwise {@code false}.
+   *
+   * @return {@code true} if {@link #listOfPrimaryModels} contains at least
+   *         one element, otherwise {@code false}.
+   */
+  public boolean unsetListOfPrimaryModels() {
+    if (isSetListOfPrimaryModels()) {
+      ListOf<PrimaryModel> oldPrimaryModels = this.listOfPrimaryModels;
+      this.listOfPrimaryModels = null;
+      oldPrimaryModels.fireNodeRemovedEvent();
       return true;
     }
     return false;

@@ -1,8 +1,8 @@
 /*
  * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue
- * DataSource.java 14:32:11 Miguel Alba $
+ * PrimaryModel.java 16:03:05 Miguel Alba $
  * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
- * DataSource.java $
+ * PrimaryModel.java $
  * ----------------------------------------------------------------------------
  * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML>
  * for the latest version of JSBML and more information about SBML.
@@ -32,101 +32,84 @@ import org.sbml.jsbml.AbstractSBase;
  * @since 1.0
  * @date 16.03.2016
  */
-public class DataSource extends AbstractSBase {
+public class PrimaryModel extends AbstractSBase {
 
-  private static final long serialVersionUID = -423986522507118792L;
-
-  private String src;
+  private static final long serialVersionUID = 5976723849653301601L;
   
-  /**
-   * Creates a DataSource instance
-   */
-  public DataSource() {
+  private String src;
+
+
+  /** Creates a PrimaryModel instance. */
+  public PrimaryModel() {
     super();
     initDefaults();
   }
 
 
   /**
-   * Creates a DataSource instance with a src.
+   * Creates a PrimaryModel instance with a src.
    * 
    * @param src
    */
-  public DataSource(String src) {
+  public PrimaryModel(String src) {
     super();
     this.src = src;
     initDefaults();
   }
-
-
+  
   /**
-   * Creates a DataSource instance with a level and version.
+   * Creates a PrimaryModel instance with a level and version.
    * 
-   * @param level
-   *        SBML Level
-   * @param version
-   *        SBML Version
+   * @param level SBML level
+   * @param version SBML version
    */
-  public DataSource(int level, int version) {
+  public PrimaryModel(int level, int version) {
     super(level, version);
     initDefaults();
   }
-
-
+  
   /**
-   * Creates a DataSource instance with an src, level, and version.
+   * Creates a PrimaryModel instance with an src, level and version.
    * 
-   * @param src.
-   * @param level
-   *        the SBML Level
-   * @param version
-   *        the SBML Version
+   * @param src
+   * @param level the SBML level
+   * @param version the SBML version
    */
-  public DataSource(String src, int level, int version) {
+  public PrimaryModel(String src, int level, int version) {
     super(level, version);
     this.src = src;
     initDefaults();
   }
-
-
-  /**
-   * Clone constructor
-   */
-  public DataSource(DataSource obj) {
-    super(obj);
-    if (obj.isSetSrc()) {
-      setSrc(obj.src);
+  
+  /** Clone constructor. */
+  public PrimaryModel(PrimaryModel primaryModel) {
+    super(primaryModel);
+    if (primaryModel.isSetSrc()) {
+      setSrc(primaryModel.src);
     }
   }
-
-
-  /**
-   * clones this class
-   */
+  
+  /** Clones this class. */
   @Override
-  public DataSource clone() {
-    return new DataSource(this);
+  public PrimaryModel clone() {
+    return new PrimaryModel(this);
   }
-
-
-  /**
-   * Initializes the default values using the namespace.
-   */
+  
+  /** Initializes the default values using the namespace. */
   public void initDefaults() {
     setPackageVersion(-1);
     this.packageName = PMFConstants.shortLabel;
   }
-
-
-
+  
   // *** src ***
+  
   /**
    * Returns the value of {@link #src}.
    *
    * @return the value of {@link #src}.
    */
   public String getSrc() {
-    return src;
+      return src;
   }
 
 
@@ -143,8 +126,7 @@ public class DataSource extends AbstractSBase {
   /**
    * Sets the value of src
    *
-   * @param src
-   *        the value of src to be set.
+   * @param src the value of src to be set.
    */
   public void setSrc(String src) {
     String oldSrc = this.src;
@@ -167,8 +149,8 @@ public class DataSource extends AbstractSBase {
     }
     return false;
   }
-
-
+  
+  
   @Override
   public Map<String, String> writeXMLAttributes() {
     Map<String, String> attributes = new TreeMap<>();
@@ -188,14 +170,14 @@ public class DataSource extends AbstractSBase {
     }
     return false;
   }
-
-
+  
   /*
    * (non-Javadoc)
    * @see org.sbml.jsbml.AbstractSBase#toString()
    */
   @Override
   public String toString() {
-    return String.format("DataSource [src=\"%s\"]", src);
+    return String.format("PrimaryModel [src=\"%s\"]", src);
   }
+  
 }

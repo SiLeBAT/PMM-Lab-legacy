@@ -31,6 +31,12 @@
 <extension point="org.knime.workbench.repository.categories">
   <category description="BfR nodes" icon="icons/rsnippet.png" level-id="r" locked="true" name="BfR R nodes" path="/pmmlab" />
   <category after="r-metanodes" icon="icons/rsnippet_io.png" level-id="io" name="IO" path="/pmmlab/r" />
+</extension>
+<extension
+      point="org.eclipse.core.runtime.preferences">
+   <initializer
+         class="de.bund.bfr.knime.r.preferences.RPreferenceInitializer">
+   </initializer>
 </extension>	
    
 </plugin>

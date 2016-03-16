@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.knime.base.node.util.exttool.ExtToolOutputNodeModel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -62,12 +61,9 @@ import org.knime.core.util.FileUtil;
 import org.knime.ext.r.node.local.port.RPortObject;
 import org.knime.ext.r.node.local.port.RPortObjectSpec;
 
-import com.google.common.base.Strings;
-
 import de.bund.bfr.knime.r.controller.ConsoleLikeRExecutor;
 import de.bund.bfr.knime.r.controller.IRController.RException;
 import de.bund.bfr.knime.r.controller.RController;
-import de.bund.bfr.knime.r.preferences.RPreferenceInitializer;
 
 /**
  * The <code>RSnippetNodeModel</code> provides functionality to create a R script with user defined
@@ -150,10 +146,13 @@ public class RSnippetNodeModel extends ExtToolOutputNodeModel {
 
     // TODO: Swaps default R distribution with customized one before using RController and start
     // communicating with R
-    if (!Strings.isNullOrEmpty(settings.getNewRHome())) {
-      IPreferenceStore preferenceStore = Activator.getDefault().getPreferenceStore();
-      preferenceStore.setValue(RPreferenceInitializer.PREF_R_HOME, settings.getNewRHome());
-    }
+    // if (!Strings.isNullOrEmpty(settings.getNewRHome())) {
+    // IPreferenceStore preferenceStore = Activator.getDefault().getPreferenceStore();
+    // preferenceStore.setValue(RPreferenceInitializer.PREF_R_HOME, settings.getNewRHome());
+    // }
+
+    de.bund.bfr.knime.ext.r.bin.Activator
+        .setRHome(new File("D:\\Apps\\R215-Portable\\App\\R-Portable"));
 
     final FlowVariableRepository flowVarRepo =
         new FlowVariableRepository(getAvailableInputFlowVariables());
@@ -165,16 +164,17 @@ public class RSnippetNodeModel extends ExtToolOutputNodeModel {
       final PortObject[] out = executeSnippet(controller, inData, flowVarRepo, exec);
 
       pushFlowVariables(flowVarRepo);
-      System.out.println(org.knime.ext.r.bin.preferences.RPreferenceInitializer.getRProvider().getRHome());
+      System.out.println(
+          de.bund.bfr.knime.ext.r.bin.preferences.RPreferenceInitializer.getRProvider().getRHome());
 
       return out;
     } finally {
       controller.close();
       // TODO: Restore original R distribution
-      if (!Strings.isNullOrEmpty(settings.getNewRHome())) {
-        IPreferenceStore preferenceStore = Activator.getDefault().getPreferenceStore();
-        preferenceStore.setValue(RPreferenceInitializer.PREF_R_HOME, settings.getOrigRHome());
-      }
+      // if (!Strings.isNullOrEmpty(settings.getNewRHome())) {
+      // IPreferenceStore preferenceStore = Activator.getDefault().getPreferenceStore();
+      // preferenceStore.setValue(RPreferenceInitializer.PREF_R_HOME, settings.getOrigRHome());
+      // }
     }
   }
 

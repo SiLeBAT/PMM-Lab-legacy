@@ -110,6 +110,7 @@ import org.rosuda.REngine.Rserve.RserveException;
 
 import com.sun.jna.Platform;
 
+import de.bund.bfr.knime.ext.r.bin.preferences.RPreferenceInitializer;
 import de.bund.bfr.knime.r.rserve.RConnectionFactory;
 import de.bund.bfr.knime.r.rserve.RConnectionFactory.RConnectionResource;
 
@@ -274,7 +275,7 @@ public class RController implements IRController {
 	 */
 	private void initR() throws RException {
 		try {
-			final String rHome = org.knime.ext.r.bin.preferences.RPreferenceInitializer.getRProvider().getRHome();
+			final String rHome = RPreferenceInitializer.getRProvider().getRHome();
 			RBinUtil.checkRHome(rHome);
 
 			this.m_rProps = RBinUtil.retrieveRProperties();

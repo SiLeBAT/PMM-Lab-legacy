@@ -18,6 +18,7 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.ASTNodePlugin;
 import org.sbml.jsbml.ext.SBasePlugin;
 import org.sbml.jsbml.ext.pmf.Correlation;
+import org.sbml.jsbml.ext.pmf.DataSource;
 import org.sbml.jsbml.ext.pmf.FormulaName;
 import org.sbml.jsbml.ext.pmf.ModelVariable;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
@@ -110,10 +111,21 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
   private static Object processStartElementInModel(Object contextObject,
     String elementName) {
     Model model = (Model) contextObject;
-    if (elementName.equals(PMFConstants.listOfModelVariables)) {
-      PMFModelPlugin plugin = new PMFModelPlugin(model);
+    
+    // creates / gets plugin for this model
+    PMFModelPlugin plugin;
+    if (model.getExtension(PMFConstants.shortLabel) == null) {
+      plugin = new PMFModelPlugin(model);
       model.addExtension(PMFConstants.shortLabel, plugin);
+    } else {
+      plugin =
+        (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
+    }
+    
+    if (elementName.equals(PMFConstants.listOfModelVariables)) {
       return plugin.getListOfModelVariables();
+    } else if (elementName.equals(PMFConstants.listOfDataSources)) {
+      return plugin.getListOfDataSources();
     }
     return contextObject;
   }
@@ -123,6 +135,7 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     String elementName) {
     @SuppressWarnings("unchecked")
     ListOf<SBase> listOf = (ListOf<SBase>) contextObject;
+    
     if (elementName.equals(PMFConstants.modelVariable)) {
       Model model = (Model) listOf.getParentSBMLObject();
       PMFModelPlugin plugin =
@@ -130,20 +143,32 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
       ModelVariable mv = new ModelVariable();
       plugin.addModelVariable(mv);
       return mv;
-    } else if (elementName.equals(PMFConstants.correlation)) {
+    }
+    
+    else if (elementName.equals(PMFConstants.correlation)) {
       Parameter parameter = (Parameter) listOf.getParentSBMLObject();
       PMFParameterPlugin plugin =
         (PMFParameterPlugin) parameter.getExtension(PMFConstants.shortLabel);
       Correlation correlation = new Correlation();
       plugin.addCorrelation(correlation);
       return correlation;
-    } else if (elementName.equals(PMFConstants.pmfReference)) {
+    }
+    
+    else if (elementName.equals(PMFConstants.pmfReference)) {
       Rule rule = (Rule) listOf.getParentSBMLObject();
       PMFRulePlugin plugin =
         (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
       PMFReference ref = new PMFReference();
       plugin.addReference(ref);
       return ref;
+    }
+    
+    else if (elementName.equals(PMFConstants.dataSource)) {
+      Model model = (Model) listOf.getParentSBMLObject();
+      PMFModelPlugin plugin = (PMFModelPlugin) model.getExtension(PMFConstants.shortLabel);
+      DataSource dataSource = new DataSource();
+      plugin.addDataSource(dataSource);
+      return dataSource;
     }
     return contextObject;
   }

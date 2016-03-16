@@ -31,6 +31,8 @@ public class Test {
     plugin.createModelVariable("pH", 5.0);
     plugin.createModelVariable("T", 20.0);
     
+    plugin.createDataSource("someData.numl");
+    
     Parameter p = model.createParameter("p");
     PMFParameterPlugin parameterPlugin = (PMFParameterPlugin) p.createPlugin(PMFConstants.shortLabel);
     

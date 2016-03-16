@@ -15,36 +15,17 @@ import org.sbml.jsbml.SBase;
  */
 public class PMFParameterPlugin extends PMFSBasePlugin {
 
-  private static final long    serialVersionUID = 4478024757743081671L;
-  private ParameterP           p;
-  private ParameterT           t;
-  private ParameterError       error;
-  private ParameterDescription description;
-  private ParamMin             min;
-  private ParamMax             max;
-  private ListOf<Correlation>  listOfCorrelations;
+  private static final long   serialVersionUID = 4478024757743081671L;
+
+  private ParameterMetadata   parameterMetadata;
+  private ListOf<Correlation> listOfCorrelations;
 
 
   /** Creates a new {@link PMFParameterPlugin} instance cloned from 'plugin'. */
   public PMFParameterPlugin(PMFParameterPlugin plugin) {
     super(plugin);
-    if (plugin.isSetP()) {
-      setP(plugin.getP().clone());
-    }
-    if (plugin.isSetT()) {
-      setT(plugin.getT().clone());
-    }
-    if (plugin.isSetError()) {
-      setError(plugin.getError().clone());
-    }
-    if (plugin.isSetDescription()) {
-      setDescription(plugin.getDescription().clone());
-    }
-    if (plugin.isSetMin()) {
-      setMin(plugin.getMin().clone());
-    }
-    if (plugin.isSetMax()) {
-      setMax(plugin.getMax().clone());
+    if (plugin.isSetMetadata()) {
+      setMetadata(plugin.parameterMetadata.clone());
     }
     if (plugin.isSetListOfCorrelations()) {
       setListOfCorrelations(plugin.listOfCorrelations.clone());
@@ -111,22 +92,7 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
   @Override
   public int getChildCount() {
     int childCount = 0;
-    if (isSetP()) {
-      childCount++;
-    }
-    if (isSetT()) {
-      childCount++;
-    }
-    if (isSetError()) {
-      childCount++;
-    }
-    if (isSetDescription()) {
-      childCount++;
-    }
-    if (isSetMin()) {
-      childCount++;
-    }
-    if (isSetMax()) {
+    if (isSetMetadata()) {
       childCount++;
     }
     if (isSetListOfCorrelations()) {
@@ -148,39 +114,9 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
         Integer.valueOf(childIndex), Integer.valueOf(0)));
     }
     int pos = 0;
-    if (isSetP()) {
+    if (isSetMetadata()) {
       if (pos == childIndex) {
-        return getP();
-      }
-      pos++;
-    }
-    if (isSetT()) {
-      if (pos == childIndex) {
-        return getT();
-      }
-      pos++;
-    }
-    if (isSetError()) {
-      if (pos == childIndex) {
-        return getError();
-      }
-      pos++;
-    }
-    if (isSetDescription()) {
-      if (pos == childIndex) {
-        return getDescription();
-      }
-      pos++;
-    }
-    if (isSetMin()) {
-      if (pos == childIndex) {
-        return getMin();
-      }
-      pos++;
-    }
-    if (isSetMax()) {
-      if (pos == childIndex) {
-        return getMax();
+        return getMetadata();
       }
       pos++;
     }
@@ -196,409 +132,58 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
   }
 
 
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  public boolean readAttribute(String attributeName, String prefix,
-    String value) {
-    // No attribute defined on this plugin
-    return false;
-  }
-
-
-  // *** P ***
+  // *** parameterMetadata ***
   /**
-   * Returns the {@link ParameterP} of this {@link PMFParameterPlugin}.
+   * Returns the value of {@link #parameterMetadata}.
    *
-   * @return the {@link ParameterP} of this {@link PMFParameterPlugin}.
+   * @return the value of {@link #parameterMetadata}.
    */
-  public ParameterP getP() {
-    return this.p;
+  public ParameterMetadata getMetadata() {
+    return parameterMetadata;
   }
 
 
   /**
-   * Returns whether p is set.
+   * Returns whether {@link #parameterMetadata} is set.
    *
-   * @return whether p is set.
+   * @return whether {@link #parameterMetadata} is set.
    */
-  public boolean isSetP() {
-    return this.p != null;
+  public boolean isSetMetadata() {
+    return this.parameterMetadata != null;
   }
 
 
   /**
-   * Sets the {@link ParameterP} of this {@link PMFParameterPlugin}.
+   * Sets the value of parameterMetadata
    *
-   * @param p
+   * @param parameterMetadata
+   *        the value of parameterMetadata to be set.
    */
-  public void setP(ParameterP p) {
-    unsetP();
-    this.p = p;
+  public void setMetadata(ParameterMetadata parameterMetadata) {
+    unsetMetadata();
+    this.parameterMetadata = parameterMetadata;
     if (this.extendedSBase != null) {
-      this.p.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.p);
+      this.parameterMetadata.setPackageVersion(-1);
+      this.extendedSBase.registerChild(this.parameterMetadata);
     }
   }
 
 
   /**
-   * Unsets the variable p.
+   * Unsets the variable parameterMetadata.
    *
-   * @return {@code true}, if p was set before, otherwise {@code false}.
-   */
-  public boolean unsetP() {
-    if (this.p != null) {
-      ParameterP oldP = this.p;
-      this.p = null;
-      oldP.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-
-  /**
-   * Creates a new {@link ParameterP} inside this {@link PMFParameterPlugin},
-   * and returns a pointer to it.
-   *
-   * @return the new {@link ParameterP} instance.
-   */
-  public ParameterP createP(double p) {
-    setP(new ParameterP(p, getLevel(), getVersion()));
-    return getP();
-  }
-
-
-  // *** T ***
-  /**
-   * Returns the {@link ParameterT} of this {@link PMFParameterPlugin}.
-   *
-   * @return the {@link ParameterT} of this {@link PMFParameterPlugin}.
-   */
-  public ParameterT getT() {
-    return this.t;
-  }
-
-
-  /**
-   * Returns whether t is set.
-   *
-   * @return whether t is set.
-   */
-  public boolean isSetT() {
-    return this.t != null;
-  }
-
-
-  /**
-   * Sets the {@link ParameterT} of this {@link PMFParameterPlugin}.
-   *
-   * @param t
-   */
-  public void setT(ParameterT t) {
-    unsetT();
-    this.t = t;
-    if (this.extendedSBase != null) {
-      this.t.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.t);
-    }
-  }
-
-
-  /**
-   * Unsets the variable t.
-   *
-   * @return {@code true}, if t was set before, otherwise {@code false}.
-   */
-  public boolean unsetT() {
-    if (this.t != null) {
-      ParameterT oldT = this.t;
-      this.t = null;
-      oldT.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-
-  /**
-   * Creates a new {@link ParameterT} inside this {@link PMFParameterPlugin},
-   * and
-   * returns a pointer to it.
-   *
-   * @return the new {@link ParameterT} instance.
-   */
-  public ParameterT createT(double t) {
-    setT(new ParameterT(t, getLevel(), getVersion()));
-    return getT();
-  }
-
-
-  // *** Error ***
-  /**
-   * Returns the {@link ParameterError} of this {@link PMFParameterPlugin}.
-   *
-   * @return the {@link ParameterError} of this {@link PMFParameterPlugin}.
-   */
-  public ParameterError getError() {
-    return this.error;
-  }
-
-
-  /**
-   * Returns whether error is set.
-   *
-   * @return whether error is set.
-   */
-  public boolean isSetError() {
-    return this.error != null;
-  }
-
-
-  /**
-   * Sets the {@link ParameterError} of this {@link PMFParameterPlugin}.
-   *
-   * @param error
-   */
-  public void setError(ParameterError error) {
-    unsetError();
-    this.error = error;
-    if (this.extendedSBase != null) {
-      this.error.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.error);
-    }
-  }
-
-
-  /**
-   * Unsets the variable error.
-   *
-   * @return {@code true}, if error was set before, otherwise {@code false}.
-   */
-  public boolean unsetError() {
-    if (this.error != null) {
-      ParameterError oldError = this.error;
-      this.error = null;
-      oldError.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-
-  /**
-   * Creates a new {@link ParameterError} inside this {@link PMFParameterPlugin}
-   * , and
-   * returns a pointer to it.
-   *
-   * @return the new {@link ParameterError} instance.
-   */
-  public ParameterError createError(double error) {
-    setError(new ParameterError(error, getLevel(), getVersion()));
-    return getError();
-  }
-
-
-  // *** Description ***
-  /**
-   * Returns the {@link ParameterDescription} of this {@link PMFParameterPlugin}
-   * .
-   *
-   * @return the {@link ParameterDescription} of this {@link PMFParameterPlugin}
-   *         .
-   */
-  public ParameterDescription getDescription() {
-    return this.description;
-  }
-
-
-  /**
-   * Returns whether description is set.
-   *
-   * @return whether description is set.
-   */
-  public boolean isSetDescription() {
-    return this.description != null;
-  }
-
-
-  /**
-   * Sets the {@link ParameterDescription} of this {@link PMFParameterPlugin}.
-   *
-   * @param description
-   */
-  public void setDescription(ParameterDescription description) {
-    unsetDescription();
-    this.description = description;
-    if (this.extendedSBase != null) {
-      this.description.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.description);
-    }
-  }
-
-
-  /**
-   * Unsets the variable description.
-   *
-   * @return {@code true}, if description was set before, otherwise
+   * @return {@code true} if parameterMetadata was set before, otherwise
    *         {@code false}.
    */
-  public boolean unsetDescription() {
-    if (this.description != null) {
-      ParameterDescription oldDescription = this.description;
-      this.description = null;
-      oldDescription.fireNodeRemovedEvent();
+  public boolean unsetMetadata() {
+    if (isSetMetadata()) {
+      ParameterMetadata oldMetadata = this.parameterMetadata;
+      this.parameterMetadata = null;
+      firePropertyChange(PMFConstants.paramMetadata, oldMetadata,
+        this.parameterMetadata);
       return true;
     }
     return false;
-  }
-
-
-  /**
-   * Creates a new {@link ParameterDescription} inside this
-   * {@link PMFParameterPlugin}, and
-   * returns a pointer to it.
-   *
-   * @return the new {@link ParameterDescription} instance.
-   */
-  public ParameterDescription createDescription(String description) {
-    setDescription(
-      new ParameterDescription(description, getLevel(), getVersion()));
-    return getDescription();
-  }
-
-
-  // *** Min ***
-  /**
-   * Returns the {@link ParamMin} of this {@link PMFParameterPlugin}.
-   *
-   * @return the {@link ParamMin} of this {@link PMFParameterPlugin}.
-   */
-  public ParamMin getMin() {
-    return this.min;
-  }
-
-
-  /**
-   * Returns whether min is set.
-   *
-   * @return whether min is set.
-   */
-  public boolean isSetMin() {
-    return this.min != null;
-  }
-
-
-  /**
-   * Sets the {@link ParamMin} of this {@link PMFParameterPlugin}.
-   *
-   * @param min
-   */
-  public void setMin(ParamMin min) {
-    unsetMin();
-    this.min = min;
-    if (this.extendedSBase != null) {
-      this.min.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.min);
-    }
-  }
-
-
-  /**
-   * Unsets the variable min.
-   *
-   * @return {@code true}, if min was set before, otherwise {@code false}.
-   */
-  public boolean unsetMin() {
-    if (this.min != null) {
-      ParamMin oldMin = this.min;
-      this.min = null;
-      oldMin.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-
-  /**
-   * Creates a new {@link ParamMin} inside this {@link PMFParameterPlugin},
-   * and
-   * returns a pointer to it.
-   *
-   * @return the new {@link ParamMin} instance.
-   */
-  public ParamMin createMin(double min) {
-    setMin(new ParamMin(min, getLevel(), getVersion()));
-    return getMin();
-  }
-
-
-  // *** Max ***
-  /**
-   * Returns the {@link ParamMax} of this {@link PMFParameterPlugin}.
-   *
-   * @return the {@link ParamMax} of this {@link PMFParameterPlugin}.
-   */
-  public ParamMax getMax() {
-    return this.max;
-  }
-
-
-  /**
-   * Returns whether max is set.
-   *
-   * @return whether max is set.
-   */
-  public boolean isSetMax() {
-    return this.max != null;
-  }
-
-
-  /**
-   * Sets the {@link ParamMax} of this {@link PMFParameterPlugin}.
-   *
-   * @param max
-   */
-  public void setMax(ParamMax max) {
-    unsetMax();
-    this.max = max;
-    if (this.extendedSBase != null) {
-      this.max.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.max);
-    }
-  }
-
-
-  /**
-   * Unsets the variable max.
-   *
-   * @return {@code true}, if max was set before, otherwise {@code false}.
-   */
-  public boolean unsetMax() {
-    if (this.max != null) {
-      ParamMax oldMax = this.max;
-      this.max = null;
-      oldMax.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-
-  /**
-   * Creates a new {@link ParamMax} inside this {@link PMFParameterPlugin},
-   * and
-   * returns a pointer to it.
-   *
-   * @return the new {@link ParamMax} instance.
-   */
-  public ParamMax createMax(double max) {
-    setMax(new ParamMax(max, getLevel(), getVersion()));
-    return getMax();
   }
 
 
@@ -683,5 +268,18 @@ public class PMFParameterPlugin extends PMFSBasePlugin {
 
   public boolean isSetListOfCorrelations() {
     return this.listOfCorrelations != null;
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public boolean readAttribute(String attributeName, String prefix,
+    String value) {
+    // No attribute defined on this plugin
+    return false;
   }
 }

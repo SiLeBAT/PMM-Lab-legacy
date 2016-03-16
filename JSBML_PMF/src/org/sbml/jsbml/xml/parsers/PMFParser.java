@@ -26,12 +26,7 @@ import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
 import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
-import org.sbml.jsbml.ext.pmf.ParamMax;
-import org.sbml.jsbml.ext.pmf.ParamMin;
-import org.sbml.jsbml.ext.pmf.ParameterDescription;
-import org.sbml.jsbml.ext.pmf.ParameterError;
-import org.sbml.jsbml.ext.pmf.ParameterP;
-import org.sbml.jsbml.ext.pmf.ParameterT;
+import org.sbml.jsbml.ext.pmf.ParameterMetadata;
 import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.ext.pmf.RuleClass;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
@@ -179,30 +174,9 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     }
     // Creates element according to elementName
     switch (elementName) {
-    case PMFConstants.p:
-      ParameterP p = new ParameterP();
-      plugin.setP(p);
-      return p;
-    case PMFConstants.t:
-      ParameterT t = new ParameterT();
-      plugin.setT(t);
-      return t;
-    case PMFConstants.error:
-      ParameterError error = new ParameterError();
-      plugin.setError(error);
-      return error;
-    case PMFConstants.description:
-      ParameterDescription description = new ParameterDescription();
-      plugin.setDescription(description);
-      return description;
-    case PMFConstants.paramMin:
-      ParamMin min = new ParamMin();
-      plugin.setMin(min);
-      return min;
-    case PMFConstants.paramMax:
-      ParamMax max = new ParamMax();
-      plugin.setMax(max);
-      return max;
+    case PMFConstants.paramMetadata:
+      plugin.setMetadata(new ParameterMetadata());
+      return plugin.getMetadata();
     case PMFConstants.listOfCorrelations:
       return plugin.getListOfCorrelations();
     default:

@@ -15,6 +15,7 @@ import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
 import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
+import org.sbml.jsbml.ext.pmf.ParameterMetadata;
 import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.ext.pmf.RuleClass;
 import org.sbml.jsbml.text.parser.ParseException;
@@ -32,12 +33,16 @@ public class Test {
     
     Parameter p = model.createParameter("p");
     PMFParameterPlugin parameterPlugin = (PMFParameterPlugin) p.createPlugin(PMFConstants.shortLabel);
-    parameterPlugin.createP(0.1);
-    parameterPlugin.createT(0.3);
-    parameterPlugin.createError(0.5);
-    parameterPlugin.createDescription("some description");
-    parameterPlugin.createMin(0.1);
-    parameterPlugin.createMax(9.9);
+    
+    ParameterMetadata paramMetadata = new ParameterMetadata();
+    paramMetadata.setP(0.1);
+    paramMetadata.setT(0.5);
+    paramMetadata.setError(0.5);
+    paramMetadata.setDescription("some description");
+    paramMetadata.setMin(0.1);
+    paramMetadata.setMax(0.9);
+    parameterPlugin.setMetadata(paramMetadata);
+    
     parameterPlugin.createCorrelation("a", 1.0);
     parameterPlugin.createCorrelation("b", 2.0);
     

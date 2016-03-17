@@ -3,10 +3,10 @@ import java.io.IOException;
 import javax.xml.stream.XMLStreamException;
 
 import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
-import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
@@ -25,7 +25,7 @@ public class Test {
   public static void main(String[] args) {
     SBMLDocument doc = new SBMLDocument(3, 1);
     doc.enablePackage(PMFConstants.shortLabel);
-    Model model = doc.createModel();
+    Model model = doc.createModel("amodel");
     
     PMFModelPlugin plugin = (PMFModelPlugin) model.createPlugin(PMFConstants.shortLabel);
     plugin.createModelVariable("pH", 5.0);
@@ -36,6 +36,7 @@ public class Test {
     plugin.createPrimaryModel("someModel.sbml");
     
     Parameter p = model.createParameter("p");
+    p.setConstant(false);
     PMFParameterPlugin parameterPlugin = (PMFParameterPlugin) p.createPlugin(PMFConstants.shortLabel);
     
     ParameterMetadata paramMetadata = new ParameterMetadata();
@@ -55,8 +56,9 @@ public class Test {
     PMFUnitDefinitionPlugin unitDefinitionPlugin = (PMFUnitDefinitionPlugin) ud.createPlugin(PMFConstants.shortLabel);
     unitDefinitionPlugin.createUnitTransformation("ln");
     
-    Rule rule = model.createAlgebraicRule();
+    AssignmentRule rule = model.createAssignmentRule();
     try {
+      rule.setVariable(p.getId());
     rule.setMath(ASTNode.parseFormula("2+2"));
     } catch (ParseException e) {
       e.printStackTrace();

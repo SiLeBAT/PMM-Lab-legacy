@@ -320,7 +320,7 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
    */
   @Override
   public boolean isRequired() {
-    return true;
+    return false;
   }
 
 

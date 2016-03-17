@@ -43,6 +43,7 @@ public class Test {
     
     Compartment compartment = model.createCompartment("Culture_medium");
     compartment.setName("culture medium");
+    compartment.setConstant(true);
     PMFCompartmentPlugin compartmentPlugin = (PMFCompartmentPlugin) compartment.createPlugin(PMFConstants.shortLabel);
     CompartmentMetadata compartmentMetadata = new CompartmentMetadata();
     compartmentMetadata.setSource(36);
@@ -50,6 +51,10 @@ public class Test {
     compartmentPlugin.setCompartmentMetadata(compartmentMetadata);
     
     Species species = model.createSpecies("some_species");
+    species.setCompartment(compartment);
+    species.setBoundaryCondition(false);
+    species.setHasOnlySubstanceUnits(true);
+    species.setConstant(false);
     PMFSpeciesPlugin speciesPlugin = (PMFSpeciesPlugin) species.createPlugin(PMFConstants.shortLabel);
     SpeciesMetadata speciesMetadata = new SpeciesMetadata();
     speciesMetadata.setSource("http://identifiers.org/ncim/C0036111");
@@ -59,6 +64,7 @@ public class Test {
     
     Parameter p = model.createParameter("p");
     p.setConstant(false);
+    p.setValue(0);
     PMFParameterPlugin parameterPlugin = (PMFParameterPlugin) p.createPlugin(PMFConstants.shortLabel);
     
     ParameterMetadata paramMetadata = new ParameterMetadata();
@@ -80,7 +86,7 @@ public class Test {
     
     AssignmentRule rule = model.createAssignmentRule();
     try {
-      rule.setVariable(p.getId());
+      rule.setVariable(species.getId());
     rule.setMath(ASTNode.parseFormula("2+2"));
     } catch (ParseException e) {
       e.printStackTrace();

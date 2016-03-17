@@ -4,11 +4,14 @@ import javax.xml.stream.XMLStreamException;
 
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AssignmentRule;
+import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.UnitDefinition;
+import org.sbml.jsbml.ext.pmf.CompartmentMetadata;
+import org.sbml.jsbml.ext.pmf.PMFCompartmentPlugin;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
@@ -34,6 +37,14 @@ public class Test {
     plugin.createDataSource("someData.numl");
     
     plugin.createPrimaryModel("someModel.sbml");
+    
+    Compartment compartment = model.createCompartment("Culture_medium");
+    compartment.setName("culture medium");
+    PMFCompartmentPlugin compartmentPlugin = (PMFCompartmentPlugin) compartment.createPlugin(PMFConstants.shortLabel);
+    CompartmentMetadata compartmentMetadata = new CompartmentMetadata();
+    compartmentMetadata.setSource(36);
+    compartmentMetadata.setDetail("broth");
+    compartmentPlugin.setCompartmentMetadata(compartmentMetadata);
     
     Parameter p = model.createParameter("p");
     p.setConstant(false);

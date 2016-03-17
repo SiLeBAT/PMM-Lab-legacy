@@ -1,6 +1,6 @@
 /*
- * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue CompartmentMetadata.java 13:05:01 Miguel Alba $
- * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml CompartmentMetadata.java $
+ * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue SpeciesMetadata.java 13:56:30 Miguel Alba $
+ * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml SpeciesMetadata.java $
  * ---------------------------------------------------------------------------- 
  * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML> 
  * for the latest version of JSBML and more information about SBML. 
@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.sbml.jsbml.AbstractSBase;
-import org.sbml.jsbml.PropertyUndefinedError;
-import org.sbml.jsbml.util.StringTools;
 
 /**
  * @author ???
@@ -34,21 +32,21 @@ import org.sbml.jsbml.util.StringTools;
  * @since 1.0
  * @date 17.03.2016
  */
-public class CompartmentMetadata extends AbstractSBase {
+public class SpeciesMetadata extends AbstractSBase {
   
-  private static final long serialVersionUID = 6551098640494250328L;
-  
-  private Integer source;
+  private static final long serialVersionUID = -3780939750511746572L;
+  private String source;
   private String detail;
+  private String description;
   
-  /** Creates a CompartmentMetadata instance. */
-  public CompartmentMetadata() {
+  /** Creates a SpeciesMetadata instance. */
+  public SpeciesMetadata() {
     super();
     initDefaults();
   }
   
-  /** Clone constructor */
-  public CompartmentMetadata(CompartmentMetadata obj) {
+  /** Clone constructor. */
+  public SpeciesMetadata(SpeciesMetadata obj) {
     super(obj);
     
     if (obj.isSetSource()) {
@@ -57,12 +55,15 @@ public class CompartmentMetadata extends AbstractSBase {
     if (obj.isSetDetail()) {
       setDetail(obj.detail);
     }
+    if (obj.isSetDescription()) {
+      setDescription(obj.description);
+    }
   }
   
   /** Clones this class. */
   @Override
-  public CompartmentMetadata clone() {
-    return new CompartmentMetadata(this);
+  public SpeciesMetadata clone() {
+    return new SpeciesMetadata(this);
   }
   
   /** Initializes the default values using the namespace. */
@@ -72,17 +73,14 @@ public class CompartmentMetadata extends AbstractSBase {
   }
   
   // *** source methods ***
+  
   /**
    * Returns the value of {@link #source}.
    *
    * @return the value of {@link #source}.
    */
-  public Integer getSource() {
-    if (isSetSource()) {
+  public String getSource() {
       return source;
-    }
-    // This is necessary if we cannot return null here.
-    throw new PropertyUndefinedError("source", this);
   }
 
 
@@ -101,8 +99,8 @@ public class CompartmentMetadata extends AbstractSBase {
    *
    * @param source the value of source to be set.
    */
-  public void setSource(Integer source) {
-    Integer oldSource = this.source;
+  public void setSource(String source) {
+    String oldSource = this.source;
     this.source = source;
     firePropertyChange("source", oldSource, this.source);
   }
@@ -115,7 +113,7 @@ public class CompartmentMetadata extends AbstractSBase {
    */
   public boolean unsetSource() {
     if (isSetSource()) {
-      Integer oldSource = this.source;
+      String oldSource = this.source;
       this.source = null;
       firePropertyChange("source", oldSource, this.source);
       return true;
@@ -126,9 +124,9 @@ public class CompartmentMetadata extends AbstractSBase {
   // *** detail methods ***
   
   /**
-   * Returns the value of {@link #}.
+   * Returns the value of {@link #detail}.
    *
-   * @return the value of {@link #}.
+   * @return the value of {@link #detail}.
    */
   public String getDetail() {
       return detail;
@@ -136,9 +134,9 @@ public class CompartmentMetadata extends AbstractSBase {
 
 
   /**
-   * Returns whether {@link #} is set.
+   * Returns whether {@link #detail} is set.
    *
-   * @return whether {@link #} is set.
+   * @return whether {@link #detail} is set.
    */
   public boolean isSetDetail() {
     return this.detail != null;
@@ -146,9 +144,9 @@ public class CompartmentMetadata extends AbstractSBase {
 
 
   /**
-   * Sets the value of 
+   * Sets the value of detail
    *
-   * @param  the value of  to be set.
+   * @param detail the value of detail to be set.
    */
   public void setDetail(String detail) {
     String oldDetail = this.detail;
@@ -158,9 +156,9 @@ public class CompartmentMetadata extends AbstractSBase {
 
 
   /**
-   * Unsets the variable .
+   * Unsets the variable detail.
    *
-   * @return {@code true} if  was set before, otherwise {@code false}.
+   * @return {@code true} if detail was set before, otherwise {@code false}.
    */
   public boolean unsetDetail() {
     if (isSetDetail()) {
@@ -172,16 +170,68 @@ public class CompartmentMetadata extends AbstractSBase {
     return false;
   }
   
+  // *** description methods ***
+  
+  /**
+   * Returns the value of {@link #description}.
+   *
+   * @return the value of {@link #description}.
+   */
+  public String getDescription() {
+      return description;
+  }
+
+
+  /**
+   * Returns whether {@link #description} is set.
+   *
+   * @return whether {@link #description} is set.
+   */
+  public boolean isSetDescription() {
+    return this.description != null;
+  }
+
+
+  /**
+   * Sets the value of description
+   *
+   * @param description the value of description to be set.
+   */
+  public void setDescription(String description) {
+    String oldDescription = this.description;
+    this.description = description;
+    firePropertyChange("description", oldDescription, this.description);
+  }
+
+
+  /**
+   * Unsets the variable description.
+   *
+   * @return {@code true} if description was set before, otherwise {@code false}.
+   */
+  public boolean unsetDescription() {
+    if (isSetDescription()) {
+      String oldDescription = this.description;
+      this.description = null;
+      firePropertyChange("description", oldDescription, this.description);
+      return true;
+    }
+    return false;
+  }
+  
   // XML methods
   
   @Override
   public Map<String, String> writeXMLAttributes() {
     Map<String, String> attributes = new TreeMap<>();
     if (isSetSource()) {
-      attributes.put("source", source.toString());
+      attributes.put("source", this.source);
     }
     if (isSetDetail()) {
-      attributes.put("detail", detail);
+      attributes.put("detail", this.detail);
+    }
+    if (isSetDescription()) {
+      attributes.put("description", this.description);
     }
     return attributes;
   }
@@ -190,13 +240,17 @@ public class CompartmentMetadata extends AbstractSBase {
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {
-    
+
     if (attributeName.equals("source")) {
-      setSource(StringTools.parseSBMLInt(value));
+      setSource(value);
       return true;
     }
     if (attributeName.equals("detail")) {
       setDetail(value);
+      return true;
+    }
+    if (attributeName.equals("description")) {
+      setDescription(value);
       return true;
     }
     return false;
@@ -207,14 +261,16 @@ public class CompartmentMetadata extends AbstractSBase {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(PMFConstants.compartmentMetadata + "[");
+    StringBuilder sb = new StringBuilder(PMFConstants.speciesMetadata + "[");
     if (isSetSource()) {
-      sb.append(String.format("\"source\"=%d ", source));
+      sb.append(String.format("\"source\"=%s ", source));
     }
     if (isSetDetail()) {
       sb.append(String.format("\"detail\"=%s ", detail));
     }
-    
-    return sb.toString();
+    if (isSetDescription()) {
+      sb.append(String.format("\"description\"=%s ", description));
+    }
+    return null;
   }
 }

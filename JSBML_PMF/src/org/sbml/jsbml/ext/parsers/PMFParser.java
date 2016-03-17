@@ -15,6 +15,7 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBase;
+import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.ASTNodePlugin;
 import org.sbml.jsbml.ext.SBasePlugin;
@@ -29,11 +30,13 @@ import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
 import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
+import org.sbml.jsbml.ext.pmf.PMFSpeciesPlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
 import org.sbml.jsbml.ext.pmf.ParameterMetadata;
 import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.ext.pmf.PrimaryModel;
 import org.sbml.jsbml.ext.pmf.RuleClass;
+import org.sbml.jsbml.ext.pmf.SpeciesMetadata;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
 import org.sbml.jsbml.xml.parsers.AbstractReaderWriter;
 import org.sbml.jsbml.xml.parsers.PackageParser;
@@ -114,6 +117,10 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     // Parent=Compartment -> Child=CompartmentMetadata
     else if (contextObject instanceof Compartment) {
       return processStartElementInCompartment(contextObject, elementName);
+    }
+    // Parent=Species -> Child=SpeciesMetadata
+    else if (contextObject instanceof Species) {
+      return processStartElementInSpecies(contextObject, elementName);
     }
     return contextObject;
   }
@@ -273,6 +280,21 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     
     return contextObject;
   }
+  
+  private static Object processStartElementInSpecies(Object contextObject, String elementName) {
+    Species species = (Species) contextObject;
+    
+    PMFSpeciesPlugin plugin = new PMFSpeciesPlugin(species);
+    species.addExtension(PMFConstants.shortLabel, plugin);
+    
+    if (elementName.equals(PMFConstants.speciesMetadata)) {
+      SpeciesMetadata metadata = new SpeciesMetadata();
+      plugin.setMetadata(metadata);
+      return metadata;
+    }
+    
+    return contextObject;
+  }
 
   /*
    * (non-Javadoc)
@@ -361,6 +383,8 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
         return new PMFRulePlugin((Rule) sbase);
       } else if (sbase instanceof Compartment) {
         return new PMFCompartmentPlugin((Compartment) sbase);
+      } else if (sbase instanceof Species) {
+        return new PMFSpeciesPlugin((Species) sbase);
       }
     }
     return null;

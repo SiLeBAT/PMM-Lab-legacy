@@ -9,6 +9,7 @@ import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.pmf.CompartmentMetadata;
 import org.sbml.jsbml.ext.pmf.PMFCompartmentPlugin;
@@ -17,10 +18,12 @@ import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
 import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
+import org.sbml.jsbml.ext.pmf.PMFSpeciesPlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
 import org.sbml.jsbml.ext.pmf.ParameterMetadata;
 import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.ext.pmf.RuleClass;
+import org.sbml.jsbml.ext.pmf.SpeciesMetadata;
 import org.sbml.jsbml.text.parser.ParseException;
 
 public class Test {
@@ -45,6 +48,14 @@ public class Test {
     compartmentMetadata.setSource(36);
     compartmentMetadata.setDetail("broth");
     compartmentPlugin.setCompartmentMetadata(compartmentMetadata);
+    
+    Species species = model.createSpecies("some_species");
+    PMFSpeciesPlugin speciesPlugin = (PMFSpeciesPlugin) species.createPlugin(PMFConstants.shortLabel);
+    SpeciesMetadata speciesMetadata = new SpeciesMetadata();
+    speciesMetadata.setSource("http://identifiers.org/ncim/C0036111");
+    speciesMetadata.setDetail("Salmonella spec");
+    speciesMetadata.setDescription("bacterial population at time t -ln()");
+    speciesPlugin.setMetadata(speciesMetadata);
     
     Parameter p = model.createParameter("p");
     p.setConstant(false);

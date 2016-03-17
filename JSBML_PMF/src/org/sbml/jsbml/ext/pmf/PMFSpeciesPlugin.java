@@ -1,8 +1,8 @@
 /*
  * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue
- * PMFCompartmentPlugin.java 13:03:57 Miguel Alba $
+ * PMFSpeciesPlugin.java 14:10:32 Miguel Alba $
  * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
- * PMFCompartmentPlugin.java $
+ * PMFSpeciesPlugin.java $
  * ----------------------------------------------------------------------------
  * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML>
  * for the latest version of JSBML and more information about SBML.
@@ -23,8 +23,8 @@ package org.sbml.jsbml.ext.pmf;
 
 import java.text.MessageFormat;
 
-import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.SBase;
+import org.sbml.jsbml.Species;
 
 /**
  * @author ???
@@ -32,51 +32,42 @@ import org.sbml.jsbml.SBase;
  * @since 1.0
  * @date 17.03.2016
  */
-public class PMFCompartmentPlugin extends PMFSBasePlugin {
+public class PMFSpeciesPlugin extends PMFSBasePlugin {
 
-  private static final long   serialVersionUID = -6317995703768130149L;
-  private CompartmentMetadata metadata;
+  private static final long serialVersionUID = -4988701319786063725L;
+  private SpeciesMetadata metadata;
 
 
-  /**
-   * Creates a new {@link PMFCompartmentPlugin} instance cloned from 'plugin'.
-   */
-  public PMFCompartmentPlugin(PMFCompartmentPlugin plugin) {
+  /** Creates a new {@link PMFSpeciesPlugin} instance cloned from 'plugin'. */
+  public PMFSpeciesPlugin(PMFSpeciesPlugin plugin) {
     super(plugin);
-    if (plugin.isSetCompartmentMetadata()) {
-      setCompartmentMetadata(plugin.metadata.clone());
+    if (plugin.isSetMetadata()) {
+      setMetadata(plugin.metadata.clone());
     }
   }
-
-
-  /**
-   * Creates a new {@link PMFCompartmentPlugin} instance from a
-   * {@link Compartment}.
-   */
-  public PMFCompartmentPlugin(Compartment compartment) {
-    super(compartment);
+  
+  /** Creates a new {@link PMFSpeciesPlugin} instance from a {@link Species}. */
+  public PMFSpeciesPlugin(Species species) {
+    super(species);
   }
-
-
-  /*
-   * (non-Javadoc)
+  
+  /* (non-Javadoc)
    * @see org.sbml.jsbml.ext.AbstractSBasePlugin#clone()
    */
   @Override
-  public PMFCompartmentPlugin clone() {
-    return new PMFCompartmentPlugin(this);
+  public PMFSpeciesPlugin clone() {
+    return new PMFSpeciesPlugin(this);
   }
+
   // *** plugin methods ***
-
-
   /*
    * (non-Javadoc)
    * @see org.sbml.jsbml.ext.AbstractTreeNode#getParent()
    */
   @Override
-  public Compartment getParent() {
+  public Species getParent() {
     if (isSetExtendedSBase()) {
-      return (Compartment) getExtendedSBase();
+      return (Species) getExtendedSBase();
     }
     return null;
   }
@@ -87,7 +78,7 @@ public class PMFCompartmentPlugin extends PMFSBasePlugin {
    * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getParentSBMLObject()
    */
   @Override
-  public Compartment getParentSBMLObject() {
+  public Species getParentSBMLObject() {
     return getParent();
   }
 
@@ -100,18 +91,16 @@ public class PMFCompartmentPlugin extends PMFSBasePlugin {
   public boolean getAllowsChildren() {
     return true;
   }
-
-
+  
   /*
    * (non-Javadoc)
    * @see org.sbml.jsbml.SBasePlugin#getChildCount()
    */
   @Override
   public int getChildCount() {
-    return isSetCompartmentMetadata() ? 1 : 0;
+    return isSetMetadata() ? 1 : 0;
   }
-
-
+  
   /*
    * (non-Javadoc)
    * @see org.sbml.jsbml.SBasePlugin#getChildAt(int)
@@ -124,9 +113,9 @@ public class PMFCompartmentPlugin extends PMFSBasePlugin {
         Integer.valueOf(childIndex), Integer.valueOf(0)));
     }
     int pos = 0;
-    if (isSetCompartmentMetadata()) {
+    if (isSetMetadata()) {
       if (pos == childIndex) {
-        return getCompartmentMetadata();
+        return getMetadata();
       }
       pos++;
     }
@@ -134,57 +123,54 @@ public class PMFCompartmentPlugin extends PMFSBasePlugin {
       resourceBundle.getString("IndexExceedsBoundsException"),
       Integer.valueOf(childIndex), Integer.valueOf(Math.min(pos, 0))));
   }
-
-
+  
   // *** metadata ***
   /**
-   * Returns the value of {@link #compartmentMetadata}.
+   * Returns the value of {@link #metadata}.
    *
-   * @return the value of {@link #compartmentMetadata}.
+   * @return the value of {@link #metadata}.
    */
-  public CompartmentMetadata getCompartmentMetadata() {
+  public SpeciesMetadata getMetadata() {
     return metadata;
   }
 
 
   /**
-   * Returns whether {@link #compartmentMetadata} is set.
+   * Returns whether {@link #metadata} is set.
    *
-   * @return whether {@link #compartmentMetadata} is set.
+   * @return whether {@link #metadata} is set.
    */
-  public boolean isSetCompartmentMetadata() {
+  public boolean isSetMetadata() {
     return this.metadata != null;
   }
 
 
   /**
-   * Sets the value of compartmentMetadata
+   * Sets the value of metadata
    *
-   * @param compartmentMetadata
-   *        the value of compartmentMetadata to be set.
+   * @param metadata
+   *        the value of metadata to be set.
    */
-  public void setCompartmentMetadata(CompartmentMetadata metadata) {
-    unsetCompartmentMetadata();
+  public void setMetadata(SpeciesMetadata metadata) {
+    unsetMetadata();
     this.metadata = metadata;
-    if (this.extendedSBase != null) {
+    if (isSetExtendedSBase()) {
       this.metadata.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.metadata);
+      getExtendedSBase().registerChild(this.metadata);
     }
   }
 
 
   /**
-   * Unsets the variable compartmentMetadata.
+   * Unsets the variable metadata.
    *
-   * @return {@code true} if compartmentMetadata was set before, otherwise
-   *         {@code false}.
+   * @return {@code true} if metadata was set before, otherwise {@code false}.
    */
-  public boolean unsetCompartmentMetadata() {
-    if (isSetCompartmentMetadata()) {
-      CompartmentMetadata oldMetadata = this.metadata;
+  public boolean unsetMetadata() {
+    if (isSetMetadata()) {
+      SpeciesMetadata oldMetadata = this.metadata;
       this.metadata = null;
-      firePropertyChange(PMFConstants.compartmentMetadata, oldMetadata,
-        this.metadata);
+      firePropertyChange("metadata", oldMetadata, this.metadata);
       return true;
     }
     return false;
@@ -200,7 +186,6 @@ public class PMFCompartmentPlugin extends PMFSBasePlugin {
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {
-    // No attribute defined on this plugin
     return false;
   }
 }

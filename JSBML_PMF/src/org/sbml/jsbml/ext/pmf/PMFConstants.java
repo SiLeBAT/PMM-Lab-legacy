@@ -44,6 +44,8 @@ public class PMFConstants {
   
   public static final String compartmentMetadata = "compartmentMetadata";
   
+  public static final String speciesMetadata = "speciesMetadata";
+  
   public static final String formulaName = "formulaName";
   public static final String pmfReference = "pMFReference";
   public static final String pmmlabId = "pmmLabId";

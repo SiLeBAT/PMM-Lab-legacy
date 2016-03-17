@@ -9,15 +9,16 @@ import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBase;
-import org.sbml.jsbml.ext.AbstractSBasePlugin;
 
 /**
  * @author Miguel Alba
  */
-public class PMFModelPlugin extends AbstractSBasePlugin {
+public class PMFModelPlugin extends PMFSBasePlugin {
 
-  private static final long serialVersionUID = 5078386942266911188L;
-  protected ListOf<ModelVariable> listOfModelVariables;
+  private static final long     serialVersionUID = 5078386942266911188L;
+  private ListOf<ModelVariable> listOfModelVariables;
+  private ListOf<DataSource>    listOfDataSources;
+  private ListOf<PrimaryModel>  listOfPrimaryModels;
 
 
   /**
@@ -30,6 +31,12 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
     if (plugin.isSetListOfModelVariables()) {
       setListOfModelVariables(plugin.listOfModelVariables.clone());
     }
+    if (plugin.isSetListOfDataSources()) {
+      setListOfDataSources(plugin.listOfDataSources.clone());
+    }
+    if (plugin.isSetListOfPrimaryModels()) {
+      setListOfPrimaryModels(plugin.listOfPrimaryModels.clone());
+    }
   }
 
 
@@ -38,7 +45,6 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    */
   public PMFModelPlugin(Model model) {
     super(model);
-    initDefaults();
   }
 
 
@@ -52,14 +58,65 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
   }
 
 
-  // *** plugin methods ***
+  @Override
+  public boolean getAllowsChildren() {
+    return true;
+  }
+
+
   /*
    * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#getPackageName()
+   * @see org.sbml.jsbml.ext.SBasePlugin#getChildCount()
    */
   @Override
-  public String getPackageName() {
-    return PMFConstants.shortLabel;
+  public int getChildCount() {
+    int childCount = 0;
+    if (isSetListOfModelVariables()) {
+      childCount++;
+    }
+    if (isSetListOfDataSources()) {
+      childCount++;
+    }
+    if (isSetListOfPrimaryModels()) {
+      childCount++;
+    }
+    return childCount;
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.ext.SBasePlugin#getChildAt(int)
+   */
+  @Override
+  public SBase getChildAt(int childIndex) {
+    if (childIndex < 0) {
+      throw new IndexOutOfBoundsException(MessageFormat.format(
+        resourceBundle.getString("IndexSurpassesBoundsException"),
+        Integer.valueOf(childIndex), Integer.valueOf(0)));
+    }
+    int pos = 0;
+    if (isSetListOfModelVariables()) {
+      if (pos == childIndex) {
+        return getListOfModelVariables();
+      }
+      pos++;
+    }
+    if (isSetListOfDataSources()) {
+      if (pos == childIndex) {
+        return getListOfDataSources();
+      }
+      pos++;
+    }
+    if (isSetListOfPrimaryModels()) {
+      if (pos == childIndex) {
+        return getListOfPrimaryModels();
+      }
+      pos++;
+    }
+    throw new IndexOutOfBoundsException(
+      MessageFormat.format("Index {0, number, integer} >= {1, number, integer}",
+        Integer.valueOf(childIndex), Integer.valueOf(Math.min(pos, 0))));
   }
 
 
@@ -88,65 +145,6 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
 
   /*
    * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getPrefix()
-   */
-  @Override
-  public String getPrefix() {
-    return PMFConstants.shortLabel;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.AbstractSBasePlugin#getURI()
-   */
-  @Override
-  public String getURI() {
-    return getElementNamespace();
-  }
-  
-  private void initDefaults() {
-    setPackageVersion(-1);
-  }
-
-
-  @Override
-  public boolean getAllowsChildren() {
-    return true;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#getChildCount()
-   */
-  @Override
-  public int getChildCount() {
-    if (isSetListOfModelVariables()) {
-      return 1;
-    }
-    return 0;
-  }
-
-
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#getChildAt(int)
-   */
-  @Override
-  public SBase getChildAt(int childIndex) {
-    if (childIndex < 0 || childIndex >= 1) {
-      Integer childCount = Integer.valueOf(Math.min(getChildCount(), 0));
-      throw new IndexOutOfBoundsException(MessageFormat.format(
-        resourceBundle.getString("IndexExceedsBoundsException"),
-        Integer.valueOf(childIndex), childCount));
-    }
-    return this.listOfModelVariables;
-  }
-
-
-  /*
-   * (non-Javadoc)
    * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
    * java.lang.String, java.lang.String)
    */
@@ -160,10 +158,14 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
 
   // *** ModelVariable ***
   /**
-   * Adds a new element to the listOfModelVariables.
-   * listOfModelVariables is initialized if necessary.
+   * Adds a new {@link ModelVariable} to the {@link #listOfModelVariables}.
+   * <p>
+   * The listOfModelVariables is initialized if necessary.
    *
-   * @return {code true} (as specified by {link Collection#add})
+   * @param modelVariable
+   *        the element to add to the list
+   * @return {code true} (as specified by {@link java.util.Collection#add})
+   * @see java.util.Collection#add(Object)
    */
   public boolean addModelVariable(ModelVariable modelVariable) {
     return getListOfModelVariables().add(modelVariable);
@@ -171,15 +173,51 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
 
 
   /**
-   * Creates a new instance of {@link ModelVariable} and add it to this
-   * {@link PMFModelPlugin}.
-   *
-   * @param id
-   *        the name to be set to the new {@link ModelVariable}.
-   * @return the new {@link ModelVariable} instance.
+   * Removes an element from the {@link #listOfModelVariables}.
+   * 
+   * @param modelVariable
+   *        the element to be removed from the list.
+   * @return {@code true} if the list contained the specified element and it was
+   *         removed.
+   * @see java.util.List#remove(Object)
    */
-  public ModelVariable createModelVariable(String id) {
-    ModelVariable mv = new ModelVariable(id);
+  public boolean removeModelVariable(ModelVariable modelVariable) {
+    if (isSetListOfModelVariables()) {
+      return getListOfModelVariables().remove(modelVariable);
+    }
+    return false;
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfModelVariables} at the given
+   * index.
+   * 
+   * @param i
+   *        the index where to remove the {@link ModelVariable}.
+   * @return the specified element if it was successfully found and removed.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or if the index is out of bound (
+   *         {@code (i < 0) || (i > listOfModelVariables)}).
+   */
+  public ModelVariable removeModelVariable(int i) {
+    if (!isSetListOfModelVariables()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfModelVariables().remove(i);
+  }
+
+
+  /**
+   * Creates a new {@link ModelVariable} element and adds it to this
+   * {@link #listOfModelVariables} list.
+   *
+   * @param src
+   * @return the newly created {@link ModelVariable} element, which is the last
+   *         element in the {@link #listOfModelVariables}.
+   */
+  public ModelVariable createModelVariable(String name) {
+    ModelVariable mv = new ModelVariable(name);
     addModelVariable(mv);
     return mv;
   }
@@ -189,14 +227,14 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
    * Creates a new instance of {@link ModelVariable} and add it to this
    * {@link PMFModelPlugin}.
    *
-   * @param id
+   * @param name
    *        the name to be set to the new {@link ModelVariable}.
    * @param value
    *        the value to be set to the new {@link ModelVariable}.
    * @return the new {@link ModelVariable} instance.
    */
-  public ModelVariable createModelVariable(String id, double value) {
-    ModelVariable mv = new ModelVariable(id, value, getLevel(), getVersion());
+  public ModelVariable createModelVariable(String name, double value) {
+    ModelVariable mv = new ModelVariable(name, value, getLevel(), getVersion());
     addModelVariable(mv);
     return mv;
   }
@@ -246,8 +284,13 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
   }
 
 
+  public boolean isSetListOfModelVariables() {
+    return this.listOfModelVariables != null;
+  }
+
+
   public void setListOfModelVariables(
-    ListOf<ModelVariable> listOfModelVariables) {
+    final ListOf<ModelVariable> listOfModelVariables) {
     unsetListOfModelVariables();
     this.listOfModelVariables = listOfModelVariables;
     if (listOfModelVariables != null) {
@@ -283,7 +326,378 @@ public class PMFModelPlugin extends AbstractSBasePlugin {
   }
 
 
-  public boolean isSetListOfModelVariables() {
-    return this.listOfModelVariables != null;
+  // *** listOfDataSources ***
+  /**
+   * Adds a new {@link DataSource} to the {@link #listOfDataSources}.
+   * <p>
+   * The listOfDataSources is initialized if necessary.
+   *
+   * @param dataSource
+   *        the element to add to the list
+   * @return {@code true} (as specified by {@link java.util.Collection#add})
+   * @see java.util.Collection#add(Object)
+   */
+  public boolean addDataSource(DataSource dataSource) {
+    return getListOfDataSources().add(dataSource);
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfDataSources}.
+   *
+   * @param dataSource
+   *        the element to be removed from the list.
+   * @return {@code true} if the list contained the specified element and it was
+   *         removed.
+   * @see java.util.List#remove(Object)
+   */
+  public boolean removeDataSource(DataSource dataSource) {
+    if (isSetListOfDataSources()) {
+      return getListOfDataSources().remove(dataSource);
+    }
+    return false;
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfDataSources} at the given index.
+   *
+   * @param i
+   *        the index where to remove the {@link DataSource}.
+   * @return the specified element if it was successfully found and removed.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or if the index is
+   *         out of bound ({@code (i < 0) || (i > listOfDataSources)}).
+   */
+  public DataSource removeDataSource(int i) {
+    if (!isSetListOfDataSources()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfDataSources().remove(i);
+  }
+
+
+  /**
+   * Creates a new {@link DataSource} element and adds it to the
+   * {@link #listOfDataSources} list.
+   * 
+   * @param src
+   * @return the newly created {@link DataSource} element, which is the
+   *         last element in the {@link #listOfDataSources}.
+   */
+  public DataSource createDataSource(String src) {
+    DataSource dataSource = new DataSource(src);
+    addDataSource(dataSource);
+    return dataSource;
+  }
+
+
+  /**
+   * Gets an element from the {@link #listOfDataSources} at the given index.
+   *
+   * @param i
+   *        the index of the {@link DataSource} element to get.
+   * @return an element from the listOfDataSources at the given index.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or
+   *         if the index is out of bound (index < 0 || index > list.size).
+   */
+  public DataSource getDataSource(int i) {
+    if (!isSetListOfDataSources()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfDataSources().get(i);
+  }
+
+
+  /**
+   * Returns the number of {@link DataSource}s in this
+   * {@link PMFModelPlugin}.
+   * 
+   * @return the number of {@link DataSource}s in this
+   *         {@link PMFModelPlugin}.
+   */
+  public int getDataSourceCount() {
+    return isSetListOfDataSources() ? getListOfDataSources().size() : 0;
+  }
+
+
+  /**
+   * Returns the number of {@link DataSource}s in this
+   * {@link PMFModelPlugin}.
+   * 
+   * @return the number of {@link DataSource}s in this
+   *         {@link PMFModelPlugin}.
+   * @libsbml.deprecated same as {@link #getDataSourceCount()}
+   */
+  public int getNumDataSources() {
+    return getDataSourceCount();
+  }
+
+
+  /**
+   * Returns the {@link #listOfDataSources}.
+   * Creates it if it does not already exist.
+   *
+   * @return the {@link #listOfDataSources}.
+   */
+  public ListOf<DataSource> getListOfDataSources() {
+    if (this.listOfDataSources == null) {
+      this.listOfDataSources = new ListOf<>();
+      this.listOfDataSources.setPackageVersion(-1);
+      // changing the listOf package name from 'core' to 'pmf'
+      this.listOfDataSources.setPackageName(null);
+      this.listOfDataSources.setPackageName(PMFConstants.shortLabel);
+      this.listOfDataSources.setSBaseListType(ListOf.Type.other);
+      if (this.extendedSBase != null) {
+        this.extendedSBase.registerChild(listOfDataSources);
+      }
+    }
+    return listOfDataSources;
+  }
+
+
+  /**
+   * Returns {@code true} if {@link #listOfDataSources} contains at least
+   * one element.
+   *
+   * @return {@code true} if {@link #listOfDataSources} contains at least
+   *         one element, otherwise {@code false}.
+   */
+  public boolean isSetListOfDataSources() {
+    if ((listOfDataSources == null) || listOfDataSources.isEmpty()) {
+      return false;
+    }
+    return true;
+  }
+
+
+  /**
+   * Sets the given {@code ListOf<DataSource>}.
+   * If {@link #listOfDataSources} was defined before and contains some
+   * elements, they are all unset.
+   *
+   * @param listOfDataSources
+   */
+  public void setListOfDataSources(ListOf<DataSource> listOfDataSources) {
+    unsetListOfDataSources();
+    this.listOfDataSources = listOfDataSources;
+    if (this.listOfDataSources != null) {
+      this.listOfDataSources.setPackageVersion(-1);
+      // changing the ListOf package name from 'core' to 'pmf'
+      this.listOfDataSources.setPackageName(null);
+      this.listOfDataSources.setPackageName(PMFConstants.shortLabel);
+      this.listOfDataSources.setSBaseListType(ListOf.Type.other);
+      if (this.extendedSBase != null) {
+        this.extendedSBase.registerChild(listOfDataSources);
+      }
+    }
+  }
+
+
+  /**
+   * Returns {@code true} if {@link #listOfDataSources} contains at least
+   * one element, otherwise {@code false}.
+   *
+   * @return {@code true} if {@link #listOfDataSources} contains at least
+   *         one element, otherwise {@code false}.
+   */
+  public boolean unsetListOfDataSources() {
+    if (this.listOfDataSources != null) {
+      ListOf<DataSource> oldDataSources = this.listOfDataSources;
+      this.listOfDataSources = null;
+      oldDataSources.fireNodeRemovedEvent();
+      return true;
+    }
+    return false;
+  }
+
+
+  // *** listOfPrimaryModels ***
+  /**
+   * Adds a new {@link PrimaryModel} to the {@link #listOfPrimaryModels}.
+   * <p>
+   * The listOfPrimaryModels is initialized if necessary.
+   *
+   * @param PrimaryModel
+   *        the element to add to the list
+   * @return {@code true} (as specified by {@link java.util.Collection#add})
+   * @see java.util.Collection#add(Object)
+   */
+  public boolean addPrimaryModel(PrimaryModel PrimaryModel) {
+    return getListOfPrimaryModels().add(PrimaryModel);
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfPrimaryModels}.
+   *
+   * @param PrimaryModel
+   *        the element to be removed from the list.
+   * @return {@code true} if the list contained the specified element and it was
+   *         removed.
+   * @see java.util.List#remove(Object)
+   */
+  public boolean removePrimaryModel(PrimaryModel PrimaryModel) {
+    if (isSetListOfPrimaryModels()) {
+      return getListOfPrimaryModels().remove(PrimaryModel);
+    }
+    return false;
+  }
+
+
+  /**
+   * Removes an element from the {@link #listOfPrimaryModels} at the given
+   * index.
+   *
+   * @param i
+   *        the index where to remove the {@link PrimaryModel}.
+   * @return the specified element if it was successfully found and removed.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or if the index is
+   *         out of bound ({@code (i < 0) || (i > listOfPrimaryModels)}).
+   */
+  public PrimaryModel removePrimaryModel(int i) {
+    if (!isSetListOfPrimaryModels()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfPrimaryModels().remove(i);
+  }
+
+
+  /**
+   * Creates a new {@link PrimaryModel} element and adds it to the
+   * {@link #listOfPrimaryModels} list.
+   * 
+   * @param src
+   * @return the newly created {@link PrimaryModel} element, which is the last
+   *         element in the {@link #listOfPrimaryModels}.
+   */
+  public PrimaryModel createPrimaryModel(String src) {
+    PrimaryModel primaryModel = new PrimaryModel(src);
+    addPrimaryModel(primaryModel);
+    return primaryModel;
+  }
+
+
+  /**
+   * Gets an element from the {@link #listOfPrimaryModels} at the given index.
+   *
+   * @param i
+   *        the index of the {@link PrimaryModel} element to get.
+   * @return an element from the listOfPrimaryModels at the given index.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or
+   *         if the index is out of bound (index < 0 || index > list.size).
+   */
+  public PrimaryModel getPrimaryModel(int i) {
+    if (!isSetListOfPrimaryModels()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfPrimaryModels().get(i);
+  }
+
+
+  /**
+   * Returns the number of {@link PrimaryModel}s in this
+   * {@link PMFModelPlugin}.
+   * 
+   * @return the number of {@link PrimaryModel}s in this
+   *         {@link PMFModelPlugin}.
+   */
+  public int getPrimaryModelCount() {
+    return isSetListOfPrimaryModels() ? getListOfPrimaryModels().size() : 0;
+  }
+
+
+  /**
+   * Returns the number of {@link PrimaryModel}s in this
+   * {@link PMFModelPlugin}.
+   * 
+   * @return the number of {@link PrimaryModel}s in this
+   *         {@link PMFModelPlugin}.
+   * @libsbml.deprecated same as {@link #getPrimaryModelCount()}
+   */
+  public int getNumPrimaryModels() {
+    return getPrimaryModelCount();
+  }
+
+
+  /**
+   * Returns the {@link #listOfPrimaryModels}.
+   * Creates it if it does not already exist.
+   *
+   * @return the {@link #listOfPrimaryModels}.
+   */
+  public ListOf<PrimaryModel> getListOfPrimaryModels() {
+    if (this.listOfPrimaryModels == null) {
+      this.listOfPrimaryModels = new ListOf<>();
+      this.listOfPrimaryModels.setPackageVersion(-1);
+      // changing the listOf package name from 'core' to 'pmf'
+      this.listOfPrimaryModels.setPackageName(null);
+      this.listOfPrimaryModels.setPackageName(PMFConstants.shortLabel);
+      listOfPrimaryModels.setSBaseListType(ListOf.Type.other);
+      if (isSetExtendedSBase()) {
+        extendedSBase.registerChild(listOfPrimaryModels);
+      }
+    }
+    return listOfPrimaryModels;
+  }
+
+
+  /**
+   * Returns {@code true} if {@link #listOfPrimaryModels} contains at least
+   * one element.
+   *
+   * @return {@code true} if {@link #listOfPrimaryModels} contains at least
+   *         one element, otherwise {@code false}.
+   */
+  public boolean isSetListOfPrimaryModels() {
+    if ((this.listOfPrimaryModels == null)
+      || this.listOfPrimaryModels.isEmpty()) {
+      return false;
+    }
+    return true;
+  }
+
+
+  /**
+   * Sets the given {@code ListOf<PrimaryModel>}.
+   * If {@link #listOfPrimaryModels} was defined before and contains some
+   * elements, they are all unset.
+   *
+   * @param listOfPrimaryModels
+   */
+  public void setListOfPrimaryModels(ListOf<PrimaryModel> listOfPrimaryModels) {
+    unsetListOfPrimaryModels();
+    this.listOfPrimaryModels = listOfPrimaryModels;
+    if (this.listOfPrimaryModels != null) {
+      this.listOfPrimaryModels.setPackageVersion(-1);
+      // changing the ListOf package name from 'core' to 'pmf'
+      this.listOfPrimaryModels.setPackageName(null);
+      this.listOfPrimaryModels.setPackageName(PMFConstants.shortLabel);
+      this.listOfPrimaryModels.setSBaseListType(ListOf.Type.other);
+      if (isSetExtendedSBase()) {
+        this.extendedSBase.registerChild(listOfPrimaryModels);
+      }
+    }
+  }
+
+
+  /**
+   * Returns {@code true} if {@link #listOfPrimaryModels} contains at least
+   * one element, otherwise {@code false}.
+   *
+   * @return {@code true} if {@link #listOfPrimaryModels} contains at least
+   *         one element, otherwise {@code false}.
+   */
+  public boolean unsetListOfPrimaryModels() {
+    if (isSetListOfPrimaryModels()) {
+      ListOf<PrimaryModel> oldPrimaryModels = this.listOfPrimaryModels;
+      this.listOfPrimaryModels = null;
+      oldPrimaryModels.fireNodeRemovedEvent();
+      return true;
+    }
+    return false;
   }
 }

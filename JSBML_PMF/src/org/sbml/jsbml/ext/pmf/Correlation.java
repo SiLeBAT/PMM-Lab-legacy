@@ -3,6 +3,7 @@
  */
 package org.sbml.jsbml.ext.pmf;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.sbml.jsbml.AbstractSBase;
@@ -10,73 +11,59 @@ import org.sbml.jsbml.PropertyUndefinedError;
 import org.sbml.jsbml.util.StringTools;
 
 /**
- * Model variable. Includes a name and a value.
- * 
  * @author Miguel Alba
  */
-public class ModelVariable extends AbstractSBase {
+public class Correlation extends AbstractSBase {
 
-  private static final long serialVersionUID = 5419651814539473485L;
+  private static final long serialVersionUID = -4995244041059209206L;
   private String            name;
   private Double            value;
 
 
-  /** Creates a {@link ModelVariable} instance. */
-  public ModelVariable() {
+  /** Creates a {@link Correlation} instance. */
+  public Correlation() {
     super();
     this.packageName = PMFConstants.shortLabel;
-    setPackageVersion(-1);
   }
 
 
-  /** Creates a {@link ModelVariable} instance from a name. */
-  public ModelVariable(String name) {
-    super();
-    this.name = name;
-    this.packageName = PMFConstants.shortLabel;
-    setPackageVersion(-1);
-  }
-
-
-  /** Creates a {@link ModelVariable} instance from a name and value. */
-  public ModelVariable(String name, double value) {
+  /** Creates a {@link Correlation} instance from a name and value */
+  public Correlation(String name, double value) {
     super();
     this.name = name;
     this.value = Double.valueOf(value);
     this.packageName = PMFConstants.shortLabel;
-    setPackageVersion(-1);
   }
 
 
   /**
-   * Creates a {@link ModelVariable} instance from a name, value, level and
+   * Creates a {@link Correlation} instance from a name, value, level and
    * version.
    */
-  public ModelVariable(String name, double value, int level, int version) {
+  public Correlation(String name, double value, int level, int version) {
     super(level, version);
     this.name = name;
     this.value = Double.valueOf(value);
     this.packageName = PMFConstants.shortLabel;
-    setPackageVersion(-1);
   }
 
 
-  /** Clone constructor */
-  public ModelVariable(ModelVariable mv) {
-    super(mv);
-    if (mv.isSetName()) {
-      setName(mv.name);
+  /** Clone constructor. */
+  public Correlation(Correlation correlation) {
+    super(correlation);
+    if (correlation.isSetName()) {
+      setName(correlation.getName());
     }
-    if (mv.isSetValue()) {
-      setValue(mv.value.doubleValue());
+    if (correlation.isSetValue()) {
+      setValue(correlation.getValue());
     }
   }
 
 
-  /** Clones this class */
+  /** Clones this class. */
   @Override
-  public ModelVariable clone() {
-    return new ModelVariable(this);
+  public Correlation clone() {
+    return new Correlation(this);
   }
 
 
@@ -115,7 +102,7 @@ public class ModelVariable extends AbstractSBase {
       return this.value.doubleValue();
     }
     // This is necessary because we cannot return null here.
-    throw new PropertyUndefinedError("value", this);
+    throw new PropertyUndefinedError("name", this);
   }
 
 
@@ -131,11 +118,6 @@ public class ModelVariable extends AbstractSBase {
   }
 
 
-  /**
-   * Unsets the variable value.
-   * 
-   * @return {code true}, if value was set before, otherwise {@code false}.
-   */
   public boolean unsetValue() {
     if (isSetValue()) {
       Double oldValue = this.value;
@@ -149,23 +131,9 @@ public class ModelVariable extends AbstractSBase {
 
   /*
    * (non-Javadoc)
-   * @see org.sbml.jsbml.AbstractNamedSBase#writeXMLAttributes()
+   * @see org.sbml.jsbml.SBasePlugin#readAttribute(java.lang.String,
+   * java.lang.String, java.lang.String)
    */
-  @Override
-  public Map<String, String> writeXMLAttributes() {
-    Map<String, String> attributes = super.writeXMLAttributes();
-    if (isSetName()) {
-      attributes.remove("name");
-      attributes.put("name", getName());
-    }
-    if (isSetValue()) {
-      attributes.remove("value");
-      attributes.put("value", this.value.toString());
-    }
-    return attributes;
-  }
-
-
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {
@@ -181,9 +149,26 @@ public class ModelVariable extends AbstractSBase {
   }
 
 
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.AbstractNamedSBase#writeXMLAttributes()
+   */
+  @Override
+  public Map<String, String> writeXMLAttributes() {
+    Map<String, String> attributes = super.writeXMLAttributes();
+    if (isSetName()) {
+      attributes.put("name", getName());
+    }
+    if (isSetValue()) {
+      attributes.put("value", StringTools.toString(Locale.ENGLISH, getValue()));
+    }
+    return attributes;
+  }
+
+
   @Override
   public String toString() {
-    return "ModelVariable [name=" + getName()
-      + (isSetValue() ? ", value=\"" + getValue() + "\"" : "") + "]";
+    return "Correlation [name=\"" + this.name + "\", value=\"" + this.value
+      + "\"]";
   }
 }

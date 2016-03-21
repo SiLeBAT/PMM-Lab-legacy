@@ -29,11 +29,14 @@
 		<option name="Selected R visualization script">File path of the R script with visualization
 			script
 		</option>
-		<option name="Selected XLSX spreadsheet">File path of the XLSX spreadsheet with meta data. If unspecified or error occurs the table will
-			be empty.</option>
+		<option name="Selected XLSX spreadsheet">File path of the XLSX spreadsheet with meta data.
+			If unspecified or error occurs the table will be empty.
+		</option>
+		<option name="Selected R libraries">Selected R libraries.</option>
 	</fullDescription>
 	<ports>
 		<outPort name="R code" index="0">R scripts</outPort>
 		<outPort name="Model metadata" index="1">Model meta data</outPort>
+		<outPort name="R libraries" index="2">R libraries (names and paths)</outPort>
 	</ports>
 </knimeNode>

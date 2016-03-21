@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
@@ -48,6 +49,7 @@ import de.bund.bfr.knime.pmm.fskx.FSKFiles;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.LibTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
@@ -67,10 +69,10 @@ public class FSKXReaderNodeModel extends NodeModel {
 
   private static final PortType[] inPortTypes = {};
   private static final PortType[] outPortTypes =
-      {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE};
+      {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE, BufferedDataTable.TYPE};
 
   protected FSKXReaderNodeModel() {
-    // 0 input ports and 3 output ports
+    // 0 input ports and 4 output ports
     super(inPortTypes, outPortTypes);
   }
 
@@ -89,15 +91,16 @@ public class FSKXReaderNodeModel extends NodeModel {
     BufferedDataTable rTable = createRTable(files, exec);
     BufferedDataTable metaDataTable = createMetaDataTable(files, exec);
     RPortObject rPort = files.getWorkspace() == null ? null : new RPortObject(files.getWorkspace());
+    BufferedDataTable libTable = createLibTable(files, exec);
 
-    return new PortObject[] {rTable, metaDataTable, rPort};
+    return new PortObject[] {rTable, metaDataTable, rPort, libTable};
   }
 
   /** {@inheritDoc} */
   @Override
   protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new PortObjectSpec[] {null, null, null};
+    return new PortObjectSpec[] {null, null, null, null};
   }
 
   /** {@inheritDoc} */
@@ -247,6 +250,28 @@ public class FSKXReaderNodeModel extends NodeModel {
         setWarningMessage(e.getMessage());
         e.printStackTrace(System.err);
       }
+    }
+    container.close();
+
+    return container.getTable();
+  }
+
+  /**
+   * Creates a {@link BufferedDataTable} with the libraries names and paths.
+   * 
+   * @param files {@link FSKFiles}.
+   * @param exec {@link ExecutionContext}.
+   * @return {@link BufferedDataTable}.
+   */
+  private BufferedDataTable createLibTable(final FSKFiles files, final ExecutionContext exec) {
+
+    // Creates libraries table and container
+    DataTableSpec libSpec = FSKUtil.createLibTableSpec();
+    BufferedDataContainer container = exec.createDataContainer(libSpec);
+    for (Map.Entry<String, File> libEntry : files.getLibs().entrySet()) {
+      String libName = libEntry.getKey();
+      String libPath = libEntry.getValue().getAbsolutePath();
+      container.addRowToTable(new LibTuple(libName, libPath));
     }
     container.close();
 

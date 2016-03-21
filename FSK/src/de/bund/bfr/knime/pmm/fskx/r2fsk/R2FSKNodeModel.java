@@ -19,6 +19,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.util.FileUtil;
 
 import com.google.common.base.Strings;
@@ -29,12 +30,19 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
+import de.bund.bfr.knime.pmm.fskx.LibTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 
 public class R2FSKNodeModel extends NodeModel {
+
+  // configuration key of the libraries directory
+  static final String CFGKEY_DIR_LIBS = "dirLibs";
+
+  // configuration key of the selected libraries
+  static final String CFGKEY_LIBS = "libs";
 
   // configuration key of the path of the R model script
   static final String CFGKEY_MODEL_SCRIPT = "modelScript";
@@ -49,15 +57,17 @@ public class R2FSKNodeModel extends NodeModel {
   static final String CFGKEY_SPREADSHEET = "spreadsheet";
 
   // Settings models
-  private SettingsModelString modelScriptPath = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
-  private SettingsModelString paramScriptPath = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
-  private SettingsModelString visualizationScriptPath =
+  private SettingsModelString m_modelScript = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
+  private SettingsModelString m_paramScript = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
+  private SettingsModelString m_vizScript =
       new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
-  private SettingsModelString spreadsheetPath = new SettingsModelString(CFGKEY_SPREADSHEET, null);
+  private SettingsModelString m_metaDataDoc = new SettingsModelString(CFGKEY_SPREADSHEET, null);
+  private SettingsModelString m_libDirectory = new SettingsModelString(CFGKEY_DIR_LIBS, null);
+  private SettingsModelStringArray m_selectedLibs = new SettingsModelStringArray(CFGKEY_LIBS, null);
 
   /** {@inheritDoc} */
   protected R2FSKNodeModel() {
-    super(0, 2);
+    super(0, 3);
   }
 
   /** {@inheritDoc} */
@@ -77,29 +87,35 @@ public class R2FSKNodeModel extends NodeModel {
   /** {@inheritDoc} */
   @Override
   protected void saveSettingsTo(NodeSettingsWO settings) {
-    this.modelScriptPath.saveSettingsTo(settings);
-    this.paramScriptPath.saveSettingsTo(settings);
-    this.visualizationScriptPath.saveSettingsTo(settings);
-    this.spreadsheetPath.saveSettingsTo(settings);
+    m_modelScript.saveSettingsTo(settings);
+    m_paramScript.saveSettingsTo(settings);
+    m_vizScript.saveSettingsTo(settings);
+    m_metaDataDoc.saveSettingsTo(settings);
+    m_libDirectory.saveSettingsTo(settings);
+    m_selectedLibs.saveSettingsTo(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-    this.modelScriptPath.validateSettings(settings);
-    this.paramScriptPath.validateSettings(settings);
-    this.visualizationScriptPath.validateSettings(settings);
-    this.spreadsheetPath.validateSettings(settings);
+    m_modelScript.validateSettings(settings);
+    m_paramScript.validateSettings(settings);
+    m_vizScript.validateSettings(settings);
+    m_metaDataDoc.validateSettings(settings);
+    m_libDirectory.validateSettings(settings);
+    m_selectedLibs.validateSettings(settings);
   }
 
   /** {@inheritDoc} */
   @Override
   protected void loadValidatedSettingsFrom(NodeSettingsRO settings)
       throws InvalidSettingsException {
-    this.modelScriptPath.loadSettingsFrom(settings);
-    this.paramScriptPath.loadSettingsFrom(settings);
-    this.visualizationScriptPath.loadSettingsFrom(settings);
-    this.spreadsheetPath.loadSettingsFrom(settings);
+    this.m_modelScript.loadSettingsFrom(settings);
+    this.m_paramScript.loadSettingsFrom(settings);
+    this.m_vizScript.loadSettingsFrom(settings);
+    this.m_metaDataDoc.loadSettingsFrom(settings);
+    m_libDirectory.loadSettingsFrom(settings);
+    m_selectedLibs.loadSettingsFrom(settings);
   }
 
   /** {@inheritDoc} */
@@ -119,15 +135,16 @@ public class R2FSKNodeModel extends NodeModel {
       final ExecutionContext exec) throws InvalidSettingsException, IOException, MissingValueError {
     BufferedDataTable rTable = createRTable(exec);
     BufferedDataTable metaDataTable = createMetaDataTable(exec);
+    BufferedDataTable libTable = createLibTable(exec);
 
-    return new BufferedDataTable[] {rTable, metaDataTable};
+    return new BufferedDataTable[] {rTable, metaDataTable, libTable};
   }
 
   /** {@inheritDoc} */
   @Override
   protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] {null, null};
+    return new DataTableSpec[] {null, null, null};
   }
 
   /**
@@ -179,7 +196,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     // Reads model script. Since the model script is mandatory, if any error occurs it re-throws it.
     try {
-      RScript script = readScript(this.modelScriptPath.getStringValue()); // may throw errors
+      RScript script = readScript(this.m_modelScript.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries and sources
       valuesMap.put(KEYS.MODEL_SCRIPT, script.getScript());
@@ -192,7 +209,7 @@ public class R2FSKNodeModel extends NodeModel {
 
     // Reads parameters script. The parameters script is optional.
     try {
-      RScript script = readScript(this.paramScriptPath.getStringValue()); // may throw errors
+      RScript script = readScript(this.m_paramScript.getStringValue()); // may throw errors
 
       // if no errors occur, add scripts, libraries, and sources
       valuesMap.put(KEYS.PARAM_SCRIPT, script.getScript());
@@ -211,8 +228,8 @@ public class R2FSKNodeModel extends NodeModel {
      * whitespace only a warning will be printed.
      */
     try {
-      RScript script = readScript(this.visualizationScriptPath.getStringValue()); // may throw
-                                                                                  // errors
+      RScript script = readScript(this.m_vizScript.getStringValue()); // may throw
+                                                                      // errors
 
       // if no errors occur, add scripts, libraries, and sources
       valuesMap.put(KEYS.VIZ_SCRIPT, script.getScript());
@@ -253,8 +270,8 @@ public class R2FSKNodeModel extends NodeModel {
     DataTableSpec spec = new OpenFSMRSchema().createSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
 
-    if (!Strings.isNullOrEmpty(this.spreadsheetPath.getStringValue())) {
-      try (InputStream fis = FileUtil.openInputStream(this.spreadsheetPath.getStringValue())) {
+    if (!Strings.isNullOrEmpty(this.m_metaDataDoc.getStringValue())) {
+      try (InputStream fis = FileUtil.openInputStream(this.m_metaDataDoc.getStringValue())) {
         // Finds the workbook instance for XLSX file
         XSSFWorkbook workbook = new XSSFWorkbook(fis);
         fis.close();
@@ -271,4 +288,26 @@ public class R2FSKNodeModel extends NodeModel {
 
     return container.getTable();
   }
+
+  /**
+   * Creates a {@link BufferedDataTable} with the selected libraries.
+   *
+   * @param exec ExecutionContext exec
+   * @return BufferedDataTable
+   */
+  private BufferedDataTable createLibTable(final ExecutionContext exec) {
+
+    BufferedDataContainer container = exec.createDataContainer(FSKUtil.createLibTableSpec());
+    if (m_selectedLibs.getStringArrayValue() != null) {
+      for (String lib : m_selectedLibs.getStringArrayValue()) {
+        // Builds full path
+        String fullpath = m_libDirectory.getStringValue() + "/" + lib;
+        container.addRowToTable(new LibTuple(lib, fullpath));
+      }
+    }
+    container.close();
+
+    return container.getTable();
+  }
+
 }

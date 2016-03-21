@@ -8,8 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
@@ -69,9 +72,10 @@ public class FSKFiles {
   private File vizScript;
   private File workspace;
   private File metaData;
+  private Map<String, File> libs;
 
-  public FSKFiles(BufferedDataTable rTable, BufferedDataTable metaDataTable, PortObject workspace)
-      throws IOException {
+  public FSKFiles(BufferedDataTable rTable, BufferedDataTable metaDataTable, PortObject workspace,
+      BufferedDataTable libTable) throws IOException {
 
     DataRow row = rTable.iterator().next();
     StringCell modelCell = (StringCell) row.getCell(FSKXTuple.KEYS.MODEL_SCRIPT.ordinal());
@@ -114,8 +118,18 @@ public class FSKFiles {
 
     // R workspace
     this.setWorkspace(((RPortObject) workspace).getFile());
+
+    // R libs
+    libs = new HashMap<>();
+    Iterator<DataRow> libIterator = libTable.iterator();
+    while (libIterator.hasNext()) {
+      DataRow libRow = libIterator.next();
+      String libName = ((StringCell) libRow.getCell(0)).getStringValue();
+      File libFile = new File(((StringCell) libRow.getCell(1)).getStringValue());
+      libs.put(libName, libFile);
+    }
   }
-  
+
   /**
    * Reads the contents of a FSKX archive
    * 
@@ -131,8 +145,7 @@ public class FSKFiles {
     try (CombineArchive archive = new CombineArchive(archiveFile)) {
 
       // Gets annotation
-      RMetaDataNode node =
-          new RMetaDataNode(archive.getDescriptions().get(0).getXmlDescription());
+      RMetaDataNode node = new RMetaDataNode(archive.getDescriptions().get(0).getXmlDescription());
 
       // Add model script file
       String modelFileName = node.getMainScript();
@@ -166,11 +179,12 @@ public class FSKFiles {
           System.err.println(e.getMessage());
         }
       }
-      
+
       // Adds R workspace
       if (node.getWorkspaceFile() != null) {
         try {
-          this.workspace = extractFile(archive.getEntry(node.getWorkspaceFile()), "workspace", ".R");
+          this.workspace =
+              extractFile(archive.getEntry(node.getWorkspaceFile()), "workspace", ".R");
         } catch (IOException e) {
           System.err.println(e.getMessage());
         }
@@ -185,6 +199,17 @@ public class FSKFiles {
         } catch (IOException e) {
           System.err.println(e.getMessage());
         }
+      }
+
+      // Adds libraries
+      URI zipURI = ZipUri.createURI();
+      libs = new HashMap<>();
+      for (ArchiveEntry entry : archive.getEntriesWithFormat(zipURI)) {
+        String libName = entry.getFileName();
+        File libFile = FileUtil.createTempFile("lib", "");
+        entry.extractFile(libFile);
+        
+        libs.put(libName, libFile);
       }
 
     } catch (IOException | JDOMException | ParseException e) {
@@ -239,6 +264,14 @@ public class FSKFiles {
 
   public void setMetaData(File metaData) {
     this.metaData = metaData;
+  }
+
+  public Map<String, File> getLibs() {
+    return libs;
+  }
+
+  public void setLibs(Map<String, File> libs) {
+    this.libs = libs;
   }
 
   /** Creates SBMLDocument out of a OpenFSMR tuple. */
@@ -383,7 +416,7 @@ public class FSKFiles {
 
     return sbmlDocument;
   }
-  
+
   static class ModelRuleAnnotation {
 
     String formulaName;

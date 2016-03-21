@@ -22,6 +22,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Map;
 
 import javax.xml.transform.TransformerException;
 
@@ -43,6 +44,7 @@ import org.knime.ext.r.node.local.port.RPortObject;
 
 import de.bund.bfr.knime.pmm.fskx.FSKFiles;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.pmf.file.uri.RUri;
 import de.bund.bfr.pmf.file.uri.URIFactory;
 import de.unirostock.sems.cbarchive.CombineArchive;
@@ -77,7 +79,7 @@ public class FSKXWriterNodeModel extends NodeModel {
   private SettingsModelString notes = new SettingsModelString(CFG_NOTES, null);
 
   private static final PortType[] inPortTypes =
-      {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE};
+      {BufferedDataTable.TYPE, BufferedDataTable.TYPE, RPortObject.TYPE, BufferedDataTable.TYPE};
   private static final PortType[] outPortTypes = {};
 
   protected FSKXWriterNodeModel() {
@@ -102,10 +104,11 @@ public class FSKXWriterNodeModel extends NodeModel {
     BufferedDataTable rTable = (BufferedDataTable) inData[0];
     BufferedDataTable metaDataTable = (BufferedDataTable) inData[1];
     PortObject rWorkspace = inData[2];
+    BufferedDataTable libTable = (BufferedDataTable) inData[3];
     
     FSKFiles files;
     try {
-      files = new FSKFiles(rTable, metaDataTable, rWorkspace);
+      files = new FSKFiles(rTable, metaDataTable, rWorkspace, libTable);
     } catch (IOException e) {
       throw new CombineArchiveException(e.getMessage());
     }
@@ -154,6 +157,12 @@ public class FSKXWriterNodeModel extends NodeModel {
       }
       
       archive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
+      
+      // Adds R libraries
+      URI zipUri = ZipUri.createURI();
+      for (Map.Entry<String, File> libEntry : files.getLibs().entrySet()) {
+        archive.addEntry(libEntry.getValue(), libEntry.getKey(), zipUri);
+      }
       
       archive.pack();
       archive.close();

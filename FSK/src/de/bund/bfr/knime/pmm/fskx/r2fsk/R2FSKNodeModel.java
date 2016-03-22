@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumMap;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.core.data.DataTableSpec;
@@ -302,7 +305,30 @@ public class R2FSKNodeModel extends NodeModel {
       for (String lib : m_selectedLibs.getStringArrayValue()) {
         // Builds full path
         String fullpath = m_libDirectory.getStringValue() + "/" + lib;
-        container.addRowToTable(new LibTuple(lib, fullpath));
+        
+        try (ZipFile zipFile = new ZipFile(fullpath)) {
+          
+          // Looks for DESCRIPTION entry
+          ZipEntry descriptionEntry = null;
+          Enumeration<? extends ZipEntry> entries = zipFile.entries();
+          while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            String[] tokens = entry.getName().split("/");
+            if (tokens.length == 2 && tokens[1].equals("DESCRIPTION")) {
+              descriptionEntry = entry;
+              break;
+            }
+          }
+
+          InputStream stream = zipFile.getInputStream(descriptionEntry);
+          RPackageMetadata metadata = RPackageMetadata.parseDescription(stream);
+          stream.close();
+          
+          container.addRowToTable(new LibTuple(metadata.m_package, fullpath));
+        } catch (IOException e) {
+          e.printStackTrace();
+          continue;
+        }
       }
     }
     container.close();
@@ -311,3 +337,6 @@ public class R2FSKNodeModel extends NodeModel {
   }
 
 }
+
+
+

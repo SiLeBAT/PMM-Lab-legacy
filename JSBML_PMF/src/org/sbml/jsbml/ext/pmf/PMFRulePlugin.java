@@ -1,5 +1,22 @@
-/**
- * 
+/*
+ * PMFRulePlugin.java 13:03:57 Miguel Alba $
+ * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
+ * PMFCompartmentPlugin.java $
+ * ----------------------------------------------------------------------------
+ * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML>
+ * for the latest version of JSBML and more information about SBML.
+ * Copyright (C) 2009-2016 jointly by the following organizations:
+ * 1. The University of Tuebingen, Germany
+ * 2. EMBL European Bioinformatics Institute (EBML-EBI), Hinxton, UK
+ * 3. The California Institute of Technology, Pasadena, CA, USA
+ * 4. The University of California, San Diego, La Jolla, CA, USA
+ * 5. The Babraham Institute, Cambridge, UK
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation. A copy of the license agreement is provided
+ * in the file named "LICENSE.txt" included with this software distribution
+ * and also available online as <http://sbml.org/Software/JSBML/License>.
+ * ----------------------------------------------------------------------------
  */
 package org.sbml.jsbml.ext.pmf;
 
@@ -15,24 +32,16 @@ import org.sbml.jsbml.SBase;
  */
 public class PMFRulePlugin extends PMFSBasePlugin {
 
-  private static final long    serialVersionUID = 3663783888654852712L;
-  private FormulaName          formulaName;
-  private PmmLabId             pli;
-  private RuleClass ruleClass;
-  private ListOf<PMFReference> listOfReferences;
+  private static final long serialVersionUID = 3663783888654852712L;
+  private RuleMetadata      metadata;
+  private ListOf<Reference> listOfReferences;
 
 
   /** Creates a new {@link PMFRulePlugin} instance cloned from 'plugin'. */
   public PMFRulePlugin(PMFRulePlugin plugin) {
     super(plugin);
-    if (plugin.isSetFormulaName()) {
-      setFormulaName(plugin.getFormulaName().clone());
-    }
-    if (plugin.isSetPmmLabId()) {
-      setPmmLabId(plugin.getPmmLabId().clone());
-    }
-    if (plugin.isSetRuleClass()) {
-      setRuleClass(plugin.getRuleClass().clone());
+    if (plugin.isSetMetadata()) {
+      setMetadata(plugin.metadata.clone());
     }
     if (plugin.isSetListOfReferences()) {
       setListOfReferences(plugin.getListOfReferences().clone());
@@ -63,10 +72,7 @@ public class PMFRulePlugin extends PMFSBasePlugin {
    */
   @Override
   public Rule getParent() {
-    if (isSetExtendedSBase()) {
-      return (Rule) getExtendedSBase();
-    }
-    return null;
+    return isSetExtendedSBase() ? (Rule) getExtendedSBase() : null;
   }
 
 
@@ -97,13 +103,7 @@ public class PMFRulePlugin extends PMFSBasePlugin {
   @Override
   public int getChildCount() {
     int childCount = 0;
-    if (isSetFormulaName()) {
-      childCount++;
-    }
-    if (isSetPmmLabId()) {
-      childCount++;
-    }
-    if (isSetRuleClass()) {
+    if (isSetMetadata()) {
       childCount++;
     }
     if (isSetListOfReferences()) {
@@ -125,21 +125,9 @@ public class PMFRulePlugin extends PMFSBasePlugin {
         Integer.valueOf(childIndex), Integer.valueOf(0)));
     }
     int pos = 0;
-    if (isSetFormulaName()) {
+    if (isSetMetadata()) {
       if (pos == childIndex) {
-        return getFormulaName();
-      }
-      pos++;
-    }
-    if (isSetPmmLabId()) {
-      if (pos == childIndex) {
-        return getPmmLabId();
-      }
-      pos++;
-    }
-    if (isSetRuleClass()) {
-      if (pos == childIndex) {
-        return getRuleClass();
+        return getMetadata();
       }
       pos++;
     }
@@ -155,181 +143,53 @@ public class PMFRulePlugin extends PMFSBasePlugin {
   }
 
 
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  public boolean readAttribute(String attributeName, String prefix,
-    String value) {
-    // No attribute defined on this plugin
-    return false;
-  }
-
-
-  // *** FormulaName ***
+  // *** metadata ***
   /**
-   * Returns the {@link FormulaName} of this {@link PMFRulePlugin}.
-   *
-   * @return the {@link FormulaName} of this {@link PMFRulePlugin}.
-   */
-  public FormulaName getFormulaName() {
-    return this.formulaName;
-  }
-
-
-  /**
-   * Returns whether formulaName is set.
+   * Returns the value of {@link #metadata}.
    * 
-   * @return whether formulaName is set.
+   * @return the value of {@link #metadata}.
    */
-  public boolean isSetFormulaName() {
-    return this.formulaName != null;
+  public RuleMetadata getMetadata() {
+    return metadata;
   }
 
 
   /**
-   * Sets the {@link FormulaName} of this {@link PMFRulePlugin}.
+   * Returns whether {@link #metadata} is set.
    *
-   * @param formulaName
+   * @return whether {@link #metadata} is set.
    */
-  public void setFormulaName(FormulaName formulaName) {
-    unsetFormulaName();
-    this.formulaName = formulaName;
-    if (this.extendedSBase != null) {
-      this.formulaName.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.formulaName);
+  public boolean isSetMetadata() {
+    return this.metadata != null;
+  }
+
+
+  /**
+   * Sets the value of metadata
+   *
+   * @param metadata
+   *        the value of metadata to be set.
+   */
+  public void setMetadata(RuleMetadata metadata) {
+    unsetMetadata();
+    this.metadata = metadata;
+    if (extendedSBase != null) {
+      metadata.setPackageVersion(-1);
+      extendedSBase.registerChild(this.metadata);
     }
   }
 
 
   /**
-   * Unsets the variable FormulaName.
+   * Unsets the variable metadata.
    *
-   * @return {@code true}, if formulaName was set before, otherwise
-   *         {@code false}.
+   * @return {@code true} if metadata was set before, otherwise {@code false}.
    */
-  public boolean unsetFormulaName() {
-    if (this.formulaName != null) {
-      FormulaName oldFormulaName = this.formulaName;
-      this.formulaName = null;
-      oldFormulaName.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-
-  /**
-   * Creates a new {@link FormulaName} inside this {@link PMFRulePlugin}, and
-   * returns a pointer to it.
-   *
-   * @return the new {@link FormulaName} instance.
-   */
-  public FormulaName createFormulaName(String formulaName) {
-    setFormulaName(new FormulaName(formulaName, getLevel(), getVersion()));
-    return getFormulaName();
-  }
-
-
-  // *** PmmLabId methods ***
-  /**
-   * Returns the {@link PmmLabId} of this {@link PMFRulePlugin}.
-   * 
-   * @return the {@link PmmLabId} of this {@link PMFRulePlugin}.
-   */
-  public PmmLabId getPmmLabId() {
-    return this.pli;
-  }
-
-
-  /**
-   * Returns whether pli is set.
-   * 
-   * @return whether pli is set.
-   */
-  public boolean isSetPmmLabId() {
-    return this.pli != null;
-  }
-
-
-  /**
-   * Sets the {@link PmmLabId} of this {@link PMFRulePlugin}.
-   * 
-   * @param id
-   */
-  public void setPmmLabId(PmmLabId pli) {
-    unsetPmmLabId();
-    this.pli = pli;
-    if (this.extendedSBase != null) {
-      this.pli.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.pli);
-    }
-  }
-
-
-  /**
-   * Unsets the {@link PmmLabId} of this {@link PMFRulePlugin} and returns a
-   * pointer to it.
-   * 
-   * @return {@code true}, if the {@link PmmLabId} was set before, otherwise
-   *         {@code false}.
-   */
-  public boolean unsetPmmLabId() {
-    if (this.pli != null) {
-      PmmLabId oldPli = this.pli;
-      this.pli = null;
-      oldPli.fireNodeRemovedEvent();
-      return true;
-    }
-    return false;
-  }
-
-  // *** ruleClass methods ***
-
-  /**
-   * Returns the {@link RuleClass} of this {@link PMFRulePlugin}.
-   *
-   * @return the {@link RuleClass} of this {@link PMFRulePlugin}.
-   */
-  public RuleClass getRuleClass() {
-    return this.ruleClass;
-  }
-
-  /**
-   * Returns whether ruleClass is set.
-   *
-   * @return whehter ruleClass is set.
-   */
-  public boolean isSetRuleClass() {
-    return this.ruleClass != null;
-  }
-
-  /**
-   * Sets the {@link RuleClass} of this {@link PMFRulePlugin}.
-   *
-   * @param ruleClass
-   */
-  public void setRuleClass(RuleClass ruleClass) {
-    unsetRuleClass();
-    this.ruleClass = ruleClass;
-    if (this.extendedSBase != null) {
-      this.ruleClass.setPackageVersion(-1);
-      this.extendedSBase.registerChild(this.ruleClass);
-    }
-  }
-
-  /**
-   * Unsets the {@link RuleClass} of this {@link PMFRulePlugin} and returns a pointer to it.
-   *
-   * @return {@code true}, if the {@link RuleClass} was set before, otherwise {@code false}.
-   */
-  public boolean unsetRuleClass() {
-    if (this.ruleClass != null) {
-      RuleClass oldRuleClass = this.ruleClass;
-      this.ruleClass = null;
-      oldRuleClass.fireNodeRemovedEvent();
+  public boolean unsetMetadata() {
+    if (isSetMetadata()) {
+      RuleMetadata oldMetadata = metadata;
+      this.metadata = null;
+      firePropertyChange(PMFConstants.ruleMetadata, oldMetadata, metadata);
       return true;
     }
     return false;
@@ -343,29 +203,50 @@ public class PMFRulePlugin extends PMFSBasePlugin {
    *
    * @return {@code true} (as specified by {@link Collection#add})
    */
-  public boolean addReference(PMFReference reference) {
+  public boolean addReference(Reference reference) {
     return getListOfReferences().add(reference);
   }
 
 
   /**
-   * Returns the number of {@link PMFReference} of this {@link PMFRulePlugin}.
+   * Removes an element from the {@link #listOfReferences}.
    *
-   * @return the number of {@link PMFReference} of this {@link PMFRulePlugin}.
+   * @param element
+   *        the element to be removed from the list.
+   * @return {@code true} if the list contained element and it was removed.
    */
-  public int getReferenceCount() {
-    return isSetListOfReferences() ? this.listOfReferences.size() : 0;
+  public boolean removeReference(Reference reference) {
+    if (isSetListOfReferences()) {
+      return getListOfReferences().remove(reference);
+    }
+    return false;
   }
 
 
   /**
-   * Returns the number of {@link PMFReference} of this {@link PMFRulePlugin}.
+   * Removes an element from the {@link #listOfReferences} at the given index.
    *
-   * @return the number of {@link PMFReference} of this {@link PMFRulePlugin}.
-   * @libsbml.deprecated same as {@link #getReferenceCount()}
+   * @param i
+   * @return the specified element if it was successfully found and removed.
+   * @throws IndexOutOfBoundsException
+   *         if the listOf is not set or if the index is out of bound (
+   *         {@code (i < 0) || (i > listOfReferences)}).
    */
-  public int getNumReference() {
-    return getReferenceCount();
+  public Reference removeReference(int i) {
+    if (!isSetListOfReferences()) {
+      throw new IndexOutOfBoundsException(Integer.toString(i));
+    }
+    return getListOfReferences().remove(i);
+  }
+
+
+  /**
+   * Returns the number of {@link Reference} of this {@link PMFRulePlugin}.
+   *
+   * @return the number of {@link Reference} of this {@link PMFRulePlugin}.
+   */
+  public int getReferenceCount() {
+    return isSetListOfReferences() ? this.listOfReferences.size() : 0;
   }
 
 
@@ -375,41 +256,41 @@ public class PMFRulePlugin extends PMFSBasePlugin {
    *
    * @return the listOfReferences
    */
-  public ListOf<PMFReference> getListOfReferences() {
+  public ListOf<Reference> getListOfReferences() {
     if (!isSetListOfReferences()) {
-      this.listOfReferences = new ListOf<>();
-      this.listOfReferences.setPackageVersion(-1);
+      listOfReferences = new ListOf<>();
+      listOfReferences.setPackageVersion(-1);
       // changing the listOf package name from 'core' to 'pmf'
-      this.listOfReferences.setPackageName(null);
-      this.listOfReferences.setPackageName(PMFConstants.shortLabel);
-      this.listOfReferences.setSBaseListType(ListOf.Type.other);
-      if (this.extendedSBase != null) {
-        this.extendedSBase.registerChild(this.listOfReferences);
+      listOfReferences.setPackageName(null);
+      listOfReferences.setPackageName(PMFConstants.shortLabel);
+      listOfReferences.setSBaseListType(ListOf.Type.other);
+      if (extendedSBase != null) {
+        extendedSBase.registerChild(listOfReferences);
       }
     }
-    return this.listOfReferences;
+    return listOfReferences;
   }
 
 
   public boolean isSetListOfReferences() {
-    return this.listOfReferences != null;
+    return listOfReferences != null && !listOfReferences.isEmpty();
   }
 
 
   /**
    * @param listOfReferences
    */
-  public void setListOfReferences(ListOf<PMFReference> listOfReferences) {
+  public void setListOfReferences(ListOf<Reference> listOfReferences) {
     unsetListOfReferences();
     this.listOfReferences = listOfReferences;
     if (listOfReferences != null) {
-      this.listOfReferences.setPackageVersion(-1);
+      listOfReferences.setPackageVersion(-1);
       // changing the listOf packaga name from 'core' to 'pmf'
-      this.listOfReferences.setPackageName(null);
-      this.listOfReferences.setPackageName(PMFConstants.shortLabel);
-      this.listOfReferences.setSBaseListType(ListOf.Type.other);
-      if (this.extendedSBase != null) {
-        this.extendedSBase.registerChild(this.listOfReferences);
+      listOfReferences.setPackageName(null);
+      listOfReferences.setPackageName(PMFConstants.shortLabel);
+      listOfReferences.setSBaseListType(ListOf.Type.other);
+      if (extendedSBase != null) {
+        extendedSBase.registerChild(listOfReferences);
       }
     }
   }
@@ -424,9 +305,9 @@ public class PMFRulePlugin extends PMFSBasePlugin {
    *         structure.
    */
   public boolean unsetListOfReferences() {
-    if (this.listOfReferences != null) {
-      ListOf<PMFReference> oldListOfReferences = this.listOfReferences;
-      this.listOfReferences = null;
+    if (listOfReferences != null) {
+      ListOf<Reference> oldListOfReferences = listOfReferences;
+      listOfReferences = null;
       oldListOfReferences.fireNodeRemovedEvent();
       return true;
     }

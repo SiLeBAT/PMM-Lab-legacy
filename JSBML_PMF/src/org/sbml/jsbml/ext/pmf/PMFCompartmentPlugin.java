@@ -1,5 +1,4 @@
 /*
- * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue
  * PMFCompartmentPlugin.java 13:03:57 Miguel Alba $
  * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
  * PMFCompartmentPlugin.java $
@@ -27,8 +26,7 @@ import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.SBase;
 
 /**
- * @author ???
- * @version $Rev: 2377 $
+ * @author Miguel Alba
  * @since 1.0
  * @date 17.03.2016
  */
@@ -187,20 +185,6 @@ public class PMFCompartmentPlugin extends PMFSBasePlugin {
         this.metadata);
       return true;
     }
-    return false;
-  }
-
-
-  // XML
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  public boolean readAttribute(String attributeName, String prefix,
-    String value) {
-    // No attribute defined on this plugin
     return false;
   }
 }

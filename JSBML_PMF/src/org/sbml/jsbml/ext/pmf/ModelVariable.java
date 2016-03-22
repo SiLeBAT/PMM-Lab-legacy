@@ -1,5 +1,21 @@
-/**
- * 
+/*
+ * $Id: ModelVariable.java 2377 2015-10-09 12:21:58Z miguelalba
+ * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
+ * ----------------------------------------------------------------------------
+ * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML>
+ * for the latest version of JSBML and more information about SBML.
+ * Copyright (C) 2009-2016 jointly by the following organizations:
+ * 1. The University of Tuebingen, Germany
+ * 2. EMBL European Bioinformatics Institute (EBML-EBI), Hinxton, UK
+ * 3. The California Institute of Technology, Pasadena, CA, USA
+ * 4. The University of California, San Diego, La Jolla, CA, USA
+ * 5. The Babraham Institute, Cambridge, UK
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation. A copy of the license agreement is provided
+ * in the file named "LICENSE.txt" included with this software distribution
+ * and also available online as <http://sbml.org/Software/JSBML/License>.
+ * ----------------------------------------------------------------------------
  */
 package org.sbml.jsbml.ext.pmf;
 
@@ -17,14 +33,20 @@ import org.sbml.jsbml.util.StringTools;
 public class ModelVariable extends AbstractSBase {
 
   private static final long serialVersionUID = 5419651814539473485L;
+  /** Helper variable to check if name has been set by the user. */
+  private boolean           isSetName = false;
+  /** Model variable name. E.g. pH, Temperature, wa, etc. */
   private String            name;
+  /** Helper variable to check if value has been set by the user. */
+  private boolean           isSetValue = false;
+  /** Model variable value. */
   private Double            value;
 
 
   /** Creates a {@link ModelVariable} instance. */
   public ModelVariable() {
     super();
-    this.packageName = PMFConstants.shortLabel;
+    packageName = PMFConstants.shortLabel;
     setPackageVersion(-1);
   }
 
@@ -32,8 +54,8 @@ public class ModelVariable extends AbstractSBase {
   /** Creates a {@link ModelVariable} instance from a name. */
   public ModelVariable(String name) {
     super();
-    this.name = name;
-    this.packageName = PMFConstants.shortLabel;
+    setName(name);
+    packageName = PMFConstants.shortLabel;
     setPackageVersion(-1);
   }
 
@@ -41,9 +63,9 @@ public class ModelVariable extends AbstractSBase {
   /** Creates a {@link ModelVariable} instance from a name and value. */
   public ModelVariable(String name, double value) {
     super();
-    this.name = name;
-    this.value = Double.valueOf(value);
-    this.packageName = PMFConstants.shortLabel;
+    setName(name);
+    setValue(value);
+    packageName = PMFConstants.shortLabel;
     setPackageVersion(-1);
   }
 
@@ -54,9 +76,9 @@ public class ModelVariable extends AbstractSBase {
    */
   public ModelVariable(String name, double value, int level, int version) {
     super(level, version);
-    this.name = name;
-    this.value = Double.valueOf(value);
-    this.packageName = PMFConstants.shortLabel;
+    setName(name);
+    setValue(value);
+    packageName = PMFConstants.shortLabel;
     setPackageVersion(-1);
   }
 
@@ -87,22 +109,24 @@ public class ModelVariable extends AbstractSBase {
 
 
   public boolean isSetName() {
-    return this.name != null && !this.name.isEmpty();
+    return isSetName;
   }
 
 
   public void setName(String name) {
     String oldName = this.name;
     this.name = name;
-    firePropertyChange("name", oldName, this.name);
+    firePropertyChange("name", oldName, name);
+    isSetName = true;
   }
 
 
   public boolean unsetName() {
     if (isSetName()) {
-      String oldName = this.name;
-      this.name = null;
-      firePropertyChange("name", oldName, this.name);
+      String oldName = name;
+      name = null;
+      firePropertyChange("name", oldName, name);
+      isSetName = false;
       return true;
     }
     return false;
@@ -112,7 +136,7 @@ public class ModelVariable extends AbstractSBase {
   // *** value methods ***
   public double getValue() {
     if (isSetValue()) {
-      return this.value.doubleValue();
+      return value.doubleValue();
     }
     // This is necessary because we cannot return null here.
     throw new PropertyUndefinedError("value", this);
@@ -120,14 +144,15 @@ public class ModelVariable extends AbstractSBase {
 
 
   public boolean isSetValue() {
-    return this.value != null;
+    return isSetValue;
   }
 
 
   public void setValue(double value) {
     Double oldValue = this.value;
     this.value = Double.valueOf(value);
-    firePropertyChange("value", oldValue, this.value);
+    firePropertyChange("value", oldValue, value);
+    isSetValue = true;
   }
 
 
@@ -138,17 +163,17 @@ public class ModelVariable extends AbstractSBase {
    */
   public boolean unsetValue() {
     if (isSetValue()) {
-      Double oldValue = this.value;
-      this.value = null;
-      firePropertyChange("value", oldValue, this.value);
+      Double oldValue = value;
+      value = null;
+      firePropertyChange("value", oldValue, value);
+      isSetValue = false;
       return true;
     }
     return false;
   }
 
 
-  /*
-   * (non-Javadoc)
+  /* (non-Javadoc)
    * @see org.sbml.jsbml.AbstractNamedSBase#writeXMLAttributes()
    */
   @Override
@@ -166,6 +191,10 @@ public class ModelVariable extends AbstractSBase {
   }
 
 
+  /* (non-Javadoc)
+   * @see org.sbml.jsbml.AbstractSBase#readAttribute(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {

@@ -1,8 +1,6 @@
 /*
- * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue
- * DataSource.java 14:32:11 Miguel Alba $
+ * $Id: DataSource.java 2377 2015-10-09 12:21:58Z miguelalba
  * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
- * DataSource.java $
  * ----------------------------------------------------------------------------
  * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML>
  * for the latest version of JSBML and more information about SBML.
@@ -27,17 +25,23 @@ import java.util.TreeMap;
 import org.sbml.jsbml.AbstractSBase;
 
 /**
- * @author ???
+ * Links to a separate file with data (E.g. NuMLDocument).
+ * 
+ * @author Miguel Alba
  * @version $Rev: 2377 $
  * @since 1.0
  * @date 16.03.2016
+ * @see <a href="https://github.com/NuML/NuML">NuML</a>
  */
 public class DataSource extends AbstractSBase {
 
   private static final long serialVersionUID = -423986522507118792L;
+  /** Helper variable to check if src has been set by the user. */
+  private boolean           isSetSrc = false;
+  /** Path to external file with data. */
+  private String            src;
 
-  private String src;
-  
+
   /**
    * Creates a DataSource instance
    */
@@ -54,7 +58,7 @@ public class DataSource extends AbstractSBase {
    */
   public DataSource(String src) {
     super();
-    this.src = src;
+    setSrc(src);
     initDefaults();
   }
 
@@ -84,7 +88,7 @@ public class DataSource extends AbstractSBase {
    */
   public DataSource(String src, int level, int version) {
     super(level, version);
-    this.src = src;
+    setSrc(src);
     initDefaults();
   }
 
@@ -114,9 +118,8 @@ public class DataSource extends AbstractSBase {
    */
   public void initDefaults() {
     setPackageVersion(-1);
-    this.packageName = PMFConstants.shortLabel;
+    packageName = PMFConstants.shortLabel;
   }
-
 
 
   // *** src ***
@@ -136,7 +139,7 @@ public class DataSource extends AbstractSBase {
    * @return whether {@link #src} is set.
    */
   public boolean isSetSrc() {
-    return this.src != null;
+    return isSetSrc;
   }
 
 
@@ -149,7 +152,8 @@ public class DataSource extends AbstractSBase {
   public void setSrc(String src) {
     String oldSrc = this.src;
     this.src = src;
-    firePropertyChange("src", oldSrc, this.src);
+    firePropertyChange("src", oldSrc, src);
+    isSetSrc = true;
   }
 
 
@@ -160,15 +164,20 @@ public class DataSource extends AbstractSBase {
    */
   public boolean unsetSrc() {
     if (isSetSrc()) {
-      String oldSrc = this.src;
-      this.src = null;
-      firePropertyChange("src", oldSrc, this.src);
+      String oldSrc = src;
+      src = null;
+      firePropertyChange("src", oldSrc, src);
+      isSetSrc = false;
       return true;
     }
     return false;
   }
 
 
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.SBase#writeXMLAttributes()
+   */
   @Override
   public Map<String, String> writeXMLAttributes() {
     Map<String, String> attributes = new TreeMap<>();
@@ -179,6 +188,11 @@ public class DataSource extends AbstractSBase {
   }
 
 
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.SBase#readAttribute(java.lang.String, java.lang.String,
+   * java.lang.String)
+   */
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {

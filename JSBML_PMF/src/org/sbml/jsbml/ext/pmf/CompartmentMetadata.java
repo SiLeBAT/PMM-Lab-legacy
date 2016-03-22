@@ -1,23 +1,20 @@
 /*
- * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue CompartmentMetadata.java 13:05:01 Miguel Alba $
- * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml CompartmentMetadata.java $
- * ---------------------------------------------------------------------------- 
- * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML> 
- * for the latest version of JSBML and more information about SBML. 
- * 
- * Copyright (C) 2009-2016  jointly by the following organizations: 
- * 1. The University of Tuebingen, Germany 
- * 2. EMBL European Bioinformatics Institute (EBML-EBI), Hinxton, UK 
- * 3. The California Institute of Technology, Pasadena, CA, USA 
+ * $Id: CompartmentMetadata.java 2377 2015-10-09 12:21:58Z miguelalba
+ * ----------------------------------------------------------------------------
+ * This file is part of JSBML. Please visit <http://sbml.org/Software/JSBML>
+ * for the latest version of JSBML and more information about SBML.
+ * Copyright (C) 2009-2016 jointly by the following organizations:
+ * 1. The University of Tuebingen, Germany
+ * 2. EMBL European Bioinformatics Institute (EBML-EBI), Hinxton, UK
+ * 3. The California Institute of Technology, Pasadena, CA, USA
  * 4. The University of California, San Diego, La Jolla, CA, USA
  * 5. The Babraham Institute, Cambridge, UK
- * 
- * This library is free software; you can redistribute it and/or modify it 
- * under the terms of the GNU Lesser General Public License as published by 
- * the Free Software Foundation. A copy of the license agreement is provided 
- * in the file named "LICENSE.txt" included with this software distribution 
- * and also available online as <http://sbml.org/Software/JSBML/License>. 
- * ---------------------------------------------------------------------------- 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation. A copy of the license agreement is provided
+ * in the file named "LICENSE.txt" included with this software distribution
+ * and also available online as <http://sbml.org/Software/JSBML/License>.
+ * ----------------------------------------------------------------------------
  */
 package org.sbml.jsbml.ext.pmf;
 
@@ -25,32 +22,41 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.sbml.jsbml.AbstractSBase;
+import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.PropertyUndefinedError;
 import org.sbml.jsbml.util.StringTools;
 
 /**
- * @author ???
+ * Extended meta data for a {@link Compartment}.
+ * 
+ * @author Miguel Alba
  * @version $Rev: 2377 $
  * @since 1.0
  * @date 17.03.2016
  */
 public class CompartmentMetadata extends AbstractSBase {
-  
+
   private static final long serialVersionUID = 6551098640494250328L;
-  
-  private Integer source;
-  private String detail;
-  
+  /** Helper variable to check if source has been set by the user. */
+  private boolean           isSetSource = false;
+  /** Integer codes from the PMF matrix vocabulary. */
+  private Integer           source;
+  /** Helper variable to check if detail has been set by the user. */
+  private boolean           isSetDetail = false;
+  /** Description of the compartment. */
+  private String            detail;
+
+
   /** Creates a CompartmentMetadata instance. */
   public CompartmentMetadata() {
     super();
     initDefaults();
   }
-  
+
+
   /** Clone constructor */
   public CompartmentMetadata(CompartmentMetadata obj) {
     super(obj);
-    
     if (obj.isSetSource()) {
       setSource(obj.source);
     }
@@ -58,19 +64,22 @@ public class CompartmentMetadata extends AbstractSBase {
       setDetail(obj.detail);
     }
   }
-  
+
+
   /** Clones this class. */
   @Override
   public CompartmentMetadata clone() {
     return new CompartmentMetadata(this);
   }
-  
+
+
   /** Initializes the default values using the namespace. */
   public void initDefaults() {
     setPackageVersion(-1);
-    this.packageName = PMFConstants.shortLabel;
+    packageName = PMFConstants.shortLabel;
   }
-  
+
+
   // *** source methods ***
   /**
    * Returns the value of {@link #source}.
@@ -92,19 +101,21 @@ public class CompartmentMetadata extends AbstractSBase {
    * @return whether {@link #source} is set.
    */
   public boolean isSetSource() {
-    return this.source != null;
+    return isSetSource;
   }
 
 
   /**
    * Sets the value of source
    *
-   * @param source the value of source to be set.
+   * @param source
+   *        the value of source to be set.
    */
-  public void setSource(Integer source) {
+  public void setSource(int source) {
     Integer oldSource = this.source;
-    this.source = source;
+    this.source = Integer.valueOf(source);
     firePropertyChange("source", oldSource, this.source);
+    isSetSource = true;
   }
 
 
@@ -118,20 +129,21 @@ public class CompartmentMetadata extends AbstractSBase {
       Integer oldSource = this.source;
       this.source = null;
       firePropertyChange("source", oldSource, this.source);
+      isSetSource = false;
       return true;
     }
     return false;
   }
-  
+
+
   // *** detail methods ***
-  
   /**
    * Returns the value of {@link #}.
    *
    * @return the value of {@link #}.
    */
   public String getDetail() {
-      return detail;
+    return detail;
   }
 
 
@@ -141,39 +153,42 @@ public class CompartmentMetadata extends AbstractSBase {
    * @return whether {@link #} is set.
    */
   public boolean isSetDetail() {
-    return this.detail != null;
+    return isSetDetail;
   }
 
 
   /**
-   * Sets the value of 
+   * Sets the value of
    *
-   * @param  the value of  to be set.
+   * @param the
+   *        value of to be set.
    */
   public void setDetail(String detail) {
     String oldDetail = this.detail;
     this.detail = detail;
     firePropertyChange("detail", oldDetail, this.detail);
+    isSetDetail = true;
   }
 
 
   /**
    * Unsets the variable .
    *
-   * @return {@code true} if  was set before, otherwise {@code false}.
+   * @return {@code true} if was set before, otherwise {@code false}.
    */
   public boolean unsetDetail() {
     if (isSetDetail()) {
       String oldDetail = this.detail;
       this.detail = null;
       firePropertyChange("detail", oldDetail, this.detail);
+      isSetDetail = false;
       return true;
     }
     return false;
   }
-  
+
+
   // XML methods
-  
   @Override
   public Map<String, String> writeXMLAttributes() {
     Map<String, String> attributes = new TreeMap<>();
@@ -190,7 +205,6 @@ public class CompartmentMetadata extends AbstractSBase {
   @Override
   public boolean readAttribute(String attributeName, String prefix,
     String value) {
-    
     if (attributeName.equals("source")) {
       setSource(StringTools.parseSBMLInt(value));
       return true;
@@ -201,20 +215,22 @@ public class CompartmentMetadata extends AbstractSBase {
     }
     return false;
   }
-  
-  /* (non-Javadoc)
+
+
+  /*
+   * (non-Javadoc)
    * @see org.sbml.jsbml.AbstractSBase#toString()
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(PMFConstants.compartmentMetadata + "[");
+    StringBuilder sb =
+      new StringBuilder(PMFConstants.compartmentMetadata + "[");
     if (isSetSource()) {
       sb.append(String.format("\"source\"=%d ", source));
     }
     if (isSetDetail()) {
       sb.append(String.format("\"detail\"=%s ", detail));
     }
-    
     return sb.toString();
   }
 }

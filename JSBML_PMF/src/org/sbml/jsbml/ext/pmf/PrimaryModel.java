@@ -53,7 +53,7 @@ public class PrimaryModel extends AbstractSBase {
    */
   public PrimaryModel(String src) {
     super();
-    this.src = src;
+    setSrc(src);
     initDefaults();
   }
   

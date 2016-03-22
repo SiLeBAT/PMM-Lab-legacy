@@ -22,20 +22,18 @@ import org.sbml.jsbml.ext.SBasePlugin;
 import org.sbml.jsbml.ext.pmf.CompartmentMetadata;
 import org.sbml.jsbml.ext.pmf.Correlation;
 import org.sbml.jsbml.ext.pmf.DataSource;
-import org.sbml.jsbml.ext.pmf.FormulaName;
 import org.sbml.jsbml.ext.pmf.ModelVariable;
 import org.sbml.jsbml.ext.pmf.PMFCompartmentPlugin;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
-import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFSpeciesPlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
 import org.sbml.jsbml.ext.pmf.ParameterMetadata;
-import org.sbml.jsbml.ext.pmf.PmmLabId;
 import org.sbml.jsbml.ext.pmf.PrimaryModel;
-import org.sbml.jsbml.ext.pmf.RuleClass;
+import org.sbml.jsbml.ext.pmf.Reference;
+import org.sbml.jsbml.ext.pmf.RuleMetadata;
 import org.sbml.jsbml.ext.pmf.SpeciesMetadata;
 import org.sbml.jsbml.ext.pmf.UnitTransformation;
 import org.sbml.jsbml.xml.parsers.AbstractReaderWriter;
@@ -174,11 +172,11 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
       return correlation;
     }
     
-    else if (elementName.equals(PMFConstants.pmfReference)) {
+    else if (elementName.equals(PMFConstants.reference)) {
       Rule rule = (Rule) listOf.getParentSBMLObject();
       PMFRulePlugin plugin =
         (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
-      PMFReference ref = new PMFReference();
+      Reference ref = new Reference();
       plugin.addReference(ref);
       return ref;
     }
@@ -248,20 +246,14 @@ public class PMFParser extends AbstractReaderWriter implements PackageParser {
     } else {
       plugin = (PMFRulePlugin) rule.getExtension(PMFConstants.shortLabel);
     }
-    if (elementName.equals(PMFConstants.formulaName)) {
-      FormulaName formulaName = new FormulaName();
-      plugin.setFormulaName(formulaName);
-      return formulaName;
-    } else if (elementName.equals(PMFConstants.listOfReferences)) {
+    
+    if (elementName.equals(PMFConstants.ruleMetadata)) {
+      RuleMetadata ruleMetadata = new RuleMetadata();
+      plugin.setMetadata(ruleMetadata);
+      return ruleMetadata;
+    }
+    if (elementName.equals(PMFConstants.listOfReferences)) {
       return plugin.getListOfReferences();
-    } else if (elementName.equals(PMFConstants.pmmlabId)) {
-      PmmLabId pli = new PmmLabId();
-      plugin.setPmmLabId(pli);
-      return pli;
-    } else if (elementName.equals(PMFConstants.ruleClass)) {
-      RuleClass ruleClass = new RuleClass();
-      plugin.setRuleClass(ruleClass);
-      return ruleClass;
     }
     return contextObject;
   }

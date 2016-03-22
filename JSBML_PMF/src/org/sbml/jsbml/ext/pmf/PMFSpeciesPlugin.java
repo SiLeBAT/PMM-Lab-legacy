@@ -1,5 +1,4 @@
 /*
- * $Id: codetemplates.xml 2377 2015-10-09 12:21:58Z niko-rodrigue
  * PMFSpeciesPlugin.java 14:10:32 Miguel Alba $
  * $URL: file:///svn/p/jsbml/code/trunk/dev/eclipse/codetemplates.xml
  * PMFSpeciesPlugin.java $
@@ -27,7 +26,7 @@ import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.Species;
 
 /**
- * @author ???
+ * @author Miguel Alba
  * @version $Rev: 2377 $
  * @since 1.0
  * @date 17.03.2016
@@ -66,10 +65,7 @@ public class PMFSpeciesPlugin extends PMFSBasePlugin {
    */
   @Override
   public Species getParent() {
-    if (isSetExtendedSBase()) {
-      return (Species) getExtendedSBase();
-    }
-    return null;
+    return isSetExtendedSBase() ? (Species) getExtendedSBase() : null;
   }
 
 
@@ -155,8 +151,8 @@ public class PMFSpeciesPlugin extends PMFSBasePlugin {
     unsetMetadata();
     this.metadata = metadata;
     if (isSetExtendedSBase()) {
-      this.metadata.setPackageVersion(-1);
-      getExtendedSBase().registerChild(this.metadata);
+      metadata.setPackageVersion(-1);
+      getExtendedSBase().registerChild(metadata);
     }
   }
 
@@ -168,24 +164,11 @@ public class PMFSpeciesPlugin extends PMFSBasePlugin {
    */
   public boolean unsetMetadata() {
     if (isSetMetadata()) {
-      SpeciesMetadata oldMetadata = this.metadata;
-      this.metadata = null;
-      firePropertyChange("metadata", oldMetadata, this.metadata);
+      SpeciesMetadata oldMetadata = metadata;
+      metadata = null;
+      firePropertyChange("metadata", oldMetadata, metadata);
       return true;
     }
-    return false;
-  }
-
-
-  // XML
-  /*
-   * (non-Javadoc)
-   * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  public boolean readAttribute(String attributeName, String prefix,
-    String value) {
     return false;
   }
 }

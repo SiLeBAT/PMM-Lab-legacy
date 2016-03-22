@@ -15,20 +15,21 @@ public class UnitTransformation extends AbstractSBase {
 
   private static final long serialVersionUID = -4443958310583150107L;
   private String            name;
+  private boolean isSetName = false;
 
 
   /** Creates a {@link UnitTransformation} instance. */
   public UnitTransformation() {
     super();
-    this.packageName = PMFConstants.shortLabel;
+    packageName = PMFConstants.shortLabel;
   }
 
 
   /** Creates a {@link UnitTransformation} instance from a name. */
   public UnitTransformation(String name) {
     super();
-    this.name = name;
-    this.packageName = PMFConstants.shortLabel;
+    setName(name);
+    packageName = PMFConstants.shortLabel;
   }
 
 
@@ -38,8 +39,8 @@ public class UnitTransformation extends AbstractSBase {
    */
   public UnitTransformation(String name, int level, int version) {
     super(level, version);
-    this.name = name;
-    this.packageName = PMFConstants.shortLabel;
+    setName(name);
+    packageName = PMFConstants.shortLabel;
   }
 
 
@@ -66,7 +67,7 @@ public class UnitTransformation extends AbstractSBase {
    * @return the value of name.
    */
   public String getName() {
-    return this.name;
+    return name;
   }
 
 
@@ -76,7 +77,7 @@ public class UnitTransformation extends AbstractSBase {
    * @return whether name is set.
    */
   public boolean isSetName() {
-    return this.name != null && !this.name.isEmpty();
+    return isSetName;
   }
 
 
@@ -89,6 +90,7 @@ public class UnitTransformation extends AbstractSBase {
     String oldName = this.name;
     this.name = name;
     firePropertyChange("name", oldName, this.name);
+    isSetName = true;
   }
 
 
@@ -99,9 +101,10 @@ public class UnitTransformation extends AbstractSBase {
    */
   public boolean unsetName() {
     if (isSetName()) {
-      String oldName = this.name;
-      this.name = null;
-      firePropertyChange("name", oldName, this.name);
+      String oldName = name;
+      name = null;
+      firePropertyChange("name", oldName, name);
+      isSetName = false;
       return true;
     }
     return false;

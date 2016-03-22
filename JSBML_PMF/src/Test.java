@@ -16,13 +16,12 @@ import org.sbml.jsbml.ext.pmf.PMFCompartmentPlugin;
 import org.sbml.jsbml.ext.pmf.PMFConstants;
 import org.sbml.jsbml.ext.pmf.PMFModelPlugin;
 import org.sbml.jsbml.ext.pmf.PMFParameterPlugin;
-import org.sbml.jsbml.ext.pmf.PMFReference;
 import org.sbml.jsbml.ext.pmf.PMFRulePlugin;
 import org.sbml.jsbml.ext.pmf.PMFSpeciesPlugin;
 import org.sbml.jsbml.ext.pmf.PMFUnitDefinitionPlugin;
 import org.sbml.jsbml.ext.pmf.ParameterMetadata;
-import org.sbml.jsbml.ext.pmf.PmmLabId;
-import org.sbml.jsbml.ext.pmf.RuleClass;
+import org.sbml.jsbml.ext.pmf.Reference;
+import org.sbml.jsbml.ext.pmf.RuleMetadata;
 import org.sbml.jsbml.ext.pmf.SpeciesMetadata;
 import org.sbml.jsbml.text.parser.ParseException;
 
@@ -92,12 +91,15 @@ public class Test {
       e.printStackTrace();
     }
     PMFRulePlugin rulePlugin = (PMFRulePlugin) rule.createPlugin(PMFConstants.shortLabel);
-    rulePlugin.createFormulaName("2 plus 2");
-    PMFReference ref = new PMFReference();
+    
+    RuleMetadata ruleMetadata = new RuleMetadata();
+    ruleMetadata.setFormulaName("2 plus 2");
+    ruleMetadata.setPmmLabID(1);
+    ruleMetadata.setModelClass(RuleMetadata.ModelClass.GROWTH);
+    rulePlugin.setMetadata(ruleMetadata);
+    Reference ref = new Reference();
     ref.setTitle("Baranyi latest model");
     rulePlugin.addReference(ref);
-    rulePlugin.setPmmLabId(new PmmLabId(1));
-    rulePlugin.setRuleClass(new RuleClass(RuleClass.ModelClass.GROWTH));
     
     try {
       System.out.println(JSBML.writeSBMLToString(doc));

@@ -12,48 +12,71 @@ import org.sbml.jsbml.util.StringTools;
 /**
  * @author Miguel Alba
  */
-public class PMFReference extends AbstractSBase {
+public class Reference extends AbstractSBase {
 
   private static final long serialVersionUID = -4222919106019745845L;
   
   private String  author;
+  private boolean isSetAuthor = false;
+  
   private Integer year;
+  private boolean isSetYear = false;
+  
   private String  title;
+  private boolean isSetTitle = false;
+  
   private String  abstractText;
+  private boolean isSetAbstractText = false;
+  
   private String  journal;
+  private boolean isSetJournal = false;
+  
   private String  volume;
+  private boolean isSetVolume = false;
+  
   private String  issue;
+  private boolean isSetIssue = false;
+  
   private Integer page;
+  private boolean isSetPage = false;
+  
   private Integer approvalMode;
+  private boolean isSetApprovalMode = false;
+  
   private String  website;
+  private boolean isSetWebsite = false;
+  
   private Integer referenceType; // TODO: should use a ReferenceType enum
+  private boolean isSetReferenceType = false;
+  
   private String  comment;
+  private boolean isSetComment = false;
 
 
-  /** Creates a {@link PMFReference} instance. */
-  public PMFReference() {
+  /** Creates a {@link Reference} instance. */
+  public Reference() {
     super();
     this.packageName = PMFConstants.shortLabel;
   }
 
 
-  /** Creates a {@link PMFReference} instance with a level and version. */
-  public PMFReference(int level, int version) {
+  /** Creates a {@link Reference} instance with a level and version. */
+  public Reference(int level, int version) {
     super(level, version);
     this.packageName = PMFConstants.shortLabel;
   }
 
 
   /** Clone constructor. */
-  public PMFReference(PMFReference reference) {
+  public Reference(Reference reference) {
     super(reference);
   }
 
 
   /** Clones this class. */
   @Override
-  public PMFReference clone() {
-    return new PMFReference(this);
+  public Reference clone() {
+    return new Reference(this);
   }
 
 
@@ -64,7 +87,7 @@ public class PMFReference extends AbstractSBase {
    * @return author.
    */
   public String getAuthor() {
-    return this.author;
+    return author;
   }
 
 
@@ -74,7 +97,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether author is set.
    */
   public boolean isSetAuthor() {
-    return this.author != null;
+    return isSetAuthor;
   }
 
 
@@ -87,6 +110,7 @@ public class PMFReference extends AbstractSBase {
     String oldAuthor = this.author;
     this.author = author;
     firePropertyChange("author", oldAuthor, this.author);
+    isSetAuthor = true;
   }
 
 
@@ -97,9 +121,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetAuthor() {
     if (isSetAuthor()) {
-      String oldAuthor = this.author;
-      this.author = null;
-      firePropertyChange("author", oldAuthor, this.author);
+      String oldAuthor = author;
+      author = null;
+      firePropertyChange("author", oldAuthor, author);
+      isSetAuthor = false;
       return true;
     }
     return false;
@@ -114,7 +139,7 @@ public class PMFReference extends AbstractSBase {
    */
   public int getYear() {
     if (isSetYear()) {
-      return this.year.intValue();
+      return year.intValue();
     }
     // This is necesssary because we cannot return null here.
     throw new PropertyUndefinedError("year", this);
@@ -127,7 +152,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether year is set.
    */
   public boolean isSetYear() {
-    return this.year != null;
+    return isSetYear;
   }
 
 
@@ -140,6 +165,7 @@ public class PMFReference extends AbstractSBase {
     Integer oldYear = this.year;
     this.year = Integer.valueOf(year);
     firePropertyChange("year", oldYear, this.year);
+    isSetYear = true;
   }
 
 
@@ -150,9 +176,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetYear() {
     if (isSetYear()) {
-      Integer oldYear = this.year;
-      this.year = null;
-      firePropertyChange("year", oldYear, this.year);
+      Integer oldYear = year;
+      year = null;
+      firePropertyChange("year", oldYear, year);
+      isSetYear = false;
       return true;
     }
     return false;
@@ -166,7 +193,7 @@ public class PMFReference extends AbstractSBase {
    * @return title.
    */
   public String getTitle() {
-    return this.title;
+    return title;
   }
 
 
@@ -176,7 +203,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether title is set.
    */
   public boolean isSetTitle() {
-    return this.title != null;
+    return isSetTitle;
   }
 
 
@@ -189,6 +216,7 @@ public class PMFReference extends AbstractSBase {
     String oldTitle = this.title;
     this.title = title;
     firePropertyChange("title", oldTitle, this.title);
+    isSetTitle = true;
   }
 
 
@@ -199,9 +227,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetTitle() {
     if (isSetTitle()) {
-      String oldTitle = this.title;
-      this.title = null;
-      firePropertyChange("title", oldTitle, this.title);
+      String oldTitle = title;
+      title = null;
+      firePropertyChange("title", oldTitle, title);
+      isSetTitle = false;
       return true;
     }
     return false;
@@ -215,7 +244,7 @@ public class PMFReference extends AbstractSBase {
    * @return abstract.
    */
   public String getAbstractText() {
-    return this.abstractText;
+    return abstractText;
   }
 
 
@@ -225,7 +254,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether abstractText is set.
    */
   public boolean isSetAbstractText() {
-    return this.abstractText != null;
+    return isSetAbstractText;
   }
 
 
@@ -238,6 +267,7 @@ public class PMFReference extends AbstractSBase {
     String oldAbstractText = this.abstractText;
     this.abstractText = abstractText;
     firePropertyChange("abstractText", oldAbstractText, this.abstractText);
+    isSetAbstractText = true;
   }
 
 
@@ -249,9 +279,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetAbstractText() {
     if (isSetAbstractText()) {
-      String oldAbstractText = this.abstractText;
-      this.abstractText = null;
-      firePropertyChange("abstractText", oldAbstractText, this.abstractText);
+      String oldAbstractText = abstractText;
+      abstractText = null;
+      firePropertyChange("abstractText", oldAbstractText, abstractText);
+      isSetAbstractText = false;
       return true;
     }
     return false;
@@ -265,7 +296,7 @@ public class PMFReference extends AbstractSBase {
    * @return journal.
    */
   public String getJournal() {
-    return this.journal;
+    return journal;
   }
 
 
@@ -275,7 +306,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether journal is set.
    */
   public boolean isSetJournal() {
-    return this.journal != null;
+    return isSetJournal;
   }
 
 
@@ -288,6 +319,7 @@ public class PMFReference extends AbstractSBase {
     String oldJournal = this.journal;
     this.journal = journal;
     firePropertyChange("journal", oldJournal, this.journal);
+    isSetJournal = true;
   }
 
 
@@ -298,9 +330,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetJournal() {
     if (isSetJournal()) {
-      String oldJournal = this.journal;
-      this.journal = null;
-      firePropertyChange("journal", oldJournal, this.journal);
+      String oldJournal = journal;
+      journal = null;
+      firePropertyChange("journal", oldJournal, journal);
+      isSetJournal = false;
       return true;
     }
     return false;
@@ -314,7 +347,7 @@ public class PMFReference extends AbstractSBase {
    * @return volume.
    */
   public String getVolume() {
-    return this.volume;
+    return volume;
   }
 
 
@@ -324,7 +357,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether volume is set.
    */
   public boolean isSetVolume() {
-    return this.volume != null;
+    return isSetVolume;
   }
 
 
@@ -337,6 +370,7 @@ public class PMFReference extends AbstractSBase {
     String oldVolume = this.volume;
     this.volume = volume;
     firePropertyChange("volume", oldVolume, this.volume);
+    isSetVolume = true;
   }
 
 
@@ -347,9 +381,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetVolume() {
     if (isSetVolume()) {
-      String oldVolume = this.volume;
-      this.volume = null;
-      firePropertyChange("volume", oldVolume, this.volume);
+      String oldVolume = volume;
+      volume = null;
+      firePropertyChange("volume", oldVolume, volume);
+      isSetVolume = false;
       return true;
     }
     return false;
@@ -363,7 +398,7 @@ public class PMFReference extends AbstractSBase {
    * @return issue.
    */
   public String getIssue() {
-    return this.issue;
+    return issue;
   }
 
 
@@ -373,7 +408,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether issue is set.
    */
   public boolean isSetIssue() {
-    return this.issue != null;
+    return isSetIssue;
   }
 
 
@@ -386,6 +421,7 @@ public class PMFReference extends AbstractSBase {
     String oldIssue = this.issue;
     this.issue = issue;
     firePropertyChange("issue", oldIssue, this.issue);
+    isSetIssue = true;
   }
 
 
@@ -396,9 +432,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetIssue() {
     if (isSetIssue()) {
-      String oldIssue = this.issue;
-      this.issue = null;
-      firePropertyChange("issue", oldIssue, this.issue);
+      String oldIssue = issue;
+      issue = null;
+      firePropertyChange("issue", oldIssue, issue);
+      isSetIssue = false;
       return true;
     }
     return false;
@@ -413,7 +450,7 @@ public class PMFReference extends AbstractSBase {
    */
   public int getPage() {
     if (isSetPage()) {
-      return this.page.intValue();
+      return page.intValue();
     }
     // This is necesssary because we cannot return null here.
     throw new PropertyUndefinedError("page", this);
@@ -426,7 +463,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether page is set.
    */
   public boolean isSetPage() {
-    return this.page != null;
+    return isSetPage;
   }
 
 
@@ -439,6 +476,7 @@ public class PMFReference extends AbstractSBase {
     Integer oldPage = this.page;
     this.page = Integer.valueOf(page);
     firePropertyChange("page", oldPage, this.page);
+    isSetPage = true;
   }
 
 
@@ -449,9 +487,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetPage() {
     if (isSetPage()) {
-      Integer oldPage = this.page;
-      this.page = null;
-      firePropertyChange("page", oldPage, this.page);
+      Integer oldPage = page;
+      page = null;
+      firePropertyChange("page", oldPage, page);
+      isSetPage = false;
       return true;
     }
     return false;
@@ -466,7 +505,7 @@ public class PMFReference extends AbstractSBase {
    */
   public int getApprovalMode() {
     if (isSetApprovalMode()) {
-      return this.approvalMode.intValue();
+      return approvalMode.intValue();
     }
     // This is necesssary because we cannot return null here.
     throw new PropertyUndefinedError("approvalMode", this);
@@ -479,7 +518,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether approvalMode is set.
    */
   public boolean isSetApprovalMode() {
-    return this.approvalMode != null;
+    return isSetApprovalMode;
   }
 
 
@@ -493,6 +532,7 @@ public class PMFReference extends AbstractSBase {
     Integer oldApprovalMode = this.approvalMode;
     this.approvalMode = Integer.valueOf(approvalMode);
     firePropertyChange("approvalMode", oldApprovalMode, this.approvalMode);
+    isSetApprovalMode = true;
   }
 
 
@@ -504,9 +544,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetApprovalMode() {
     if (isSetApprovalMode()) {
-      Integer oldApprovalMode = this.approvalMode;
-      this.page = null;
-      firePropertyChange("approvalMode", oldApprovalMode, this.approvalMode);
+      Integer oldApprovalMode = approvalMode;
+      approvalMode = null;
+      firePropertyChange("approvalMode", oldApprovalMode, approvalMode);
+      isSetApprovalMode = false;
       return true;
     }
     return false;
@@ -520,7 +561,7 @@ public class PMFReference extends AbstractSBase {
    * @return website.
    */
   public String getWebsite() {
-    return this.website;
+    return website;
   }
 
 
@@ -530,7 +571,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether website is set.
    */
   public boolean isSetWebsite() {
-    return this.website != null;
+    return isSetWebsite;
   }
 
 
@@ -543,6 +584,7 @@ public class PMFReference extends AbstractSBase {
     String oldWebsite = this.website;
     this.website = website;
     firePropertyChange("website", oldWebsite, this.website);
+    isSetWebsite = true;
   }
 
 
@@ -553,9 +595,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetWebsite() {
     if (isSetWebsite()) {
-      String oldWebsite = this.website;
-      this.website = null;
-      firePropertyChange("website", oldWebsite, this.website);
+      String oldWebsite = website;
+      website = null;
+      firePropertyChange("website", oldWebsite, website);
+      isSetWebsite = false;
       return true;
     }
     return false;
@@ -570,7 +613,7 @@ public class PMFReference extends AbstractSBase {
    */
   public int getReferenceType() {
     if (isSetReferenceType()) {
-      return this.referenceType.intValue();
+      return referenceType.intValue();
     }
     // This is necesssary because we cannot return null here.
     throw new PropertyUndefinedError("referenceType", this);
@@ -583,7 +626,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether reference type is set.
    */
   public boolean isSetReferenceType() {
-    return this.referenceType != null;
+    return isSetReferenceType;
   }
 
 
@@ -596,6 +639,7 @@ public class PMFReference extends AbstractSBase {
     Integer oldReferenceType = this.referenceType;
     this.referenceType = Integer.valueOf(referenceType);
     firePropertyChange("referenceType", oldReferenceType, this.referenceType);
+    isSetReferenceType = true;
   }
 
 
@@ -607,9 +651,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetReferenceType() {
     if (isSetReferenceType()) {
-      Integer oldReferenceType = this.referenceType;
-      this.referenceType = null;
-      firePropertyChange("referenceType", oldReferenceType, this.referenceType);
+      Integer oldReferenceType = referenceType;
+      referenceType = null;
+      firePropertyChange("referenceType", oldReferenceType, referenceType);
+    isSetReferenceType = false;
       return true;
     }
     return false;
@@ -623,7 +668,7 @@ public class PMFReference extends AbstractSBase {
    * @return comment.
    */
   public String getComment() {
-    return this.comment;
+    return comment;
   }
 
 
@@ -633,7 +678,7 @@ public class PMFReference extends AbstractSBase {
    * @return whether comment is set.
    */
   public boolean isSetComment() {
-    return this.comment != null;
+    return isSetComment;
   }
 
 
@@ -646,6 +691,7 @@ public class PMFReference extends AbstractSBase {
     String oldComment = this.comment;
     this.comment = comment;
     firePropertyChange("comment", oldComment, this.comment);
+    isSetComment = true;
   }
 
 
@@ -656,9 +702,10 @@ public class PMFReference extends AbstractSBase {
    */
   public boolean unsetComment() {
     if (isSetComment()) {
-      String oldComment = this.comment;
-      this.comment = null;
-      firePropertyChange("comment", oldComment, this.comment);
+      String oldComment = comment;
+      comment = null;
+      firePropertyChange("comment", oldComment, comment);
+      isSetComment = false;
       return true;
     }
     return false;
@@ -700,40 +747,40 @@ public class PMFReference extends AbstractSBase {
     Map<String, String> attributes = new TreeMap<>();
 
     if (isSetAuthor()) {
-      attributes.put("AU", this.author);
+      attributes.put("AU", author);
     }
     if (isSetYear()) {
-      attributes.put("PY", StringTools.toString(Locale.ENGLISH, this.year.intValue()));
+      attributes.put("PY", StringTools.toString(Locale.ENGLISH, year.intValue()));
     }
     if (isSetTitle()) {
-      attributes.put("TI", this.title);
+      attributes.put("TI", title);
     }
     if (isSetAbstractText()) {
-      attributes.put("AB", this.abstractText);
+      attributes.put("AB", abstractText);
     }
     if (isSetJournal()) {
-      attributes.put("T2", this.journal);
+      attributes.put("T2", journal);
     }
     if (isSetVolume()) {
-      attributes.put("VL", this.volume);
+      attributes.put("VL", volume);
     }
     if (isSetIssue()) {
-      attributes.put("IS", this.issue);
+      attributes.put("IS", issue);
     }
     if (isSetPage()) {
-      attributes.put("SP", StringTools.toString(Locale.ENGLISH, this.page.intValue()));
+      attributes.put("SP", StringTools.toString(Locale.ENGLISH, page.intValue()));
     }
     if (isSetApprovalMode()) {
-      attributes.put("LB", StringTools.toString(Locale.ENGLISH, this.approvalMode.intValue()));
+      attributes.put("LB", StringTools.toString(Locale.ENGLISH, approvalMode.intValue()));
     }
     if (isSetWebsite()) {
-      attributes.put("UR", this.website);
+      attributes.put("UR", website);
     }
     if (isSetReferenceType()) {
-      attributes.put("M3", StringTools.toString(Locale.ENGLISH, this.referenceType.intValue()));
+      attributes.put("M3", StringTools.toString(Locale.ENGLISH, referenceType.intValue()));
     }
     if (isSetComment()) {
-      attributes.put("UR", this.comment);
+      attributes.put("UR", comment);
     }
 
     return attributes;
@@ -742,6 +789,6 @@ public class PMFReference extends AbstractSBase {
 
   @Override
   public String toString() {
-    return String.format("%s_%s_%s", this.author, this.year, this.title);
+    return String.format("%s_%s_%s", author, year, title);
   }
 }

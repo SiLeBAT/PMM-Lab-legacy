@@ -3,6 +3,8 @@
  */
 package org.sbml.jsbml.ext.pmf;
 
+import java.util.Map;
+
 import org.sbml.jsbml.SBase;
 import org.sbml.jsbml.ext.AbstractSBasePlugin;
 
@@ -54,5 +56,27 @@ public abstract class PMFSBasePlugin extends AbstractSBasePlugin {
   @Override
   public String getURI() {
     return getElementNamespace();
+  }
+  
+  // XML
+  /*
+   * (non-Javadoc)
+   * @see org.sbml.jsbml.ext.SBasePlugin#readAttribute(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public boolean readAttribute(String attributeName, String prefix,
+    String value) {
+    // No attribute defined on this plugin
+    return false;
+  }
+  
+  /* (non-Javadoc)
+   * @see org.sbml.jsbml.ext.SBasePlugin#writeXMLAttributes()
+   */
+  @Override
+  public Map<String, String> writeXMLAttributes() {
+    // No attribute define on this plugin
+    return null;
   }
 }

@@ -39,21 +39,16 @@ public class PMFConstants {
   public static final String primaryModel = "primaryModel";
   
   public static final String unitTransformation = "unitTransformation";
+  public static final String reference = "reference";
   
   public static final String paramMetadata = "parameterMetadata";
-  
   public static final String compartmentMetadata = "compartmentMetadata";
-  
   public static final String speciesMetadata = "speciesMetadata";
-  
-  public static final String formulaName = "formulaName";
-  public static final String pmfReference = "pMFReference";
-  public static final String pmmlabId = "pmmLabId";
-  public static final String ruleClass = "ruleClass";
+  public static final String ruleMetadata = "ruleMetadata";
   
   public static final String listOfModelVariables = "listOfModelVariables";
   public static final String listOfDataSources = "listOfDataSources";
   public static final String listOfCorrelations = "listOfCorrelations";
-  public static final String listOfReferences = "listOfPMFReferences";
+  public static final String listOfReferences = "listOfReferences";
   public static final String listOfPrimaryModels = "listOfPrimaryModels";
 }

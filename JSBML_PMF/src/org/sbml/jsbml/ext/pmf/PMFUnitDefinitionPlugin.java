@@ -55,10 +55,7 @@ public class PMFUnitDefinitionPlugin extends PMFSBasePlugin {
    */
   @Override
   public UnitDefinition getParent() {
-    if (isSetExtendedSBase()) {
-      return (UnitDefinition) getExtendedSBase().getParent();
-    }
-    return null;
+    return isSetExtendedSBase() ? (UnitDefinition) getExtendedSBase().getParent() : null;
   }
 
 

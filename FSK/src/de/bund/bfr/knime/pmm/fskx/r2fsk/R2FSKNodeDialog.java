@@ -29,6 +29,8 @@ import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
+import de.bund.bfr.knime.pmm.common.ui.BoxFileSelection;
+
 public class R2FSKNodeDialog extends NodeDialogPane {
 
   // models

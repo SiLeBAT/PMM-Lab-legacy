@@ -151,8 +151,8 @@ public class RSnippetNodeModel extends ExtToolOutputNodeModel {
     // preferenceStore.setValue(RPreferenceInitializer.PREF_R_HOME, settings.getNewRHome());
     // }
 
-    de.bund.bfr.knime.ext.r.bin.Activator
-        .setRHome(new File("D:\\Apps\\R215-Portable\\App\\R-Portable"));
+//    de.bund.bfr.knime.ext.r.bin.Activator
+//        .setRHome(new File("D:\\Apps\\R215-Portable\\App\\R-Portable"));
 
     final FlowVariableRepository flowVarRepo =
         new FlowVariableRepository(getAvailableInputFlowVariables());

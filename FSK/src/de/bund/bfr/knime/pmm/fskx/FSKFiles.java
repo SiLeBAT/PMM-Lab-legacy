@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -121,11 +120,11 @@ public class FSKFiles {
 
     // R libs
     libs = new HashMap<>();
-    Iterator<DataRow> libIterator = libTable.iterator();
-    while (libIterator.hasNext()) {
-      DataRow libRow = libIterator.next();
-      String libName = ((StringCell) libRow.getCell(0)).getStringValue();
-      File libFile = new File(((StringCell) libRow.getCell(1)).getStringValue());
+    for (DataRow row1 : libTable) {
+      String libName =
+          ((StringCell) row1.getCell(LibTuple.Columns.PACKAGE.ordinal())).getStringValue();
+      File libFile =
+          new File(((StringCell) row1.getCell(LibTuple.Columns.PATH.ordinal())).getStringValue());
       libs.put(libName, libFile);
     }
   }
@@ -208,7 +207,7 @@ public class FSKFiles {
         String libName = entry.getFileName();
         File libFile = FileUtil.createTempFile("lib", "");
         entry.extractFile(libFile);
-        
+
         libs.put(libName, libFile);
       }
 

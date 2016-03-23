@@ -17,12 +17,4 @@ public class FSKUtil {
 
     return new DataTableSpec(columnSpecs);
   }
-  
-  public static DataTableSpec createLibTableSpec() {
-    String[] colNames = {"name", "path"};
-    DataType[] colTypes = {StringCell.TYPE, StringCell.TYPE};
-    DataColumnSpec[] colSpecs = DataTableSpec.createColumnSpecs(colNames, colTypes);
-    
-    return new DataTableSpec(colSpecs);
-  }
 }

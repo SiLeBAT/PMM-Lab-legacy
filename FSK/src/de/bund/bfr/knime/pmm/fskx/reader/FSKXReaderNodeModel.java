@@ -18,10 +18,13 @@ package de.bund.bfr.knime.pmm.fskx.reader;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumMap;
+import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -51,6 +54,7 @@ import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.LibTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
+import de.bund.bfr.knime.pmm.fskx.RPackageMetadata;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
@@ -266,12 +270,31 @@ public class FSKXReaderNodeModel extends NodeModel {
   private BufferedDataTable createLibTable(final FSKFiles files, final ExecutionContext exec) {
 
     // Creates libraries table and container
-    DataTableSpec libSpec = FSKUtil.createLibTableSpec();
+    DataTableSpec libSpec = LibTuple.createTableSpec();
     BufferedDataContainer container = exec.createDataContainer(libSpec);
-    for (Map.Entry<String, File> libEntry : files.getLibs().entrySet()) {
-      String libName = libEntry.getKey();
-      String libPath = libEntry.getValue().getAbsolutePath();
-      container.addRowToTable(new LibTuple(libName, libPath));
+    for (File file : files.getLibs().values()) {
+
+      try (ZipFile zipFile = new ZipFile(file)) {
+        ZipEntry descriptionEntry = null;
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+          ZipEntry entry = entries.nextElement();
+          String[] tokens = entry.getName().split("/");
+          if (tokens.length == 2 && tokens[1].equals("DESCRIPTION")) {
+            descriptionEntry = entry;
+            break;
+          }
+        }
+        
+        InputStream stream = zipFile.getInputStream(descriptionEntry);
+        RPackageMetadata metaData = RPackageMetadata.parseDescription(stream);
+        stream.close();
+        zipFile.close();
+
+        container.addRowToTable(new LibTuple(metaData, file.getAbsolutePath()));
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
     }
     container.close();
 

@@ -99,77 +99,77 @@ public class FSKXWriterNodeModel extends NodeModel {
    */
   @Override
   protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-    throws CombineArchiveException {
-    
+      throws CombineArchiveException {
+
     BufferedDataTable rTable = (BufferedDataTable) inData[0];
     BufferedDataTable metaDataTable = (BufferedDataTable) inData[1];
     PortObject rWorkspace = inData[2];
     BufferedDataTable libTable = (BufferedDataTable) inData[3];
-    
+
     FSKFiles files;
     try {
       files = new FSKFiles(rTable, metaDataTable, rWorkspace, libTable);
     } catch (IOException e) {
       throw new CombineArchiveException(e.getMessage());
     }
-    
+
     File archiveFile = new File(this.filePath.getStringValue());
     try {
       Files.deleteIfExists(archiveFile.toPath());
     } catch (IOException e) {
       throw new CombineArchiveException(e.getMessage());
     }
-    
+
     // Try to create CombineArchive
     try (CombineArchive archive = new CombineArchive(archiveFile)) {
       RMetaDataNode metaDataNode = new RMetaDataNode();
       URI rURI = RUri.createURI();
-      
+
       // Adds R model script
       if (files.getModelScript() == null) {
         throw new CombineArchiveException("Missing model script file");
       }
-      
+
       archive.addEntry(files.getModelScript(), "model.R", rURI);
       metaDataNode.setMainScript("model.R");
-      
+
       // Adds R parameters script
       if (files.getParamScript() != null) {
         archive.addEntry(files.getParamScript(), "params.R", rURI);
         metaDataNode.setParamScript("params.R");
       }
-      
+
       // Adds R visualization script
       if (files.getVizScript() != null) {
         archive.addEntry(files.getVizScript(), "visualization.R", rURI);
         metaDataNode.setVisualizationScript("visualization.R");
       }
-      
+
       // Adds R workspace
       if (files.getWorkspace() != null) {
         archive.addEntry(files.getWorkspace(), files.getWorkspace().getName(), rURI);
         metaDataNode.setWorkspaceFile(files.getWorkspace().getName());
       }
-      
+
       // Adds PMF document with meta data
       if (files.getMetaData() != null) {
         archive.addEntry(files.getMetaData(), "metadata.pmf", URIFactory.createPMFURI());
       }
-      
+
       archive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
-      
+
       // Adds R libraries
       URI zipUri = ZipUri.createURI();
       for (Map.Entry<String, File> libEntry : files.getLibs().entrySet()) {
-        archive.addEntry(libEntry.getValue(), libEntry.getKey(), zipUri);
+        archive.addEntry(libEntry.getValue(), libEntry.getKey() + ".zip", zipUri);
       }
-      
+
       archive.pack();
       archive.close();
     } catch (IOException | JDOMException | ParseException | TransformerException e) {
       e.printStackTrace();
     }
-    
+
     return new BufferedDataTable[] {};
   }
 

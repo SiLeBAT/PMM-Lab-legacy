@@ -1,3 +1,19 @@
+/***************************************************************************************************
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors: Department Biological Safety - BfR
+ **************************************************************************************************/
 package de.bund.bfr.knime.pmm.fskx.r2fsk;
 
 import java.io.File;
@@ -35,6 +51,7 @@ import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.LibTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
+import de.bund.bfr.knime.pmm.fskx.RPackageMetadata;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
@@ -300,7 +317,7 @@ public class R2FSKNodeModel extends NodeModel {
    */
   private BufferedDataTable createLibTable(final ExecutionContext exec) {
 
-    BufferedDataContainer container = exec.createDataContainer(FSKUtil.createLibTableSpec());
+    BufferedDataContainer container = exec.createDataContainer(LibTuple.createTableSpec());
     if (m_selectedLibs.getStringArrayValue() != null) {
       for (String lib : m_selectedLibs.getStringArrayValue()) {
         // Builds full path
@@ -324,7 +341,7 @@ public class R2FSKNodeModel extends NodeModel {
           RPackageMetadata metadata = RPackageMetadata.parseDescription(stream);
           stream.close();
           
-          container.addRowToTable(new LibTuple(metadata.m_package, fullpath));
+          container.addRowToTable(new LibTuple(metadata, fullpath));
         } catch (IOException e) {
           e.printStackTrace();
           continue;

@@ -19,12 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.modelplotter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.dmg.pmml.DATATYPE;
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -45,10 +43,13 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
+import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.knime.pmm.editor.ModelEditorNodeModel;
 import de.bund.bfr.knime.pmm.js.common.Model1DataTuple;
 import de.bund.bfr.knime.pmm.js.common.ModelList;
+import de.bund.bfr.knime.pmm.js.common.Unit;
+import de.bund.bfr.knime.pmm.js.common.UnitList;
 
 /**
  * Model Plotter node model.
@@ -171,6 +172,25 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 			ModelList modelList = new ModelList();
 			modelList.setModels(dataTuples);
 			viewValue.setModels(modelList);
+			
+			// create UnitList from DBUnits
+			// (this way we can use the units known to the DB and do not have to implement extra JSONType declarations)
+			ArrayList<Unit> tempUnitList = new ArrayList<Unit>();
+			for (UnitsFromDB dbUnit : DBUnits.getDBUnits().values()) {
+				Unit newUnit = new Unit();
+				// only copy attributes that are used
+				newUnit.setDisplayInGuiAs(dbUnit.getDisplay_in_GUI_as());
+				newUnit.setConversionFunctionFactor(dbUnit.getConversion_function_factor());
+				newUnit.setInverseConversionFunctionFactor(dbUnit.getInverse_conversion_function_factor());
+				newUnit.setName(dbUnit.getName());
+				newUnit.setUnit(dbUnit.getUnit());
+				
+				tempUnitList.add(newUnit);
+			}
+			UnitList unitList = new UnitList();
+			unitList.setUnits((Unit[])tempUnitList.toArray(new Unit[0]));
+			// make list available to view
+			viewValue.setUnits(unitList);
 
 			setViewValue(viewValue);
 			m_executed = true;

@@ -24,6 +24,7 @@ pmm_plotter = function() {
 	var _modelObjects = [];
 	var _colorsArray = [];
 	var _rawModels = [];
+	var _dbUnits = [];
 	var _parameterMap = [];
 	
 	var msgAdd = "Add Model";
@@ -52,6 +53,7 @@ pmm_plotter = function() {
 	var msgExamples = "Examples";
 	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula.";
 	var	msg_error_unknownUnit = "unknown unit: ";
+	var	msg_error_xUnitUnknown = "the x unit of one function is unknown to the database: transformation impossible";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -72,6 +74,7 @@ pmm_plotter = function() {
 	modelPlotter.init = function(representation, value) {
 
 		_rawModels = value.models.models;
+		_dbUnits = value.units.units;
 		_plotterValue = value;
 		// plotterRep = representation; // not used
 
@@ -384,7 +387,6 @@ pmm_plotter = function() {
 			
 			if(_xUnit != msgUnknown && xUnit != _xUnit)
 			{
-//				show("unequal xUnit: " + _xUnit + " vs. " + xUnit);
 				newString = unifyX(newString, xUnit);
 			}
 			else
@@ -394,7 +396,6 @@ pmm_plotter = function() {
 			
 			if(_yUnit != msgUnknown && _yUnit != yUnit)
 			{
-//				show("unequal yUnit: " + _yUnit + " vs. " + yUnit);
 				newString = unifyY(newString, yUnit);
 			}
 			else
@@ -1152,7 +1153,26 @@ pmm_plotter = function() {
 		$(form).fadeIn(_defaultFadeTime);
 		$(finishButton).fadeIn(_defaultFadeTime);
 	}
-		
+	
+	/**
+	 * Searches the list of DB-units for a conversion factor of a specific unit
+	 * 
+	 * @param unit the unit from which the factor has to be determined
+	 * @return the conversion factor fo the given unit
+	 */
+	function getUnitConversionFactor(unit)
+	{
+		var factor;
+		$.each(_dbUnits, function (i, dbUnit) {
+			if(unit == dbUnit.displayInGuiAs)
+			{
+				factor = dbUnit.conversionFunctionFactor.split("*")[1];
+				return true;
+			}
+		});
+		return factor;
+	}
+	
 	/**
 	 * Rearranges formula to fit to a common xAxis. We assume here, 
 	 * that time is either counted in minutes ("min"), days ("d") or 
@@ -1165,60 +1185,24 @@ pmm_plotter = function() {
 	function unifyX(oldFunction, xUnit)
 	{
 		var newFunction;
-		var oldUnit;
-		var newUnit;
-		var modifier;
+		var modifier = "*1";
+		var defaultUnit = _xUnit;
+		var secondUnit = xUnit;
+		var defaultFactor = getUnitConversionFactor(defaultUnit);
+		var secondFactor = getUnitConversionFactor(secondUnit);
 		
-		// for readability
-		var minutes = 1;
-		var days = 2;
-		var hours = 3;
+		if(defaultFactor == undefined || secondFactor == undefined)
+		{
+			show(msg_error_xUnitUnknown);
+			return oldFunction;
+		}
 		
-		// determine incoming unit
-		if(xUnit == "min" || xUnit == "MIN")
-			newUnit = minutes
-		else if(xUnit == "h" || xUnit == "H")
-			newUnit = hours
-		else if(xUnit == "d" || xUnit == "D")
-			newUnit = days
+		if(defaultFactor > secondFactor)
+			modifier = "*" + defaultFactor/secondFactor
 		else
-			show(msg_error_unknownUnit + xUnit);
-		
-		// determine existing unit
-		if(_xUnit == "min" || _xUnit == "MIN")
-			oldUnit = minutes
-		else if(_xUnit == "h" || _xUnit == "H")
-			oldUnit = hours
-		else if(_xUnit == "d" || _xUnit == "D")
-			oldUnit = days
-		else
-			show(msg_error_unknownUnit + _xUnit);
-		
-		// determine modifier according to units
-		// assumption: the units are distinct
-		if(newUnit == minutes) 
-		{
-			if(oldUnit == hours)
-				modifier = "*60"
-			else // oldUnit must be days
-				modifier = "*60*24"
-		}
-		else if(newUnit == hours) 
-		{
-			if(oldUnit == minutes)
-				modifier = "/60"
-			else // oldUnit must be days
-				modifier = "*24"
-		}
-		else // newUnit must be days
-		{
-			if(oldUnit == minutes)
-				modifier = "/60/24"
-			else // must be hours
-				modifier = "/24"
-		}
+			modifier = "/" + secondFactor/defaultFactor
+			
 		newFunction = modifyX(oldFunction, modifier);
-		
 		return newFunction;
 	}
 	

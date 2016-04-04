@@ -34,6 +34,8 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 
+import com.google.common.io.Files;
+
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -207,8 +209,10 @@ public class FSKFiles {
         String libName = entry.getFileName();
         File libFile = FileUtil.createTempFile("lib", "");
         entry.extractFile(libFile);
-
-        libs.put(libName, libFile);
+        File libFile2 = new File(libFile.getParent() + File.separator + libName);
+        libFile2.deleteOnExit();
+        Files.move(libFile, libFile2);
+        libs.put(libName, libFile2);
       }
 
     } catch (IOException | JDOMException | ParseException e) {

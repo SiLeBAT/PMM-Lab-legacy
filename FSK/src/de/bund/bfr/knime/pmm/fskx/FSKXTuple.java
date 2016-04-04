@@ -22,15 +22,15 @@ import java.util.Random;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.StringCell;
 
 public class FSKXTuple implements DataRow {
 
   public enum KEYS {
-    MODEL_SCRIPT,
-    PARAM_SCRIPT,
-    VIZ_SCRIPT,
+    MODEL_SCRIPT, PARAM_SCRIPT, VIZ_SCRIPT,
     /** libraries */
     LIBS,
     /** sources */
@@ -54,12 +54,14 @@ public class FSKXTuple implements DataRow {
    */
   public FSKXTuple(EnumMap<KEYS, String> values) throws MissingValueError {
     this.cell = new DataCell[KEYS.values().length];
-    
-//    // checks optional columns
-//    if (!values.containsKey(KEYS.ORIG_MODEL)) throw new MissingValueError("Missing original model");
-//    if (!values.containsKey(KEYS.SIMP_MODEL)) throw new MissingValueError("Missing simplified model");
-//    if (!values.containsKey(KEYS.LIBS)) throw new MissingValueError("Missing libraries");
-//    if (!values.containsKey(KEYS.SOURCES)) throw new MissingValueError("Missing sources");
+
+    // // checks optional columns
+    // if (!values.containsKey(KEYS.ORIG_MODEL)) throw new MissingValueError("Missing original
+    // model");
+    // if (!values.containsKey(KEYS.SIMP_MODEL)) throw new MissingValueError("Missing simplified
+    // model");
+    // if (!values.containsKey(KEYS.LIBS)) throw new MissingValueError("Missing libraries");
+    // if (!values.containsKey(KEYS.SOURCES)) throw new MissingValueError("Missing sources");
 
     // assigns mandatory columns
     this.cell[KEYS.MODEL_SCRIPT.ordinal()] = new StringCell(values.get(KEYS.MODEL_SCRIPT));
@@ -67,8 +69,10 @@ public class FSKXTuple implements DataRow {
     this.cell[KEYS.SOURCES.ordinal()] = new StringCell(values.get(KEYS.SOURCES));
 
     // assigns optional columns
-    this.cell[KEYS.PARAM_SCRIPT.ordinal()] = new StringCell(values.containsKey(KEYS.PARAM_SCRIPT) ? values.get(KEYS.PARAM_SCRIPT) : "");
-    this.cell[KEYS.VIZ_SCRIPT.ordinal()] = new StringCell(values.containsKey(KEYS.VIZ_SCRIPT) ? values.get(KEYS.VIZ_SCRIPT) : "");
+    this.cell[KEYS.PARAM_SCRIPT.ordinal()] =
+        new StringCell(values.containsKey(KEYS.PARAM_SCRIPT) ? values.get(KEYS.PARAM_SCRIPT) : "");
+    this.cell[KEYS.VIZ_SCRIPT.ordinal()] =
+        new StringCell(values.containsKey(KEYS.VIZ_SCRIPT) ? values.get(KEYS.VIZ_SCRIPT) : "");
 
     this.rowKey = new RowKey(String.valueOf(new Random().nextInt()));
   }
@@ -112,5 +116,27 @@ public class FSKXTuple implements DataRow {
     public DataCell next() {
       return this.cell[this.i++];
     }
+  }
+
+  public static DataTableSpec createTableSpec() {
+    String[] colNames = new String[5];
+    DataType[] colTypes = new DataType[5];
+
+    colNames[KEYS.MODEL_SCRIPT.ordinal()] = "model";
+    colTypes[KEYS.MODEL_SCRIPT.ordinal()] = StringCell.TYPE;
+
+    colNames[KEYS.PARAM_SCRIPT.ordinal()] = "params";
+    colTypes[KEYS.PARAM_SCRIPT.ordinal()] = StringCell.TYPE;
+
+    colNames[KEYS.VIZ_SCRIPT.ordinal()] = "visualization";
+    colTypes[KEYS.VIZ_SCRIPT.ordinal()] = StringCell.TYPE;
+
+    colNames[KEYS.LIBS.ordinal()] = "RLibraries";
+    colTypes[KEYS.LIBS.ordinal()] = StringCell.TYPE;
+
+    colNames[KEYS.SOURCES.ordinal()] = "RSources";
+    colTypes[KEYS.SOURCES.ordinal()] = StringCell.TYPE;
+
+    return new DataTableSpec(DataTableSpec.createColumnSpecs(colNames, colTypes));
   }
 }

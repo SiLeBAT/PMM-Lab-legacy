@@ -49,7 +49,6 @@ import org.sbml.jsbml.SBMLReader;
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKFiles;
-import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.LibTuple;
@@ -222,7 +221,7 @@ public class FSKXReaderNodeModel extends NodeModel {
     valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // Adds R sources
 
     // Creates model table spec and container
-    DataTableSpec spec = FSKUtil.createFSKTableSpec();
+    DataTableSpec spec = FSKXTuple.createTableSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
     container.addRowToTable(new FSKXTuple(valuesMap));
     container.close();

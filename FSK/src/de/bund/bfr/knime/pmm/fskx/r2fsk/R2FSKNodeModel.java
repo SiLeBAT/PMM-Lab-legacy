@@ -46,7 +46,6 @@ import com.google.common.base.Strings;
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.fskx.FSKUtil;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.LibTuple;
@@ -267,7 +266,7 @@ public class R2FSKNodeModel extends NodeModel {
     valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // adds R sources
 
     // Creates table spec and container
-    DataTableSpec spec = FSKUtil.createFSKTableSpec();
+    DataTableSpec spec = FSKXTuple.createTableSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
 
     // Adds row and closes the container

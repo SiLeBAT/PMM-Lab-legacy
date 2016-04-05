@@ -19,6 +19,8 @@ package de.bund.bfr.knime.pmm.fskx.r2fsk;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -321,8 +323,15 @@ public class R2FSKNodeModel extends NodeModel {
       for (String lib : m_selectedLibs.getStringArrayValue()) {
         // Builds full path
         String fullpath = m_libDirectory.getStringValue() + "/" + lib;
+        
+        File file;
+        try {
+          file = KnimeUtils.getFile(fullpath);
+        } catch (InvalidPathException | MalformedURLException e1) {
+          continue;
+        }
 
-        try (ZipFile zipFile = new ZipFile(fullpath)) {
+        try (ZipFile zipFile = new ZipFile(file)) {
 
           // Looks for DESCRIPTION entry
           ZipEntry descriptionEntry = null;
@@ -340,7 +349,7 @@ public class R2FSKNodeModel extends NodeModel {
           RPackageMetadata metadata = RPackageMetadata.parseDescription(stream);
           stream.close();
 
-          container.addRowToTable(new LibTuple(metadata, fullpath));
+          container.addRowToTable(new LibTuple(metadata, zipFile.getName()));
         } catch (IOException e) {
           e.printStackTrace();
           continue;

@@ -321,9 +321,9 @@ public class R2FSKNodeModel extends NodeModel {
       for (String lib : m_selectedLibs.getStringArrayValue()) {
         // Builds full path
         String fullpath = m_libDirectory.getStringValue() + "/" + lib;
-        
+
         try (ZipFile zipFile = new ZipFile(fullpath)) {
-          
+
           // Looks for DESCRIPTION entry
           ZipEntry descriptionEntry = null;
           Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -339,7 +339,7 @@ public class R2FSKNodeModel extends NodeModel {
           InputStream stream = zipFile.getInputStream(descriptionEntry);
           RPackageMetadata metadata = RPackageMetadata.parseDescription(stream);
           stream.close();
-          
+
           container.addRowToTable(new LibTuple(metadata, fullpath));
         } catch (IOException e) {
           e.printStackTrace();
@@ -353,6 +353,5 @@ public class R2FSKNodeModel extends NodeModel {
   }
 
 }
-
 
 

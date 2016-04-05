@@ -93,7 +93,7 @@ public class RPackageMetadata {
 
         // Regular lines
         else {
-          String[] tokens = line.split(": "); // (field, value)
+          String[] tokens = line.split(": ", 2); // (field, value)
           if (tokens.length != 2)
             continue;
 
@@ -160,16 +160,5 @@ public class RPackageMetadata {
     }
 
     return metadata;
-  }
-}
-
-
-class RDependency {
-  String name;
-  RVersion version;
-
-  @Override
-  public String toString() {
-    return version == null ? name : name + " " + version;
   }
 }

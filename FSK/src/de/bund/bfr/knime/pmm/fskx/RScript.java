@@ -1,6 +1,19 @@
-/**
- * 
- */
+/***************************************************************************************************
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors: Department Biological Safety - BfR
+ **************************************************************************************************/
 package de.bund.bfr.knime.pmm.fskx;
 
 import java.io.File;
@@ -27,11 +40,11 @@ public class RScript {
    * @throws IOException if the file specified by path cannot be read.
    */
   public RScript(final File file) throws IOException {
-    String script = Files.toString(file, Charsets.UTF_8);  // throws IOException
+    script = Files.toString(file, Charsets.UTF_8); // throws IOException
 
     // If no errors are thrown, proceed to extract libraries and sources
     final String[] lines = script.split("\\r?\\n");
-    
+
     final Pattern libPattern = Pattern.compile("^\\s*\\b(library|require)\\((\"?.+\"?)\\)");
     final Pattern srcPattern = Pattern.compile("^\\s*\\b(source)\\((\"?.+\"?)\\)");
 
@@ -50,31 +63,35 @@ public class RScript {
         getSources().add(srcName);
       }
     }
-    
-    this.script = sb.toString();
+
+    script = sb.toString();
   }
 
+  /**
+   * Gets the R script.
+   * 
+   * @return the R script.
+   */
   public String getScript() {
-    return this.script;
+    return script;
   }
 
-  public void setScript(String script) {
-    this.script = script;
-  }
 
+  /**
+   * Gets the names of the source files linked in the R script.
+   * 
+   * @return the names of the source files linked in the R script.
+   */
   public List<String> getSources() {
-    return this.sources;
+    return sources;
   }
 
-  public void setSources(List<String> sources) {
-    this.sources = sources;
-  }
-
+  /**
+   * Gets the names of the libraries imported in the R script.
+   * 
+   * @return the names of the libraries imported in the R script.
+   */
   public List<String> getLibraries() {
-    return this.libraries;
-  }
-
-  public void setLibraries(List<String> libraries) {
-    this.libraries = libraries;
+    return libraries;
   }
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the
@@ -13,7 +13,7 @@
  * not, see <http://www.gnu.org/licenses/>.
  *
  * Contributors: Department Biological Safety - BfR
- ******************************************************************************/
+ **************************************************************************************************/
 package de.bund.bfr.knime.pmm.fskx;
 
 import org.jdom2.Element;
@@ -38,7 +38,7 @@ public class RMetaDataNode {
   private Element node;
 
   public RMetaDataNode() {
-    this.node = new Element("metaParent");
+    node = new Element("metaParent");
   }
 
   public RMetaDataNode(final Element node) {
@@ -50,6 +50,7 @@ public class RMetaDataNode {
     return this.node.getChildText(MAIN_SCRIPT_TAG);
   }
 
+  /** @param mainScript R model script. */
   public void setMainScript(final String mainScript) {
     setText(MAIN_SCRIPT_TAG, mainScript);
   }
@@ -59,6 +60,7 @@ public class RMetaDataNode {
     return this.node.getChildText(PARAM_SCRIPT_TAG);
   }
 
+  /** @param paramScript R parameters script. */
   public void setParamScript(final String paramScript) {
     setText(PARAM_SCRIPT_TAG, paramScript);
   }
@@ -67,16 +69,18 @@ public class RMetaDataNode {
   public String getVisualizationScript() {
     return this.node.getChildText(VIZ_SCRIPT_TAG);
   }
-  
+
+  /** @param vizScript R visualization script. */
   public void setVisualizationScript(final String vizScript) {
     setText(VIZ_SCRIPT_TAG, vizScript);
   }
-  
+
   /** @return null if the workspace file is not set */
   public String getWorkspaceFile() {
     return this.node.getChildText(WORKSPACE_TAG);
   }
-  
+
+  /** @param workspaceFile R workspace file. */
   public void setWorkspaceFile(final String workspaceFile) {
     setText(WORKSPACE_TAG, workspaceFile);
   }
@@ -84,16 +88,16 @@ public class RMetaDataNode {
   public Element getNode() {
     return this.node;
   }
-  
+
   private void setText(final String cname, final String value) {
     Element child = this.node.getChild(cname);
-    
+
     // if the script is not set, create a new Element and add it to the node
     if (child == null) {
       child = new Element(cname);
       child.addContent(value);
       this.node.addContent(child);
-    } 
+    }
     // otherwise just update it
     else {
       child.setText(value);

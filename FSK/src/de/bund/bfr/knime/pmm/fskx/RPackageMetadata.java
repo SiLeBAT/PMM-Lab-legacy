@@ -16,19 +16,16 @@
  **************************************************************************************************/
 package de.bund.bfr.knime.pmm.fskx;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Metadata from an R package.
+ * Meta data from an R package.
  * 
  * The meta data from the DESCRIPTION file in an R package is stored in a DCF database.
  * 
@@ -67,98 +64,59 @@ public class RPackageMetadata {
   public static final String DESCRIPTION = "Description";
   public static final String DEPENDENCIES = "Depends";
 
-
-  public static RPackageMetadata parseDescription(InputStream stream) {
-    RPackageMetadata metadata = new RPackageMetadata();
-
-    BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-
-    String line;
-    String field = null, val = null;
-    try {
-      while ((line = br.readLine()) != null) {
-
-        // Continuation lines
-        if (line.startsWith(" ")) {
-          if (field != null) {
-            if (field.equals(TITLE)) {
-              metadata.m_title += " " + line.trim();
-            }
-
-            else if (field.equals(DESCRIPTION)) {
-              metadata.m_description += " " + line.trim();
-            }
-          }
-        }
-
-        // Regular lines
-        else {
-          String[] tokens = line.split(": ", 2); // (field, value)
-          if (tokens.length != 2)
-            continue;
-
-          field = tokens[0];
-          val = tokens[1];
-
-          if (field.equals(PACKAGE)) {
-            metadata.m_package = val;
-          }
-
-          else if (field.equals(TYPE)) {
-            metadata.m_type = val;
-          }
-
-          else if (field.equals(VERSION)) {
-            metadata.m_version = RVersion.numericVersion(val);
-          }
-
-          else if (field.equals(TITLE)) {
-            metadata.m_title = val;
-          }
-
-          else if (field.equals(DATE)) {
-            metadata.m_date = new GregorianCalendar();
-            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-              metadata.m_date.setTime(ft.parse(val));
-            } catch (ParseException e) {
-              e.printStackTrace();
-            }
-          }
-
-          else if (field.equals(DESCRIPTION)) {
-            metadata.m_description = val;
-          }
-
-          else if (field.equals(DEPENDENCIES)) {
-            // Gets dependencies as strings
-            // E.g.: val = "R (>= 3.0.2), stats, graphics, zoo, timeDate"
-            // depStrings = ["R (>= 3.0.2)", "stats", "graphics", "zoo", "timeDate"]
-            String[] depStrings = val.split(",");
-
-            metadata.m_dependencies = new ArrayList<>(depStrings.length);
-
-            for (String depString : depStrings) {
-              String[] depTokens = depString.split(" ");
-              if (depTokens.length == 2) {
-                RDependency dep = new RDependency();
-                dep.name = depTokens[1];
-                metadata.m_dependencies.add(dep);
-              } else if (depTokens.length == 3) {
-                RDependency dep = new RDependency();
-                dep.name = depTokens[0];
-                String versionString = depTokens[2].substring(0, depTokens[2].length() - 1);
-                dep.version = RVersion.numericVersion(versionString);
-                metadata.m_dependencies.add(dep);
-              }
-            }
-          }
-        }
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
+  public RPackageMetadata(final Map<String, String> props) {
+    if (props.containsKey(PACKAGE)) {
+      m_package = props.get(PACKAGE);
     }
 
-    return metadata;
+    if (props.containsKey(TYPE)) {
+      m_type = props.get(TYPE);
+    }
+
+    if (props.containsKey(VERSION)) {
+      m_version = RVersion.numericVersion(props.get(VERSION));
+    }
+
+    if (props.containsKey(TITLE)) {
+      m_title = props.get(TITLE);
+    }
+
+    if (props.containsKey(DATE)) {
+      try {
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        m_date = new GregorianCalendar();
+        m_date.setTime(ft.parse(props.get(DATE)));
+      } catch (ParseException e) {
+        m_date = null;
+      }
+    }
+
+    if (props.containsKey(DESCRIPTION)) {
+      m_description = props.get(DESCRIPTION);
+    }
+
+    if (props.containsKey(DEPENDENCIES)) {
+      // Gets dependencies as strings
+      // E.g.: val = "R (>= 3.0.2), stats, graphics, zoo, timeDate"
+      // depStrings = ["R (>= 3.0.2)", "stats", "graphics", "zoo", "timeDate"]
+      String[] depStrings = props.get(DEPENDENCIES).split(",");
+
+      m_dependencies = new ArrayList<>(depStrings.length);
+
+      for (String depString : depStrings) {
+        String[] depTokens = depString.split(" ");
+        if (depTokens.length == 2) {
+          RDependency dep = new RDependency();
+          dep.name = depTokens[1];
+          m_dependencies.add(dep);
+        } else if (depTokens.length == 3) {
+          RDependency dep = new RDependency();
+          dep.name = depTokens[0];
+          String versionString = depTokens[2].substring(0, depTokens[2].length() - 1);
+          dep.version = RVersion.numericVersion(versionString);
+          m_dependencies.add(dep);
+        }
+      }
+    }
   }
 }

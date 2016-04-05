@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.fskx;
 
+import com.google.common.base.Objects;
+
 public class RDependency {
   String name;
   RVersion version;
@@ -12,6 +14,6 @@ public class RDependency {
   @Override
   public boolean equals(Object obj) {
     RDependency other = (RDependency) obj;
-    return name.equals(other.name) && version.equals(other.version);
+    return name.equals(other.name) && Objects.equal(version, other.version);
   }
 }

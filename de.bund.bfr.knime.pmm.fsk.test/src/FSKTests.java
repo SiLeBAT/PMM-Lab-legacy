@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import de.bund.bfr.knime.pmm.fskx.DCFReaderTest;
 import de.bund.bfr.knime.pmm.fskx.RDependencyTest;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNodeTest;
 import de.bund.bfr.knime.pmm.fskx.RPackageMetadataTest;
@@ -29,6 +30,7 @@ import de.bund.bfr.knime.pmm.fskx.RVersionTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+  DCFReaderTest.class,
   RDependencyTest.class,
   RMetaDataNodeTest.class,
   RPackageMetadataTest.class,

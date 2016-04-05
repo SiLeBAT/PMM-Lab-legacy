@@ -48,6 +48,7 @@ import com.google.common.base.Strings;
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.fskx.DCFReader;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.LibTuple;
@@ -346,7 +347,7 @@ public class R2FSKNodeModel extends NodeModel {
           }
 
           InputStream stream = zipFile.getInputStream(descriptionEntry);
-          RPackageMetadata metadata = RPackageMetadata.parseDescription(stream);
+          RPackageMetadata metadata = new RPackageMetadata(DCFReader.read(stream));
           stream.close();
 
           container.addRowToTable(new LibTuple(metadata, zipFile.getName()));

@@ -48,6 +48,7 @@ import org.sbml.jsbml.SBMLReader;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.fskx.DCFReader;
 import de.bund.bfr.knime.pmm.fskx.FSKFiles;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
@@ -286,7 +287,7 @@ public class FSKXReaderNodeModel extends NodeModel {
         }
         
         InputStream stream = zipFile.getInputStream(descriptionEntry);
-        RPackageMetadata metaData = RPackageMetadata.parseDescription(stream);
+        RPackageMetadata metaData = new RPackageMetadata(DCFReader.read(stream));
         stream.close();
         zipFile.close();
 

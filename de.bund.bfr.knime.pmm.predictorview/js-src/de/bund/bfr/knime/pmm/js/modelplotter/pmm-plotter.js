@@ -3,6 +3,7 @@ pmm_plotter = function() {
 	/**
 	 * @author Markus Freitag, EITCO GmbH, MFreitag@eitco.de, 2015
 	 * 
+	 * CODE CONVENTIONS
 	 * Please try to avoid native JavaScript for the creation of DOM elements. 
 	 * Use jQuery for the sake of clarity whenever possible. Improvements of 
 	 * code readability are welcome.
@@ -10,6 +11,12 @@ pmm_plotter = function() {
 	 * - Global variables are marked with an underscore prefix ("_") or as messages ("msg")
 	 * - Functions that are only used once are nested in the closest scope.
 	 * - Functions are roughly ordered in the order of first usage.
+	 * 
+	 * GENERAL INFO
+	 * The function Math.log10 as well as log10 in general is not supported by IE browsers 
+	 * (same applies to the KNIME built-in browser engine). For some models, this may result in
+	 * strange behavior like a missing tip on mouseover. However, all graphs could be drawn 
+	 * correctly so far.
 	 */
 
 	var modelPlotter = {
@@ -54,6 +61,7 @@ pmm_plotter = function() {
 	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula.";
 	var	msg_error_unknownUnit = "unknown unit: ";
 	var	msg_error_xUnitUnknown = "the x unit of one function is unknown to the database: transformation impossible";
+	var	msg_error_yUnitUnknown = "the y unit of one function is unknown or has no conversion factor in the database: transformation impossible";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -346,16 +354,6 @@ pmm_plotter = function() {
 			// gi: global, case-insensitive
 			newString = newString.replace(/Time/gi, "x");
 			newString = newString.replace(/\bT\b/gi, "x");
-			// math.js does not know "ln", ln equals log
-			newString = newString.replace(/\bln\b/gi, "log");
-			/*
-			 * replaces "expression^(0.5)" with "sqrt(expression)"
-			 */
-			newString = newString.replace(/\(([^)^()]+)\)\^\(0\.5\)/g, function(part) {
-				part = part.replace("^(0.5)", "");
-				part = "sqrt(" + part + ")";
-				return part
-			});
 			
 			/*
 			 * deprecated code. "LOG10N0" is meant to stay like that.
@@ -403,6 +401,17 @@ pmm_plotter = function() {
 				_yUnit = yUnit;
 			}
 			
+			// math.js does not know "ln", ln equals log
+			newString = newString.replace(/\bln\b/gi, "log");
+			
+			/*
+			 * replaces "expression^(0.5)" with "sqrt(expression)"
+			 */
+			newString = newString.replace(/\(([^)^()]+)\)\^\(0\.5\)/g, function(part) {
+				part = part.replace("^(0.5)", "");
+				part = "sqrt(" + part + ")";
+				return part;
+			});
 			return newString;
 		}
 		
@@ -1155,7 +1164,8 @@ pmm_plotter = function() {
 	}
 	
 	/**
-	 * Searches the list of DB-units for a conversion factor of a specific unit
+	 * Searches the list of DB-units for a conversion factor of a specific unit.
+	 * This factor is used to normalize a function value (undo scale).
 	 * 
 	 * @param unit the unit from which the factor has to be determined
 	 * @return the conversion factor fo the given unit
@@ -1166,7 +1176,27 @@ pmm_plotter = function() {
 		$.each(_dbUnits, function (i, dbUnit) {
 			if(unit == dbUnit.displayInGuiAs)
 			{
-				factor = dbUnit.conversionFunctionFactor.split("*")[1];
+				factor = dbUnit.conversionFunctionFactor;
+				return true;
+			}
+		});
+		return factor;
+	}
+	
+	/**
+	 * Searches the list of DB-units for an inverse conversion factor of a specific unit.
+	 * This factor is used to adapt a normalized function to a unit.
+	 * 
+	 * @param unit the unit from which the factor has to be determined
+	 * @return the conversion factor fo the given unit
+	 */
+	function getUnitInverseConversionFactor(unit)
+	{
+		var factor;
+		$.each(_dbUnits, function (i, dbUnit) {
+			if(unit == dbUnit.displayInGuiAs)
+			{
+				factor = dbUnit.inverseConversionFunctionFactor;
 				return true;
 			}
 		});
@@ -1188,8 +1218,8 @@ pmm_plotter = function() {
 		var modifier = "*1";
 		var defaultUnit = _xUnit;
 		var secondUnit = xUnit;
-		var defaultFactor = getUnitConversionFactor(defaultUnit);
-		var secondFactor = getUnitConversionFactor(secondUnit);
+		var defaultFactor = getUnitConversionFactor(defaultUnit).split("*")[1];
+		var secondFactor = getUnitConversionFactor(secondUnit).split("*")[1];
 		
 		if(defaultFactor == undefined || secondFactor == undefined)
 		{
@@ -1198,9 +1228,9 @@ pmm_plotter = function() {
 		}
 		
 		if(defaultFactor > secondFactor)
-			modifier = "*" + defaultFactor/secondFactor
+			modifier = "*" + defaultFactor / secondFactor;
 		else
-			modifier = "/" + secondFactor/defaultFactor
+			modifier = "/" + secondFactor / defaultFactor;
 			
 		newFunction = modifyX(oldFunction, modifier);
 		return newFunction;
@@ -1230,39 +1260,23 @@ pmm_plotter = function() {
 	function unifyY(oldFunction, yUnit)
 	{
 		var newFunction;
-		// get the applied logarithm
-		var oldLog = _yUnit.split("(")[0];
-		var newLog = yUnit.split("(")[0];
-
-		if (oldLog == newLog) // don't do anything in this case
-			return oldFunction;
-		/*
-		 * intercept if one formula has a non-logarithmic y unit
-		 * WIP: nice to have
-		 *
-			if(!newLog && oldLog) // new unit is not logarithmic
-			{
-				if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
-					modifier = "log10"; // log to base 100
-				else
-					modifier = "log"; // which is "ln" in Math.js
-			}
-			
-			if(!newLog && oldLog) // new unit is not logarithmic
-			{
-				if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
-					modifier = "log10"; // log to base 100
-				else
-					modifier = "log"; // which is "ln" in Math.js
-			}
-		*/
+		var defaultUnit = _yUnit;
+		var secondUnit = yUnit;
 		
-		if(yUnit.indexOf("ln") != -1)
-			newFunction = modifyY(oldFunction, "/" + _logConst);
-		else if(yUnit.indexOf("log") != -1  || yUnit.indexOf("LOG") != -1)
-			newFunction = modifyY(oldFunction, "*" + _logConst);
-		else
-			show(msg_error_unknownUnit + yUnit);
+		var normalizationFactor = getUnitConversionFactor(secondUnit);
+		var adaptionFactor = getUnitInverseConversionFactor(defaultUnit);
+		
+		if(normalizationFactor == undefined || adaptionFactor == undefined)
+		{
+			show(msg_error_yUnitUnknown);
+			return oldFunction;
+		}
+		
+		// normalize function
+		newFunction = modifyY(oldFunction, normalizationFactor);
+		// apply default scale
+		newFunction = modifyY(newFunction, adaptionFactor);
+
 		return newFunction;
 	}
 	
@@ -1275,7 +1289,7 @@ pmm_plotter = function() {
 	 */
 	function modifyY(oldFunction, modifier)
 	{
-		var newFunction = "(" + oldFunction + ")" + modifier;
+		var newFunction = modifier.replace(/\bx\b/gi, "(" + oldFunction + ")");
 		return newFunction;
 	}
 	

@@ -29,6 +29,7 @@ pmm_plotter = function() {
 	
 	var _globalNumber = 1;
 	var _modelObjects = [];
+	var _modelObjectsTemp = []; // for temporarily stored models like data points
 	var _colorsArray = [];
 	var _rawModels = [];
 	var _dbUnits = [];
@@ -62,6 +63,7 @@ pmm_plotter = function() {
 	var	msg_error_unknownUnit = "unknown unit: ";
 	var	msg_error_xUnitUnknown = "the x unit of one function is unknown to the database: transformation impossible";
 	var	msg_error_yUnitUnknown = "the y unit of one function is unknown or has no conversion factor in the database: transformation impossible";
+	var msgShowData = "show given data points";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -102,10 +104,12 @@ pmm_plotter = function() {
 	
 	/**
 	 * initializes all layout elements, e.g. calls jQuery methods to create jQuery 
-	 * objects from th DOM elements
+	 * objects from the DOM elements
 	 */
 	function initJQuery() 
 	{
+		$("#dataChoiceDiv").hide();
+		
 		// make buttons jquery buttons
 		$("#nextButton").button({
 			icons: {
@@ -123,8 +127,16 @@ pmm_plotter = function() {
 			{
 				// once a model is added, we can activate the "next" button
 				$("#nextButton").button( "option", "disabled", false );
+				$("#dataChoiceDiv").show();
 			}
 		);
+		
+		$("#dataChoiceCheckbox").click( function() {
+			if(isDataPointsCheckboxChecked())
+				plotDataPoints()
+			else
+				unplotDataPoints()
+		});
 		
 		// make the selection a jquery select menu
 		$("#modelSelectionMenu").selectmenu({
@@ -138,6 +150,8 @@ pmm_plotter = function() {
 			content: "height-style",
 			collapsible: true
 		});
+		
+		$("#dataChoiceSelect").selectmenu();
 	}
 	
 	/**
@@ -150,9 +164,9 @@ pmm_plotter = function() {
 		 */
 		var body = document.getElementsByTagName("body")[0];
 		$('body').css({
-			"width": "100%", 
+			"width": "100%",
 			"height": "100%",
-			"background": "#fdfdfd", 
+			"background": "#fdfdfd",
 			"font-family": "Verdana,Helvetica,sans-serif",
 			"font-size": "12px",
 			"overflow": "hidden"
@@ -228,6 +242,16 @@ pmm_plotter = function() {
 		var plotterWrapper = document.createElement("div");
 		plotterWrapper.setAttribute("id", "plotterWrapper");
 		rightWrapper.appendChild(plotterWrapper);
+		
+		// div for data choice buttons
+		var dataChoiceDiv = document.createElement("div");
+		dataChoiceDiv.setAttribute("style", "width: 200px; height: 40px;");
+		dataChoiceDiv.setAttribute("id", "dataChoiceDiv");
+		rightWrapper.appendChild(dataChoiceDiv);
+		
+		$("#dataChoiceDiv").append(
+			$('<form><input type="checkbox" id="dataChoiceCheckbox" value="showTestData" checked />' + msgShowData + '</form>')
+		);
 		
 		// meta data
 		var metaDataWrapper = document.createElement("div");
@@ -327,6 +351,7 @@ pmm_plotter = function() {
 		{
 			model = createTertiaryModel(modelList); // this has to be done first
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
+			
 			var globalModelId = model.globalModelId;
 			var modelName = model.estModel.name;
 			var functionAsString = prepareFunction(model.indeps, model.formula, model.xUnit, model.yUnit);
@@ -414,7 +439,7 @@ pmm_plotter = function() {
 			});
 			return newString;
 		}
-		
+
 		/**
 		 * nested function
 		 * extract parameter names and values
@@ -634,6 +659,10 @@ pmm_plotter = function() {
 		}
 	}
 	
+	function isDataPointsCheckboxChecked() {
+		return $("#dataChoiceCheckbox").is(":checked");
+	}
+	
 	/**
 	 * adds a function to the functions array and redraws the plot
 	 * 
@@ -673,7 +702,10 @@ pmm_plotter = function() {
 			    fnType: 'points',
 			    graphType: 'scatter'
 			};
-			_modelObjects.push(modelPointObj);
+			if(isDataPointsCheckboxChecked())
+				_modelObjects.push(modelPointObj);
+			else
+				_modelObjectsTemp.push(modelPointObj);
 		}
 		
 		// add model to the list of used models
@@ -709,6 +741,7 @@ pmm_plotter = function() {
 		{
 			// disable button
 			$("#nextButton").button( "option", "disabled", true);
+			$("#dataChoiceDiv").hide();
 			
 			// reset variables
 			_parameterMap = [];
@@ -717,7 +750,6 @@ pmm_plotter = function() {
 		}
 		
 		drawD3Plot();
-		
 		
 		/*
 		 * nested function
@@ -1103,6 +1135,25 @@ pmm_plotter = function() {
 		{
 			show(e);
 		}
+	}
+	
+	function plotDataPoints()
+	{
+		$.merge(_modelObjects, _modelObjectsTemp)
+		drawD3Plot();
+	}
+	
+	function unplotDataPoints()
+	{
+		var newArrayToPlot = [];
+		$.each(_modelObjects, function(index, model) {
+			if(model.fnType == 'points')
+				_modelObjectsTemp.push(model);
+			else
+				newArrayToPlot.push(model);
+		});
+		_modelObjects = newArrayToPlot;
+		drawD3Plot();
 	}
 	
 	/**

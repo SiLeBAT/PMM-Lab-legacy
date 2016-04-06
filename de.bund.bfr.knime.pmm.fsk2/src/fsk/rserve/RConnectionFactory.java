@@ -167,34 +167,20 @@ public class RConnectionFactory {
 
     final Map<String, String> env = builder.environment();
     if (Platform.isWindows()) {
-      // on windows, the Rserve executable does not reside in the R bin folder, but still requires
-      // the R.dll, so we need to put the R bin folder on path
-      String path2;
-      String binPath = rHome + File.separator + "bin";
-      if (Platform.is64Bit()) {
-        List<File> binFiles = Arrays.asList(new File(binPath).listFiles());
-        if (binFiles.stream().anyMatch(file -> file.getName().equals("x64"))) {
-          path2 = rHome + File.pathSeparator + binPath + File.separator + "x64" + File.pathSeparator
-              + env.get("PATH");
-        } else {
-          path2 = rHome + File.pathSeparator + binPath + File.separator + "i386"
-              + File.pathSeparator + env.get("PATH");
-        }
-      } else {
-        path2 = rHome + File.pathSeparator + binPath + File.separator + "i386" + File.pathSeparator
-            + env.get("PATH");
-      }
-      //
-      // String path = rHome + File.pathSeparator + rHome
-      // + (Platform.is64Bit() ? "\\bin\\x64\\" : "\\bin\\i386\\") + File.pathSeparator
-      // + env.get("PATH");
-      env.put("PATH", path2);
+      // on windows, the Rserve executable is not reside in the R bin
+      // folder, but still requires the R.dll, so we need to put the R
+      // bin folder on path
+      env.put("PATH",
+          rHome + File.pathSeparator + rHome
+              + ((Platform.is64Bit()) ? "\\bin\\x64\\" : "\\bin\\i386\\") + File.pathSeparator
+              + env.get("PATH"));
     } else {
-      // on Unix we need to prioritize the "R_HOME/lib" folder in the LD_LIBRARY_PATH to ensure that
-      // the shared libraries of the selected R installation are used.
-      String path =
-          rHome + File.separator + "lib" + File.pathSeparator + env.get("LD_LIBRARY_PATH");
-      env.put("LD_LIBRARY_PATH", path);
+      // on Unix we need priorize the "R_HOME/lib" folder in the
+      // LD_LIBRARY_PATH to ensure that the shared libraries of the
+      // selected R installation are used.
+      env.put("LD_LIBRARY_PATH",
+          rHome + File.separator + "lib" + File.pathSeparator + env.get("LD_LIBRARY_PATH"));
+
     }
     // R HOME is required for Rserve/R to know where default libraries are located
     env.put("R_HOME", rHome);

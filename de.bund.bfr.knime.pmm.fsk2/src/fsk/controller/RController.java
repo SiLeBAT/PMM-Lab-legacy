@@ -125,7 +125,6 @@ import fsk.rserve.RConnectionFactory.RConnectionResource;
  * <p>
  * Currently, this class is a singleton and enforces mutual exclusion.
  * <p>
- * TODO: keep it as an singleton but add repeated methods for the 2nd R environment.
  */
 public class RController implements IRController {
 

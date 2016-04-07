@@ -543,7 +543,19 @@ pmm_plotter = function() {
 
 			// add primary independents (which are in the parameters here)
 			$.each(paramsPrim, function(index, indep) {
-				secondaryIndeps.push(indep);
+				// convention: if a parameter has no mininmum or maximum but a value, it shall not be dynamic
+				if( (indep.min == undefined || indep.min == "") && 
+					(indep.max == undefined || indep.max == "") &&
+					(indep.value != undefined && indep.value != ""))
+				{
+					var regex = new RegExp("\\b" + indep["name"] + "\\b", "gi");
+					formulaPrim = formulaPrim.replace(regex, indep["value"]);
+				}
+				else
+				{
+					// default behavior
+					secondaryIndeps.push(indep);
+				}
 			});
 			
 			// extract secondary independents
@@ -624,9 +636,11 @@ pmm_plotter = function() {
 			});
 			tertiaryModel.dataPoints = points;	
 			
-			// post check
-			// if you want to rename parameters consistently for all upcoming actions,
-			// do it here
+			/*
+			* post check
+			* if you want to rename parameters consistently for all upcoming actions,
+			* do it here
+			*/
 			$.each(secondaryIndeps, function(index, indep){
 				var oldName = indep.name;
 				var newName = oldName;
@@ -1109,11 +1123,11 @@ pmm_plotter = function() {
 		
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
-
 		
 		// plot
-		try{
-			functionPlot({
+		try
+		{
+			var x = functionPlot({
 			    target: '#d3plotter',
 			    xDomain: [-1, _plotterValue.maxXAxis],
 			    yDomain: [-1, _plotterValue.maxYAxis],
@@ -1131,7 +1145,8 @@ pmm_plotter = function() {
 				},
 			    data: _modelObjects
 			});
-		} catch(e)
+		} 
+		catch(e)
 		{
 			show(e);
 		}
@@ -1204,7 +1219,7 @@ pmm_plotter = function() {
 			{ 
 				_plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
 				_plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
-				_plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
+				_plotterValue.comments = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
 				
 				$(document.body).fadeOut(_defaultFadeTime);
 			}

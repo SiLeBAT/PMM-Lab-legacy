@@ -35,10 +35,15 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.node.AbstractWizardNodeModel;
 
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
+import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
@@ -78,7 +83,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
      */
     protected ModelPlotterNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE }, 
-			  new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE }, 
+			  new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE }, 
 			  (new ModelPlotterNodeFactory()).getInteractiveViewName());
         m_config = new ModelPlotterViewConfig();
 	}
@@ -123,7 +128,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	}
 
 	@Override
-	protected DataTableSpec[] configure(DataTableSpec[] inSpecs)
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
 		if (!SchemaFactory.createM1Schema()
 				.conforms((DataTableSpec) inSpecs[0])) {
@@ -225,15 +230,20 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 		userContainer.addRowToTable(userTuple);
 		userContainer.close();
 		
+		// PSeudo Image
+		ChartCreator creator = new ChartCreator(new Plotable(0));
+		ImagePortObject outputImage = ChartUtilities.getImage(creator.getChart(), true);
+		
 		// TODO: finish output
-		return new BufferedDataTable[] { container.getTable(), userContainer.getTable() };
+		return new PortObject[] { container.getTable(), userContainer.getTable(), outputImage };
 	}
 
-	private DataTableSpec[] createOutputDataTableSpecs() {
+	private PortObjectSpec[] createOutputDataTableSpecs() {
 
-		return new DataTableSpec[]{ 
+		return new PortObjectSpec[] {
 			SchemaFactory.createM1DataSchema().createSpec(), 
-			getUserSpec()
+			getUserSpec(),
+			ChartUtilities.getImageSpec(true)
 		};		
 	}
 	

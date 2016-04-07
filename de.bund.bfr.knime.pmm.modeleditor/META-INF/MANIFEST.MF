@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Javascript Test nodes
-Bundle-SymbolicName: de.bund.bfr.knime.pmm.javascripttest;singleton:=true
+Bundle-Name: JS Model Editor
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.modeleditor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
 Require-Bundle: org.eclipse.core.runtime,

@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -23,6 +25,8 @@ import javax.swing.event.ChangeListener;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 
 public class BoxFileSelection extends Box implements ChangeListener {
 
@@ -83,13 +87,19 @@ public class BoxFileSelection extends Box implements ChangeListener {
     String selectedDirectory = fileChooserModel.getStringValue();
 
     // Updates m_excluded with all the files in selectedDirectory
-    File directory = new File(selectedDirectory);
-    for (File fileInDirectory : directory.listFiles()) {
-      // Filters: only files (not directories) and zip files
-      // Not sure if it is necessary since dirChooser already has filters
-      if (fileInDirectory.isFile() && fileInDirectory.getName().endsWith(m_extensions)) {
-        m_excluded.addElement(fileInDirectory.getName());
+    File directory;
+    try {
+      directory = KnimeUtils.getFile(selectedDirectory);
+      
+      for (File fileInDirectory : directory.listFiles()) {
+        // Filters: only files (not directories) and zip files
+        // Not sure if it is necessary since dirChooser already has filters
+        if (fileInDirectory.isFile() && fileInDirectory.getName().endsWith(m_extensions)) {
+          m_excluded.addElement(fileInDirectory.getName());
+        }
       }
+    } catch (InvalidPathException | MalformedURLException e) {
+      e.printStackTrace();
     }
 
     // Update models

@@ -19,6 +19,8 @@ package de.bund.bfr.knime.pmm.fskx.r2fsk;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -46,7 +48,7 @@ import com.google.common.base.Strings;
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.fskx.FSKUtil;
+import de.bund.bfr.knime.pmm.fskx.DCFReader;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple;
 import de.bund.bfr.knime.pmm.fskx.FSKXTuple.KEYS;
 import de.bund.bfr.knime.pmm.fskx.LibTuple;
@@ -267,7 +269,7 @@ public class R2FSKNodeModel extends NodeModel {
     valuesMap.put(KEYS.SOURCES, String.join(";", sourcesSet)); // adds R sources
 
     // Creates table spec and container
-    DataTableSpec spec = FSKUtil.createFSKTableSpec();
+    DataTableSpec spec = FSKXTuple.createTableSpec();
     BufferedDataContainer container = exec.createDataContainer(spec);
 
     // Adds row and closes the container
@@ -323,8 +325,15 @@ public class R2FSKNodeModel extends NodeModel {
         // Builds full path
         String fullpath = m_libDirectory.getStringValue() + "/" + lib;
         
-        try (ZipFile zipFile = new ZipFile(fullpath)) {
-          
+        File file;
+        try {
+          file = KnimeUtils.getFile(fullpath);
+        } catch (InvalidPathException | MalformedURLException e1) {
+          continue;
+        }
+
+        try (ZipFile zipFile = new ZipFile(file)) {
+
           // Looks for DESCRIPTION entry
           ZipEntry descriptionEntry = null;
           Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -338,10 +347,10 @@ public class R2FSKNodeModel extends NodeModel {
           }
 
           InputStream stream = zipFile.getInputStream(descriptionEntry);
-          RPackageMetadata metadata = RPackageMetadata.parseDescription(stream);
+          RPackageMetadata metadata = new RPackageMetadata(DCFReader.read(stream));
           stream.close();
-          
-          container.addRowToTable(new LibTuple(metadata, fullpath));
+
+          container.addRowToTable(new LibTuple(metadata, zipFile.getName()));
         } catch (IOException e) {
           e.printStackTrace();
           continue;
@@ -354,6 +363,5 @@ public class R2FSKNodeModel extends NodeModel {
   }
 
 }
-
 
 

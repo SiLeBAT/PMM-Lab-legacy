@@ -13,9 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.common,
  org.knime.js.core,
  org.knime.ext.svg,
- com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.4.3",
- com.fasterxml.jackson.core.jackson-core;bundle-version="2.4.3",
- com.fasterxml.jackson.core.jackson-databind;bundle-version="2.4.3"
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-databind
 Import-Package: de.bund.bfr.knime.pmm.js.common,
  de.bund.bfr.knime.pmm.editor
 Bundle-ActivationPolicy: lazy

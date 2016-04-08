@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind
 Import-Package: de.bund.bfr.knime.pmm.js.common,
- de.bund.bfr.knime.pmm.editor
+ de.bund.bfr.knime.pmm.editor,
+ de.bund.bfr.knime.pmm.dbutil
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.predictorview
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

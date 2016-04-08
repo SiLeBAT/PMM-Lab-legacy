@@ -3,6 +3,7 @@ pmm_plotter = function() {
 	/**
 	 * @author Markus Freitag, EITCO GmbH, MFreitag@eitco.de, 2015
 	 * 
+	 * CODE CONVENTIONS
 	 * Please try to avoid native JavaScript for the creation of DOM elements. 
 	 * Use jQuery for the sake of clarity whenever possible. Improvements of 
 	 * code readability are welcome.
@@ -10,6 +11,12 @@ pmm_plotter = function() {
 	 * - Global variables are marked with an underscore prefix ("_") or as messages ("msg")
 	 * - Functions that are only used once are nested in the closest scope.
 	 * - Functions are roughly ordered in the order of first usage.
+	 * 
+	 * GENERAL INFO
+	 * The function Math.log10 as well as log10 in general is not supported by IE browsers 
+	 * (same applies to the KNIME built-in browser engine). For some models, this may result in
+	 * strange behavior like a missing tip on mouseover. However, all graphs could be drawn 
+	 * correctly so far.
 	 */
 
 	var modelPlotter = {
@@ -22,8 +29,10 @@ pmm_plotter = function() {
 	
 	var _globalNumber = 1;
 	var _modelObjects = [];
+	var _modelObjectsTemp = []; // for temporarily stored models like data points
 	var _colorsArray = [];
 	var _rawModels = [];
+	var _dbUnits = [];
 	var _parameterMap = [];
 	
 	var msgAdd = "Add Model";
@@ -52,6 +61,9 @@ pmm_plotter = function() {
 	var msgExamples = "Examples";
 	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula.";
 	var	msg_error_unknownUnit = "unknown unit: ";
+	var	msg_error_xUnitUnknown = "the x unit of one function is unknown to the database: transformation impossible";
+	var	msg_error_yUnitUnknown = "the y unit of one function is unknown or has no conversion factor in the database: transformation impossible";
+	var msgShowData = "show given data points";
 	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
@@ -72,6 +84,7 @@ pmm_plotter = function() {
 	modelPlotter.init = function(representation, value) {
 
 		_rawModels = value.models.models;
+		_dbUnits = value.units.units;
 		_plotterValue = value;
 		// plotterRep = representation; // not used
 
@@ -91,10 +104,12 @@ pmm_plotter = function() {
 	
 	/**
 	 * initializes all layout elements, e.g. calls jQuery methods to create jQuery 
-	 * objects from th DOM elements
+	 * objects from the DOM elements
 	 */
 	function initJQuery() 
 	{
+		$("#dataChoiceDiv").hide();
+		
 		// make buttons jquery buttons
 		$("#nextButton").button({
 			icons: {
@@ -112,8 +127,16 @@ pmm_plotter = function() {
 			{
 				// once a model is added, we can activate the "next" button
 				$("#nextButton").button( "option", "disabled", false );
+				$("#dataChoiceDiv").show();
 			}
 		);
+		
+		$("#dataChoiceCheckbox").click( function() {
+			if(isDataPointsCheckboxChecked())
+				plotDataPoints()
+			else
+				unplotDataPoints()
+		});
 		
 		// make the selection a jquery select menu
 		$("#modelSelectionMenu").selectmenu({
@@ -127,6 +150,8 @@ pmm_plotter = function() {
 			content: "height-style",
 			collapsible: true
 		});
+		
+		$("#dataChoiceSelect").selectmenu();
 	}
 	
 	/**
@@ -139,9 +164,9 @@ pmm_plotter = function() {
 		 */
 		var body = document.getElementsByTagName("body")[0];
 		$('body').css({
-			"width": "100%", 
+			"width": "100%",
 			"height": "100%",
-			"background": "#fdfdfd", 
+			"background": "#fdfdfd",
 			"font-family": "Verdana,Helvetica,sans-serif",
 			"font-size": "12px",
 			"overflow": "hidden"
@@ -217,6 +242,16 @@ pmm_plotter = function() {
 		var plotterWrapper = document.createElement("div");
 		plotterWrapper.setAttribute("id", "plotterWrapper");
 		rightWrapper.appendChild(plotterWrapper);
+		
+		// div for data choice buttons
+		var dataChoiceDiv = document.createElement("div");
+		dataChoiceDiv.setAttribute("style", "width: 200px; height: 40px;");
+		dataChoiceDiv.setAttribute("id", "dataChoiceDiv");
+		rightWrapper.appendChild(dataChoiceDiv);
+		
+		$("#dataChoiceDiv").append(
+			$('<form><input type="checkbox" id="dataChoiceCheckbox" value="showTestData" checked />' + msgShowData + '</form>')
+		);
 		
 		// meta data
 		var metaDataWrapper = document.createElement("div");
@@ -316,6 +351,7 @@ pmm_plotter = function() {
 		{
 			model = createTertiaryModel(modelList); // this has to be done first
 			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
+			
 			var globalModelId = model.globalModelId;
 			var modelName = model.estModel.name;
 			var functionAsString = prepareFunction(model.indeps, model.formula, model.xUnit, model.yUnit);
@@ -343,16 +379,6 @@ pmm_plotter = function() {
 			// gi: global, case-insensitive
 			newString = newString.replace(/Time/gi, "x");
 			newString = newString.replace(/\bT\b/gi, "x");
-			// math.js does not know "ln", ln equals log
-			newString = newString.replace(/\bln\b/gi, "log");
-			/*
-			 * replaces "expression^(0.5)" with "sqrt(expression)"
-			 */
-			newString = newString.replace(/\(([^)^()]+)\)\^\(0\.5\)/g, function(part) {
-				part = part.replace("^(0.5)", "");
-				part = "sqrt(" + part + ")";
-				return part
-			});
 			
 			/*
 			 * deprecated code. "LOG10N0" is meant to stay like that.
@@ -384,7 +410,6 @@ pmm_plotter = function() {
 			
 			if(_xUnit != msgUnknown && xUnit != _xUnit)
 			{
-//				show("unequal xUnit: " + _xUnit + " vs. " + xUnit);
 				newString = unifyX(newString, xUnit);
 			}
 			else
@@ -394,7 +419,6 @@ pmm_plotter = function() {
 			
 			if(_yUnit != msgUnknown && _yUnit != yUnit)
 			{
-//				show("unequal yUnit: " + _yUnit + " vs. " + yUnit);
 				newString = unifyY(newString, yUnit);
 			}
 			else
@@ -402,9 +426,20 @@ pmm_plotter = function() {
 				_yUnit = yUnit;
 			}
 			
+			// math.js does not know "ln", ln equals log
+			newString = newString.replace(/\bln\b/gi, "log");
+			
+			/*
+			 * replaces "expression^(0.5)" with "sqrt(expression)"
+			 */
+			newString = newString.replace(/\(([^)^()]+)\)\^\(0\.5\)/g, function(part) {
+				part = part.replace("^(0.5)", "");
+				part = "sqrt(" + part + ")";
+				return part;
+			});
 			return newString;
 		}
-		
+
 		/**
 		 * nested function
 		 * extract parameter names and values
@@ -508,7 +543,19 @@ pmm_plotter = function() {
 
 			// add primary independents (which are in the parameters here)
 			$.each(paramsPrim, function(index, indep) {
-				secondaryIndeps.push(indep);
+				// convention: if a parameter has no mininmum or maximum but a value, it shall not be dynamic
+				if( (indep.min == undefined || indep.min == "") && 
+					(indep.max == undefined || indep.max == "") &&
+					(indep.value != undefined && indep.value != ""))
+				{
+					var regex = new RegExp("\\b" + indep["name"] + "\\b", "gi");
+					formulaPrim = formulaPrim.replace(regex, indep["value"]);
+				}
+				else
+				{
+					// default behavior
+					secondaryIndeps.push(indep);
+				}
 			});
 			
 			// extract secondary independents
@@ -573,17 +620,27 @@ pmm_plotter = function() {
 			});
 			
 			var points = [];
-			$.each(modelList, function(index, model) {
-				if(model.dataColumn != undefined)
+			
+			$.each(modelList, function(i1, modelSec) {
+				var timeSeries = modelSec.timeSeriesList.timeSeries;
+				if(timeSeries.length > 0)
 				{
-					points.push(model.dataColumn); // TODO: implement
+					$.each(timeSeries, function(i2, dataPointItem) {
+						var point = [ 
+							dataPointItem.time, 
+							dataPointItem.concentration 
+						];
+						points.push(point);
+					});
 				}
 			});
-			tertiaryModel.dataPoints = points;		
+			tertiaryModel.dataPoints = points;	
 			
-			// post check
-			// if you want to rename parameters consistently for all upcoming actions,
-			// do it here
+			/*
+			* post check
+			* if you want to rename parameters consistently for all upcoming actions,
+			* do it here
+			*/
 			$.each(secondaryIndeps, function(index, indep){
 				var oldName = indep.name;
 				var newName = oldName;
@@ -616,6 +673,10 @@ pmm_plotter = function() {
 		}
 	}
 	
+	function isDataPointsCheckboxChecked() {
+		return $("#dataChoiceCheckbox").is(":checked");
+	}
+	
 	/**
 	 * adds a function to the functions array and redraws the plot
 	 * 
@@ -644,7 +705,7 @@ pmm_plotter = function() {
 		};
 		
 		// for given data, we add an additional graph that only includes the data points
-		if(model.dataPoints)
+		if(model.dataPoints.length > 0)
 		{
 			var modelPointObj = {
 				id: id,
@@ -655,7 +716,10 @@ pmm_plotter = function() {
 			    fnType: 'points',
 			    graphType: 'scatter'
 			};
-			_modelObjects.push(modelPointObj);
+			if(isDataPointsCheckboxChecked())
+				_modelObjects.push(modelPointObj);
+			else
+				_modelObjectsTemp.push(modelPointObj);
 		}
 		
 		// add model to the list of used models
@@ -691,6 +755,7 @@ pmm_plotter = function() {
 		{
 			// disable button
 			$("#nextButton").button( "option", "disabled", true);
+			$("#dataChoiceDiv").hide();
 			
 			// reset variables
 			_parameterMap = [];
@@ -699,7 +764,6 @@ pmm_plotter = function() {
 		}
 		
 		drawD3Plot();
-		
 		
 		/*
 		 * nested function
@@ -944,9 +1008,9 @@ pmm_plotter = function() {
 				    sliderWrapper.appendChild(sliderBox);
 				    
 					var sliderLabel = document.createElement("div");
-					var labelText = constant + " (" + sliderMin + msg_To_ + sliderMax + ")";
+					var labelText = "<b>" + constant + "</b>" + " (" + sliderMin + msg_To_ + sliderMax + ")";
 					sliderLabel.innerHTML = labelText;
-					sliderLabel.setAttribute("style" , "font-weight: bold; font-size: 10px;");
+					sliderLabel.setAttribute("style" , "font-size: 10px;");
 					sliderBox.appendChild(sliderLabel);
 					
 					var slider = document.createElement("div");
@@ -1059,11 +1123,11 @@ pmm_plotter = function() {
 		
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
-
 		
 		// plot
-		try{
-			functionPlot({
+		try
+		{
+			var x = functionPlot({
 			    target: '#d3plotter',
 			    xDomain: [-1, _plotterValue.maxXAxis],
 			    yDomain: [-1, _plotterValue.maxYAxis],
@@ -1081,10 +1145,30 @@ pmm_plotter = function() {
 				},
 			    data: _modelObjects
 			});
-		} catch(e)
+		} 
+		catch(e)
 		{
 			show(e);
 		}
+	}
+	
+	function plotDataPoints()
+	{
+		$.merge(_modelObjects, _modelObjectsTemp)
+		drawD3Plot();
+	}
+	
+	function unplotDataPoints()
+	{
+		var newArrayToPlot = [];
+		$.each(_modelObjects, function(index, model) {
+			if(model.fnType == 'points')
+				_modelObjectsTemp.push(model);
+			else
+				newArrayToPlot.push(model);
+		});
+		_modelObjects = newArrayToPlot;
+		drawD3Plot();
 	}
 	
 	/**
@@ -1135,7 +1219,7 @@ pmm_plotter = function() {
 			{ 
 				_plotterValue.reportName = $("#input_" + inputMember[0].replace(/\s/g,"")).val();
 				_plotterValue.authors = $("#input_" + inputMember[1].replace(/\s/g,"")).val();
-				_plotterValue.comment = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
+				_plotterValue.comments = $("#input_" + inputMember[2].replace(/\s/g,"")).val();
 				
 				$(document.body).fadeOut(_defaultFadeTime);
 			}
@@ -1144,7 +1228,47 @@ pmm_plotter = function() {
 		$(form).fadeIn(_defaultFadeTime);
 		$(finishButton).fadeIn(_defaultFadeTime);
 	}
-		
+	
+	/**
+	 * Searches the list of DB-units for a conversion factor of a specific unit.
+	 * This factor is used to normalize a function value (undo scale).
+	 * 
+	 * @param unit the unit from which the factor has to be determined
+	 * @return the conversion factor fo the given unit
+	 */
+	function getUnitConversionFactor(unit)
+	{
+		var factor;
+		$.each(_dbUnits, function (i, dbUnit) {
+			if(unit == dbUnit.displayInGuiAs)
+			{
+				factor = dbUnit.conversionFunctionFactor;
+				return true;
+			}
+		});
+		return factor;
+	}
+	
+	/**
+	 * Searches the list of DB-units for an inverse conversion factor of a specific unit.
+	 * This factor is used to adapt a normalized function to a unit.
+	 * 
+	 * @param unit the unit from which the factor has to be determined
+	 * @return the conversion factor fo the given unit
+	 */
+	function getUnitInverseConversionFactor(unit)
+	{
+		var factor;
+		$.each(_dbUnits, function (i, dbUnit) {
+			if(unit == dbUnit.displayInGuiAs)
+			{
+				factor = dbUnit.inverseConversionFunctionFactor;
+				return true;
+			}
+		});
+		return factor;
+	}
+	
 	/**
 	 * Rearranges formula to fit to a common xAxis. We assume here, 
 	 * that time is either counted in minutes ("min"), days ("d") or 
@@ -1157,60 +1281,24 @@ pmm_plotter = function() {
 	function unifyX(oldFunction, xUnit)
 	{
 		var newFunction;
-		var oldUnit;
-		var newUnit;
-		var modifier;
+		var modifier = "*1";
+		var defaultUnit = _xUnit;
+		var secondUnit = xUnit;
+		var defaultFactor = getUnitConversionFactor(defaultUnit).split("*")[1];
+		var secondFactor = getUnitConversionFactor(secondUnit).split("*")[1];
 		
-		// for readability
-		var minutes = 1;
-		var days = 2;
-		var hours = 3;
+		if(defaultFactor == undefined || secondFactor == undefined)
+		{
+			show(msg_error_xUnitUnknown);
+			return oldFunction;
+		}
 		
-		// determine incoming unit
-		if(xUnit == "min" || xUnit == "MIN")
-			newUnit = minutes
-		else if(xUnit == "h" || xUnit == "H")
-			newUnit = hours
-		else if(xUnit == "d" || xUnit == "D")
-			newUnit = days
+		if(defaultFactor > secondFactor)
+			modifier = "*" + defaultFactor / secondFactor;
 		else
-			show(msg_error_unknownUnit + xUnit);
-		
-		// determine existing unit
-		if(_xUnit == "min" || _xUnit == "MIN")
-			oldUnit = minutes
-		else if(_xUnit == "h" || _xUnit == "H")
-			oldUnit = hours
-		else if(_xUnit == "d" || _xUnit == "D")
-			oldUnit = days
-		else
-			show(msg_error_unknownUnit + _xUnit);
-		
-		// determine modifier according to units
-		// assumption: the units are distinct
-		if(newUnit == minutes) 
-		{
-			if(oldUnit == hours)
-				modifier = "*60"
-			else // oldUnit must be days
-				modifier = "*60*24"
-		}
-		else if(newUnit == hours) 
-		{
-			if(oldUnit == minutes)
-				modifier = "/60"
-			else // oldUnit must be days
-				modifier = "*24"
-		}
-		else // newUnit must be days
-		{
-			if(oldUnit == minutes)
-				modifier = "/60/24"
-			else // must be hours
-				modifier = "/24"
-		}
+			modifier = "/" + secondFactor / defaultFactor;
+			
 		newFunction = modifyX(oldFunction, modifier);
-		
 		return newFunction;
 	}
 	
@@ -1238,39 +1326,23 @@ pmm_plotter = function() {
 	function unifyY(oldFunction, yUnit)
 	{
 		var newFunction;
-		// get the applied logarithm
-		var oldLog = _yUnit.split("(")[0];
-		var newLog = yUnit.split("(")[0];
-
-		if (oldLog == newLog) // don't do anything in this case
-			return oldFunction;
-		/*
-		 * intercept if one formula has a non-logarithmic y unit
-		 * WIP: nice to have
-		 *
-			if(!newLog && oldLog) // new unit is not logarithmic
-			{
-				if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
-					modifier = "log10"; // log to base 100
-				else
-					modifier = "log"; // which is "ln" in Math.js
-			}
-			
-			if(!newLog && oldLog) // new unit is not logarithmic
-			{
-				if(oldLog.indexOf("log") != -1  || oldLog.indexOf("LOG") != -1)
-					modifier = "log10"; // log to base 100
-				else
-					modifier = "log"; // which is "ln" in Math.js
-			}
-		*/
+		var defaultUnit = _yUnit;
+		var secondUnit = yUnit;
 		
-		if(yUnit.indexOf("ln") != -1)
-			newFunction = modifyY(oldFunction, "/" + _logConst);
-		else if(yUnit.indexOf("log") != -1  || yUnit.indexOf("LOG") != -1)
-			newFunction = modifyY(oldFunction, "*" + _logConst);
-		else
-			show(msg_error_unknownUnit + yUnit);
+		var normalizationFactor = getUnitConversionFactor(secondUnit);
+		var adaptionFactor = getUnitInverseConversionFactor(defaultUnit);
+		
+		if(normalizationFactor == undefined || adaptionFactor == undefined)
+		{
+			show(msg_error_yUnitUnknown);
+			return oldFunction;
+		}
+		
+		// normalize function
+		newFunction = modifyY(oldFunction, normalizationFactor);
+		// apply default scale
+		newFunction = modifyY(newFunction, adaptionFactor);
+
 		return newFunction;
 	}
 	
@@ -1283,7 +1355,7 @@ pmm_plotter = function() {
 	 */
 	function modifyY(oldFunction, modifier)
 	{
-		var newFunction = "(" + oldFunction + ")" + modifier;
+		var newFunction = modifier.replace(/\bx\b/gi, "(" + oldFunction + ")");
 		return newFunction;
 	}
 	

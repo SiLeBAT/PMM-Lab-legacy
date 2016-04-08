@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import de.bund.bfr.knime.pmm.js.common.ModelList;
+import de.bund.bfr.knime.pmm.js.common.UnitList;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -25,11 +26,14 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	// Configuration keys
 	private static final String MODELS = "models";
+	private static final String UNITS = "units";
 	private ModelList m_models;
+	private UnitList m_units;
 
 	public ModelPlotterViewValue() {
 		// Query database
 		m_models = new ModelList();
+		m_units = new UnitList();
 	}
 
 	public ModelList getModels() {
@@ -39,15 +43,25 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	public void setModels(ModelList models) {
 		m_models = models;
 	}
+	
+	public UnitList getUnits() {
+		return m_units;
+	}
+	
+	public void setUnits(UnitList units) {
+		m_units = units;
+	}
 
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		m_models.saveToNodeSettings(settings.addNodeSettings(MODELS));
+		m_units.saveToNodeSettings(settings.addNodeSettings(UNITS));
 	}
 
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
 		m_models.loadFromNodeSettings(settings.getNodeSettings(MODELS));
+		m_units.loadFromNodeSettings(settings.getNodeSettings(UNITS));
 	}
 
 	@Override

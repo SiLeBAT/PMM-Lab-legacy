@@ -33,7 +33,9 @@ import de.bund.bfr.pmf.ModelType;
  */
 public class FSMRTemplateImpl implements FSMRTemplate {
 
-	private String modelName = null;
+  private static final long serialVersionUID = -3414978919227860002L;
+
+  private String modelName = null;
 
 	private String modelId = null;
 

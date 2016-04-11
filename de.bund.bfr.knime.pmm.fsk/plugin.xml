@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?><plugin>
+
+<extension point="org.knime.workbench.repository.nodes">
+  <!-- FSK nodes -->
+  <node category-path="/pmmlab/reader" deprecated="false" factory-class="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory" id="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory" />
+  <node category-path="/pmmlab/reader" deprecated="false" factory-class="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory" id="de.bund.bfr.knime.pmm.fskx.reader.FskxxReaderNodeFactory" />
+  <node category-path="/pmmlab/writer" deprecated="false" factory-class="de.bund.bfr.knime.pmm.fskx.writer.FskxWriterNodeFactory" id="de.bund.bfr.knime.pmm.fskx.writer.FskxWriterNodeFactory" />
+  <node
+        category-path="/pmmlab/editors"
+        deprecated="false"
+        factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskxRunnerNodeFactory"
+        id="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory">
+  </node>
+
+  <!-- Extended KNIME R nodes -->
+</extension>
+
+<extension point="org.knime.workbench.repository.metanode">
+  <PersistedMetaNode category-path="/pmmlab" expert-flag="false" id="de.bund.bfr.knime.pmm.fsk.testrmodel" name="Test R model" workflowDir="metanodes_templates/Test R model/" />
+</extension>
+
+ <extension id="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferenceInitializer" point="org.eclipse.core.runtime.preferences">
+   <initializer class="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferenceInitializer">
+   </initializer>
+</extension>
+   
+<extension point="org.eclipse.ui.preferencePages">
+	<page
+		category="org.knime.workbench.ui.preferences"
+		class="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferencePage"
+		id="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferencePage"
+		name="BfR R settings">
+	</page>
+</extension>
+
+   <extension
+         point="org.knime.core.PortType">
+      <portType
+            color="588C7E"
+            hidden="false"
+            name="FSK object"
+            objectClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObject"
+            objectSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObject$Serializer"
+            specClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec"
+            specSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec$Serializer">
+      </portType>
+   </extension>
+
+   
+</plugin>

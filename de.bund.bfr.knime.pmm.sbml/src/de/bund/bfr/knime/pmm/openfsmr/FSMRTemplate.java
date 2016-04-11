@@ -16,6 +16,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.openfsmr;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 
@@ -59,7 +60,7 @@ import de.bund.bfr.pmf.ModelType;
  *
  * @author Miguel Alba
  */
-public interface FSMRTemplate {
+public interface FSMRTemplate extends Serializable {
 
   /**
    * Returns the model name of this {@link FSMRTemplate}. If not set, returns null.

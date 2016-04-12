@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode icon="FskxReader.png" type="Source" deprecated="false"
-	xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
 	<name>FSKX Reader</name>
 
 	<shortDescription>
-		This node reads R files and model metadata from an FSKX file
+		This node reads an FSK object from an FSKX file. The R workspace is also
+		provided on a second port for compatibility with KNIME R nodes.
     </shortDescription>
 
 	<fullDescription>
 		<intro>
-			The contents of the FSKX file are:
+			The contents of the FSKX object are:
 			<ul>
-				<li>Model script: Calculates the results of the script (mandatory)
-				</li>
-				<li>Parameters script: Used in some models to initialize parameters
-					in the model (currently optional)
-				</li>
-				<li>Visualization script: Generates some form of visualization for
-					the results of the model (optional)
-				</li>
+				<li>Model script: Calculates the results of the script
+					(mandatory)</li>
+				<li>Parameters script: Used in some models to initialize
+					parameters in the model (currently optional)</li>
+				<li>Visualization script: Generates some form of visualization
+					for the results of the model (optional)</li>
+				<li>Model meta data encoded using the OpenFSMR template.</li>
+				<li>Set of libraries used.</li>
 			</ul>
 		</intro>
 		<option name="Selected file">
@@ -27,7 +29,7 @@
 		</option>
 	</fullDescription>
 	<ports>
-		<outPort name="FSK object" index="0"></outPort>
-		<outPort name="R object" index="1"></outPort>
+		<outPort name="FSK object" index="0">FSK object</outPort>
+		<outPort name="R workspace" index="1">R workspace</outPort>
 	</ports>
 </knimeNode>

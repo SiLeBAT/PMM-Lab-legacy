@@ -54,6 +54,10 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.commons.lang"/>
       <import plugin="org.junit"/>
       <import feature="org.knime.features.r" version="3.1.1.v201601281446"/>
+      <import plugin="org.knime.product" version="3.1.1" match="greaterOrEqual"/>
+      <import plugin="org.apache.poi.ooxml" version="3.9.0" match="greaterOrEqual"/>
+      <import plugin="com.fifesoft.rsyntaxtextarea" version="2.5.8" match="greaterOrEqual"/>
+      <import plugin="com.sun.jna" version="3.5.2" match="greaterOrEqual"/>
    </requires>
 
    <plugin

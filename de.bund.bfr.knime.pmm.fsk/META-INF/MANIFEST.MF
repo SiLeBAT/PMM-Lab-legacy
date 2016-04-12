@@ -10,7 +10,7 @@ Require-Bundle: org.knime.base,
  org.apache.poi.ooxml;bundle-version="3.9.0",
  org.knime.ext.r.type;bundle-version="3.1.0",
  org.knime.workbench.core,
- de.bund.bfr.knime.pmm.sbml;bundle-version="1.0.0",
+ de.bund.bfr.knime.pmm.sbml,
  com.google.guava,
  com.fifesoft.rsyntaxtextarea;bundle-version="2.5.8",
  com.sun.jna;bundle-version="3.5.2"

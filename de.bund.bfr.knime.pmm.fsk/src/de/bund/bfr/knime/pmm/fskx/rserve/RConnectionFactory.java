@@ -69,8 +69,8 @@ import org.rosuda.REngine.Rserve.RserveException;
 
 import com.sun.jna.Platform;
 
-import de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferenceInitializer;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
 
 /**

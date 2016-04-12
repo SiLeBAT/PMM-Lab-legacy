@@ -111,9 +111,9 @@ import org.rosuda.REngine.Rserve.RserveException;
 
 import com.sun.jna.Platform;
 
-import de.bund.bfr.knime.pmm.fskx.bin.RBinUtil;
-import de.bund.bfr.knime.pmm.fskx.bin.RBinUtil.InvalidRHomeException;
-import de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferenceInitializer;
+import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
+import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil;
+import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil.InvalidRHomeException;
 import de.bund.bfr.knime.pmm.fskx.rserve.RConnectionFactory;
 import de.bund.bfr.knime.pmm.fskx.rserve.RConnectionFactory.RConnectionResource;
 

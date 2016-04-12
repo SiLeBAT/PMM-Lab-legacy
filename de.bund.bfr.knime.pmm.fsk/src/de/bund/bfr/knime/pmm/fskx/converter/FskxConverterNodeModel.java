@@ -167,7 +167,7 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
     try {
       RScript paramScript = readScript(m_paramScript.getStringValue());
       param = paramScript.getScript();
-    } catch (IOException e) {
+    } catch (IOException|InvalidSettingsException e) {
       param = "";
     }
     
@@ -176,7 +176,7 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
     try {
       RScript vizScript = readScript(m_vizScript.getStringValue());
       viz = vizScript.getScript();
-    } catch (IOException e) {
+    } catch (IOException|InvalidSettingsException e) {
       viz = "";
     }
     

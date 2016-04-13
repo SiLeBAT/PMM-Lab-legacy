@@ -62,6 +62,7 @@ import de.bund.bfr.knime.pmm.js.common.UnitList;
  * JavaScript view. 
  * 
  * @author Kilian Thiel, KNIME.com AG, Berlin, Germany
+ * @author Markus Freitag, EITCO GmbH, Berlin, Germany
  *
  */
 public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPlotterViewRepresentation, ModelPlotterViewValue> {
@@ -106,7 +107,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 
 	@Override
 	public String getJavascriptObjectID() {
-		return "org.bund.bfr.knime.pmm.js.modelplotter";
+		return "de.bund.bfr.knime.pmm.js.modelplotter";
 	}
 
 	@Override

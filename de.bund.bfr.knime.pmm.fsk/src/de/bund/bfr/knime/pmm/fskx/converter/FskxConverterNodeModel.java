@@ -20,12 +20,18 @@ package de.bund.bfr.knime.pmm.fskx.converter;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.base.node.util.exttool.ExtToolOutputNodeModel;
@@ -33,6 +39,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -48,11 +55,15 @@ import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
+import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
 public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
+  
+  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxConverterNodeModel.class);
 
   // configuration key of the libraries directory
   static final String CFGKEY_DIR_LIBS = "dirLibs";
@@ -74,7 +85,7 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
 
   private static PortType[] inPortTypes = new PortType[] {};
   private static PortType[] outPortTypes = new PortType[] {FskPortObject.TYPE};
-  
+
   // Settings models
   private SettingsModelString m_modelScript = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
   private SettingsModelString m_paramScript = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
@@ -152,7 +163,7 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
   @Override
   protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
       throws InvalidSettingsException, IOException, MissingValueError {
-    
+
     // Reads model script
     String model;
     try {
@@ -167,37 +178,37 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
     try {
       RScript paramScript = readScript(m_paramScript.getStringValue());
       param = paramScript.getScript();
-    } catch (IOException|InvalidSettingsException e) {
+    } catch (IOException | InvalidSettingsException e) {
       param = "";
     }
-    
+
     // Reads visualization script
     String viz;
     try {
       RScript vizScript = readScript(m_vizScript.getStringValue());
       viz = vizScript.getScript();
-    } catch (IOException|InvalidSettingsException e) {
+    } catch (IOException | InvalidSettingsException e) {
       viz = "";
     }
-    
+
     // Reads model meta data
     FSMRTemplate template;
     try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
       // Finds the workbook instance for XLSX file
       XSSFWorkbook workbook = new XSSFWorkbook(fis);
       fis.close();
-      
+
       template = FSMRUtils.processSpreadsheet(workbook);
     }
-    
+
     // Reads R libraries
-    Path directoryPath = Paths.get(m_libDirectory.getStringValue());
     Set<File> libs = new HashSet<>();
-    for (String lib : m_selectedLibs.getStringArrayValue()) {
-      Path path = directoryPath.resolve(lib);
-      libs.add(path.toFile());
+    try {
+      libs = collectLibs();
+    } catch (RException e) {
+      LOGGER.error(e.getMessage());
     }
-    
+
     return new PortObject[] {new FskPortObject(model, param, viz, template, null, libs)};
   }
 
@@ -237,7 +248,123 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
       throw new IOException(trimmedPath + ": cannot be read");
     }
   }
-}
 
+  private Set<File> collectLibs() throws IOException, RException {
+
+    // First collect the names of the binary libraries included in the converter
+    Set<String> includedLibs = new HashSet<>();
+    for (String lib : m_selectedLibs.getStringArrayValue()) {
+      includedLibs.add(lib.split("\\.")[0]);
+    }
+
+    Set<File> libs = new HashSet<>();
+    File tempDir = installLibs(includedLibs);
+    for (File f : tempDir.listFiles()) {
+      File zipFile = createZipFile(f);
+      libs.add(zipFile);
+    }
+
+    return libs;
+  }
+
+  /**
+   * Install libraries and dependencies and return the path to the temporary directory with them.
+   * 
+   * @throws IOException
+   */
+  private File installLibs(Set<String> includedLibs) throws RException, IOException {
+    // Create temporary directory where to install binary libraries and their dependencies
+    File tempDir = FileUtil.createTempDir("lib");
+    String tempDirPath = tempDir.getAbsolutePath().replace("\\", "/");
+
+    // Create set of libraries names surrounded by quotes
+    Set<String> libWithQuotes = new HashSet<>(includedLibs.size());
+    for (String lib : includedLibs) {
+      libWithQuotes.add("\"" + lib + "\"");
+    }
+
+    // Builds install command: install.packages("pkg1", "pkg2", ...)
+    String pkgs = "c(" + String.join(",", libWithQuotes) + ")";
+    String installCmd = "install.packages(" + pkgs + ", lib=\"" + tempDirPath
+        + "\", repos=\"https://cloud.r-project.org/\")";
+
+    // Install packages into the temporary directory
+    try (RController controller = new RController()) {
+      controller.eval(installCmd);
+    }
+
+    return tempDir;
+  }
+
+  /** @return list of Files in a directory. Directories are ignored. */
+  private List<File> getFiles(File dir) {
+    List<File> files = new LinkedList<>();
+    for (File f : dir.listFiles()) {
+      if (f.isDirectory()) {
+        files.addAll(getFiles(f));
+      } else {
+        files.add(f);
+      }
+    }
+
+    return files;
+  }
+
+  /**
+   * Compress a directory with an R library into a zip file.
+   * 
+   * @param dir Directory with the uncompressed R library.
+   * @return Zip file with the compressed library.
+   */
+  private File createZipFile(File dir) throws IOException {
+
+    String simpleName = dir.getName();
+    File zipFile = Paths.get(dir.getParent()).resolve(simpleName + ".zip").toFile();
+    zipFile.deleteOnExit();
+
+    ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile));
+    List<File> files = getFiles(dir);
+    for (File f : files) {
+      addZipEntry(zipOutputStream, f, simpleName);
+    }
+    zipOutputStream.close();
+
+    return zipFile;
+  }
+
+  /**
+   * Add a {@link ZipEntry} to a {@link ZipOutputStream} with the contents of a file from an R
+   * library.
+   *
+   * @param zipOutputStream stream with library contents.
+   * @param unmcrompressedFile uncompressed file in disk from an R library.
+   * @param packageName name of the package such as triangle, maps, ...
+   * @throws IOException
+   * @throws FileNotFoundException
+   */
+  private void addZipEntry(final ZipOutputStream zipOutputStream, final File uncompressedFile,
+      final String packageName) throws FileNotFoundException, IOException {
+
+    String uncompressedFilePath = uncompressedFile.getPath();
+
+    // Builds entry path. All the files in the zip file should be contained in a folder named after
+    // the package.
+    String entryPath = uncompressedFilePath.substring(uncompressedFilePath.indexOf(packageName));
+
+    // Write file
+    try (FileInputStream fis = new FileInputStream(uncompressedFile)) {
+      ZipEntry zipEntry = new ZipEntry(entryPath);
+      zipOutputStream.putNextEntry(zipEntry);
+
+      byte[] bytes = new byte[1024];
+      int length;
+      while ((length = fis.read(bytes)) >= 0) {
+        zipOutputStream.write(bytes, 0, length);
+      }
+
+      zipOutputStream.closeEntry();
+    }
+  }
+}
 
 

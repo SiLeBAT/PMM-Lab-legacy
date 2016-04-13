@@ -82,7 +82,7 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
  */
-public class FSKXWriterNodeModel extends NodeModel {
+public class FskxWriterNodeModel extends NodeModel {
 
   // Configuration keys
   protected static final String CFG_FILE = "file";
@@ -92,7 +92,7 @@ public class FSKXWriterNodeModel extends NodeModel {
   private static final PortType[] inPortTypes = {FskPortObject.TYPE};
   private static final PortType[] outPortTypes = {};
 
-  protected FSKXWriterNodeModel() {
+  protected FskxWriterNodeModel() {
     super(inPortTypes, outPortTypes);
   }
 

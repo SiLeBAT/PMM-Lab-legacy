@@ -22,7 +22,7 @@ pmm_plotter = function() {
 	var modelPlotter = {
 			version: "2.0.0"
 	};
-	modelPlotter.name = "PMM Model Plotter";
+	modelPlotter.name = "Model Plotter";
 	
 	var _plotterValue;
 //	var plotterRep;

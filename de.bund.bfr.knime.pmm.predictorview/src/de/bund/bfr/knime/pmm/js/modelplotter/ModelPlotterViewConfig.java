@@ -77,19 +77,14 @@ final class ModelPlotterViewConfig {
 	static final int MIN_MAX_Y_AXIS = 0;
 	
 	private static final String DEF_CHART_TITLE = "PMM Model Plot";
-
 	private String m_chartTitle = DEF_CHART_TITLE;
 
 	private boolean m_isHideInWizard = false;
-
 	private double m_y0 = DEF_Y0;
-	
+
 	private int m_minXAxis = DEF_MIN_X_AXIS;
-	
 	private int m_maxXAxis = DEF_MAX_X_AXIS;
-	
 	private int m_minYAxis = DEF_MIN_Y_AXIS;
-	
 	private int m_maxYAxis = DEF_MAX_Y_AXIS;
 
 	/**

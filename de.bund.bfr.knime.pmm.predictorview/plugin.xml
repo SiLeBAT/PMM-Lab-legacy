@@ -69,6 +69,12 @@
                relativePath="de/bund/bfr/knime/pmm/js/modelplotter/function-plot.js"
                type="JAVASCRIPT">
          </importResource>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3">
+         </webDependency>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
+         </webDependency>
       </webResourceBundle>
       
       <!--  TODO: resolve dependencies from org.knime.js.core -->
@@ -124,6 +130,13 @@
                relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.theme.css"
                type="CSS">
          </importResource>
+         <webDependency
+               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
+         </webDependency>
+         <webResource
+               relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/images/"
+               relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/images/">
+         </webResource>
       </webResourceBundle>
       
       <webResourceBundle
@@ -151,16 +164,7 @@
                relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/pmm-plotter.js">
          </webResource>
          <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
-         </webDependency>
-         <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3">
-         </webDependency>
-         <webDependency
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
-         </webDependency>
-         <webDependency
-               webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
          </webDependency>
          <webDependency
                webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery-ui">

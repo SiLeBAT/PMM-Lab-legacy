@@ -39,6 +39,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.web.ValidationError;
+import org.knime.js.core.node.AbstractSVGWizardNodeModel;
 import org.knime.js.core.node.AbstractWizardNodeModel;
 
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -65,7 +66,7 @@ import de.bund.bfr.knime.pmm.js.common.UnitList;
  * @author Markus Freitag, EITCO GmbH, Berlin, Germany
  *
  */
-public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPlotterViewRepresentation, ModelPlotterViewValue> {
+public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<ModelPlotterViewRepresentation, ModelPlotterViewValue> {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(ModelPlotterNodeModel.class);
 	
@@ -143,7 +144,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 	 * @see org.knime.js.core.node.AbstractWizardNodeModel#performExecute(org.knime.core.node.port.PortObject[], org.knime.core.node.ExecutionContext)
 	 */
 	@Override
-	protected PortObject[] performExecute(PortObject[] inObjects,
+	protected PortObject[] performExecuteCreatePortObjects(PortObject svgImageFromView, PortObject[] inObjects,
 			ExecutionContext exec) throws Exception {
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
 		List<KnimeTuple> tuples = getTuples(table);
@@ -304,5 +305,16 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 						SchemaFactory.createM1Schema());
 			}
 		}
+	}
+
+	@Override
+	protected void performExecuteCreateView(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	protected boolean generateImage() {
+		// TODO Auto-generated method stub
+		return false;
 	}   	
 }

@@ -83,9 +83,9 @@ pmm_plotter = function() {
 	
 	modelPlotter.init = function(representation, value) {
 
+		_plotterValue = value;
 		_rawModels = value.models.models;
 		_dbUnits = value.units.units;
-		_plotterValue = value;
 		// plotterRep = representation; // not used
 
 		initLayout();
@@ -1405,6 +1405,12 @@ pmm_plotter = function() {
 	modelPlotter.getComponentValue = function() 
 	{
 	    return _plotterValue;
+	}
+	
+	modelPlotter.getSVG = function()
+	{
+		var svgElement = document.getElementById("d3plotter");
+		return (new XMLSerializer()).serializeToString(svgElement);
 	}
 	
 	/*

@@ -25,8 +25,6 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private double y0;
 
 	// Configuration keys
-	private static final String MODELS = "models";
-	private static final String UNITS = "units";
 	private ModelList m_models;
 	private UnitList m_units;
 
@@ -54,26 +52,40 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		m_models.saveToNodeSettings(settings.addNodeSettings(MODELS));
-		m_units.saveToNodeSettings(settings.addNodeSettings(UNITS));
 	}
 
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		m_models.loadFromNodeSettings(settings.getNodeSettings(MODELS));
-		m_units.loadFromNodeSettings(settings.getNodeSettings(UNITS));
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return false;
+		ModelPlotterViewValue otherView = (ModelPlotterViewValue) obj;
+		
+		if((this.authors != null && !this.authors.equals(otherView.authors)) ||
+			this.authors == null && otherView.authors != null)
+			return false;
+		if((this.comments != null && !this.comments.equals(otherView.comments)) ||
+			this.comments == null && otherView.comments != null)
+			return false;
+		if((this.reportName != null && !this.reportName.equals(otherView.reportName)) ||
+			this.reportName == null && otherView.reportName != null)
+			return false;
+			
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		int hash = 31;
+		if(this.authors != null)
+			hash += this.authors.hashCode();
+		if(this.comments != null)
+			hash += this.comments.hashCode();
+		if(this.reportName != null)
+			hash += this.reportName.hashCode();
+		
+		return hash;
 	}
 
 	public int getMinXAxis() {

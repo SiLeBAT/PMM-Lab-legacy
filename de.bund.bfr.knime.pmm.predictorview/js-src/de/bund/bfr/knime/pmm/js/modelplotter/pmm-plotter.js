@@ -25,9 +25,8 @@ pmm_plotter = function() {
 	modelPlotter.name = "Model Plotter";
 	
 	var _plotterValue;
-//	var plotterRep;
+	//	var plotterRep; // not used
 	
-	var _globalNumber = 1;
 	var _modelObjects = [];
 	var _modelObjectsTemp = []; // for temporarily stored models like data points
 	var _colorsArray = [];
@@ -43,7 +42,6 @@ pmm_plotter = function() {
 	var msgNoName = "no name found";
 	var msgNoFunction = "no function provided";
 	var msgNoScore = "no quality score provided";
-	
 	var msgNext = "Next";
 	var msg_To_ = " to ";
 	var msgNoType = "No Type";
@@ -65,6 +63,11 @@ pmm_plotter = function() {
 	var	msg_error_yUnitUnknown = "the y unit of one function is unknown or has no conversion factor in the database: transformation impossible";
 	var msgShowData = "show given data points";
 	
+	var _internalId = 0;
+	var _logConst = 2.3025851;
+	var _xUnit = msgUnknown;
+	var _yUnit = msgUnknown;
+	
 	/* the following values are subject to change */
 	var _buttonWidth = "width: 250px;"; // not only used for buttons
 	var _sliderWidth = "width: 190px;";
@@ -74,12 +77,8 @@ pmm_plotter = function() {
 	var _totalHeight = "height: 800px;";
 	var _plotWidth = 600;
 	var _plotHeight = 300;
-	var _logConst = 2.3025851;
-	var _xUnit = msgUnknown;
-	var _yUnit = msgUnknown;
 	var _defaultFadeTime = 500; // ms
 	var _defaultTimeout = 200; // ms // responsiveness (lower) vs. performance/fluence (higher)
-	var _internalId = 0;
 	
 	modelPlotter.init = function(representation, value) {
 
@@ -362,7 +361,7 @@ pmm_plotter = function() {
 		}
 		
 		/**
-		 * nested function
+		 * [nested function]
 		 * parse function formula from model and modify it according to framework needs
 		 * 
 		 * @param functionString formula as delivered by the java class
@@ -441,11 +440,11 @@ pmm_plotter = function() {
 		}
 
 		/**
-		 * nested function
+		 * [nested function]
 		 * extract parameter names and values
 		 * 
-		 * @param functionString formula as delivered by the java class
-		 * @param modelId used for the ranges
+		 * @param parameterArray relevant parameters from the model
+		 * @param modelId the id of the current model; it is used for the ranges
 		 * @return reduced parameter array
 		 */
 		function prepareParameters(parameterArray, modelId) 
@@ -503,7 +502,7 @@ pmm_plotter = function() {
 		}
 		
 		/**
-		 * nested function
+		 * [nested function]
 		 * use the primary and secondary models to create the tertiary model
 		 * parses all nested formula and secondary parameters and injects them
 		 * into the primary model (tertiary model)
@@ -673,6 +672,9 @@ pmm_plotter = function() {
 		}
 	}
 	
+	/**
+	 * @return whether the data point checkbox is checked
+	 */
 	function isDataPointsCheckboxChecked() {
 		return $("#dataChoiceCheckbox").is(":checked");
 	}
@@ -739,7 +741,7 @@ pmm_plotter = function() {
 	/**
 	 * deletes a model for good - including graph and meta data
 	 * 
-	 * @param id globalModelId of the model
+	 * @param internalId globalModelId of the model
 	 */
 	function deleteFunctionObject(internalId)
 	{
@@ -766,7 +768,7 @@ pmm_plotter = function() {
 		drawD3Plot();
 		
 		/*
-		 * nested function
+		 * [nested function]
 		 * removes the model from the used model array
 		 * 
 		 * @param id globalModelId of the model
@@ -788,7 +790,7 @@ pmm_plotter = function() {
 		}
 		
 		/*
-		 * nested function
+		 * [nested function]
 		 * deletes the dom elements that belong to the meta data in the accordion
 		 * 
 		 * @param id globalModelId of the model
@@ -809,6 +811,7 @@ pmm_plotter = function() {
 	
 	/**
 	 * adds a new entry for a new model object and shows it in the accordion below the plot
+	 * 
 	 * @param modelObject the recently added modelObject
 	 */
 	function addMetaData(modelObject) 
@@ -902,11 +905,12 @@ pmm_plotter = function() {
 		$("#metaDataWrapper").accordion({ active: (numSections - 1) });
 		
 		/**
+		 * [nested function]
 		 * adds a paragraph in the section for passed parameter data
 		 * 
 		 * @param title bold header title of the parameter (its name)
 		 * @param content the value of the parameter
-		 * @param alternative msg if parameter is null or empty
+		 * @param alt alternative msg if parameter is null or empty
 		 */
 		function addMetaParagraph(title, content, alt) 
 		{
@@ -920,6 +924,7 @@ pmm_plotter = function() {
 		}
 		
 		/**
+		 * [nested function]
 		 * adapt formula for readability
 		 * 
 		 * @param formula function formula
@@ -932,7 +937,8 @@ pmm_plotter = function() {
 		}
 		
 		/**
-		 * parses the parameter array in creates a DOM list from its items
+		 * [nested function]
+		 * parses the parameter array and creates a DOM list from its items
 		 * 
 		 * @param paramArray an array of key value pairs that contains the parameters and 
 		 * their respective values
@@ -1083,8 +1089,8 @@ pmm_plotter = function() {
 	/** 
 	 * update a constant value in all functions
 	 * 
-	 * @param constant parameter name
-	 * @param constant (new) parameter value
+	 * @param parameter parameter name
+	 * @param value (new) parameter value
 	 */
 	function updateFunctionParameter(parameter, value)
 	{
@@ -1317,7 +1323,7 @@ pmm_plotter = function() {
 	
 	/**
 	 * Rearranges formula to fit to a common yAxis. We assume here, 
-	 * that the unit is either given in ln or log10
+	 * that the unit is either given in ln or log10.
 	 * 
 	 * @param oldFunction non-unified function
 	 * @param yUnit unit of the model to the oldFunction
@@ -1371,7 +1377,9 @@ pmm_plotter = function() {
 		return _colorsArray.shift();
 	}
 	
-	// maintenance function
+	/**
+	*	maintenance function: prints the content of any object
+	**/
 	function show(obj)
 	{
 		alert(JSON.stringify(obj, null, 4));
@@ -1380,7 +1388,7 @@ pmm_plotter = function() {
 	/**
 	 * rounds a decimal value to at most 2 places
 	 * 
-	 * @param any decimal value
+	 * @param value a decimal value
 	 * @return rounded value
 	 */
 	function roundValue(value)

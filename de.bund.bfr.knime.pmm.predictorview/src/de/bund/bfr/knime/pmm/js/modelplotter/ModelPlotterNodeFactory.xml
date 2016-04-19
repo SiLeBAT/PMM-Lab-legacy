@@ -53,6 +53,9 @@
         <outPort index="1" name="User Data">
             Includes at least the authors' names, a comment, and the report name.
         </outPort>
+        <outPort index="2" name="Plot Image">
+            An SVG image that represents the plot.
+        </outPort>
     </ports>    
 
 </knimeNode>

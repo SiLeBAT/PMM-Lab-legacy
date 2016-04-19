@@ -33,6 +33,7 @@ pmm_plotter = function() {
 	var _rawModels = [];
 	var _dbUnits = [];
 	var _parameterMap = [];
+	var _recentPlot;
 	
 	var msgAdd = "Add Model";
 	var msgChoose = "Select Model";
@@ -1133,7 +1134,7 @@ pmm_plotter = function() {
 		// plot
 		try
 		{
-			var x = functionPlot({
+			functionPlot({
 			    target: '#d3plotter',
 			    xDomain: [-1, _plotterValue.maxXAxis],
 			    yDomain: [-1, _plotterValue.maxYAxis],
@@ -1156,6 +1157,9 @@ pmm_plotter = function() {
 		{
 			show(e);
 		}
+		// TODO: serialized output merken
+		var svgElement = document.getElementById("d3plotter").firstChild;
+		_recentPlot = (new XMLSerializer()).serializeToString(svgElement);
 	}
 	
 	function plotDataPoints()
@@ -1417,8 +1421,7 @@ pmm_plotter = function() {
 	
 	modelPlotter.getSVG = function()
 	{
-		var svgElement = document.getElementById("d3plotter");
-		return (new XMLSerializer()).serializeToString(svgElement);
+		return _recentPlot
 	}
 	
 	/*

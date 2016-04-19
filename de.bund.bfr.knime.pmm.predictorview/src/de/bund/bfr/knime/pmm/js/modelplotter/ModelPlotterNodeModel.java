@@ -40,11 +40,8 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.node.AbstractSVGWizardNodeModel;
-import org.knime.js.core.node.AbstractWizardNodeModel;
 
-import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
-import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
@@ -232,12 +229,8 @@ public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<Mode
 		userContainer.addRowToTable(userTuple);
 		userContainer.close();
 		
-		// PSeudo Image
-		ChartCreator creator = new ChartCreator(new Plotable(0));
-		ImagePortObject outputImage = ChartUtilities.getImage(creator.getChart(), true);
-		
 		// TODO: finish output
-		return new PortObject[] { container.getTable(), userContainer.getTable(), outputImage };
+		return new PortObject[] { container.getTable(), userContainer.getTable(), svgImageFromView };
 	}
 
 	private PortObjectSpec[] createOutputDataTableSpecs() {
@@ -314,7 +307,7 @@ public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<Mode
 
 	@Override
 	protected boolean generateImage() {
-		// TODO Auto-generated method stub
-		return false;
+		// always generate image
+		return true;
 	}   	
 }

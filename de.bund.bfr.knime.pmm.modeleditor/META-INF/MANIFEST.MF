@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-annotations,
  com.google.guava,
  org.hsh.bfr.db,
- de.bund.bfr.knime.pmm.bfrdbiface.lib
+ de.bund.bfr.knime.pmm.bfrdbiface.lib,
+ org.knime.js.core
 Export-Package: de.bund.bfr.knime.pmm,
  de.bund.bfr.knime.pmm.editor,
  de.bund.bfr.knime.pmm.js.common

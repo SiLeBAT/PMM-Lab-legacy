@@ -1168,8 +1168,16 @@ pmm_plotter = function() {
 			show(e);
 		}
 		// TODO: serialized output merken
-		var svgElement = document.getElementById("d3plotter").firstChild;
-		_recentPlot = (new XMLSerializer()).serializeToString(svgElement);
+		window.setTimeout(serializePlot(), _defaultTimeout);
+		
+		function serializePlot() {
+			var svgElement = document.getElementById("d3plotter").firstChild;
+			var serializer = new XMLSerializer();
+			if(svgElement != undefined && serializer != undefined)
+			{
+				_recentPlot = serializer.serializeToString(svgElement);
+			}
+		}
 	}
 	
 	function plotDataPoints()

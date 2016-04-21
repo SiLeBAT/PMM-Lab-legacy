@@ -195,9 +195,9 @@ pmm_plotter = function() {
 		
 		// inactive selection option serves both as a text hint for the user and a as placeholder
 		var selectionPlaceholder = document.createElement("option");
-		selectionPlaceholder.setAttribute("hidden");
-		selectionPlaceholder.setAttribute("disabled");
-		selectionPlaceholder.setAttribute("selected");
+		selectionPlaceholder.setAttribute("hidden", true);
+		selectionPlaceholder.setAttribute("disabled", true);
+		selectionPlaceholder.setAttribute("selected", true);
 		selectionPlaceholder.setAttribute("value", "");
 		selectionPlaceholder.innerHTML = msgChoose;
 		modelSelectionMenu.appendChild(selectionPlaceholder);

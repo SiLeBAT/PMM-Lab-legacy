@@ -72,6 +72,15 @@ class DeployToBintray {
 		if (USE_PROXY)
 			client.setProxy(PROXY, PORT, null)
 
+		def latestVersion = getLatestVersion(client)
+
+		if (latestVersion != null) {
+			deleteLatestVersion(client, latestVersion)
+		} else {
+			println "No versions found"
+			println ""
+		}
+
 		if (featuresDir.exists() && pluginsDir.exists()) {
 			def version = new SimpleDateFormat("yyyy_MM_dd_HH_mm").format(new Date())
 			createVersion(client, version)
@@ -87,6 +96,30 @@ class DeployToBintray {
 
 		uploadFile(client, null, "", artifactsFile)
 		uploadFile(client, null, "", contentFile)
+	}
+
+	static String getLatestVersion(RESTClient client) {
+		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}"
+
+		println "Get latest version"
+		println "URL:\t${url}"
+		HttpResponseDecorator response = client.get(path: url)
+		println "Status:\t${response.status}"
+		println ""
+		assert 200 == response.status
+
+		response.data.latest_version
+	}
+
+	static void deleteLatestVersion(RESTClient client, String version) {
+		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}/versions/${version}"
+
+		println "Delete latest version"
+		println "URL:\t${url}"
+		HttpResponseDecorator response = client.delete(path: url)
+		println "Status:\t${response.status}"
+		println ""
+		assert 200 == response.status
 	}
 
 	static void createVersion(RESTClient client, String version) {

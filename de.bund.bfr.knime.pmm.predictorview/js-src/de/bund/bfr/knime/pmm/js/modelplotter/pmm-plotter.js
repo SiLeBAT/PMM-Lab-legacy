@@ -34,7 +34,17 @@ pmm_plotter = function() {
 	var _dbUnits = [];
 	var _parameterMap = [];
 	var _recentPlot;
-	
+	var _COLORS = [			// copied frum function plot
+	         'steelblue',
+	         'red',
+	         '#05b378',      // green
+	         'orange',
+	         '#4040e8',      // purple
+	         'yellow',
+	         'brown',
+	         'magenta',
+	         'cyan'
+	       ];
 	var msgAdd = "Add Model";
 	var msgChoose = "Select Model";
 	var msgTime = "Time";
@@ -1188,7 +1198,7 @@ pmm_plotter = function() {
 	function showInputForm()
 	{
 		$("#layoutWrapper").empty();
-		inputMember = [msgReportName, msgAuthorsNames, msgComment]
+		inputMember = [msgReportName, msgAuthorsNames, msgComment] // order matters
 		
 		var form = $("<form>", { 
 			style: _buttonWidth + "; display: none;"
@@ -1224,6 +1234,10 @@ pmm_plotter = function() {
 			style: _buttonWidth + "; display: none;", 
 			text: msgDone 
 		}).button();
+		
+		$("#input_" + inputMember[0].replace(/\s/g,"")).val(_plotterValue.reportName);
+		$("#input_" + inputMember[1].replace(/\s/g,"")).val(_plotterValue.authors);
+		$("#input_" + inputMember[2].replace(/\s/g,"")).val(_plotterValue.comments);
 		
 		finishButton.on("click", function() 
 			{ 
@@ -1377,7 +1391,7 @@ pmm_plotter = function() {
 	function getNextColor()
 	{
 		if(_colorsArray.length <= 0)
-			_colorsArray = functionPlot.globals.COLORS.slice(0); // clone function plot colors array
+			_colorsArray = _COLORS.slice(0); // clone function plot colors array
 		return _colorsArray.shift();
 	}
 	

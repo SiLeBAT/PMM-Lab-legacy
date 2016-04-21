@@ -19,10 +19,14 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private int minYAxis;
 	private int maxXAxis;
 	private int maxYAxis;
-	private String authors;
-	private String comments;
-	private String reportName;
+	private String mAuthors;
+	private String mComments;
+	private String mReportName;
 	private double y0;
+	
+	static final String AUTHORS = "authors";
+	static final String COMMENTS = "comments";
+	static final String REPORT_NAME = "reportName";
 
 	// Configuration keys
 	private ModelList m_models;
@@ -52,24 +56,30 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
+		settings.addString(AUTHORS, getAuthors());
+		settings.addString(COMMENTS, getComments());
+		settings.addString(REPORT_NAME, getReportName());
 	}
 
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+		setAuthors(settings.getString(AUTHORS));
+		setComments(settings.getString(COMMENTS));
+		setReportName(settings.getString(REPORT_NAME));
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		ModelPlotterViewValue otherView = (ModelPlotterViewValue) obj;
 		
-		if((this.authors != null && !this.authors.equals(otherView.authors)) ||
-			this.authors == null && otherView.authors != null)
+		if((this.mAuthors != null && !this.mAuthors.equals(otherView.mAuthors)) ||
+			this.mAuthors == null && otherView.mAuthors != null)
 			return false;
-		if((this.comments != null && !this.comments.equals(otherView.comments)) ||
-			this.comments == null && otherView.comments != null)
+		if((this.mComments != null && !this.mComments.equals(otherView.mComments)) ||
+			this.mComments == null && otherView.mComments != null)
 			return false;
-		if((this.reportName != null && !this.reportName.equals(otherView.reportName)) ||
-			this.reportName == null && otherView.reportName != null)
+		if((this.mReportName != null && !this.mReportName.equals(otherView.mReportName)) ||
+			this.mReportName == null && otherView.mReportName != null)
 			return false;
 			
 		return true;
@@ -78,12 +88,12 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	@Override
 	public int hashCode() {
 		int hash = 31;
-		if(this.authors != null)
-			hash += this.authors.hashCode();
-		if(this.comments != null)
-			hash += this.comments.hashCode();
-		if(this.reportName != null)
-			hash += this.reportName.hashCode();
+		if(this.mAuthors != null)
+			hash += this.mAuthors.hashCode();
+		if(this.mComments != null)
+			hash += this.mComments.hashCode();
+		if(this.mReportName != null)
+			hash += this.mReportName.hashCode();
 		
 		return hash;
 	}
@@ -132,41 +142,41 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	 * @return the authors
 	 */
 	public String getAuthors() {
-		return authors;
+		return mAuthors;
 	}
 
 	/**
 	 * @param authors the authors to set
 	 */
 	public void setAuthors(String authors) {
-		this.authors = authors;
+		this.mAuthors = authors;
 	}
 
 	/**
 	 * @return the comments
 	 */
 	public String getComments() {
-		return comments;
+		return mComments;
 	}
 
 	/**
 	 * @param comments the comments to set
 	 */
 	public void setComments(String comments) {
-		this.comments = comments;
+		this.mComments = comments;
 	}
 
 	/**
 	 * @return the reportName
 	 */
 	public String getReportName() {
-		return reportName;
+		return mReportName;
 	}
 
 	/**
 	 * @param reportName the reportName to set
 	 */
 	public void setReportName(String reportName) {
-		this.reportName = reportName;
+		this.mReportName = reportName;
 	}
 }

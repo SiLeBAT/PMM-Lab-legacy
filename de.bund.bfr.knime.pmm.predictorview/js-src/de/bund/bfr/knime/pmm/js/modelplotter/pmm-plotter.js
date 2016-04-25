@@ -92,7 +92,12 @@ pmm_plotter = function() {
 	var _defaultTimeout = 200; // ms // responsiveness (lower) vs. performance/fluence (higher)
 	
 	modelPlotter.init = function(representation, value) {
-
+		
+		// view bug - require js prevents global variable behavior 
+		if (!window.functionPlot) {
+			window.functionPlot = parent.KnimePageLoader.getLibrary("de/bund/bfr/knime/pmm/js/modelplotter/function-plot");
+		}
+		
 		_plotterValue = value;
 		_rawModels = value.models.models;
 		_dbUnits = value.units.units;

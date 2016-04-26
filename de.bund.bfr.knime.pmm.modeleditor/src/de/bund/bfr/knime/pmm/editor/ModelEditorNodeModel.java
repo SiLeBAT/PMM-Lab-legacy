@@ -192,146 +192,192 @@ public final class ModelEditorNodeModel
 		outTuple.setGlobalModelId(inTuple.getInt(TimeSeriesSchema.ATT_GLOBALMODELID));
 
 		PmmXmlDoc miscDoc = (PmmXmlDoc) inTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-		Misc[] miscs = new Misc[miscDoc.size()];
-		for (int i = 0; i < miscDoc.size(); i++) {
-			MiscXml miscXml = (MiscXml) miscDoc.get(i);
-			Misc misc = new Misc();
-			misc.setId(miscXml.getId());
-			misc.setName(miscXml.getName());
-			misc.setDescription(miscXml.getDescription());
-			misc.setValue(miscXml.getValue());
-			misc.setCategories(miscXml.getCategories().toArray(new String[miscXml.getCategories().size()]));
-			misc.setUnit(miscXml.getUnit());
-			misc.setOrigUnit(miscXml.getOrigUnit());
-			misc.setDbuuid(miscXml.getDbuuid());
-			miscs[i] = misc;
+		if(miscDoc != null)
+		{
+			Misc[] miscs = new Misc[miscDoc.size()];
+			for (int i = 0; i < miscDoc.size(); i++) {
+				MiscXml miscXml = (MiscXml) miscDoc.get(i);
+				Misc misc = new Misc();
+				misc.setId(miscXml.getId());
+				misc.setName(miscXml.getName());
+				misc.setDescription(miscXml.getDescription());
+				misc.setValue(miscXml.getValue());
+				misc.setCategories(miscXml.getCategories().toArray(new String[miscXml.getCategories().size()]));
+				misc.setUnit(miscXml.getUnit());
+				misc.setOrigUnit(miscXml.getOrigUnit());
+				misc.setDbuuid(miscXml.getDbuuid());
+				miscs[i] = misc;
+			}
+			MiscList miscList = new MiscList();
+			miscList.setMiscs(miscs);
+			outTuple.setMiscList(miscList);
 		}
-		MiscList miscList = new MiscList();
-		miscList.setMiscs(miscs);
-		outTuple.setMiscList(miscList);
 
 		AgentXml agentXml = (AgentXml) inTuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
-		Agent agent = new Agent();
-		agent.setId(agentXml.getId());
-		agent.setName(agent.getName());
-		agent.setDetail(agentXml.getDetail());
-		agent.setDbuuid(agentXml.getDbuuid());
-		outTuple.setAgent(agent);
+		if(agentXml != null)
+		{
+			Agent agent = new Agent();
+			agent.setId(agentXml.getId());
+			agent.setName(agentXml.getName());
+			agent.setDetail(agentXml.getDetail());
+			agent.setDbuuid(agentXml.getDbuuid());
+			outTuple.setAgent(agent);
+		}
 
 		MatrixXml matrixXml = (MatrixXml) inTuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
-		Matrix matrix = new Matrix();
-		matrix.setId(matrixXml.getId());
-		matrix.setName(matrixXml.getName());
-		matrix.setDetail(matrixXml.getDetail());
-		matrix.setDbuuid(matrixXml.getDbuuid());
-		outTuple.setMatrix(matrix);
+		if(matrixXml != null)
+		{
+			Matrix matrix = new Matrix();
+			matrix.setId(matrixXml.getId());
+			matrix.setName(matrixXml.getName());
+			matrix.setDetail(matrixXml.getDetail());
+			matrix.setDbuuid(matrixXml.getDbuuid());
+			outTuple.setMatrix(matrix);
+		}
 
 		PmmXmlDoc timeSeriesDoc = (PmmXmlDoc) inTuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-		TimeSeries[] timeSeriesArray = new TimeSeries[timeSeriesDoc.size()];
-		for (int i = 0; i < timeSeriesDoc.size(); i++) {
-			TimeSeriesXml timeSeriesXml = (TimeSeriesXml) timeSeriesDoc.get(i);
-
-			TimeSeries timeSeries = new TimeSeries();
-			timeSeries.setName(timeSeriesXml.getName());
-			timeSeries.setTime(timeSeriesXml.getTime());
-			timeSeries.setTimeUnit(timeSeriesXml.getTimeUnit());
-			timeSeries.setOrigTimeUnit(timeSeriesXml.getOrigTimeUnit());
-			timeSeries.setConcentration(timeSeriesXml.getConcentration());
-			timeSeries.setConcentrationUnit(timeSeriesXml.getConcentrationUnit());
-			timeSeries.setConcentrationUnitObjectType(timeSeriesXml.getConcentrationUnitObjectType());
-			timeSeries.setOrigConcentrationUnit(timeSeriesXml.getOrigConcentrationUnit());
-			timeSeries.setConcentrationStdDev(timeSeriesXml.getConcentrationStdDev());
-			timeSeries.setNumberOfMeasurements(timeSeriesXml.getNumberOfMeasurements());
-			timeSeriesArray[i] = timeSeries;
+		if(timeSeriesDoc != null)
+		{
+			TimeSeries[] timeSeriesArray = new TimeSeries[timeSeriesDoc.size()];
+			for (int i = 0; i < timeSeriesDoc.size(); i++) {
+				TimeSeriesXml timeSeriesXml = (TimeSeriesXml) timeSeriesDoc.get(i);
+	
+				TimeSeries timeSeries = new TimeSeries();
+				timeSeries.setName(timeSeriesXml.getName());
+				timeSeries.setTime(timeSeriesXml.getTime());
+				timeSeries.setTimeUnit(timeSeriesXml.getTimeUnit());
+				timeSeries.setOrigTimeUnit(timeSeriesXml.getOrigTimeUnit());
+				timeSeries.setConcentration(timeSeriesXml.getConcentration());
+				timeSeries.setConcentrationUnit(timeSeriesXml.getConcentrationUnit());
+				timeSeries.setConcentrationUnitObjectType(timeSeriesXml.getConcentrationUnitObjectType());
+				timeSeries.setOrigConcentrationUnit(timeSeriesXml.getOrigConcentrationUnit());
+				timeSeries.setConcentrationStdDev(timeSeriesXml.getConcentrationStdDev());
+				timeSeries.setNumberOfMeasurements(timeSeriesXml.getNumberOfMeasurements());
+				timeSeriesArray[i] = timeSeries;
+			}
+			TimeSeriesList timeSeriesList = new TimeSeriesList();
+			timeSeriesList.setTimeSeries(timeSeriesArray);
+			outTuple.setTimeSeriesList(timeSeriesList);
 		}
-		TimeSeriesList timeSeriesList = new TimeSeriesList();
-		timeSeriesList.setTimeSeries(timeSeriesArray);
-		outTuple.setTimeSeriesList(timeSeriesList);
 
-		MdInfoXml mdInfoXml = (MdInfoXml) inTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0);
-		MdInfo mdInfo = new MdInfo();
-		mdInfo.setId(mdInfoXml.getId());
-		mdInfo.setName(mdInfoXml.getName());
-		mdInfo.setComment(mdInfoXml.getComment());
-		mdInfo.setQualityScore(mdInfoXml.getQualityScore());
-		mdInfo.setChecked(mdInfoXml.getChecked());
-		outTuple.setMdInfo(mdInfo);
+		PmmXmlDoc mdInfoAtt = inTuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO);
+		MdInfoXml mdInfoXml = null;
+		if(mdInfoAtt != null)
+			mdInfoXml = (MdInfoXml) mdInfoAtt.get(0);
+		
+		if(mdInfoXml != null)
+		{
+			MdInfo mdInfo = new MdInfo();
+			mdInfo.setId(mdInfoXml.getId());
+			mdInfo.setName(mdInfoXml.getName());
+			mdInfo.setComment(mdInfoXml.getComment());
+			mdInfo.setQualityScore(mdInfoXml.getQualityScore());
+			mdInfo.setChecked(mdInfoXml.getChecked());
+			outTuple.setMdInfo(mdInfo);
+		}
 
 		PmmXmlDoc mdLitDoc = (PmmXmlDoc) inTuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
-		Literature[] mdLiteratureArray = new Literature[mdLitDoc.size()];
-		for (int i = 0; i < mdLitDoc.size(); i++) {
-			LiteratureItem literatureItem = (LiteratureItem) mdLitDoc.get(i);
-
-			Literature literature = new Literature();
-			literature.setAuthor(literatureItem.getAuthor());
-			literature.setYear(literatureItem.getYear());
-			literature.setTitle(literatureItem.getTitle());
-			literature.setAbstractText(literatureItem.getAbstractText());
-			literature.setJournal(literatureItem.getJournal());
-			literature.setVolume(literatureItem.getVolume());
-			literature.setIssue(literatureItem.getIssue());
-			literature.setPage(literatureItem.getPage());
-			literature.setApprovalMode(literatureItem.getApprovalMode());
-			literature.setWebsite(literatureItem.getWebsite());
-			literature.setType(literatureItem.getType());
-			literature.setComment(literatureItem.getComment());
-			literature.setId(literatureItem.getId());
-			literature.setDbuuid(literatureItem.getDbuuid());
-
-			mdLiteratureArray[i] = literature;
+		if(mdLitDoc != null)
+		{
+			Literature[] mdLiteratureArray = new Literature[mdLitDoc.size()];
+			for (int i = 0; i < mdLitDoc.size(); i++) {
+				LiteratureItem literatureItem = (LiteratureItem) mdLitDoc.get(i);
+	
+				Literature literature = new Literature();
+				literature.setAuthor(literatureItem.getAuthor());
+				literature.setYear(literatureItem.getYear());
+				literature.setTitle(literatureItem.getTitle());
+				literature.setAbstractText(literatureItem.getAbstractText());
+				literature.setJournal(literatureItem.getJournal());
+				literature.setVolume(literatureItem.getVolume());
+				literature.setIssue(literatureItem.getIssue());
+				literature.setPage(literatureItem.getPage());
+				literature.setApprovalMode(literatureItem.getApprovalMode());
+				literature.setWebsite(literatureItem.getWebsite());
+				literature.setType(literatureItem.getType());
+				literature.setComment(literatureItem.getComment());
+				literature.setId(literatureItem.getId());
+				literature.setDbuuid(literatureItem.getDbuuid());
+	
+				mdLiteratureArray[i] = literature;
+			}
+			LiteratureList mdLiteratureList = new LiteratureList();
+			mdLiteratureList.setLiterature(mdLiteratureArray);
+			outTuple.setLitMd(mdLiteratureList);
 		}
-		LiteratureList mdLiteratureList = new LiteratureList();
-		mdLiteratureList.setLiterature(mdLiteratureArray);
-		outTuple.setLitMd(mdLiteratureList);
 
-		outTuple.setDbuuid(inTuple.getString(TimeSeriesSchema.ATT_DBUUID));
+		outTuple.setDbuuid(inTuple.getString(TimeSeriesSchema.ATT_DBUUID)); // deprecated?
 
 		CatalogModelXml catalogModelXml = (CatalogModelXml) inTuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
-		CatalogModel catalogModel = new CatalogModel();
-		catalogModel.setId(catalogModelXml.getId());
-		catalogModel.setName(catalogModelXml.getName());
-		catalogModel.setFormula(catalogModelXml.getFormula());
-		catalogModel.setModelClass(catalogModelXml.getModelClass());
-		catalogModel.setComment(catalogModelXml.getComment());
-		catalogModel.setDbuuid(catalogModelXml.getDbuuid());
-		outTuple.setCatModel(catalogModel);
+		if(catalogModelXml != null)
+		{
+			CatalogModel catalogModel = new CatalogModel();
+			catalogModel.setId(catalogModelXml.getId());
+			catalogModel.setName(catalogModelXml.getName());
+			catalogModel.setFormula(catalogModelXml.getFormula());
+			catalogModel.setModelClass(catalogModelXml.getModelClass());
+			catalogModel.setComment(catalogModelXml.getComment());
+			catalogModel.setDbuuid(catalogModelXml.getDbuuid());
+			outTuple.setCatModel(catalogModel);
+		}
 		
-		CatalogModelXml catalogModelSecXml = (CatalogModelXml) inTuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
-		CatalogModel catalogModelSec = new CatalogModel();
-		catalogModelSec.setId(catalogModelSecXml.getId());
-		catalogModelSec.setName(catalogModelSecXml.getName());
-		catalogModelSec.setFormula(catalogModelSecXml.getFormula());
-		catalogModelSec.setModelClass(catalogModelSecXml.getModelClass());
-		catalogModelSec.setComment(catalogModelSecXml.getComment());
-		catalogModelSec.setDbuuid(catalogModelSecXml.getDbuuid());
-		outTuple.setCatModelSec(catalogModelSec);
+		PmmXmlDoc catalogModelSecAtt = inTuple.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+		CatalogModelXml catalogModelSecXml = null;
+		if(catalogModelSecAtt != null)
+			catalogModelSecXml = (CatalogModelXml) catalogModelSecAtt.get(0);
+		
+		if(catalogModelSecXml != null)
+		{
+			CatalogModel catalogModelSec = new CatalogModel();
+			catalogModelSec.setId(catalogModelSecXml.getId());
+			catalogModelSec.setName(catalogModelSecXml.getName());
+			catalogModelSec.setFormula(catalogModelSecXml.getFormula());
+			catalogModelSec.setModelClass(catalogModelSecXml.getModelClass());
+			catalogModelSec.setComment(catalogModelSecXml.getComment());
+			catalogModelSec.setDbuuid(catalogModelSecXml.getDbuuid());
+			outTuple.setCatModelSec(catalogModelSec);
+		}
 
-		EstModelXml estModelXml = (EstModelXml) inTuple.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0);
-		EstModel estModel = new EstModel();
-		estModel.setId(estModelXml.getId());
-		estModel.setName(estModelXml.getName());
-		estModel.setSse(estModelXml.getSse());
-		estModel.setRms(estModelXml.getRms());
-		estModel.setR2(estModelXml.getR2());
-		estModel.setAIC(estModelXml.getAic());
-		estModel.setBIC(estModelXml.getBic());
-		estModel.setDof(estModelXml.getDof());
-		estModel.setQualityScore(estModelXml.getQualityScore());
-		estModel.setChecked(estModelXml.getChecked());
-		estModel.setComment(estModelXml.getComment());
-		estModel.setDbuuid(estModelXml.getDbuuid());
-		outTuple.setEstModel(estModel);
+		PmmXmlDoc estModelAtt = inTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+		EstModelXml estModelXml = null;
+		if(estModelAtt != null)
+			estModelXml = (EstModelXml) estModelAtt.get(0);
+		
+		if(estModelXml != null)
+		{
+			EstModel estModel = new EstModel();
+			estModel.setId(estModelXml.getId());
+			estModel.setName(estModelXml.getName());
+			estModel.setSse(estModelXml.getSse());
+			estModel.setRms(estModelXml.getRms());
+			estModel.setR2(estModelXml.getR2());
+			estModel.setAIC(estModelXml.getAic());
+			estModel.setBIC(estModelXml.getBic());
+			estModel.setDof(estModelXml.getDof());
+			estModel.setQualityScore(estModelXml.getQualityScore());
+			estModel.setChecked(estModelXml.getChecked());
+			estModel.setComment(estModelXml.getComment());
+			estModel.setDbuuid(estModelXml.getDbuuid());
+			outTuple.setEstModel(estModel);
+		}
 
-		DepXml depXml = (DepXml) inTuple.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-		Dep dep = new Dep();
-		dep.setName(depXml.getName());
-		dep.setOrigname(depXml.getOrigName());
-		dep.setMin(depXml.getMin());
-		dep.setMax(depXml.getMax());
-		dep.setCategory(depXml.getCategory());
-		dep.setUnit(depXml.getUnit());
-		dep.setDescription(depXml.getDescription());
-		outTuple.setDep(dep);
+		PmmXmlDoc depAtt = inTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
+		DepXml depXml = null;
+		if(depAtt != null)
+			depXml = (DepXml) depAtt.get(0);
+
+		if(depXml != null)
+		{
+			Dep dep = new Dep();
+			dep.setName(depXml.getName());
+			dep.setOrigname(depXml.getOrigName());
+			dep.setMin(depXml.getMin());
+			dep.setMax(depXml.getMax());
+			dep.setCategory(depXml.getCategory());
+			dep.setUnit(depXml.getUnit());
+			dep.setDescription(depXml.getDescription());
+			outTuple.setDep(dep);
+		}
 
 		PmmXmlDoc paramDoc = inTuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 		Param[] paramArray = new Param[paramDoc.size()];
@@ -373,134 +419,152 @@ public final class ModelEditorNodeModel
 		outTuple.setParams(paramList);
 		
 		PmmXmlDoc paramSecDoc = inTuple.getPmmXml(Model2Schema.ATT_PARAMETER);
-		Param[] paramSecArray = new Param[paramSecDoc.size()];
-		for (int i = 0; i < paramSecDoc.size(); i++) {
-			ParamXml paramSecXml = (ParamXml) paramSecDoc.get(i);
-			
-			HashMap<String, Double> obtainedCorrelations = paramSecXml.getAllCorrelations();
-			String[] obtainedCorrelationNames = new String[obtainedCorrelations.size()];
-			double[] obtainedCorrelationValues = new double[obtainedCorrelations.size()];
-			int j = 0;
-			for (Map.Entry<String, Double> entry : obtainedCorrelations.entrySet()) {
-				obtainedCorrelationNames[j] = entry.getKey();
-				obtainedCorrelationValues[j] = entry.getValue();
-				j++;
+		if(paramSecDoc != null)
+		{
+			Param[] paramSecArray = new Param[paramSecDoc.size()];
+			for (int i = 0; i < paramSecDoc.size(); i++) {
+				ParamXml paramSecXml = (ParamXml) paramSecDoc.get(i);
+				
+				HashMap<String, Double> obtainedCorrelations = paramSecXml.getAllCorrelations();
+				String[] obtainedCorrelationNames = new String[obtainedCorrelations.size()];
+				double[] obtainedCorrelationValues = new double[obtainedCorrelations.size()];
+				int j = 0;
+				for (Map.Entry<String, Double> entry : obtainedCorrelations.entrySet()) {
+					obtainedCorrelationNames[j] = entry.getKey();
+					obtainedCorrelationValues[j] = entry.getValue();
+					j++;
+				}
+				
+				Param paramSec = new Param();
+				paramSec.setName(paramSecXml.getName());
+				paramSec.setOrigName(paramSecXml.getOrigName());
+				paramSec.setIsStart(paramSecXml.isStartParam());
+				paramSec.setValue(paramSecXml.getValue());
+				paramSec.setError(paramSecXml.getError());
+				paramSec.setMin(paramSecXml.getMin());
+				paramSec.setMax(paramSecXml.getMax());
+				paramSec.setP(paramSecXml.getP());
+				paramSec.setT(paramSecXml.getT());
+				paramSec.setMinGuess(paramSecXml.getMinGuess());
+				paramSec.setMaxGuess(paramSecXml.getMaxGuess());
+				paramSec.setCategory(paramSecXml.getCategory());
+				paramSec.setUnit(paramSecXml.getUnit());
+				paramSec.setDescription(paramSecXml.getDescription());
+				paramSec.setCorrelationNames(obtainedCorrelationNames);
+				paramSec.setCorrelationValues(obtainedCorrelationValues);
+				
+				paramSecArray[i] = paramSec;
 			}
-			
-			Param paramSec = new Param();
-			paramSec.setName(paramSecXml.getName());
-			paramSec.setOrigName(paramSecXml.getOrigName());
-			paramSec.setIsStart(paramSecXml.isStartParam());
-			paramSec.setValue(paramSecXml.getValue());
-			paramSec.setError(paramSecXml.getError());
-			paramSec.setMin(paramSecXml.getMin());
-			paramSec.setMax(paramSecXml.getMax());
-			paramSec.setP(paramSecXml.getP());
-			paramSec.setT(paramSecXml.getT());
-			paramSec.setMinGuess(paramSecXml.getMinGuess());
-			paramSec.setMaxGuess(paramSecXml.getMaxGuess());
-			paramSec.setCategory(paramSecXml.getCategory());
-			paramSec.setUnit(paramSecXml.getUnit());
-			paramSec.setDescription(paramSecXml.getDescription());
-			paramSec.setCorrelationNames(obtainedCorrelationNames);
-			paramSec.setCorrelationValues(obtainedCorrelationValues);
-			
-			paramSecArray[i] = paramSec;
+			ParamList paramSecList = new ParamList();
+			paramSecList.setParams(paramSecArray);
+			outTuple.setParamsSec(paramSecList);
 		}
-		ParamList paramSecList = new ParamList();
-		paramSecList.setParams(paramSecArray);
-		outTuple.setParamsSec(paramSecList);
 
 		PmmXmlDoc indepDoc = inTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-		Indep[] indepArray = new Indep[indepDoc.size()];
-		for (int i = 0; i < indepDoc.size(); i++) {
-			IndepXml indepXml = (IndepXml) indepDoc.get(i);
-			Indep indep = new Indep();
-			indep.setName(indepXml.getName());
-			indep.setOrigname(indepXml.getOrigName());
-			indep.setMin(indepXml.getMin());
-			indep.setMax(indepXml.getMax());
-			indep.setCategory(indepXml.getCategory());
-			indep.setUnit(indepXml.getUnit());
-			indep.setDescription(indepXml.getDescription());
-			indepArray[i] = indep;
+		if(indepDoc != null)
+		{
+			Indep[] indepArray = new Indep[indepDoc.size()];
+			for (int i = 0; i < indepDoc.size(); i++) {
+				IndepXml indepXml = (IndepXml) indepDoc.get(i);
+				Indep indep = new Indep();
+				indep.setName(indepXml.getName());
+				indep.setOrigname(indepXml.getOrigName());
+				indep.setMin(indepXml.getMin());
+				indep.setMax(indepXml.getMax());
+				indep.setCategory(indepXml.getCategory());
+				indep.setUnit(indepXml.getUnit());
+				indep.setDescription(indepXml.getDescription());
+				indepArray[i] = indep;
+			}
+			IndepList indepList = new IndepList();
+			indepList.setIndeps(indepArray);
+			outTuple.setIndeps(indepList);
 		}
-		IndepList indepList = new IndepList();
-		indepList.setIndeps(indepArray);
-		outTuple.setIndeps(indepList);
 		
 		PmmXmlDoc indepSecDoc = inTuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-		Indep[] indepSecArray = new Indep[indepSecDoc.size()];
-		for (int i = 0; i < indepSecDoc.size(); i++) {
-			IndepXml indepSecXml = (IndepXml) indepSecDoc.get(i);
-			Indep indepSec = new Indep();
-			indepSec.setName(indepSecXml.getName());
-			indepSec.setOrigname(indepSecXml.getOrigName());
-			indepSec.setMin(indepSecXml.getMin());
-			indepSec.setMax(indepSecXml.getMax());
-			indepSec.setCategory(indepSecXml.getCategory());
-			indepSec.setUnit(indepSecXml.getUnit());
-			indepSec.setDescription(indepSecXml.getDescription());
-			indepSecArray[i] = indepSec;
+		if(indepSecDoc != null)
+		{
+			Indep[] indepSecArray = new Indep[indepSecDoc.size()];
+			for (int i = 0; i < indepSecDoc.size(); i++) {
+				IndepXml indepSecXml = (IndepXml) indepSecDoc.get(i);
+				Indep indepSec = new Indep();
+				indepSec.setName(indepSecXml.getName());
+				indepSec.setOrigname(indepSecXml.getOrigName());
+				indepSec.setMin(indepSecXml.getMin());
+				indepSec.setMax(indepSecXml.getMax());
+				indepSec.setCategory(indepSecXml.getCategory());
+				indepSec.setUnit(indepSecXml.getUnit());
+				indepSec.setDescription(indepSecXml.getDescription());
+				indepSecArray[i] = indepSec;
+			}
+			IndepList indepSecList = new IndepList();
+			indepSecList.setIndeps(indepSecArray);
+			outTuple.setIndepsSec(indepSecList);
 		}
-		IndepList indepSecList = new IndepList();
-		indepSecList.setIndeps(indepSecArray);
-		outTuple.setIndepsSec(indepSecList);
 
 		PmmXmlDoc mLitDoc = (PmmXmlDoc) inTuple.getPmmXml(Model1Schema.ATT_MLIT);
-		Literature[] mLiteratureArray = new Literature[mLitDoc.size()];
-		for (int i = 0; i < mLitDoc.size(); i++) {
-			LiteratureItem literatureItem = (LiteratureItem) mLitDoc.get(i);
-			Literature literature = new Literature();
-			literature.setAuthor(literatureItem.getAuthor());
-			literature.setYear(literatureItem.getYear());
-			literature.setTitle(literatureItem.getTitle());
-			literature.setAbstractText(literatureItem.getAbstractText());
-			literature.setJournal(literatureItem.getJournal());
-			literature.setVolume(literatureItem.getVolume());
-			literature.setIssue(literatureItem.getIssue());
-			literature.setPage(literatureItem.getPage());
-			literature.setApprovalMode(literatureItem.getApprovalMode());
-			literature.setWebsite(literatureItem.getWebsite());
-			literature.setType(literatureItem.getType());
-			literature.setComment(literatureItem.getComment());
-			literature.setId(literatureItem.getId());
-			literature.setDbuuid(literatureItem.getDbuuid());
-
-			mLiteratureArray[i] = literature;
+		if(mLitDoc != null)
+		{
+			Literature[] mLiteratureArray = new Literature[mLitDoc.size()];
+			for (int i = 0; i < mLitDoc.size(); i++) {
+				LiteratureItem literatureItem = (LiteratureItem) mLitDoc.get(i);
+				Literature literature = new Literature();
+				literature.setAuthor(literatureItem.getAuthor());
+				literature.setYear(literatureItem.getYear());
+				literature.setTitle(literatureItem.getTitle());
+				literature.setAbstractText(literatureItem.getAbstractText());
+				literature.setJournal(literatureItem.getJournal());
+				literature.setVolume(literatureItem.getVolume());
+				literature.setIssue(literatureItem.getIssue());
+				literature.setPage(literatureItem.getPage());
+				literature.setApprovalMode(literatureItem.getApprovalMode());
+				literature.setWebsite(literatureItem.getWebsite());
+				literature.setType(literatureItem.getType());
+				literature.setComment(literatureItem.getComment());
+				literature.setId(literatureItem.getId());
+				literature.setDbuuid(literatureItem.getDbuuid());
+	
+				mLiteratureArray[i] = literature;
+			}
+			LiteratureList mLiteratureList = new LiteratureList();
+			mLiteratureList.setLiterature(mLiteratureArray);
+			outTuple.setmLit(mLiteratureList);
 		}
-		LiteratureList mLiteratureList = new LiteratureList();
-		mLiteratureList.setLiterature(mLiteratureArray);
-		outTuple.setmLit(mLiteratureList);
 
 		PmmXmlDoc emLitDoc = (PmmXmlDoc) inTuple.getPmmXml(Model1Schema.ATT_EMLIT);
-		Literature[] emLiteratureArray = new Literature[emLitDoc.size()];
-		for (int i = 0; i < emLitDoc.size(); i++) {
-			LiteratureItem literatureItem = (LiteratureItem) emLitDoc.get(i);
-
-			Literature literature = new Literature();
-			literature.setAuthor(literatureItem.getAuthor());
-			literature.setYear(literatureItem.getYear());
-			literature.setTitle(literatureItem.getTitle());
-			literature.setAbstractText(literatureItem.getAbstractText());
-			literature.setJournal(literatureItem.getJournal());
-			literature.setVolume(literatureItem.getVolume());
-			literature.setIssue(literatureItem.getIssue());
-			literature.setPage(literatureItem.getPage());
-			literature.setApprovalMode(literatureItem.getApprovalMode());
-			literature.setWebsite(literatureItem.getWebsite());
-			literature.setType(literatureItem.getType());
-			literature.setComment(literatureItem.getComment());
-			literature.setId(literatureItem.getId());
-			literature.setDbuuid(literatureItem.getDbuuid());
-
-			emLiteratureArray[i] = literature;
+		if(emLitDoc != null)
+		{
+			Literature[] emLiteratureArray = new Literature[emLitDoc.size()];
+			for (int i = 0; i < emLitDoc.size(); i++) {
+				LiteratureItem literatureItem = (LiteratureItem) emLitDoc.get(i);
+	
+				Literature literature = new Literature();
+				literature.setAuthor(literatureItem.getAuthor());
+				literature.setYear(literatureItem.getYear());
+				literature.setTitle(literatureItem.getTitle());
+				literature.setAbstractText(literatureItem.getAbstractText());
+				literature.setJournal(literatureItem.getJournal());
+				literature.setVolume(literatureItem.getVolume());
+				literature.setIssue(literatureItem.getIssue());
+				literature.setPage(literatureItem.getPage());
+				literature.setApprovalMode(literatureItem.getApprovalMode());
+				literature.setWebsite(literatureItem.getWebsite());
+				literature.setType(literatureItem.getType());
+				literature.setComment(literatureItem.getComment());
+				literature.setId(literatureItem.getId());
+				literature.setDbuuid(literatureItem.getDbuuid());
+	
+				emLiteratureArray[i] = literature;
+			}
+			LiteratureList emLiteratureList = new LiteratureList();
+			emLiteratureList.setLiterature(emLiteratureArray);
+			outTuple.setEmLit(emLiteratureList);
 		}
-		LiteratureList emLiteratureList = new LiteratureList();
-		emLiteratureList.setLiterature(emLiteratureArray);
-		outTuple.setEmLit(emLiteratureList);
 
-		outTuple.setDatabaseWritable(Model1Schema.WRITABLE == inTuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
+		if(inTuple.getInt(Model1Schema.ATT_DATABASEWRITABLE) != null)
+			outTuple.setDatabaseWritable(Model1Schema.WRITABLE == inTuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
+		else
+			outTuple.setDatabaseWritable(false); // default is false
 
 		return outTuple;
 	}

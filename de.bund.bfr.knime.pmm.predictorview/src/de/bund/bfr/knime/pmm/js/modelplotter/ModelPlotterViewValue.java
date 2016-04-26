@@ -22,11 +22,13 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private String mAuthors;
 	private String mComments;
 	private String mReportName;
+	private String mSVGPlot;
 	private double y0;
 	
 	static final String AUTHORS = "authors";
 	static final String COMMENTS = "comments";
 	static final String REPORT_NAME = "reportName";
+	static final String SVG_PLOT = "svgPlot";
 
 	// Configuration keys
 	private ModelList m_models;
@@ -59,6 +61,7 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		settings.addString(AUTHORS, getAuthors());
 		settings.addString(COMMENTS, getComments());
 		settings.addString(REPORT_NAME, getReportName());
+		settings.addString(SVG_PLOT, getSVGPlot());
 	}
 
 	@Override
@@ -66,6 +69,7 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		setAuthors(settings.getString(AUTHORS));
 		setComments(settings.getString(COMMENTS));
 		setReportName(settings.getString(REPORT_NAME));
+		setSVGPlot(settings.getString(SVG_PLOT));
 	}
 
 	@Override
@@ -178,5 +182,13 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	 */
 	public void setReportName(String reportName) {
 		this.mReportName = reportName;
+	}
+
+	public String getSVGPlot() {
+		return mSVGPlot;
+	}
+
+	public void setSVGPlot(String mSVGPlot) {
+		this.mSVGPlot = mSVGPlot;
 	}
 }

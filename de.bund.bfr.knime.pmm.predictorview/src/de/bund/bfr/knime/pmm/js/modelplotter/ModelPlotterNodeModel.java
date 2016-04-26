@@ -73,6 +73,7 @@ public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<Mode
 	static final String AUTHORS = "authors";
 	static final String REPORT_NAME = "reportName";
 	static final String COMMENT = "comments";
+	static final String SVG_PLOT = "svgPlot";
 	
 	private final ModelPlotterViewConfig m_config;
 	private boolean m_executed = false;
@@ -168,7 +169,11 @@ public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<Mode
 				if(dataTuples[i].getCondId() == null)
 				{
 					LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
-					int seed = dataTuples[i].getCatModel().getFormula().hashCode();
+					int seed;
+					if(dataTuples[i].getCatModel() != null)
+						seed = dataTuples[i].hashCode();
+					else
+						seed = dataTuples[i].getCatModel().getFormula().hashCode();
 					String globalId = "g" + String.valueOf((new Random(seed)).nextInt(999999)); // "g" for "generated", max 6 digits
 					dataTuples[i].setDbuuid(globalId);
 				}
@@ -215,16 +220,19 @@ public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<Mode
 		String reportName = getViewValue().getReportName();
 		String authors = getViewValue().getAuthors();
 		String comment = getViewValue().getComments();
+		String svgPlot = getViewValue().getSVGPlot();
 		
 		KnimeSchema userSchema = new KnimeSchema();
 		userSchema.addStringAttribute(REPORT_NAME);
 		userSchema.addStringAttribute(AUTHORS);
 		userSchema.addStringAttribute(COMMENT);
+		userSchema.addStringAttribute(SVG_PLOT);
 		
 		KnimeTuple userTuple = new KnimeTuple(userSchema);
 		userTuple.setValue(REPORT_NAME, reportName);
 		userTuple.setValue(AUTHORS, authors);
 		userTuple.setValue(COMMENT, comment);
+		userTuple.setValue(SVG_PLOT, svgPlot);
 		
 		userContainer.addRowToTable(userTuple);
 		userContainer.close();
@@ -243,8 +251,8 @@ public final class ModelPlotterNodeModel extends AbstractSVGWizardNodeModel<Mode
 	}
 	
 	private DataTableSpec getUserSpec(){
-		String[] fields = {AUTHORS, REPORT_NAME, COMMENT};
-		DataType[] types = {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
+		String[] fields = {AUTHORS, REPORT_NAME, COMMENT, SVG_PLOT};
+		DataType[] types = {StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE};
 		DataTableSpec userDataSpec = new DataTableSpec(fields, types);
 		return userDataSpec;
 	}

@@ -40,7 +40,6 @@ pmm_plotter = function() {
 	         '#05b378',      // green
 	         'orange',
 	         '#4040e8',      // purple
-	         'yellow',
 	         'brown',
 	         'magenta',
 	         'cyan'
@@ -1172,7 +1171,7 @@ pmm_plotter = function() {
 		{
 			show(e);
 		}
-		// TODO: serialized output merken
+
 		window.setTimeout(serializePlot(), _defaultTimeout);
 		
 		function serializePlot() {
@@ -1181,6 +1180,7 @@ pmm_plotter = function() {
 			if(svgElement != undefined && serializer != undefined)
 			{
 				_recentPlot = serializer.serializeToString(svgElement);
+				_plotterValue.svgPlot = _recentPlot;
 			}
 		}
 	}

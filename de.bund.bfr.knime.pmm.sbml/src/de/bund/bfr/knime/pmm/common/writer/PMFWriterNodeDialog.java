@@ -30,8 +30,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDate;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import de.bund.bfr.knime.pmm.common.writer.DialogComponentDate;
-
 public class PMFWriterNodeDialog extends DefaultNodeSettingsPane {
 
 	private static final String OUT_HISTORY = "Out History";

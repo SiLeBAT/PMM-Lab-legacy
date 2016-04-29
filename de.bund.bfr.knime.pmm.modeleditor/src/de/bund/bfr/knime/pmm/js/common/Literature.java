@@ -62,190 +62,299 @@ public class Literature implements ViewValue {
 	private String dbuuid;
 
 	/**
-	 * Returns the id of this {@link Literature}. If id is not set, returns
-	 * null.
+	 * Returns the id of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the id of this {@link Literature}
 	 */
 	public Integer getId() {
 		return id;
 	}
 
 	/**
-	 * Returns the author of this {@link Literature}. If author is not set,
-	 * returns null.
+	 * Returns the author of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the author of this {@link Literature}
 	 */
 	public String getAuthor() {
 		return author;
 	}
 
 	/**
-	 * Returns the title of this {@link Literature}. If the title is not set,
-	 * returns null.
+	 * Returns the title of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the title of this {@link Literature}
 	 */
 	public String getTitle() {
 		return title;
 	}
 
 	/**
-	 * Returns the abstract text of this {@link Literature}. If the abstract
-	 * text is not set, returns null.
+	 * Returns the abstract text of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the abstract text of this {@link Literature}
 	 */
 	public String getAbstractText() {
 		return abstractText;
 	}
 
 	/**
-	 * Returns the year of this {@link Literature}. If the year is not set,
-	 * returns null.
+	 * Returns the year of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the year of this {@link Literature}
 	 */
 	public Integer getYear() {
 		return year;
 	}
 
 	/**
-	 * Returns the journal of this {@link Literature}. If the journal is not
-	 * set, returns null.
+	 * Returns the journal of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the journal of this {@link Literature}
 	 */
 	public String getJournal() {
 		return journal;
 	}
 
 	/**
-	 * Returns the volume of this {@link Literature}. If the volume is not set,
-	 * returns null.
+	 * Returns the journal of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the journal of this {@link Literature}
 	 */
 	public String getVolume() {
 		return volume;
 	}
 
 	/**
-	 * Returns the issue of this {@link Literature}. If the issue is not set,
-	 * returns null.
+	 * Returns the issue of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the issue of this {@link Literature}
 	 */
 	public String getIssue() {
 		return issue;
 	}
 
 	/**
-	 * Returns the page of this {@link Literature}. If the page is not set,
-	 * returns null.
+	 * Returns the page of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the page of this {@link Literature}
 	 */
 	public Integer getPage() {
 		return page;
 	}
 
 	/**
-	 * Returns the approval mode of this {@link Literature}. If the approval
-	 * mode is not set, returns null.
+	 * Returns the approval mode of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the approval mode of this {@link Literature}
 	 */
 	public Integer getApprovalMode() {
 		return approvalMode;
 	}
 
 	/**
-	 * Returns the website of this {@link Literature}. If the website is not
-	 * set, returns null.
+	 * Returns the website of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the website of this {@link Literature}
 	 */
 	public String getWebsite() {
 		return website;
 	}
 
 	/**
-	 * Returns the type of this {@link Literature}. If the type is not set,
-	 * returns null.
+	 * Returns the type of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the type of this {@link Literature}
 	 */
 	public Integer getType() {
 		return type;
 	}
 
 	/**
-	 * Returns the comment of this {@link Literature}. If the comment is not
-	 * set, returns null.
+	 * Returns the comment of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the comment of this {@link Literature}
 	 */
 	public String getComment() {
 		return comment;
 	}
 
 	/**
-	 * Returns the dbuuid of this {@link Literature}. If the dbuuid is not set,
-	 * returns null.
+	 * Returns the DBUUID of this {@link Literature}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the DBUUID of this {@link Literature}
 	 */
 	public String getDbuuid() {
 		return dbuuid;
 	}
 
-	/** Sets the id value with 'id'. */
-	public void setId(final Integer id) {
+	/**
+	 * Sets the id of this {@link Literature}.
+	 * 
+	 * @param id the id to be set
+	 */
+	public void setId(final int id) {
 		this.id = id;
 	}
 
-	/** Sets the author value with 'author'. Converts empty strings to null. */
+	/**
+	 * Sets the author of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param author the author to be set
+	 */
 	public void setAuthor(final String author) {
 		this.author = Strings.emptyToNull(author);
 	}
 
-	/** Sets the title value with 'title'. Converts empty strings to null. */
+	/**
+	 * Sets the title of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param title the title to be set
+	 */
 	public void setTitle(final String title) {
 		this.title = Strings.emptyToNull(title);
 	}
 
 	/**
-	 * Sets the abstract text with 'abstractText'. Converts empty strings to
-	 * null.
+	 * Sets the abstract text of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param abstractText the abstract to be set
 	 */
 	public void setAbstractText(final String abstractText) {
 		this.abstractText = Strings.emptyToNull(abstractText);
 	}
 
-	/** Sets the year value with 'year'. */
-	public void setYear(final Integer year) {
+	/**
+	 * Sets the year of this {@link Literature}.
+	 * 
+	 * @param year the year to be set
+	 */
+	public void setYear(final int year) {
 		this.year = year;
 	}
 
 	/**
-	 * Sets the journal value with 'journal'. Converts empty strings to null.
+	 * Sets the journal of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param journal the journal to be set
 	 */
 	public void setJournal(final String journal) {
 		this.journal = Strings.emptyToNull(journal);
 	}
 
-	/** Sets the volume value with 'volume'. Converts empty strings to null. */
+	/**
+	 * Sets the volume of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param volume the volume to be set
+	 */
 	public void setVolume(final String volume) {
 		this.volume = Strings.emptyToNull(volume);
 	}
 
-	/** Sets the issue value with 'issue'. Converts empty strings to null. */
+	/**
+	 * Sets the issue of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param issue the issue to be set
+	 */
 	public void setIssue(final String issue) {
 		this.issue = Strings.emptyToNull(issue);
 	}
 
-	/** Sets the page value with 'page'. */
-	public void setPage(final Integer page) {
+	/**
+	 * Sets the page of this {@link Literature}.
+	 * 
+	 * @param page the page to be set
+	 */
+	public void setPage(final int page) {
 		this.page = page;
 	}
 
-	/** Set the approval mode value with 'approvalMode'. */
+	/**
+	 * Sets the approval mode of this {@link Literature}.
+	 * 
+	 * @param approval mode the approval mode to be set
+	 */
 	public void setApprovalMode(final Integer approvalMode) {
 		this.approvalMode = approvalMode;
 	}
 
 	/**
-	 * Sets the website value with 'website'. Converts empty strings to null.
+	 * Sets the website of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param website the approval mode to be set
 	 */
 	public void setWebsite(final String website) {
 		this.website = Strings.emptyToNull(website);
 	}
 
-	/** Sets the type value with 'type'. */
-	public void setType(final Integer type) {
+	/**
+	 * Sets the type of this {@link Literature}.
+	 * 
+	 * @param type the type to be set
+	 */
+	public void setType(final int type) {
 		this.type = type;
 	}
 
-	/** Sets the comment with 'comment'. Converts empty strings to null. */
+	/**
+	 * Sets the comment of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param comment the approval mode to be set
+	 */
 	public void setComment(final String comment) {
 		this.comment = Strings.emptyToNull(comment);
 	}
 
-	/** Sets the dbuuid with 'dbuuid'. Converts empty strings to null. */
+	/**
+	 * Sets the DBUUID of this {@link Literature}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param dbuuid the DBUUID to be set
+	 */
 	public void setDbuuid(final String dbuuid) {
 		this.dbuuid = Strings.emptyToNull(dbuuid);
 	}

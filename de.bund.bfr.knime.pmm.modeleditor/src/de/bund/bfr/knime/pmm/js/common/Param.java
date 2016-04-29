@@ -67,197 +67,352 @@ public class Param implements ViewValue {
 	private String[] correlationNames;
 	private double[] correlationValues;
 
-	/** Returns the name of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the name of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link Param}
+	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the original name of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the original name of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original name of this {@link Param}
 	 */
 	public String getOrigName() {
 		return origname;
 	}
 
 	/**
-	 * Returns TRUE if this {@link Param} is a start parameter. If not set, returns
-	 * null.
+	 * Returns whether this {@link Param} is a start parameter.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return whether this {@link Param} is a start parameter
 	 */
 	public Boolean isStart() {
 		return isStart;
 	}
 
-	/** Returns the value of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the value of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the value of this {@link Param}
+	 */
 	public Double getValue() {
 		return value;
 	}
 
-	/** Returns the error of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the error of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the value of this {@link Param}.
+	 */
 	public Double getError() {
 		return error;
 	}
 
 	/**
-	 * Returns the minimum value of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the minimumm value of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the minimum value of this {@link Param}
 	 */
 	public Double getMin() {
 		return min;
 	}
 
 	/**
-	 * Returns the maximum value of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the maximum value of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the maximum value of this {@link Param}
 	 */
 	public Double getMax() {
 		return max;
 	}
 
-	/** Returns the P of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the P of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the P of this {@link Param}
+	 */
 	public Double getP() {
 		return p;
 	}
 
-	/** Returns the T of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the T of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the T of this {@link Param}
+	 */
 	public Double getT() {
 		return t;
 	}
 
 	/**
-	 * Returns the minimum guess of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the minimum guess of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the minimum guess of this {@link Param}
 	 */
 	public Double getMinGuess() {
 		return minGuess;
 	}
 
 	/**
-	 * Returns the maximum guess of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the maximum guess of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the maximum guess of this {@link Param}
 	 */
 	public Double getMaxGuess() {
 		return maxGuess;
 	}
 
-	/** Returns the category of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the category of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the category of this {@link Param}
+	 */
 	public String getCategory() {
 		return category;
 	}
 
-	/** Returns the unit of this {@link Param}. If not set, returns null. */
+	/**
+	 * Returns the unit of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the unit of this {@link Param}
+	 */
 	public String getUnit() {
 		return unit;
 	}
 
 	/**
-	 * Returns the description of this {@link Param}. If not set, returns null.
+	 * Returns the description of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the description of this {@link Param}
 	 */
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-	 * Returns the correlation names of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the correlation names of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the correlation names of this {@link Param}
 	 */
 	public String[] getCorrelationNames() {
 		return correlationNames;
 	}
 
 	/**
-	 * Returns the correlation values of this {@link Param}. If not set, returns
-	 * null.
+	 * Returns the correlation values of this {@link Param}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the correlation values of this {@link Param}
 	 */
 	public double[] getCorrelationValues() {
 		return correlationValues;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link Param}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name
+	 *            the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the original name value with 'origName'. Converts empty strings to
-	 * null.
+	 * Sets the original name of this {@link Param}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origName
+	 *            the original name to be set
 	 */
 	public void setOrigName(final String origName) {
 		this.origname = Strings.emptyToNull(origName);
 	}
 
-	/** Sets the state of the parameter as start parameter to 'isStart'. */
-	public void setIsStart(final Boolean isStart) {
+	/**
+	 * Sets the state of this {@link Param} as start parameter.
+	 * 
+	 * @param isStart
+	 *            state to be set
+	 */
+	public void setIsStart(final boolean isStart) {
 		this.isStart = isStart;
 	}
 
-	/** Sets the value with 'value'. */
-	public void setValue(final Double value) {
+	/**
+	 * Sets the value of this {@link Param}.
+	 * 
+	 * @param value
+	 *            the value to be set
+	 */
+	public void setValue(final double value) {
 		this.value = value;
 	}
 
-	/** Sets the error with 'error'. */
-	public void setError(final Double error) {
+	/**
+	 * Sets the error of this {@link Param}.
+	 * 
+	 * @param error
+	 *            the error to be set
+	 */
+	public void setError(final double error) {
 		this.error = error;
 	}
 
-	/** Sets the minimum value with 'min'. */
-	public void setMin(final Double min) {
+	/**
+	 * Sets the minimum value of this {@link Param}.
+	 * 
+	 * @param min
+	 *            the minimum value to be set
+	 */
+	public void setMin(final double min) {
 		this.min = min;
 	}
 
-	/** Sets the maximum value with 'max'. */
-	public void setMax(final Double max) {
+	/**
+	 * Sets the maximum value of this {@link Param}.
+	 * 
+	 * @param max
+	 *            the maximum value to be set
+	 */
+	public void setMax(final double max) {
 		this.max = max;
 	}
 
-	/** Sets P with 'p'. */
-	public void setP(final Double p) {
+	/**
+	 * Sets the P of this {@link Param}.
+	 * 
+	 * @param p
+	 *            the P to be set
+	 */
+	public void setP(final double p) {
 		this.p = p;
 	}
 
-	/** Sets T with 't'. */
-	public void setT(final Double t) {
+	/**
+	 * Sets the T of this {@link Param}.
+	 * 
+	 * @param t
+	 *            the T to be set
+	 */
+	public void setT(final double t) {
 		this.t = t;
 	}
 
-	/** Sets the minimum guess with 'minGuess'. */
-	public void setMinGuess(final Double minGuess) {
+	/**
+	 * Sets the minimum guess of this {@link Param}.
+	 * 
+	 * @param minGuess
+	 *            the minimum guess to set
+	 */
+	public void setMinGuess(final double minGuess) {
 		this.minGuess = minGuess;
 	}
 
-	/** Sets the maximum guess with 'maxGuess'. */
-	public void setMaxGuess(final Double maxGuess) {
+	/**
+	 * Sets the maximum guess of this {@link Param}.
+	 * 
+	 * @param maxGuess
+	 *            the maximum guess to set
+	 */
+	public void setMaxGuess(final double maxGuess) {
 		this.maxGuess = maxGuess;
 	}
 
-	/** Sets the category with 'category'. Ignores null and empty strings. */
+	/**
+	 * Sets the category of this {@link Param}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param category the category to be set
+	 */
 	public void setCategory(final String category) {
 		this.category = Strings.emptyToNull(category);
 	}
 
-	/** Sets the unit with 'unit'. Ignores null and empty strings. */
+	/**
+	 * Sets the unit of this {@link Param}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param unit
+	 */
 	public void setUnit(final String unit) {
 		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the description with 'description'. Ignores null and empty strings.
+	 * Sets the description of this {@link Param}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param description the description of this {@link Param}
 	 */
 	public void setDescription(final String description) {
 		this.description = Strings.emptyToNull(description);
 	}
 
-	/** Sets the correlation names with 'correlationNames'. */
+	/**
+	 * Sets the correlation names of this {@link Param}.
+	 * 
+	 * @param correlationNames correlation names to be set
+	 */
 	public void setCorrelationNames(final String[] correlationNames) {
 		this.correlationNames = correlationNames;
 	}
 
-	/** Sets the correlation values with 'correlationValues'. */
+	/**
+	 * Sets the correlation values of this {@link Param}.
+	 * 
+	 * @param correlationValues correlation values to be set
+	 */
 	public void setCorrelationValues(final double[] correlationValues) {
 		this.correlationValues = correlationValues;
 	}
 
+	/**
+	 * Saves param properties into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings where to save the {@link Param} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
 		SettingsHelper.addString(ORIGNAME, origname, settings);
@@ -277,6 +432,11 @@ public class Param implements ViewValue {
 		settings.addDoubleArray(CORRELATION_VALUES, correlationValues);
 	}
 
+	/**
+	 * Loads param properties from a {@link NodeSettingsRO}.
+	 * 
+	 * @param settings The settings where to load the {@link Param} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		name = SettingsHelper.getString(NAME, settings);
 		origname = SettingsHelper.getString(ORIGNAME, settings);

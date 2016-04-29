@@ -35,58 +35,107 @@ public class MdInfo implements ViewValue {
 	private Integer qualityScore;
 	private Boolean checked;
 
-	/** Returns the id of this {@link MdInfo}. If not set, returns null. */
+	/**
+	 * Returns the id of this {@link MdInfo}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the id of this {@link MdInfo}
+	 */
 	public Integer getId() {
 		return id;
 	}
 
-	/** Returns the name of this {@link MdInfo}. If not set returns null. */
+	/**
+	 * Returns the name of this {@link MdInfo}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link MdInfo}
+	 */
 	public String getName() {
 		return name;
 	}
 
-	/** Returns the comment of this {@link MdInfo}. If not set returns null. */
+	/**
+	 * Returns the comment of this {@link MdInfo}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the comment of this {@link MdInfo}
+	 */
 	public String getComment() {
 		return comment;
 	}
 
 	/**
-	 * Returns the quality score of this {@link MdInfo}. If not set returns
-	 * null.
+	 * Returns the quality score of this {@link MdInfo}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the quality score of this {@link MdInfo}
 	 */
 	public Integer getQualityScore() {
 		return qualityScore;
 	}
 
-	/** Returns the checked of this {@link MdInfo}. If not set returns null. */
+	/**
+	 * Returns the checked status of this {@link MdInfo}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the checked status of this {@link MdInfo}
+	 */
 	public Boolean getChecked() {
 		return checked;
 	}
 
-	/** Sets the id value with 'id'. */
-	public void setId(final Integer id) {
+	/**
+	 * Sets the id of this {@link MdInfo}.
+	 * 
+	 * @param id the id to be set
+	 */
+	public void setId(final int id) {
 		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link MdInfo}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the comment value with 'comment'. Converts empty strings to null.
+	 * Sets the comment of this {@link MdInfo}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param comment the comment to be set
 	 */
 	public void setComment(final String comment) {
 		this.comment = Strings.emptyToNull(comment);
 	}
 
-	/** Sets the quality score with 'qualityScore'. */
-	public void setQualityScore(final Integer qualityScore) {
+	/**
+	 * Sets the quality score of this {@link MdInfo}.
+	 * 
+	 * @param qualityScore the quality score to be set
+	 */
+	public void setQualityScore(final int qualityScore) {
 		this.qualityScore = qualityScore;
 	}
 
-	/** Sets the checked value with 'checked'. */
-	public void setChecked(final Boolean checked) {
+	/**
+	 * Sets the checked status of this {@link MdInfo}.
+	 * 
+	 * @param checked the checked status to be set
+	 */
+	public void setChecked(final boolean checked) {
 		this.checked = checked;
 	}
 

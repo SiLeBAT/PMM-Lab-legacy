@@ -40,95 +40,170 @@ public class Dep implements ViewValue {
 	private String unit;
 	private String description;
 
-	/** Returns the id of this {@link Dep}. If name is not set, returns null. */
+	/**
+	 * Returns the name of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link Dep}.
+	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the origname of this {@link Dep}. If origname is not set, returns
-	 * null.
+	 * Returns the original name of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original name of this {@link Dep}
 	 */
 	public String getOrigname() {
 		return origname;
 	}
 
-	/** Returns the min of this {@link Dep}. If min is not set, returns null. */
+	/**
+	 * Returns the minimum value of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the minimum value of this {@link Dep}
+	 */
 	public Double getMin() {
 		return min;
 	}
 
-	/** Returns the max of this {@link Dep}. If max is not set, returns null. */
+	/**
+	 * Returns the maximum value of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the maximum value of this {@link Dep}
+	 */
 	public Double getMax() {
 		return max;
 	}
 
 	/**
-	 * Returns the category of this {@link Dep}. If category is not set, returns
-	 * null.
+	 * Returns the category of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the category of this {@link Dep}
 	 */
 	public String getCategory() {
 		return category;
 	}
 
 	/**
-	 * Returns the unit of this {@link Dep}. If unit is not set, returns null.
+	 * Returns the unit of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the unit of this {@link Dep}
 	 */
 	public String getUnit() {
 		return unit;
 	}
 
 	/**
-	 * Returns the description of this {@link Dep}. If description is not set,
-	 * returns null.
+	 * Returns the description of this {@link Dep}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the description of this {@link Dep}
 	 */
 	public String getDescription() {
 		return description;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link Dep}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name
+	 *            the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the origname value with 'origname'. Converts empty strings to null.
+	 * Sets the original name of this {@link Dep}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origname
+	 *            the original name to be set
 	 */
 	public void setOrigname(final String origname) {
 		this.origname = Strings.emptyToNull(origname);
 	}
 
+	/**
+	 * Sets the minimum value of this {@link Dep}.
+	 * 
+	 * @param min
+	 *            the minimum value to be set
+	 */
 	/** Sets the min value with 'min'. */
-	public void setMin(final Double min) {
+	public void setMin(final double min) {
 		this.min = min;
 	}
 
-	/** Sets the max value with 'max'. */
-	public void setMax(final Double max) {
+	/**
+	 * Sets the maximum value of this {@link Dep}.
+	 * 
+	 * @param max
+	 *            the maximum value to be set
+	 */
+	public void setMax(final double max) {
 		this.max = max;
 	}
 
 	/**
-	 * Sets the category value with 'category'. Converts empty strings to null.
+	 * Sets the category of this {@link Dep}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param category
+	 *            the category to be set
 	 */
 	public void setCategory(final String category) {
 		this.category = Strings.emptyToNull(category);
 	}
 
-	/** Sets the unit value with 'unit'. Converts empty strings to null. */
+	/**
+	 * Sets the unit of this {@link Dep}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param unit
+	 *            the unit to be set
+	 */
 	public void setUnit(final String unit) {
 		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the description value with 'description'. Converts empty strings to
-	 * null.
+	 * Sets the description of this {@link Dep}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param description
+	 *            the description to be set
 	 */
 	public void setDescription(final String description) {
 		this.description = Strings.emptyToNull(description);
 	}
 
-	/** Saves dep properties into a {@link NodeSettingsWO}. */
+	/**
+	 * Saves dep properties into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            where to save the {@link Dep} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
 		SettingsHelper.addString(ORIGNAME, origname, settings);
@@ -142,6 +217,8 @@ public class Dep implements ViewValue {
 	/**
 	 * Loads dep properties from a {@link NodeSettingsRO}.
 	 * 
+	 * @param settings
+	 *            The settings where to load the {@link Dep} from
 	 * @throws InvalidSettingsException
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {

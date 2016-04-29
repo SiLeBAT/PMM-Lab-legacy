@@ -311,7 +311,7 @@ public class Literature implements ViewValue {
 	/**
 	 * Sets the approval mode of this {@link Literature}.
 	 * 
-	 * @param approval mode the approval mode to be set
+	 * @param approvalMode the approval mode to be set
 	 */
 	public void setApprovalMode(final Integer approvalMode) {
 		this.approvalMode = approvalMode;

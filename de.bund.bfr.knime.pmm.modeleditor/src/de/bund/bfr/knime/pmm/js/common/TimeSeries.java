@@ -36,142 +36,216 @@ public class TimeSeries implements ViewValue {
 	private Integer numberOfMeasurements;
 
 	/**
-	 * Returns the name of this {@link TimeSeries}. If not set, returns null.
+	 * Returns the name of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link TimeSeries}
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the time of this {@link TimeSeries}. If not set, returns null.
+	 * Returns the time of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the time of this {@link TimeSeries}
 	 */
 	public Double getTime() {
 		return time;
 	}
 
 	/**
-	 * Returns the time unit of this {@link TimeSeries}. If not set, returns
-	 * null.
+	 * Returns the time unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the time unit of this {@link TimeSeries}
 	 */
 	public String getTimeUnit() {
 		return timeUnit;
 	}
 
 	/**
-	 * Returns the original time unit of this {@link TimeSeries}. If not set,
-	 * returns null.
+	 * Returns the original time unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original time unit of this {@link TimeSeries}
 	 */
 	public String getOrigTimeUnit() {
 		return origTimeUnit;
 	}
 
 	/**
-	 * Returns the concentration of this {@link TimeSeries}. If not set, returns
-	 * null.
+	 * Returns the concentration of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration of this {@link TimeSeries}
 	 */
 	public Double getConcentration() {
 		return concentration;
 	}
 
 	/**
-	 * Returns the concentration unit of this {@link TimeSeries}. If not set,
-	 * returns null.
+	 * Returns the concentration unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration unit of this {@link TimeSeries}
 	 */
 	public String getConcentrationUnit() {
 		return concentrationUnit;
 	}
 
 	/**
-	 * Returns the concentration unit object type of this {@link TimeSeries}. If
-	 * not set, returns null.
+	 * Returns the concentration unit object type of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration unit object type of this {@link TimeSeries}
 	 */
 	public String getConcentrationUnitObjectType() {
 		return concentrationUnitObjectType;
 	}
 
 	/**
-	 * Returns the original concentration unit of this {@link TimeSeries}. If
-	 * not set, returns null.
+	 * Returns the original concentration unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original concentration unit of this {@link TimeSeries}
 	 */
 	public String getOrigConcentrationUnit() {
 		return origConcentrationUnit;
 	}
 
 	/**
-	 * Returns the concentration std dev of this {@link TimeSeries}. If not set,
-	 * returns null.
+	 * Returns the concentration standard deviation of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration standard deviation of this {@link TimeSeries}
 	 */
 	public Double getConcentrationStdDev() {
 		return concentrationStdDev;
 	}
 
 	/**
-	 * Returns the number of measurements of this {@link TimeSeries}. If not
-	 * set, returns null.
+	 * Returns the number of measurements of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the number of measurements of this {@link TimeSeries}
 	 */
 	public Integer getNumberOfMeasurements() {
 		return numberOfMeasurements;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
-	/** Sets the time value with 'time'. */
+	/**
+	 * Sets the time of this {@link TimeSeries}.
+	 * 
+	 * @param time the time to be set
+	 */
 	public void setTime(final Double time) {
 		this.time = time;
 	}
 
-	/** Sets the time unit with 'timeUnit'. Converts empty strings to null. */
+	/**
+	 * Sets the time unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param timeUnit the time unit to be set
+	 */
 	public void setTimeUnit(final String timeUnit) {
 		this.timeUnit = Strings.emptyToNull(timeUnit);
 	}
 
 	/**
-	 * Sets the original time unit with 'origTimeUnit'. Converts empty strings
-	 * to null.
+	 * Sets the original time unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origTimeUnit the original time unit to be set
 	 */
 	public void setOrigTimeUnit(final String origTimeUnit) {
 		this.origTimeUnit = Strings.emptyToNull(origTimeUnit);
 	}
 
-	/** Sets the concentration with 'concentration'. */
+	/**
+	 * Sets the concentration of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param concentration the concentration to be set
+	 */
 	public void setConcentration(final Double concentration) {
 		this.concentration = concentration;
 	}
 
 	/**
-	 * Sets the concentration unit with 'concentrationUnit'. Converts empty
-	 * strings to null.
+	 * Sets the concentration unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param concentrationUnit the concentration unit to be set
 	 */
 	public void setConcentrationUnit(final String concentrationUnit) {
 		this.concentrationUnit = Strings.emptyToNull(concentrationUnit);
 	}
 
 	/**
-	 * Sets the concentrationUnitObjectType with 'concentrationUnitObjectType'.
-	 * Converts empty strings to null.
+	 * Sets the concentration unit object type of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param concentrationUnitObjectType the concentration unit object type to be set
 	 */
 	public void setConcentrationUnitObjectType(final String concentrationUnitObjectType) {
 		this.concentrationUnitObjectType = Strings.emptyToNull(concentrationUnitObjectType);
 	}
 
 	/**
-	 * Sets the origConcentrationUnit with 'origConcentrationUnit'. Converts
-	 * empty strings to null.
+	 * Sets the original concentration unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origConcentrationUnit the original concentration unit
 	 */
 	public void setOrigConcentrationUnit(final String origConcentrationUnit) {
 		this.origConcentrationUnit = Strings.emptyToNull(origConcentrationUnit);
 	}
 
-	/** Sets the concentration std dev with 'concentrationStdDev'. */
-	public void setConcentrationStdDev(final Double concentrationStdDev) {
+	/**
+	 * Sets the concentration standard deviation of this {@link TimeSeries}.
+	 * 
+	 * @param concentrationStdDev the concentration standard deviation to be set
+	 */
+	public void setConcentrationStdDev(final double concentrationStdDev) {
 		this.concentrationStdDev = concentrationStdDev;
 	}
 
-	/** Sets the number of measurements with 'numberOfMeasurements'. */
-	public void setNumberOfMeasurements(final Integer numberOfMeasurements) {
+	/**
+	 * Sets the number of measurements of this {@link TimeSeries}.
+	 * 
+	 * @param numberOfMeasurements the number of measurements to be set
+	 */
+	public void setNumberOfMeasurements(final int numberOfMeasurements) {
 		this.numberOfMeasurements = numberOfMeasurements;
 	}
 

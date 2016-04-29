@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -159,7 +158,6 @@ public class Matrix implements ViewValue {
 	 * 
 	 * @param settings
 	 *            the settings where to load the {@link Matrix} from
-	 * @throws InvalidSettingsException
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);

@@ -148,8 +148,7 @@ public class MdInfo implements ViewValue {
 		SettingsHelper.addBoolean(CHECKED, checked, settings);
 	}
 
-	/** Loads model info properties from a {@link NodeSettingsRO}. 
-	 * @throws InvalidSettingsException */
+	/** Loads model info properties from a {@link NodeSettingsRO}. */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);
 		name = SettingsHelper.getString(NAME, settings);

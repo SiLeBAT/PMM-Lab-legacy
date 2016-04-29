@@ -230,7 +230,7 @@ public class EstModel implements ViewValue {
 	/**
 	 * Sets the SSE of this {@link EstModel}.
 	 * 
-	 * @param see the SSE to be set
+	 * @param sse the SSE to be set
 	 */
 	public void setSse(final double sse) {
 		this.sse = sse;
@@ -339,8 +339,6 @@ public class EstModel implements ViewValue {
 
 	/**
 	 * Loads estimated model properties from a {@link NodeSettingsRO}.
-	 * 
-	 * @throws InvalidSettingsException
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);

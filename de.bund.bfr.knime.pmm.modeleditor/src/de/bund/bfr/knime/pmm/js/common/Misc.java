@@ -234,8 +234,6 @@ public class Misc implements ViewValue {
 
 	/**
 	 * Loads misc properties from a {@link NodeSettingsRO}.
-	 * 
-	 * @throws InvalidSettingsException
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);

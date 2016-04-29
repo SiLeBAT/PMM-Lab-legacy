@@ -1,6 +1,5 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -18,6 +17,7 @@ import com.google.common.base.Strings;
  * <li>category
  * <li>unit
  * <li>description
+ * </ul>
  */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -147,7 +147,6 @@ public class Dep implements ViewValue {
 	 * @param min
 	 *            the minimum value to be set
 	 */
-	/** Sets the min value with 'min'. */
 	public void setMin(final double min) {
 		this.min = min;
 	}
@@ -219,7 +218,6 @@ public class Dep implements ViewValue {
 	 * 
 	 * @param settings
 	 *            The settings where to load the {@link Dep} from
-	 * @throws InvalidSettingsException
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		name = SettingsHelper.getString(NAME, settings);

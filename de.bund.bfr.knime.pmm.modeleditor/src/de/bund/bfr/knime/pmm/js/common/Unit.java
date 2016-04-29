@@ -272,7 +272,7 @@ public class Unit implements ViewValue {
 		id = SettingsHelper.getInteger(ID, settings);
 		unit = SettingsHelper.getString(UNIT, settings);
 		description = SettingsHelper.getString(DESCRIPTION, settings);
-		name = SettingsHelper.getString(KIND_OF_PROPERTY_QUANTITY, settings);
+		name = SettingsHelper.getString(NAME, settings);
 		kind_of_property_quantity = SettingsHelper.getString(KIND_OF_PROPERTY_QUANTITY, settings);
 		notation_case_sensitive = SettingsHelper.getString(NOTATION_CASE_SENSITIVE, settings);
 		convert_to = SettingsHelper.getString(CONVERT_TO, settings);

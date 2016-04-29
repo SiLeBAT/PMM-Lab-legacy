@@ -39,7 +39,7 @@ public class IndepTest {
 		assertNull(indep.getMin());
 		
 		indep.setMin(min);
-		assertTrue(Double.compare(min, indep.getMin()) == 0);
+		assertEquals(min, indep.getMin(), 0.0);
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class IndepTest {
 		assertNull(indep.getMax());
 		
 		indep.setMax(max);
-		assertTrue(Double.compare(max, indep.getMax()) == 0);
+		assertEquals(max, indep.getMax(), 0.0);
 	}
 
 	@Test
@@ -94,8 +94,8 @@ public class IndepTest {
 		
 		assertEquals(name, settings.getString(Indep.NAME));
 		assertEquals(origname, settings.getString(Indep.ORIGNAME));
-		assertTrue(Double.compare(min, settings.getDouble(Indep.MIN)) == 0);
-		assertTrue(Double.compare(max, settings.getDouble(Indep.MAX)) == 0);
+		assertEquals(min, settings.getDouble(Indep.MIN), 0.0);
+		assertEquals(max, settings.getDouble(Indep.MAX), 0.0);
 		assertEquals(category, settings.getString(Indep.CATEGORY));
 		assertEquals(unit, settings.getString(Indep.UNIT));
 		assertEquals(description, settings.getString(Indep.DESCRIPTION));
@@ -117,8 +117,8 @@ public class IndepTest {
 		
 		assertEquals(name, indep.getName());
 		assertEquals(origname, indep.getOrigname());
-		assertTrue(Double.compare(min, indep.getMin()) == 0);
-		assertTrue(Double.compare(max, indep.getMax()) == 0);
+		assertEquals(min, indep.getMin(), 0.0);
+		assertEquals(max, indep.getMax(), 0.0);
 		assertEquals(category, indep.getCategory());
 		assertEquals(unit, indep.getUnit());
 		assertEquals(description, indep.getDescription());

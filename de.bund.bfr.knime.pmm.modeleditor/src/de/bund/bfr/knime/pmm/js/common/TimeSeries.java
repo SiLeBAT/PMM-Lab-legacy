@@ -1,6 +1,5 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -249,8 +248,12 @@ public class TimeSeries implements ViewValue {
 		this.numberOfMeasurements = numberOfMeasurements;
 	}
 
-	/** Saves time series properties into a {@link NodeSettingsWO}. */
-	public void saveToNodeSettings(final NodeSettingsWO settings) {
+	/**
+	 * Saves time series properties into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link TimeSeries} properties
+	 */	public void saveToNodeSettings(final NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
 		SettingsHelper.addDouble(TIME, time, settings);
 		SettingsHelper.addString(TIME_UNIT, timeUnit, settings);
@@ -267,7 +270,8 @@ public class TimeSeries implements ViewValue {
 	/**
 	 * Loads time series properties from a {@link NodeSettingsRO}.
 	 * 
-	 * @throws InvalidSettingsException
+	 * @param settings
+	 *            The settings where to load the {@link TimeSeries} from
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		name = SettingsHelper.getString(NAME, settings);

@@ -362,7 +362,8 @@ public class Param implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param category the category to be set
+	 * @param category
+	 *            the category to be set
 	 */
 	public void setCategory(final String category) {
 		this.category = Strings.emptyToNull(category);
@@ -374,6 +375,7 @@ public class Param implements ViewValue {
 	 * Empty strings are converted to null.
 	 * 
 	 * @param unit
+	 *            the unit to be set
 	 */
 	public void setUnit(final String unit) {
 		this.unit = Strings.emptyToNull(unit);
@@ -384,7 +386,8 @@ public class Param implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param description the description of this {@link Param}
+	 * @param description
+	 *            the description of this {@link Param}
 	 */
 	public void setDescription(final String description) {
 		this.description = Strings.emptyToNull(description);
@@ -393,7 +396,8 @@ public class Param implements ViewValue {
 	/**
 	 * Sets the correlation names of this {@link Param}.
 	 * 
-	 * @param correlationNames correlation names to be set
+	 * @param correlationNames
+	 *            correlation names to be set
 	 */
 	public void setCorrelationNames(final String[] correlationNames) {
 		this.correlationNames = correlationNames;
@@ -402,7 +406,8 @@ public class Param implements ViewValue {
 	/**
 	 * Sets the correlation values of this {@link Param}.
 	 * 
-	 * @param correlationValues correlation values to be set
+	 * @param correlationValues
+	 *            correlation values to be set
 	 */
 	public void setCorrelationValues(final double[] correlationValues) {
 		this.correlationValues = correlationValues;
@@ -411,7 +416,8 @@ public class Param implements ViewValue {
 	/**
 	 * Saves param properties into a {@link NodeSettingsWO}.
 	 * 
-	 * @param settings where to save the {@link Param} properties
+	 * @param settings
+	 *            where to save the {@link Param} properties
 	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
@@ -435,7 +441,8 @@ public class Param implements ViewValue {
 	/**
 	 * Loads param properties from a {@link NodeSettingsRO}.
 	 * 
-	 * @param settings The settings where to load the {@link Param} from
+	 * @param settings
+	 *            The settings where to load the {@link Param} from
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		name = SettingsHelper.getString(NAME, settings);

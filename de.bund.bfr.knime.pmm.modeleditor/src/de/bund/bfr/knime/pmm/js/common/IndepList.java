@@ -26,24 +26,50 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab independent variables.
+ * 
+ * @see Indep
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class IndepList {
-	private static final String NUM_INDEPS = "numIndeps";
-	private static final String INDEPS = "indeps";
+	
+	static final String NUM_INDEPS = "numIndeps";
+	static final String INDEPS = "indeps";
 
 	private int numIndeps;
 	private Indep[] indeps;
 
+	/**
+	 * Returns an array with all the independent variables in the list.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return an array with all the independent variables in the list
+	 */
 	public Indep[] getIndeps() {
 		return indeps;
 	}
 
+	/**
+	 * Sets the independent variables in the list.
+	 * 
+	 * @param indeps
+	 *            array of independent variables to be set
+	 */
 	public void setIndeps(final Indep[] indeps) {
 		numIndeps = indeps.length;
 		this.indeps = indeps;
 	}
 
+	/**
+	 * Saves the list of independent variables into a {@link IndepList}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link IndepList} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		settings.addInt(NUM_INDEPS, numIndeps);
 		for (int i = 0; i < numIndeps; i++) {
@@ -51,14 +77,21 @@ public class IndepList {
 		}
 	}
 
+	/**
+	 * Load properties of the independent variables from a {@link IndepList}.
+	 * 
+	 * @param settings
+	 *            The settings where to load the {@link AgentList} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
-		numIndeps = settings.getInt(NUM_INDEPS);
-		indeps = new Indep[numIndeps];
-		for (int i = 0; i < numIndeps; i++) {
-			indeps[i] = new Indep();
-			indeps[i].loadFromNodeSettings(settings.getNodeSettings(INDEPS + i));
+			numIndeps = settings.getInt(NUM_INDEPS);
+			indeps = new Indep[numIndeps];
+			for (int i = 0; i < numIndeps; i++) {
+				indeps[i] = new Indep();
+				indeps[i].loadFromNodeSettings(settings.getNodeSettings(INDEPS + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
-		} catch (InvalidSettingsException e) { }
 	}
 }

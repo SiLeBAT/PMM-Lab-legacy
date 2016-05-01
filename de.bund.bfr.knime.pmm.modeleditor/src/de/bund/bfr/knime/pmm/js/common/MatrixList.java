@@ -26,24 +26,49 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab matrices.
+ * 
+ * @see Matrix
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class MatrixList {
-	private static final String NUM_MATRICES = "numMatrices";
-	private static final String MATRICES = "matrices";
+	static final String NUM_MATRICES = "numMatrices";
+	static final String MATRICES = "matrices";
 
 	private int numMatrices;
 	private Matrix[] matrices;
 
+	/**
+	 * Returns an array with the matrices in the list.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return an array with the ematrices in the list.
+	 */
 	public Matrix[] getMatrices() {
 		return matrices;
 	}
 
+	/**
+	 * Sets the matrices in the list.
+	 * 
+	 * @param matrices
+	 *            array of matrices to be set
+	 */
 	public void setMatrices(Matrix[] matrices) {
 		numMatrices = matrices.length;
 		this.matrices = matrices;
 	}
 
+	/**
+	 * Saves the list of matrices into a {@link MatrixList}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link MatrixList} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		settings.addInt(NUM_MATRICES, numMatrices);
 		for (int i = 0; i < numMatrices; i++) {
@@ -51,6 +76,12 @@ public class MatrixList {
 		}
 	}
 
+	/**
+	 * Load properties of the matrices from a {@link MatrixList}.
+	 * 
+	 * @param settings
+	 *            the settings where to load the {@MatrixList} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
 			numMatrices = settings.getInt(NUM_MATRICES);

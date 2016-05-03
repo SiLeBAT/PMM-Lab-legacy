@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class TimeSeries implements ViewValue {
@@ -149,7 +151,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param name the name to be set
+	 * @param name
+	 *            the name to be set
 	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
@@ -158,7 +161,8 @@ public class TimeSeries implements ViewValue {
 	/**
 	 * Sets the time of this {@link TimeSeries}.
 	 * 
-	 * @param time the time to be set
+	 * @param time
+	 *            the time to be set
 	 */
 	public void setTime(final Double time) {
 		this.time = time;
@@ -169,7 +173,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param timeUnit the time unit to be set
+	 * @param timeUnit
+	 *            the time unit to be set
 	 */
 	public void setTimeUnit(final String timeUnit) {
 		this.timeUnit = Strings.emptyToNull(timeUnit);
@@ -180,7 +185,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param origTimeUnit the original time unit to be set
+	 * @param origTimeUnit
+	 *            the original time unit to be set
 	 */
 	public void setOrigTimeUnit(final String origTimeUnit) {
 		this.origTimeUnit = Strings.emptyToNull(origTimeUnit);
@@ -191,7 +197,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param concentration the concentration to be set
+	 * @param concentration
+	 *            the concentration to be set
 	 */
 	public void setConcentration(final Double concentration) {
 		this.concentration = concentration;
@@ -202,7 +209,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param concentrationUnit the concentration unit to be set
+	 * @param concentrationUnit
+	 *            the concentration unit to be set
 	 */
 	public void setConcentrationUnit(final String concentrationUnit) {
 		this.concentrationUnit = Strings.emptyToNull(concentrationUnit);
@@ -213,7 +221,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param concentrationUnitObjectType the concentration unit object type to be set
+	 * @param concentrationUnitObjectType
+	 *            the concentration unit object type to be set
 	 */
 	public void setConcentrationUnitObjectType(final String concentrationUnitObjectType) {
 		this.concentrationUnitObjectType = Strings.emptyToNull(concentrationUnitObjectType);
@@ -224,7 +233,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * Empty strings are converted to null.
 	 * 
-	 * @param origConcentrationUnit the original concentration unit
+	 * @param origConcentrationUnit
+	 *            the original concentration unit
 	 */
 	public void setOrigConcentrationUnit(final String origConcentrationUnit) {
 		this.origConcentrationUnit = Strings.emptyToNull(origConcentrationUnit);
@@ -233,18 +243,20 @@ public class TimeSeries implements ViewValue {
 	/**
 	 * Sets the concentration standard deviation of this {@link TimeSeries}.
 	 * 
-	 * @param concentrationStdDev the concentration standard deviation to be set
+	 * @param concentrationStdDev
+	 *            the concentration standard deviation to be set
 	 */
-	public void setConcentrationStdDev(final double concentrationStdDev) {
+	public void setConcentrationStdDev(final Double concentrationStdDev) {
 		this.concentrationStdDev = concentrationStdDev;
 	}
 
 	/**
 	 * Sets the number of measurements of this {@link TimeSeries}.
 	 * 
-	 * @param numberOfMeasurements the number of measurements to be set
+	 * @param numberOfMeasurements
+	 *            the number of measurements to be set
 	 */
-	public void setNumberOfMeasurements(final int numberOfMeasurements) {
+	public void setNumberOfMeasurements(final Integer numberOfMeasurements) {
 		this.numberOfMeasurements = numberOfMeasurements;
 	}
 
@@ -253,7 +265,8 @@ public class TimeSeries implements ViewValue {
 	 * 
 	 * @param settings
 	 *            settings where to save the {@link TimeSeries} properties
-	 */	public void saveToNodeSettings(final NodeSettingsWO settings) {
+	 */
+	public void saveToNodeSettings(final NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
 		SettingsHelper.addDouble(TIME, time, settings);
 		SettingsHelper.addString(TIME_UNIT, timeUnit, settings);
@@ -284,5 +297,36 @@ public class TimeSeries implements ViewValue {
 		origConcentrationUnit = SettingsHelper.getString(ORIG_CONCENTRATION_UNIT, settings);
 		concentrationStdDev = SettingsHelper.getDouble(CONCENTRATION_STDDEV, settings);
 		numberOfMeasurements = SettingsHelper.getInteger(NUMBER_OF_MEASUREMENTS, settings);
+	}
+
+	/**
+	 * Creates a TimeSeries from a TimeSeriesXml.
+	 * 
+	 * @param timeSeriesXml
+	 */
+	public static TimeSeries toTimeSeries(TimeSeriesXml timeSeriesXml) {
+		TimeSeries timeSeries = new TimeSeries();
+		timeSeries.name = timeSeriesXml.getName();
+		timeSeries.time = timeSeriesXml.getTime();
+		timeSeries.timeUnit = timeSeriesXml.getTimeUnit();
+		timeSeries.origTimeUnit = timeSeriesXml.getOrigTimeUnit();
+		timeSeries.concentration = timeSeriesXml.getConcentration();
+		timeSeries.concentrationUnit = timeSeriesXml.getConcentrationUnit();
+		timeSeries.concentrationUnitObjectType = timeSeriesXml.getConcentrationUnitObjectType();
+		timeSeries.origConcentrationUnit = timeSeriesXml.getOrigConcentrationUnit();
+		timeSeries.concentrationStdDev = timeSeriesXml.getConcentrationStdDev();
+		timeSeries.numberOfMeasurements = timeSeriesXml.getNumberOfMeasurements();
+
+		return timeSeries;
+	}
+
+	/**
+	 * Creates an equivalent TimeSeries.
+	 * 
+	 * @return an equivalent TimeSeries
+	 */
+	public TimeSeriesXml toTimeSeriesXml() {
+		return new TimeSeriesXml(name, time, timeUnit, origTimeUnit, concentration, concentrationUnit,
+				concentrationUnitObjectType, origConcentrationUnit, concentrationStdDev, numberOfMeasurements);
 	}
 }

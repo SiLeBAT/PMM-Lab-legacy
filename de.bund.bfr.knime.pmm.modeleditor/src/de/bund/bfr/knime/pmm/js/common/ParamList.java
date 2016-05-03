@@ -26,24 +26,47 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab parameters.
+ *
+ * @see Param
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class ParamList {
-	private static final String NUM_PARAMS = "numParams";
-	private static final String PARAMS = "params";
+	static final String NUM_PARAMS = "numParams";
+	static final String PARAMS = "params";
 
 	private int numParams;
 	private Param[] params;
 
+	/**
+	 * Returns an empty array with the parameters in the list.
+	 *
+	 * If not set returns null.
+	 *
+	 * @return an array with the parameters in the list
+	 */
 	public Param[] getParams() {
 		return params;
 	}
 
+	/**
+	 * Sets the parameters in the list.
+	 *
+	 * @param params array of parameters to be set
+	 */
 	public void setParams(Param[] params) {
 		numParams = params.length;
 		this.params = params;
 	}
 
+	/**
+	 * Saves the list of parameters into a {@link NodeSettingsWO}.
+	 *
+	 * @param settings settings where to save the {@link ParamList} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		settings.addInt(NUM_PARAMS, numParams);
 		for (int i = 0; i < numParams; i++) {
@@ -51,6 +74,11 @@ public class ParamList {
 		}
 	}
 
+	/**
+	 * Loads properties of the parameters list from a {@link NodeSettingsRO}.
+	 *
+	 * @param settings the settings whre to load the {@ink ParamList} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
 			numParams = settings.getInt(NUM_PARAMS);

@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.knime.core.node.NodeSettings;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+
 public class CatalogModelTest {
 
 	static int id = 77;
@@ -108,5 +110,38 @@ public class CatalogModelTest {
 		assertTrue(modelClass == catalogModel.getModelClass());
 		assertEquals(comment, catalogModel.getComment());
 		assertEquals(dbuuid, catalogModel.getDbuuid());
+	}
+	
+	@Test
+	public void testToCatalogModel() {
+		CatalogModelXml catalogModelXml = new CatalogModelXml(id, name, formula, modelClass, dbuuid);
+		catalogModelXml.setComment(comment);
+		CatalogModel catalogModel = CatalogModel.toCatalogModel(catalogModelXml);
+		
+		assertTrue(id == catalogModel.getId());
+		assertEquals(name, catalogModel.getName());
+		assertEquals(formula, catalogModel.getFormula());
+		assertTrue(modelClass == catalogModel.getModelClass());
+		assertEquals(comment, catalogModel.getComment());
+		assertEquals(dbuuid, catalogModel.getDbuuid());
+	}
+	
+	@Test
+	public void testToCatalogModelXml() {
+		CatalogModel catalogModel = new CatalogModel();
+		catalogModel.setId(id);
+		catalogModel.setName(name);
+		catalogModel.setFormula(formula);
+		catalogModel.setModelClass(modelClass);
+		catalogModel.setComment(comment);
+		catalogModel.setDbuuid(dbuuid);
+		CatalogModelXml catalogModelXml = catalogModel.toCatalogModelXml();
+		
+		assertTrue(id == catalogModelXml.getId());
+		assertEquals(name, catalogModelXml.getName());
+		assertEquals(formula, catalogModelXml.getFormula());
+		assertTrue(modelClass == catalogModelXml.getModelClass());
+		assertEquals(comment, catalogModelXml.getComment());
+		assertEquals(dbuuid, catalogModelXml.getDbuuid());
 	}
 }

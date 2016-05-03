@@ -64,7 +64,7 @@ public class AgentList {
 	}
 
 	/**
-	 * Saves the list of agents into a @{link NodeSettingsWO}.
+	 * Saves the list of agents into a {@link NodeSettingsWO}.
 	 * 
 	 * @param settings
 	 *            settings where to save the {@link AgentList} properties

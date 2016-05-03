@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.knime.core.node.NodeSettings;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
+
 public class IndepTest {
 	
 	static String name = "Time";
@@ -122,5 +124,40 @@ public class IndepTest {
 		assertEquals(category, indep.getCategory());
 		assertEquals(unit, indep.getUnit());
 		assertEquals(description, indep.getDescription());
+	}
+	
+	@Test
+	public void testToIndep() {
+		IndepXml indepXml = new IndepXml(name, origname, min, max, category, unit, description);
+		Indep indep = Indep.toIndep(indepXml);
+		
+		assertEquals(name, indep.getName());
+		assertEquals(origname, indep.getOrigname());
+		assertEquals(min, indep.getMin(), 0.0);
+		assertEquals(max, indep.getMax(), 0.0);
+		assertEquals(category, indep.getCategory());
+		assertEquals(unit, indep.getUnit());
+		assertEquals(description, indep.getDescription());
+	}
+	
+	@Test
+	public void testToIndepXml() {
+		Indep indep = new Indep();
+		indep.setName(name);
+		indep.setOrigname(origname);
+		indep.setMin(min);
+		indep.setMax(max);
+		indep.setCategory(category);
+		indep.setUnit(unit);
+		indep.setDescription(description);
+		IndepXml indepXml = indep.toIndepXml();
+		
+		assertEquals(name, indepXml.getName());
+		assertEquals(origname, indepXml.getOrigName());
+		assertEquals(min, indepXml.getMin(), 0.0);
+		assertEquals(max, indepXml.getMax(), 0.0);
+		assertEquals(category, indepXml.getCategory());
+		assertEquals(unit, indepXml.getUnit());
+		assertEquals(description, indepXml.getDescription());
 	}
 }

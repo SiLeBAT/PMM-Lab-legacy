@@ -1,10 +1,16 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.HashMap;
 
 import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
+
+import de.bund.bfr.knime.pmm.common.ParamXml;
 
 public class ParamTest {
 
@@ -244,5 +250,70 @@ public class ParamTest {
 		assertArrayEquals(correlationNames, param.getCorrelationNames());
 		assertArrayEquals(correlationValues, param.getCorrelationValues(), 0.0);
 	}
+	
+	@Test
+	public void testToParam() {
+		
+		HashMap<String, Double> correlations = new HashMap<>();
+		for (int i = 0; i < correlationNames.length; i++) {
+			correlations.put(correlationNames[i], correlationValues[i]);
+		}
 
+		ParamXml paramXml = new ParamXml(name, origname, isStart, value, error, min, max, p, t, minGuess, maxGuess, category, unit, description, correlations);
+		Param param = Param.toParam(paramXml);
+
+		assertEquals(name, param.getName());
+		assertEquals(origname, param.getOrigName());
+		assertEquals(isStart, param.isStart());
+		assertEquals(value, param.getValue(), 0.0);
+		assertEquals(error, param.getError(), 0.0);
+		assertEquals(p, param.getP(), 0.0);
+		assertEquals(t, param.getT(), 0.0);
+		assertEquals(minGuess, param.getMinGuess(), 0.0);
+		assertEquals(maxGuess, param.getMaxGuess(), 0.0);
+		assertEquals(category, param.getCategory());
+		assertEquals(description, param.getDescription());
+		assertArrayEquals(correlationNames, param.getCorrelationNames());
+		assertArrayEquals(correlationValues, param.getCorrelationValues(), 0.0);
+	}
+	
+	@Test
+	public void testToParamXml() {
+		Param param = new Param();
+		param.setName(name);
+		param.setOrigName(origname);
+		param.setIsStart(isStart);
+		param.setValue(value);
+		param.setError(error);
+		param.setMin(min);
+		param.setMax(max);
+		param.setP(p);
+		param.setT(t);
+		param.setMinGuess(minGuess);
+		param.setMaxGuess(maxGuess);
+		param.setCategory(category);
+		param.setUnit(unit);
+		param.setDescription(description);
+		param.setCorrelationNames(correlationNames);
+		param.setCorrelationValues(correlationValues);
+		ParamXml paramXml = param.toParamXml();
+		
+		assertEquals(name, paramXml.getName());
+		assertEquals(origname, paramXml.getOrigName());
+		assertEquals(isStart, paramXml.isStartParam());
+		assertEquals(value, paramXml.getValue(), 0.0);
+		assertEquals(error, paramXml.getError(), 0.0);
+		assertEquals(p, paramXml.getP(), 0.0);
+		assertEquals(t, paramXml.getT(), 0.0);
+		assertEquals(minGuess, paramXml.getMinGuess(), 0.0);
+		assertEquals(maxGuess, paramXml.getMaxGuess(), 0.0);
+		assertEquals(category, paramXml.getCategory());
+		assertEquals(description, paramXml.getDescription());
+		
+		HashMap<String, Double> correlations = new HashMap<>();
+		for (int i = 0; i < correlationNames.length; i++) {
+			correlations.put(correlationNames[i], correlationValues[i]);
+		}
+		assertEquals(correlations, paramXml.getAllCorrelations());
+	}
 }

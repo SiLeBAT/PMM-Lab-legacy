@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+
 public class AgentTest {
 	
 	static int id = 4024;
@@ -83,5 +85,30 @@ public class AgentTest {
 		assertEquals(name, agent.getName());
 		assertEquals(detail, agent.getDetail());
 		assertEquals(dbuuid, agent.getDbuuid());
+	}
+	
+	@Test
+	public void testToAgent() {
+		Agent agent = Agent.toAgent(new AgentXml(id, name, detail, dbuuid));
+		
+		assertTrue(id == agent.getId());
+		assertEquals(name, agent.getName());
+		assertEquals(detail, agent.getDetail());
+		assertEquals(dbuuid, agent.getDbuuid());
+	}
+	
+	@Test
+	public void testToAgentXml() {
+		Agent agent = new Agent();
+		agent.setId(id);
+		agent.setName(name);
+		agent.setDetail(detail);
+		agent.setDbuuid(dbuuid);
+		AgentXml agentXml = agent.toAgentXml();
+		
+		assertTrue(id == agentXml.getId());
+		assertEquals(name, agentXml.getName());
+		assertEquals(detail, agentXml.getDetail());
+		assertEquals(dbuuid, agentXml.getDbuuid());
 	}
 }

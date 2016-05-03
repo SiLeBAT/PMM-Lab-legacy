@@ -1,5 +1,8 @@
 package de.bund.bfr.knime.pmm.js.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -7,6 +10,8 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
+
+import de.bund.bfr.knime.pmm.common.ParamXml;
 
 /**
  * PmmLab parameter. Holds:
@@ -273,7 +278,7 @@ public class Param implements ViewValue {
 	 * @param isStart
 	 *            state to be set
 	 */
-	public void setIsStart(final boolean isStart) {
+	public void setIsStart(final Boolean isStart) {
 		this.isStart = isStart;
 	}
 
@@ -283,7 +288,7 @@ public class Param implements ViewValue {
 	 * @param value
 	 *            the value to be set
 	 */
-	public void setValue(final double value) {
+	public void setValue(final Double value) {
 		this.value = value;
 	}
 
@@ -293,7 +298,7 @@ public class Param implements ViewValue {
 	 * @param error
 	 *            the error to be set
 	 */
-	public void setError(final double error) {
+	public void setError(final Double error) {
 		this.error = error;
 	}
 
@@ -303,7 +308,7 @@ public class Param implements ViewValue {
 	 * @param min
 	 *            the minimum value to be set
 	 */
-	public void setMin(final double min) {
+	public void setMin(final Double min) {
 		this.min = min;
 	}
 
@@ -313,7 +318,7 @@ public class Param implements ViewValue {
 	 * @param max
 	 *            the maximum value to be set
 	 */
-	public void setMax(final double max) {
+	public void setMax(final Double max) {
 		this.max = max;
 	}
 
@@ -323,7 +328,7 @@ public class Param implements ViewValue {
 	 * @param p
 	 *            the P to be set
 	 */
-	public void setP(final double p) {
+	public void setP(final Double p) {
 		this.p = p;
 	}
 
@@ -333,7 +338,7 @@ public class Param implements ViewValue {
 	 * @param t
 	 *            the T to be set
 	 */
-	public void setT(final double t) {
+	public void setT(final Double t) {
 		this.t = t;
 	}
 
@@ -343,7 +348,7 @@ public class Param implements ViewValue {
 	 * @param minGuess
 	 *            the minimum guess to set
 	 */
-	public void setMinGuess(final double minGuess) {
+	public void setMinGuess(final Double minGuess) {
 		this.minGuess = minGuess;
 	}
 
@@ -353,7 +358,7 @@ public class Param implements ViewValue {
 	 * @param maxGuess
 	 *            the maximum guess to set
 	 */
-	public void setMaxGuess(final double maxGuess) {
+	public void setMaxGuess(final Double maxGuess) {
 		this.maxGuess = maxGuess;
 	}
 
@@ -466,5 +471,59 @@ public class Param implements ViewValue {
 			correlationNames = null;
 			correlationValues = null;
 		}
+	}
+	
+	/**
+	 * Creates a Param from a ParamXml.
+	 * 
+	 * @param paramXml
+	 */
+	public static Param toParam(ParamXml paramXml) {
+		Param param = new Param();
+		param.setName(paramXml.getName());
+		param.setOrigName(paramXml.getOrigName());
+		param.setIsStart(paramXml.isStartParam());
+		param.setValue(paramXml.getValue());
+		param.setError(paramXml.getError());
+		param.setMin(paramXml.getMin());
+		param.setMax(paramXml.getMax());
+		param.setP(paramXml.getP());
+		param.setT(paramXml.getT());
+		param.setMinGuess(paramXml.getMinGuess());
+		param.setMaxGuess(paramXml.getMaxGuess());
+		param.setCategory(paramXml.getCategory());
+		param.setUnit(paramXml.getUnit());
+		param.setDescription(paramXml.getDescription());
+		
+		HashMap<String, Double> obtainedCorrelations = paramXml.getAllCorrelations();
+		String[] obtainedCorrelationNames = new String[obtainedCorrelations.size()];
+		double[] obtainedCorrelationValues = new double[obtainedCorrelations.size()];
+		int j = 0;
+		for (Map.Entry<String, Double> entry : obtainedCorrelations.entrySet()) {
+			obtainedCorrelationNames[j] = entry.getKey();
+			obtainedCorrelationValues[j] = entry.getValue();
+			j++;
+		}
+		
+		param.setCorrelationNames(obtainedCorrelationNames);
+		param.setCorrelationValues(obtainedCorrelationValues);
+		
+		return param;
+	}
+	
+	/**
+	 * Returns an equivalent ParamXml.
+	 * 
+	 * @return an equivalent ParamXml
+	 */
+	public ParamXml toParamXml() {
+		HashMap<String, Double> correlations = new HashMap<>();
+		if (correlationNames != null && correlationValues != null) {
+			for (int i = 0; i < correlationNames.length; i++) {
+				correlations.put(correlationNames[i], correlationValues[i]);
+			}
+		}
+		
+		return new ParamXml(name, origname, isStart, value, error, min, max, p, t, minGuess, maxGuess, category, unit, description, correlations);
 	}
 }

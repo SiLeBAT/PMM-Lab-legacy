@@ -1,10 +1,11 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.knime.core.node.NodeSettings;
+
+import de.bund.bfr.knime.pmm.common.DepXml;
 
 public class DepTest {
 
@@ -123,5 +124,42 @@ public class DepTest {
 		assertEquals(category, dep.getCategory());
 		assertEquals(unit, dep.getUnit());
 		assertEquals(description, dep.getDescription());
+	}
+	
+	@Test
+	public void testToDep() {
+		DepXml depXml = new DepXml(name, origname, category, unit, description);
+		depXml.setMin(min);
+		depXml.setMax(max);
+		
+		Dep dep = Dep.toDep(depXml);
+		assertEquals(name, dep.getName());
+		assertEquals(origname, dep.getOrigname());
+		assertEquals(min, dep.getMin(), 0.0);
+		assertEquals(max, dep.getMax(), 0.0);
+		assertEquals(category, dep.getCategory());
+		assertEquals(unit, dep.getUnit());
+		assertEquals(description, dep.getDescription());
+	}
+	
+	@Test
+	public void testToDepXml() {
+		Dep dep = new Dep();
+		dep.setName(name);
+		dep.setOrigname(origname);
+		dep.setMin(min);
+		dep.setMax(max);
+		dep.setCategory(category);
+		dep.setUnit(unit);
+		dep.setDescription(description);
+		
+		DepXml depXml = dep.toDepXml();
+		assertEquals(name, depXml.getName());
+		assertEquals(origname, depXml.getOrigName());
+		assertEquals(min, depXml.getMin(), 0.0);
+		assertEquals(max, depXml.getMax(), 0.0);
+		assertEquals(category, depXml.getCategory());
+		assertEquals(unit, depXml.getUnit());
+		assertEquals(description, depXml.getDescription());
 	}
 }

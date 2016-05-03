@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+
 /**
  * PmmLab catalog model. Holds:
  * <ul>
@@ -109,7 +111,7 @@ public class CatalogModel implements ViewValue {
 	 * @param id
 	 *            the id to be set
 	 */
-	public void setId(final int id) {
+	public void setId(final Integer id) {
 		this.id = id;
 	}
 
@@ -143,7 +145,7 @@ public class CatalogModel implements ViewValue {
 	 * @param modelClass
 	 *            the model class to be set
 	 */
-	public void setModelClass(final int modelClass) {
+	public void setModelClass(final Integer modelClass) {
 		this.modelClass = modelClass;
 	}
 
@@ -199,5 +201,34 @@ public class CatalogModel implements ViewValue {
 		modelClass = SettingsHelper.getInteger(MODEL_CLASS, settings);
 		comment = SettingsHelper.getString(COMMENT, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
+	}
+
+	/**
+	 * Creates a CatalogModel from a CatalogModelXml.
+	 * 
+	 * @param catalogModelXml
+	 */
+	public static CatalogModel toCatalogModel(CatalogModelXml catalogModelXml) {
+		CatalogModel catalogModel = new CatalogModel();
+			catalogModel.setId(catalogModelXml.getId());
+		catalogModel.setName(catalogModelXml.getName());
+		catalogModel.setFormula(catalogModelXml.getFormula());
+			catalogModel.setModelClass(catalogModelXml.getModelClass());
+		catalogModel.setComment(catalogModelXml.getComment());
+		catalogModel.setDbuuid(catalogModelXml.getDbuuid());
+
+		return catalogModel;
+	}
+
+	/**
+	 * Returns an equivalent CatalogModelXml.
+	 * 
+	 * @return an equivalent CatalogModelXml
+	 */
+	public CatalogModelXml toCatalogModelXml() {
+		CatalogModelXml catalogModelXml = new CatalogModelXml(id, name, formula, modelClass, dbuuid);
+		catalogModelXml.setComment(comment);
+
+		return catalogModelXml;
 	}
 }

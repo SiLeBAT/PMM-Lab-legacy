@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 
+import de.bund.bfr.knime.pmm.common.MatrixXml;
+
 public class MatrixTest {
 
 	static int id = 21003;
@@ -83,5 +85,31 @@ public class MatrixTest {
 		assertEquals(name, matrix.getName());
 		assertEquals(detail, matrix.getDetail());
 		assertEquals(dbuuid, matrix.getDbuuid());
+	}
+	
+	@Test
+	public void testToMatrix() {
+		MatrixXml matrixXml = new MatrixXml(id, name, detail, dbuuid);
+		Matrix matrix = Matrix.toMatrix(matrixXml);
+		
+		assertTrue(id == matrix.getId());
+		assertEquals(name, matrix.getName());
+		assertEquals(detail, matrix.getDetail());
+		assertEquals(dbuuid, matrix.getDbuuid());
+	}
+	
+	@Test
+	public void testToMatrixXml() {
+		Matrix matrix = new Matrix();
+		matrix.setId(id);
+		matrix.setName(name);
+		matrix.setDetail(detail);
+		matrix.setDbuuid(dbuuid);
+		MatrixXml matrixXml = matrix.toMatrixXml();
+
+		assertTrue(id == matrixXml.getId());
+		assertEquals(name, matrixXml.getName());
+		assertEquals(detail, matrixXml.getDetail());
+		assertEquals(dbuuid, matrixXml.getDbuuid());
 	}
 }

@@ -213,7 +213,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param id the id to be set
 	 */
-	public void setId(final int id) {
+	public void setId(final Integer id) {
 		this.id = id;
 	}
 
@@ -231,7 +231,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param sse the SSE to be set
 	 */
-	public void setSse(final double sse) {
+	public void setSse(final Double sse) {
 		this.sse = sse;
 	}
 
@@ -240,7 +240,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param rms the RMS to be set
 	 */
-	public void setRms(final double rms) {
+	public void setRms(final Double rms) {
 		this.rms = rms;
 	}
 
@@ -249,7 +249,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param r2 the R2 to be set
 	 */
-	public void setR2(final double r2) {
+	public void setR2(final Double r2) {
 		this.r2 = r2;
 	}
 
@@ -258,7 +258,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param aic the AIC to be set
 	 */
-	public void setAIC(final double aic) {
+	public void setAIC(final Double aic) {
 		this.aic = aic;
 	}
 
@@ -267,7 +267,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param bic the BIC to be set
 	 */
-	public void setBIC(final double bic) {
+	public void setBIC(final Double bic) {
 		this.bic = bic;
 	}
 
@@ -276,7 +276,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param dof the degrees of freedom to be set
 	 */
-	public void setDof(final int dof) {
+	public void setDof(final Integer dof) {
 		this.dof = dof;
 	}
 
@@ -285,7 +285,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param qualityScore the quality score to be set
 	 */
-	public void setQualityScore(final int qualityScore) {
+	public void setQualityScore(final Integer qualityScore) {
 		this.qualityScore = qualityScore;
 	}
 
@@ -371,5 +371,12 @@ public class EstModel implements ViewValue {
 		estModel.setDbuuid(estModelXml.getDbuuid());
 
 		return estModel;
+	}
+	
+	public EstModelXml toEstModelXml() {
+		EstModelXml estModelXml = new EstModelXml(id, name, sse, rms, r2, aic, bic, dof, checked, qualityScore, dbuuid);
+		estModelXml.setComment(comment);
+		
+		return estModelXml;
 	}
 }

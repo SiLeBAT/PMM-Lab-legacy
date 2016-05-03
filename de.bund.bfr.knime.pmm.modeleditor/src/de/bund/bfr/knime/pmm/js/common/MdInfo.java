@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
+
 /**
  * PmmLab model info. Holds:
  * <ul>
@@ -94,7 +96,7 @@ public class MdInfo implements ViewValue {
 	 * 
 	 * @param id the id to be set
 	 */
-	public void setId(final int id) {
+	public void setId(final Integer id) {
 		this.id = id;
 	}
 
@@ -125,7 +127,7 @@ public class MdInfo implements ViewValue {
 	 * 
 	 * @param qualityScore the quality score to be set
 	 */
-	public void setQualityScore(final int qualityScore) {
+	public void setQualityScore(final Integer qualityScore) {
 		this.qualityScore = qualityScore;
 	}
 
@@ -134,7 +136,7 @@ public class MdInfo implements ViewValue {
 	 * 
 	 * @param checked the checked status to be set
 	 */
-	public void setChecked(final boolean checked) {
+	public void setChecked(final Boolean checked) {
 		this.checked = checked;
 	}
 
@@ -154,5 +156,30 @@ public class MdInfo implements ViewValue {
 		comment = SettingsHelper.getString(COMMENT, settings);
 		qualityScore = SettingsHelper.getInteger(QUALITYSCORE, settings);
 		checked = SettingsHelper.getBoolean(CHECKED, settings);
+	}
+	
+	/**
+	 * Creates an MdInfo from an {@link MdInfoXml}.
+	 * 
+	 * @param mdInfoXml
+	 */
+	public static MdInfo toMdInfo(MdInfoXml mdInfoXml) {
+		MdInfo mdInfo = new MdInfo();
+		mdInfo.setId(mdInfoXml.getId());
+		mdInfo.setName(mdInfoXml.getName());
+		mdInfo.setComment(mdInfoXml.getComment());
+		mdInfo.setQualityScore(mdInfoXml.getQualityScore());
+		mdInfo.setChecked(mdInfoXml.getChecked());
+		
+		return mdInfo;
+	}
+	
+	/**
+	 * Returns an equivalent MdInfoXml.
+	 * 
+	 * @return an equivalent MdInfoXml
+	 */
+	public MdInfoXml toMdInfoXml() {
+		return new MdInfoXml(id, name, comment, qualityScore, checked);
 	}
 }

@@ -26,24 +26,49 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab units
+ * 
+ * @see Unit
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class UnitList {
-	private static final String NUM_UNITS = "numUnits";
-	private static final String UNITS = "units";
+	static final String NUM_UNITS = "numUnits";
+	static final String UNITS = "units";
 
 	private int numUnits;
 	private Unit[] units;
 
+	/**
+	 * Returns an array with the units in the list.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return an array with the units in the list
+	 */
 	public Unit[] getUnits() {
 		return units;
 	}
 
+	/**
+	 * Sets the units in the list.
+	 * 
+	 * @param units
+	 *            array of units to be set
+	 */
 	public void setUnits(final Unit[] units) {
 		numUnits = units.length;
 		this.units = units;
 	}
 
+	/**
+	 * Saves the list of units into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link UnitList} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		settings.addInt(NUM_UNITS, numUnits);
 		for (int i = 0; i < numUnits; i++) {
@@ -51,6 +76,12 @@ public class UnitList {
 		}
 	}
 
+	/**
+	 * Loads properties of the unit list from a {@link NodeSettingsRO}.
+	 * 
+	 * @param settings
+	 *            the settings where to load the {@link UnitLIst} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
 			numUnits = settings.getInt(NUM_UNITS);

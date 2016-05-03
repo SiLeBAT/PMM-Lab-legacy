@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.common.DepXml;
+
 /**
  * PmmLab dep. Holds:
  * <ul>
@@ -147,7 +149,7 @@ public class Dep implements ViewValue {
 	 * @param min
 	 *            the minimum value to be set
 	 */
-	public void setMin(final double min) {
+	public void setMin(final Double min) {
 		this.min = min;
 	}
 
@@ -157,7 +159,7 @@ public class Dep implements ViewValue {
 	 * @param max
 	 *            the maximum value to be set
 	 */
-	public void setMax(final double max) {
+	public void setMax(final Double max) {
 		this.max = max;
 	}
 
@@ -227,5 +229,33 @@ public class Dep implements ViewValue {
 		category = SettingsHelper.getString(CATEGORY, settings);
 		unit = SettingsHelper.getString(UNIT, settings);
 		description = SettingsHelper.getString(DESCRIPTION, settings);
+	}
+
+	/**
+	 * Creates a Dep from a DepXml.
+	 * 
+	 * @param depXml
+	 */
+	public static Dep toDep(DepXml depXml) {
+		Dep dep = new Dep();
+		dep.setName(depXml.getName());
+		dep.setOrigname(depXml.getOrigName());
+		if (depXml.getMin() != null)
+			dep.setMin(depXml.getMin());
+		if (depXml.getMax() != null)
+			dep.setMax(depXml.getMax());
+		dep.setCategory(depXml.getCategory());
+		dep.setUnit(depXml.getUnit());
+		dep.setDescription(depXml.getDescription());
+
+		return dep;
+	}
+
+	public DepXml toDepXml() {
+		DepXml depXml = new DepXml(name, origname, category, unit, description);
+		depXml.setMin(min);
+		depXml.setMax(max);
+
+		return depXml;
 	}
 }

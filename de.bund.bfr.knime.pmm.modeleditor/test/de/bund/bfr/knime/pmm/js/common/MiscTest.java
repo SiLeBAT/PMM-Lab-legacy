@@ -2,9 +2,13 @@ package de.bund.bfr.knime.pmm.js.common;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
+
+import de.bund.bfr.knime.pmm.common.MiscXml;
 
 public class MiscTest {
 
@@ -136,5 +140,43 @@ public class MiscTest {
 		assertEquals(unit, misc.getUnit());
 		assertEquals(origUnit, misc.getOrigUnit());
 		assertEquals(dbuuid, misc.getDbuuid());
+	}
+	
+	@Test
+	public void testToMisc() {
+		MiscXml miscXml = new MiscXml(id, name, description, value, Arrays.asList(categories), unit, origUnit, dbuuid);
+		Misc misc = Misc.toMisc(miscXml);
+		
+		assertTrue(id == misc.getId());
+		assertEquals(name, misc.getName());
+		assertEquals(description, misc.getDescription());
+		assertEquals(value, misc.getValue(), 0.0);
+		assertArrayEquals(categories, misc.getCategories());
+		assertEquals(unit, misc.getUnit());
+		assertEquals(origUnit, misc.getOrigUnit());
+		assertEquals(dbuuid, misc.getDbuuid());
+	}
+	
+	@Test
+	public void testToMiscXml() {
+		Misc misc = new Misc();
+		misc.setId(id);
+		misc.setName(name);
+		misc.setDescription(description);
+		misc.setValue(value);
+		misc.setCategories(categories);
+		misc.setUnit(unit);
+		misc.setOrigUnit(origUnit);
+		misc.setDbuuid(dbuuid);
+		MiscXml miscXml = misc.toMiscXml();
+		
+		assertTrue(id == miscXml.getId());
+		assertEquals(name, miscXml.getName());
+		assertEquals(description, miscXml.getDescription());
+		assertEquals(value, miscXml.getValue(), 0.0);
+		assertEquals(Arrays.asList(categories), miscXml.getCategories());
+		assertEquals(unit, miscXml.getUnit());
+		assertEquals(origUnit, miscXml.getOrigUnit());
+		assertEquals(dbuuid, miscXml.getDbuuid());
 	}
 }

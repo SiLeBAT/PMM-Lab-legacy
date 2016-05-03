@@ -65,7 +65,7 @@ public class Unit implements ViewValue {
 	 * 
 	 * If not set returns null.
 	 * 
-	 * @return th eid of this {@link Unit}
+	 * @return the id of this {@link Unit}
 	 */
 	public Integer getId() {
 		return id;
@@ -209,7 +209,7 @@ public class Unit implements ViewValue {
 	 * @param id
 	 *            the id to be set
 	 */
-	public void setId(final int id) {
+	public void setId(final Integer id) {
 		this.id = id;
 	}
 

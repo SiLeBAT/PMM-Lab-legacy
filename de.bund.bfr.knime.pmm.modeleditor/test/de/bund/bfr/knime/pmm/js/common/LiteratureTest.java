@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.knime.core.node.NodeSettings;
 
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
+
 public class LiteratureTest {
 
 	static int id = 56;
@@ -214,5 +216,61 @@ public class LiteratureTest {
 		assertTrue(type == literature.getType());
 		assertEquals(comment, literature.getComment());
 		assertEquals(dbuuid, literature.getDbuuid());
+	}
+	
+	@Test
+	public void testToLiterature() {
+		LiteratureItem literatureItem = new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page, approvalMode, website, type, comment, id, dbuuid);
+		Literature literature = Literature.toLiterature(literatureItem);
+		
+		assertTrue(id == literature.getId());
+		assertEquals(author, literature.getAuthor());
+		assertEquals(title, literature.getTitle());
+		assertEquals(abstractText, literature.getAbstractText());
+		assertTrue(year == literature.getYear());
+		assertEquals(journal, literature.getJournal());
+		assertEquals(volume, literature.getVolume());
+		assertEquals(issue, literature.getIssue());
+		assertTrue(page == literature.getPage());
+		assertTrue(approvalMode == literature.getApprovalMode());
+		assertEquals(website, literature.getWebsite());
+		assertTrue(type == literature.getType());
+		assertEquals(comment, literature.getComment());
+		assertEquals(dbuuid, literature.getDbuuid());
+	}
+	
+	@Test
+	public void testToLiteratureItem() {
+		Literature literature = new Literature();
+		literature.setId(id);
+		literature.setAuthor(author);
+		literature.setTitle(title);
+		literature.setAbstractText(abstractText);
+		literature.setYear(year);
+		literature.setJournal(journal);
+		literature.setVolume(volume);
+		literature.setIssue(issue);
+		literature.setPage(page);
+		literature.setApprovalMode(approvalMode);
+		literature.setWebsite(website);
+		literature.setType(type);
+		literature.setComment(comment);
+		literature.setDbuuid(dbuuid);
+		LiteratureItem literatureItem = literature.toLiteratureItem();
+
+		assertTrue(id == literatureItem.getId());
+		assertEquals(author, literatureItem.getAuthor());
+		assertEquals(title, literatureItem.getTitle());
+		assertEquals(abstractText, literatureItem.getAbstractText());
+		assertTrue(year == literatureItem.getYear());
+		assertEquals(journal, literatureItem.getJournal());
+		assertEquals(volume, literatureItem.getVolume());
+		assertEquals(issue, literatureItem.getIssue());
+		assertTrue(page == literatureItem.getPage());
+		assertTrue(approvalMode == literatureItem.getApprovalMode());
+		assertEquals(website, literatureItem.getWebsite());
+		assertTrue(type == literatureItem.getType());
+		assertEquals(comment, literatureItem.getComment());
+		assertEquals(dbuuid, literatureItem.getDbuuid());
 	}
 }

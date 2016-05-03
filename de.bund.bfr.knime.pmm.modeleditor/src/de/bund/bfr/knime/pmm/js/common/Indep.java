@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
+
 /**
  * PmmLab independent variable. Holds:
  * <ul>
@@ -166,7 +168,7 @@ public class Indep implements ViewValue {
 	 * @param min
 	 *            the minimum value to be set
 	 */
-	public void setMin(double min) {
+	public void setMin(Double min) {
 		this.min = min;
 	}
 
@@ -176,7 +178,7 @@ public class Indep implements ViewValue {
 	 * @param max
 	 *            the maximum value to be set
 	 */
-	public void setMax(double max) {
+	public void setMax(Double max) {
 		this.max = max;
 	}
 
@@ -246,5 +248,29 @@ public class Indep implements ViewValue {
 		category = SettingsHelper.getString(CATEGORY, settings);
 		unit = SettingsHelper.getString(UNIT, settings);
 		description = SettingsHelper.getString(DESCRIPTION, settings);
+	}
+
+	/**
+	 * Creates an Indep from an IndepXml.
+	 * 
+	 * @param indepXml
+	 */
+	public static Indep toIndep(IndepXml indepXml) {
+		Indep indep = new Indep();
+		indep.setName(indepXml.getName());
+		indep.setOrigname(indepXml.getOrigName());
+		if (indepXml.getMin() != null)
+			indep.setMin(indepXml.getMin());
+		if (indepXml.getMax() != null)
+			indep.setMax(indepXml.getMax());
+		indep.setCategory(indepXml.getCategory());
+		indep.setUnit(indepXml.getUnit());
+		indep.setDescription(indepXml.getDescription());
+
+		return indep;
+	}
+
+	public IndepXml toIndepXml() {
+		return new IndepXml(name, origname, min, max, category, unit, description);
 	}
 }

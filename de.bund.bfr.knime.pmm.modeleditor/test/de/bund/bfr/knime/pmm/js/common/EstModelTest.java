@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 
+import de.bund.bfr.knime.pmm.common.EstModelXml;
+
 public class EstModelTest {
 
 	static int id = 67;
@@ -195,5 +197,56 @@ public class EstModelTest {
 		assertEquals(checked, estModel.getChecked());
 		assertEquals(comment, estModel.getComment());
 		assertEquals(dbuuid, estModel.getDbuuid());
+	}
+	
+	@Test
+	public void testToEstModel() {
+		EstModelXml estModelXml = new EstModelXml(id, name, sse, rms, r2, aic, bic, dof, checked, qualityScore, dbuuid);
+		estModelXml.setComment(comment);
+		
+		EstModel estModel = EstModel.toEstModel(estModelXml);
+		assertTrue(id == estModel.getId());
+		assertEquals(name, estModel.getName());
+		assertEquals(sse, estModel.getSse(), 0.0);
+		assertEquals(rms, estModel.getRms(), 0.0);
+		assertEquals(r2, estModel.getR2(), 0.0);
+		assertEquals(aic, estModel.getAIC(), 0.0);
+		assertEquals(bic, estModel.getBIC(), 0.0);
+		assertTrue(dof == estModel.getDof());
+		assertTrue(qualityScore == estModel.getQualityScore());
+		assertEquals(checked, estModel.getChecked());
+		assertEquals(comment, estModel.getComment());
+		assertEquals(dbuuid, estModel.getDbuuid());
+	}
+	
+	@Test
+	public void testToEstModelXml() {
+		EstModel estModel = new EstModel();
+		estModel.setId(id);
+		estModel.setName(name);
+		estModel.setSse(sse);
+		estModel.setRms(rms);
+		estModel.setR2(r2);
+		estModel.setAIC(aic);
+		estModel.setBIC(bic);
+		estModel.setDof(dof);
+		estModel.setQualityScore(qualityScore);
+		estModel.setChecked(checked);
+		estModel.setComment(comment);
+		estModel.setDbuuid(dbuuid);
+		EstModelXml estModelXml = estModel.toEstModelXml();
+		
+		assertTrue(id == estModelXml.getId());
+		assertEquals(name, estModelXml.getName());
+		assertEquals(sse, estModelXml.getSse(), 0.0);
+		assertEquals(rms, estModelXml.getRms(), 0.0);
+		assertEquals(r2, estModelXml.getR2(), 0.0);
+		assertEquals(aic, estModelXml.getAic(), 0.0);
+		assertEquals(bic, estModelXml.getBic(), 0.0);
+		assertTrue(dof == estModelXml.getDof());
+		assertTrue(qualityScore == estModelXml.getQualityScore());
+		assertEquals(checked, estModelXml.getChecked());
+		assertEquals(comment, estModelXml.getComment());
+		assertEquals(dbuuid, estModelXml.getDbuuid());
 	}
 }

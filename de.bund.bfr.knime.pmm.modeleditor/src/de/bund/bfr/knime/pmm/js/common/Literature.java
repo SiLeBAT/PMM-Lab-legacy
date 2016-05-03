@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
+
 /**
  * PmmLab literature item. Holds:
  * <ul>
@@ -220,7 +222,7 @@ public class Literature implements ViewValue {
 	 * 
 	 * @param id the id to be set
 	 */
-	public void setId(final int id) {
+	public void setId(final Integer id) {
 		this.id = id;
 	}
 
@@ -262,7 +264,7 @@ public class Literature implements ViewValue {
 	 * 
 	 * @param year the year to be set
 	 */
-	public void setYear(final int year) {
+	public void setYear(final Integer year) {
 		this.year = year;
 	}
 
@@ -304,7 +306,7 @@ public class Literature implements ViewValue {
 	 * 
 	 * @param page the page to be set
 	 */
-	public void setPage(final int page) {
+	public void setPage(final Integer page) {
 		this.page = page;
 	}
 
@@ -333,7 +335,7 @@ public class Literature implements ViewValue {
 	 * 
 	 * @param type the type to be set
 	 */
-	public void setType(final int type) {
+	public void setType(final Integer type) {
 		this.type = type;
 	}
 
@@ -391,5 +393,29 @@ public class Literature implements ViewValue {
 		type = SettingsHelper.getInteger(TYPE, settings);
 		comment = SettingsHelper.getString(COMMENT, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
+	}
+	
+	public static Literature toLiterature(LiteratureItem literatureItem) {
+		Literature literature = new Literature();
+		literature.setId(literatureItem.getId());
+		literature.setAuthor(literatureItem.getAuthor());
+		literature.setTitle(literatureItem.getTitle());
+		literature.setAbstractText(literatureItem.getAbstractText());
+		literature.setYear(literatureItem.getYear());
+		literature.setJournal(literatureItem.getJournal());
+		literature.setVolume(literatureItem.getVolume());
+		literature.setIssue(literatureItem.getIssue());
+		literature.setPage(literatureItem.getPage());
+		literature.setApprovalMode(literatureItem.getApprovalMode());
+		literature.setWebsite(literatureItem.getWebsite());
+		literature.setType(literatureItem.getType());
+		literature.setComment(literatureItem.getComment());
+		literature.setDbuuid(literatureItem.getDbuuid());
+		
+		return literature;
+	}
+	
+	public LiteratureItem toLiteratureItem() {
+		return new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page, approvalMode, website, type, comment, id, dbuuid);
 	}
 }

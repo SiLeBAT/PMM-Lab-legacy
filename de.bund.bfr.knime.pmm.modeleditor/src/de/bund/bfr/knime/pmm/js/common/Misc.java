@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.common;
 
+import java.util.Arrays;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -26,6 +28,8 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
+
+import de.bund.bfr.knime.pmm.common.MiscXml;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -174,7 +178,7 @@ public class Misc implements ViewValue {
 	 * 
 	 * @param value the value of this {@link Misc}
 	 */
-	public void setValue(final double value) {
+	public void setValue(final Double value) {
 		this.value = value;
 	}
 
@@ -248,5 +252,33 @@ public class Misc implements ViewValue {
 		unit = SettingsHelper.getString(UNIT, settings);
 		origUnit = SettingsHelper.getString(ORIGUNIT, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
+	}
+	
+	/**
+	 * Creates a Misc from a MiscXml.
+	 * 
+	 * @param miscXml
+	 */
+	public static Misc toMisc(MiscXml miscXml) {
+		Misc misc = new Misc();
+		misc.setId(miscXml.getId());
+		misc.setName(miscXml.getName());
+		misc.setDescription(miscXml.getDescription());
+		misc.setValue(miscXml.getValue());
+		misc.setCategories(miscXml.getCategories().toArray(new String[miscXml.getCategories().size()]));
+		misc.setUnit(miscXml.getUnit());
+		misc.setOrigUnit(miscXml.getOrigUnit());
+		misc.setDbuuid(miscXml.getDbuuid());
+		
+		return misc;
+	}
+	
+	/**
+	 * Returns an equivalent MiscXml.
+	 * 
+	 * @return an equivalent MiscXml
+	 */
+	public MiscXml toMiscXml() {
+		return new MiscXml(id, name, description, value, Arrays.asList(categories), unit, origUnit, dbuuid);
 	}
 }

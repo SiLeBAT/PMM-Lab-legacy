@@ -26,24 +26,49 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab Misc.
+ * 
+ * @see Misc
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class MiscList {
-	private static final String NUM_MISCS = "numMiscs";
-	private static final String MISCS = "miscs";
+	static final String NUM_MISCS = "numMiscs";
+	static final String MISCS = "miscs";
 
 	private int numMiscs;
 	private Misc[] miscs;
 
+	/**
+	 * Returns an array with the miscs in the list.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return an array with the miscs in the list
+	 */
 	public Misc[] getMiscs() {
 		return miscs;
 	}
 
+	/**
+	 * Sets the miscs in the list.
+	 * 
+	 * @param miscs
+	 *            array of miscs to be set
+	 */
 	public void setMiscs(final Misc[] miscs) {
 		numMiscs = miscs.length;
 		this.miscs = miscs;
 	}
 
+	/**
+	 * Saves the list of miscs into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link MiscList} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addInt(NUM_MISCS, numMiscs, settings);
 		for (int i = 0; i < numMiscs; i++) {
@@ -51,6 +76,12 @@ public class MiscList {
 		}
 	}
 
+	/**
+	 * Load properties of the matrix list from a {@link NodeSettingsRO}.
+	 * 
+	 * @param settings
+	 *            the settings where to load the {@link MatrixList} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
 			numMiscs = settings.getInt(NUM_MISCS);

@@ -26,24 +26,49 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab literature references.
+ * 
+ * @see Literature
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class LiteratureList {
-	private static final String NUM_LITERATURE = "numLiterature";
-	private static final String LITERATURE = "literature";
+	static final String NUM_LITERATURE = "numLiterature";
+	static final String LITERATURE = "literature";
 
 	private int numLiterature;
 	private Literature[] literature;
 
+	/**
+	 * Returns an array with all the literature references in the list.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return an array with all the literature references in the list
+	 */
 	public Literature[] getLiterature() {
 		return literature;
 	}
 
+	/**
+	 * Sets the literature references in the list.
+	 * 
+	 * @param literature
+	 *            array of literature references to be set
+	 */
 	public void setLiterature(final Literature[] literature) {
 		numLiterature = literature.length;
 		this.literature = literature;
 	}
 
+	/**
+	 * Saves the list of literature references into a {@link LiteratureList}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link LiteratureList} properties.
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addInt(NUM_LITERATURE, numLiterature, settings);
 		for (int i = 0; i < numLiterature; i++) {
@@ -51,14 +76,22 @@ public class LiteratureList {
 		}
 	}
 
+	/**
+	 * Load properties of the literature references from a
+	 * {@link LiteratureList}.
+	 * 
+	 * @param settings
+	 *            the settings where to load the {@link LiteratureList} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
-		numLiterature = settings.getInt(NUM_LITERATURE);
-		literature = new Literature[numLiterature];
-		for (int i = 0; i < numLiterature; i++) {
-			literature[i] = new Literature();
-			literature[i].loadFromNodeSettings(settings.getNodeSettings(LITERATURE + i));
+			numLiterature = settings.getInt(NUM_LITERATURE);
+			literature = new Literature[numLiterature];
+			for (int i = 0; i < numLiterature; i++) {
+				literature[i] = new Literature();
+				literature[i].loadFromNodeSettings(settings.getNodeSettings(LITERATURE + i));
+			}
+		} catch (InvalidSettingsException e) {
 		}
-		} catch (InvalidSettingsException e) {}
 	}
 }

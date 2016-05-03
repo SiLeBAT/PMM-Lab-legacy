@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -61,192 +60,309 @@ public class Unit implements ViewValue {
 	private String mathML_string;
 	private String priority_for_display_in_GUI;
 
-	/** Returns the id of this {@link Unit}. If not set, returns null. */
+	/**
+	 * Returns the id of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the id of this {@link Unit}
+	 */
 	public Integer getId() {
 		return id;
 	}
 
-	/** Returns the unit of this {@link Unit}. If not set, returns null. */
+	/**
+	 * Returns the unit of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the unit of this {@link Unit}
+	 */
 	public String getUnit() {
 		return unit;
 	}
 
 	/**
-	 * Returns the description of this {@link Unit}. If not set, returns null.
+	 * Returns the description of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the description of this {@link Unit}
 	 */
 	public String getDescription() {
 		return description;
 	}
 
-	/** Returns the name of this {@link Unit}. If not set, returns null. */
+	/**
+	 * Returns the name of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link Unit}
+	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the kind_of_property_quantity of this {@link Unit}. If not set,
-	 * returns null.
+	 * Returns the kind of property/quantity of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the kind of property/quantity of this {@link Unit}
 	 */
 	public String getKindOfPropertyQuantity() {
 		return kind_of_property_quantity;
 	}
 
 	/**
-	 * Returns the notation_case_sensitive of this {@link Unit}. If not set,
-	 * returns null.
+	 * Returns the case sensitive notation of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the case sensitive notation of this {@link Unit}
 	 */
 	public String getNotationCaseSensitive() {
 		return notation_case_sensitive;
 	}
 
 	/**
-	 * Returns the convert_to of this {@link Unit}. If not set, returns null.
+	 * Returns the convert_to of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the convert_to of this {@link Unit}
 	 */
 	public String getConvertTo() {
 		return convert_to;
 	}
 
 	/**
-	 * Returns the conversion_function_factor of this {@link Unit}. If not set,
-	 * returns null.
+	 * Returns the conversion function factor of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the conversion function factor of this {@link Unit}
 	 */
 	public String getConversionFunctionFactor() {
 		return conversion_function_factor;
 	}
 
 	/**
-	 * Returns the inverse_conversion_function_factor of this {@link Unit}. If
-	 * not set, returns null.
+	 * Returns the inverse conversion function factor of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the inverse conversion function factor of this {@link Unit}
 	 */
 	public String getInverseConversionFunctionFactor() {
 		return inverse_conversion_function_factor;
 	}
 
 	/**
-	 * Returns the object_type of this {@link Unit}. If not set, returns null.
+	 * Returns the object type of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the object type of this {@link Unit}
 	 */
 	public String getObjectType() {
 		return object_type;
 	}
 
 	/**
-	 * Returns the display_in_GUI_as of this {@link Unit}. If not set, returns
-	 * null.
+	 * Returns the display_in_GUI_as of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the display_in_GUI_as of this {@link Unit}
 	 */
 	public String getDisplayInGuiAs() {
 		return display_in_GUI_as;
 	}
 
 	/**
-	 * Returns the mathmlString of this {@link Unit}. If not set, returns null.
+	 * Returns the MathML string of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the MathML string of this {@link Unit}
 	 */
 	public String getMathMLString() {
 		return mathML_string;
 	}
 
 	/**
-	 * Returns the priority_for_display_in_GUI of this {@link Unit}. If not set,
-	 * returns null.
+	 * Returns the priority for display in GUI of this {@link Unit}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the priority for display in GUI of this {@link Unit}
 	 */
 	public String getPriorityForDisplayInGui() {
 		return priority_for_display_in_GUI;
 	}
 
-	/** Sets the id value with 'id'. */
-	public void setId(final int id) {
+	/**
+	 * Sets the id of this {@link Unit}.
+	 * 
+	 * @param id
+	 *            the id to be set
+	 */
+	public void setId(final Integer id) {
 		this.id = id;
 	}
 
-	/** Sets the unit value with 'unit'. Converts empty strings to null. */
+	/**
+	 * Sets the unit of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param unit
+	 *            the unit to be set
+	 */
 	public void setUnit(final String unit) {
 		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the description value with 'description'. Converts empty strings to
-	 * null.
+	 * Sets the description of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param description
+	 *            the description to be set
 	 */
 	public void setDescription(final String description) {
 		this.description = Strings.emptyToNull(description);
 	}
 
-	/** Sets the name of this {@link Unit}. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name
+	 *            the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the kind_of_property_quantity of this {@link Unit}. Converts empty
-	 * strings to null.
+	 * Sets the kind of property/quantity of this {@link Unit}.
+	 * 
+	 * Converts empty strings to null.
+	 * 
+	 * @param kind_of_property_quantity
+	 *            kind of property/quantity to be set
 	 */
 	public void setKindOfPropertyQuantity(final String kind_of_property_quantity) {
 		this.kind_of_property_quantity = Strings.emptyToNull(kind_of_property_quantity);
 	}
 
 	/**
-	 * Sets the notation_case_sensitive of this {@link Unit}. Converts empty
-	 * strings to null.
+	 * Sets the case sensitive notation of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param notation_case_sensitive
+	 *            case sensitive notation to be set
 	 */
 	public void setNotationCaseSensitive(final String notation_case_sensitive) {
 		this.notation_case_sensitive = Strings.emptyToNull(notation_case_sensitive);
 	}
 
 	/**
-	 * Sets the convert_to of this {@link Unit}. Converts empty strings to null.
+	 * Sets the convert_to of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param convert_to
+	 *            convert_to to be set
 	 */
 	public void setConvertTo(final String convert_to) {
 		this.convert_to = Strings.emptyToNull(convert_to);
 	}
 
 	/**
-	 * Sets the conversion_function_factor of this {@link Unit}. Converts empty
-	 * strings to null.
+	 * Sets the conversion function factor of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param conversion_function_factor
+	 *            the conversion function factor to be set
 	 */
 	public void setConversionFunctionFactor(final String conversion_function_factor) {
 		this.conversion_function_factor = Strings.emptyToNull(conversion_function_factor);
 	}
 
 	/**
-	 * Sets the inverse_conversion_function_factor of this {@link Unit}.
-	 * Converts empty strings to null.
+	 * Sets the inverse conversion function factor of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param inverse_conversion_function_factor
+	 *            the inverse conversion function factor
 	 */
 	public void setInverseConversionFunctionFactor(final String inverse_conversion_function_factor) {
 		this.inverse_conversion_function_factor = Strings.emptyToNull(inverse_conversion_function_factor);
 	}
 
 	/**
-	 * Sets the object_type of this {@link Unit}. Converts empty strings to
-	 * null.
+	 * Sets the object type of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param object_type
+	 *            the object type to be set
 	 */
 	public void setObjectType(final String object_type) {
 		this.object_type = Strings.emptyToNull(object_type);
 	}
 
 	/**
-	 * Sets the display_in_GUI_as of this {@link Unit}. Converts empty strings
-	 * to null.
+	 * Sets the display_in_GUI_as of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param display_in_GUI_as
+	 *            the display_in_GUI_as to be set
 	 */
 	public void setDisplayInGuiAs(final String display_in_GUI_as) {
 		this.display_in_GUI_as = Strings.emptyToNull(display_in_GUI_as);
 	}
 
 	/**
-	 * Sets the mathML_string of this {@link Unit}. Converts empty strings to
-	 * null.
+	 * Sets the MahtML string of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param mathML_string
+	 *            the MahtML string to be set
 	 */
 	public void setMathMLString(final String mathML_string) {
 		this.mathML_string = Strings.emptyToNull(mathML_string);
 	}
 
 	/**
-	 * Sets the priority_for_display_in_GUI of this {@link Unit}. Converts empty
-	 * strings to null.
+	 * Sets the priority for display in GUI of this {@link Unit}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param priority_for_display_in_GUI
+	 *            the priority for display in GUI to be set
 	 */
 	public void setPriorityForDisplayInGui(final String priority_for_display_in_GUI) {
 		this.priority_for_display_in_GUI = Strings.emptyToNull(priority_for_display_in_GUI);
 	}
 
-	/** Saves unit properties into a {@link NodeSettingsWO}. */
+	/**
+	 * Saves unit properties into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link Unit} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		SettingsHelper.addInt(ID, id, settings);
 		SettingsHelper.addString(UNIT, unit, settings);
@@ -266,13 +382,14 @@ public class Unit implements ViewValue {
 	/**
 	 * Loads unit properties from a {@link NodeSettingsRO}.
 	 * 
-	 * @throws InvalidSettingsException
+	 * @param settings
+	 *            The settings where to load the {@link Unit} from
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);
 		unit = SettingsHelper.getString(UNIT, settings);
 		description = SettingsHelper.getString(DESCRIPTION, settings);
-		name = SettingsHelper.getString(KIND_OF_PROPERTY_QUANTITY, settings);
+		name = SettingsHelper.getString(NAME, settings);
 		kind_of_property_quantity = SettingsHelper.getString(KIND_OF_PROPERTY_QUANTITY, settings);
 		notation_case_sensitive = SettingsHelper.getString(NOTATION_CASE_SENSITIVE, settings);
 		convert_to = SettingsHelper.getString(CONVERT_TO, settings);

@@ -1,12 +1,13 @@
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
+
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -36,146 +37,235 @@ public class TimeSeries implements ViewValue {
 	private Integer numberOfMeasurements;
 
 	/**
-	 * Returns the name of this {@link TimeSeries}. If not set, returns null.
+	 * Returns the name of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link TimeSeries}
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the time of this {@link TimeSeries}. If not set, returns null.
+	 * Returns the time of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the time of this {@link TimeSeries}
 	 */
 	public Double getTime() {
 		return time;
 	}
 
 	/**
-	 * Returns the time unit of this {@link TimeSeries}. If not set, returns
-	 * null.
+	 * Returns the time unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the time unit of this {@link TimeSeries}
 	 */
 	public String getTimeUnit() {
 		return timeUnit;
 	}
 
 	/**
-	 * Returns the original time unit of this {@link TimeSeries}. If not set,
-	 * returns null.
+	 * Returns the original time unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original time unit of this {@link TimeSeries}
 	 */
 	public String getOrigTimeUnit() {
 		return origTimeUnit;
 	}
 
 	/**
-	 * Returns the concentration of this {@link TimeSeries}. If not set, returns
-	 * null.
+	 * Returns the concentration of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration of this {@link TimeSeries}
 	 */
 	public Double getConcentration() {
 		return concentration;
 	}
 
 	/**
-	 * Returns the concentration unit of this {@link TimeSeries}. If not set,
-	 * returns null.
+	 * Returns the concentration unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration unit of this {@link TimeSeries}
 	 */
 	public String getConcentrationUnit() {
 		return concentrationUnit;
 	}
 
 	/**
-	 * Returns the concentration unit object type of this {@link TimeSeries}. If
-	 * not set, returns null.
+	 * Returns the concentration unit object type of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration unit object type of this {@link TimeSeries}
 	 */
 	public String getConcentrationUnitObjectType() {
 		return concentrationUnitObjectType;
 	}
 
 	/**
-	 * Returns the original concentration unit of this {@link TimeSeries}. If
-	 * not set, returns null.
+	 * Returns the original concentration unit of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original concentration unit of this {@link TimeSeries}
 	 */
 	public String getOrigConcentrationUnit() {
 		return origConcentrationUnit;
 	}
 
 	/**
-	 * Returns the concentration std dev of this {@link TimeSeries}. If not set,
-	 * returns null.
+	 * Returns the concentration standard deviation of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the concentration standard deviation of this {@link TimeSeries}
 	 */
 	public Double getConcentrationStdDev() {
 		return concentrationStdDev;
 	}
 
 	/**
-	 * Returns the number of measurements of this {@link TimeSeries}. If not
-	 * set, returns null.
+	 * Returns the number of measurements of this {@link TimeSeries}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the number of measurements of this {@link TimeSeries}
 	 */
 	public Integer getNumberOfMeasurements() {
 		return numberOfMeasurements;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name
+	 *            the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
-	/** Sets the time value with 'time'. */
+	/**
+	 * Sets the time of this {@link TimeSeries}.
+	 * 
+	 * @param time
+	 *            the time to be set
+	 */
 	public void setTime(final Double time) {
 		this.time = time;
 	}
 
-	/** Sets the time unit with 'timeUnit'. Converts empty strings to null. */
+	/**
+	 * Sets the time unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param timeUnit
+	 *            the time unit to be set
+	 */
 	public void setTimeUnit(final String timeUnit) {
 		this.timeUnit = Strings.emptyToNull(timeUnit);
 	}
 
 	/**
-	 * Sets the original time unit with 'origTimeUnit'. Converts empty strings
-	 * to null.
+	 * Sets the original time unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origTimeUnit
+	 *            the original time unit to be set
 	 */
 	public void setOrigTimeUnit(final String origTimeUnit) {
 		this.origTimeUnit = Strings.emptyToNull(origTimeUnit);
 	}
 
-	/** Sets the concentration with 'concentration'. */
+	/**
+	 * Sets the concentration of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param concentration
+	 *            the concentration to be set
+	 */
 	public void setConcentration(final Double concentration) {
 		this.concentration = concentration;
 	}
 
 	/**
-	 * Sets the concentration unit with 'concentrationUnit'. Converts empty
-	 * strings to null.
+	 * Sets the concentration unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param concentrationUnit
+	 *            the concentration unit to be set
 	 */
 	public void setConcentrationUnit(final String concentrationUnit) {
 		this.concentrationUnit = Strings.emptyToNull(concentrationUnit);
 	}
 
 	/**
-	 * Sets the concentrationUnitObjectType with 'concentrationUnitObjectType'.
-	 * Converts empty strings to null.
+	 * Sets the concentration unit object type of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param concentrationUnitObjectType
+	 *            the concentration unit object type to be set
 	 */
 	public void setConcentrationUnitObjectType(final String concentrationUnitObjectType) {
 		this.concentrationUnitObjectType = Strings.emptyToNull(concentrationUnitObjectType);
 	}
 
 	/**
-	 * Sets the origConcentrationUnit with 'origConcentrationUnit'. Converts
-	 * empty strings to null.
+	 * Sets the original concentration unit of this {@link TimeSeries}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origConcentrationUnit
+	 *            the original concentration unit
 	 */
 	public void setOrigConcentrationUnit(final String origConcentrationUnit) {
 		this.origConcentrationUnit = Strings.emptyToNull(origConcentrationUnit);
 	}
 
-	/** Sets the concentration std dev with 'concentrationStdDev'. */
+	/**
+	 * Sets the concentration standard deviation of this {@link TimeSeries}.
+	 * 
+	 * @param concentrationStdDev
+	 *            the concentration standard deviation to be set
+	 */
 	public void setConcentrationStdDev(final Double concentrationStdDev) {
 		this.concentrationStdDev = concentrationStdDev;
 	}
 
-	/** Sets the number of measurements with 'numberOfMeasurements'. */
+	/**
+	 * Sets the number of measurements of this {@link TimeSeries}.
+	 * 
+	 * @param numberOfMeasurements
+	 *            the number of measurements to be set
+	 */
 	public void setNumberOfMeasurements(final Integer numberOfMeasurements) {
 		this.numberOfMeasurements = numberOfMeasurements;
 	}
 
-	/** Saves time series properties into a {@link NodeSettingsWO}. */
+	/**
+	 * Saves time series properties into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link TimeSeries} properties
+	 */
 	public void saveToNodeSettings(final NodeSettingsWO settings) {
 		SettingsHelper.addString(NAME, name, settings);
 		SettingsHelper.addDouble(TIME, time, settings);
@@ -193,7 +283,8 @@ public class TimeSeries implements ViewValue {
 	/**
 	 * Loads time series properties from a {@link NodeSettingsRO}.
 	 * 
-	 * @throws InvalidSettingsException
+	 * @param settings
+	 *            The settings where to load the {@link TimeSeries} from
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		name = SettingsHelper.getString(NAME, settings);
@@ -206,5 +297,36 @@ public class TimeSeries implements ViewValue {
 		origConcentrationUnit = SettingsHelper.getString(ORIG_CONCENTRATION_UNIT, settings);
 		concentrationStdDev = SettingsHelper.getDouble(CONCENTRATION_STDDEV, settings);
 		numberOfMeasurements = SettingsHelper.getInteger(NUMBER_OF_MEASUREMENTS, settings);
+	}
+
+	/**
+	 * Creates a TimeSeries from a TimeSeriesXml.
+	 * 
+	 * @param timeSeriesXml
+	 */
+	public static TimeSeries toTimeSeries(TimeSeriesXml timeSeriesXml) {
+		TimeSeries timeSeries = new TimeSeries();
+		timeSeries.name = timeSeriesXml.getName();
+		timeSeries.time = timeSeriesXml.getTime();
+		timeSeries.timeUnit = timeSeriesXml.getTimeUnit();
+		timeSeries.origTimeUnit = timeSeriesXml.getOrigTimeUnit();
+		timeSeries.concentration = timeSeriesXml.getConcentration();
+		timeSeries.concentrationUnit = timeSeriesXml.getConcentrationUnit();
+		timeSeries.concentrationUnitObjectType = timeSeriesXml.getConcentrationUnitObjectType();
+		timeSeries.origConcentrationUnit = timeSeriesXml.getOrigConcentrationUnit();
+		timeSeries.concentrationStdDev = timeSeriesXml.getConcentrationStdDev();
+		timeSeries.numberOfMeasurements = timeSeriesXml.getNumberOfMeasurements();
+
+		return timeSeries;
+	}
+
+	/**
+	 * Creates an equivalent TimeSeries.
+	 * 
+	 * @return an equivalent TimeSeries
+	 */
+	public TimeSeriesXml toTimeSeriesXml() {
+		return new TimeSeriesXml(name, time, timeUnit, origTimeUnit, concentration, concentrationUnit,
+				concentrationUnitObjectType, origConcentrationUnit, concentrationStdDev, numberOfMeasurements);
 	}
 }

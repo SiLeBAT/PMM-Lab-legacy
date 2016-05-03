@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.common;
 
+import java.util.Arrays;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -26,6 +28,8 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
+
+import de.bund.bfr.knime.pmm.common.MiscXml;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -50,93 +54,172 @@ public class Misc implements ViewValue {
 	private String origUnit;
 	private String dbuuid;
 
-	/** Returns the id of this {@link Misc}. If not set, returns null. */
+	/**
+	 * Returns the id of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the id of this {@link Misc}
+	 */
 	public Integer getId() {
 		return id;
 	}
 
-	/** Returns the name of this {@link Misc}. If not set, returns null. */
+	/**
+	 * Returns the name of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link Misc}
+	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the description of this {@link Misc}. If not set, returns null.
+	 * Returns the description of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the description of this {@link Misc}
 	 */
 	public String getDescription() {
 		return description;
 	}
 
-	/** Returns the value of this {@link Misc}. If not set, returns null. */
+	/**
+	 * Returns the value of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the value of this {@link Misc}
+	 */
 	public Double getValue() {
 		return value;
 	}
 
 	/**
-	 * Returns the categories of this {@link Misc}. If not set, returns null.
+	 * Returns the categories of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the categories of this {@link Misc}
 	 */
 	public String[] getCategories() {
 		return categories;
 	}
 
 	/**
-	 * Returns the original unit of this {@link Misc}. If not set, returns null.
+	 * Returns the unit of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the unit of this {@link Misc}
+	 */
+	public String getUnit() {
+		return unit;
+	}
+
+	/**
+	 * Returns the original unit of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the original unit of this {@link Misc}
 	 */
 	public String getOrigUnit() {
 		return origUnit;
 	}
 
-	/** Returns the unit of this {@link Misc}. If not set, returns null. */
-	public String getUnit() {
-		return unit;
-	}
-
-	/** Returns the dbuuid of this {@link Misc}. If not set, returns null. */
+	/**
+	 * Returns the DBUUID of this {@link Misc}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the DBUUID of this {@link Misc}
+	 */
 	public String getDbuuid() {
 		return dbuuid;
 	}
 
-	/** Sets the id value with 'id'. */
+	/**
+	 * Sets the id of this {@link Misc}.
+	 * 
+	 * @param id the id to be set
+	 */
 	public void setId(final Integer id) {
 		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link Misc}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
 	/**
-	 * Sets the description value with 'description'. Converts empty strings to
-	 * null.
+	 * Sets the description of this {@link Misc}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param description the description of this {@link Misc}
 	 */
 	public void setDescription(final String description) {
 		this.description = Strings.emptyToNull(description);
 	}
 
-	/** Sets the value with 'value'. */
+	/**
+	 * Sets the value of this {@link Misc}.
+	 * 
+	 * @param value the value of this {@link Misc}
+	 */
 	public void setValue(final Double value) {
 		this.value = value;
 	}
 
-	/** Sets the categories with 'categories'. */
+	/**
+	 * Sets the categories of this {@link Misc}.
+	 * 
+	 * @param categories the categories to be set
+	 */
 	public void setCategories(final String[] categories) {
 		this.categories = categories;
 	}
 
-	/** Sets the unit value with 'unit'. Converts empty strings to null. */
+	/**
+	 * Sets the unit of this {@link Misc}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param unit the unit to be set
+	 */
 	public void setUnit(final String unit) {
 		this.unit = Strings.emptyToNull(unit);
 	}
 
 	/**
-	 * Sets the original unit with 'origUnit'. Converts empty strings to null.
+	 * Sets the original unit of this {@link Misc}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param origUnit the original unit to be set
 	 */
 	public void setOrigUnit(final String origUnit) {
 		this.origUnit = Strings.emptyToNull(origUnit);
 	}
 
-	/** Sets the dbuuid value with 'dbuuid'. Converts empty strings to null. */
+	/**
+	 * Sets the DBUUID of this {@link Misc}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param dbuuid the DBUUID to be set
+	 */
 	public void setDbuuid(final String dbuuid) {
 		this.dbuuid = dbuuid;
 	}
@@ -155,8 +238,6 @@ public class Misc implements ViewValue {
 
 	/**
 	 * Loads misc properties from a {@link NodeSettingsRO}.
-	 * 
-	 * @throws InvalidSettingsException
 	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);
@@ -171,5 +252,33 @@ public class Misc implements ViewValue {
 		unit = SettingsHelper.getString(UNIT, settings);
 		origUnit = SettingsHelper.getString(ORIGUNIT, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
+	}
+	
+	/**
+	 * Creates a Misc from a MiscXml.
+	 * 
+	 * @param miscXml
+	 */
+	public static Misc toMisc(MiscXml miscXml) {
+		Misc misc = new Misc();
+		misc.setId(miscXml.getId());
+		misc.setName(miscXml.getName());
+		misc.setDescription(miscXml.getDescription());
+		misc.setValue(miscXml.getValue());
+		misc.setCategories(miscXml.getCategories().toArray(new String[miscXml.getCategories().size()]));
+		misc.setUnit(miscXml.getUnit());
+		misc.setOrigUnit(miscXml.getOrigUnit());
+		misc.setDbuuid(miscXml.getDbuuid());
+		
+		return misc;
+	}
+	
+	/**
+	 * Returns an equivalent MiscXml.
+	 * 
+	 * @return an equivalent MiscXml
+	 */
+	public MiscXml toMiscXml() {
+		return new MiscXml(id, name, description, value, Arrays.asList(categories), unit, origUnit, dbuuid);
 	}
 }

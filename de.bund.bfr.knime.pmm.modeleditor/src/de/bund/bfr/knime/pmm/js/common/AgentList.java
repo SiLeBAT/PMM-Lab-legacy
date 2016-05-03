@@ -26,24 +26,49 @@ import org.knime.core.node.NodeSettingsWO;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * List of PmmLab agents.
+ * 
+ * @see Agent
+ * @author Miguel de Alba
+ */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class AgentList {
-	private static final String NUM_AGENTS = "numAgents";
-	private static final String AGENTS = "agents";
+	static final String NUM_AGENTS = "numAgents";
+	static final String AGENTS = "agents";
 
 	private int numAgents;
 	private Agent[] agents;
 
+	/**
+	 * Returns an array with all the agents in the list.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return an array with all the agents in the list
+	 */
 	public Agent[] getAgents() {
 		return agents;
 	}
 
+	/**
+	 * Sets the agents in the list.
+	 * 
+	 * @param agents
+	 *            array of agents to be set
+	 */
 	public void setAgents(final Agent[] agents) {
 		numAgents = agents.length;
 		this.agents = agents;
 	}
 
+	/**
+	 * Saves the list of agents into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link AgentList} properties
+	 */
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		settings.addInt(NUM_AGENTS, numAgents);
 		for (int i = 0; i < numAgents; i++) {
@@ -51,6 +76,12 @@ public class AgentList {
 		}
 	}
 
+	/**
+	 * Loads properties of the agent list from a {@link NodeSettingsRO}.
+	 * 
+	 * @param settings
+	 *            The settings where to load the {@link AgentList} from
+	 */
 	public void loadFromNodeSettings(NodeSettingsRO settings) {
 		try {
 			numAgents = settings.getInt(NUM_AGENTS);

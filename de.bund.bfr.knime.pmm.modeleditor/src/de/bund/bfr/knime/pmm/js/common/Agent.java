@@ -19,13 +19,14 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.js.common;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.Strings;
+
+import de.bund.bfr.knime.pmm.common.AgentXml;
 
 /**
  * PmmLab agent. Holds:
@@ -51,55 +52,102 @@ public class Agent implements ViewValue {
 	private String detail;
 	private String dbuuid;
 
-	/** Returns the id of this {@link Agent}. If id is not set, returns null. */
+	/**
+	 * Returns the id of this {@link Agent}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the id of this {@link Agent}.
+	 */
 	public Integer getId() {
 		return id;
 	}
 
 	/**
-	 * Returns the name of this {@link Agent}. If name is not set, returns null.
+	 * Returns the name of this {@link Agent}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the name of this {@link Agent}
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns the detail of this {@link Agent}. If detail is not set, returns
-	 * null.
+	 * Returns the detail of this {@link Agent}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the detail of this {@link Agent}.
 	 */
 	public String getDetail() {
 		return detail;
 	}
 
 	/**
-	 * Returns the dbuuid of this {@link Agent}. If dbuuid is not set, returns
-	 * null.
+	 * Returns the dbuuid of this {@link Agent}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the dbuuid of this {@link Agent}
 	 */
 	public String getDbuuid() {
 		return dbuuid;
 	}
 
-	/** Sets the id value with 'id'. */
+	/**
+	 * Sets the id of this {@link Agent}.
+	 * 
+	 * @param id
+	 *            the id to be set
+	 */
 	public void setId(final Integer id) {
 		this.id = id;
 	}
 
-	/** Sets the name value with 'name'. Converts empty strings to null. */
+	/**
+	 * Sets the name of this {@link Agent}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param name
+	 *            the name to be set
+	 */
 	public void setName(final String name) {
 		this.name = Strings.emptyToNull(name);
 	}
 
-	/** Sets the detail value with 'detail'. Converts empty strings to null. */
+	/**
+	 * Sets the detail of this {@link Agent}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param detail
+	 *            the detail to be set
+	 */
 	public void setDetail(final String detail) {
 		this.detail = Strings.emptyToNull(detail);
 	}
 
-	/** Sets the dbuuid value with 'dbuuid'. Converts empty strings to null. */
+	/**
+	 * Sets the dbuuid of this {@link Agent}.
+	 * 
+	 * Empty strings are converted to null.
+	 * 
+	 * @param dbuuid
+	 *            the dbuuid to be set
+	 */
 	public void setDbuuid(final String dbuuid) {
 		this.dbuuid = Strings.nullToEmpty(dbuuid);
 	}
 
-	/** Saves agent properties into a {@link NodeSettingsWO}. */
+	/**
+	 * Saves agent properties into a {@link NodeSettingsWO}.
+	 * 
+	 * @param settings
+	 *            settings where to save the {@link Agent} properties
+	 */
 	public void saveToNodeSettings(final NodeSettingsWO settings) {
 		SettingsHelper.addInt(ID, id, settings);
 		SettingsHelper.addString(NAME, name, settings);
@@ -110,12 +158,37 @@ public class Agent implements ViewValue {
 	/**
 	 * Loads agent properties from a {@link NodeSettingsRO}.
 	 * 
-	 * @throws InvalidSettingsException
+	 * @param settings
+	 *            The settings where to load the {@link Agent} from
 	 */
 	public void loadFromNodeSettings(final NodeSettingsRO settings) {
 		id = SettingsHelper.getInteger(ID, settings);
 		name = SettingsHelper.getString(NAME, settings);
 		detail = SettingsHelper.getString(DETAIL, settings);
 		dbuuid = SettingsHelper.getString(DBUUID, settings);
+	}
+	
+	/**
+	 * Creates an Agent from an {@link AgentXml}.
+	 * 
+	 * @param agentXml
+	 */
+	public static Agent toAgent(AgentXml agentXml) {
+		Agent agent = new Agent();
+		agent.setId(agentXml.getId());
+		agent.setName(agentXml.getName());
+		agent.setDetail(agentXml.getDetail());
+		agent.setDbuuid(agentXml.getDbuuid());
+		
+		return agent;
+	}
+	
+	/**
+	 * Returns an equivalent AgentXml.
+	 * 
+	 * @return an equivalent AgentXml
+	 */
+	public AgentXml toAgentXml() {
+		return new AgentXml(id, name, detail, dbuuid);
 	}
 }

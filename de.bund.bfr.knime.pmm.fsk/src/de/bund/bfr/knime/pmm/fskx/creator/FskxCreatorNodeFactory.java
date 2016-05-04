@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.fskx.converter;
+package de.bund.bfr.knime.pmm.fskx.creator;
 /***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
@@ -21,12 +21,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-public class FskxConverterNodeFactory extends NodeFactory<FskxConverterNodeModel> {
+public class FskxCreatorNodeFactory extends NodeFactory<FskxCreatorNodeModel> {
   
   /** {@inheritDoc} */
   @Override
-  public FskxConverterNodeModel createNodeModel() {
-    return new FskxConverterNodeModel();
+  public FskxCreatorNodeModel createNodeModel() {
+    return new FskxCreatorNodeModel();
   }
   
   /** {@inheritDoc} */
@@ -37,7 +37,7 @@ public class FskxConverterNodeFactory extends NodeFactory<FskxConverterNodeModel
   
   /** {@inheritDoc} */
   @Override
-  public NodeView<FskxConverterNodeModel> createNodeView(final int viewIndex, final FskxConverterNodeModel nodeModel) {
+  public NodeView<FskxCreatorNodeModel> createNodeView(final int viewIndex, final FskxCreatorNodeModel nodeModel) {
     return null;
   }
   
@@ -50,6 +50,6 @@ public class FskxConverterNodeFactory extends NodeFactory<FskxConverterNodeModel
   /** {@inheritDoc} */
   @Override
   public NodeDialogPane createNodeDialogPane() {
-    return new FskxConverterNodeDialog();
+    return new FskxCreatorNodeDialog();
   }
 }

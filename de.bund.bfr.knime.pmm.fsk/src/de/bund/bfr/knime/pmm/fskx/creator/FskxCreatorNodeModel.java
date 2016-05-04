@@ -16,7 +16,7 @@
  * Contributors: Department Biological Safety - BfR
  *************************************************************************************************
  */
-package de.bund.bfr.knime.pmm.fskx.converter;
+package de.bund.bfr.knime.pmm.fskx.creator;
 
 
 import java.io.File;
@@ -61,9 +61,9 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
-public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
+public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
   
-  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxConverterNodeModel.class);
+  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxCreatorNodeModel.class);
 
   // configuration key of the libraries directory
   static final String CFGKEY_DIR_LIBS = "dirLibs";
@@ -96,7 +96,7 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
   private SettingsModelStringArray m_selectedLibs = new SettingsModelStringArray(CFGKEY_LIBS, null);
 
   /** {@inheritDoc} */
-  protected FskxConverterNodeModel() {
+  protected FskxCreatorNodeModel() {
     super(inPortTypes, outPortTypes);
   }
 

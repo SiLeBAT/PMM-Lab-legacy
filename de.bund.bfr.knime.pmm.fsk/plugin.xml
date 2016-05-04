@@ -6,12 +6,12 @@
 	<node
 		category-path="/pmmlab/reader"
 		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory"/>
+		factory-class="de.bund.bfr.knime.pmm.fskx.creator.FskxCreatorNodeFactory"
+		id="de.bund.bfr.knime.pmm.fskx.creator.FskxCreatorNodeFactory"/>
 	<node category-path="/pmmlab/reader"
 		deprecated="false"
 		factory-class="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.reader.FskxxReaderNodeFactory"/>
+		id="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"/>
 	<node
 		category-path="/pmmlab/writer"
 		deprecated="false"

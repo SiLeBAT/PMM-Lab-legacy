@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.bund.bfr.knime.pmm.js.common.CatalogModel;
 import de.bund.bfr.knime.pmm.js.common.Dep;
 import de.bund.bfr.knime.pmm.js.common.EstModel;
+import de.bund.bfr.knime.pmm.js.common.IndepList;
 import de.bund.bfr.knime.pmm.js.common.LiteratureList;
 import de.bund.bfr.knime.pmm.js.common.ParamList;
 import de.bund.bfr.knime.pmm.js.common.SettingsHelper;
@@ -25,6 +26,7 @@ public class JsM12Schema implements ViewValue {
 	private CatalogModel catalogModel = new CatalogModel();
 	private Dep dep = new Dep();
 	private ParamList paramList = new ParamList();
+	private IndepList indepList = new IndepList();
 	private EstModel estModel = new EstModel();
 	private LiteratureList mLit = new LiteratureList();
 	private LiteratureList emLit = new LiteratureList();
@@ -56,6 +58,14 @@ public class JsM12Schema implements ViewValue {
 
 	public void setParamList(ParamList paramList) {
 		this.paramList = paramList;
+	}
+	
+	public IndepList getIndepList() {
+		return indepList;
+	}
+	
+	public void setIndepList(IndepList indepList) {
+		this.indepList = indepList;
 	}
 
 	public EstModel getEstModel() {

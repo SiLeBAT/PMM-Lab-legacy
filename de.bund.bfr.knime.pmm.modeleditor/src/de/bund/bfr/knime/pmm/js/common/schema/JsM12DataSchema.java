@@ -11,6 +11,7 @@ import de.bund.bfr.knime.pmm.js.common.Agent;
 import de.bund.bfr.knime.pmm.js.common.CatalogModel;
 import de.bund.bfr.knime.pmm.js.common.Dep;
 import de.bund.bfr.knime.pmm.js.common.EstModel;
+import de.bund.bfr.knime.pmm.js.common.IndepList;
 import de.bund.bfr.knime.pmm.js.common.LiteratureList;
 import de.bund.bfr.knime.pmm.js.common.Matrix;
 import de.bund.bfr.knime.pmm.js.common.MdInfo;
@@ -27,6 +28,7 @@ public class JsM12DataSchema implements ViewValue {
 	private CatalogModel catalogModel = new CatalogModel();
 	private Dep dep = new Dep();
 	private ParamList paramList = new ParamList();
+	private IndepList indepList = new IndepList();
 	private EstModel estModel = new EstModel();
 	private LiteratureList mLit = new LiteratureList();
 	private LiteratureList emLit = new LiteratureList();
@@ -104,6 +106,26 @@ public class JsM12DataSchema implements ViewValue {
 	 */
 	public void setParamList(ParamList paramList) {
 		this.paramList = paramList;
+	}
+	
+	/**
+	 * Returns the independent variables list of this {@link JsM12DataSchema}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the independent variables list of this {@link JsM12DataSchema}
+	 */
+	public IndepList getIndepList() {
+		return indepList;
+	}
+	
+	/**
+	 * Sets the independent variables list of this {@link JsM12DataSchema}.
+	 * 
+	 * @param the independent variables list of this {@link JsM12DataSchema}
+	 */
+	public void setIndepList(IndepList indepList) {
+		this.indepList = indepList;
 	}
 
 	/**

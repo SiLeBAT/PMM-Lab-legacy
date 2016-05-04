@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.bund.bfr.knime.pmm.js.common.CatalogModel;
 import de.bund.bfr.knime.pmm.js.common.Dep;
 import de.bund.bfr.knime.pmm.js.common.EstModel;
+import de.bund.bfr.knime.pmm.js.common.IndepList;
 import de.bund.bfr.knime.pmm.js.common.LiteratureList;
 import de.bund.bfr.knime.pmm.js.common.ParamList;
 import de.bund.bfr.knime.pmm.js.common.SettingsHelper;
@@ -32,6 +33,7 @@ public class JsM1Schema implements ViewValue {
 	private CatalogModel catalogModel = new CatalogModel();
 	private Dep dep = new Dep();
 	private ParamList paramList = new ParamList();
+	private IndepList indepList = new IndepList();
 	private EstModel estModel = new EstModel();
 	private LiteratureList mLit = new LiteratureList();
 	private LiteratureList emLit = new LiteratureList();
@@ -96,6 +98,26 @@ public class JsM1Schema implements ViewValue {
 	 */
 	public void setParamList(ParamList paramList) {
 		this.paramList = paramList;
+	}
+	
+	/**
+	 * Returns the independent variables list of this {@link JsM1Schema}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the independent variables list of this {@link JsM1Schema}
+	 */
+	public IndepList getIndepList() {
+		return indepList;
+	}
+	
+	/**
+	 * Sets the independent variables list of this {@link JsM1Schema}.
+	 * 
+	 * @param indepList the independent variables list to be set
+	 */
+	public void setIndepList(IndepList indepList) {
+		this.indepList = indepList;
 	}
 
 	/**
@@ -211,6 +233,7 @@ public class JsM1Schema implements ViewValue {
 		catalogModel.saveToNodeSettings(settings.addNodeSettings(ATT_MODELCATALOG));
 		dep.saveToNodeSettings(settings.addNodeSettings(ATT_DEPENDENT));
 		paramList.saveToNodeSettings(settings.addNodeSettings(ATT_PARAMETER));
+		indepList.saveToNodeSettings(settings.addNodeSettings(ATT_INDEPENDENT));
 		estModel.saveToNodeSettings(settings.addNodeSettings(ATT_ESTMODEL));
 		mLit.saveToNodeSettings(settings.addNodeSettings(ATT_MLIT));
 		emLit.saveToNodeSettings(settings.addNodeSettings(ATT_EMLIT));
@@ -229,6 +252,7 @@ public class JsM1Schema implements ViewValue {
 		catalogModel.loadFromNodeSettings(settings.getNodeSettings(ATT_MODELCATALOG));
 		dep.loadFromNodeSettings(settings.getNodeSettings(ATT_DEPENDENT));
 		paramList.loadFromNodeSettings(settings.getNodeSettings(ATT_PARAMETER));
+		indepList.loadFromNodeSettings(settings.getNodeSettings(ATT_INDEPENDENT));
 		estModel.loadFromNodeSettings(settings.getNodeSettings(ATT_ESTMODEL));
 		mLit.loadFromNodeSettings(settings.getNodeSettings(ATT_MLIT));
 		emLit.loadFromNodeSettings(settings.getNodeSettings(ATT_EMLIT));

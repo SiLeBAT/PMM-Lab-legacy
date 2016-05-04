@@ -106,6 +106,26 @@ public class JsM2Schema implements ViewValue {
 	}
 
 	/**
+	 * Returns the independent variables list of this {@link JsM2Schema}.
+	 * 
+	 * If not set returns null.
+	 * 
+	 * @return the independent variables list of this {@link JsM2Schema}
+	 */
+	public IndepList getIndepList() {
+		return indepList;
+	}
+	
+	/**
+	 * Sets the independent variables list of this {@link JsM2Schema}.
+	 * 
+	 * @param the independent variables list to be set
+	 */
+	public void setIndepList(IndepList indepList) {
+		this.indepList = indepList;
+	}
+
+	/**
 	 * Returns the estimated model of this {@link JsM2Schema}.
 	 *
 	 * If not set returns null.

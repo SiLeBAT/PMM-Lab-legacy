@@ -18,7 +18,7 @@ import de.bund.bfr.knime.pmm.js.common.ViewValue;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class Model2Schema implements ViewValue {
+public class JsM2Schema implements ViewValue {
 
 	static final String ATT_MODELCATALOG = "CatalogModel_Sec";
 	static final String ATT_ESTMODEL = "EstModel_Sec";
@@ -43,18 +43,18 @@ public class Model2Schema implements ViewValue {
 	private Integer globalModelId;
 
 	/**
-	 * Returns the catalog model of this {@link Model2Schema}.
+	 * Returns the catalog model of this {@link JsM2Schema}.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return the catalog model of this {@link Model2Schema}.
+	 * @return the catalog model of this {@link JsM2Schema}.
 	 */
 	public CatalogModel getCatalogModel() {
 		return catalogModel;
 	}
 
 	/**
-	 * Sets the catalog model of this {@link Model2Schema}.
+	 * Sets the catalog model of this {@link JsM2Schema}.
 	 *
 	 * @param catalogModel
 	 *            the catalog model to be set
@@ -64,18 +64,18 @@ public class Model2Schema implements ViewValue {
 	}
 
 	/**
-	 * Returns the dependent variable of this {@link Model2Schema}.
+	 * Returns the dependent variable of this {@link JsM2Schema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the dependent varaible of this {@link Model2Schema}
+	 * @return the dependent varaible of this {@link JsM2Schema}
 	 */
 	public Dep getDep() {
 		return dep;
 	}
 
 	/**
-	 * Sets the dependent variable of this {@link Model2Schema}.
+	 * Sets the dependent variable of this {@link JsM2Schema}.
 	 *
 	 * @param dep
 	 *            the dependent variable to be set
@@ -85,18 +85,18 @@ public class Model2Schema implements ViewValue {
 	}
 
 	/**
-	 * Returns the parameters list of this {@link Model2Schema}.
+	 * Returns the parameters list of this {@link JsM2Schema}.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return the parameters list of this {@link Model2Schema}
+	 * @return the parameters list of this {@link JsM2Schema}
 	 */
 	public ParamList getParamList() {
 		return paramList;
 	}
 
 	/**
-	 * Sets the parameters list of this {@link Model2Schema}.
+	 * Sets the parameters list of this {@link JsM2Schema}.
 	 * 
 	 * @param paramList
 	 *            the parameters list to be set
@@ -106,102 +106,102 @@ public class Model2Schema implements ViewValue {
 	}
 
 	/**
-	 * Returns the estimated model of this {@link Model2Schema}.
+	 * Returns the estimated model of this {@link JsM2Schema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the estimated model of this {@link Model2Schema}
+	 * @return the estimated model of this {@link JsM2Schema}
 	 */
 	public EstModel getEstModel() {
 		return estModel;
 	}
 
 	/**
-	 * Sets the estimated model of this {@link Model2Schema}.
+	 * Sets the estimated model of this {@link JsM2Schema}.
 	 *
 	 * @param estModel
-	 *            the estimated model of this {@link Model2Schema}
+	 *            the estimated model of this {@link JsM2Schema}
 	 */
 	public void setEstModel(EstModel estModel) {
 		this.estModel = estModel;
 	}
 
 	/**
-	 * Returns the model literature list of this {@link Model2Schema}.
+	 * Returns the model literature list of this {@link JsM2Schema}.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return the model literature list of this {@link Model2Schema}
+	 * @return the model literature list of this {@link JsM2Schema}
 	 */
 	public LiteratureList getmLit() {
 		return mLit;
 	}
 
 	/**
-	 * Sets the model literature list of this {@link Model2Schema}.
+	 * Sets the model literature list of this {@link JsM2Schema}.
 	 *
 	 * @param mLit
-	 *            the model literature list of this {@link Model2Schema}
+	 *            the model literature list of this {@link JsM2Schema}
 	 */
 	public void setmLit(LiteratureList mLit) {
 		this.mLit = mLit;
 	}
 
 	/**
-	 * Returns the estimated model literature list of this {@link Model2Schema}.
+	 * Returns the estimated model literature list of this {@link JsM2Schema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @returns the estimated model literature list of this {@link Model2Schema}
+	 * @returns the estimated model literature list of this {@link JsM2Schema}
 	 */
 	public LiteratureList getEmLit() {
 		return emLit;
 	}
 
 	/**
-	 * Sets the estimated model literature list of this {@link Model2Schema}.
+	 * Sets the estimated model literature list of this {@link JsM2Schema}.
 	 *
 	 * @param the
-	 *            estimated model literature list of this {@link Model2Schema}
+	 *            estimated model literature list of this {@link JsM2Schema}
 	 */
 	public void setEmLit(LiteratureList emLit) {
 		this.emLit = emLit;
 	}
 
 	/**
-	 * Returns whether the database of this {@link Model2Schema} is writable.
+	 * Returns whether the database of this {@link JsM2Schema} is writable.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return whether the database of this {@link Model2Schema} is writable
+	 * @return whether the database of this {@link JsM2Schema} is writable
 	 */
 	public Boolean getDatabaseWritable() {
 		return dbWritable;
 	}
 
 	/**
-	 * Sets whether the database of this {@link Model2Schema} is writable.
+	 * Sets whether the database of this {@link JsM2Schema} is writable.
 	 *
 	 * @param dbWritable
-	 *            whether the database of this {@link Model2Schema} is writable
+	 *            whether the database of this {@link JsM2Schema} is writable
 	 */
 	public void setDatabaseWritable(Boolean dbWritable) {
 		this.dbWritable = dbWritable;
 	}
 
 	/**
-	 * Returns the database UUID of this {@link Model2Schema}.
+	 * Returns the database UUID of this {@link JsM2Schema}.
 	 * 
 	 * If not set returns null.
 	 * 
-	 * @return the database UUID of this {@link Model2Schema}
+	 * @return the database UUID of this {@link JsM2Schema}
 	 */
 	public String getDbuuid() {
 		return uuid;
 	}
 
 	/**
-	 * Sets the database UUID of this {@link Model2Schema}.
+	 * Sets the database UUID of this {@link JsM2Schema}.
 	 * 
 	 * @param uuid
 	 *            the database UUID to be set
@@ -211,18 +211,18 @@ public class Model2Schema implements ViewValue {
 	}
 
 	/**
-	 * Returns the global model id of this {@link Model2Schema}.
+	 * Returns the global model id of this {@link JsM2Schema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the global model id of this {@link Model2Schema}
+	 * @return the global model id of this {@link JsM2Schema}
 	 */
 	public Integer getGlobalModelId() {
 		return globalModelId;
 	}
 
 	/**
-	 * Sets the global model id of this {@link Model2Schema}.
+	 * Sets the global model id of this {@link JsM2Schema}.
 	 *
 	 * @param globalModelId
 	 *            the global model id to be set
@@ -235,7 +235,7 @@ public class Model2Schema implements ViewValue {
 	 * Saves Model2Schema properties into a {@link NodeSettingsWO}.
 	 *
 	 * @param settings
-	 *            the settings where to save the {@link Model2Schema} properties
+	 *            the settings where to save the {@link JsM2Schema} properties
 	 */
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
@@ -254,7 +254,7 @@ public class Model2Schema implements ViewValue {
 	 * Loads Model2Schema properties from a {@link NodeSettingsWO}.
 	 *
 	 * @param settings
-	 *            the settings where to load the {@link Model2Schema} from
+	 *            the settings where to load the {@link JsM2Schema} from
 	 */
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {

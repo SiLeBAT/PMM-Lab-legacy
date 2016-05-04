@@ -18,7 +18,7 @@ import de.bund.bfr.knime.pmm.js.common.ViewValue;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class TimeSeriesSchema implements ViewValue {
+public class JsTimeSeriesSchema implements ViewValue {
 
 	static final String ATT_CONDID = "CondID";
 	static final String ATT_COMBASEID = "CombaseID";
@@ -41,18 +41,18 @@ public class TimeSeriesSchema implements ViewValue {
 	private String dbuuid;
 	
 	/**
-	 * Returns the condId of this {@link TimeSeriesSchema}.
+	 * Returns the condId of this {@link JsTimeSeriesSchema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the condId of this {@link TimeSeriesSchema}
+	 * @return the condId of this {@link JsTimeSeriesSchema}
 	 */
 	public Integer getCondId() {
 		return condId;
 	}
 
 	/**
-	 * Sets the condId of this {@link TimeSeriesSchema}.
+	 * Sets the condId of this {@link JsTimeSeriesSchema}.
 	 *
 	 * @param condId the condId to be set
 	 */
@@ -61,18 +61,18 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the Combase id of this {@link TimeSeriesSchema}.
+	 * Returns the Combase id of this {@link JsTimeSeriesSchema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the combase id of this {@link TimeSeriesSchema}
+	 * @return the combase id of this {@link JsTimeSeriesSchema}
 	 */
 	public String getCombaseId() {
 		return combaseId;
 	}
 
 	/**
-	 * Sets the combase id of this {@link TimeSeriesSchema}.
+	 * Sets the combase id of this {@link JsTimeSeriesSchema}.
  	 *
  	 * @param combaseId the combase id to be set
  	 */
@@ -81,18 +81,18 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the misc list of this {@link TimeSeriesSchema}.
+	 * Returns the misc list of this {@link JsTimeSeriesSchema}.
  	 *
 	 * If not set returns null.
 	 *
-	 * @return the misc list of this {@link TimeSeriesSchema}
+	 * @return the misc list of this {@link JsTimeSeriesSchema}
 	 */
 	public MiscList getMiscList() {
 		return miscList;
 	}
 
 	/**
-	 * Sets the misc list of this {@link TimeSeriesSchema}.
+	 * Sets the misc list of this {@link JsTimeSeriesSchema}.
 	 *
 	 * @param miscList the misc list to be set
 	 */
@@ -101,18 +101,18 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the agent of this {@link TimeSeriesSchema}.
+	 * Returns the agent of this {@link JsTimeSeriesSchema}.
  	 *
  	 * If not set returns null.
 	 *
-	 * @return the agent of this {@link TimeSeriesSchema}
+	 * @return the agent of this {@link JsTimeSeriesSchema}
 	 */
 	public Agent getAgent() {
 		return agent;
 	}
 
 	/**
-	 * Sets the agent of this {@link TimeSeriesSchema}.
+	 * Sets the agent of this {@link JsTimeSeriesSchema}.
 	 * 
 	 * @param agent the agent to be set
 	 */
@@ -121,18 +121,18 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the matrix of this {@link TimeSeriesSchema}.
+	 * Returns the matrix of this {@link JsTimeSeriesSchema}.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return the matrix of this {@link TimeSeriesSchema}
+	 * @return the matrix of this {@link JsTimeSeriesSchema}
 	 */
 	public Matrix getMatrix() {
 		return matrix;
 	}
 
 	/**
-	 * Sets the matrix of this {@link TimeSeriesSchema}.
+	 * Sets the matrix of this {@link JsTimeSeriesSchema}.
 	 *
 	 * @param matrix the matrix to be set
 	 */
@@ -141,18 +141,18 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the TimeSeries list of this {@link TimeSeriesSchema}.
+	 * Returns the TimeSeries list of this {@link JsTimeSeriesSchema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the TimeSeries list of this {@link TimeSeriesSchema}
+	 * @return the TimeSeries list of this {@link JsTimeSeriesSchema}
 	 */
 	public TimeSeriesList getTimeSeriesList() {
 		return timeSeriesList;
 	}
 
 	/**
-	 * Sets the TimeSeries list of this {@link TimeSeriesSchema}.
+	 * Sets the TimeSeries list of this {@link JsTimeSeriesSchema}.
 	 * 
 	 * @param timeSeriesList the TimeSeries list to be set
 	 */
@@ -161,18 +161,18 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the model info of this {@link TimeSeriesSchema}.
+	 * Returns the model info of this {@link JsTimeSeriesSchema}.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return the model info of this {@link TimeSeriesSchema}
+	 * @return the model info of this {@link JsTimeSeriesSchema}
 	 */
 	public MdInfo getMdInfo() {
 		return mdInfo;
 	}
 
 	/**
-	 * Sets the model info of this {@link TimeSeriesSchema}.
+	 * Sets the model info of this {@link JsTimeSeriesSchema}.
 	 *
 	 * @param mdInfo the model info to be set
 	 */
@@ -181,40 +181,40 @@ public class TimeSeriesSchema implements ViewValue {
 	}
 
 	/**
-	 * Returns the literature list of this {@link TimeSeriesSchema}.
+	 * Returns the literature list of this {@link JsTimeSeriesSchema}.
 	 * 
 	 * If not set returns null.
 	 *
-	 * @return the literature list of this {@link TimeSeriesSchema}
+	 * @return the literature list of this {@link JsTimeSeriesSchema}
 	 */
 	public LiteratureList getLiteratureList() {
 		return literatureList;
 	}
 
 	/**
-	 * Sets the literature list of this {@link TimeSeriesSchema}.
+	 * Sets the literature list of this {@link JsTimeSeriesSchema}.
 	 *
 	 * If not set returns null.
 	 *
-	 * @return the literature list of this {@link TimeSeriesSchema}
+	 * @return the literature list of this {@link JsTimeSeriesSchema}
 	 */
 	public void setLiteratureList(LiteratureList literatureList) {
 		this.literatureList = literatureList;
 	}
 
 	/**
-	 * Returns the database UUID of this {@link TimeSeriesSchema}.
+	 * Returns the database UUID of this {@link JsTimeSeriesSchema}.
 	 *
 	 * If not set returns null.
      *
-     * @return the database UUID of this {@link TimeSeriesSchema}
+     * @return the database UUID of this {@link JsTimeSeriesSchema}
 	 */
 	public String getDbuuid() {
 		return dbuuid;
 	}
 
 	/**
-	 * Sets the database UUID of this {@link TimeSeriesSchema}.
+	 * Sets the database UUID of this {@link JsTimeSeriesSchema}.
 	 *
 	 * @param dbuuid the database UUID to be set
 	 */
@@ -227,7 +227,7 @@ public class TimeSeriesSchema implements ViewValue {
 	 * Saves TimeSeriesSchema properties into a {@link NodeSettingsWO}.
 	 *
 	 * @param settings
-	 * 		the settings where to save the {@link TimeSeriesSchema} properties
+	 * 		the settings where to save the {@link JsTimeSeriesSchema} properties
 	 */
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
@@ -246,7 +246,7 @@ public class TimeSeriesSchema implements ViewValue {
 	 * Loads TimeSeriesSchema properties from a {@link NodeSettingsRO}.
 	 *
 	 * @param settings
-	 *		The settings where to load the {@link TimeSeriesSchema} from
+	 *		The settings where to load the {@link JsTimeSeriesSchema} from
 	 */
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {

@@ -11,21 +11,22 @@ import de.bund.bfr.knime.pmm.js.common.ViewValue;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property="@class")
-public class Model12SchemaList implements ViewValue {
+public class JsM1DataSchemaList implements ViewValue {
 	
 	private static final String NUM_SCHEMAS = "numSchemas";
 	private static final String SCHEMAS = "schemas";
 	
 	private int numSchemas;
-	private Model12Schema[] schemas;
+	private JsM1DataSchema[] schemas;
 	
-	public Model12Schema[] getSchemas() { return schemas; }
+	public JsM1DataSchema[] getSchemas() { return schemas; }
 	
-	public void setSchemas(final Model12Schema[] schemas) {
+	public void setModels(final JsM1DataSchema[] schemas) {
 		numSchemas = schemas.length;
 		this.schemas = schemas;
 	}
 	
+
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
 		settings.addInt(NUM_SCHEMAS, numSchemas);
@@ -38,9 +39,9 @@ public class Model12SchemaList implements ViewValue {
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
 		try {
 			numSchemas = settings.getInt(NUM_SCHEMAS);
-			schemas = new Model12Schema[numSchemas];
+			schemas = new JsM1DataSchema[numSchemas];
 			for (int i = 0; i < numSchemas; i++) {
-				schemas[i] = new Model12Schema();
+				schemas[i] = new JsM1DataSchema();
 				schemas[i].loadFromNodeSettings(settings.getNodeSettings(SCHEMAS + i));
 			}
 		} catch (InvalidSettingsException e) {

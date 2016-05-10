@@ -61,6 +61,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
   public void start(final BundleContext context) throws Exception {
     super.start(context);
     plugin = this;
+    libRegistry = new LibRegistry();
   }
 
   /**
@@ -135,7 +136,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
       repoPath = Files.createTempDirectory("repo");
 
       // Create common R attributes
-      pathAttr = "path ='" + installPath.toString().replace("\\", "/") + "'";
+      pathAttr = "path ='" + repoPath.toString().replace("\\", "/") + "'";
       reposAttr = "repos = 'http://cran.us.r-project.org'";
       typeAttr = "type = 'win.binary'";
       
@@ -240,5 +241,9 @@ public class FSKNodePlugin extends AbstractUIPlugin {
       Files.walkFileTree(installPath, fv); // delete installation directory
       Files.walkFileTree(repoPath, fv); // delete miniCRAN directory
     }
+  }
+
+  public Path getInstallationPath() {
+    return libRegistry.installPath;
   }
 }

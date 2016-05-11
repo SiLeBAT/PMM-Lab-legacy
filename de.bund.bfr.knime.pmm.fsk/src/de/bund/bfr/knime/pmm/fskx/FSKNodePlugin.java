@@ -150,9 +150,6 @@ public class FSKNodePlugin extends AbstractUIPlugin {
     }
     
     public boolean isInstalled(final String libraryName) {
-      System.out.println(installedLibs.contains(libraryName));
-      System.out.println(installedLibs.contains("'maps'"));
-      System.out.println(installedLibs);
       return installedLibs.contains(libraryName);
     }
 

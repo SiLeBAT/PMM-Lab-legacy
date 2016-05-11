@@ -149,7 +149,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
       rController.eval("makeRepo(c(), " + pathAttr + ", " + reposAttr + ", " + typeAttr + ")");
     }
     
-    public boolean isInstalled(final String libraryName) {
+    boolean isInstalled(final String libraryName) {
       return installedLibs.contains(libraryName);
     }
 

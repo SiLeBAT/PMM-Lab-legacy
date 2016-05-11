@@ -27,6 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -53,12 +54,16 @@ import org.knime.core.node.port.PortObjectZipOutputStream;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.core.util.FileUtil;
+import org.rosuda.REngine.REXPMismatchException;
 
+import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.rsnippet.RSnippet;
 import de.bund.bfr.knime.pmm.fskx.ui.RSnippetTextArea;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
+
+import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 
 /**
  * A port object for an FSK model port providing R scripts and model meta data.
@@ -115,7 +120,7 @@ public class FskPortObject implements PortObject {
   public String getModelScript() {
     return m_model;
   }
-  
+
   public void setModelScript(final String model) {
     m_model = model;
   }
@@ -124,7 +129,7 @@ public class FskPortObject implements PortObject {
   public String getParamScript() {
     return m_param;
   }
-  
+
   public void setParamScript(final String param) {
     m_param = param;
   }
@@ -133,7 +138,7 @@ public class FskPortObject implements PortObject {
   public String getVizScript() {
     return m_viz;
   }
-  
+
   public void setVizScript(final String viz) {
     m_viz = viz;
   }
@@ -142,7 +147,7 @@ public class FskPortObject implements PortObject {
   public FSMRTemplate getTemplate() {
     return m_template;
   }
-  
+
   public void setTemplate(final FSMRTemplate template) {
     m_template = template;
   }
@@ -151,7 +156,7 @@ public class FskPortObject implements PortObject {
   public File getWorkspaceFile() {
     return m_workspace;
   }
-  
+
   public void setWorkspaceFile(final File workspace) {
     m_workspace = workspace;
   }
@@ -210,11 +215,11 @@ public class FskPortObject implements PortObject {
         out.closeEntry();
       }
 
-      for (File lib : portObject.m_libs) {
-        out.putNextEntry(new ZipEntry(lib.getName()));
-        try (FileInputStream fis = new FileInputStream(lib)) {
-          FileUtil.copy(fis,  out);
-        }
+      if (!portObject.m_libs.isEmpty()) {
+        out.putNextEntry(new ZipEntry("library.list"));
+        List<String> libNames =
+            portObject.m_libs.stream().map(f -> f.getName().split("\\_")[0]).collect(Collectors.toList());
+        IOUtils.writeLines(libNames, "\n", out, "UTF-8");
         out.closeEntry();
       }
 
@@ -232,8 +237,6 @@ public class FskPortObject implements PortObject {
       File workspaceFile = null;
       Set<File> libs = new HashSet<>();
 
-      File libDir = FileUtil.createTempDir("libs");
-      
       ZipEntry entry;
       while ((entry = in.getNextEntry()) != null) {
         String entryName = entry.getName();
@@ -255,19 +258,26 @@ public class FskPortObject implements PortObject {
           FileOutputStream fos = new FileOutputStream(workspaceFile);
           FileUtil.copy(in, fos);
           fos.close();
-        } else if (entryName.endsWith(".zip")) {
-          // Creates file
-          File f = new File(libDir, entryName);
-          f.deleteOnExit();
-          // Copy library into file
-          FileOutputStream fos = new FileOutputStream(f);
-          FileUtil.copy(in, fos);
-          fos.close();
-          // Add library into libraries set (libs)
-          libs.add(f);
+        } else if (entryName.equals("library.list")) {
+          List<String> libNames = IOUtils.readLines(in, "UTF-8");
+
+          FSKNodePlugin plugin = FSKNodePlugin.getDefault();
+          // Install missing libraries
+          List<String> missing = libNames.stream().filter(lib -> !plugin.isInstalled(lib))
+              .collect(Collectors.toList());
+
+          try {
+            if (!missing.isEmpty()) {
+              plugin.installLibs(missing);
+            }
+            // Adds to libs the Paths of the libraries converted to Files
+            plugin.getPaths(libNames).stream().forEach(p -> libs.add(p.toFile()));
+          } catch (RException | REXPMismatchException error) {
+            throw new IOException(error.getMessage());
+          }
         }
       }
-      
+
       in.close();
 
       return new FskPortObject(model, param, viz, template, workspaceFile, libs);
@@ -320,7 +330,7 @@ public class FskPortObject implements PortObject {
       libNames[i] = lib.getName();
       i++;
     }
-    
+
     JList<String> list = new JList<>(libNames);
     list.setLayoutOrientation(JList.VERTICAL);
     list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

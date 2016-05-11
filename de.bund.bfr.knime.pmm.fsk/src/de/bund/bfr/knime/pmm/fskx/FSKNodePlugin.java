@@ -186,8 +186,9 @@ public class FSKNodePlugin extends AbstractUIPlugin {
       String fileList = "c(" + String.join(",", paths) + ")";
 
       // Install binaries
-      rController.eval("install.packages(" + fileList + ", repos = NULL, lib = '"
-          + installPath.toString().replace("\\", "/") + "')");
+      String cmd = "install.packages(" + fileList + ", repos = NULL, lib = '"
+          + installPath.toString().replace("\\", "/") + "', " + typeAttr + ")";
+      rController.eval(cmd);
       
       // Adds names of installed libraries to utility set
       installedLibs.addAll(libs);

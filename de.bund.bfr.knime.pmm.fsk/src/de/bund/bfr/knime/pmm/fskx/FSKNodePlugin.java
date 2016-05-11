@@ -150,6 +150,9 @@ public class FSKNodePlugin extends AbstractUIPlugin {
     }
     
     public boolean isInstalled(final String libraryName) {
+      System.out.println(installedLibs.contains(libraryName));
+      System.out.println(installedLibs.contains("'maps'"));
+      System.out.println(installedLibs);
       return installedLibs.contains(libraryName);
     }
 
@@ -171,9 +174,9 @@ public class FSKNodePlugin extends AbstractUIPlugin {
       // Gets list of R dependencies of libs: c("dep1", "dep2", ..., "depN")
       REXP rexp =
           rController.eval("pkgDep(" + pkgList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
-      List<String> deps =
-          Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
-      String depList = "c(" + String.join(",", deps) + ")";
+      List<String> deps = Arrays.asList(rexp.asStrings());
+      List<String> quotedDeps = deps.stream().map(quoteOperator).collect(Collectors.toList());
+      String depList = "c(" + String.join(",", quotedDeps) + ")";
 
       // Adds the dependencies to the miniCRAN repository
       rController.eval(
@@ -191,7 +194,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
       rController.eval(cmd);
       
       // Adds names of installed libraries to utility set
-      installedLibs.addAll(libs);
+      installedLibs.addAll(deps);
     }
 
     /**

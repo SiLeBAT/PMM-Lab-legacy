@@ -10,6 +10,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import de.bund.bfr.knime.pmm.js.common.ModelList;
 import de.bund.bfr.knime.pmm.js.common.UnitList;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM12DataSchemaList;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM12SchemaList;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM1DataSchemaList;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM1SchemaList;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -32,11 +36,15 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	// Configuration keys
 	private ModelList m_models;
+	private JsM1DataSchemaList m1_models;
+	private JsM12DataSchemaList m12_models;
 	private UnitList m_units;
 
 	public ModelPlotterViewValue() {
 		// Query database
 		m_models = new ModelList();
+		m1_models = new JsM1DataSchemaList();
+		m12_models = new JsM12DataSchemaList();
 		m_units = new UnitList();
 	}
 
@@ -46,6 +54,22 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	public void setModels(ModelList models) {
 		m_models = models;
+	}
+	
+	public JsM1DataSchemaList getM1Models() {
+		return m1_models;
+	}
+	
+	public void setModels(JsM1DataSchemaList models) {
+		m1_models = models;
+	}
+	
+	public JsM12DataSchemaList getM12Models() {
+		return m12_models;
+	}
+	
+	public void setModels(JsM12DataSchemaList models) {
+		m12_models = models;
 	}
 	
 	public UnitList getUnits() {

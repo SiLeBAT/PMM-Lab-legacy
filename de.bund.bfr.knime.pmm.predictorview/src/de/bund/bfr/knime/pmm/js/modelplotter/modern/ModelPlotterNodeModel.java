@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
@@ -87,6 +86,7 @@ import de.bund.bfr.knime.pmm.js.common.TimeSeriesList;
 import de.bund.bfr.knime.pmm.js.common.Unit;
 import de.bund.bfr.knime.pmm.js.common.UnitList;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM12DataSchema;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM12DataSchemaList;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM1DataSchema;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM2Schema;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM2SchemaList;
@@ -200,6 +200,7 @@ public final class ModelPlotterNodeModel
 			viewValue.setMaxXAxis(m_config.getMaxXAxis());
 			viewValue.setMaxYAxis(m_config.getMaxYAxis());
 
+			/*
 			// Convert KNIME tuples to Model1DataTuple
 			Model1DataTuple[] dataTuples = new Model1DataTuple[tuples.size()];
 			for (int i = 0; i < tuples.size(); i++) {
@@ -224,6 +225,20 @@ public final class ModelPlotterNodeModel
 			ModelList modelList = new ModelList();
 			modelList.setModels(dataTuples);
 			viewValue.setModels(modelList);
+			
+			*/
+			
+			// create schemata
+			List<JsM12DataSchema> modelList = codeM12DataSchema(tuples);
+			
+			// convert list to necessary view list
+			JsM12DataSchema[] modelArray = new JsM12DataSchema[modelList.size()];
+			modelArray = modelList.toArray(modelArray);
+			JsM12DataSchemaList list = new JsM12DataSchemaList();
+			list.setModels(modelArray);
+			
+			// set new list to view
+			viewValue.setModels(list);
 
 			// create UnitList from DBUnits
 			// (this way we can use the units known to the DB and do not have to
@@ -252,11 +267,26 @@ public final class ModelPlotterNodeModel
 		exec.setProgress(1);
 
 		// return edited table
-		BufferedDataContainer container = exec.createDataContainer(SchemaFactory.createM1DataSchema().createSpec());
-		ModelList outModelList = getViewValue().getModels();
-		for (Model1DataTuple m1DataTuple : outModelList.getModels()) {
-			KnimeTuple outTuple = ModelEditorNodeModel.decodeTuple(m1DataTuple);
-			container.addRowToTable(outTuple);
+		BufferedDataContainer container = exec.createDataContainer(SchemaFactory.createM12DataSchema().createSpec());
+		
+		/*
+			ModelList outModelList = getViewValue().getModels();
+			for (Model1DataTuple m1DataTuple : outModelList.getModels()) {
+				KnimeTuple outTuple = ModelEditorNodeModel.decodeTuple(m1DataTuple);
+				container.addRowToTable(outTuple);
+			}
+		*/
+		
+		JsM12DataSchemaList outModelList = getViewValue().getM12Models();
+		JsM12DataSchema[] resultSchemaArray = outModelList.getSchemas();
+		List<JsM12DataSchema> resultList = new ArrayList<JsM12DataSchema>();
+		for (JsM12DataSchema jsM12DataSchema : resultSchemaArray) {
+			resultList.add(jsM12DataSchema);
+		}
+		
+		List<KnimeTuple> outTuple = decodeM12DataSchemas(resultList);
+		for (KnimeTuple knimeTuple : outTuple) {
+			container.addRowToTable(knimeTuple);
 		}
 		container.close();
 
@@ -287,7 +317,7 @@ public final class ModelPlotterNodeModel
 
 	private PortObjectSpec[] createOutputDataTableSpecs() {
 
-		return new PortObjectSpec[] { SchemaFactory.createM1DataSchema().createSpec(), getUserSpec(),
+		return new PortObjectSpec[] { SchemaFactory.createM12DataSchema().createSpec(), getUserSpec(),
 				ChartUtilities.getImageSpec(true) };
 	}
 
@@ -690,7 +720,7 @@ public final class ModelPlotterNodeModel
 				PmmXmlDoc secParamDoc = atuple.getPmmXml(Model2Schema.ATT_PARAMETER);
 				if (secParamDoc.size() > 0) {
 					Param[] paramArray = new Param[secParamDoc.size()];
-					for (int z = 0; z < paramDoc.size(); z++) {
+					for (int z = 0; z < secParamDoc.size(); z++) {
 						ParamXml paramXml = (ParamXml) secParamDoc.get(z);
 						paramArray[z] = Param.toParam(paramXml);
 					}
@@ -758,6 +788,7 @@ public final class ModelPlotterNodeModel
 			JsM2SchemaList m2List = new JsM2SchemaList();
 			m2List.setModels(m2Schemas);
 			schema.setM2List(m2List);
+			schemas.add(schema);
 		}
 
 		return schemas;
@@ -905,14 +936,16 @@ public final class ModelPlotterNodeModel
 			}
 
 			PmmXmlDoc mLitDoc = new PmmXmlDoc();
-			for (Literature literature : schema.getmLit().getLiterature()) {
-				mLitDoc.add(literature.toLiteratureItem());
-			}
+			if(schema.getmLit().getLiterature() != null)
+				for (Literature literature : schema.getmLit().getLiterature()) {
+					mLitDoc.add(literature.toLiteratureItem());
+				}
 
 			PmmXmlDoc emLitDoc = new PmmXmlDoc();
-			for (Literature literature : schema.getEmLit().getLiterature()) {
-				emLitDoc.add(literature.toLiteratureItem());
-			}
+			if(schema.getEmLit().getLiterature() != null)
+				for (Literature literature : schema.getEmLit().getLiterature()) {
+					emLitDoc.add(literature.toLiteratureItem());
+				}
 
 			int dbWritable;
 			if (schema.getDatabaseWritable() == null) {
@@ -928,9 +961,10 @@ public final class ModelPlotterNodeModel
 			String combaseId = schema.getCombaseId();
 
 			PmmXmlDoc miscDoc = new PmmXmlDoc();
-			for (Misc misc : schema.getMiscList().getMiscs()) {
-				miscDoc.add(misc.toMiscXml());
-			}
+			if(schema.getMiscList().getMiscs() != null)
+				for (Misc misc : schema.getMiscList().getMiscs()) {
+					miscDoc.add(misc.toMiscXml());
+				}
 
 			PmmXmlDoc agentDoc = new PmmXmlDoc();
 			if (schema.getAgent() != null) {
@@ -943,6 +977,7 @@ public final class ModelPlotterNodeModel
 			}
 
 			PmmXmlDoc timeSeriesDoc = new PmmXmlDoc();
+			if(schema.getTimeSeriesList().getTimeSeries() != null)
 			for (TimeSeries timeSeries : schema.getTimeSeriesList().getTimeSeries()) {
 				timeSeriesDoc.add(timeSeries.toTimeSeriesXml());
 			}
@@ -953,9 +988,10 @@ public final class ModelPlotterNodeModel
 			}
 
 			PmmXmlDoc mdLitDoc = new PmmXmlDoc();
-			for (Literature literature : schema.getLiteratureList().getLiterature()) {
-				mdLitDoc.add(literature.toLiteratureItem());
-			}
+				if(schema.getLiteratureList().getLiterature() != null)
+				for (Literature literature : schema.getLiteratureList().getLiterature()) {
+					mdLitDoc.add(literature.toLiteratureItem());
+				}
 
 			for (JsM2Schema m2Schema : schema.getM2List().getSchemas()) {
 				// Build actual KnimeTuple
@@ -996,33 +1032,38 @@ public final class ModelPlotterNodeModel
 				tuple.setValue(Model2Schema.ATT_DEPENDENT, secDepDoc);
 				
 				PmmXmlDoc secParamDoc = new PmmXmlDoc();
-				for (Param param : m2Schema.getParamList().getParams()) {
-					secParamDoc.add(param.toParamXml());
-				}
+				if(m2Schema.getParamList().getParams() != null)
+					for (Param param : m2Schema.getParamList().getParams()) {
+						secParamDoc.add(param.toParamXml());
+					}
 				tuple.setValue(Model2Schema.ATT_PARAMETER, secParamDoc);
 				
 				PmmXmlDoc secIndepDoc = new PmmXmlDoc();
+				if(m2Schema.getIndepList().getIndeps() != null)
 				for (Indep indep : m2Schema.getIndepList().getIndeps()) {
 					secIndepDoc.add(indep.toIndepXml());
 				}
 				tuple.setValue(Model2Schema.ATT_INDEPENDENT, secIndepDoc);
 				
 				PmmXmlDoc secEstModelDoc = new PmmXmlDoc();
-				if (m2Schema.getEstModel() != null) {
+				if (m2Schema.getEstModel() != null) 
+				{
 					secEstModelDoc.add(m2Schema.getEstModel().toEstModelXml());
 				}
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, secEstModelDoc);
 				
 				PmmXmlDoc secMLitDoc = new PmmXmlDoc();
-				for (Literature literature : m2Schema.getmLit().getLiterature()) {
-					secMLitDoc.add(literature.toLiteratureItem());
-				}
+				if(m2Schema.getmLit().getLiterature() != null)
+					for (Literature literature : m2Schema.getmLit().getLiterature()) {
+						secMLitDoc.add(literature.toLiteratureItem());
+					}
 				tuple.setValue(Model2Schema.ATT_MLIT, secMLitDoc);
 				
 				PmmXmlDoc secEmLitDoc = new PmmXmlDoc();
-				for (Literature literature : m2Schema.getEmLit().getLiterature()) {
-					secEmLitDoc.add(literature.toLiteratureItem());
-				}
+				if(m2Schema.getEmLit().getLiterature() != null)
+					for (Literature literature : m2Schema.getEmLit().getLiterature()) {
+						secEmLitDoc.add(literature.toLiteratureItem());
+					}
 				tuple.setValue(Model2Schema.ATT_EMLIT, secEmLitDoc);
 				
 				tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, dbWritable);

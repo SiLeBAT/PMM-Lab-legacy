@@ -17,13 +17,8 @@
 package de.bund.bfr.knime.pmm.fskx;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +27,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.knime.core.util.FileUtil;
 import org.osgi.framework.BundleContext;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -74,7 +70,6 @@ public class FSKNodePlugin extends AbstractUIPlugin {
   public void stop(final BundleContext context) throws Exception {
     plugin = null;
     super.stop(context);
-    libRegistry.finalize();
   }
 
   /**
@@ -132,8 +127,8 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 
     LibRegistry() throws IOException, RException {
       // Create directories
-      installPath = Files.createTempDirectory("install");
-      repoPath = Files.createTempDirectory("repo");
+      installPath = FileUtil.createTempDir("install").toPath();
+      repoPath = FileUtil.createTempDir("repo").toPath();
 
       // Create common R attributes
       pathAttr = "path ='" + repoPath.toString().replace("\\", "/") + "'";
@@ -220,27 +215,6 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 
       return Arrays.stream(rexp.asStrings()).map(path -> Paths.get(path))
           .collect(Collectors.toSet());
-    }
-
-    @Override
-    protected void finalize() throws Exception {
-
-      FileVisitor<Path> fv = new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Files.delete(file);
-          return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-          Files.delete(dir);
-          return FileVisitResult.CONTINUE;
-        }
-      };
-
-      Files.walkFileTree(installPath, fv); // delete installation directory
-      Files.walkFileTree(repoPath, fv); // delete miniCRAN directory
     }
   }
 

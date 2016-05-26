@@ -7,8 +7,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -26,335 +28,315 @@ import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
+import com.google.common.base.Joiner;
+
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 
 public class BoxFileSelection extends Box implements ChangeListener {
 
-  private static final long serialVersionUID = 1686534988633504356L;
+	private static final long serialVersionUID = 1686534988633504356L;
 
-  // models
-  private SettingsModelString m_dir;
-  private String m_extensions;
-  private SettingsModelStringArray m_selectedFiles;
-  private DefaultListModel<String> m_included; // Included files
-  private DefaultListModel<String> m_excluded; // Excluded files
+	// models
+	private SettingsModelString m_dir;
+	private List<String> m_extensions;
+	private SettingsModelStringArray m_selectedFiles;
+	private DefaultListModel<String> m_included; // Included files
+	private DefaultListModel<String> m_excluded; // Excluded files
 
-  // gui elements
-  private DialogComponentFileChooser dirChooser;
-  private JList<String> m_includedList; // JList of included files
-  private JList<String> m_excludedList; // JList of excluded files
+	// gui elements
+	private DialogComponentFileChooser dirChooser;
+	private JList<String> m_includedList; // JList of included files
+	private JList<String> m_excludedList; // JList of excluded files
 
-  public BoxFileSelection(SettingsModelString dir, SettingsModelStringArray selectedFiles,
-      String extensions, String title) {
-    super(BoxLayout.PAGE_AXIS);
+	public BoxFileSelection(SettingsModelString dir, SettingsModelStringArray selectedFiles, String extensions,
+			String title) {
+		super(BoxLayout.PAGE_AXIS);
 
-    m_dir = dir;
-    m_extensions = extensions;
-    m_selectedFiles = selectedFiles;
+		m_dir = dir;
 
-    // Inits models
-    m_included = new DefaultListModel<>();
-    m_excluded = new DefaultListModel<>();
+		// Split on \ and skip dot. extensions are formatted with dots:
+		// .gif|.jpeg|...
+		m_extensions = Arrays.stream(extensions.split("\\|")).map(ext -> ext.substring(1)).collect(Collectors.toList());
 
-    // Inits gui elements
-    m_includedList = new JList<>(m_included);
-    m_excludedList = new JList<>(m_excluded);
+		m_selectedFiles = selectedFiles;
 
-    dirChooser = new DialogComponentFileChooser(m_dir, "file-directory",
-        JFileChooser.OPEN_DIALOG, true, extensions);
-    dirChooser.addChangeListener(this);
+		// Inits models
+		m_included = new DefaultListModel<>();
+		m_excluded = new DefaultListModel<>();
 
-    Box innerBox = Box.createHorizontalBox();
-    innerBox.add(new LeftBox()); // left box with excluded items
-    innerBox.add(new ButtonBox()); //
-    innerBox.add(new RightBox()); // right box with included items
+		// Inits gui elements
+		m_includedList = new JList<>(m_included);
+		m_excludedList = new JList<>(m_excluded);
 
-    setBorder(BorderFactory.createTitledBorder(title));
-    add(dirChooser.getComponentPanel());
-    add(innerBox);
-  }
+		dirChooser = new DialogComponentFileChooser(m_dir, "file-directory", JFileChooser.OPEN_DIALOG, true,
+				extensions);
+		dirChooser.addChangeListener(this);
 
-  /**
-   * If m_dir changes, m_included and m_excluded are cleared and all the files in m_dir are added to m_excluded.
-   */
-  @Override
-  public void stateChanged(ChangeEvent event) {
-    m_included.clear();
-    m_excluded.clear();
+		Box innerBox = Box.createHorizontalBox();
+		innerBox.add(new LeftBox()); // left box with excluded items
+		innerBox.add(new ButtonBox()); //
+		innerBox.add(new RightBox()); // right box with included items
 
-    // Add all the files in the selected directory to m_excluded
-    SettingsModelString fileChooserModel = (SettingsModelString) dirChooser.getModel();
-    String selectedDirectory = fileChooserModel.getStringValue();
+		setBorder(BorderFactory.createTitledBorder(title));
+		add(dirChooser.getComponentPanel());
+		add(innerBox);
+	}
 
-    // Updates m_excluded with all the files in selectedDirectory
-    File directory;
-    try {
-      directory = KnimeUtils.getFile(selectedDirectory);
-      
-      for (File fileInDirectory : directory.listFiles()) {
-        // Filters: only files (not directories) and zip files
-        // Not sure if it is necessary since dirChooser already has filters
-        if (fileInDirectory.isFile() && fileInDirectory.getName().endsWith(m_extensions)) {
-          m_excluded.addElement(fileInDirectory.getName());
-        }
-      }
-    } catch (InvalidPathException | MalformedURLException e) {
-      e.printStackTrace();
-    }
+	/**
+	 * If m_dir changes, m_included and m_excluded are cleared and all the files
+	 * in m_dir are added to m_excluded.
+	 */
+	@Override
+	public void stateChanged(ChangeEvent event) {
+		m_included.clear();
+		m_excluded.clear();
 
-    // Update models
-    m_dir.setStringValue(selectedDirectory);
-    m_selectedFiles.setStringArrayValue(null);
-  }
+		// Add all the files in the selected directory to m_excluded
+		SettingsModelString fileChooserModel = (SettingsModelString) dirChooser.getModel();
+		String selectedDirectory = fileChooserModel.getStringValue();
 
-  private void updateSelectedFiles() {
-    String[] includedArray = new String[m_included.size()];
-    for (int i = 0; i < m_included.size(); i++) {
-      includedArray[i] = m_included.get(i);
-    }
-    m_selectedFiles.setStringArrayValue(includedArray);
-  }
+		// Updates m_excluded with all the files in selectedDirectory
+		File directory;
+		try {
+			directory = KnimeUtils.getFile(selectedDirectory);
 
-  /** Sort alphabetically the elements in {@link #m_included}. */
-  private void sortIncludedList() {
-    TreeSet<String> orderedList = new TreeSet<>();
-    for (int i = 0; i < m_included.size(); i++) {
-      orderedList.add(m_included.get(i));
-    }
+			for (File fileInDirectory : directory.listFiles()) {
+				// Filters: only files (not directories) and zip files
+				// Not sure if it is necessary since dirChooser already has
+				// filters
+				String regex = "([^\\s]+(\\.(?i)(" + Joiner.on('|').join(m_extensions) + "))$)";
+				if (fileInDirectory.isFile() && fileInDirectory.getName().matches(regex)) {
+					m_excluded.addElement(fileInDirectory.getName());
+				}
+			}
+		} catch (InvalidPathException | MalformedURLException e) {
+			e.printStackTrace();
+		}
 
-    m_included.clear();
-    for (String element : orderedList) {
-      m_included.addElement(element);
-    }
-  }
+		// Update models
+		m_dir.setStringValue(selectedDirectory);
+		m_selectedFiles.setStringArrayValue(null);
+	}
 
-  /** Sort alphabetically the elements in {@link #m_excluded}. */
-  private void sortExcludedList() {
-    TreeSet<String> orderedList = new TreeSet<>();
-    for (int i = 0; i < m_excluded.size(); i++) {
-      orderedList.add(m_excluded.get(i));
-    }
+	private void updateSelectedFiles() {
+		String[] includedArray = new String[m_included.size()];
+		for (int i = 0; i < m_included.size(); i++) {
+			includedArray[i] = m_included.get(i);
+		}
+		m_selectedFiles.setStringArrayValue(includedArray);
+	}
 
-    m_excluded.clear();
-    for (String element : orderedList) {
-      m_excluded.addElement(element);
-    }
-  }
+	/** Sort alphabetically the elements in {@link #m_included}. */
+	private void sortIncludedList() {
+		TreeSet<String> orderedList = new TreeSet<>();
+		for (int i = 0; i < m_included.size(); i++) {
+			orderedList.add(m_included.get(i));
+		}
 
-  /**
-   * Left box with excluded items. An excluded item may be included double clicking it in the
-   * {@link LeftBox}. Then it will left the {@link LeftBox} and join the {@link RightBox} with the
-   * included items.
-   */
-  class LeftBox extends Box {
-    private static final long serialVersionUID = 3134747434282456042L;
+		m_included.clear();
+		for (String element : orderedList) {
+			m_included.addElement(element);
+		}
+	}
 
-    public LeftBox() {
-      super(BoxLayout.PAGE_AXIS);
+	/** Sort alphabetically the elements in {@link #m_excluded}. */
+	private void sortExcludedList() {
+		TreeSet<String> orderedList = new TreeSet<>();
+		for (int i = 0; i < m_excluded.size(); i++) {
+			orderedList.add(m_excluded.get(i));
+		}
 
-      Border innerBorder = BorderFactory.createLineBorder(Color.RED);
-      Border outterBorder = BorderFactory.createTitledBorder(innerBorder, "Excluded");
-      setBorder(outterBorder);
+		m_excluded.clear();
+		for (String element : orderedList) {
+			m_excluded.addElement(element);
+		}
+	}
 
-      m_excludedList.setMinimumSize(new Dimension(200, 200));
-      
-      // TODO: some bugs when double clicking items
-//      m_excludedList.addMouseListener(new MouseAdapter() {
-//        @Override
-//        public void mouseClicked(final MouseEvent mouseEvent) {
-//          // Include file on double click
-//          if (mouseEvent.getClickCount() == 2) {
-//            final String selectedFile = m_excludedList.getSelectedValue();
-//            m_excluded.removeElement(selectedFile);
-//            sortExcludedList();
-//            m_included.addElement(selectedFile);
-//            sortIncludedList();
-//            updateSelectedFiles();
-//          }
-//        }
-//      });
+	/**
+	 * Left box with excluded items. An excluded item may be included double
+	 * clicking it in the {@link LeftBox}. Then it will left the {@link LeftBox}
+	 * and join the {@link RightBox} with the included items.
+	 */
+	class LeftBox extends Box {
+		private static final long serialVersionUID = 3134747434282456042L;
 
-      // force fixed width for list
-      m_excludedList.setFixedCellWidth(200);
+		public LeftBox() {
+			super(BoxLayout.PAGE_AXIS);
 
-      JScrollPane excludedScroller = new JScrollPane(m_excludedList);
-      excludedScroller.setMinimumSize(new Dimension(200, 200));
-      add(excludedScroller);
-    }
-  }
+			Border innerBorder = BorderFactory.createLineBorder(Color.RED);
+			Border outterBorder = BorderFactory.createTitledBorder(innerBorder, "Excluded");
+			setBorder(outterBorder);
 
-  /**
-   * Button to move a selection of excluded files from the {@link LeftBox} (excluded files) to the
-   * {@link RightBox} (included items).
-   */
-  class AddButton extends JButton {
-    private static final long serialVersionUID = -3023789698578646374L;
+			m_excludedList.setMinimumSize(new Dimension(200, 200));
 
-    public AddButton() {
-      super("Add >");
-      setMaximumSize(new Dimension(200, 20));
-      addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent arg0) {
-          final List<String> selectedFiles = m_excludedList.getSelectedValuesList();
-          for (String selectedFile : selectedFiles) {
-            m_included.addElement(selectedFile);
-            sortIncludedList();
-            m_excluded.removeElement(selectedFile);
-            sortExcludedList();
-          }
-          updateSelectedFiles();
-        }
-      });
-    }
-  }
+			// force fixed width for list
+			m_excludedList.setFixedCellWidth(200);
 
-  /**
-   * Button to move all the excluded files from the {@link LeftBox} (excluded files) to the
-   * {@link RightBox} (included items).
-   */
-  class AddAllButton extends JButton {
-    private static final long serialVersionUID = 1477600311045718096L;
+			JScrollPane excludedScroller = new JScrollPane(m_excludedList);
+			excludedScroller.setMinimumSize(new Dimension(200, 200));
+			add(excludedScroller);
+		}
+	}
 
-    public AddAllButton() {
-      super("Add all >>");
-      setMaximumSize(new Dimension(200, 20));
-      addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent arg0) {
-          for (int i = 0; i < m_excluded.size(); i++) {
-            m_included.addElement(m_excluded.get(i));
-          }
-          sortIncludedList();
-          // There is no need to order 'm_excluded' since it is empty
-          m_excluded.clear();
+	/**
+	 * Button to move a selection of excluded files from the {@link LeftBox}
+	 * (excluded files) to the {@link RightBox} (included items).
+	 */
+	class AddButton extends JButton {
+		private static final long serialVersionUID = -3023789698578646374L;
 
-          updateSelectedFiles();
-        }
-      });
-    }
-  }
+		public AddButton() {
+			super("Add >");
+			setMaximumSize(new Dimension(200, 20));
+			addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent arg0) {
+					final List<String> selectedFiles = m_excludedList.getSelectedValuesList();
+					for (String selectedFile : selectedFiles) {
+						m_included.addElement(selectedFile);
+						sortIncludedList();
+						m_excluded.removeElement(selectedFile);
+						sortExcludedList();
+					}
+					updateSelectedFiles();
+				}
+			});
+		}
+	}
 
-  /**
-   * Button to move a selection of items from the {@link RightBox} (included items) to the
-   * {@link LeftBox} (excluded items).
-   */
-  class RemoveButton extends JButton {
+	/**
+	 * Button to move all the excluded files from the {@link LeftBox} (excluded
+	 * files) to the {@link RightBox} (included items).
+	 */
+	class AddAllButton extends JButton {
+		private static final long serialVersionUID = 1477600311045718096L;
 
-    private static final long serialVersionUID = -5831069004661066441L;
+		public AddAllButton() {
+			super("Add all >>");
+			setMaximumSize(new Dimension(200, 20));
+			addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent arg0) {
+					for (int i = 0; i < m_excluded.size(); i++) {
+						m_included.addElement(m_excluded.get(i));
+					}
+					sortIncludedList();
+					// There is no need to order 'm_excluded' since it is empty
+					m_excluded.clear();
 
-    public RemoveButton() {
-      super("< Remove");
-      setMaximumSize(new Dimension(200, 20));
-      addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent event) {
-          final List<String> selectedElements = m_includedList.getSelectedValuesList();
-          for (String selectedElement : selectedElements) {
-            m_excluded.addElement(selectedElement);
-            sortExcludedList();
-            m_included.removeElement(selectedElement);
-            sortIncludedList();
-          }
-          updateSelectedFiles();
-        }
-      });
-    }
-  }
+					updateSelectedFiles();
+				}
+			});
+		}
+	}
 
-  /**
-   * Button to move a selection of items from the {@link RightBox} (included items) to the
-   * {@link LeftBox} (excluded items).
-   */
-  class RemoveAllButton extends JButton {
+	/**
+	 * Button to move a selection of items from the {@link RightBox} (included
+	 * items) to the {@link LeftBox} (excluded items).
+	 */
+	class RemoveButton extends JButton {
 
-    private static final long serialVersionUID = 8386678280862200669L;
+		private static final long serialVersionUID = -5831069004661066441L;
 
-    public RemoveAllButton() {
-      super("<< Remove all");
-      setMaximumSize(new Dimension(200, 20));
-      addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent arg0) {
-          for (int i = 0; i < m_included.getSize(); i++) {
-            m_excluded.addElement(m_included.getElementAt(i));
-          }
-          sortExcludedList();
-          // There is no need to sort 'm_included' since it is empty
-          m_included.clear();
-          updateSelectedFiles();
-        }
-      });
-    }
-  }
+		public RemoveButton() {
+			super("< Remove");
+			setMaximumSize(new Dimension(200, 20));
+			addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					final List<String> selectedElements = m_includedList.getSelectedValuesList();
+					for (String selectedElement : selectedElements) {
+						m_excluded.addElement(selectedElement);
+						sortExcludedList();
+						m_included.removeElement(selectedElement);
+						sortIncludedList();
+					}
+					updateSelectedFiles();
+				}
+			});
+		}
+	}
 
-  /**
-   * Vertical box with buttons to handle the inclusion/exclusion of items.
-   * 
-   * <ul>
-   * <li>{@link AddButton}</li>
-   * <li>{@link AddAllButton}</li>
-   * <li>{@link RemoveButton}</li>
-   * <li>{@link RemoveAllButton}</li>
-   * </ul>
-   */
-  class ButtonBox extends Box {
+	/**
+	 * Button to move a selection of items from the {@link RightBox} (included
+	 * items) to the {@link LeftBox} (excluded items).
+	 */
+	class RemoveAllButton extends JButton {
 
-    private static final long serialVersionUID = -5530856056354362424L;
+		private static final long serialVersionUID = 8386678280862200669L;
 
-    public ButtonBox() {
-      super(BoxLayout.PAGE_AXIS);
-      setBorder(BorderFactory.createTitledBorder("Select:"));
-      setMinimumSize(new Dimension(200, 300));
-      add(Box.createVerticalGlue());
-      add(Box.createVerticalStrut(20));
-      add(new AddButton());
-      add(Box.createVerticalStrut(20));
-      add(new AddAllButton());
-      add(Box.createVerticalStrut(20));
-      add(new RemoveButton());
-      add(Box.createVerticalStrut(20));
-      add(new RemoveAllButton());
-      add(Box.createVerticalStrut(20));
-      add(Box.createVerticalGlue());
-    }
-  }
+		public RemoveAllButton() {
+			super("<< Remove all");
+			setMaximumSize(new Dimension(200, 20));
+			addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent arg0) {
+					for (int i = 0; i < m_included.getSize(); i++) {
+						m_excluded.addElement(m_included.getElementAt(i));
+					}
+					sortExcludedList();
+					// There is no need to sort 'm_included' since it is empty
+					m_included.clear();
+					updateSelectedFiles();
+				}
+			});
+		}
+	}
 
-  /**
-   * Right box with included items. An included item may be excluded double clicking it in the
-   * {@link RightBox}. Then it will leave the {@link RightBox} and join the {@link LeftBox} with the
-   * included items.
-   */
-  class RightBox extends Box {
+	/**
+	 * Vertical box with buttons to handle the inclusion/exclusion of items.
+	 * 
+	 * <ul>
+	 * <li>{@link AddButton}</li>
+	 * <li>{@link AddAllButton}</li>
+	 * <li>{@link RemoveButton}</li>
+	 * <li>{@link RemoveAllButton}</li>
+	 * </ul>
+	 */
+	class ButtonBox extends Box {
 
-    private static final long serialVersionUID = -3243460843724539504L;
+		private static final long serialVersionUID = -5530856056354362424L;
 
-    public RightBox() {
-      super(BoxLayout.PAGE_AXIS);
+		public ButtonBox() {
+			super(BoxLayout.PAGE_AXIS);
+			setBorder(BorderFactory.createTitledBorder("Select:"));
+			setMinimumSize(new Dimension(200, 300));
+			add(Box.createVerticalGlue());
+			add(Box.createVerticalStrut(20));
+			add(new AddButton());
+			add(Box.createVerticalStrut(20));
+			add(new AddAllButton());
+			add(Box.createVerticalStrut(20));
+			add(new RemoveButton());
+			add(Box.createVerticalStrut(20));
+			add(new RemoveAllButton());
+			add(Box.createVerticalStrut(20));
+			add(Box.createVerticalGlue());
+		}
+	}
 
-      Border innerBorder = BorderFactory.createLineBorder(Color.GREEN);
-      Border outerBorder = BorderFactory.createTitledBorder(innerBorder, "Included:");
-      setBorder(outerBorder);
+	/**
+	 * Right box with included items. An included item may be excluded double
+	 * clicking it in the {@link RightBox}. Then it will leave the
+	 * {@link RightBox} and join the {@link LeftBox} with the included items.
+	 */
+	class RightBox extends Box {
 
-      m_includedList.setMinimumSize(new Dimension(200, 20));
-      
-      // TODO: some bugs when double clicking items
-//      m_includedList.addMouseListener(new MouseAdapter() {
-//        @Override
-//        public void mouseClicked(final MouseEvent me) {
-//          final String selectedFile = m_includedList.getSelectedValue();
-//          m_excluded.addElement(selectedFile);
-//          sortExcludedList();
-//          m_included.removeElement(selectedFile);
-//          sortIncludedList();
-//          updateSelectedFiles();
-//        }
-//      });
+		private static final long serialVersionUID = -3243460843724539504L;
 
-      // force list to have fixed width
-      m_includedList.setFixedCellWidth(200);
+		public RightBox() {
+			super(BoxLayout.PAGE_AXIS);
 
-      add(new JScrollPane(m_includedList));
-    }
-  }
+			Border innerBorder = BorderFactory.createLineBorder(Color.GREEN);
+			Border outerBorder = BorderFactory.createTitledBorder(innerBorder, "Included:");
+			setBorder(outerBorder);
+
+			m_includedList.setMinimumSize(new Dimension(200, 20));
+
+			// force list to have fixed width
+			m_includedList.setFixedCellWidth(200);
+
+			add(new JScrollPane(m_includedList));
+		}
+	}
 }

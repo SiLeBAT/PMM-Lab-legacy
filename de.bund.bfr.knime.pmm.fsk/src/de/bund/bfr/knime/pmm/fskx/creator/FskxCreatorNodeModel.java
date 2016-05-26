@@ -23,8 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.base.node.util.exttool.ExtToolOutputNodeModel;
@@ -41,6 +44,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
+import org.rosuda.REngine.REXPMismatchException;
 
 import com.google.common.base.Strings;
 
@@ -55,7 +59,7 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
 public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
-  
+
   private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxCreatorNodeModel.class);
 
   // configuration key of the libraries directory
@@ -195,11 +199,12 @@ public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
     }
 
     // Reads R libraries
-    Set<File> libs = new HashSet<>();
+    Set<File> libs;
     try {
-      libs = collectLibs();
-    } catch (RException e) {
+      libs = collectLibs().stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
+    } catch (RException | REXPMismatchException e) {
       LOGGER.error(e.getMessage());
+      libs = new HashSet<>();
     }
 
     return new PortObject[] {new FskPortObject(model, param, viz, template, null, libs)};
@@ -242,18 +247,22 @@ public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
     }
   }
 
-  private Set<File> collectLibs() throws IOException, RException {
+  private Set<Path> collectLibs() throws IOException, RException, REXPMismatchException {
 
-    Set<File> libs = new HashSet<>(m_selectedLibs.getStringArrayValue().length);
-    for (String lib : m_selectedLibs.getStringArrayValue()) {
-      // gets library name without the zip suffix. E.g. maps.zip => maps
-      String libName = lib.split("\\.")[0];
-      
-      Set<Path> paths = FSKNodePlugin.getDefault().getLibs(libName);
-      paths.forEach(p -> libs.add(p.toFile()));
+    FSKNodePlugin plugin = FSKNodePlugin.getDefault();
+
+    List<String> libNames = Arrays.stream(m_selectedLibs.getStringArrayValue())
+        .map(libName -> libName.split("\\.")[0]).collect(Collectors.toList());
+
+    // Out of all the libraries name only install those missing
+    List<String> missingLibs =
+        libNames.stream().filter(lib -> !plugin.isInstalled(lib)).collect(Collectors.toList());
+
+    if (!missingLibs.isEmpty()) {
+      plugin.installLibs(missingLibs);
     }
 
-    return libs;
+    return plugin.getPaths(libNames);
   }
 }
 

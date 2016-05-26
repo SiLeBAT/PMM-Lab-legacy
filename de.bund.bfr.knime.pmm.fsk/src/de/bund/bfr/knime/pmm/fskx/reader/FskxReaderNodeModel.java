@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -41,13 +43,16 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
 import org.knime.ext.r.node.local.port.RPortObject;
+import org.rosuda.REngine.REXPMismatchException;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
+import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
+import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
@@ -78,10 +83,13 @@ public class FskxReaderNodeModel extends NodeModel {
    * {@inheritDoc}
    *
    * @throws MissingValueError
+   * @throws RException
+   * @throws REXPMismatchException
    */
   @Override
   protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-      throws CombineArchiveException, FileAccessException, MissingValueError {
+      throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException,
+      RException {
 
     String model = "";
     String param = "";
@@ -133,17 +141,25 @@ public class FskxReaderNodeModel extends NodeModel {
 
       // Gets R libraries
       URI zipUri = ZipUri.createURI();
+      FSKNodePlugin plugin = FSKNodePlugin.getDefault();
 
-      File libDir = FileUtil.createTempDir("libs");
-      for (ArchiveEntry entry : archive.getEntriesWithFormat(zipUri)) {
-        String libName = entry.getFileName();
-        // Create file
-        File f = new File(libDir, libName);
-        f.deleteOnExit();
-        // Extract library into f
-        entry.extractFile(f);
-        libs.add(f);
+      // Gets library names from the zip entries in the CombineArchive
+      List<String> libNames = archive.getEntriesWithFormat(zipUri).stream()
+          .map(entry -> entry.getFileName().split("\\_")[0]).collect(Collectors.toList());
+
+      // Filters missing libraries
+      List<String> missing =
+          libNames.stream().filter(l -> !plugin.isInstalled(l)).collect(Collectors.toList());
+
+      if (!missing.isEmpty()) {
+        plugin.installLibs(missing);
       }
+
+      // Convertes and return set of Paths returned from plugin to set of Files
+      libs =
+          plugin.getPaths(libNames).stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
+
+
     } catch (IOException | JDOMException | ParseException | XMLStreamException e) {
       e.printStackTrace();
     }

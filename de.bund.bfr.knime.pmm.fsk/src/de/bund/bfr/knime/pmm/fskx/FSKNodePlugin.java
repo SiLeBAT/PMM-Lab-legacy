@@ -1,45 +1,45 @@
 /***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with this program. If
  * not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * Contributors: Department Biological Safety - BfR
  **************************************************************************************************/
 package de.bund.bfr.knime.pmm.fskx;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.knime.core.util.FileUtil;
 import org.osgi.framework.BundleContext;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
 
 public class FSKNodePlugin extends AbstractUIPlugin {
 
-  /** The plug-in ID. */
+  /**
+   * The plug-in ID.
+   */
   public static final String PLUGIN_ID = "fskxNodePlugin";
 
   // The shared instance.
@@ -49,7 +49,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 
   /**
    * This method is called upon plug-in activation.
-   * 
+   *
    * @param context The OSGI bundle context
    * @throws Exception If this plugin could not be started
    */
@@ -62,7 +62,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 
   /**
    * This method is called when the plug-in is stopped.
-   * 
+   *
    * @param context The OSGI bundle context
    * @throws Exception If this plugin could not be stopped
    */
@@ -74,117 +74,151 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 
   /**
    * Returns the shared instance.
-   * 
+   *
    * @return Singleton instance of the Plugin
    */
   public static FSKNodePlugin getDefault() {
     return plugin;
   }
+  
+  public boolean isInstalled(final String libraryName) {
+    return libRegistry.isInstalled(libraryName);
+  }
 
-  public Set<Path> getLibs(String libName) throws IOException, RException {
-    return libRegistry.get(libName);
+  public void installLibs(List<String> libNames) throws REXPMismatchException, RException {
+    libRegistry.installLibs(libNames);
+  }
+
+  public Set<Path> getPaths(List<String> libNames) throws REXPMismatchException, RException {
+    return libRegistry.getPaths(libNames);
   }
 
   class LibRegistry {
 
-    /** Directory with uncompressed libraries */
-    private File installPath;
+    /**
+     * Installation path
+     */
+    private final Path installPath;
+
+    /**
+     * R Path attribute: holds installation path
+     */
+    private final String pathAttr;
+
+    /**
+     * R repos attribute: holds remote repository
+     */
+    private final String reposAttr;
+
+    /**
+     * R type attribute: holds repository type
+     */
+    private final String typeAttr;
+
+    /**
+     * miniCRAN repository path
+     */
+    private final Path repoPath;
+
+    private final RController rController;
     
-    /** Directory with binary libraries */
-    private Path binDir;
+    /** Utility set to keep count of installed libraries */
+    private Set<String> installedLibs;
 
-    /** Maps libraries names the paths of their zip files (including dependencies) */
-    private Map<String, Set<Path>> libMap;
+    LibRegistry() throws IOException, RException {
+      // Create directories
+      installPath = FileUtil.createTempDir("install").toPath();
+      repoPath = FileUtil.createTempDir("repo").toPath();
 
-    public LibRegistry() throws IOException {
-      libMap = new HashMap<>();
-      installPath = FileUtil.createTempDir("installPath");
-      binDir = FileUtil.createTempDir("bin").toPath();
+      // Create common R attributes
+      pathAttr = "path ='" + repoPath.toString().replace("\\", "/") + "'";
+      reposAttr = "repos = 'http://cran.us.r-project.org'";
+      typeAttr = "type = 'win.binary'";
+      
+      // Utility
+      installedLibs = new HashSet<>();
+
+      rController = new RController();
+      rController.eval("install.packages('miniCRAN'," + reposAttr + ", " + typeAttr + ")");
+      rController.eval("library(miniCRAN)");
+      rController.eval("makeRepo(c(), " + pathAttr + ", " + reposAttr + ", " + typeAttr + ")");
+    }
+    
+    boolean isInstalled(final String libraryName) {
+      return installedLibs.contains(libraryName);
     }
 
     /**
-     * Returns the path to a binary library and its dependencies.
+     * Install a list of libraries into the repository.
      * 
-     * If installed returns directly the library path, otherwise the library is installed and then
-     * returned.
-     * 
-     * @return paths to binary libraries
+     * @param libs list of names of R libraries
      * @throws RException
-     * @throws IOException
+     * @throws REXPMismatchException
      */
-    public Set<Path> get(String libName) throws IOException, RException {
-      if (libMap.containsKey(libName)) {
-        return libMap.get(libName);
-      } else {
-        Set<Path> libs = installLibrary(libName); // set of new installed libraries (uncompressed)
-        Set<Path> binLibs = new HashSet<>(libs.size());  // set of binary libraries (Zip)
-        for (Path lib : libs) {
-          binLibs.add(createZipFile(lib));
-        }
-        libMap.put(libName, binLibs);
-        return binLibs;
-      }
+    void installLibs(List<String> libs) throws RException, REXPMismatchException {
+
+      UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
+
+      // Creates R package list: c("pkg1", "pkg2", ..., "pkgN")
+      List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
+      String pkgList = "c(" + String.join(",", quotedLibs) + ")";
+
+      // Gets list of R dependencies of libs: c("dep1", "dep2", ..., "depN")
+      REXP rexp =
+          rController.eval("pkgDep(" + pkgList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
+      List<String> deps = Arrays.asList(rexp.asStrings());
+      List<String> quotedDeps = deps.stream().map(quoteOperator).collect(Collectors.toList());
+      String depList = "c(" + String.join(",", quotedDeps) + ")";
+
+      // Adds the dependencies to the miniCRAN repository
+      rController.eval(
+          "addPackage(" + depList + ", " + pathAttr + ", " + reposAttr + "," + typeAttr + ")");
+
+      // Gets the paths to the binaries of these dependencies
+      rexp = rController.eval("checkVersions(" + depList + ", " + pathAttr + ", " + typeAttr + ")");
+      List<String> paths =
+          Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
+      String fileList = "c(" + String.join(",", paths) + ")";
+
+      // Install binaries
+      String cmd = "install.packages(" + fileList + ", repos = NULL, lib = '"
+          + installPath.toString().replace("\\", "/") + "', " + typeAttr + ")";
+      rController.eval(cmd);
+      
+      // Adds names of installed libraries to utility set
+      installedLibs.addAll(deps);
     }
 
     /**
-     * Install a library and its dependencies.
+     * Gets list of paths to the binaries of the desired libraries.
      * 
-     * @param libName name of the R library to be installed
-     * @return the paths of the installed library and its dependencies
-     * @throws IOException
+     * @param libs
+     * @return list of paths to the binaries of the desired libraries
      * @throws RException
+     * @throws REXPMismatchException
      */
-    private Set<Path> installLibrary(String libName) throws IOException, RException {
-      String installPathString = installPath.getAbsolutePath().replace("\\", "/");
-      
-      Set<Path> libsBefore = Files.list(installPath.toPath()).filter(p -> Files.isDirectory(p)).collect(Collectors.toSet());
-      
-      // Builds install command: install.packages("libName")
-      String installCmd = "install.packages(\"" + libName + "\", lib=\"" + installPathString
-          + "\", repos=\"https://cloud.r-project.org/\")";
+    Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
 
-      // Install packages into the temporary directory
-      try (RController controller = new RController()) {
-        controller.eval(installCmd);
-      }
-      
-      Set<Path> libsAfter = Files.list(installPath.toPath()).filter(p -> Files.isDirectory(p) && !libsBefore.contains(p)).collect(Collectors.toSet());
-      
-      return libsAfter;
+      UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
+
+      // Gets list of R dependencies of libs
+      List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
+      String libList = "c(" + String.join(",", quotedLibs) + ")";
+      REXP rexp =
+          rController.eval("pkgDep(" + libList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
+
+      // Gets the paths to the binaries of these dependencies
+      List<String> deps =
+          Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
+      String depList = "c(" + String.join(",", deps) + ")";
+      rexp = rController.eval("checkVersions(" + depList + ", " + pathAttr + ", " + typeAttr + ")");
+
+      return Arrays.stream(rexp.asStrings()).map(path -> Paths.get(path))
+          .collect(Collectors.toSet());
     }
+  }
 
-    /**
-     * Compress an uncompressed R library into a zip file.
-     * 
-     * @param dir Directory of an uncompressed library
-     * @return path of the zip file containing the binary library
-     * @throws IOException
-     */
-    private Path createZipFile(Path dir) throws IOException {
-
-      String pkgName = dir.getFileName().toString();
-      Path zip = binDir.resolve(pkgName + ".zip");
-
-      List<Path> paths = Files.walk(dir) // traverse all the files in dir
-          .filter(p -> !Files.isDirectory(p)) // ignore directories
-          .collect(Collectors.toList()); // collect all the files into a list
-
-      try (ZipOutputStream stream = new ZipOutputStream(new FileOutputStream(zip.toFile()))) {
-        for (Path p : paths) {
-          // Adds a ZipEntry with the contents of p
-
-          // Creates entry name from the path to string starting with the pkgName.
-          // E.g. C:\Temp\knime_randomPath1028\triangle\CITATION => triangle\CITATION
-          String entryName = p.toString().substring(p.toString().indexOf(pkgName));
-
-          // Write file
-          stream.putNextEntry(new ZipEntry(entryName));
-          stream.write(Files.readAllBytes(p));
-          stream.closeEntry();
-        }
-      }
-
-      return zip;
-    }
+  public Path getInstallationPath() {
+    return libRegistry.installPath;
   }
 }

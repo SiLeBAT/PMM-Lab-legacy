@@ -13,18 +13,18 @@ public class FskxRunnerNodeFactory extends NodeFactory<FskxRunnerNodeModel> {
 
   @Override
   protected int getNrNodeViews() {
-    return 0;
+    return 1;
   }
 
   @Override
   public NodeView<FskxRunnerNodeModel> createNodeView(int viewIndex,
       FskxRunnerNodeModel nodeModel) {
-    return null;
+    return new FskxRunnerNodeView(nodeModel);
   }
 
   @Override
   protected boolean hasDialog() {
-    return false;
+    return true;
   }
 
   @Override

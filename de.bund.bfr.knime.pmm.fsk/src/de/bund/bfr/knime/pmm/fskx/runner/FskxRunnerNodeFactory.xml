@@ -17,5 +17,9 @@
 		<inPort name="FSK object" index="0">FSK object</inPort>
 		<outPort name="FSK object" index="0">FSK object</outPort>
 		<outPort name="R object" index="1">R workspace</outPort>
+		<outPort name="Image Output" index="2">View Image</outPort>
 	</ports>
+	<views>
+		<view name="R View" index="0"></view>
+	</views>
 </knimeNode>

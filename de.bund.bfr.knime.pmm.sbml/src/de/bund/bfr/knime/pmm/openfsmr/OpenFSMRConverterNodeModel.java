@@ -18,8 +18,8 @@ package de.bund.bfr.knime.pmm.openfsmr;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jdom2.Element;
 import org.knime.core.data.DataTableSpec;
@@ -37,7 +37,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
-import de.bund.bfr.pmf.ModelType;
 import de.bund.bfr.pmf.file.ExperimentalDataFile;
 import de.bund.bfr.pmf.file.ManualSecondaryModelFile;
 import de.bund.bfr.pmf.file.ManualTertiaryModelFile;
@@ -63,7 +62,7 @@ import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 /**
  * This is the model implementation of OpenFSMRConverter.
  * 
- * Author: Miguel de Alba Aparicio
+ * Author: Miguel de Alba 
  */
 public class OpenFSMRConverterNodeModel extends NodeModel {
 
@@ -165,80 +164,167 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
     MetaDataObject mdo = ca.getDescriptions().get(0);
     Element metaParent = mdo.getXmlDescription();
     PMFMetadataNode pmfMetadataNode = new PMFMetadataNode(metaParent);
-    ModelType modelType = pmfMetadataNode.getModelType();
-
+    
     // c) Close archive
     ca.close();
-
-    List<FSMRTemplate> templates = new LinkedList<>();
-    switch (modelType) {
+    
+    Converter converter;
+    switch (pmfMetadataNode.getModelType()) {
       case EXPERIMENTAL_DATA:
-        // Obtain an OpenFSMR template per data file
-        List<ExperimentalData> eds = filepath.endsWith(".pmfx")
-            ? ExperimentalDataFile.readPMFX(filepath) : ExperimentalDataFile.readPMF(filepath);
-        eds.forEach(ed -> templates.add(FSMRUtils.processData(ed.getDoc())));
+        converter = new ExperimentalDataConverter();
         break;
       case PRIMARY_MODEL_WDATA:
-        // Obtain an OpenFSMR template per primary model
-        List<PrimaryModelWData> primaryModelsWithData = filepath.endsWith(".pmfx")
-            ? PrimaryModelWDataFile.readPMFX(filepath) : PrimaryModelWDataFile.readPMF(filepath);
-        primaryModelsWithData.forEach(
-            pm -> templates.add(FSMRUtils.processModelWithMicrobialData(pm.getModelDoc())));
+        converter = new PrimaryModelWithDataConverter();
         break;
       case PRIMARY_MODEL_WODATA:
-        // Obtain an OpenFSMR template per primary model
-        List<PrimaryModelWOData> primaryModelsWithoutData = filepath.endsWith(".pmfx")
-            ? PrimaryModelWODataFile.readPMFX(filepath) : PrimaryModelWODataFile.readPMF(filepath);
-        primaryModelsWithoutData
-            .forEach(pm -> templates.add(FSMRUtils.processModelWithMicrobialData(pm.getDoc())));
+        converter = new PrimaryModelWithoutDataConverter();
         break;
       case TWO_STEP_SECONDARY_MODEL:
-        // Obtain an OpenFSMR template per secondary model
-        List<TwoStepSecondaryModel> twoStepSecondaryModels =
-            filepath.endsWith(".pmfx") ? TwoStepSecondaryModelFile.readPMFX(filepath)
-                : TwoStepSecondaryModelFile.readPMF(filepath);
-        twoStepSecondaryModels.forEach(sm -> templates
-            .add(FSMRUtils.processModelWithMicrobialData(sm.getPrimModels().get(0).getModelDoc())));
+        converter = new TwoStepSecondaryModelConverter();
         break;
       case ONE_STEP_SECONDARY_MODEL:
-        // Obtain an OpenFSMR template per secondary model
-        List<OneStepSecondaryModel> oneStepSecondaryModels =
-            filepath.endsWith(".pmfx") ? OneStepSecondaryModelFile.readPMFX(filepath)
-                : OneStepSecondaryModelFile.readPMF(filepath);
-        oneStepSecondaryModels
-            .forEach(sm -> FSMRUtils.processModelWithMicrobialData(sm.getModelDoc()));
+        converter = new OneStepSecondaryModelConverter();
         break;
       case MANUAL_SECONDARY_MODEL:
-        // Obtain an OpenFSMR template per secondary model
-        List<ManualSecondaryModel> manualSecondaryModels =
-            filepath.endsWith(".pmfx") ? ManualSecondaryModelFile.readPMFX(filepath)
-                : ManualSecondaryModelFile.readPMF(filepath);
-        manualSecondaryModels
-            .forEach(sm -> FSMRUtils.processModelWithoutMicrobialData(sm.getDoc()));
+        converter = new ManualSecondaryModelConverter();
         break;
       case TWO_STEP_TERTIARY_MODEL:
-        // Obtain a OpenFSMR template per tertiary model
-        List<TwoStepTertiaryModel> twoStepTertiaryModels =
-            filepath.endsWith(".pmfx") ? TwoStepTertiaryModelFile.readPMFX(filepath)
-                : TwoStepTertiaryModelFile.readPMF(filepath);
-        twoStepTertiaryModels
-            .forEach(tm -> FSMRUtils.processModelWithMicrobialData(tm.getTertDoc()));
+        converter = new TwoStepTertiaryModelConverter();
         break;
       case ONE_STEP_TERTIARY_MODEL:
-        // Obtain a OpenFSMR template per tertiary model
-        List<OneStepTertiaryModel> oneStepTertiaryModels =
-            filepath.endsWith(".pmfx") ? OneStepTertiaryModelFile.readPMFX(filepath)
-                : OneStepTertiaryModelFile.readPMF(filepath);
-        oneStepTertiaryModels
-            .forEach(tm -> FSMRUtils.processModelWithMicrobialData(tm.getTertiaryDoc()));
+        converter = new OneStepTertiaryModelConverter();
         break;
       case MANUAL_TERTIARY_MODEL:
-        // Obtain a OpenFSMR template per tertiary model
-        List<ManualTertiaryModel> manualTertiaryModels = filepath.endsWith(".pmfx") ?
-            ManualTertiaryModelFile.readPMFX(filepath) : ManualTertiaryModelFile.readPMF(filepath);
-        manualTertiaryModels.forEach(tm -> FSMRUtils.processModelWithMicrobialData(tm.getTertiaryDoc()));
+        converter = new ManualTertiaryModelConverter();
         break;
+      default:
+        throw new RuntimeException("Unsupported file");
     }
-    return templates;
+    
+    return converter.convert(filepath);
+  }
+}
+
+
+/**
+ * OpenFSMR template converter.
+ * 
+ * Convert all the models within a PMFX file to OpenFSMR templates. PMF files are also supported.
+ * 
+ * @author Miguel Alba
+ */
+interface Converter {
+
+  List<FSMRTemplate> convert(final String filepath) throws Exception;
+}
+
+
+class ExperimentalDataConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per data file. */
+  public List<FSMRTemplate> convert(final String filepath) throws Exception {
+    List<ExperimentalData> eds = filepath.endsWith(".pmfx")
+        ? ExperimentalDataFile.readPMFX(filepath) : ExperimentalDataFile.readPMF(filepath);
+
+    return eds.stream().map(ed -> FSMRUtils.processData(ed.getDoc())).collect(Collectors.toList());
+  }
+}
+
+
+class PrimaryModelWithDataConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per primary model. */
+  public List<FSMRTemplate> convert(final String filepath) throws Exception {
+    List<PrimaryModelWData> pms = filepath.endsWith(".pmfx")
+        ? PrimaryModelWDataFile.readPMFX(filepath) : PrimaryModelWDataFile.readPMF(filepath);
+    return pms.stream().map(pm -> FSMRUtils.processModelWithMicrobialData(pm.getModelDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class PrimaryModelWithoutDataConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per primary model. */
+  public List<FSMRTemplate> convert(final String filepath) throws Exception {
+    List<PrimaryModelWOData> pms = filepath.endsWith(".pmfx")
+        ? PrimaryModelWODataFile.readPMFX(filepath) : PrimaryModelWODataFile.readPMF(filepath);
+    return pms.stream().map(pm -> FSMRUtils.processModelWithMicrobialData(pm.getDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class TwoStepSecondaryModelConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per secondary model. */
+  public List<FSMRTemplate> convert(final String filepath) throws Exception {
+    List<TwoStepSecondaryModel> sms =
+        filepath.endsWith(".pmfx") ? TwoStepSecondaryModelFile.readPMFX(filepath)
+            : TwoStepSecondaryModelFile.readPMF(filepath);
+    return sms.stream()
+        .map(sm -> FSMRUtils.processModelWithMicrobialData(sm.getPrimModels().get(0).getModelDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class OneStepSecondaryModelConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per secondary model. */
+  public List<FSMRTemplate> convert(final String filepath) throws Exception {
+    List<OneStepSecondaryModel> sms =
+        filepath.endsWith(".pmfx") ? OneStepSecondaryModelFile.readPMFX(filepath)
+            : OneStepSecondaryModelFile.readPMF(filepath);
+    return sms.stream().map(sm -> FSMRUtils.processModelWithMicrobialData(sm.getModelDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class ManualSecondaryModelConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per secondary model. */
+  public List<FSMRTemplate> convert(final String filepath) throws Exception {
+    List<ManualSecondaryModel> sms = filepath.endsWith(".pmfx")
+        ? ManualSecondaryModelFile.readPMFX(filepath) : ManualSecondaryModelFile.readPMF(filepath);
+    return sms.stream().map(sm -> FSMRUtils.processModelWithoutMicrobialData(sm.getDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class TwoStepTertiaryModelConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per tertiary model. */
+  public List<FSMRTemplate> convert(String filepath) throws Exception {
+    List<TwoStepTertiaryModel> tms = filepath.endsWith(".pmfx")
+        ? TwoStepTertiaryModelFile.readPMFX(filepath) : TwoStepTertiaryModelFile.readPMF(filepath);
+    return tms.stream().map(tm -> FSMRUtils.processModelWithMicrobialData(tm.getTertDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class OneStepTertiaryModelConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per tertiary model. */
+  public List<FSMRTemplate> convert(String filepath) throws Exception {
+    List<OneStepTertiaryModel> tms = filepath.endsWith(".pmfx")
+        ? OneStepTertiaryModelFile.readPMFX(filepath) : OneStepTertiaryModelFile.readPMF(filepath);
+    return tms.stream().map(tm -> FSMRUtils.processModelWithMicrobialData(tm.getTertiaryDoc()))
+        .collect(Collectors.toList());
+  }
+}
+
+
+class ManualTertiaryModelConverter implements Converter {
+
+  /** Obtain an OpenFSMR template per tertiary model. */
+  public List<FSMRTemplate> convert(String filepath) throws Exception {
+    List<ManualTertiaryModel> tms = filepath.endsWith(".pmfx")
+        ? ManualTertiaryModelFile.readPMFX(filepath) : ManualTertiaryModelFile.readPMF(filepath);
+    return tms.stream().map(tm -> FSMRUtils.processModelWithMicrobialData(tm.getTertiaryDoc()))
+        .collect(Collectors.toList());
   }
 }

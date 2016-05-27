@@ -22,6 +22,12 @@
 		deprecated="false"
 		factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskxRunnerNodeFactory"
 		id="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory"/>
+ <node
+       category-path="/pmmlab/editors"
+       deprecated="false"
+       factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskxEditorNodeFactory"
+       id="de.bund.bfr.knime.pmm.fskx.editor.FskxEditorNodeFactory">
+ </node>
 	<!-- Extended KNIME R nodes -->
 </extension>
 

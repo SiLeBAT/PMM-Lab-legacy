@@ -57,57 +57,58 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Frame showing PNG preview plot. Watches the {@link de.bund.bfr.knime.pmm.fskx.controller.RController} image file.
+ * Frame showing PNG preview plot. Watches the
+ * {@link de.bund.bfr.knime.pmm.fskx.controller.RController} image file.
  *
  * @author Bernd Wiswedel, KNIME.com, Zurich, Switzerland
  */
 final class RPlotPreviewFrame extends JDialog {
-    // TODO: Generated serialVersionUID
 
-    private final ImageViewPanel m_plotPreviewPanel;
-    private final JPanel m_cardLayoutPanel;
-    private static final String NO_PLOT = "<no plot>";
-    private static final String PLOT = "<plot>";
+	private static final long serialVersionUID = -4701805388027727424L;
 
-    RPlotPreviewFrame(final Frame parentFrame) {
-        super(parentFrame, "R Plot", ModalityType.MODELESS);
-        final JPanel fullPanel = new JPanel(new BorderLayout());
+	private final ImageViewPanel m_plotPreviewPanel;
+	private final JPanel m_cardLayoutPanel;
+	private static final String NO_PLOT = "<no plot>";
+	private static final String PLOT = "<plot>";
 
-        final CardLayout cardLayout = new CardLayout();
-        m_cardLayoutPanel = new JPanel(cardLayout);
-        final JPanel noPlotPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        noPlotPanel.add(new JLabel(NO_PLOT));
-        m_cardLayoutPanel.add(noPlotPanel, NO_PLOT);
+	RPlotPreviewFrame(final Frame parentFrame) {
+		super(parentFrame, "R Plot", ModalityType.MODELESS);
+		final JPanel fullPanel = new JPanel(new BorderLayout());
 
-        m_plotPreviewPanel = new ImageViewPanel();
-        m_cardLayoutPanel.add(new JScrollPane(m_plotPreviewPanel), PLOT);
-        fullPanel.add(m_cardLayoutPanel, BorderLayout.CENTER);
+		final CardLayout cardLayout = new CardLayout();
+		m_cardLayoutPanel = new JPanel(cardLayout);
+		final JPanel noPlotPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		noPlotPanel.add(new JLabel(NO_PLOT));
+		m_cardLayoutPanel.add(noPlotPanel, NO_PLOT);
 
-        final JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        final JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> setVisible(false));
-        southPanel.add(closeButton);
-        fullPanel.add(southPanel, BorderLayout.SOUTH);
-        getContentPane().add(fullPanel);
-    }
+		m_plotPreviewPanel = new ImageViewPanel();
+		m_cardLayoutPanel.add(new JScrollPane(m_plotPreviewPanel), PLOT);
+		fullPanel.add(m_cardLayoutPanel, BorderLayout.CENTER);
 
-    void setSource(final File pngFile) throws IOException {
-        BufferedImage image;
-        final CardLayout cardLayout = (CardLayout) m_cardLayoutPanel.getLayout();
-        if (pngFile != null && pngFile.length() > 0) {
-            try {
-                image = ImageIO.read(pngFile);
-            } catch (final IOException e) {
-                m_plotPreviewPanel.setImage(null);
-                cardLayout.show(m_cardLayoutPanel, NO_PLOT);
-                throw e;
-            }
-            m_plotPreviewPanel.setImage(image);
-            cardLayout.show(m_cardLayoutPanel, PLOT);
-        } else {
-            m_plotPreviewPanel.setImage(null);
-            cardLayout.show(m_cardLayoutPanel, NO_PLOT);
-        }
-    }
+		final JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		final JButton closeButton = new JButton("Close");
+		closeButton.addActionListener(e -> setVisible(false));
+		southPanel.add(closeButton);
+		fullPanel.add(southPanel, BorderLayout.SOUTH);
+		getContentPane().add(fullPanel);
+	}
+
+	void setSource(final File pngFile) throws IOException {
+		BufferedImage image;
+		final CardLayout cardLayout = (CardLayout) m_cardLayoutPanel.getLayout();
+		if (pngFile != null && pngFile.length() > 0) {
+			try {
+				image = ImageIO.read(pngFile);
+			} catch (final IOException e) {
+				m_plotPreviewPanel.setImage(null);
+				cardLayout.show(m_cardLayoutPanel, NO_PLOT);
+				throw e;
+			}
+			m_plotPreviewPanel.setImage(image);
+			cardLayout.show(m_cardLayoutPanel, PLOT);
+		} else {
+			m_plotPreviewPanel.setImage(null);
+			cardLayout.show(m_cardLayoutPanel, NO_PLOT);
+		}
+	}
 }
-

@@ -1,5 +1,5 @@
 /*
- * ------------------------------------------------------------------------
+ * ------------------------------------------------------------------
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,60 +40,67 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ------------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
  * History
- *   05.06.2012 (hofer): created
+ *   18.09.2007 (thiel): created
  */
-package de.bund.bfr.knime.pmm.fskx.template;
+package de.bund.bfr.knime.pmm.fskx.runner;
 
-import java.io.File;
-import java.io.IOException;
+import java.awt.Image;
 
-import org.knime.core.node.KNIMEConstants;
-import org.knime.core.node.NodeLogger;
+import javax.swing.JScrollPane;
+
+import org.knime.core.node.NodeView;
+
+import de.bund.bfr.knime.pmm.fskx.ui.RPlotterViewPanel;
 
 /**
- * A provider to the default template repository.
- * 
- * @author Heiko Hofer.
+ * The view of the for the r nodes with image output.
+ *
+ * @author Heiko Hofer
  */
-class DefaultFileTemplateRepositoryProvider implements TemplateRepositoryProvider {
+public class RViewNodeView extends NodeView<FskxRunnerNodeModel> {
 
-  private static NodeLogger logger =
-      NodeLogger.getLogger(DefaultFileTemplateRepositoryProvider.class);
+	private final RPlotterViewPanel m_panel;
 
-  private static FileTemplateRepository defaultRepo;
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param nodeModel
+	 *            the model associated with this view.
+	 */
+	public RViewNodeView(final FskxRunnerNodeModel nodeModel) {
+		super(nodeModel);
+		m_panel = new RPlotterViewPanel();
+		super.setComponent(new JScrollPane(m_panel));
+	}
 
-  private final Object m_lock = new Object[0];
+	/**
+	 * Updates the image to display.
+	 *
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void modelChanged() {
+		final FskxRunnerNodeModel model = super.getNodeModel();
+		final Image image = model.getResultImage();
+		m_panel.update(image);
+	}
 
-  @Override
-  public TemplateRepository getRepository() {
-    synchronized (m_lock) {
-      if (defaultRepo == null) {
-        File file = getDefaultLocation();
-        try {
-          defaultRepo = FileTemplateRepository.create(file);
-        } catch (IOException e) {
-          logger.error("Cannot create the default template provider for the java snippet nodes", e);
-        }
-      }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onClose() {
+		// empty
+	}
 
-    return defaultRepo;
-  }
-
-  /**
-   * Get the default location for snippet templates.
-   * 
-   * @return the default directory for snippet templates.
-   */
-  private File getDefaultLocation() {
-    File dir = new File(new File(KNIMEConstants.getKNIMEHomeDir()), "rsnippets");
-
-    if (!dir.exists()) {
-      dir.mkdirs();
-    }
-    return dir;
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onOpen() {
+		// empty
+	}
 }

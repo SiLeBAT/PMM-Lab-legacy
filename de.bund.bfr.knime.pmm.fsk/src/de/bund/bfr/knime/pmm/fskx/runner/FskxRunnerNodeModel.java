@@ -49,7 +49,7 @@ public class FskxRunnerNodeModel extends NodeModel {
 
   private static final PortType[] inPortTypes = new PortType[] {FskPortObject.TYPE};
   private static final PortType[] outPortTypes =
-      new PortType[] {FskPortObject.TYPE, RPortObject.TYPE, ImagePortObject.TYPE};
+      new PortType[] {FskPortObject.TYPE, RPortObject.TYPE, ImagePortObject.TYPE_OPTIONAL};
 
   private InternalSettings internalSettings = new InternalSettings();
 
@@ -112,14 +112,16 @@ public class FskxRunnerNodeModel extends NodeModel {
     }
     RPortObject rObj = new RPortObject(fskObj.getWorkspaceFile());
 
-    ImagePortObject imgObj;
+    
     try (FileInputStream fis = new FileInputStream(internalSettings.imageFile)) {
       final PNGImageContent content = new PNGImageContent(fis);
       internalSettings.plot = content.getImage();
-      imgObj = new ImagePortObject(content, PNG_SPEC);
+      ImagePortObject imgObj = new ImagePortObject(content, PNG_SPEC);
+      return new PortObject[] { fskObj, rObj, imgObj };
+    } catch (IOException e) {
+      LOGGER.warn("There is no image created");
+      return new PortObject[] { fskObj, rObj };
     }
-
-    return new PortObject[] {fskObj, rObj, imgObj};
   }
 
   private FskPortObject runSnippet(final RController controller, final FskPortObject fskObj,
@@ -147,10 +149,14 @@ public class FskxRunnerNodeModel extends NodeModel {
     controller.eval("save.image('" + wf.getAbsolutePath().replace("\\", "/") + "')");
 
     // Creates chart into m_imageFile
-    controller.eval("png(\"" + internalSettings.imageFile.getAbsolutePath().replace("\\", "/")
-        + "\", width=640, height=640, pointsize=12, bg=\"#ffffff\", res=\"NA\")");
-    controller.eval(fskObj.getVizScript() + "\n");
-    controller.eval("dev.off()");
+    try {
+      controller.eval("png(\"" + internalSettings.imageFile.getAbsolutePath().replace("\\", "/")
+          + "\", width=640, height=640, pointsize=12, bg=\"#ffffff\", res=\"NA\")");
+      controller.eval(fskObj.getVizScript() + "\n");
+      controller.eval("dev.off()");
+    } catch (RException e) {
+      LOGGER.warn("Visualization script failed");
+    }
 
     // Restore .libPaths() to the original library path which happens to be in the last position
     controller.eval(".libPaths()[" + newPaths.length + "]");

@@ -1,10 +1,5 @@
 package de.bund.bfr.knime.pmm.fskx.editor;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
-
-import org.fife.ui.rtextarea.RTextScrollPane;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
@@ -14,8 +9,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
-import de.bund.bfr.knime.pmm.fskx.rsnippet.RSnippet;
-import de.bund.bfr.knime.pmm.fskx.ui.RSnippetTextArea;
+import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 
 public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
 
@@ -48,44 +42,24 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
 
     // Create and populate interface with settings
     removeTab(modelPanelName);
-    modelScriptPanel = new ScriptPanel(modelPanelName, this.settings.modelScript);
+    modelScriptPanel = new ScriptPanel(modelPanelName, this.settings.modelScript, true);
     addTab(modelPanelName, modelScriptPanel);
 
     removeTab(paramPanelName);
-    paramScriptPanel = new ScriptPanel(paramPanelName, this.settings.paramScript);
+    paramScriptPanel = new ScriptPanel(paramPanelName, this.settings.paramScript, true);
     addTab(paramPanelName, paramScriptPanel);
 
     removeTab(vizPanelName);
-    vizScriptPanel = new ScriptPanel(vizPanelName, this.settings.vizScript);
+    vizScriptPanel = new ScriptPanel(vizPanelName, this.settings.vizScript, true);
     addTab(vizPanelName, vizScriptPanel);
   }
 
   @Override
   protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
     // Update and save settings
-    this.settings.modelScript = modelScriptPanel.textArea.getText();
-    this.settings.paramScript = paramScriptPanel.textArea.getText();
-    this.settings.vizScript = vizScriptPanel.textArea.getText();
+    this.settings.modelScript = modelScriptPanel.getTextArea().getText();
+    this.settings.paramScript = paramScriptPanel.getTextArea().getText();
+    this.settings.vizScript = vizScriptPanel.getTextArea().getText();
     this.settings.saveSettings(settings);
-  }
-}
-
-
-/** JPanel with an R script */
-class ScriptPanel extends JPanel {
-
-  private static final long serialVersionUID = -2150198208821903469L;
-
-  RSnippetTextArea textArea;
-
-  ScriptPanel(final String title, final String script) {
-    super(new BorderLayout());
-    setName(title);
-
-    textArea = new RSnippetTextArea(new RSnippet());
-    textArea.setLineWrap(true);
-    textArea.setText(script);
-    textArea.setEditable(true);
-    add(new RTextScrollPane(textArea));
   }
 }

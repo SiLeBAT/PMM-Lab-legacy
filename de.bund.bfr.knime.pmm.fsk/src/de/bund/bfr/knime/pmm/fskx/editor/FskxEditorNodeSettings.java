@@ -4,12 +4,15 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
 
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+
 /**
  * Settings of the FSKX editor node. Holds:
  * <ul>
  * <li>Model script</li>
  * <li>Parameters script</li>
  * <li>Visualization script</li>
+ * <li>Model meta data</li>
  * </ul>
  * 
  * @author Miguel Alba
@@ -24,6 +27,7 @@ public class FskxEditorNodeSettings {
   String modelScript = null;
   String paramScript = null;
   String vizScript = null;
+  FSMRTemplate template;
 
 
   // --- settings methods ---

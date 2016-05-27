@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,14 +35,9 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.IOUtils;
-import org.knime.base.data.aggregation.dialogutil.BooleanCellRenderer;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.port.PortObject;
@@ -57,10 +51,10 @@ import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.ui.MetaDataTable;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
-import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 
 /**
  * A port object for an FSK model port providing R scripts and model meta data.
@@ -301,186 +295,7 @@ public class FskPortObject implements PortObject {
 		MetaDataPanel() {
 			super(new BorderLayout());
 			setName("Meta data");
-			add(new JScrollPane(new MetaDataTable(m_template)));
-		}
-
-		class MetaDataTable extends JTable {
-
-			private static final long serialVersionUID = -4683197224648521120L;
-
-			MetaDataTable(final FSMRTemplate template) {
-				super(new MetaDataTableModel(template));
-				setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-			}
-
-			@Override
-			public TableCellRenderer getCellRenderer(int row, int column) {
-				if (row == 28 && column == 1) {
-					// Create renderer for boolean without tooltip
-					BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer(null);
-					booleanCellRenderer.setHorizontalAlignment(SwingConstants.LEFT);
-					return booleanCellRenderer;
-				}
-				return super.getCellRenderer(row, column);
-			}
-		}
-
-		class MetaDataTableModel extends AbstractTableModel {
-
-			private static final long serialVersionUID = 2006463867849567074L;
-			String[] names = new String[] { "Field", "Value" };
-			Object[][] data = new Object[29][2];
-
-			MetaDataTableModel(final FSMRTemplate template) {
-				// model name
-				data[0][0] = OpenFSMRSchema.ATT_MODEL_NAME;
-				data[0][1] = template.isSetModelName() ? template.getModelName() : "";
-
-				// model id
-				data[1][0] = OpenFSMRSchema.ATT_MODEL_ID;
-				data[1][1] = template.isSetModelId() ? template.getModelId() : "";
-
-				// model link
-				data[2][0] = OpenFSMRSchema.ATT_MODEL_LINK;
-				data[2][1] = template.isSetModelLink() ? template.getModelLink() : null;
-
-				// organism name
-				data[3][0] = OpenFSMRSchema.ATT_ORGANISM_NAME;
-				data[3][1] = template.isSetOrganismName() ? template.getOrganismName() : "";
-
-				// organism detail
-				data[4][0] = OpenFSMRSchema.ATT_ORGANISM_DETAIL;
-				data[4][1] = template.isSetOrganismDetails() ? template.getOrganismDetails() : "";
-
-				// matrix name
-				data[5][0] = OpenFSMRSchema.ATT_ENVIRONMENT_NAME;
-				data[5][1] = template.isSetMatrixName() ? template.getMatrixName() : "";
-
-				// matrix detail
-				data[6][0] = OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL;
-				data[6][1] = template.isSetMatrixDetails() ? template.getMatrixDetails() : "";
-
-				// creator
-				data[7][0] = OpenFSMRSchema.ATT_MODEL_CREATOR;
-				data[7][1] = template.isSetCreator() ? template.getCreator() : "";
-
-				// family name
-				data[8][0] = OpenFSMRSchema.ATT_MODEL_FAMILY_NAME;
-				data[8][1] = template.isSetFamilyName() ? template.getFamilyName() : "";
-
-				// contact
-				data[9][0] = OpenFSMRSchema.ATT_MODEL_CONTACT;
-				data[9][1] = template.isSetContact() ? template.getContact() : "";
-
-				// reference description
-				data[10][0] = OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION;
-				data[10][1] = template.isSetReferenceDescription() ? template.getReferenceDescription() : "";
-
-				// reference description link
-				data[11][0] = OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK;
-				data[11][1] = template.isSetReferenceDescriptionLink() ? template.getReferenceDescriptionLink() : null;
-
-				// created date
-				data[12][0] = OpenFSMRSchema.ATT_MODEL_CREATED_DATE;
-				data[12][1] = template.isSetCreatedDate() ? template.getCreatedDate() : null;
-
-				// modified date
-				data[13][0] = OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE;
-				data[13][1] = template.isSetModifiedDate() ? template.getModifiedDate() : null;
-
-				// rights
-				data[14][0] = OpenFSMRSchema.ATT_MODEL_RIGHTS;
-				data[14][1] = template.isSetRights() ? template.getRights() : "";
-
-				// notes
-				data[15][0] = OpenFSMRSchema.ATT_MODEL_NOTES;
-				data[15][1] = template.isSetNotes() ? template.getNotes() : "";
-
-				// curation status
-				data[16][0] = OpenFSMRSchema.ATT_MODEL_CURATION_STATUS;
-				data[16][1] = template.isSetModelType() ? template.getCurationStatus() : null;
-
-				// model type
-				data[17][0] = OpenFSMRSchema.ATT_MODEL_TYPE;
-				data[17][1] = template.isSetModelType() ? template.getModelType() : null;
-
-				// model subject
-				data[18][0] = OpenFSMRSchema.ATT_MODEL_SUBJECT;
-				data[18][1] = template.isSetModelSubject() ? template.getModelSubject() : null;
-
-				// food process
-				data[19][0] = OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS;
-				data[19][1] = template.isSetFoodProcess() ? template.getFoodProcess() : null;
-
-				// dependent variable
-				data[20][0] = OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE;
-				data[20][1] = template.isSetDependentVariable() ? template.getDependentVariable() : null;
-
-				// dependent variable unit
-				data[21][0] = OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT;
-				data[21][1] = template.isSetDependentVariableUnit() ? template.getDependentVariableUnit() : null;
-
-				// dependent variable min
-				data[22][0] = OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN;
-				data[22][1] = template.isSetDependentVariableMin() ? template.getDependentVariableMin() : null;
-
-				// dependent variable max
-				data[23][0] = OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX;
-				data[23][1] = template.isSetDependentVariableMax() ? template.getDependentVariableMax() : null;
-
-				// independent variable
-				data[24][0] = OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE;
-				data[24][1] = template.isSetIndependentVariables()
-						? String.join(",", template.getIndependentVariables()) : null;
-
-				// independent variable units
-				data[25][0] = OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS;
-				data[25][1] = template.isSetIndependentVariablesUnits()
-						? String.join(",", template.getIndependentVariablesUnits()) : null;
-
-				// independent variable minimum values
-				data[26][0] = OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS;
-				if (template.isSetIndependentVariablesMins()) {
-					data[26][1] = Arrays.stream(template.getIndependentVariablesMins())
-							.map(d -> ((Double) d).toString()).collect(Collectors.joining(","));
-				} else {
-					data[26][1] = null;
-				}
-
-				// independent variable maximum values
-				data[27][0] = OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS;
-				data[27][1] = data[27][1] = Arrays.stream(template.getIndependentVariablesMaxs())
-						.map(d -> ((Double) d).toString()).collect(Collectors.joining(","));
-
-				// has data
-				data[28][0] = OpenFSMRSchema.ATT_HAS_DATA;
-				data[28][1] = template.isSetHasData() ? template.getHasData() : null;
-			}
-
-			@Override
-			public int getColumnCount() {
-				return names.length;
-			}
-
-			@Override
-			public int getRowCount() {
-				return data.length;
-			}
-
-			@Override
-			public String getColumnName(int column) {
-				return names[column];
-			}
-
-			@Override
-			public Object getValueAt(int row, int col) {
-				return data[row][col];
-			}
-
-			@Override
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return false;
-			}
+			add(new JScrollPane(new MetaDataTable(m_template, false)));
 		}
 	}
 

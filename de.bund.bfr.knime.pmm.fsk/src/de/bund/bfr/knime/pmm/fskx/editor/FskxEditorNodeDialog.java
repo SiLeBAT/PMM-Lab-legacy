@@ -9,6 +9,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
+import de.bund.bfr.knime.pmm.fskx.ui.MetaDataTable;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 
 public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
@@ -20,6 +21,7 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
   private ScriptPanel modelScriptPanel;
   private ScriptPanel paramScriptPanel;
   private ScriptPanel vizScriptPanel;
+  private MetaDataTable metaDataTable;
   
   // --- settings methods ---
   @Override
@@ -52,6 +54,10 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
     removeTab(vizPanelName);
     vizScriptPanel = new ScriptPanel(vizPanelName, this.settings.vizScript, true);
     addTab(vizPanelName, vizScriptPanel);
+    
+    removeTab("Metadata");
+    metaDataTable = new MetaDataTable(fskObj.getTemplate(), true);
+    addTab("Metadata", metaDataTable);
   }
 
   @Override

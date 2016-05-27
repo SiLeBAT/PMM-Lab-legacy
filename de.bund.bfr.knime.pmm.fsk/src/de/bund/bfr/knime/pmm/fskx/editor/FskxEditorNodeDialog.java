@@ -40,19 +40,24 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
     this.settings.paramScript = fskObj.getParamScript();
     this.settings.vizScript = fskObj.getVizScript();
     this.settings.loadSettings(settings);
+    
+    // Panel names
+    final String modelPanelName = "Model script";
+    final String paramPanelName = "Parameters script";
+    final String vizPanelName = "Visualization script";
 
     // Create and populate interface with settings
-    removeTab("Model script");
-    modelScriptPanel = new ScriptPanel("Model script", this.settings.modelScript);
-    addTab("Model script", modelScriptPanel);
+    removeTab(modelPanelName);
+    modelScriptPanel = new ScriptPanel(modelPanelName, this.settings.modelScript);
+    addTab(modelPanelName, modelScriptPanel);
 
-    removeTab("Param script");
-    paramScriptPanel = new ScriptPanel("Param script", this.settings.paramScript);
-    addTab("Param script", paramScriptPanel);
+    removeTab(paramPanelName);
+    paramScriptPanel = new ScriptPanel(paramPanelName, this.settings.paramScript);
+    addTab(paramPanelName, paramScriptPanel);
 
-    removeTab("Visualization script");
-    vizScriptPanel = new ScriptPanel("Visualization script", this.settings.vizScript);
-    addTab("Visualisation script", vizScriptPanel);
+    removeTab(vizPanelName);
+    vizScriptPanel = new ScriptPanel(vizPanelName, this.settings.vizScript);
+    addTab(vizPanelName, vizScriptPanel);
   }
 
   @Override

@@ -79,6 +79,17 @@ public class FskxEditorNodeModel extends NodeModel {
   protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
     FskPortObject inObj = (FskPortObject) inObjects[0];
     
+    // If some values in the settings are not set take the values from the input FSK object
+    if (settings.modelScript == null) {
+      settings.modelScript = inObj.getModelScript();
+    }
+    if (settings.paramScript == null) {
+      settings.paramScript = inObj.getParamScript();
+    }
+    if (settings.vizScript == null) {
+      settings.vizScript = inObj.getVizScript();
+    }
+    
     // Creates output FSK object
     // - Takes scripts from node settings
     // - Takes meta data, R workspace and libraries from input object (not saved yet in settings)

@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.pmm.fskx.converter;
+package de.bund.bfr.knime.pmm.fskx.creator;
 /***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
@@ -32,7 +32,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
 import de.bund.bfr.knime.pmm.common.ui.BoxFileSelection;
 
-public class FskxConverterNodeDialog extends NodeDialogPane {
+public class FskxCreatorNodeDialog extends NodeDialogPane {
 
   // models
   private final SettingsModelString m_modelScript;
@@ -45,16 +45,16 @@ public class FskxConverterNodeDialog extends NodeDialogPane {
 
   private static final int dialogType = JFileChooser.OPEN_DIALOG; // type of the dialogs
 
-  protected FskxConverterNodeDialog() {
+  protected FskxCreatorNodeDialog() {
 
     super();
 
-    m_modelScript = new SettingsModelString(FskxConverterNodeModel.CFGKEY_MODEL_SCRIPT, "");
-    m_paramScript = new SettingsModelString(FskxConverterNodeModel.CFGKEY_PARAM_SCRIPT, "");
-    m_visualizationScript = new SettingsModelString(FskxConverterNodeModel.CFGKEY_VISUALIZATION_SCRIPT, "");
-    m_metaDataDoc = new SettingsModelString(FskxConverterNodeModel.CFGKEY_SPREADSHEET, "");
-    m_libDirectory = new SettingsModelString(FskxConverterNodeModel.CFGKEY_DIR_LIBS, "");
-    m_selectedLibs = new SettingsModelStringArray(FskxConverterNodeModel.CFGKEY_LIBS, new String[0]);
+    m_modelScript = new SettingsModelString(FskxCreatorNodeModel.CFGKEY_MODEL_SCRIPT, "");
+    m_paramScript = new SettingsModelString(FskxCreatorNodeModel.CFGKEY_PARAM_SCRIPT, "");
+    m_visualizationScript = new SettingsModelString(FskxCreatorNodeModel.CFGKEY_VISUALIZATION_SCRIPT, "");
+    m_metaDataDoc = new SettingsModelString(FskxCreatorNodeModel.CFGKEY_SPREADSHEET, "");
+    m_libDirectory = new SettingsModelString(FskxCreatorNodeModel.CFGKEY_DIR_LIBS, "");
+    m_selectedLibs = new SettingsModelStringArray(FskxCreatorNodeModel.CFGKEY_LIBS, new String[0]);
 
     // Creates the GUI
     Box box = Box.createHorizontalBox();

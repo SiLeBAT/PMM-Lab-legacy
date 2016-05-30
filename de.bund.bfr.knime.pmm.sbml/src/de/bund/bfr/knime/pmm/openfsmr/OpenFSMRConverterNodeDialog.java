@@ -50,7 +50,7 @@ public class OpenFSMRConverterNodeDialog extends NodeDialogPane {
     m_selectedFiles.setEnabled(true);
 
     addTab("Selection:",
-        new BoxFileSelection(m_selectedDirectory, m_selectedFiles, ".pmf", "PMF files selection"));
+        new BoxFileSelection(m_selectedDirectory, m_selectedFiles, ".pmf|.pmfx", "PMF files selection"));
     removeTab("Options");
   }
 

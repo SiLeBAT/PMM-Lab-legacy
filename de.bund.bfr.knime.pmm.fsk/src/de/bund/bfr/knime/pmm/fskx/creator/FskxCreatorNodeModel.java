@@ -16,22 +16,15 @@
  * Contributors: Department Biological Safety - BfR
  *************************************************************************************************
  */
-package de.bund.bfr.knime.pmm.fskx.converter;
+package de.bund.bfr.knime.pmm.fskx.creator;
 
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.base.node.util.exttool.ExtToolOutputNodeModel;
@@ -53,17 +46,17 @@ import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
+import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
-import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
-public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
+public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
   
-  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxConverterNodeModel.class);
+  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxCreatorNodeModel.class);
 
   // configuration key of the libraries directory
   static final String CFGKEY_DIR_LIBS = "dirLibs";
@@ -96,7 +89,7 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
   private SettingsModelStringArray m_selectedLibs = new SettingsModelStringArray(CFGKEY_LIBS, null);
 
   /** {@inheritDoc} */
-  protected FskxConverterNodeModel() {
+  protected FskxCreatorNodeModel() {
     super(inPortTypes, outPortTypes);
   }
 
@@ -251,119 +244,16 @@ public class FskxConverterNodeModel extends ExtToolOutputNodeModel {
 
   private Set<File> collectLibs() throws IOException, RException {
 
-    // First collect the names of the binary libraries included in the converter
-    Set<String> includedLibs = new HashSet<>();
+    Set<File> libs = new HashSet<>(m_selectedLibs.getStringArrayValue().length);
     for (String lib : m_selectedLibs.getStringArrayValue()) {
-      includedLibs.add(lib.split("\\.")[0]);
-    }
-
-    Set<File> libs = new HashSet<>();
-    File tempDir = installLibs(includedLibs);
-    for (File f : tempDir.listFiles()) {
-      File zipFile = createZipFile(f);
-      libs.add(zipFile);
+      // gets library name without the zip suffix. E.g. maps.zip => maps
+      String libName = lib.split("\\.")[0];
+      
+      Set<Path> paths = FSKNodePlugin.getDefault().getLibs(libName);
+      paths.forEach(p -> libs.add(p.toFile()));
     }
 
     return libs;
-  }
-
-  /**
-   * Install libraries and dependencies and return the path to the temporary directory with them.
-   * 
-   * @throws IOException
-   */
-  private File installLibs(Set<String> includedLibs) throws RException, IOException {
-    // Create temporary directory where to install binary libraries and their dependencies
-    File tempDir = FileUtil.createTempDir("lib");
-    String tempDirPath = tempDir.getAbsolutePath().replace("\\", "/");
-
-    // Create set of libraries names surrounded by quotes
-    Set<String> libWithQuotes = new HashSet<>(includedLibs.size());
-    for (String lib : includedLibs) {
-      libWithQuotes.add("\"" + lib + "\"");
-    }
-
-    // Builds install command: install.packages("pkg1", "pkg2", ...)
-    String pkgs = "c(" + String.join(",", libWithQuotes) + ")";
-    String installCmd = "install.packages(" + pkgs + ", lib=\"" + tempDirPath
-        + "\", repos=\"https://cloud.r-project.org/\")";
-
-    // Install packages into the temporary directory
-    try (RController controller = new RController()) {
-      controller.eval(installCmd);
-    }
-
-    return tempDir;
-  }
-
-  /** @return list of Files in a directory. Directories are ignored. */
-  private List<File> getFiles(File dir) {
-    List<File> files = new LinkedList<>();
-    for (File f : dir.listFiles()) {
-      if (f.isDirectory()) {
-        files.addAll(getFiles(f));
-      } else {
-        files.add(f);
-      }
-    }
-
-    return files;
-  }
-
-  /**
-   * Compress a directory with an R library into a zip file.
-   * 
-   * @param dir Directory with the uncompressed R library.
-   * @return Zip file with the compressed library.
-   */
-  private File createZipFile(File dir) throws IOException {
-
-    String simpleName = dir.getName();
-    File zipFile = Paths.get(dir.getParent()).resolve(simpleName + ".zip").toFile();
-    zipFile.deleteOnExit();
-
-    ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile));
-    List<File> files = getFiles(dir);
-    for (File f : files) {
-      addZipEntry(zipOutputStream, f, simpleName);
-    }
-    zipOutputStream.close();
-
-    return zipFile;
-  }
-
-  /**
-   * Add a {@link ZipEntry} to a {@link ZipOutputStream} with the contents of a file from an R
-   * library.
-   *
-   * @param zipOutputStream stream with library contents.
-   * @param unmcrompressedFile uncompressed file in disk from an R library.
-   * @param packageName name of the package such as triangle, maps, ...
-   * @throws IOException
-   * @throws FileNotFoundException
-   */
-  private void addZipEntry(final ZipOutputStream zipOutputStream, final File uncompressedFile,
-      final String packageName) throws FileNotFoundException, IOException {
-
-    String uncompressedFilePath = uncompressedFile.getPath();
-
-    // Builds entry path. All the files in the zip file should be contained in a folder named after
-    // the package.
-    String entryPath = uncompressedFilePath.substring(uncompressedFilePath.indexOf(packageName));
-
-    // Write file
-    try (FileInputStream fis = new FileInputStream(uncompressedFile)) {
-      ZipEntry zipEntry = new ZipEntry(entryPath);
-      zipOutputStream.putNextEntry(zipEntry);
-
-      byte[] bytes = new byte[1024];
-      int length;
-      while ((length = fis.read(bytes)) >= 0) {
-        zipOutputStream.write(bytes, 0, length);
-      }
-
-      zipOutputStream.closeEntry();
-    }
   }
 }
 

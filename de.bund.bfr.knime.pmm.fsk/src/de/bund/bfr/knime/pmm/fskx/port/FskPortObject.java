@@ -51,7 +51,7 @@ import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
-import de.bund.bfr.knime.pmm.fskx.ui.MetaDataTable;
+import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
@@ -220,7 +220,7 @@ public class FskPortObject implements PortObject {
 		@Override
 		public FskPortObject loadPortObject(PortObjectZipInputStream in, PortObjectSpec spec, ExecutionMonitor exec)
 				throws IOException, CanceledExecutionException {
-
+			
 			String model = "";
 			String param = "";
 			String viz = "";
@@ -295,7 +295,7 @@ public class FskPortObject implements PortObject {
 		MetaDataPanel() {
 			super(new BorderLayout());
 			setName("Meta data");
-			add(new JScrollPane(new MetaDataTable(m_template, false)));
+			add(new MetaDataPane(m_template, false));
 		}
 	}
 

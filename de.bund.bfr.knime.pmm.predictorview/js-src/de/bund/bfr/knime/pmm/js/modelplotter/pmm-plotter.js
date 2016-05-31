@@ -67,14 +67,14 @@ pmm_plotter = function() {
 	var msgParameter = "Initial Parameters";
 	var msgMatrix = "Matrix";
 	var msgExamples = "Examples";
+	var msgShowData = "show given data points";
 	var msg_error_noFormulaSec = "ERROR: Formula in secondary model is not a valid formula.";
 	var	msg_error_unknownUnit = "unknown unit: ";
 	var	msg_error_xUnitUnknown = "the x unit of one function is unknown to the database: transformation impossible";
 	var	msg_error_yUnitUnknown = "the y unit of one function is unknown or has no conversion factor in the database: transformation impossible";
-	var msgShowData = "show given data points";
+	var msg_error_noConversionFunctionFactor = "The PMM-Lab database does not know the unit provided by the model - model cannot be added. Unit: "
 	
 	var _internalId = 0;
-	var _logConst = 2.3025851;
 	var _xUnit = msgUnknown;
 	var _yUnit = msgUnknown;
 	
@@ -98,7 +98,7 @@ pmm_plotter = function() {
 		}
 		
 		_plotterValue = value;
-		_rawModels = value.models.models;
+		_rawModels = value.m12Models.schemas;
 		_dbUnits = value.units.units;
 		// plotterRep = representation; // not used
 
@@ -285,16 +285,16 @@ pmm_plotter = function() {
 		{
 			$.each(_rawModels, function(i) 
 				{
-					var globalModelId = _rawModels[i].globalModelId;
+					var dbuuid = _rawModels[i].dbuuid;
 					// only add if not added before
-					if(idList.indexOf(globalModelId) == -1)
+					if(idList.indexOf(dbuuid) == -1)
 					{
-						var type = _rawModels[i].type;
+						var type = _rawModels[i].matrix.name;
 						var modelName = _rawModels[i].estModel.name;
 						// pass data
-						addSelectOption(globalModelId, modelName, type);
+						addSelectOption(dbuuid, modelName, type);
 						// remember id
-						idList.push(globalModelId);
+						idList.push(dbuuid);
 					}
 				}
 			);
@@ -306,19 +306,19 @@ pmm_plotter = function() {
 	 * options of the same type are grouped (group name is type)
 	 * options with no type have the "no type" group
 	 * 
-	 * @param globalModelId id of the model
+	 * @param dbuuid id of the model
 	 * @param modelName name of the model
 	 * @param type type of the model
 	 */
-	function addSelectOption(globalModelId, modelName, type)
+	function addSelectOption(dbuuid, modelName, type)
 	{
 		if(!type || type == "")
 			type = msgNoType;
 		
 		// html <option>
 		var option = document.createElement("option");
-		option.setAttribute("value", globalModelId);
-		option.innerHTML = "[" + globalModelId + "] " + modelName;
+		option.setAttribute("value", dbuuid);
+		option.innerHTML = "[" + dbuuid + "] " + modelName;
 		
 		// find or create html <optgroup>
 		var groupId = "optGroup_" + type;
@@ -355,7 +355,7 @@ pmm_plotter = function() {
 		
 		$.each(rawDataClone, function(i, object)
 		{
-			if(object.globalModelId == selection)
+			if(object.dbuuid == selection)
 			{
 				modelList.push(object);
 			}
@@ -364,15 +364,14 @@ pmm_plotter = function() {
 		if(modelList.length >= 1)
 		{
 			model = createTertiaryModel(modelList); // this has to be done first
-			model.params.params.Y0 = _plotterValue.y0; // set the value from the settings here
+			model.paramList.params.Y0 = _plotterValue.y0; // set the value from the settings here
 			
-			var globalModelId = model.globalModelId;
+			var dbuuid = model.dbuuid;
 			var modelName = model.estModel.name;
 			var functionAsString = prepareFunction(model.indeps, model.formula, model.xUnit, model.yUnit);
-			var functionConstants = prepareParameters(model.indeps, globalModelId);
-
+			var functionConstants = prepareParameters(model.indeps, dbuuid);
 			// call subsequent method
-			addFunctionObject(globalModelId, functionAsString, functionConstants, model);
+			addFunctionObject(dbuuid, functionAsString, functionConstants, model);
 		}
 		
 		/**
@@ -393,34 +392,6 @@ pmm_plotter = function() {
 			// gi: global, case-insensitive
 			newString = newString.replace(/Time/gi, "x");
 			newString = newString.replace(/\bT\b/gi, "x");
-			
-			/*
-			 * deprecated code. "LOG10N0" is meant to stay like that.
-			 *
-			 * In some formula, brackets after logarithm applications are left out
-			 * leading to errors in both parameter recognition and logarithm application.
-			 * We add the brackets here, so that  logarithms and parameters are parsed 
-			 * correctly. We therefore lock up all parameter names in the function and 
-			 * exchange them with their "bracketized" equivalent. This applies to _all_ 
-			 * parameters, regardless of logarithms.
-			 *
-			$.each(parameterArray, function(index, param) {
-				var oldParam = param["name"];
-				var log10 = "log10";
-				var log10_c = "LOG10";
-				if(oldParam.indexOf(log10) != -1 || oldParam.indexOf(log10_c) != -1)
-				{
-					var paramPart;
-					if(oldParam.indexOf(log10) != -1)
-						paramPart = oldParam.split(log10)[1];
-					else
-						paramPart = oldParam.split(log10_c)[1];
-					
-					var newParam = log10 + "(" + paramPart + ")";
-					var regex = new RegExp(oldParam, "g");
-					newString = newString.replace(regex, "(" + newParam + ")");
-				}
-			});*/
 			
 			if(_xUnit != msgUnknown && xUnit != _xUnit)
 			{
@@ -479,7 +450,6 @@ pmm_plotter = function() {
 				newParameterArray[paramName] = paramValue; 
 				
 				// save ranges for each parameter
-				// exchange min and max if lower/higher resp.
 				var parameterData = {
 					name: paramName,
 					value: paramValue,
@@ -532,9 +502,9 @@ pmm_plotter = function() {
 			 * this applies to the attributes that are equal in all secondary models/data rows
 			 */
 			var tertiaryModel = modelList[0]; // primary model data is shared
-			var formulaPrim = tertiaryModel.catModel.formula; // main formula is shared
-			var paramsPrim = tertiaryModel.params.params; // so are the primary parameters
-			var indepsPrim = tertiaryModel.indeps.indeps; // so are the primary parameters
+			var formulaPrim = tertiaryModel.catalogModel.formula; // main formula is shared
+			var paramsPrim = tertiaryModel.paramList.params; // so are the primary parameters
+			var indepsPrim = tertiaryModel.indepList.indeps; // so are the primary parameters
 			var depPrim = tertiaryModel.dep; // so are the primary parameters
 			
 			var secondaryIndeps = []; // gather the variable independents for the sliders
@@ -554,13 +524,13 @@ pmm_plotter = function() {
 			{
 				tertiaryModel.yUnit = depPrim.unit;
 			}
-
+			
 			// add primary independents (which are in the parameters here)
 			$.each(paramsPrim, function(index, indep) {
 				// convention: if a parameter has no mininmum or maximum but a value, it shall not be dynamic
-				if( (indep.min == undefined || indep.min == "") && 
-					(indep.max == undefined || indep.max == "") &&
-					(indep.value != undefined && indep.value != ""))
+				if( (indep.min == undefined || indep.min == "" || indep.min == null) && 
+					(indep.max == undefined || indep.max == "" || indep.max == null) &&
+					(indep.value != undefined && indep.value !== ""))
 				{
 					var regex = new RegExp("\\b" + indep["name"] + "\\b", "gi");
 					formulaPrim = formulaPrim.replace(regex, indep["value"]);
@@ -571,36 +541,38 @@ pmm_plotter = function() {
 					secondaryIndeps.push(indep);
 				}
 			});
-			
 			// extract secondary independents
-			$.each(modelList, function(i1, modelSec) {
-				var indepsSec = modelSec.indepsSec.indeps;
+			$.each(tertiaryModel.m2List.schemas, function(i1, modelSec) {
+				var indepsSec = modelSec.indepList.indeps;
 				$.each(indepsSec, function(i2, indep) {
 					secondaryIndeps.push(indep);
 				});
 			});
 			
 			// extract and replace secondary parameters (constants)
-			$.each(modelList, function(index, modelSec) {
+			$.each(tertiaryModel.m2List.schemas, function(index, modelSec) {
 				// in catModelSec, a formula is expected
-				var formulaSec = modelSec.catModelSec.formula;
+				var formulaSec = modelSec.catalogModel.formula;
 				// in paramsSec, the values for that formula are expected
-				var paramsSec = modelSec.paramsSec.params;
+				var paramsSec = modelSec.paramList.params;
+
 				
 				// we now simply replace the parameters from catModelSec with
 				// the values from paramsSec
-				$.each(paramsSec, function(index, param) {
-					var regex = new RegExp("\\b" + param["name"] + "\\b", "gi");
-					formulaSec = formulaSec.replace(regex, param["value"]);			
-				});
+				if(paramsSec)
+					$.each(paramsSec, function(index, param) {
+						var regex = new RegExp("\\b" + param["name"] + "\\b", "gi");
+						formulaSec = formulaSec.replace(regex, param["value"]);			 
+					});
 				modelSec.formula = formulaSec; // new field holds the flat formula
 			});
-			
+
 			// inject nested formula in primary formula
-			$.each(modelList, function(index, modelSec) {
+			$.each(tertiaryModel.m2List.schemas, function(index, modelSec) {
 				var formulaSecRaw = modelSec.formula;
 				var formulaSec;
 				var parameterPrim;  
+				
 				if(formulaSecRaw.indexOf("=") != -1)
 				{
 					// parameter name
@@ -615,6 +587,7 @@ pmm_plotter = function() {
 					* tertiary model
 					*/
 					var indexToDelete;
+					
 					$.each(secondaryIndeps, function(index, indep){
 						 if(indep["name"] == parameterPrim)
 						 {
@@ -632,22 +605,20 @@ pmm_plotter = function() {
 				var regex = new RegExp("\\b" + parameterPrim + "\\b", "gi");
 				formulaPrim = formulaPrim.replace(regex, "(" + formulaSec + ")");
 			});
-			
 			var points = [];
+			var timeSeries = tertiaryModel.timeSeriesList.timeSeries;
 			
-			$.each(modelList, function(i1, modelSec) {
-				var timeSeries = modelSec.timeSeriesList.timeSeries;
-				if(timeSeries.length > 0)
-				{
-					$.each(timeSeries, function(i2, dataPointItem) {
-						var point = [ 
-							dataPointItem.time, 
-							dataPointItem.concentration 
-						];
-						points.push(point);
-					});
-				}
-			});
+			if(timeSeries)
+			{
+				$.each(timeSeries, function(i2, dataPointItem) {
+					var point = [ 
+						dataPointItem.time, 
+						dataPointItem.concentration 
+					];
+					points.push(point);
+				});
+			}
+			
 			tertiaryModel.dataPoints = points;	
 			
 			/*
@@ -679,7 +650,6 @@ pmm_plotter = function() {
 				// renaming at last
 				indep.name = newName;
 			});
-			
 			tertiaryModel.formula = formulaPrim;
 			tertiaryModel.indeps = secondaryIndeps;
 			
@@ -697,11 +667,11 @@ pmm_plotter = function() {
 	/**
 	 * adds a function to the functions array and redraws the plot
 	 * 
-	 * @param globalModelId
+	 * @param dbuuid
 	 * @param functionAsString the function string as returend by prepareFunction()
 	 * @param the function constants as an array 
 	 */
-	function addFunctionObject(globalModelId, functionAsString, functionConstants, model)
+	function addFunctionObject(dbuuid, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
 		var maxRange = _plotterValue.maxXAxis * 1000; // obligatoric for the range feature // TODO: dynamic maximum
@@ -710,7 +680,7 @@ pmm_plotter = function() {
 		
 		var modelObj = { 
 			 id: id,
-             globalModelId: globalModelId,
+             dbuuid: dbuuid,
 			 fnType: 'linear',
 			 name: model.estModel.name,
 			 fn: functionAsString,
@@ -726,7 +696,7 @@ pmm_plotter = function() {
 		{
 			var modelPointObj = {
 				id: id,
-				globalModelId: globalModelId,
+				dbuuid: dbuuid,
 				points: model.dataPoints,
 			    color: color,
 			    skipTip: false,
@@ -756,7 +726,7 @@ pmm_plotter = function() {
 	/**
 	 * deletes a model for good - including graph and meta data
 	 * 
-	 * @param internalId globalModelId of the model
+	 * @param internalId dbuuid of the model
 	 */
 	function deleteFunctionObject(internalId)
 	{
@@ -786,7 +756,7 @@ pmm_plotter = function() {
 		 * [nested function]
 		 * removes the model from the used model array
 		 * 
-		 * @param id globalModelId of the model
+		 * @param id dbuuid of the model
 		 */
 		function removeModel(id)
 		{
@@ -808,7 +778,7 @@ pmm_plotter = function() {
 		 * [nested function]
 		 * deletes the dom elements that belong to the meta data in the accordion
 		 * 
-		 * @param id globalModelId of the model
+		 * @param id dbuuid of the model
 		 */
 		function deleteMetaDataSection(id)
 		{
@@ -850,7 +820,7 @@ pmm_plotter = function() {
 		 */
 		var header = document.createElement("h3");
 		header.setAttribute("id", "h" + modelObject.id);
-		header.innerHTML = modelObject.globalModelId;
+		header.innerHTML = modelObject.dbuuid;
 		
 		// accordion-specific jQuery semantic for append()
 		$("#metaDataWrapper").append(header);
@@ -1283,6 +1253,10 @@ pmm_plotter = function() {
 				return true;
 			}
 		});
+		
+		if(factor == undefined)
+			show(msg_error_noConversionFunctionFactor + unit);
+		
 		return factor;
 	}
 	

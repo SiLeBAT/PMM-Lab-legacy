@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
@@ -64,7 +65,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
-import de.bund.bfr.knime.pmm.editor.ModelEditorNodeModel;
 import de.bund.bfr.knime.pmm.js.common.Agent;
 import de.bund.bfr.knime.pmm.js.common.CatalogModel;
 import de.bund.bfr.knime.pmm.js.common.Dep;
@@ -77,8 +77,6 @@ import de.bund.bfr.knime.pmm.js.common.Matrix;
 import de.bund.bfr.knime.pmm.js.common.MdInfo;
 import de.bund.bfr.knime.pmm.js.common.Misc;
 import de.bund.bfr.knime.pmm.js.common.MiscList;
-import de.bund.bfr.knime.pmm.js.common.Model1DataTuple;
-import de.bund.bfr.knime.pmm.js.common.ModelList;
 import de.bund.bfr.knime.pmm.js.common.Param;
 import de.bund.bfr.knime.pmm.js.common.ParamList;
 import de.bund.bfr.knime.pmm.js.common.TimeSeries;
@@ -88,6 +86,7 @@ import de.bund.bfr.knime.pmm.js.common.UnitList;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM12DataSchema;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM12DataSchemaList;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM1DataSchema;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM1DataSchemaList;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM2Schema;
 import de.bund.bfr.knime.pmm.js.common.schema.JsM2SchemaList;
 
@@ -200,36 +199,38 @@ public final class ModelPlotterNodeModel
 			viewValue.setMaxXAxis(m_config.getMaxXAxis());
 			viewValue.setMaxYAxis(m_config.getMaxYAxis());
 
-			/*
-			// Convert KNIME tuples to Model1DataTuple
-			Model1DataTuple[] dataTuples = new Model1DataTuple[tuples.size()];
-			for (int i = 0; i < tuples.size(); i++) {
-				dataTuples[i] = ModelEditorNodeModel.codeTuple(tuples.get(i));
-				// as long as there is no dbuuid, we generate one
-				if (dataTuples[i].getCondId() == null) {
-					LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
-					int seed;
-					if (dataTuples[i].getCatModel() != null)
-						seed = dataTuples[i].hashCode();
-					else
-						seed = dataTuples[i].getCatModel().getFormula().hashCode();
-					String globalId = "g" + String.valueOf((new Random(seed)).nextInt(999999)); // "g"
-																								// for
-																								// "generated",
-																								// max
-																								// 6
-																								// digits
-					dataTuples[i].setDbuuid(globalId);
-				}
-			}
-			ModelList modelList = new ModelList();
-			modelList.setModels(dataTuples);
-			viewValue.setModels(modelList);
-			
-			*/
-			
 			// create schemata
-			List<JsM12DataSchema> modelList = codeM12DataSchema(tuples);
+			List<?> modelList = null;
+			if(SchemaFactory.conformsM12DataSchema(table.getDataTableSpec())) {
+				modelList = codeM12DataSchema(tuples);
+				
+				// convert list to necessary view list
+				JsM12DataSchema[] modelArray = new JsM12DataSchema[modelList.size()];
+				modelArray = modelList.toArray(modelArray);
+				
+				JsM12DataSchemaList list = new JsM12DataSchemaList();
+				list.setModels(modelArray);
+				
+				// set new list to view
+				viewValue.setModels(list);
+			}
+			else if (SchemaFactory.conformsM1DataSchema(table.getDataTableSpec())) {
+				modelList = codeM1DataTuples(tuples);
+				
+				// convert list to necessary view list
+				JsM1DataSchema[] modelArray = new JsM1DataSchema[modelList.size()];
+				modelArray = modelList.toArray(modelArray);
+				
+				JsM1DataSchemaList list = new JsM1DataSchemaList();
+				list.setModels(modelArray);
+				
+				// set new list to view
+				viewValue.setModels(list);
+			}
+			else { 
+				LOGGER.error("model schema not supported / unknown data table spec");
+				exec.checkCanceled();
+			}
 			
 			// convert list to necessary view list
 			JsM12DataSchema[] modelArray = new JsM12DataSchema[modelList.size()];
@@ -315,6 +316,7 @@ public final class ModelPlotterNodeModel
 		return new PortObject[] { container.getTable(), userContainer.getTable(), svgImageFromView };
 	}
 
+
 	private PortObjectSpec[] createOutputDataTableSpecs() {
 
 		return new PortObjectSpec[] { SchemaFactory.createM12DataSchema().createSpec(), getUserSpec(),
@@ -381,6 +383,21 @@ public final class ModelPlotterNodeModel
 	protected boolean generateImage() {
 		// always generate image
 		return true;
+	}
+	
+	private String generateDbuuid(KnimeTuple tuple) {
+		String dbuuid = tuple.getString(Model1Schema.ATT_DBUUID);
+		if(dbuuid.equals("?") || dbuuid.isEmpty())	{
+			LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
+			int seed;
+			if (tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG) == null)
+				seed = ((CatalogModelXml) tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getFormula().hashCode();
+			else
+				seed = tuple.hashCode();
+			/* "g" for "generated"; max 6 digits */
+			dbuuid = "g" + String.valueOf((new Random(seed)).nextInt(999999)); 
+		}
+		return dbuuid;
 	}
 
 	private List<JsM1DataSchema> codeM1DataTuples(List<KnimeTuple> tuples) {
@@ -468,7 +485,7 @@ public final class ModelPlotterNodeModel
 				schema.setDatabaseWritable(Model1Schema.WRITABLE == tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
 			}
 
-			schema.setDbuuid(tuple.getString(Model1Schema.ATT_DBUUID));
+			schema.setDbuuid(generateDbuuid(tuple));
 
 			// TimeSeriesSchema fields
 			schema.setCondId(tuple.getInt(TimeSeriesSchema.ATT_CONDID));
@@ -528,7 +545,6 @@ public final class ModelPlotterNodeModel
 				litList.setLiterature(litArray);
 				schema.setLiteratureList(litList);
 			}
-
 			schemas.add(schema);
 		}
 
@@ -638,7 +654,9 @@ public final class ModelPlotterNodeModel
 				schema.setDatabaseWritable(dbWritable);
 			}
 
-			schema.setDbuuid(firstTuple.getString(Model1Schema.ATT_DBUUID));
+			schema.setDbuuid(generateDbuuid(firstTuple));
+
+				
 
 			// process TimeSeriesSchema fields from first tuple
 			schema.setCondId(firstTuple.getInt(TimeSeriesSchema.ATT_CONDID));
@@ -782,7 +800,6 @@ public final class ModelPlotterNodeModel
 					m2Schemas[j].setDatabaseWritable(dbWritable);
 				}
 
-				m2Schemas[j].setDbuuid(firstTuple.getString(Model1Schema.ATT_DBUUID));
 			}
 
 			JsM2SchemaList m2List = new JsM2SchemaList();

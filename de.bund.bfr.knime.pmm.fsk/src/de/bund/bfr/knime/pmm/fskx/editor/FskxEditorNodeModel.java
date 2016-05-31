@@ -7,7 +7,6 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -20,8 +19,6 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
 public class FskxEditorNodeModel extends NodeModel {
-
-	private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxEditorNodeModel.class);
 
 	private static final PortType[] inPortTypes = new PortType[] { FskPortObject.TYPE };
 	private static final PortType[] outPortTypes = new PortType[] { FskPortObject.TYPE };

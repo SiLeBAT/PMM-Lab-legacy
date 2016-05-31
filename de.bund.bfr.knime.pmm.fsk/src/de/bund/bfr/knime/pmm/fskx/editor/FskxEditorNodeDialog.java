@@ -2,7 +2,6 @@ package de.bund.bfr.knime.pmm.fskx.editor;
 
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
@@ -13,8 +12,6 @@ import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 
 public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
-
-  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxEditorNodeDialog.class);
 
   private FskxEditorNodeSettings settings;
 

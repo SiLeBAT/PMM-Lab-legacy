@@ -5,7 +5,6 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -52,104 +51,7 @@ public class FskxEditorNodeSettings {
 	}
 
 	public FskxEditorNodeSettings(FSMRTemplate template) {
-		this.template = new FSMRTemplateImpl();
-		try {
-			if (template.isSetModelName()) {
-				this.template.setModelName(new String(template.getModelName()));
-			}
-			if (template.isSetModelId()) {
-				this.template.setModelId(new String(template.getModelId()));
-			}
-			if (template.isSetModelLink()) {
-				this.template.setModelLink(new URL(template.getModelLink().toString()));
-			}
-			if (template.isSetOrganismName()) {
-				this.template.setOrganismName(new String(template.getOrganismName()));
-			}
-			if (template.isSetOrganismDetails()) {
-				this.template.setOrganismDetails(new String(template.getOrganismDetails()));
-			}
-			if (template.isSetMatrixName()) {
-				this.template.setMatrixName(new String(template.getMatrixName()));
-			}
-			if (template.isSetMatrixDetails()) {
-				this.template.setMatrixDetails(new String(template.getMatrixDetails()));
-			}
-			if (template.isSetCreator()) {
-				this.template.setCreator(new String(template.getCreator()));
-			}
-			if (template.isSetFamilyName()) {
-				this.template.setFamilyName(new String(template.getFamilyName()));
-			}
-			if (template.isSetContact()) {
-				this.template.setContact(new String(template.getContact()));
-			}
-			if (template.isSetReferenceDescription()) {
-				this.template.setReferenceDescription(new String(template.getReferenceDescription()));
-			}
-			if (template.isSetReferenceDescriptionLink()) {
-				this.template.setReferenceDescriptionLink(new URL(template.getReferenceDescriptionLink().toString()));
-			}
-			if (template.isSetCreatedDate()) {
-				this.template.setCreatedDate(new Date(template.getCreatedDate().getTime()));
-			}
-			if (template.isSetModifiedDate()) {
-				this.template.setModifiedDate(new Date(template.getModifiedDate().getTime()));
-			}
-			if (template.isSetRights()) {
-				this.template.setRights(new String(template.getRights()));
-			}
-			if (template.isSetNotes()) {
-				this.template.setNotes(new String(template.getNotes()));
-			}
-			if (template.isSetCurationStatus()) {
-				this.template.setCurationStatus(new String(template.getCurationStatus()));
-			}
-			if (template.isSetModelType()) {
-				this.template.setModelType(template.getModelType());
-			}
-			if (template.isSetModelSubject()) {
-				this.template.setModelSubject(template.getModelSubject());
-			} else {
-				this.template.setModelSubject(ModelClass.UNKNOWN);
-			}
-			if (template.isSetFoodProcess()) {
-				this.template.setFoodProcess(new String(template.getFoodProcess()));
-			}
-			if (template.isSetDependentVariable()) {
-				this.template.setDependentVariable(new String(template.getDependentVariable()));
-			}
-			if (template.isSetDependentVariableUnit()) {
-				this.template.setDependentVariableUnit(new String(template.getDependentVariableUnit()));
-			}
-			if (template.isSetDependentVariableMin()) {
-				this.template.setDependentVariableMin(new Double(template.getDependentVariableMin()));
-			}
-			if (template.isSetDependentVariableMax()) {
-				this.template.setDependentVariableMax(new Double(template.getDependentVariableMax()));
-			}
-			if (template.isSetIndependentVariables()) {
-				this.template.setIndependentVariables(template.getIndependentVariables().clone());
-			}
-			if (template.isSetIndependentVariablesUnits()) {
-				this.template.setIndependentVariablesUnits(template.getIndependentVariablesUnits().clone());
-			}
-			if (template.isSetIndependentVariablesMins()) {
-				this.template.setIndependentVariablesMins(template.getIndependentVariablesMins().clone());
-			}
-			if (template.isSetIndependentVariablesMaxs()) {
-				this.template.setIndependentVariablesMaxs(template.getIndependentVariablesMaxs().clone());
-			}
-			if (template.isSetHasData()) {
-				this.template.setHasData(new Boolean(template.getHasData()));
-			}
-		} catch (MalformedURLException e) {
-			// passed template has valid settings so these exceptions are never
-			// thrown
-			System.err.println(e.getMessage());
-			throw new RuntimeException(e);
-		}
-
+		this.template = new FSMRTemplateImpl(template);
 		isSetMetaData = true;
 	}
 

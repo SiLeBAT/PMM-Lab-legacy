@@ -33,640 +33,817 @@ public class FSMRTemplateImpl implements FSMRTemplate {
 
   private static final long serialVersionUID = -3414978919227860002L;
 
-  private String modelName = null;
+  private String modelName;
+  private boolean isSetModelName;
 
-  private String modelId = null;
+  private String modelId;
+  private boolean isSetModelId;
 
-  private URL modelLink = null;
+  private URL modelLink;
+  private boolean isSetModelLink;
 
-  private String organismName = null;
+  private String organismName;
+  private boolean isSetOrganismName;
 
-  private String organismDetail = null;
+  private String organismDetails;
+  private boolean isSetOrganismDetails;
 
-  private String matrixName = null;
+  private String matrixName;
+  private boolean isSetMatrixName;
 
-  private String matrixDetails = null;
+  private String matrixDetails;
+  private boolean isSetMatrixDetails;
 
-  private String creator = null;
+  private String creator;
+  private boolean isSetCreator;
 
-  private String familyName = null;
+  private String familyName;
+  private boolean isSetFamilyName;
 
-  private String contact = null;
+  private String contact;
+  private boolean isSetContact;
 
-  private String referenceDescription = null;
+  private String referenceDescription;
+  private boolean isSetReferenceDescription;
 
-  private URL referenceDescriptionLink = null;
+  private URL referenceDescriptionLink;
+  private boolean isSetReferenceDescriptionLink;
 
-  private Date createdDate = null;
+  private Date createdDate;
+  private boolean isSetCreatedDate;
 
-  private Date modifiedDate = null;
+  private Date modifiedDate;
+  private boolean isSetModifiedDate;
 
-  private String rights = null;
+  private String rights;
+  private boolean isSetRights;
 
-  private String notes = null;
+  private String notes;
+  private boolean isSetNotes;
 
-  private String curationStatus = null;
+  private String curationStatus;
+  private boolean isSetCurationStatus;
 
-  private ModelType modelType = null;
+  private ModelType modelType;
+  private boolean isSetModelType;
 
-  private ModelClass modelSubject = null;
+  private ModelClass modelSubject;
+  private boolean isSetModelSubject;
 
-  private String foodProcess = null;
+  private String foodProcess;
+  private boolean isSetFoodProcess;
 
-  private String dependentVariable = null;
+  private String dependentVariable;
+  private boolean isSetDependentVariable;
 
-  private String dependentVariableUnit = null;
+  private String dependentVariableUnit;
+  private boolean isSetDependentVariableUnit;
 
-  private Double dependentVariableMin = null;
+  private double dependentVariableMin;
+  private boolean isSetDependentVariableMin;
 
-  private Double dependentVariableMax = null;
+  private double dependentVariableMax;
+  private boolean isSetDependentVariableMax;
 
-  private String[] independentVariables = null;
+  private String[] independentVariables;
+  private boolean isSetIndependentVariables;
 
-  private String[] independentVariableUnits = null;
+  private String[] independentVariableUnits;
+  private boolean isSetIndependentVariablesUnits;
 
-  private Double[] independentVariableMins = null;
+  private double[] independentVariableMins;
+  private boolean isSetIndependentVariablesMins;
 
-  private Double[] independentVariableMaxs = null;
+  private double[] independentVariableMaxs;
+  private boolean isSetIndependentVariablesMaxs;
 
-  private Boolean hasData;
+  private boolean hasData;
+  private boolean isSetHasData;
 
   /** {@inheritDoc} */
   public String getModelName() {
-    return modelName;
+    if (isSetModelName) {
+      return modelName;
+    }
+    throw new RuntimeException("Model name not set");
   }
 
   /** {@inheritDoc} */
   public String getModelId() {
-    return modelId;
+    if (isSetModelId) {
+      return modelId;
+    }
+    throw new RuntimeException("Model id not set");
   }
 
   /** {@inheritDoc} */
   public URL getModelLink() {
-    return modelLink;
+    if (isSetModelLink) {
+      return modelLink;
+    }
+    throw new RuntimeException("Model link not set");
   }
 
   /** {@inheritDoc} */
   public String getOrganismName() {
-    return organismName;
+    if (isSetOrganismName) {
+      return organismName;
+    }
+    throw new RuntimeException("Organism name not set");
   }
 
   /** {@inheritDoc} */
   public String getOrganismDetails() {
-    return organismDetail;
+    if (isSetOrganismDetails) {
+      return organismDetails;
+    }
+    throw new RuntimeException("Organism details not set");
   }
 
   /** {@inheritDoc} */
   public String getMatrixName() {
-    return matrixName;
+    if (isSetMatrixName) {
+      return matrixName;
+    }
+    throw new RuntimeException("Matrix name not set");
   }
 
   /** {@inheritDoc} */
   public String getMatrixDetails() {
-    return matrixDetails;
+    if (isSetMatrixDetails) {
+      return matrixDetails;
+    }
+    throw new RuntimeException("Matrix details not set");
   }
 
   /** {@inheritDoc} */
   public String getCreator() {
-    return creator;
+    if (isSetCreator) {
+      return creator;
+    }
+    throw new RuntimeException("Creator not set");
   }
 
   /** {@inheritDoc} */
   public String getFamilyName() {
-    return familyName;
+    if (isSetFamilyName) {
+      return familyName;
+    }
+    throw new RuntimeException("Family name not set");
   }
 
   /** {@inheritDoc} */
   public String getContact() {
-    return contact;
+    if (isSetContact) {
+      return contact;
+    }
+    throw new RuntimeException("Contact not set");
   }
 
   /** {@inheritDoc} */
   public String getReferenceDescription() {
-    return referenceDescription;
+    if (isSetReferenceDescription) {
+      return referenceDescription;
+    }
+    throw new RuntimeException("Reference descriptio not set");
   }
 
   /** {@inheritDoc} */
   public URL getReferenceDescriptionLink() {
-    return referenceDescriptionLink;
+    if (isSetReferenceDescriptionLink) {
+      return referenceDescriptionLink;
+    }
+    throw new RuntimeException("Reference description link not set");
   }
 
   /** {@inheritDoc} */
   public Date getCreatedDate() {
-    return createdDate;
+    if (isSetCreatedDate) {
+      return createdDate;
+    }
+    throw new RuntimeException("Created date not set");
   }
 
   /** {@inheritDoc} */
   public Date getModifiedDate() {
-    return modifiedDate;
+    if (isSetModifiedDate) {
+      return modifiedDate;
+    }
+    throw new RuntimeException("Modified date not set");
   }
 
   /** {@inheritDoc} */
   public String getRights() {
-    return rights;
+    if (isSetRights) {
+      return rights;
+    }
+    throw new RuntimeException("Rights not set");
   }
 
   /** {@inheritDoc} */
   public String getNotes() {
-    return notes;
+    if (isSetNotes) {
+      return notes;
+    }
+    throw new RuntimeException("Notes not set");
   }
 
   /** {@inheritDoc} */
   public String getCurationStatus() {
-    return curationStatus;
+    if (isSetCurationStatus) {
+      return curationStatus;
+    }
+    throw new RuntimeException("Curation status not set");
   }
 
   /** {@inheritDoc} */
   public ModelType getModelType() {
-    return modelType;
+    if (isSetModelType) {
+      return modelType;
+    }
+    throw new RuntimeException("Model type not set");
   }
 
   /** {@inheritDoc} */
   public ModelClass getModelSubject() {
-    return modelSubject;
+    if (isSetModelSubject) {
+      return modelSubject;
+    }
+    throw new RuntimeException("Model subject not set");
   }
 
   /** {@inheritDoc} */
   public String getFoodProcess() {
-    return foodProcess;
+    if (isSetFoodProcess) {
+      return foodProcess;
+    }
+    throw new RuntimeException("Food process not set");
   }
 
   /** {@inheritDoc} */
   public String getDependentVariable() {
-    return dependentVariable;
+    if (isSetDependentVariable) {
+      return dependentVariable;
+    }
+    throw new RuntimeException("Dependent variable not set");
   }
 
   /** {@inheritDoc} */
   public String getDependentVariableUnit() {
-    return dependentVariableUnit;
+    if (isSetDependentVariableUnit) {
+      return dependentVariableUnit;
+    }
+    throw new RuntimeException("Dependent variable unit not set");
   }
 
   /** {@inheritDoc} */
-  public Double getDependentVariableMin() {
-    return dependentVariableMin;
+  public double getDependentVariableMin() {
+    if (isSetDependentVariableMin) {
+      return dependentVariableMin;
+    }
+    throw new RuntimeException("Minimum value of dependent variable not set");
   }
 
   /** {@inheritDoc} */
-  public Double getDependentVariableMax() {
-    return dependentVariableMax;
+  public double getDependentVariableMax() {
+    if (isSetDependentVariableMax) {
+      return dependentVariableMax;
+    }
+    throw new RuntimeException("Maximum value of dependent variable not set");
   }
 
   /** {@inheritDoc} */
   public String[] getIndependentVariables() {
-    return independentVariables;
+    if (isSetIndependentVariables) {
+      return independentVariables;
+    }
+    throw new RuntimeException("Independent variables not set");
   }
 
   /** {@inheritDoc} */
   public String[] getIndependentVariablesUnits() {
-    return independentVariableUnits;
+    if (isSetIndependentVariablesUnits) {
+      return independentVariableUnits;
+    }
+    throw new RuntimeException("Independent variables units not set");
   }
 
   /** {@inheritDoc} */
-  public Double[] getIndependentVariablesMins() {
-    return independentVariableMins;
+  public double[] getIndependentVariablesMins() {
+    if (isSetIndependentVariablesMins) {
+      return independentVariableMins;
+    }
+    throw new RuntimeException("Minimum values of independent variables not set");
   }
 
   /** {@inheritDoc} */
-  public Double[] getIndependentVariablesMaxs() {
-    return independentVariableMaxs;
+  public double[] getIndependentVariablesMaxs() {
+    if (isSetIndependentVariablesMaxs) {
+      return independentVariableMaxs;
+    }
+    throw new RuntimeException("Maximum values of independent variables not set");
   }
 
   /** {@inheritDoc} */
-  public Boolean getHasData() {
-    return hasData;
+  public boolean getHasData() {
+    if (isSetHasData) {
+      return hasData;
+    }
+    throw new RuntimeException("hasData not set");
   }
 
   /** {@inheritDoc} */
-  public void setModelName(String modelName) {
+  public void setModelName(final String modelName) {
     this.modelName = modelName;
+    isSetModelName = true;
   }
 
   /** {@inheritDoc} */
-  public void setModelId(String modelId) {
+  public void setModelId(final String modelId) {
     this.modelId = modelId;
+    isSetModelId = true;
   }
 
   /** {@inheritDoc} */
-  public void setModelLink(URL modelLink) {
+  public void setModelLink(final URL modelLink) {
     this.modelLink = modelLink;
+    isSetModelLink = true;
   }
 
   /** {@inheritDoc} */
-  public void setOrganismName(String organismName) {
+  public void setOrganismName(final String organismName) {
     this.organismName = organismName;
+    isSetOrganismName = true;
   }
 
   /** {@inheritDoc} */
-  public void setOrganismDetails(String organismDetails) {
-    this.organismDetail = organismDetails;
+  public void setOrganismDetails(final String organismDetails) {
+    this.organismDetails = organismDetails;
+    isSetOrganismDetails = true;
   }
 
   /** {@inheritDoc} */
-  public void setMatrixName(String matrixName) {
+  public void setMatrixName(final String matrixName) {
     this.matrixName = matrixName;
+    isSetMatrixName = true;
   }
 
   /** {@inheritDoc} */
-  public void setMatrixDetails(String matrixDetails) {
+  public void setMatrixDetails(final String matrixDetails) {
     this.matrixDetails = matrixDetails;
+    isSetMatrixDetails = true;
   }
 
   /** {@inheritDoc} */
-  public void setCreator(String creator) {
+  public void setCreator(final String creator) {
     this.creator = creator;
+    isSetCreator = true;
   }
 
   /** {@inheritDoc} */
-  public void setFamilyName(String familyName) {
+  public void setFamilyName(final String familyName) {
     this.familyName = familyName;
+    isSetFamilyName = true;
   }
 
   /** {@inheritDoc} */
-  public void setContact(String contact) {
+  public void setContact(final String contact) {
     this.contact = contact;
+    isSetContact = true;
   }
 
   /** {@inheritDoc} */
-  public void setReferenceDescription(String referenceDescription) {
+  public void setReferenceDescription(final String referenceDescription) {
     this.referenceDescription = referenceDescription;
+    isSetReferenceDescription = true;
   }
 
   /** {@inheritDoc} */
   public void setReferenceDescriptionLink(URL referenceDescriptionLink) {
     this.referenceDescriptionLink = referenceDescriptionLink;
+    isSetReferenceDescriptionLink = true;
   }
 
   /** {@inheritDoc} */
   public void setCreatedDate(Date createdDate) {
     this.createdDate = createdDate;
+    isSetCreatedDate = true;
   }
 
   /** {@inheritDoc} */
   public void setModifiedDate(Date modifiedDate) {
     this.modifiedDate = modifiedDate;
+    isSetModifiedDate = true;
   }
 
   /** {@inheritDoc} */
-  public void setRights(String rights) {
+  public void setRights(final String rights) {
     this.rights = rights;
+    isSetRights = true;
   }
 
   /** {@inheritDoc} */
-  public void setNotes(String notes) {
+  public void setNotes(final String notes) {
     this.notes = notes;
+    isSetNotes = true;
   }
 
   /** {@inheritDoc} */
-  public void setCurationStatus(String curationStatus) {
+  public void setCurationStatus(final String curationStatus) {
     this.curationStatus = curationStatus;
+    isSetCurationStatus = true;
   }
 
   /** {@inheritDoc} */
-  public void setModelType(ModelType type) {
+  public void setModelType(final ModelType type) {
     this.modelType = type;
+    isSetModelType = true;
   }
 
   /** {@inheritDoc} */
-  public void setModelSubject(ModelClass subject) {
+  public void setModelSubject(final ModelClass subject) {
     this.modelSubject = subject;
+    isSetModelSubject = true;
   }
 
   /** {@inheritDoc} */
-  public void setFoodProcess(String foodProcess) {
+  public void setFoodProcess(final String foodProcess) {
     this.foodProcess = foodProcess;
+    isSetFoodProcess = true;
   }
 
   /** {@inheritDoc} */
-  public void setDependentVariable(String dependentVariable) {
+  public void setDependentVariable(final String dependentVariable) {
     this.dependentVariable = dependentVariable;
+    isSetDependentVariable = true;
   }
 
   /** {@inheritDoc} */
-  public void setDependentVariableUnit(String dependentVariableUnit) {
+  public void setDependentVariableUnit(final String dependentVariableUnit) {
     this.dependentVariableUnit = dependentVariableUnit;
+    isSetDependentVariableUnit = true;
   }
 
   /** {@inheritDoc} */
   public void setDependentVariableMin(double dependentVariableMin) {
     this.dependentVariableMin = dependentVariableMin;
+    isSetDependentVariableMin = true;
   }
 
   /** {@inheritDoc} */
   public void setDependentVariableMax(double dependentVariableMax) {
     this.dependentVariableMax = dependentVariableMax;
+    isSetDependentVariableMax = true;
   }
 
   /** {@inheritDoc} */
-  public void setIndependentVariables(String[] independentVariables) {
+  public void setIndependentVariables(final String[] independentVariables) {
     this.independentVariables = independentVariables;
+    isSetIndependentVariables = true;
   }
 
   /** {@inheritDoc} */
-  public void setIndependentVariablesUnits(String[] independentVariableUnits) {
+  public void setIndependentVariablesUnits(final String[] independentVariableUnits) {
     this.independentVariableUnits = independentVariableUnits;
+    isSetIndependentVariablesUnits = true;
   }
 
   /** {@inheritDoc} */
-  public void setIndependentVariablesMins(Double[] independentVariableMins) {
+  public void setIndependentVariablesMins(double[] independentVariableMins) {
     this.independentVariableMins = independentVariableMins;
+    isSetIndependentVariablesMins = true;
   }
 
   /** {@inheritDoc} */
-  public void setIndependentVariablesMaxs(Double[] independentVariableMaxs) {
+  public void setIndependentVariablesMaxs(double[] independentVariableMaxs) {
     this.independentVariableMaxs = independentVariableMaxs;
+    isSetIndependentVariablesMaxs = true;
   }
 
   /** {@inheritDoc} */
   public void setHasData(boolean hasData) {
     this.hasData = hasData;
+    isSetHasData = true;
   }
 
   /** {@inheritDoc} */
   public void unsetModelName() {
     modelName = null;
+    isSetModelName = false;
   }
 
   /** {@inheritDoc} */
   public void unsetModelId() {
     modelId = null;
+    isSetModelId = false;
   }
 
   /** {@inheritDoc} */
   public void unsetModelLink() {
     modelLink = null;
+    isSetModelLink = false;
   }
 
   /** {@inheritDoc} */
   public void unsetOrganismName() {
     organismName = null;
+    isSetOrganismName = false;
   }
 
   /** {@inheritDoc} */
   public void unsetOrganismDetail() {
-    organismDetail = null;
+    organismDetails = null;
+    isSetOrganismDetails = false;
   }
 
   /** {@inheritDoc} */
   public void unsetMatrixName() {
     matrixName = null;
+    isSetMatrixName = false;
   }
 
   /** {@inheritDoc} */
   public void unsetMatrixDetails() {
     matrixDetails = null;
+    isSetMatrixDetails = false;
   }
 
   /** {@inheritDoc} */
   public void unsetCreator() {
     creator = null;
+    isSetCreator = false;
   }
 
   /** {@inheritDoc} */
   public void unsetFamilyName() {
     familyName = null;
+    isSetFamilyName = false;
   }
 
   /** {@inheritDoc} */
   public void unsetContact() {
     contact = null;
+    isSetContact = false;
   }
 
   /** {@inheritDoc} */
   public void unsetReferenceDescription() {
     referenceDescription = null;
+    isSetReferenceDescription = false;
   }
 
   /** {@inheritDoc} */
   public void unsetReferenceDescriptionLink() {
     referenceDescriptionLink = null;
+    isSetReferenceDescriptionLink = false;
   }
 
   /** {@inheritDoc} */
   public void unsetCreatedDate() {
     createdDate = null;
+    isSetCreatedDate = false;
   }
 
   /** {@inheritDoc} */
   public void unsetModifiedDate() {
     modifiedDate = null;
+    isSetModifiedDate = false;
   }
 
   /** {@inheritDoc} */
   public void unsetRights() {
     rights = null;
+    isSetRights = false;
   }
 
   /** {@inheritDoc} */
   public void unsetNotes() {
     notes = null;
+    isSetNotes = false;
   }
 
   /** {@inheritDoc} */
   public void unsetCurationStatus() {
     curationStatus = null;
+    isSetCurationStatus = false;
   }
 
   /** {@inheritDoc} */
   public void unsetModelType() {
     modelType = null;
+    isSetModelType = false;
   }
 
   /** {@inheritDoc} */
   public void unsetModelSubject() {
     modelSubject = null;
+    isSetModelSubject = false;
   }
 
   /** {@inheritDoc} */
   public void unsetFoodProcess() {
     foodProcess = null;
+    isSetFoodProcess = false;
   }
 
   /** {@inheritDoc} */
   public void unsetDependentVariable() {
     dependentVariable = null;
+    isSetDependentVariable = false;
+  }
+
+  /** {@inheritDoc} */
+  public void unsetDependentVariableUnit() {
+    dependentVariableUnit = null;
+    isSetDependentVariableUnit = false;
   }
 
   /** {@inheritDoc} */
   public void unsetDependentVariableMin() {
-    dependentVariableMin = null;
+    dependentVariableMin = Double.NaN;
+    isSetDependentVariableMin = false;
   }
 
   /** {@inheritDoc} */
   public void unsetDependentVariableMax() {
-    dependentVariableMax = null;
+    dependentVariableMax = Double.NaN;
+    isSetDependentVariableMax = false;
   }
 
   /** {@inheritDoc} */
   public void unsetIndependentVariables() {
     independentVariables = null;
+    isSetIndependentVariables = false;
   }
 
   /** {@inheritDoc} */
   public void unsetIndependentVariableUnits() {
     independentVariableUnits = null;
+    isSetIndependentVariablesUnits = false;
   }
 
   /** {@inheritDoc} */
   public void unsetIndependentVariableMins() {
     independentVariableMins = null;
+    isSetIndependentVariablesMins = false;
   }
 
   /** {@inheritDoc} */
   public void unsetIndependentVariableMaxs() {
     independentVariableMaxs = null;
+    isSetIndependentVariablesMaxs = false;
   }
 
   /** {@inheritDoc} */
   public void unsetHasData() {
-    hasData = null;
+    isSetHasData = false;
   }
 
   /** {@inheritDoc} */
   public boolean isSetModelName() {
-    return modelName != null;
+    return isSetModelName;
   }
 
   /** {@inheritDoc} */
   public boolean isSetModelId() {
-    return modelId != null;
+    return isSetModelId;
   }
 
   /** {@inheritDoc} */
   public boolean isSetModelLink() {
-    return modelLink != null;
+    return isSetModelLink;
   }
 
   /** {@inheritDoc} */
   public boolean isSetOrganismName() {
-    return organismName != null;
+    return isSetOrganismName;
   }
 
   /** {@inheritDoc} */
   public boolean isSetOrganismDetails() {
-    return organismDetail != null;
+    return isSetOrganismDetails;
   }
 
   /** {@inheritDoc} */
   public boolean isSetMatrixName() {
-    return matrixName != null;
+    return isSetMatrixName;
   }
 
   /** {@inheritDoc} */
   public boolean isSetMatrixDetails() {
-    return matrixDetails != null;
+    return isSetMatrixDetails;
   }
 
   /** {@inheritDoc} */
   public boolean isSetCreator() {
-    return creator != null;
+    return isSetCreator;
   }
 
   /** {@inheritDoc} */
   public boolean isSetFamilyName() {
-    return familyName != null;
+    return isSetFamilyName;
   }
 
   /** {@inheritDoc} */
   public boolean isSetContact() {
-    return contact != null;
+    return isSetContact;
   }
 
   /** {@inheritDoc} */
   public boolean isSetReferenceDescription() {
-    return referenceDescription != null;
+    return isSetReferenceDescription;
   }
 
   /** {@inheritDoc} */
   public boolean isSetReferenceDescriptionLink() {
-    return referenceDescriptionLink != null;
+    return isSetReferenceDescriptionLink;
   }
 
   /** {@inheritDoc} */
   public boolean isSetCreatedDate() {
-    return createdDate != null;
+    return isSetCreatedDate;
   }
 
   /** {@inheritDoc} */
   public boolean isSetModifiedDate() {
-    return modifiedDate != null;
+    return isSetModifiedDate;
   }
 
   /** {@inheritDoc} */
   public boolean isSetRights() {
-    return rights != null;
+    return isSetRights;
   }
 
   /** {@inheritDoc} */
   public boolean isSetNotes() {
-    return notes != null;
+    return isSetNotes;
   }
 
   /** {@inheritDoc} */
   public boolean isSetCurationStatus() {
-    return curationStatus != null;
+    return isSetCurationStatus;
   }
 
   /** {@inheritDoc} */
   public boolean isSetModelType() {
-    return modelType != null;
+    return isSetModelType;
   }
 
   /** {@inheritDoc} */
   public boolean isSetModelSubject() {
-    return modelSubject != null;
+    return isSetModelSubject;
   }
 
   /** {@inheritDoc} */
   public boolean isSetFoodProcess() {
-    return foodProcess != null;
+    return isSetFoodProcess;
   }
 
   /** {@inheritDoc} */
   public boolean isSetDependentVariable() {
-    return dependentVariable != null;
+    return isSetDependentVariable;
   }
 
   /** {@inheritDoc} */
   public boolean isSetDependentVariableUnit() {
-    return dependentVariableUnit != null;
+    return isSetDependentVariableUnit;
   }
 
   /** {@inheritDoc} */
   public boolean isSetDependentVariableMin() {
-    return dependentVariableMin != null;
+    return isSetDependentVariableMin;
   }
 
   /** {@inheritDoc} */
   public boolean isSetDependentVariableMax() {
-    return dependentVariableMax != null;
+    return isSetDependentVariableMax;
   }
 
   /** {@inheritDoc} */
   public boolean isSetIndependentVariables() {
-    return independentVariables != null;
+    return isSetIndependentVariables;
   }
 
   /** {@inheritDoc} */
   public boolean isSetIndependentVariablesUnits() {
-    return independentVariableUnits != null;
+    return isSetIndependentVariablesUnits;
   }
 
   /** {@inheritDoc} */
   public boolean isSetIndependentVariablesMins() {
-    return independentVariableMins != null;
+    return isSetIndependentVariablesMins;
   }
 
   /** {@inheritDoc} */
   public boolean isSetIndependentVariablesMaxs() {
-    return independentVariableMaxs != null;
+    return isSetIndependentVariablesMaxs;
   }
 
   /** {@inheritDoc} */
   public boolean isSetHasData() {
-    return hasData != null;
+    return isSetHasData;
   }
 
-  //
   public FSMRTemplateImpl() {}
 
   public FSMRTemplateImpl(final FSMRTemplate template) {
@@ -720,7 +897,7 @@ public class FSMRTemplateImpl implements FSMRTemplate {
         setNotes(new String(template.getNotes()));
       }
       if (template.isSetCurationStatus()) {
-        setCurationStatus(template.getCurationStatus());
+        setCurationStatus(new String(template.getCurationStatus()));
       }
       if (template.isSetModelType()) {
         setModelType(template.getModelType());
@@ -740,10 +917,10 @@ public class FSMRTemplateImpl implements FSMRTemplate {
         setDependentVariableUnit(new String(template.getDependentVariableUnit()));
       }
       if (template.isSetDependentVariableMin()) {
-        setDependentVariableMin(new Double(template.getDependentVariableMin()));
+        setDependentVariableMin(template.getDependentVariableMin());
       }
       if (template.isSetDependentVariableMax()) {
-        setDependentVariableMax(new Double(template.getDependentVariableMax()));
+        setDependentVariableMax(template.getDependentVariableMax());
       }
       if (template.isSetIndependentVariables()) {
         setIndependentVariables(template.getIndependentVariables().clone());

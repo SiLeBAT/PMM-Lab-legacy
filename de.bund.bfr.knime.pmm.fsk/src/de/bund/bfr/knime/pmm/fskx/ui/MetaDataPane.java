@@ -56,14 +56,14 @@ public class MetaDataPane extends JScrollPane {
 		Independent_Variable_Maxs,
 		Has_Data
 	};
-	
+
 	FSMRTemplate template;
 
 	public MetaDataPane(FSMRTemplate template, boolean editable) {
 		super(new JTable(new TableModel(template, editable)));
 		this.template = template;
 	}
-	
+
 	public FSMRTemplate getMetaData() {
 		return template;
 	}
@@ -152,25 +152,27 @@ public class MetaDataPane extends JScrollPane {
 				case Model_Dependent_Variable_Unit:
 					return template.isSetDependentVariableUnit() ? template.getDependentVariableUnit().toString() : "";
 				case Model_Dependent_Variable_Min:
-					return template.isSetDependentVariableMin() ? template.getDependentVariableMin().toString() : "";
+					return template.isSetDependentVariableMin() ? Double.toString(template.getDependentVariableMin())
+							: "";
 				case Model_Dependent_Variable_Max:
-					return template.isSetDependentVariableMax() ? template.getDependentVariableMax().toString() : "";
+					return template.isSetDependentVariableMax() ? Double.toString(template.getDependentVariableMax())
+							: "";
 				case Independent_Variable:
 					return template.isSetIndependentVariables() ? template.getIndependentVariables().toString() : "";
 				case Independent_Variable_Units:
 					return template.isSetIndependentVariables() ? joiner.join(template.getIndependentVariables()) : "";
 				case Independent_Variable_Mins:
 					return template.isSetIndependentVariablesMins()
-							? Arrays.stream(template.getIndependentVariablesMins()).map(d -> ((Double) d).toString())
+							? Arrays.stream(template.getIndependentVariablesMins()).mapToObj(Double::toString)
 									.collect(Collectors.joining("||"))
 							: "";
 				case Independent_Variable_Maxs:
 					return template.isSetIndependentVariablesMaxs()
-							? Arrays.stream(template.getIndependentVariablesMaxs()).map(d -> ((Double) d).toString())
+							? Arrays.stream(template.getIndependentVariablesMaxs()).mapToObj(Double::toString)
 									.collect(Collectors.joining("||"))
 							: "";
 				case Has_Data:
-					return template.isSetHasData() ? template.getHasData().toString() : "";
+					return template.isSetHasData() ? Boolean.toString(template.getHasData()) : "";
 				}
 			}
 			throw new RuntimeException("Invalid row & col" + row + " " + col);
@@ -292,21 +294,23 @@ public class MetaDataPane extends JScrollPane {
 				}
 				break;
 			case Independent_Variable:
-				template.setIndependentVariables(parseStringArray(stringValue));
+				template.setIndependentVariables(stringValue.split("||"));
 				break;
 			case Independent_Variable_Units:
-				template.setIndependentVariablesUnits(parseStringArray(stringValue));
+				template.setIndependentVariablesUnits(stringValue.split("||"));
 				break;
 			case Independent_Variable_Mins:
 				try {
-					template.setIndependentVariablesMins(parseDoubleArray(stringValue));
+					double[] mins = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).toArray();
+					template.setIndependentVariablesMins(mins);
 				} catch (NumberFormatException e) {
 					LOGGER.warn("NaN");
 				}
 				break;
 			case Independent_Variable_Maxs:
 				try {
-					template.setIndependentVariablesMaxs(parseDoubleArray(stringValue));
+					double[] maxs = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).toArray();
+					template.setIndependentVariablesMaxs(maxs);
 				} catch (NumberFormatException e) {
 					LOGGER.warn("NaN");
 				}
@@ -320,38 +324,6 @@ public class MetaDataPane extends JScrollPane {
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return editable;
-		}
-
-		// --- utility methods ---
-
-		/**
-		 * Parses an string with a number of strings joined on "||".
-		 * 
-		 * @param stringValue
-		 *            strings joined on "||". E.g. "n_iter || params_parents"
-		 * 
-		 * @return string array
-		 */
-		private String[] parseStringArray(final String stringValue) {
-			return stringValue.split("||");
-		}
-
-		/**
-		 * Parses an string with a number of doubles joined on "||".
-		 * 
-		 * @param stringValue
-		 *            doubles joined on "||". E.g. "1||1"
-		 * @return double array
-		 * @throws NumberFormatException
-		 *             NaN
-		 */
-		private Double[] parseDoubleArray(final String stringValue) {
-			String[] stringArray = stringValue.split("||");
-			Double[] doubleArray = new Double[stringArray.length];
-			for (int i = 0; i < stringArray.length; i++) {
-				doubleArray[i] = Double.parseDouble(stringArray[i]);
-			}
-			return doubleArray;
 		}
 	}
 }

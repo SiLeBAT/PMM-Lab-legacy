@@ -47,6 +47,10 @@ public class FskxEditorNodeModel extends NodeModel {
 	/** {@inheritDoc} */
 	@Override
 	protected void reset() {
+		settings.unsetModelScript();
+		settings.unsetParametersScript();
+		settings.unsetVisualizationScript();
+		settings.unsetMetaData();
 	}
 
 	// --- node settings methods ---

@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -304,14 +303,10 @@ public class FskxEditorNodeSettings {
 				settings.addStringArray(INDEPENDENT_VARIABLES_UNITS, template.getIndependentVariablesUnits());
 			}
 			if (template.isSetIndependentVariablesMins()) {
-				Double[] objArray = template.getIndependentVariablesMins();
-				double[] primArray = Arrays.stream(objArray).mapToDouble(Double::doubleValue).toArray();
-				settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, primArray);
+				settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, template.getIndependentVariablesMins());
 			}
 			if (template.isSetIndependentVariablesMaxs()) {
-				Double[] objArray = template.getIndependentVariablesMaxs();
-				double[] primArray = Arrays.stream(objArray).mapToDouble(Double::doubleValue).toArray();
-				settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, primArray);
+				settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, template.getIndependentVariablesMaxs());
 			}
 			if (template.isSetHasData()) {
 				settings.addBoolean(HAS_DATA, template.getHasData());
@@ -431,14 +426,12 @@ public class FskxEditorNodeSettings {
 					template.setIndependentVariables(settings.getStringArray(INDEPENDENT_VARIABLES_UNITS));
 				}
 				if (settings.containsKey(INDEPENDENT_VARIABLES_MINS)) {
-					template.setIndependentVariablesMins(
-							Arrays.stream(settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS)).boxed()
-									.toArray(Double[]::new));
+					double[] doubleArray = settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS);
+					template.setIndependentVariablesMins(doubleArray);
 				}
 				if (settings.containsKey(INDEPENDENT_VARIABLES_MAXS)) {
-					template.setIndependentVariablesMaxs(
-							Arrays.stream(settings.getDoubleArray(INDEPENDENT_VARIABLES_MAXS)).boxed()
-									.toArray(Double[]::new));
+					double[] doubleArray = settings.getDoubleArray(INDEPENDENT_VARIABLES_MAXS);
+					template.setIndependentVariablesMaxs(doubleArray);
 				}
 				if (settings.containsKey(HAS_DATA)) {
 					template.setHasData(settings.getBoolean(HAS_DATA));

@@ -49,7 +49,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetModelName();
 		assertFalse(template.isSetModelName());
-		assertNull(template.getModelName());
+		try {
+			template.getModelName();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -61,24 +65,28 @@ public class FSMRTemplateImplTest {
 
 		template.unsetModelId();
 		assertFalse(template.isSetModelId());
-		assertNull(template.getModelId());
+		try {
+			template.getModelId();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
-	public void testModelLinkAccesors() {
-		URL link = null;
-		try {
-			// The protocol used, 'https', is valid, so it should not raise an exception.
-			link = new URL("https://drive.google.com/open?id=0B06JrEEq34hSaEt5UFVIMFM3M0k");		
-			template.setModelLink(link);
-			assertTrue(template.isSetModelLink());
-			assertEquals(link, template.getModelLink());
+	public void testModelLinkAccesors() throws MalformedURLException {
+		// The protocol used, 'https', is valid, so it should not raise an
+		// exception.
+		URL link = new URL("https://drive.google.com/open?id=0B06JrEEq34hSaEt5UFVIMFM3M0k");
+		template.setModelLink(link);
+		assertTrue(template.isSetModelLink());
+		assertEquals(link, template.getModelLink());
 
-			template.unsetModelLink();
-			assertFalse(template.isSetModelLink());
-			assertNull(template.getModelLink());
-		} catch (MalformedURLException e) {
-			fail(e.getMessage());
+		template.unsetModelLink();
+		assertFalse(template.isSetModelLink());
+		try {
+			template.getModelLink();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
 		}
 	}
 
@@ -91,7 +99,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetOrganismName();
 		assertFalse(template.isSetOrganismName());
-		assertNull(template.getOrganismName());
+		try {
+			template.getOrganismName();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -102,7 +114,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetOrganismDetail();
 		assertFalse(template.isSetOrganismDetails());
-		assertNull(template.getOrganismDetails());
+		try {
+			template.getOrganismDetails();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -114,7 +130,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetMatrixName();
 		assertFalse(template.isSetMatrixName());
-		assertNull(template.getMatrixName());
+		try {
+			template.getMatrixName();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -126,7 +146,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetMatrixDetails();
 		assertFalse(template.isSetMatrixDetails());
-		assertNull(template.getMatrixDetails());
+		try {
+			template.getMatrixDetails();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -138,7 +162,43 @@ public class FSMRTemplateImplTest {
 
 		template.unsetCreator();
 		assertFalse(template.isSetCreator());
-		assertNull(template.getCreator());
+		try {
+			template.getCreator();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+
+	@Test
+	public void testFamilyNameAccesors() {
+		String familyName = "Baranyi models";
+		template.setFamilyName(familyName);
+		assertTrue(template.isSetFamilyName());
+		assertEquals(familyName, template.getFamilyName());
+
+		template.unsetFamilyName();
+		assertFalse(template.isSetFamilyName());
+		try {
+			template.getFamilyName();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+
+	@Test
+	public void testContactAccesors() {
+		String contact = "some contact data";
+		template.setContact(contact);
+		assertTrue(template.isSetContact());
+		assertEquals(contact, template.getContact());
+
+		template.unsetContact();
+		assertFalse(template.isSetContact());
+		try {
+			template.getContact();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -153,61 +213,64 @@ public class FSMRTemplateImplTest {
 
 		template.unsetReferenceDescription();
 		assertFalse(template.isSetReferenceDescription());
-		assertNull(template.getReferenceDescription());
-	}
-
-	@Test
-	public void testReferenceDescriptionLinkAccesors() {
-		URL link = null;
 		try {
-			// The protocol used, 'https', is valid, so it should not raise an exception.
-			link = new URL("http://smas.chemeng.ntua.gr/miram/files/publ_237_10_2_2005.pdf");		
-			template.setReferenceDescriptionLink(link);
-			assertTrue(template.isSetReferenceDescriptionLink());
-			assertEquals(link, template.getReferenceDescriptionLink());
-
-			template.unsetReferenceDescriptionLink();
-			assertFalse(template.isSetReferenceDescriptionLink());
-			assertNull(template.getReferenceDescriptionLink());
-		} catch (MalformedURLException e) {
-			fail(e.getMessage());
+			template.getReferenceDescription();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
 		}
 	}
 
 	@Test
-	public void testCreatedDateAccesors() {
+	public void testReferenceDescriptionLinkAccesors() throws MalformedURLException {
+		// The protocol used, 'https', is valid, so it should not raise an
+		// exception.
+		URL link = new URL("http://smas.chemeng.ntua.gr/miram/files/publ_237_10_2_2005.pdf");
+		template.setReferenceDescriptionLink(link);
+		assertTrue(template.isSetReferenceDescriptionLink());
+		assertEquals(link, template.getReferenceDescriptionLink());
+
+		template.unsetReferenceDescriptionLink();
+		assertFalse(template.isSetReferenceDescriptionLink());
+		try {
+			template.getReferenceDescriptionLink();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+
+	@Test
+	public void testCreatedDateAccesors() throws ParseException {
 		SimpleDateFormat ft = new SimpleDateFormat("m/d/Y");
-		Date createdDate;
-		try {
-			createdDate = ft.parse("01/01/2014");
-			template.setCreatedDate(createdDate);
-			assertTrue(template.isSetCreatedDate());
-			assertEquals(createdDate, template.getCreatedDate());
+		Date createdDate = ft.parse("01/01/2014");
+		template.setCreatedDate(createdDate);
+		assertTrue(template.isSetCreatedDate());
+		assertEquals(createdDate, template.getCreatedDate());
 
-			template.unsetCreatedDate();
-			assertFalse(template.isSetCreatedDate());
-			assertNull(template.getCreatedDate());
-		} catch (ParseException e) {
-			fail(e.getMessage());
+		template.unsetCreatedDate();
+		assertFalse(template.isSetCreatedDate());
+		try {
+			template.getCreatedDate();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
 		}
 	}
 
 	@Test
-	public void testModifiedDateAccesors() {
+	public void testModifiedDateAccesors() throws ParseException {
 		SimpleDateFormat ft = new SimpleDateFormat("m/d/Y");
-		Date modifiedDate;
-		try {
-			modifiedDate = ft.parse("01/01/2015");
-			template.setModifiedDate(modifiedDate);
-			assertTrue(template.isSetModifiedDate());
-			assertEquals(modifiedDate, template.getModifiedDate());
+		Date modifiedDate = ft.parse("01/01/2015");
+		template.setModifiedDate(modifiedDate);
+		assertTrue(template.isSetModifiedDate());
+		assertEquals(modifiedDate, template.getModifiedDate());
 
-			template.unsetModifiedDate();
-			assertFalse(template.isSetModifiedDate());
-			assertNull(template.getModifiedDate());
-		} catch (ParseException e) {
-			fail(e.getMessage());
+		template.unsetModifiedDate();
+		assertFalse(template.isSetModifiedDate());
+		try {
+			template.getModifiedDate();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
 		}
+
 	}
 
 	@Test
@@ -219,7 +282,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetRights();
 		assertFalse(template.isSetRights());
-		assertNull(template.getRights());
+		try {
+			template.getRights();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -231,7 +298,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetNotes();
 		assertFalse(template.isSetNotes());
-		assertNull(template.getNotes());
+		try {
+			template.getNotes();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -242,7 +313,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetCurationStatus();
 		assertFalse(template.isSetCurationStatus());
-		assertNull(template.getCurationStatus());
+		try {
+			template.getCurationStatus();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -253,7 +328,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetModelType();
 		assertFalse(template.isSetModelType());
-		assertNull(template.getModelType());
+		try {
+			template.getModelType();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -264,7 +343,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetModelSubject();
 		assertFalse(template.isSetModelSubject());
-		assertNull(template.getModelSubject());
+		try {
+			template.getModelSubject();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -272,10 +355,14 @@ public class FSMRTemplateImplTest {
 		template.setFoodProcess("cooking");
 		assertTrue(template.isSetFoodProcess());
 		assertEquals("cooking", template.getFoodProcess());
-		
+
 		template.unsetFoodProcess();
 		assertFalse(template.isSetFoodProcess());
-		assertNull(template.getFoodProcess());
+		try {
+			template.getFoodProcess();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -286,7 +373,26 @@ public class FSMRTemplateImplTest {
 
 		template.unsetDependentVariable();
 		assertFalse(template.isSetDependentVariable());
-		assertNull(template.getDependentVariable());
+		try {
+			template.getDependentVariable();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+
+	@Test
+	public void testDependentVariableUnitAccesors() {
+		template.setDependentVariableUnit("ln");
+		assertTrue(template.isSetDependentVariableUnit());
+		assertEquals("ln", template.getDependentVariableUnit());
+
+		template.unsetDependentVariableUnit();
+		assertFalse(template.isSetDependentVariableUnit());
+		try {
+			template.getDependentVariableUnit();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -297,7 +403,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetDependentVariableMin();
 		assertFalse(template.isSetDependentVariableMin());
-		assertNull(template.getDependentVariableMin());
+		try {
+			template.getDependentVariableMin();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -308,7 +418,11 @@ public class FSMRTemplateImplTest {
 
 		template.unsetDependentVariableMax();
 		assertFalse(template.isSetDependentVariableMax());
-		assertNull(template.getDependentVariableMax());
+		try {
+			template.getDependentVariableMax();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 
 	@Test
@@ -320,6 +434,73 @@ public class FSMRTemplateImplTest {
 
 		template.unsetIndependentVariables();
 		assertFalse(template.isSetIndependentVariables());
-		assertNull(template.getIndependentVariables());
+		try {
+			template.getIndependentVariables();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+	
+	@Test
+	public void testIndependentVariableUnitAccesors() {
+		String[] indepVarUnits = new String[] { "s", "°C" };
+		template.setIndependentVariablesUnits(indepVarUnits);
+		assertTrue(template.isSetIndependentVariablesUnits());
+		assertArrayEquals(indepVarUnits, template.getIndependentVariablesUnits());
+		
+		template.unsetIndependentVariableUnits();
+		assertFalse(template.isSetIndependentVariablesUnits());
+		try {
+			template.getIndependentVariablesUnits();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+	
+	@Test
+	public void testIndependentVariableMinsAccesors() {
+		double[] mins = new double[] { 0, 1};
+		template.setIndependentVariablesMins(mins);
+		assertTrue(template.isSetIndependentVariablesMins());
+		assertArrayEquals(mins, template.getIndependentVariablesMins(), 0.0);
+		
+		template.unsetIndependentVariableMins();
+		assertFalse(template.isSetIndependentVariablesMins());
+		try {
+			template.getIndependentVariablesMins();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+
+	@Test
+	public void testIndependentVariableMaxsAccesors() {
+		double[] maxs = new double[] { 0, 1};
+		template.setIndependentVariablesMaxs(maxs);
+		assertTrue(template.isSetIndependentVariablesMaxs());
+		assertArrayEquals(maxs, template.getIndependentVariablesMaxs(), 0.0);
+		
+		template.unsetIndependentVariableMaxs();
+		assertFalse(template.isSetIndependentVariablesMaxs());
+		try {
+			template.getIndependentVariablesMaxs();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
+	}
+	
+	@Test
+	public void testHasDataAccesors() {
+		template.setHasData(false);
+		assertTrue(template.isSetHasData());
+		assertFalse(template.getHasData());
+		
+		template.unsetHasData();
+		assertFalse(template.isSetHasData());
+		try {
+			template.getHasData();
+			fail("Expected RuntimeException");
+		} catch (RuntimeException e) {
+		}
 	}
 }

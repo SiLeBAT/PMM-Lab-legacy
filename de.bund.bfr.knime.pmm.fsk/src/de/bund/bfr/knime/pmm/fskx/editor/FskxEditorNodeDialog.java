@@ -28,32 +28,42 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
     // Create settings: first assigns scripts from input and then apply changes (if existent) in the
     // passed settings
     FskPortObject fskObj = (FskPortObject) input[0];
-    this.settings = new FskxEditorNodeSettings(fskObj.getTemplate());
-    this.settings.setModelScript(fskObj.getModelScript());
-    this.settings.setParametersScript(fskObj.getParamScript());
-    this.settings.setVisualizationScript(fskObj.getVizScript());
+
+    this.settings = new FskxEditorNodeSettings();
     this.settings.loadSettings(settings);
     
+    if (!this.settings.isSetModelScript()) {
+    	this.settings.setModelScript(fskObj.getModelScript());
+    }
+    if (!this.settings.isSetParametersScript()) {
+    	this.settings.setParametersScript(fskObj.getParamScript());
+    }
+    if (!this.settings.isSetVisualizationScript()) {
+    	this.settings.setVisualizationScript(fskObj.getVizScript());
+    }
+    if (!this.settings.isSetMetaData()) {
+    	this.settings.setMetaData(fskObj.getTemplate());
+    }
+
     // Panel names
     final String modelPanelName = "Model script";
     final String paramPanelName = "Parameters script";
     final String vizPanelName = "Visualization script";
-
-    // Create and populate interface with settings
+    
     removeTab(modelPanelName);
-    modelScriptPanel = new ScriptPanel(modelPanelName, fskObj.getModelScript(), true);
+    modelScriptPanel = new ScriptPanel(modelPanelName, this.settings.getModelScript(), true);
     addTab(modelPanelName, modelScriptPanel);
-
+    
     removeTab(paramPanelName);
-    paramScriptPanel = new ScriptPanel(paramPanelName, fskObj.getParamScript(), true);
+    paramScriptPanel = new ScriptPanel(paramPanelName, this.settings.getParametersScript(), true);
     addTab(paramPanelName, paramScriptPanel);
-
+    
     removeTab(vizPanelName);
-    vizScriptPanel = new ScriptPanel(vizPanelName, fskObj.getVizScript(), true);
-    addTab(vizPanelName, vizScriptPanel);
+    vizScriptPanel = new ScriptPanel(vizPanelName, this.settings.getVisualizationScript(), true);
+    addTab(vizPanelName, paramScriptPanel);
     
     removeTab("Metadata");
-    metaDataPane = new MetaDataPane(fskObj.getTemplate(), true);
+    metaDataPane = new MetaDataPane(this.settings.getMetaData(), true);
     addTab("Metadata", metaDataPane);
   }
 

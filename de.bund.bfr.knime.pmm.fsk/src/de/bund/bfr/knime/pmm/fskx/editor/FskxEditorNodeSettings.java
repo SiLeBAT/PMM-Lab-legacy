@@ -30,10 +30,10 @@ import de.bund.bfr.pmf.ModelType;
 public class FskxEditorNodeSettings {
 
 	// configuration keys
-	private static final String MODEL_SCRIPT = "modelScript";
-	private static final String PARAM_SCRIPT = "paramScript";
-	private static final String VIZ_SCRIPT = "vizScript";
-	private static final String META_DATA = "metaData";
+	private static final String MODEL_SCRIPT = "Model script";
+	private static final String PARAM_SCRIPT = "Parameters script";
+	private static final String VIZ_SCRIPT = "Visualization script";
+	private static final String META_DATA = "Meta data";
 
 	private String modelScript = null;
 	private String paramScript = null;
@@ -187,35 +187,35 @@ public class FskxEditorNodeSettings {
 		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
 		// configuration keys
-		private static final String MODEL_NAME = "modelName";
-		private static final String MODEL_ID = "modelId";
-		private static final String MODEL_LINK = "modelLink";
-		private static final String ORGANISM_NAME = "organismName";
-		private static final String ORGANISM_DETAILS = "organismDetails";
-		private static final String MATRIX_NAME = "matrixName";
-		private static final String MATRIX_DETAILS = "matrixDetails";
-		private static final String CREATOR = "creator";
-		private static final String FAMILY_NAME = "familyName";
-		private static final String CONTACT = "contact";
-		private static final String REFERENCE_DESCRIPTION = "referenceDescription";
-		private static final String REFERENCE_DESCRIPTION_LINK = "referenceDescriptionLink";
-		private static final String CREATED_DATE = "createdDate";
-		private static final String MODIFIED_DATE = "modifiedDate";
-		private static final String RIGHTS = "rights";
-		private static final String NOTES = "notes";
-		private static final String CURATION_STATUS = "curationStatus";
-		private static final String MODEL_TYPE = "modelType";
-		private static final String MODEL_SUBJECT = "modelSubject";
-		private static final String FOOD_PROCESS = "foodProcess";
-		private static final String DEPENDENT_VARIABLE = "dependentVariable";
-		private static final String DEPENDENT_VARIABLE_UNIT = "dependentVariableUnit";
-		private static final String DEPENDENT_VARIABLE_MIN = "dependentVariableMin";
-		private static final String DEPENDENT_VARIABLE_MAX = "dependentVariableMax";
-		private static final String INDEPENDENT_VARIABLES = "independentVariables";
-		private static final String INDEPENDENT_VARIABLES_UNITS = "independentVariablesUnits";
-		private static final String INDEPENDENT_VARIABLES_MINS = "independentVariablesMins";
-		private static final String INDEPENDENT_VARIABLES_MAXS = "independentVariablesMaxs";
-		private static final String HAS_DATA = "hasData";
+		private static final String MODEL_NAME = "Model name";
+		private static final String MODEL_ID = "Model id";
+		private static final String MODEL_LINK = "Model link";
+		private static final String ORGANISM_NAME = "Organism name";
+		private static final String ORGANISM_DETAILS = "Organism details";
+		private static final String MATRIX_NAME = "Matrix name";
+		private static final String MATRIX_DETAILS = "Matrix details";
+		private static final String CREATOR = "Creator";
+		private static final String FAMILY_NAME = "Family name";
+		private static final String CONTACT = "Contact";
+		private static final String REFERENCE_DESCRIPTION = "Reference description";
+		private static final String REFERENCE_DESCRIPTION_LINK = "Reference description link";
+		private static final String CREATED_DATE = "Created date";
+		private static final String MODIFIED_DATE = "Modified date";
+		private static final String RIGHTS = "Rights";
+		private static final String NOTES = "Notes";
+		private static final String CURATION_STATUS = "Curation status";
+		private static final String MODEL_TYPE = "Model type";
+		private static final String MODEL_SUBJECT = "Model subject";
+		private static final String FOOD_PROCESS = "Food process";
+		private static final String DEPENDENT_VARIABLE = "Dependent variable";
+		private static final String DEPENDENT_VARIABLE_UNIT = "Dependent variable unit";
+		private static final String DEPENDENT_VARIABLE_MIN = "Dependent variable minimum value";
+		private static final String DEPENDENT_VARIABLE_MAX = "Dependent variable maximum value";
+		private static final String INDEPENDENT_VARIABLES = "Independent variables";
+		private static final String INDEPENDENT_VARIABLES_UNITS = "Independent variables units";
+		private static final String INDEPENDENT_VARIABLES_MINS = "Independent variables minimums values";
+		private static final String INDEPENDENT_VARIABLES_MAXS = "Independent variables maximum values";
+		private static final String HAS_DATA = "Has data?";
 
 		/**
 		 * Saves {@link FSMRTemplate} to settings object.

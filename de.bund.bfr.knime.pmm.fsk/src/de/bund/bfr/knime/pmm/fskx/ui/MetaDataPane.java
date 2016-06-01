@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.fskx.ui;
 
+import java.awt.Color;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.knime.core.node.NodeLogger;
 
@@ -46,10 +48,10 @@ public class MetaDataPane extends JScrollPane {
 		Model_Type,
 		Model_Subject,
 		Model_Food_Process,
-		Model_Dependent_Variable,
-		Model_Dependent_Variable_Unit,
-		Model_Dependent_Variable_Min,
-		Model_Dependent_Variable_Max,
+		Dependent_Variable,
+		Dependent_Variable_Unit,
+		Dependent_Variable_Min,
+		Dependent_Variable_Max,
 		Independent_Variable,
 		Independent_Variable_Units,
 		Independent_Variable_Mins,
@@ -60,12 +62,30 @@ public class MetaDataPane extends JScrollPane {
 	FSMRTemplate template;
 
 	public MetaDataPane(FSMRTemplate template, boolean editable) {
-		super(new JTable(new TableModel(template, editable)));
+		super(new Table(template, editable));
 		this.template = template;
 	}
 
 	public FSMRTemplate getMetaData() {
 		return template;
+	}
+	
+	private static class Table extends JTable {
+		private static final long serialVersionUID = 8776004658791577404L;
+
+		public Table(FSMRTemplate template, boolean editable) {
+			super(new TableModel(template, editable));
+			getColumnModel().getColumn(0).setCellRenderer(new PropertyRenderer());
+		}
+		
+	}
+	private static class PropertyRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = -7250065472402093670L;
+
+		public void setValue(Object value) {
+			setText((String) value);
+			setBackground(Color.LIGHT_GRAY);
+		}
 	}
 
 	private static class TableModel extends AbstractTableModel {
@@ -103,7 +123,66 @@ public class MetaDataPane extends JScrollPane {
 		public Object getValueAt(int row, int col) {
 			Row mrow = Row.values()[row];
 			if (col == 0) {
-				return mrow.name().replace("\\_", " ");
+				switch (mrow) {
+				case Model_Name:
+					return "Model name";
+				case Model_Id:
+					return "Model id";
+				case Model_Link:
+					return "Model link";
+				case Organism_Name:
+					return "Organism name";
+				case Organism_Detail:
+					return "Organism detail";
+				case Environment_Name:
+					return "Environment name";
+				case Environment_Detail:
+					return "Environment detail";
+				case Model_Creator:
+					return "Model creator";
+				case Model_Family_Name:
+					return "Model family name";
+				case Model_Contact:
+					return "Model contact";
+				case Model_Reference_Description:
+					return "Model reference description";
+				case Model_Reference_Description_Link:
+					return "Model reference description link";
+				case Model_Created_Date:
+					return "Creation date";
+				case Model_Modified_Date:
+					return "Last modification date";
+				case Model_Rights:
+					return "Model rights";
+				case Model_Notes:
+					return "Model notes";
+				case Model_Curation_Status:
+					return "Curation status";
+				case Model_Type:
+					return "Model type";
+				case Model_Subject:
+					return "Model subject";
+				case Model_Food_Process:
+					return "Food process";
+				case Dependent_Variable:
+					return "Dependent variable";
+				case Dependent_Variable_Unit:
+					return "Unit of the dependent variable";
+				case Dependent_Variable_Min:
+					return "Minimum value of the dependent variable";
+				case Dependent_Variable_Max:
+					return "Maximum value of the dependent variable";
+				case Independent_Variable:
+					return "Independent variables";
+				case Independent_Variable_Units:
+					return "Units of the independent variables";
+				case Independent_Variable_Mins:
+					return "Minimum values of the independent variables";
+				case Independent_Variable_Maxs:
+					return "Maximum values of the independent variables";
+				case Has_Data:
+					return "Has data?";
+				}
 			} else {
 				switch (mrow) {
 				case Model_Name:
@@ -147,14 +226,14 @@ public class MetaDataPane extends JScrollPane {
 					return template.isSetModelSubject() ? template.getModelSubject().fullName() : "";
 				case Model_Food_Process:
 					return template.isSetFoodProcess() ? template.getFoodProcess() : "";
-				case Model_Dependent_Variable:
+				case Dependent_Variable:
 					return template.isSetDependentVariable() ? template.getDependentVariable().toString() : "";
-				case Model_Dependent_Variable_Unit:
+				case Dependent_Variable_Unit:
 					return template.isSetDependentVariableUnit() ? template.getDependentVariableUnit().toString() : "";
-				case Model_Dependent_Variable_Min:
+				case Dependent_Variable_Min:
 					return template.isSetDependentVariableMin() ? Double.toString(template.getDependentVariableMin())
 							: "";
-				case Model_Dependent_Variable_Max:
+				case Dependent_Variable_Max:
 					return template.isSetDependentVariableMax() ? Double.toString(template.getDependentVariableMax())
 							: "";
 				case Independent_Variable:
@@ -273,20 +352,20 @@ public class MetaDataPane extends JScrollPane {
 			case Model_Food_Process:
 				template.setFoodProcess(stringValue);
 				break;
-			case Model_Dependent_Variable:
+			case Dependent_Variable:
 				template.setDependentVariable(stringValue);
 				break;
-			case Model_Dependent_Variable_Unit:
+			case Dependent_Variable_Unit:
 				template.setDependentVariableUnit(stringValue);
 				break;
-			case Model_Dependent_Variable_Min:
+			case Dependent_Variable_Min:
 				try {
 					template.setDependentVariableMin(Double.parseDouble(stringValue));
 				} catch (NullPointerException | NumberFormatException e) {
 					LOGGER.warn("NaN");
 				}
 				break;
-			case Model_Dependent_Variable_Max:
+			case Dependent_Variable_Max:
 				try {
 					template.setDependentVariableMax(Double.parseDouble(stringValue));
 				} catch (NullPointerException | NumberFormatException e) {

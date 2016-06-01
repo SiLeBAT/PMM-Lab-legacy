@@ -60,7 +60,7 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
     
     removeTab(vizPanelName);
     vizScriptPanel = new ScriptPanel(vizPanelName, this.settings.getVisualizationScript(), true);
-    addTab(vizPanelName, paramScriptPanel);
+    addTab(vizPanelName, vizScriptPanel);
     
     removeTab("Metadata");
     metaDataPane = new MetaDataPane(this.settings.getMetaData(), true);

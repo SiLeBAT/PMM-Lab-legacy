@@ -224,93 +224,48 @@ public class FskxEditorNodeSettings {
 		 *            To save to.
 		 */
 		public static void saveSettings(final FSMRTemplate template, final ConfigWO settings) {
-			if (template.isSetModelName()) {
-				settings.addString(MODEL_NAME, template.getModelName());
-			}
-			if (template.isSetModelId()) {
-				settings.addString(MODEL_ID, template.getModelId());
-			}
-			if (template.isSetModelLink()) {
-				settings.addString(MODEL_LINK, template.getModelLink().toString());
-			}
-			if (template.isSetOrganismName()) {
-				settings.addString(ORGANISM_NAME, template.getOrganismName());
-			}
-			if (template.isSetOrganismDetails()) {
-				settings.addString(ORGANISM_DETAILS, template.getOrganismDetails());
-			}
-			if (template.isSetMatrixName()) {
-				settings.addString(MATRIX_NAME, template.getMatrixName());
-			}
-			if (template.isSetMatrixDetails()) {
-				settings.addString(MATRIX_DETAILS, template.getMatrixDetails());
-			}
-			if (template.isSetCreator()) {
-				settings.addString(CREATOR, template.getCreator());
-			}
-			if (template.isSetFamilyName()) {
-				settings.addString(FAMILY_NAME, template.getFamilyName());
-			}
-			if (template.isSetContact()) {
-				settings.addString(CONTACT, template.getContact());
-			}
-			if (template.isSetReferenceDescription()) {
-				settings.addString(REFERENCE_DESCRIPTION, template.getReferenceDescription());
-			}
-			if (template.isSetReferenceDescriptionLink()) {
-				settings.addString(REFERENCE_DESCRIPTION_LINK, template.getReferenceDescriptionLink().toString());
-			}
-			if (template.isSetCreatedDate()) {
-				settings.addString(CREATED_DATE, dateFormat.format(template.getCreatedDate()));
-			}
-			if (template.isSetModifiedDate()) {
-				settings.addString(MODIFIED_DATE, dateFormat.format(template.getModifiedDate()));
-			}
-			if (template.isSetRights()) {
-				settings.addString(RIGHTS, template.getRights());
-			}
-			if (template.isSetNotes()) {
-				settings.addString(NOTES, template.getNotes());
-			}
-			if (template.isSetCurationStatus()) {
-				settings.addString(CURATION_STATUS, template.getCurationStatus());
-			}
-			if (template.isSetModelType()) {
-				settings.addString(MODEL_TYPE, template.getModelType().name());
-			}
-			if (template.isSetModelSubject()) {
-				settings.addString(MODEL_SUBJECT, template.getModelSubject().fullName());
-			}
-			if (template.isSetFoodProcess()) {
-				settings.addString(FOOD_PROCESS, template.getFoodProcess());
-			}
-			if (template.isSetDependentVariable()) {
-				settings.addString(DEPENDENT_VARIABLE, template.getDependentVariable());
-			}
-			if (template.isSetDependentVariableUnit()) {
-				settings.addString(DEPENDENT_VARIABLE_UNIT, template.getDependentVariableUnit());
-			}
-			if (template.isSetDependentVariableMin()) {
-				settings.addDouble(DEPENDENT_VARIABLE_MIN, template.getDependentVariableMin());
-			}
-			if (template.isSetDependentVariableMax()) {
-				settings.addDouble(DEPENDENT_VARIABLE_MAX, template.getDependentVariableMax());
-			}
-			if (template.isSetIndependentVariables()) {
-				settings.addStringArray(INDEPENDENT_VARIABLES, template.getIndependentVariables());
-			}
-			if (template.isSetIndependentVariablesUnits()) {
-				settings.addStringArray(INDEPENDENT_VARIABLES_UNITS, template.getIndependentVariablesUnits());
-			}
-			if (template.isSetIndependentVariablesMins()) {
-				settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, template.getIndependentVariablesMins());
-			}
-			if (template.isSetIndependentVariablesMaxs()) {
-				settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, template.getIndependentVariablesMaxs());
-			}
-			if (template.isSetHasData()) {
-				settings.addBoolean(HAS_DATA, template.getHasData());
-			}
+			settings.addString(MODEL_NAME, template.isSetModelName() ? template.getModelName() : null);
+			settings.addString(MODEL_ID, template.isSetModelId() ? template.getModelId() : null);
+			settings.addString(MODEL_LINK, template.isSetModelLink() ? template.getModelLink().toString() : null);
+			settings.addString(ORGANISM_NAME, template.isSetOrganismName() ? template.getOrganismName() : null);
+			settings.addString(ORGANISM_DETAILS,
+					template.isSetOrganismDetails() ? template.getOrganismDetails() : null);
+			settings.addString(MATRIX_NAME, template.isSetMatrixName() ? template.getMatrixName() : null);
+			settings.addString(MATRIX_DETAILS, template.isSetMatrixDetails() ? template.getMatrixDetails() : null);
+			settings.addString(CREATOR, template.isSetCreator() ? template.getCreator() : null);
+			settings.addString(FAMILY_NAME, template.isSetFamilyName() ? template.getFamilyName() : null);
+			settings.addString(CONTACT, template.isSetContact() ? template.getContact() : null);
+			settings.addString(REFERENCE_DESCRIPTION,
+					template.isSetReferenceDescription() ? template.getReferenceDescription() : null);
+			settings.addString(REFERENCE_DESCRIPTION_LINK, template.isSetReferenceDescriptionLink()
+					? template.getReferenceDescriptionLink().toString() : null);
+			settings.addString(CREATED_DATE,
+					template.isSetCreatedDate() ? dateFormat.format(template.getCreatedDate()) : null);
+			settings.addString(MODIFIED_DATE,
+					template.isSetModifiedDate() ? dateFormat.format(template.getModifiedDate()) : null);
+			settings.addString(RIGHTS, template.isSetRights() ? template.getRights() : null);
+			settings.addString(NOTES, template.isSetNotes() ? template.getNotes() : null);
+			settings.addString(CURATION_STATUS, template.isSetCurationStatus() ? template.getCurationStatus() : null);
+			settings.addString(MODEL_TYPE, template.isSetModelType() ? template.getModelType().name() : null);
+			settings.addString(MODEL_SUBJECT,
+					template.isSetModelSubject() ? template.getModelSubject().fullName() : null);
+			settings.addString(FOOD_PROCESS, template.isSetFoodProcess() ? template.getFoodProcess() : null);
+			settings.addString(DEPENDENT_VARIABLE,
+					template.isSetDependentVariable() ? template.getDependentVariable() : null);
+			settings.addString(DEPENDENT_VARIABLE_UNIT, template.isSetDependentVariableUnit() ? template.getDependentVariableUnit() : null);
+			settings.addDouble(DEPENDENT_VARIABLE_MIN,
+					template.isSetDependentVariableMin() ? template.getDependentVariableMin() : null);
+			settings.addDouble(DEPENDENT_VARIABLE_MAX,
+					template.isSetDependentVariableMax() ? template.getDependentVariableMax() : null);
+			settings.addStringArray(INDEPENDENT_VARIABLES,
+					template.isSetIndependentVariables() ? template.getIndependentVariables() : null);
+			settings.addStringArray(INDEPENDENT_VARIABLES_UNITS,
+					template.isSetIndependentVariablesUnits() ? template.getIndependentVariablesUnits() : null);
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS,
+					template.isSetIndependentVariablesMins() ? template.getIndependentVariablesMins() : null);
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS,
+					template.isSetIndependentVariablesMaxs() ? template.getIndependentVariablesMaxs() : null);
+			settings.addBoolean(HAS_DATA, template.isSetHasData() ? template.getHasData() : null);
 		}
 
 		/**
@@ -319,128 +274,177 @@ public class FskxEditorNodeSettings {
 		 * @param settings
 		 *            To load from
 		 */
-		public static FSMRTemplate loadSettings(final ConfigRO settings) {
+		public static FSMRTemplate loadSettings(final ConfigRO settings) throws InvalidSettingsException {
 			FSMRTemplate template = new FSMRTemplateImpl();
 
-			try {
-				if (settings.containsKey(MODEL_NAME)) {
-					template.setModelName(settings.getString(MODEL_NAME));
-				}
-				if (settings.containsKey(MODEL_ID)) {
-					template.setModelId(settings.getString(MODEL_ID));
-				}
-				if (settings.containsKey(MODEL_LINK)) {
-					try {
-						template.setModelLink(new URL(settings.getString(MODEL_LINK)));
-					} catch (MalformedURLException e) {
-						// does not happen -> internal links are checked before
-						// being saved
-						throw new RuntimeException(e);
-					}
-				}
-				if (settings.containsKey(ORGANISM_NAME)) {
-					template.setOrganismName(settings.getString(ORGANISM_NAME));
-				}
-				if (settings.containsKey(ORGANISM_DETAILS)) {
-					template.setOrganismDetails(settings.getString(ORGANISM_DETAILS));
-				}
-				if (settings.containsKey(MATRIX_NAME)) {
-					template.setMatrixName(settings.getString(MATRIX_NAME));
-				}
-				if (settings.containsKey(MATRIX_DETAILS)) {
-					template.setMatrixDetails(settings.getString(MATRIX_DETAILS));
-				}
-				if (settings.containsKey(CREATOR)) {
-					template.setCreator(settings.getString(CREATOR));
-				}
-				if (settings.containsKey(FAMILY_NAME)) {
-					template.setFamilyName(settings.getString(FAMILY_NAME));
-				}
-				if (settings.containsKey(CONTACT)) {
-					template.setContact(settings.getString(CONTACT));
-				}
-				if (settings.containsKey(REFERENCE_DESCRIPTION)) {
-					template.setReferenceDescription(settings.getString(REFERENCE_DESCRIPTION));
-				}
-				if (settings.containsKey(REFERENCE_DESCRIPTION_LINK)) {
-					try {
-						template.setReferenceDescriptionLink(new URL(settings.getString(REFERENCE_DESCRIPTION_LINK)));
-					} catch (MalformedURLException e) {
-						// does not happen -> internal links are checked before
-						// being saved
-						throw new RuntimeException(e);
-					}
-				}
-				if (settings.containsKey(CREATED_DATE)) {
-					try {
-						template.setCreatedDate(dateFormat.parse(settings.getString(CREATED_DATE)));
-					} catch (ParseException e) {
-						// does not happen -> internal dates are checked before
-						// being saved
-						throw new RuntimeException(e);
-					}
-				}
-				if (settings.containsKey(MODIFIED_DATE)) {
-					try {
-						template.setModifiedDate(dateFormat.parse(settings.getString(MODIFIED_DATE)));
-					} catch (ParseException e) {
-						// does not happen -> internal dates are checked before
-						// being saved
-						throw new RuntimeException(e);
-					}
-				}
-				if (settings.containsKey(RIGHTS)) {
-					template.setRights(settings.getString(RIGHTS));
-				}
-				if (settings.containsKey(NOTES)) {
-					template.setNotes(settings.getString(NOTES));
-				}
-				if (settings.containsKey(CURATION_STATUS)) {
-					template.setCurationStatus(settings.getString(CURATION_STATUS));
-				}
-				if (settings.containsKey(MODEL_TYPE)) {
-					template.setModelType(ModelType.valueOf(settings.getString(MODEL_TYPE)));
-				}
-				if (settings.containsKey(MODEL_SUBJECT)) {
-					template.setModelSubject(ModelClass.fromName(settings.getString(MODEL_SUBJECT)));
-				}
-				if (settings.containsKey(MODEL_SUBJECT)) {
-					template.setFoodProcess(settings.getString(MODEL_SUBJECT));
-				}
-				if (settings.containsKey(DEPENDENT_VARIABLE)) {
-					template.setDependentVariable(settings.getString(DEPENDENT_VARIABLE));
-				}
-				if (settings.containsKey(DEPENDENT_VARIABLE_UNIT)) {
-					template.setDependentVariableUnit(settings.getString(DEPENDENT_VARIABLE_UNIT));
-				}
-				if (settings.containsKey(DEPENDENT_VARIABLE_MIN)) {
-					template.setDependentVariableMin(settings.getDouble(DEPENDENT_VARIABLE_MIN));
-				}
-				if (settings.containsKey(DEPENDENT_VARIABLE_MAX)) {
-					template.setDependentVariableMax(settings.getDouble(DEPENDENT_VARIABLE_MAX));
-				}
-				if (settings.containsKey(INDEPENDENT_VARIABLES)) {
-					template.setIndependentVariables(settings.getStringArray(INDEPENDENT_VARIABLES));
-				}
-				if (settings.containsKey(INDEPENDENT_VARIABLES_UNITS)) {
-					template.setIndependentVariables(settings.getStringArray(INDEPENDENT_VARIABLES_UNITS));
-				}
-				if (settings.containsKey(INDEPENDENT_VARIABLES_MINS)) {
-					double[] doubleArray = settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS);
-					template.setIndependentVariablesMins(doubleArray);
-				}
-				if (settings.containsKey(INDEPENDENT_VARIABLES_MAXS)) {
-					double[] doubleArray = settings.getDoubleArray(INDEPENDENT_VARIABLES_MAXS);
-					template.setIndependentVariablesMaxs(doubleArray);
-				}
-				if (settings.containsKey(HAS_DATA)) {
-					template.setHasData(settings.getBoolean(HAS_DATA));
-				}
-			} catch (InvalidSettingsException e) {
-				// should not occur after containsKey check
-				throw new RuntimeException(e);
+			String modelName = settings.getString(MODEL_NAME);
+			if (modelName != null) {
+				template.setModelName(modelName);
 			}
 
+			String modelId = settings.getString(MODEL_ID);
+			if (modelId != null) {
+				template.setModelId(modelId);
+			}
+
+			String modelLink = settings.getString(MODEL_LINK);
+			if (modelLink != null) {
+				try {
+					template.setModelLink(new URL(modelLink));
+				} catch (MalformedURLException e) {
+					// does not happen -> internal links are checked before
+					// being saved
+					throw new RuntimeException(e);
+				}
+			}
+
+			String organismName = settings.getString(ORGANISM_NAME);
+			if (organismName != null) {
+				template.setOrganismName(organismName);
+			}
+
+			String organismDetails = settings.getString(ORGANISM_DETAILS);
+			if (organismDetails != null) {
+				template.setOrganismDetails(organismDetails);
+			}
+
+			String matrixName = settings.getString(MATRIX_NAME);
+			if (matrixName != null) {
+				template.setMatrixName(matrixName);
+			}
+			
+			String matrixDetails = settings.getString(MATRIX_DETAILS);
+			if (matrixDetails != null) {
+				template.setMatrixDetails(matrixDetails);
+			}
+
+			String creator = settings.getString(CREATOR);
+			if (creator != null) {
+				template.setCreator(creator);
+			}
+			
+			String familyName = settings.getString(FAMILY_NAME);
+			if (familyName != null) {
+				template.setFamilyName(familyName);
+			}
+
+			String contact = settings.getString(CONTACT);
+			if (contact != null) {
+				template.setContact(contact);
+			}
+			
+			String referenceDescription = settings.getString(REFERENCE_DESCRIPTION);
+			if (referenceDescription != null) {
+				template.setReferenceDescription(referenceDescription);
+			}
+			
+			String referenceDescriptionLink = settings.getString(REFERENCE_DESCRIPTION_LINK);
+			if (referenceDescriptionLink != null) {
+				try {
+					template.setReferenceDescriptionLink(new URL(referenceDescriptionLink));
+				} catch (MalformedURLException e) {
+					// does not happen -> internal links are checked before
+					// being saved
+					throw new RuntimeException(e);
+				}
+			}
+			
+			String createdDate = settings.getString(CREATED_DATE);
+			if (createdDate != null) {
+				try {
+					template.setCreatedDate(dateFormat.parse(createdDate));
+				} catch (ParseException e) {
+					// does not happen -> internal dates are checked before
+					// being saved
+					throw new RuntimeException(e);
+				}
+			}
+			
+			String modifiedDate = settings.getString(MODIFIED_DATE);
+			if (modifiedDate != null) {
+				try {
+					template.setModifiedDate(dateFormat.parse(modifiedDate));
+				} catch (ParseException e) {
+					// does not happen -> internal dates are checked before
+					// being saved
+					throw new RuntimeException(e);
+				}
+			}
+
+			String rights = settings.getString(RIGHTS);
+			if (rights != null) {
+				template.setRights(rights);
+			}
+			
+			String notes = settings.getString(NOTES);
+			if (notes != null) {
+				template.setNotes(notes);
+			}
+			
+			String curationStatus = settings.getString(CURATION_STATUS);
+			if (curationStatus != null) {
+				template.setCurationStatus(curationStatus);
+			}
+			
+			String modelType = settings.getString(MODEL_TYPE);
+			if (modelType != null) {
+				template.setModelType(ModelType.valueOf(modelType));
+			}
+			
+			String modelSubject = settings.getString(MODEL_SUBJECT);
+			if (modelSubject != null) {
+				template.setModelSubject(ModelClass.fromName(modelSubject));
+			}
+			
+			String foodProcess = settings.getString(FOOD_PROCESS);
+			if (foodProcess != null) {
+				template.setFoodProcess(foodProcess);
+			}
+			
+			String dependentVariable = settings.getString(DEPENDENT_VARIABLE);
+			if (dependentVariable != null) {
+				template.setDependentVariable(dependentVariable);
+			}
+			
+			String dependentVariableUnit = settings.getString(DEPENDENT_VARIABLE_UNIT);
+			if (dependentVariableUnit != null) {
+				template.setDependentVariableUnit(dependentVariableUnit);
+			}
+			
+			Double dependentVariableMin = settings.getDouble(DEPENDENT_VARIABLE_MIN);
+			if (dependentVariableMin != null) {
+				template.setDependentVariableMin(dependentVariableMin);
+			}
+
+			Double dependentVariableMax = settings.getDouble(DEPENDENT_VARIABLE_MAX);
+			if (dependentVariableMax != null) {
+				template.setDependentVariableMax(dependentVariableMax);
+			}
+
+			String[] independentVariables = settings.getStringArray(INDEPENDENT_VARIABLES);
+			if (independentVariables != null) {
+				template.setIndependentVariables(independentVariables);
+			}
+
+			String[] independentVariablesUnits = settings.getStringArray(INDEPENDENT_VARIABLES_UNITS);
+			if (independentVariablesUnits != null) {
+				template.setIndependentVariables(independentVariablesUnits);
+			}
+			
+			double[] independentVariablesMins = settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS);
+			if (independentVariablesMins != null) {
+				template.setIndependentVariablesMins(independentVariablesMins);
+			}
+			
+			double[] independentVariablesMaxs = settings.getDoubleArray(INDEPENDENT_VARIABLES_MAXS);
+			if (independentVariablesMaxs != null) {
+				template.setIndependentVariablesMaxs(independentVariablesMaxs);
+			}
+
+			Boolean hasData = settings.getBoolean(HAS_DATA);
+			if (hasData != null) {
+				template.setHasData(hasData);
+			}
 			return template;
 		}
 	}

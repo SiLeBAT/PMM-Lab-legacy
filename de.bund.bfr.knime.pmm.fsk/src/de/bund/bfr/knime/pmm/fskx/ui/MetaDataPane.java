@@ -14,6 +14,7 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.knime.core.node.NodeLogger;
 
@@ -94,14 +95,17 @@ public class MetaDataPane extends JScrollPane {
 		public Table(FSMRTemplate template, boolean editable) {
 			super(new TableModel(template, editable));
 
+			TableColumnModel columnModel = getColumnModel();
+			
 			// Set columns witdth
 			for (int ncol = 0; ncol < getColumnCount(); ncol++) {
-				getColumnModel().getColumn(ncol).setPreferredWidth(150);
+				columnModel.getColumn(ncol).setPreferredWidth(150);
 			}
 			setAutoResizeMode(AUTO_RESIZE_OFF);
 			
 			// Set special editors
-			getColumnModel().getColumn(Col.Model_Type.ordinal()).setCellEditor(new ModelTypeEditor());
+			columnModel.getColumn(Col.Model_Type.ordinal()).setCellEditor(new ModelTypeEditor());
+			columnModel.getColumn(Col.Model_Subject.ordinal()).setCellEditor(new ModelSubjectEditor());
 		}
 	}
 	
@@ -117,6 +121,22 @@ public class MetaDataPane extends JScrollPane {
 		}
 
 		public ModelTypeEditor() {
+			super(comboBox);
+		}
+	}
+	
+	private static class ModelSubjectEditor extends DefaultCellEditor {
+		
+		private static final long serialVersionUID = -3451495357854026436L;
+		private static JComboBox<String> comboBox;
+		
+		static {
+			comboBox =  new JComboBox<>();
+			Arrays.stream(ModelClass.values()).forEach(modelClass -> comboBox.addItem(modelClass.fullName()));
+			comboBox.addItem("");  // empty string for non defined model class
+		}
+		
+		public ModelSubjectEditor() {
 			super(comboBox);
 		}
 	}
@@ -341,10 +361,10 @@ public class MetaDataPane extends JScrollPane {
 				}
 				break;
 			case Model_Subject:
-				try {
-					template.setModelSubject(ModelClass.valueOf(stringValue));
-				} catch (IllegalArgumentException e) {
-					LOGGER.warn("Invalid model class\n" + e.getMessage());
+				if (stringValue.isEmpty()) {
+					template.unsetModelSubject();
+				} else {
+					template.setModelSubject(ModelClass.fromName(stringValue));
 				}
 				break;
 			case Model_Food_Process:

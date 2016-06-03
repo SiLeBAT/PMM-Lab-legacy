@@ -5,8 +5,12 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -24,6 +28,22 @@ public class MetaDataPane extends JScrollPane {
 	private static final long serialVersionUID = -3455056721681075796L;
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(MetaDataPane.class);
+	
+	private static Map<ModelType, String> modelTypeStrings;
+
+	static {
+		// model type strings
+		modelTypeStrings = new LinkedHashMap<>();
+		modelTypeStrings.put(ModelType.EXPERIMENTAL_DATA, "Experimental data");
+		modelTypeStrings.put(ModelType.PRIMARY_MODEL_WDATA, "Primary model with data");
+		modelTypeStrings.put(ModelType.PRIMARY_MODEL_WODATA, "Primary model without data");
+		modelTypeStrings.put(ModelType.TWO_STEP_SECONDARY_MODEL, "Two step secondary model");
+		modelTypeStrings.put(ModelType.ONE_STEP_SECONDARY_MODEL, "One step secondary model");
+		modelTypeStrings.put(ModelType.MANUAL_SECONDARY_MODEL, "Manual secondary model");
+		modelTypeStrings.put(ModelType.TWO_STEP_TERTIARY_MODEL, "Two step tertiary model");
+		modelTypeStrings.put(ModelType.ONE_STEP_TERTIARY_MODEL, "One step tertiary model");
+		modelTypeStrings.put(ModelType.MANUAL_TERTIARY_MODEL, "Manual tertiary model");	
+	}
 
 	static enum Col {
 		Model_Name,
@@ -74,10 +94,30 @@ public class MetaDataPane extends JScrollPane {
 		public Table(FSMRTemplate template, boolean editable) {
 			super(new TableModel(template, editable));
 
+			// Set columns witdth
 			for (int ncol = 0; ncol < getColumnCount(); ncol++) {
 				getColumnModel().getColumn(ncol).setPreferredWidth(150);
 			}
 			setAutoResizeMode(AUTO_RESIZE_OFF);
+			
+			// Set special editors
+			getColumnModel().getColumn(Col.Model_Type.ordinal()).setCellEditor(new ModelTypeEditor());
+		}
+	}
+	
+	private static class ModelTypeEditor extends DefaultCellEditor {
+
+		private static final long serialVersionUID = 2923508881330612951L;
+		private static JComboBox<String> comboBox;
+
+		static {
+			comboBox = new JComboBox<>();
+			modelTypeStrings.values().forEach(modelType -> comboBox.addItem(modelType));
+			comboBox.addItem("");  // empty string for non defined model types
+		}
+
+		public ModelTypeEditor() {
+			super(comboBox);
 		}
 	}
 
@@ -185,7 +225,7 @@ public class MetaDataPane extends JScrollPane {
 			case Model_Curation_Status:
 				return template.isSetCurationStatus() ? template.getCurationStatus() : "";
 			case Model_Type:
-				return template.isSetModelType() ? template.getModelType().name() : "";
+				return template.isSetModelType() ? modelTypeStrings.get(template.getModelType()) : "";
 			case Model_Subject:
 				return template.isSetModelSubject() ? template.getModelSubject().fullName() : "";
 			case Model_Food_Process:
@@ -289,10 +329,15 @@ public class MetaDataPane extends JScrollPane {
 				template.setCurationStatus(stringValue);
 				break;
 			case Model_Type:
-				try {
-					template.setModelType(ModelType.valueOf(stringValue));
-				} catch (IllegalArgumentException e) {
-					LOGGER.warn("Invalid model type\n" + e.getMessage());
+				if (stringValue.isEmpty()) {
+					template.unsetModelType();
+				} else {
+					for (Map.Entry<ModelType, String> entry : modelTypeStrings.entrySet()) {
+						if (stringValue.equals(entry.getValue())) {
+							template.setModelType(entry.getKey());
+							break;
+						}
+					}
 				}
 				break;
 			case Model_Subject:

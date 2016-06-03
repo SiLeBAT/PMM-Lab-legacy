@@ -4,11 +4,11 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-public class FskxRunnerNodeFactory extends NodeFactory<FskxRunnerNodeModel> {
+public class FskRunnerNodeFactory extends NodeFactory<FskRunnerNodeModel> {
 
   @Override
-  public FskxRunnerNodeModel createNodeModel() {
-    return new FskxRunnerNodeModel();
+  public FskRunnerNodeModel createNodeModel() {
+    return new FskRunnerNodeModel();
   }
 
   @Override
@@ -17,9 +17,9 @@ public class FskxRunnerNodeFactory extends NodeFactory<FskxRunnerNodeModel> {
   }
 
   @Override
-  public NodeView<FskxRunnerNodeModel> createNodeView(int viewIndex,
-      FskxRunnerNodeModel nodeModel) {
-    return new FskxRunnerNodeView(nodeModel);
+  public NodeView<FskRunnerNodeModel> createNodeView(int viewIndex,
+      FskRunnerNodeModel nodeModel) {
+    return new FskRunnerNodeView(nodeModel);
   }
 
   @Override

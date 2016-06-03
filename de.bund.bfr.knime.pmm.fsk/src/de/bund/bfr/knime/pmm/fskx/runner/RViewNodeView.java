@@ -60,7 +60,7 @@ import de.bund.bfr.knime.pmm.fskx.ui.RPlotterViewPanel;
  *
  * @author Heiko Hofer
  */
-public class RViewNodeView extends NodeView<FskxRunnerNodeModel> {
+public class RViewNodeView extends NodeView<FskRunnerNodeModel> {
 
 	private final RPlotterViewPanel m_panel;
 
@@ -70,7 +70,7 @@ public class RViewNodeView extends NodeView<FskxRunnerNodeModel> {
 	 * @param nodeModel
 	 *            the model associated with this view.
 	 */
-	public RViewNodeView(final FskxRunnerNodeModel nodeModel) {
+	public RViewNodeView(final FskRunnerNodeModel nodeModel) {
 		super(nodeModel);
 		m_panel = new RPlotterViewPanel();
 		super.setComponent(new JScrollPane(m_panel));
@@ -83,7 +83,7 @@ public class RViewNodeView extends NodeView<FskxRunnerNodeModel> {
 	 */
 	@Override
 	protected void modelChanged() {
-		final FskxRunnerNodeModel model = super.getNodeModel();
+		final FskRunnerNodeModel model = super.getNodeModel();
 		final Image image = model.getResultImage();
 		m_panel.update(image);
 	}

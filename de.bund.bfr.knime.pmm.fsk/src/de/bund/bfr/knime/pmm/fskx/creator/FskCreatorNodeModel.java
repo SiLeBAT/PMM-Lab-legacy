@@ -58,9 +58,9 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
-public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
+public class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
-  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxCreatorNodeModel.class);
+  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskCreatorNodeModel.class);
 
   // configuration key of the libraries directory
   static final String CFGKEY_DIR_LIBS = "dirLibs";
@@ -93,7 +93,7 @@ public class FskxCreatorNodeModel extends ExtToolOutputNodeModel {
   private SettingsModelStringArray m_selectedLibs = new SettingsModelStringArray(CFGKEY_LIBS, null);
 
   /** {@inheritDoc} */
-  protected FskxCreatorNodeModel() {
+  protected FskCreatorNodeModel() {
     super(inPortTypes, outPortTypes);
   }
 

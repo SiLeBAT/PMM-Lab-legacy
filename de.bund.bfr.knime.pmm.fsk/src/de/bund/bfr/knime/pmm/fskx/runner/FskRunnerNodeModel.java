@@ -34,7 +34,7 @@ import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 
-public class FskxRunnerNodeModel extends NodeModel {
+public class FskRunnerNodeModel extends NodeModel {
 
   private static final NodeLogger LOGGER = NodeLogger.getLogger("Fskx Runner Node Model");
 
@@ -53,7 +53,7 @@ public class FskxRunnerNodeModel extends NodeModel {
 
   private InternalSettings internalSettings = new InternalSettings();
 
-  public FskxRunnerNodeModel() {
+  public FskRunnerNodeModel() {
     super(inPortTypes, outPortTypes);
   }
 

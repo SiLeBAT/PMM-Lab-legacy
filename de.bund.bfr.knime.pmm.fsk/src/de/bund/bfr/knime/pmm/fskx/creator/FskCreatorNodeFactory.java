@@ -21,12 +21,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-public class FskxCreatorNodeFactory extends NodeFactory<FskxCreatorNodeModel> {
+public class FskCreatorNodeFactory extends NodeFactory<FskCreatorNodeModel> {
   
   /** {@inheritDoc} */
   @Override
-  public FskxCreatorNodeModel createNodeModel() {
-    return new FskxCreatorNodeModel();
+  public FskCreatorNodeModel createNodeModel() {
+    return new FskCreatorNodeModel();
   }
   
   /** {@inheritDoc} */
@@ -37,7 +37,7 @@ public class FskxCreatorNodeFactory extends NodeFactory<FskxCreatorNodeModel> {
   
   /** {@inheritDoc} */
   @Override
-  public NodeView<FskxCreatorNodeModel> createNodeView(final int viewIndex, final FskxCreatorNodeModel nodeModel) {
+  public NodeView<FskCreatorNodeModel> createNodeView(final int viewIndex, final FskCreatorNodeModel nodeModel) {
     return null;
   }
   
@@ -50,6 +50,6 @@ public class FskxCreatorNodeFactory extends NodeFactory<FskxCreatorNodeModel> {
   /** {@inheritDoc} */
   @Override
   public NodeDialogPane createNodeDialogPane() {
-    return new FskxCreatorNodeDialog();
+    return new FskCreatorNodeDialog();
   }
 }

@@ -19,7 +19,7 @@ import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
  * 
  * @author Miguel Alba
  */
-public class FskxEditorNodeSettings {
+public class FskEditorNodeSettings {
 
 	// configuration keys
 	private static final String MODEL_SCRIPT = "Model script";
@@ -37,11 +37,11 @@ public class FskxEditorNodeSettings {
 	private boolean isSetVisualizationScript = false;
 	private boolean isSetMetaData = false;
 
-	public FskxEditorNodeSettings() {
+	public FskEditorNodeSettings() {
 		template = null;
 	}
 
-	public FskxEditorNodeSettings(FSMRTemplate template) {
+	public FskEditorNodeSettings(FSMRTemplate template) {
 		this.template = new FSMRTemplateImpl(template);
 		isSetMetaData = true;
 	}

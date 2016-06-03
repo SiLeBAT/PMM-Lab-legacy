@@ -6,8 +6,8 @@
 	<node
 		category-path="/pmmlab/reader"
 		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.creator.FskxCreatorNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.creator.FskxCreatorNodeFactory"/>
+		factory-class="de.bund.bfr.knime.pmm.fskx.creator.FskCreatorNodeFactory"
+		id="de.bund.bfr.knime.pmm.fskx.creator.FskCreatorNodeFactory"/>
 	<node category-path="/pmmlab/reader"
 		deprecated="false"
 		factory-class="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"
@@ -20,13 +20,13 @@
 	<node
 		category-path="/pmmlab/editors"
 		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskxRunnerNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.converter.FskxConverterNodeFactory"/>
+		factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"
+		id="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"/>
  <node
        category-path="/pmmlab/editors"
        deprecated="false"
-       factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskxEditorNodeFactory"
-       id="de.bund.bfr.knime.pmm.fskx.editor.FskxEditorNodeFactory">
+       factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory"
+       id="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory">
  </node>
 	<!-- Extended KNIME R nodes -->
 </extension>

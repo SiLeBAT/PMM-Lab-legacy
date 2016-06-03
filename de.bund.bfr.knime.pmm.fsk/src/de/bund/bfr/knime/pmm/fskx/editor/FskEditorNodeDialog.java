@@ -11,9 +11,9 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 
-public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
+public class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 
-  private FskxEditorNodeSettings settings;
+  private FskEditorNodeSettings settings;
 
   private ScriptPanel modelScriptPanel;
   private ScriptPanel paramScriptPanel;
@@ -29,7 +29,7 @@ public class FskxEditorNodeDialog extends DataAwareNodeDialogPane {
     // passed settings
     FskPortObject fskObj = (FskPortObject) input[0];
 
-    this.settings = new FskxEditorNodeSettings();
+    this.settings = new FskEditorNodeSettings();
     this.settings.loadSettings(settings);
     
     if (!this.settings.isSetModelScript()) {

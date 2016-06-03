@@ -4,12 +4,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-public class FskxEditorNodeFactory extends NodeFactory<FskxEditorNodeModel> {
+public class FskEditorNodeFactory extends NodeFactory<FskEditorNodeModel> {
   
   /** {@inheritDoc} */
   @Override
-  public FskxEditorNodeModel createNodeModel() {
-    return new FskxEditorNodeModel();
+  public FskEditorNodeModel createNodeModel() {
+    return new FskEditorNodeModel();
   }
   
   /** {@inheritDoc} */
@@ -20,8 +20,8 @@ public class FskxEditorNodeFactory extends NodeFactory<FskxEditorNodeModel> {
 
   /** {@inheritDoc} */
   @Override
-  public NodeView<FskxEditorNodeModel> createNodeView(int viewIndex,
-      FskxEditorNodeModel nodeModel) {
+  public NodeView<FskEditorNodeModel> createNodeView(int viewIndex,
+      FskEditorNodeModel nodeModel) {
     return null;
   }
   
@@ -34,6 +34,6 @@ public class FskxEditorNodeFactory extends NodeFactory<FskxEditorNodeModel> {
   /** {@inheritDoc} */
   @Override
   protected NodeDialogPane createNodeDialogPane() {
-    return new FskxEditorNodeDialog();
+    return new FskEditorNodeDialog();
   }
 }

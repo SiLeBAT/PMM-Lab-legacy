@@ -28,32 +28,32 @@ import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
  */
 public class RPreferenceInitializer extends AbstractPreferenceInitializer {
 
-  /** Path to R v.2 */
-  public static final String R2_PATH = "r2.path";
+//  /** Path to R v.2 */
+//  public static final String R2_PATH = "r2.path";
 
   /** Path to R v.3 */
   public static final String R3_PATH = "r3.path";
 
-  private static RPreferenceProvider m_cachedR2PreferenceProvider = null;
+//  private static RPreferenceProvider m_cachedR2PreferenceProvider = null;
   private static RPreferenceProvider m_cachedR3PreferenceProvider = null;
 
   @Override
   public void initializeDefaultPreferences() {
     IPreferenceStore store = FSKNodePlugin.getDefault().getPreferenceStore();
-    store.setDefault(R2_PATH, "");
+//    store.setDefault(R2_PATH, "");
     store.setDefault(R3_PATH, "");
   }
 
-  /** @return provider to the path to the R2 executable. */
-  public static final RPreferenceProvider getR2Provider() {
-    final String r2Home = FSKNodePlugin.getDefault().getPreferenceStore().getString(R2_PATH);
-    if (m_cachedR2PreferenceProvider == null
-        || !m_cachedR2PreferenceProvider.getRHome().equals(r2Home)) {
-      m_cachedR2PreferenceProvider = new DefaultRPreferenceProvider(r2Home);
-    }
-
-    return m_cachedR2PreferenceProvider;
-  }
+//  /** @return provider to the path to the R2 executable. */
+//  public static final RPreferenceProvider getR2Provider() {
+//    final String r2Home = FSKNodePlugin.getDefault().getPreferenceStore().getString(R2_PATH);
+//    if (m_cachedR2PreferenceProvider == null
+//        || !m_cachedR2PreferenceProvider.getRHome().equals(r2Home)) {
+//      m_cachedR2PreferenceProvider = new DefaultRPreferenceProvider(r2Home);
+//    }
+//
+//    return m_cachedR2PreferenceProvider;
+//  }
 
   /** @return provider to the path to the R3 executable. */
   public static final RPreferenceProvider getR3Provider() {
@@ -66,13 +66,13 @@ public class RPreferenceInitializer extends AbstractPreferenceInitializer {
     return m_cachedR3PreferenceProvider;
   }
 
-  /**
-   * Invalidate the cached R2 preference provider return by {@link #getR2Provider()}, to refetch R
-   * properties (which launches an external R command).
-   */
-  public static final void invalidateR2PreferenceProviderCache() {
-    m_cachedR2PreferenceProvider = null;
-  }
+//  /**
+//   * Invalidate the cached R2 preference provider return by {@link #getR2Provider()}, to refetch R
+//   * properties (which launches an external R command).
+//   */
+//  public static final void invalidateR2PreferenceProviderCache() {
+//    m_cachedR2PreferenceProvider = null;
+//  }
 
   /**
    * Invalidate the cached R3 preference provider returned by {@link #getR3Provider()}, to refetch R

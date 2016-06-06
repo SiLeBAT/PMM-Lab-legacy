@@ -33,192 +33,205 @@ import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
 
 public class FSKNodePlugin extends AbstractUIPlugin {
 
-  /**
-   * The plug-in ID.
-   */
-  public static final String PLUGIN_ID = "fskxNodePlugin";
+	/**
+	 * The plug-in ID.
+	 */
+	public static final String PLUGIN_ID = "fskxNodePlugin";
 
-  // The shared instance.
-  private static FSKNodePlugin plugin;
+	// The shared instance.
+	private static FSKNodePlugin plugin;
 
-  private static LibRegistry libRegistry;
+	private static LibRegistry libRegistry;
 
-  /**
-   * This method is called upon plug-in activation.
-   *
-   * @param context The OSGI bundle context
-   * @throws Exception If this plugin could not be started
-   */
-  @Override
-  public void start(final BundleContext context) throws Exception {
-    super.start(context);
-    plugin = this;
-    libRegistry = new LibRegistry();
-  }
+	/**
+	 * This method is called upon plug-in activation.
+	 *
+	 * @param context
+	 *            The OSGI bundle context
+	 * @throws Exception
+	 *             If this plugin could not be started
+	 */
+	@Override
+	public void start(final BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
 
-  /**
-   * This method is called when the plug-in is stopped.
-   *
-   * @param context The OSGI bundle context
-   * @throws Exception If this plugin could not be stopped
-   */
-  @Override
-  public void stop(final BundleContext context) throws Exception {
-    plugin = null;
-    super.stop(context);
-  }
+		final String rHome = RPreferenceInitializer.getR3Provider().getRHome();
+		if (rHome != null && !rHome.isEmpty()) {
+			startLibRegistry();
+		}
+	}
 
-  /**
-   * Returns the shared instance.
-   *
-   * @return Singleton instance of the Plugin
-   */
-  public static FSKNodePlugin getDefault() {
-    return plugin;
-  }
-  
-  public boolean isInstalled(final String libraryName) {
-    return libRegistry.isInstalled(libraryName);
-  }
+	public boolean isSetLibRegistry() {
+		return libRegistry == null;
+	}
 
-  public void installLibs(List<String> libNames) throws REXPMismatchException, RException {
-    libRegistry.installLibs(libNames);
-  }
+	public void startLibRegistry() throws IOException, RException {
+		libRegistry = new LibRegistry();
+	}
 
-  public Set<Path> getPaths(List<String> libNames) throws REXPMismatchException, RException {
-    return libRegistry.getPaths(libNames);
-  }
+	/**
+	 * This method is called when the plug-in is stopped.
+	 *
+	 * @param context
+	 *            The OSGI bundle context
+	 * @throws Exception
+	 *             If this plugin could not be stopped
+	 */
+	@Override
+	public void stop(final BundleContext context) throws Exception {
+		plugin = null;
+		super.stop(context);
+	}
 
-  class LibRegistry {
+	/**
+	 * Returns the shared instance.
+	 *
+	 * @return Singleton instance of the Plugin
+	 */
+	public static FSKNodePlugin getDefault() {
+		return plugin;
+	}
 
-    /**
-     * Installation path
-     */
-    private final Path installPath;
+	public boolean isInstalled(final String libraryName) {
+		return libRegistry.isInstalled(libraryName);
+	}
 
-    /**
-     * R Path attribute: holds installation path
-     */
-    private final String pathAttr;
+	public void installLibs(List<String> libNames) throws REXPMismatchException, RException {
+		libRegistry.installLibs(libNames);
+	}
 
-    /**
-     * R repos attribute: holds remote repository
-     */
-    private final String reposAttr;
+	public Set<Path> getPaths(List<String> libNames) throws REXPMismatchException, RException {
+		return libRegistry.getPaths(libNames);
+	}
 
-    /**
-     * R type attribute: holds repository type
-     */
-    private final String typeAttr;
+	class LibRegistry {
 
-    /**
-     * miniCRAN repository path
-     */
-    private final Path repoPath;
+		/**
+		 * Installation path
+		 */
+		private final Path installPath;
 
-    private final RController rController;
-    
-    /** Utility set to keep count of installed libraries */
-    private Set<String> installedLibs;
+		/**
+		 * R Path attribute: holds installation path
+		 */
+		private final String pathAttr;
 
-    LibRegistry() throws IOException, RException {
-      // Create directories
-      installPath = FileUtil.createTempDir("install").toPath();
-      repoPath = FileUtil.createTempDir("repo").toPath();
+		/**
+		 * R repos attribute: holds remote repository
+		 */
+		private final String reposAttr;
 
-      // Create common R attributes
-      pathAttr = "path ='" + repoPath.toString().replace("\\", "/") + "'";
-      reposAttr = "repos = 'http://cran.us.r-project.org'";
-      typeAttr = "type = 'win.binary'";
-      
-      // Utility
-      installedLibs = new HashSet<>();
+		/**
+		 * R type attribute: holds repository type
+		 */
+		private final String typeAttr;
 
-      rController = new RController();
-      rController.eval("install.packages('miniCRAN'," + reposAttr + ", " + typeAttr + ")");
-      rController.eval("library(miniCRAN)");
-      rController.eval("makeRepo(c(), " + pathAttr + ", " + reposAttr + ", " + typeAttr + ")");
-    }
-    
-    boolean isInstalled(final String libraryName) {
-      return installedLibs.contains(libraryName);
-    }
+		/**
+		 * miniCRAN repository path
+		 */
+		private final Path repoPath;
 
-    /**
-     * Install a list of libraries into the repository.
-     * 
-     * @param libs list of names of R libraries
-     * @throws RException
-     * @throws REXPMismatchException
-     */
-    void installLibs(List<String> libs) throws RException, REXPMismatchException {
+		private final RController rController;
 
-      UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
+		/** Utility set to keep count of installed libraries */
+		private Set<String> installedLibs;
 
-      // Creates R package list: c("pkg1", "pkg2", ..., "pkgN")
-      List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
-      String pkgList = "c(" + String.join(",", quotedLibs) + ")";
+		LibRegistry() throws IOException, RException {
+			// Create directories
+			installPath = FileUtil.createTempDir("install").toPath();
+			repoPath = FileUtil.createTempDir("repo").toPath();
 
-      // Gets list of R dependencies of libs: c("dep1", "dep2", ..., "depN")
-      REXP rexp =
-          rController.eval("pkgDep(" + pkgList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
-      List<String> deps = Arrays.asList(rexp.asStrings());
-      List<String> quotedDeps = deps.stream().map(quoteOperator).collect(Collectors.toList());
-      String depList = "c(" + String.join(",", quotedDeps) + ")";
+			// Create common R attributes
+			pathAttr = "path ='" + repoPath.toString().replace("\\", "/") + "'";
+			reposAttr = "repos = 'http://cran.us.r-project.org'";
+			typeAttr = "type = 'win.binary'";
 
-      // Adds the dependencies to the miniCRAN repository
-      rController.eval(
-          "addPackage(" + depList + ", " + pathAttr + ", " + reposAttr + "," + typeAttr + ")");
+			// Utility
+			installedLibs = new HashSet<>();
 
-      // Gets the paths to the binaries of these dependencies
-      rexp = rController.eval("checkVersions(" + depList + ", " + pathAttr + ", " + typeAttr + ")");
-      List<String> paths =
-          Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
-      String fileList = "c(" + String.join(",", paths) + ")";
+			rController = new RController();
+			rController.eval("install.packages('miniCRAN'," + reposAttr + ", " + typeAttr + ")");
+			rController.eval("library(miniCRAN)");
+			rController.eval("makeRepo(c(), " + pathAttr + ", " + reposAttr + ", " + typeAttr + ")");
+		}
 
-      // Install binaries
-      String cmd = "install.packages(" + fileList + ", repos = NULL, lib = '"
-          + installPath.toString().replace("\\", "/") + "', " + typeAttr + ")";
-      rController.eval(cmd);
-      
-      // Adds names of installed libraries to utility set
-      installedLibs.addAll(deps);
-    }
+		boolean isInstalled(final String libraryName) {
+			return installedLibs.contains(libraryName);
+		}
 
-    /**
-     * Gets list of paths to the binaries of the desired libraries.
-     * 
-     * @param libs
-     * @return list of paths to the binaries of the desired libraries
-     * @throws RException
-     * @throws REXPMismatchException
-     */
-    Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
+		/**
+		 * Install a list of libraries into the repository.
+		 * 
+		 * @param libs
+		 *            list of names of R libraries
+		 * @throws RException
+		 * @throws REXPMismatchException
+		 */
+		void installLibs(List<String> libs) throws RException, REXPMismatchException {
 
-      UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
+			UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
 
-      // Gets list of R dependencies of libs
-      List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
-      String libList = "c(" + String.join(",", quotedLibs) + ")";
-      REXP rexp =
-          rController.eval("pkgDep(" + libList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
+			// Creates R package list: c("pkg1", "pkg2", ..., "pkgN")
+			List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
+			String pkgList = "c(" + String.join(",", quotedLibs) + ")";
 
-      // Gets the paths to the binaries of these dependencies
-      List<String> deps =
-          Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
-      String depList = "c(" + String.join(",", deps) + ")";
-      rexp = rController.eval("checkVersions(" + depList + ", " + pathAttr + ", " + typeAttr + ")");
+			// Gets list of R dependencies of libs: c("dep1", "dep2", ...,
+			// "depN")
+			REXP rexp = rController.eval("pkgDep(" + pkgList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
+			List<String> deps = Arrays.asList(rexp.asStrings());
+			List<String> quotedDeps = deps.stream().map(quoteOperator).collect(Collectors.toList());
+			String depList = "c(" + String.join(",", quotedDeps) + ")";
 
-      return Arrays.stream(rexp.asStrings()).map(path -> Paths.get(path))
-          .collect(Collectors.toSet());
-    }
-  }
+			// Adds the dependencies to the miniCRAN repository
+			rController.eval("addPackage(" + depList + ", " + pathAttr + ", " + reposAttr + "," + typeAttr + ")");
 
-  public Path getInstallationPath() {
-    return libRegistry.installPath;
-  }
+			// Gets the paths to the binaries of these dependencies
+			rexp = rController.eval("checkVersions(" + depList + ", " + pathAttr + ", " + typeAttr + ")");
+			List<String> paths = Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
+			String fileList = "c(" + String.join(",", paths) + ")";
+
+			// Install binaries
+			String cmd = "install.packages(" + fileList + ", repos = NULL, lib = '"
+					+ installPath.toString().replace("\\", "/") + "', " + typeAttr + ")";
+			rController.eval(cmd);
+
+			// Adds names of installed libraries to utility set
+			installedLibs.addAll(deps);
+		}
+
+		/**
+		 * Gets list of paths to the binaries of the desired libraries.
+		 * 
+		 * @param libs
+		 * @return list of paths to the binaries of the desired libraries
+		 * @throws RException
+		 * @throws REXPMismatchException
+		 */
+		Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
+
+			UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
+
+			// Gets list of R dependencies of libs
+			List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
+			String libList = "c(" + String.join(",", quotedLibs) + ")";
+			REXP rexp = rController.eval("pkgDep(" + libList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
+
+			// Gets the paths to the binaries of these dependencies
+			List<String> deps = Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
+			String depList = "c(" + String.join(",", deps) + ")";
+			rexp = rController.eval("checkVersions(" + depList + ", " + pathAttr + ", " + typeAttr + ")");
+
+			return Arrays.stream(rexp.asStrings()).map(path -> Paths.get(path)).collect(Collectors.toSet());
+		}
+	}
+
+	public Path getInstallationPath() {
+		return libRegistry.installPath;
+	}
 }

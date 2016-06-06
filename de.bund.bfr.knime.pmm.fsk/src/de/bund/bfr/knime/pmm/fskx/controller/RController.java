@@ -265,7 +265,7 @@ public class RController implements IRController {
    */
   private void initR() throws RException {
     try {
-      final String rHome = RPreferenceInitializer.getR2Provider().getRHome();
+      final String rHome = RPreferenceInitializer.getR3Provider().getRHome();
       RBinUtil.checkRHome(rHome);
 
       m_rProps = RBinUtil.retrieveRProperties();
@@ -277,7 +277,7 @@ public class RController implements IRController {
 
       final String rserveProp = m_rProps.getProperty("Rserve.path");
       if (rserveProp == null || rserveProp.isEmpty()) {
-        RPreferenceInitializer.invalidateR2PreferenceProviderCache();
+        RPreferenceInitializer.invalidateR3PreferenceProviderCache();
         throw new RException(
             "Could not find Rserve package. Please install it in your R installation by running \"install.packages('Rserve')\".");
       }

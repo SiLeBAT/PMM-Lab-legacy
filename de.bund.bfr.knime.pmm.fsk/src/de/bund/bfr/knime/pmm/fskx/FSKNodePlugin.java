@@ -68,7 +68,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 	}
 
 	public boolean isSetLibRegistry() {
-		return libRegistry == null;
+		return libRegistry != null;
 	}
 
 	public void startLibRegistry() throws IOException, RException {

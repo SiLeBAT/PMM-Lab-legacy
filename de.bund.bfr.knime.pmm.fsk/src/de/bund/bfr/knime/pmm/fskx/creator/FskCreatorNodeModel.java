@@ -58,7 +58,7 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
-public class FskCreatorNodeModel extends ExtToolOutputNodeModel {
+class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
   private static final NodeLogger LOGGER = NodeLogger.getLogger(FskCreatorNodeModel.class);
 

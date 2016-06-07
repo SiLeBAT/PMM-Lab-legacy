@@ -32,7 +32,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
 import de.bund.bfr.knime.pmm.common.ui.BoxFileSelection;
 
-public class FskCreatorNodeDialog extends NodeDialogPane {
+class FskCreatorNodeDialog extends NodeDialogPane {
 
   // models
   private final SettingsModelString m_modelScript;
@@ -41,7 +41,6 @@ public class FskCreatorNodeDialog extends NodeDialogPane {
   private final SettingsModelString m_metaDataDoc;
   private final SettingsModelString m_libDirectory;
   private final SettingsModelStringArray m_selectedLibs;
-
 
   private static final int dialogType = JFileChooser.OPEN_DIALOG; // type of the dialogs
 

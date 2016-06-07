@@ -11,7 +11,7 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 
-public class FskEditorNodeDialog extends DataAwareNodeDialogPane {
+class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 
   private FskEditorNodeSettings settings;
 

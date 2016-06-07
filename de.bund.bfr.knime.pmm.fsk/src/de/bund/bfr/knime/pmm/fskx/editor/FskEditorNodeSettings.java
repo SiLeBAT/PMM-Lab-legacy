@@ -5,7 +5,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
 
 /**
@@ -19,7 +18,7 @@ import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
  * 
  * @author Miguel Alba
  */
-public class FskEditorNodeSettings {
+class FskEditorNodeSettings {
 
 	// configuration keys
 	private static final String MODEL_SCRIPT = "Model script";
@@ -30,21 +29,12 @@ public class FskEditorNodeSettings {
 	private String modelScript = null;
 	private String paramScript = null;
 	private String vizScript = null;
-	private FSMRTemplate template;
+	private FSMRTemplate template = null;
 
 	private boolean isSetModelScript = false;
 	private boolean isSetParametersScript = false;
 	private boolean isSetVisualizationScript = false;
 	private boolean isSetMetaData = false;
-
-	public FskEditorNodeSettings() {
-		template = null;
-	}
-
-	public FskEditorNodeSettings(FSMRTemplate template) {
-		this.template = new FSMRTemplateImpl(template);
-		isSetMetaData = true;
-	}
 
 	// --- settings methods ---
 	/**
@@ -53,7 +43,7 @@ public class FskEditorNodeSettings {
 	 * @param settings
 	 *            To save to.
 	 */
-	public void saveSettings(final NodeSettingsWO settings) {
+	void saveSettings(final NodeSettingsWO settings) {
 		if (isSetModelScript) {
 			settings.addString(MODEL_SCRIPT, modelScript);
 		}
@@ -79,7 +69,7 @@ public class FskEditorNodeSettings {
 	 * @param settings
 	 *            To load from
 	 */
-	public void loadSettings(final NodeSettingsRO settings) {
+	void loadSettings(final NodeSettingsRO settings) {
 		try {
 			if (settings.containsKey(MODEL_SCRIPT)) {
 				setModelScript(settings.getString(MODEL_SCRIPT));
@@ -102,77 +92,77 @@ public class FskEditorNodeSettings {
 	}
 
 	// model script methods
-	public String getModelScript() {
+	String getModelScript() {
 		return modelScript;
 	}
 
-	public void setModelScript(final String modelScript) {
+	void setModelScript(final String modelScript) {
 		this.modelScript = modelScript;
 		isSetModelScript = true;
 	}
 
-	public boolean isSetModelScript() {
+	boolean isSetModelScript() {
 		return isSetModelScript;
 	}
 
-	public void unsetModelScript() {
+	void unsetModelScript() {
 		modelScript = null;
 		isSetModelScript = false;
 	}
 
 	// param script methods
-	public String getParametersScript() {
+	String getParametersScript() {
 		return paramScript;
 	}
 
-	public void setParametersScript(final String parametersScript) {
+	void setParametersScript(final String parametersScript) {
 		this.paramScript = parametersScript;
 		isSetParametersScript = true;
 	}
 
-	public boolean isSetParametersScript() {
+	boolean isSetParametersScript() {
 		return isSetParametersScript;
 	}
 
-	public void unsetParametersScript() {
+	void unsetParametersScript() {
 		paramScript = null;
 		isSetParametersScript = false;
 	}
 
 	// visualization script methods
-	public String getVisualizationScript() {
+	String getVisualizationScript() {
 		return vizScript;
 	}
 
-	public void setVisualizationScript(final String visualizationScript) {
+	void setVisualizationScript(final String visualizationScript) {
 		this.vizScript = visualizationScript;
 		isSetVisualizationScript = true;
 	}
 
-	public boolean isSetVisualizationScript() {
+	boolean isSetVisualizationScript() {
 		return isSetVisualizationScript;
 	}
 
-	public void unsetVisualizationScript() {
+	void unsetVisualizationScript() {
 		vizScript = null;
 		isSetVisualizationScript = false;
 	}
 
 	// meta data methods
-	public FSMRTemplate getMetaData() {
+	FSMRTemplate getMetaData() {
 		return template;
 	}
 
-	public void setMetaData(FSMRTemplate template) {
+	void setMetaData(FSMRTemplate template) {
 		this.template = template;
 		isSetMetaData = true;
 	}
 
-	public boolean isSetMetaData() {
+	boolean isSetMetaData() {
 		return isSetMetaData;
 	}
 
-	public void unsetMetaData() {
+	void unsetMetaData() {
 		template = null;
 		isSetMetaData = false;
 	}

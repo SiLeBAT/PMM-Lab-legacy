@@ -18,12 +18,12 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
-public class FskEditorNodeModel extends NodeModel {
+class FskEditorNodeModel extends NodeModel {
 
 	private static final PortType[] inPortTypes = new PortType[] { FskPortObject.TYPE };
 	private static final PortType[] outPortTypes = new PortType[] { FskPortObject.TYPE };
 
-	private FskEditorNodeSettings settings = new FskEditorNodeSettings();
+	private final FskEditorNodeSettings settings = new FskEditorNodeSettings();
 
 	public FskEditorNodeModel() {
 		super(inPortTypes, outPortTypes);

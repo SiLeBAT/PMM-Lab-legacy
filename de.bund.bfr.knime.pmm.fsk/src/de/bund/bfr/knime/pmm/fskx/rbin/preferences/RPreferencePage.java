@@ -54,9 +54,6 @@ public class RPreferencePage extends FieldEditorPreferencePage implements IWorkb
 	@Override
 	protected void createFieldEditors() {
 		Composite parent = getFieldEditorParent();
-		// addField(new
-		// RHomeDirectoryFieldEditor(RPreferenceInitializer.R2_PATH, "R v2
-		// environment location", parent));
 		addField(new RHomeDirectoryFieldEditor(RPreferenceInitializer.R3_PATH, "R v3 environment location", parent));
 	}
 

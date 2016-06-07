@@ -6,8 +6,6 @@ import javax.swing.JPanel;
 
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import de.bund.bfr.knime.pmm.fskx.rsnippet.RSnippet;
-
 /** JPanel with an R script */
 public class ScriptPanel extends JPanel {
 
@@ -18,7 +16,7 @@ public class ScriptPanel extends JPanel {
 		super(new BorderLayout());
 		setName(title);
 
-		textArea = new RSnippetTextArea(new RSnippet());
+		textArea = new RSnippetTextArea();
 		textArea.setLineWrap(true);
 		textArea.setText(script);
 		textArea.setEditable(editable);

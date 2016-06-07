@@ -70,8 +70,8 @@ import org.rosuda.REngine.Rserve.RserveException;
 import com.sun.jna.Platform;
 
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
-import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
+import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
 
 /**
  * RConnectionFactory
@@ -112,24 +112,6 @@ public class RConnectionFactory {
    * only add the shutdown hooks once.
    */
   private static final AtomicBoolean m_initialized = new AtomicBoolean(false);
-
-  /**
-   * For testing purposes.
-   *
-   * @return Read only collection of currently running Rserve processes.
-   */
-  public static Collection<Process> getRunningRProcesses() {
-    final ArrayList<Process> list = new ArrayList<>();
-
-    m_resources.forEach(resource -> {
-      final Process process = resource.getUnderlyingRInstance().getProcess();
-      if (process.isAlive()) {
-        list.add(process);
-      }
-    });
-
-    return list;
-  }
 
   /**
    * @return Configuration file for RServer

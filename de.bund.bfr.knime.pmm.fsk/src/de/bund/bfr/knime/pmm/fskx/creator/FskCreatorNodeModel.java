@@ -18,7 +18,6 @@
  */
 package de.bund.bfr.knime.pmm.fskx.creator;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,210 +59,211 @@ import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 
 class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
-  private static final NodeLogger LOGGER = NodeLogger.getLogger(FskCreatorNodeModel.class);
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(FskCreatorNodeModel.class);
 
-  // configuration key of the libraries directory
-  static final String CFGKEY_DIR_LIBS = "dirLibs";
+	// configuration key of the libraries directory
+	static final String CFGKEY_DIR_LIBS = "dirLibs";
 
-  // configuration key of the selected libraries
-  static final String CFGKEY_LIBS = "libs";
+	// configuration key of the selected libraries
+	static final String CFGKEY_LIBS = "libs";
 
-  // configuration key of the path of the R model script
-  static final String CFGKEY_MODEL_SCRIPT = "modelScript";
+	// configuration key of the path of the R model script
+	static final String CFGKEY_MODEL_SCRIPT = "modelScript";
 
-  // configuration key of the path of the R parameters script
-  static final String CFGKEY_PARAM_SCRIPT = "paramScript";
+	// configuration key of the path of the R parameters script
+	static final String CFGKEY_PARAM_SCRIPT = "paramScript";
 
-  // configuration key of the path of the R visualization script
-  static final String CFGKEY_VISUALIZATION_SCRIPT = "visualizationScript";
+	// configuration key of the path of the R visualization script
+	static final String CFGKEY_VISUALIZATION_SCRIPT = "visualizationScript";
 
-  // configuration key of the path of the XLSX spreadsheet with the model meta data
-  static final String CFGKEY_SPREADSHEET = "spreadsheet";
+	// configuration key of the path of the XLSX spreadsheet with the model meta
+	// data
+	static final String CFGKEY_SPREADSHEET = "spreadsheet";
 
-  private static PortType[] inPortTypes = new PortType[] {};
-  private static PortType[] outPortTypes = new PortType[] {FskPortObject.TYPE};
+	private final static PortType[] inPortTypes = new PortType[] {};
+	private final static PortType[] outPortTypes = new PortType[] { FskPortObject.TYPE };
 
-  // Settings models
-  private SettingsModelString m_modelScript = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
-  private SettingsModelString m_paramScript = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
-  private SettingsModelString m_vizScript =
-      new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
-  private SettingsModelString m_metaDataDoc = new SettingsModelString(CFGKEY_SPREADSHEET, null);
-  private SettingsModelString m_libDirectory = new SettingsModelString(CFGKEY_DIR_LIBS, null);
-  private SettingsModelStringArray m_selectedLibs = new SettingsModelStringArray(CFGKEY_LIBS, null);
+	// Settings models
+	private final SettingsModelString m_modelScript = new SettingsModelString(CFGKEY_MODEL_SCRIPT, null);
+	private final SettingsModelString m_paramScript = new SettingsModelString(CFGKEY_PARAM_SCRIPT, null);
+	private final SettingsModelString m_vizScript = new SettingsModelString(CFGKEY_VISUALIZATION_SCRIPT, null);
+	private final SettingsModelString m_metaDataDoc = new SettingsModelString(CFGKEY_SPREADSHEET, null);
+	private final SettingsModelString m_libDirectory = new SettingsModelString(CFGKEY_DIR_LIBS, null);
+	private final SettingsModelStringArray m_selectedLibs = new SettingsModelStringArray(CFGKEY_LIBS, null);
 
-  /** {@inheritDoc} */
-  protected FskCreatorNodeModel() {
-    super(inPortTypes, outPortTypes);
-  }
+	/** {@inheritDoc} */
+	protected FskCreatorNodeModel() {
+		super(inPortTypes, outPortTypes);
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-    // nothing
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// nothing
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-    // nothing
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// nothing
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void saveSettingsTo(NodeSettingsWO settings) {
-    m_modelScript.saveSettingsTo(settings);
-    m_paramScript.saveSettingsTo(settings);
-    m_vizScript.saveSettingsTo(settings);
-    m_metaDataDoc.saveSettingsTo(settings);
-    m_libDirectory.saveSettingsTo(settings);
-    m_selectedLibs.saveSettingsTo(settings);
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings) {
+		m_modelScript.saveSettingsTo(settings);
+		m_paramScript.saveSettingsTo(settings);
+		m_vizScript.saveSettingsTo(settings);
+		m_metaDataDoc.saveSettingsTo(settings);
+		m_libDirectory.saveSettingsTo(settings);
+		m_selectedLibs.saveSettingsTo(settings);
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-    m_modelScript.validateSettings(settings);
-    m_paramScript.validateSettings(settings);
-    m_vizScript.validateSettings(settings);
-    m_metaDataDoc.validateSettings(settings);
-    m_libDirectory.validateSettings(settings);
-    m_selectedLibs.validateSettings(settings);
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+		m_modelScript.validateSettings(settings);
+		m_paramScript.validateSettings(settings);
+		m_vizScript.validateSettings(settings);
+		m_metaDataDoc.validateSettings(settings);
+		m_libDirectory.validateSettings(settings);
+		m_selectedLibs.validateSettings(settings);
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void loadValidatedSettingsFrom(NodeSettingsRO settings)
-      throws InvalidSettingsException {
-    m_modelScript.loadSettingsFrom(settings);
-    m_paramScript.loadSettingsFrom(settings);
-    m_vizScript.loadSettingsFrom(settings);
-    m_metaDataDoc.loadSettingsFrom(settings);
-    m_libDirectory.loadSettingsFrom(settings);
-    m_selectedLibs.loadSettingsFrom(settings);
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
+		m_modelScript.loadSettingsFrom(settings);
+		m_paramScript.loadSettingsFrom(settings);
+		m_vizScript.loadSettingsFrom(settings);
+		m_metaDataDoc.loadSettingsFrom(settings);
+		m_libDirectory.loadSettingsFrom(settings);
+		m_selectedLibs.loadSettingsFrom(settings);
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void reset() {
-    // does nothing
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void reset() {
+		// does nothing
+	}
 
-  /**
-   * {@inheritDoc}
-   * 
-   * @throws MissingValueError
-   * @throws Exception
-   */
-  @Override
-  protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-      throws InvalidSettingsException, IOException, MissingValueError {
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws MissingValueError
+	 * @throws Exception
+	 */
+	@Override
+	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
+			throws InvalidSettingsException, IOException, MissingValueError {
 
-    // Reads model script
-    String model;
-    try {
-      RScript modelScript = readScript(m_modelScript.getStringValue());
-      model = modelScript.getScript();
-    } catch (IOException e) {
-      model = "";
-    }
+		// Reads model script
+		String model;
+		try {
+			RScript modelScript = readScript(m_modelScript.getStringValue());
+			model = modelScript.getScript();
+		} catch (IOException e) {
+			model = "";
+		}
 
-    // Reads parameters script
-    String param;
-    try {
-      RScript paramScript = readScript(m_paramScript.getStringValue());
-      param = paramScript.getScript();
-    } catch (IOException | InvalidSettingsException e) {
-      param = "";
-    }
+		// Reads parameters script
+		String param;
+		try {
+			RScript paramScript = readScript(m_paramScript.getStringValue());
+			param = paramScript.getScript();
+		} catch (IOException | InvalidSettingsException e) {
+			param = "";
+		}
 
-    // Reads visualization script
-    String viz;
-    try {
-      RScript vizScript = readScript(m_vizScript.getStringValue());
-      viz = vizScript.getScript();
-    } catch (IOException | InvalidSettingsException e) {
-      viz = "";
-    }
+		// Reads visualization script
+		String viz;
+		try {
+			RScript vizScript = readScript(m_vizScript.getStringValue());
+			viz = vizScript.getScript();
+		} catch (IOException | InvalidSettingsException e) {
+			viz = "";
+		}
 
-    // Reads model meta data
-    FSMRTemplate template;
-    try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
-      // Finds the workbook instance for XLSX file
-      XSSFWorkbook workbook = new XSSFWorkbook(fis);
-      fis.close();
+		// Reads model meta data
+		FSMRTemplate template;
+		try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
+			// Finds the workbook instance for XLSX file
+			XSSFWorkbook workbook = new XSSFWorkbook(fis);
+			fis.close();
 
-      template = FSMRUtils.processSpreadsheet(workbook);
-    }
+			template = FSMRUtils.processSpreadsheet(workbook);
+		}
 
-    // Reads R libraries
-    Set<File> libs;
-    try {
-      libs = collectLibs().stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
-    } catch (RException | REXPMismatchException e) {
-      LOGGER.error(e.getMessage());
-      libs = new HashSet<>();
-    }
+		// Reads R libraries
+		Set<File> libs;
+		try {
+			libs = collectLibs().stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
+		} catch (RException | REXPMismatchException e) {
+			LOGGER.error(e.getMessage());
+			libs = new HashSet<>();
+		}
 
-    return new PortObject[] {new FskPortObject(model, param, viz, template, null, libs)};
-  }
+		return new PortObject[] { new FskPortObject(model, param, viz, template, null, libs) };
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-    return new PortObjectSpec[] {FskPortObjectSpec.INSTANCE};
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { FskPortObjectSpec.INSTANCE };
+	}
 
-  /**
-   * Reads R script.
-   * 
-   * @param path File path to R model script.
-   * @throws InvalidSettingsException if {@link path} is null or whitespace.
-   * @throws IOException if the file cannot be read.
-   */
-  private static RScript readScript(final String path)
-      throws InvalidSettingsException, IOException {
+	/**
+	 * Reads R script.
+	 * 
+	 * @param path
+	 *            File path to R model script.
+	 * @throws InvalidSettingsException
+	 *             if {@link path} is null or whitespace.
+	 * @throws IOException
+	 *             if the file cannot be read.
+	 */
+	private static RScript readScript(final String path) throws InvalidSettingsException, IOException {
 
-    // throws InvalidSettingsException if path is null
-    if (path == null) {
-      throw new InvalidSettingsException("Unespecified script");
-    }
+		// throws InvalidSettingsException if path is null
+		if (path == null) {
+			throw new InvalidSettingsException("Unespecified script");
+		}
 
-    // throws InvalidSettingsException if path is whitespace
-    String trimmedPath = Strings.emptyToNull(path.trim());
-    if (trimmedPath == null) {
-      throw new InvalidSettingsException("Unespecified model script");
-    }
+		// throws InvalidSettingsException if path is whitespace
+		String trimmedPath = Strings.emptyToNull(path.trim());
+		if (trimmedPath == null) {
+			throw new InvalidSettingsException("Unespecified model script");
+		}
 
-    // path is not null or whitespace, thus try to read it
-    try {
-      RScript script = new RScript(KnimeUtils.getFile(trimmedPath)); // may throw IOException
-      return script;
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-      throw new IOException(trimmedPath + ": cannot be read");
-    }
-  }
+		// path is not null or whitespace, thus try to read it
+		try {
+			RScript script = new RScript(KnimeUtils.getFile(trimmedPath)); // may
+																			// throw
+																			// IOException
+			return script;
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			throw new IOException(trimmedPath + ": cannot be read");
+		}
+	}
 
-  private Set<Path> collectLibs() throws IOException, RException, REXPMismatchException {
+	private Set<Path> collectLibs() throws IOException, RException, REXPMismatchException {
 
-    FSKNodePlugin plugin = FSKNodePlugin.getDefault();
+		FSKNodePlugin plugin = FSKNodePlugin.getDefault();
 
-    List<String> libNames = Arrays.stream(m_selectedLibs.getStringArrayValue())
-        .map(libName -> libName.split("\\.")[0]).collect(Collectors.toList());
+		List<String> libNames = Arrays.stream(m_selectedLibs.getStringArrayValue())
+				.map(libName -> libName.split("\\.")[0]).collect(Collectors.toList());
 
-    // Out of all the libraries name only install those missing
-    List<String> missingLibs =
-        libNames.stream().filter(lib -> !plugin.isInstalled(lib)).collect(Collectors.toList());
+		// Out of all the libraries name only install those missing
+		List<String> missingLibs = libNames.stream().filter(lib -> !plugin.isInstalled(lib))
+				.collect(Collectors.toList());
 
-    if (!missingLibs.isEmpty()) {
-      plugin.installLibs(missingLibs);
-    }
+		if (!missingLibs.isEmpty()) {
+			plugin.installLibs(missingLibs);
+		}
 
-    return plugin.getPaths(libNames);
-  }
+		return plugin.getPaths(libNames);
+	}
 }
-
-

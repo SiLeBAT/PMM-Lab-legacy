@@ -126,7 +126,7 @@ public class DefaultRPreferenceProvider implements RPreferenceProvider {
    *
    * @return The properties for this provider
    */
-  public Properties getProperties() {
+  Properties getProperties() {
     if (m_properties == null) {
       m_properties = RBinUtil.retrieveRProperties(this);
     }

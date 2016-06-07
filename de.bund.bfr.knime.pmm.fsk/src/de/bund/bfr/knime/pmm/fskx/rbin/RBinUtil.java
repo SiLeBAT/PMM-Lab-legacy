@@ -72,241 +72,235 @@ import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceProvider;
  */
 public class RBinUtil {
 
-  /**
-   * The temp directory used as a working directory for R.
-   */
-  static final String TEMP_PATH = KNIMEConstants.getKNIMETempDir().replace('\\', '/');
+	/**
+	 * The temp directory used as a working directory for R.
+	 */
+	private static final String TEMP_PATH = KNIMEConstants.getKNIMETempDir().replace('\\', '/');
 
-  static NodeLogger LOGGER = NodeLogger.getLogger(RBinUtil.class);
+	private final static NodeLogger LOGGER = NodeLogger.getLogger(RBinUtil.class);
 
-  /**
-   * Exception thrown when the specified R_HOME directory is invalid.
-   *
-   * @author Jonathan Hale
-   */
-  public static class InvalidRHomeException extends Exception {
+	/**
+	 * Exception thrown when the specified R_HOME directory is invalid.
+	 *
+	 * @author Jonathan Hale
+	 */
+	public static class InvalidRHomeException extends Exception {
 
-    /**
-     * Generated serialVersionUID
-     */
-    private static final long serialVersionUID = -69909100381242901L;
+		/**
+		 * Generated serialVersionUID
+		 */
+		private static final long serialVersionUID = -69909100381242901L;
 
-    /**
-     * Constructor
-     *
-     * @param msg error message
-     */
-    public InvalidRHomeException(final String msg) {
-      super(msg);
-    }
+		/**
+		 * Constructor
+		 *
+		 * @param msg
+		 *            error message
+		 */
+		private InvalidRHomeException(final String msg) {
+			super(msg);
+		}
+	}
 
-    /**
-     * Constructor
-     *
-     * @param msg error message
-     */
-    public InvalidRHomeException(final String msg, final Throwable cause) {
-      super(cause);
-    }
-  }
+	/**
+	 * Get properties about the used R.
+	 *
+	 * @return properties about used R.
+	 * @throws IOException
+	 *             in case that running R fails.
+	 */
+	public static Properties retrieveRProperties() throws IOException {
+		return retrieveRProperties(RPreferenceInitializer.getR3Provider());
+	}
 
-  /**
-   * Get properties about the used R.
-   *
-   * @return properties about used R.
-   * @throws IOException in case that running R fails.
-   */
-  public static Properties retrieveRProperties() throws IOException {
-    return retrieveRProperties(RPreferenceInitializer.getR3Provider());
-  }
+	/**
+	 * Get properties about the used R installation.
+	 *
+	 * @param rpref
+	 *            provider for path to R executable
+	 * @return properties about used R
+	 */
+	public static Properties retrieveRProperties(final RPreferenceProvider rpref) {
+		final File tmpPath = new File(TEMP_PATH);
+		File propsFile;
+		File rOutFile;
 
-  /**
-   * Get properties about the used R installation.
-   *
-   * @param rpref provider for path to R executable
-   * @return properties about used R
-   */
-  public static Properties retrieveRProperties(final RPreferenceProvider rpref) {
-    final File tmpPath = new File(TEMP_PATH);
-    File propsFile;
-    File rOutFile;
+		try {
+			propsFile = FileUtil.createTempFile("R-propsTempFile-", ".r", true);
+			rOutFile = FileUtil.createTempFile("R-propsTempFile-", ".Rout", tmpPath, true);
+		} catch (IOException e2) {
+			LOGGER.error("Could not create temporary files for R execution.");
+			return new Properties();
+		}
 
-    try {
-      propsFile = FileUtil.createTempFile("R-propsTempFile-", ".r", true);
-      rOutFile = FileUtil.createTempFile("R-propsTempFile-", ".Rout", tmpPath, true);
-    } catch (IOException e2) {
-      LOGGER.error("Could not create temporary files for R execution.");
-      return new Properties();
-    }
+		final String propertiesPath = propsFile.getAbsolutePath().replace('\\', '/');
+		final String script = "setwd('" + tmpPath.getAbsolutePath().replace('\\', '/') + "')\n"
+				+ "foo <- paste(names(R.Version()), R.Version(), sep='=')\n"
+				+ "foo <- append(foo, paste('memory.limit', memory.limit(), sep='='))\n"
+				+ "foo <- append(foo, paste('Rserve.path', find.package('Rserve', quiet=TRUE), sep='='))\n"
+				+ "foo <- append(foo, paste('Cairo.path', find.package('Cairo', quiet=TRUE), sep='='))\n"
+				+ "foo <- append(foo, paste('rhome', R.home(), sep='='))\n" //
+				+ "write(foo, file='" + propertiesPath + "', ncolumns=1, append=FALSE, sep='\\n')\nq()";
 
-    final String propertiesPath = propsFile.getAbsolutePath().replace('\\', '/');
-    final String script = "setwd('" + tmpPath.getAbsolutePath().replace('\\', '/') + "')\n"
-        + "foo <- paste(names(R.Version()), R.Version(), sep='=')\n"
-        + "foo <- append(foo, paste('memory.limit', memory.limit(), sep='='))\n"
-        + "foo <- append(foo, paste('Rserve.path', find.package('Rserve', quiet=TRUE), sep='='))\n"
-        + "foo <- append(foo, paste('Cairo.path', find.package('Cairo', quiet=TRUE), sep='='))\n"
-        + "foo <- append(foo, paste('rhome', R.home(), sep='='))\n" //
-        + "write(foo, file='" + propertiesPath + "', ncolumns=1, append=FALSE, sep='\\n')\nq()";
+		File rCommandFile;
+		try {
+			rCommandFile = writeRCommandFile(script);
+		} catch (IOException e1) {
+			LOGGER.error("Could not write R command file.");
+			return new Properties();
+		}
+		ProcessBuilder builder = new ProcessBuilder();
+		builder.command(rpref.getRBinPath("Rscript"), "--vanilla", rCommandFile.getName(), rOutFile.getName());
+		builder.directory(rCommandFile.getParentFile());
 
-    File rCommandFile;
-    try {
-      rCommandFile = writeRCommandFile(script);
-    } catch (IOException e1) {
-      LOGGER.error("Could not write R command file.");
-      return new Properties();
-    }
-    ProcessBuilder builder = new ProcessBuilder();
-    builder.command(rpref.getRBinPath("Rscript"), "--vanilla", rCommandFile.getName(),
-        rOutFile.getName());
-    builder.directory(rCommandFile.getParentFile());
+		/** Run R on the script to get properties */
+		try {
+			final Process process = builder.start();
+			final BufferedReader outputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			final BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-    /** Run R on the script to get properties */
-    try {
-      final Process process = builder.start();
-      final BufferedReader outputReader =
-          new BufferedReader(new InputStreamReader(process.getInputStream()));
-      final BufferedReader errorReader =
-          new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			// Consume the output produced by the R process, otherwise may block
+			// process on some operating
+			// system
+			new Thread(() -> {
+				try {
+					final StringBuilder b = new StringBuilder();
+					String line;
+					while ((line = outputReader.readLine()) != null) {
+						b.append(line);
+					}
+					LOGGER.debug("External RScript process output: " + b.toString());
+				} catch (Exception e) {
+					LOGGER.error("Error reading output of external R process.", e);
+				}
+			}, "R Output Reader").start();
 
-      // Consume the output produced by the R process, otherwise may block process on some operating
-      // system
-      new Thread(() -> {
-        try {
-          final StringBuilder b = new StringBuilder();
-          String line;
-          while ((line = outputReader.readLine()) != null) {
-            b.append(line);
-          }
-          LOGGER.debug("External RScript process output: " + b.toString());
-        } catch (Exception e) {
-          LOGGER.error("Error reading output of external R process.", e);
-        }
-      }, "R Output Reader").start();
+			new Thread(() -> {
+				try {
+					final StringBuilder b = new StringBuilder();
+					String line;
+					while ((line = errorReader.readLine()) != null) {
+						b.append(line);
+					}
+					LOGGER.debug("External Rscript process error output: " + b.toString());
+				} catch (Exception e) {
+					LOGGER.error("Error reading error output of external R process.", e);
+				}
+			}, "R Error Reader").start();
 
-      new Thread(() -> {
-        try {
-          final StringBuilder b = new StringBuilder();
-          String line;
-          while ((line = errorReader.readLine()) != null) {
-            b.append(line);
-          }
-          LOGGER.debug("External Rscript process error output: " + b.toString());
-        } catch (Exception e) {
-          LOGGER.error("Error reading error output of external R process.", e);
-        }
-      }, "R Error Reader").start();
+			process.waitFor();
+		} catch (Exception e) {
+			LOGGER.debug(e.getMessage(), e);
+			return new Properties();
+		}
 
-      process.waitFor();
-    } catch (Exception e) {
-      LOGGER.debug(e.getMessage(), e);
-      return new Properties();
-    }
+		// load properties from propsFile
+		Properties props = new Properties();
+		try {
+			props.load(new FileInputStream(propsFile));
+		} catch (IOException e) {
+			LOGGER.warn("Could not retrieve properties from R.", e);
+		}
 
-    // load properties from propsFile
-    Properties props = new Properties();
-    try {
-      props.load(new FileInputStream(propsFile));
-    } catch (IOException e) {
-      LOGGER.warn("Could not retrieve properties from R.", e);
-    }
+		return props;
+	}
 
-    return props;
-  }
+	/**
+	 * Writes the given string into a file and returns it.
+	 *
+	 * @param cmd
+	 *            The string to write into a file.
+	 * @return The file containing the given string.
+	 * @throws IOException
+	 *             If string could not be written to a file.
+	 */
+	private static File writeRCommandFile(final String cmd) throws IOException {
+		File tempCommandFile = FileUtil.createTempFile("R-readPropsTempFile-", ".r", new File(TEMP_PATH), true);
+		FileWriter fw = new FileWriter(tempCommandFile);
+		fw.write(cmd);
+		fw.close();
 
-  /**
-   * Writes the given string into a file and returns it.
-   *
-   * @param cmd The string to write into a file.
-   * @return The file containing the given string.
-   * @throws IOException If string could not be written to a file.
-   */
-  private static File writeRCommandFile(final String cmd) throws IOException {
-    File tempCommandFile =
-        FileUtil.createTempFile("R-readPropsTempFile-", ".r", new File(TEMP_PATH), true);
-    FileWriter fw = new FileWriter(tempCommandFile);
-    fw.write(cmd);
-    fw.close();
+		return tempCommandFile;
+	}
 
-    return tempCommandFile;
-  }
+	/**
+	 * @param rHomePath
+	 * @throws InvalidRHomeException
+	 */
+	public static void checkRHome(final String rHomePath) throws InvalidRHomeException {
+		checkRHome(rHomePath, false);
+	}
 
-  /**
-   * @param rHomePath
-   * @throws InvalidRHomeException
-   */
-  public static void checkRHome(final String rHomePath) throws InvalidRHomeException {
-    checkRHome(rHomePath, false);
-  }
+	/**
+	 * Checks whether the given path is a valid R_HOME directory. It checks the
+	 * presence of the bin and library folder.
+	 *
+	 * @param rHomePath
+	 *            path to R_HOME.
+	 * @param fromPreferences
+	 *            Set to true if this function is called from the R preference
+	 *            page.
+	 * @throws InvalidRHomeException
+	 *             If the specified R_HOME path is invalid.
+	 */
+	public static void checkRHome(final String rHomePath, final boolean fromPreferences) throws InvalidRHomeException {
+		final File rHome = new File(rHomePath);
+		final String msgSuffix = ((fromPreferences) ? ""
+				: " R_HOME ('" + rHomePath + "')" + " is meant to be the path to the folder which is the root of R's "
+						+ "installation tree. \nIt contains a 'bin' folder which itself contains the R executable and a "
+						+ "'library' folder. Please change the R settings in the preferences.");
+		final String R_HOME_NAME = (fromPreferences) ? "Path to R Home" : "R_HOME";
 
-  /**
-   * Checks whether the given path is a valid R_HOME directory. It checks the presence of the bin
-   * and library folder.
-   *
-   * @param rHomePath path to R_HOME.
-   * @param fromPreferences Set to true if this function is called from the R preference page.
-   * @throws InvalidRHomeException If the specified R_HOME path is invalid.
-   */
-  public static void checkRHome(final String rHomePath, final boolean fromPreferences)
-      throws InvalidRHomeException {
-    final File rHome = new File(rHomePath);
-    final String msgSuffix = ((fromPreferences) ? ""
-        : " R_HOME ('" + rHomePath + "')"
-            + " is meant to be the path to the folder which is the root of R's "
-            + "installation tree. \nIt contains a 'bin' folder which itself contains the R executable and a "
-            + "'library' folder. Please change the R settings in the preferences.");
-    final String R_HOME_NAME = (fromPreferences) ? "Path to R Home" : "R_HOME";
+		/* check if the directory exists. */
+		if (!rHome.exists()) {
+			throw new InvalidRHomeException(R_HOME_NAME + " does not exist." + msgSuffix);
+		}
 
-    /* check if the directory exists. */
-    if (!rHome.exists()) {
-      throw new InvalidRHomeException(R_HOME_NAME + " does not exist." + msgSuffix);
-    }
+		/* Make sure R home is not a file. */
+		if (!rHome.isDirectory()) {
+			throw new InvalidRHomeException(R_HOME_NAME + " is not a directory." + msgSuffix);
+		}
 
-    /* Make sure R home is not a file. */
-    if (!rHome.isDirectory()) {
-      throw new InvalidRHomeException(R_HOME_NAME + " is not a directory." + msgSuffix);
-    }
+		/* Check if there is a bin directory. */
+		File binDir = new File(rHome, "bin");
+		if (!binDir.isDirectory()) {
+			throw new InvalidRHomeException(R_HOME_NAME + " does not contain a folder with name 'bin'." + msgSuffix);
+		}
 
-    /* Check if there is a bin directory. */
-    File binDir = new File(rHome, "bin");
-    if (!binDir.isDirectory()) {
-      throw new InvalidRHomeException(
-          R_HOME_NAME + " does not contain a folder with name 'bin'." + msgSuffix);
-    }
+		/* Check if there is an R Executable. */
+		File rExecutable = new File(new DefaultRPreferenceProvider(rHomePath).getRBinPath("R"));
+		if (!rExecutable.exists()) {
+			throw new InvalidRHomeException(R_HOME_NAME + " does not contain an R executable." + msgSuffix);
+		}
 
-    /* Check if there is an R Executable. */
-    File rExecutable = new File(new DefaultRPreferenceProvider(rHomePath).getRBinPath("R"));
-    if (!rExecutable.exists()) {
-      throw new InvalidRHomeException(
-          R_HOME_NAME + " does not contain an R executable." + msgSuffix);
-    }
+		/* Make sure there is a library directory. */
+		File libraryDir = new File(rHome, "library");
+		if (!libraryDir.isDirectory()) {
+			throw new InvalidRHomeException(
+					R_HOME_NAME + " does not contain a folder with name 'library'." + msgSuffix);
+		}
 
-    /* Make sure there is a library directory. */
-    File libraryDir = new File(rHome, "library");
-    if (!libraryDir.isDirectory()) {
-      throw new InvalidRHomeException(
-          R_HOME_NAME + " does not contain a folder with name 'library'." + msgSuffix);
-    }
-
-    /*
-     * On Windows, we expect the appropiate platform-specific folders corresponding to out Platform.
-     */
-    if (Platform.isWindows()) {
-      if (Platform.is64Bit()) {
-        File expectedFolder = new File(binDir, "x64");
-        File expectedFolder2 = new File(binDir, "i386");
-        if (!expectedFolder.isDirectory() && !expectedFolder2.isDirectory()) {
-          throw new InvalidRHomeException(R_HOME_NAME
-              + " does not contain a folder with name 'bin\\x64'. Please install R 64-bit files."
-              + msgSuffix);
-        }
-      } else {
-        File expectedFolder = new File(binDir, "i386");
-        if (!expectedFolder.isDirectory()) {
-          throw new InvalidRHomeException(R_HOME_NAME
-              + " does not contain a folder with name '\\bin\\i386'. Please install R 32-bit files."
-              + msgSuffix);
-        }
-      }
-    }
-  }
+		/*
+		 * On Windows, we expect the appropiate platform-specific folders
+		 * corresponding to out Platform.
+		 */
+		if (Platform.isWindows()) {
+			if (Platform.is64Bit()) {
+				File expectedFolder = new File(binDir, "x64");
+				File expectedFolder2 = new File(binDir, "i386");
+				if (!expectedFolder.isDirectory() && !expectedFolder2.isDirectory()) {
+					throw new InvalidRHomeException(R_HOME_NAME
+							+ " does not contain a folder with name 'bin\\x64'. Please install R 64-bit files."
+							+ msgSuffix);
+				}
+			} else {
+				File expectedFolder = new File(binDir, "i386");
+				if (!expectedFolder.isDirectory()) {
+					throw new InvalidRHomeException(R_HOME_NAME
+							+ " does not contain a folder with name '\\bin\\i386'. Please install R 32-bit files."
+							+ msgSuffix);
+				}
+			}
+		}
+	}
 }

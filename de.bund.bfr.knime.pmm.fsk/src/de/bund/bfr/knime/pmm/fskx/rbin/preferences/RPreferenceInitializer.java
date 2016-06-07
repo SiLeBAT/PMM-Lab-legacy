@@ -29,7 +29,7 @@ import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 public class RPreferenceInitializer extends AbstractPreferenceInitializer {
 
   /** Path to R v.3 */
-  public static final String R3_PATH = "r3.path";
+  static final String R3_PATH = "r3.path";
 
   private static RPreferenceProvider m_cachedR3PreferenceProvider = null;
 

@@ -61,16 +61,16 @@ import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 
-public class FskxReaderNodeModel extends NodeModel {
+class FskxReaderNodeModel extends NodeModel {
 
   // configuration keys
-  public static final String CFGKEY_FILE = "filename";
+  static final String CFGKEY_FILE = "filename";
 
   // defaults for persistent state
   private static final String DEFAULT_FILE = "c:/temp/foo.numl";
 
   // defaults for persistent state
-  private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
+  private final SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
   private static final PortType[] inPortTypes = {};
   private static final PortType[] outPortTypes = {FskPortObject.TYPE, RPortObject.TYPE};
@@ -230,12 +230,8 @@ public class FskxReaderNodeModel extends NodeModel {
     // does nothing
   }
 
-  class FileAccessException extends Exception {
+  private class FileAccessException extends Exception {
 
     private static final long serialVersionUID = 1L;
-
-    public FileAccessException(final String descr) {
-      super(descr);
-    }
   }
 }

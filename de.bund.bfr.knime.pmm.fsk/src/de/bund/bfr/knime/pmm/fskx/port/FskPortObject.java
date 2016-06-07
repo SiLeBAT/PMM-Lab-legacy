@@ -70,22 +70,22 @@ public class FskPortObject implements PortObject {
 	public static final PortType TYPE = PortTypeRegistry.getInstance().getPortType(FskPortObject.class);
 
 	/** Model script. */
-	private String m_model;
+	private final String m_model;
 
 	/** Parameters script. */
-	private String m_param;
+	private final String m_param;
 
 	/** Visualization script. */
-	private String m_viz;
+	private final String m_viz;
 
 	/** Model meta data. */
-	private FSMRTemplate m_template;
+	private final FSMRTemplate m_template;
 
 	/** R workspace file. */
 	private File m_workspace;
 
 	/** R library files. */
-	private Set<File> m_libs;
+	private final Set<File> m_libs;
 
 	public FskPortObject(final String model, final String param, final String viz, final FSMRTemplate template,
 			final File workspace, final Set<File> libs) {
@@ -112,17 +112,9 @@ public class FskPortObject implements PortObject {
 		return m_model;
 	}
 
-	public void setModelScript(final String model) {
-		m_model = model;
-	}
-
 	/** @return the parameters script. */
 	public String getParamScript() {
 		return m_param;
-	}
-
-	public void setParamScript(final String param) {
-		m_param = param;
 	}
 
 	/** @return the visualization script. */
@@ -130,17 +122,9 @@ public class FskPortObject implements PortObject {
 		return m_viz;
 	}
 
-	public void setVizScript(final String viz) {
-		m_viz = viz;
-	}
-
 	/** @return the template. */
 	public FSMRTemplate getTemplate() {
 		return m_template;
-	}
-
-	public void setTemplate(final FSMRTemplate template) {
-		m_template = template;
 	}
 
 	/** @return the R workspace file. */
@@ -288,7 +272,7 @@ public class FskPortObject implements PortObject {
 	}
 
 	/** JPanel with a JTable populated with data from an FSMRTemplate. */
-	class MetaDataPanel extends JPanel {
+	private class MetaDataPanel extends JPanel {
 
 		private static final long serialVersionUID = 7056855986937773639L;
 
@@ -300,7 +284,7 @@ public class FskPortObject implements PortObject {
 	}
 
 	/** JPanel with list of R libraries. */
-	class LibrariesPanel extends JPanel {
+	private class LibrariesPanel extends JPanel {
 
 		private static final long serialVersionUID = -5084804515050256443L;
 

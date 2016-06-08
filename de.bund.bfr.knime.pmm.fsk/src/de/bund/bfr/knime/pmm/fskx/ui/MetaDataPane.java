@@ -30,7 +30,7 @@ public class MetaDataPane extends JScrollPane {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(MetaDataPane.class);
 	
-	private static Map<ModelType, String> modelTypeStrings;
+	private final static Map<ModelType, String> modelTypeStrings;
 
 	static {
 		// model type strings
@@ -46,7 +46,7 @@ public class MetaDataPane extends JScrollPane {
 		modelTypeStrings.put(ModelType.MANUAL_TERTIARY_MODEL, "Manual tertiary model");	
 	}
 
-	static enum Col {
+	private static enum Col {
 		Model_Name,
 		Model_Id,
 		Model_Link,
@@ -78,7 +78,7 @@ public class MetaDataPane extends JScrollPane {
 		Has_Data
 	};
 
-	FSMRTemplate template;
+	private final FSMRTemplate template;
 
 	public MetaDataPane(FSMRTemplate template, boolean editable) {
 		super(new Table(template, editable));

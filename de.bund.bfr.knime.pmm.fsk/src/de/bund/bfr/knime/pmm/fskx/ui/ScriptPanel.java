@@ -10,7 +10,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 public class ScriptPanel extends JPanel {
 
 	private static final long serialVersionUID = -4493061426461816058L;
-	private RSnippetTextArea textArea;
+	private final RSnippetTextArea textArea;
 
 	public ScriptPanel(final String title, final String script, final boolean editable) {
 		super(new BorderLayout());

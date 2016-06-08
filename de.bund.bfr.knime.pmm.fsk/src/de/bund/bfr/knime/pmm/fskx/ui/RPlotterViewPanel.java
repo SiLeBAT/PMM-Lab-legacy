@@ -45,7 +45,6 @@
  */
 package de.bund.bfr.knime.pmm.fskx.ui;
 
-import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
@@ -63,17 +62,6 @@ public class RPlotterViewPanel extends JPanel {
   private static final long serialVersionUID = -7551700777887535358L;
 
   private final JLabel m_label = new JLabel("<No Plot>");
-
-  /**
-   * Creates a new panel with an empty label.
-   * 
-   * @param image The content to show.
-   */
-  public RPlotterViewPanel(final Image image) {
-    setLayout(new GridLayout(1, 1));
-    add(m_label);
-    update(image);
-  }
 
   /** Creates a new panel with an empty label. */
   public RPlotterViewPanel() {

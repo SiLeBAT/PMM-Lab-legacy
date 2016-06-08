@@ -38,11 +38,6 @@ import de.bund.bfr.knime.pmm.fskx.controller.RController;
 
 public class FSKNodePlugin extends AbstractUIPlugin {
 
-	/**
-	 * The plug-in ID.
-	 */
-	public static final String PLUGIN_ID = "fskxNodePlugin";
-
 	// The shared instance.
 	private static FSKNodePlugin plugin;
 
@@ -110,7 +105,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 		return libRegistry.getPaths(libNames);
 	}
 
-	class LibRegistry {
+	private class LibRegistry {
 
 		/**
 		 * Installation path
@@ -140,7 +135,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 		private final RController rController;
 
 		/** Utility set to keep count of installed libraries */
-		private Set<String> installedLibs;
+		private final Set<String> installedLibs;
 
 		LibRegistry() throws IOException, RException {
 			// Create directories
@@ -161,7 +156,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 			rController.eval("makeRepo(c(), " + pathAttr + ", " + reposAttr + ", " + typeAttr + ")");
 		}
 
-		boolean isInstalled(final String libraryName) {
+		private boolean isInstalled(final String libraryName) {
 			return installedLibs.contains(libraryName);
 		}
 
@@ -173,7 +168,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 		 * @throws RException
 		 * @throws REXPMismatchException
 		 */
-		void installLibs(List<String> libs) throws RException, REXPMismatchException {
+		private void installLibs(List<String> libs) throws RException, REXPMismatchException {
 
 			UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
 
@@ -213,7 +208,7 @@ public class FSKNodePlugin extends AbstractUIPlugin {
 		 * @throws RException
 		 * @throws REXPMismatchException
 		 */
-		Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
+		private Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
 
 			UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
 

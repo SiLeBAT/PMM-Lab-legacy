@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.pmm.fskx;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -47,21 +46,13 @@ public class RScriptTest {
   @Before
   public void setUp() throws IOException {
     // Creates temporary file. Fails the test if an error occurs.
-    File f;
-    try {
-      f = File.createTempFile("temp", "");
-      f.deleteOnExit();
-    } catch (IOException e) {
-      fail(e.getMessage());
-      throw e;
-    }
-
-    try (FileWriter fw = new FileWriter(f);) {
-      fw.write(this.origScript);
+    File f= File.createTempFile("temp", "");
+    f.deleteOnExit();
+    
+    try (FileWriter fw = new FileWriter(f)) {
+      fw.write(origScript);
       fw.close();
-      this.rScript = new RScript(f);
-    } catch (IOException e) {
-      fail(e.getMessage());
+      rScript = new RScript(f);
     }
   }
 

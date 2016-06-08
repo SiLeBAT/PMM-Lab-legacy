@@ -16,7 +16,6 @@
  **************************************************************************************************/
 package de.bund.bfr.knime.pmm.fskx.rbin.preferences;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +31,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import com.sun.jna.Platform;
 
 import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
-import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil;
 import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil.InvalidRHomeException;
 
@@ -105,7 +103,7 @@ public class RPreferencePage extends FieldEditorPreferencePage implements IWorkb
 					setMessage(
 							"The package 'Rserve' needs to be installed in your R installation. Please install it in R using \"install.packages('Rserve')\".",
 							ERROR);
-					return false;
+					return true;
 				}
 
 				final String cairoPath = props.getProperty("Cairo.path");
@@ -119,12 +117,8 @@ public class RPreferencePage extends FieldEditorPreferencePage implements IWorkb
 				}
 
 				setMessage(null, NONE);
-				
-				if (!FSKNodePlugin.getDefault().isSetLibRegistry()) {
-					FSKNodePlugin.getDefault().startLibRegistry();
-				}
 				return true;
-			} catch (InvalidRHomeException | IOException | RException e) {
+			} catch (InvalidRHomeException e) {
 				setMessage(e.getMessage(), ERROR);
 				return false;
 			}

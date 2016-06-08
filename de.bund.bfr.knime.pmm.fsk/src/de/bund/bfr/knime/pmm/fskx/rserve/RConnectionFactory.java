@@ -263,8 +263,8 @@ public class RConnectionFactory {
 
 	/**
 	 * Create a new {@link RConnection}, creating a new R instance beforehand,
-	 * unless a connectio of an existing instance has been closed in which case
-	 * an R isntance will be reused.
+	 * unless a connection of an existing instance has been closed in which case
+	 * an R instance will be reused.
 	 * <p>
 	 * The method does not check {@link RConnection#isConnected()}.
 	 *

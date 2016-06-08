@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,10 +50,10 @@ import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
-import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
@@ -251,19 +252,22 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 	private Set<Path> collectLibs() throws IOException, RException, REXPMismatchException {
 
-		FSKNodePlugin plugin = FSKNodePlugin.getDefault();
-
 		List<String> libNames = Arrays.stream(m_selectedLibs.getStringArrayValue())
 				.map(libName -> libName.split("\\.")[0]).collect(Collectors.toList());
 
+		LibRegistry libRegistry = LibRegistry.instance();
 		// Out of all the libraries name only install those missing
-		List<String> missingLibs = libNames.stream().filter(lib -> !plugin.isInstalled(lib))
-				.collect(Collectors.toList());
-
-		if (!missingLibs.isEmpty()) {
-			plugin.installLibs(missingLibs);
+		List<String> missingLibs = new LinkedList<>();
+		for (String lib : libNames) {
+			if (!libRegistry.isInstalled(lib)) {
+				missingLibs.add(lib);
+			}
 		}
 
-		return plugin.getPaths(libNames);
+		if (!missingLibs.isEmpty()) {
+			libRegistry.installLibs(missingLibs);
+		}
+		
+		return libRegistry.getPaths(libNames);
 	}
 }

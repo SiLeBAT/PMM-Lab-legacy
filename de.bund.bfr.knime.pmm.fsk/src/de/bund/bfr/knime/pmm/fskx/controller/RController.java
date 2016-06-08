@@ -75,307 +75,317 @@ import de.bund.bfr.knime.pmm.fskx.rserve.RConnectionFactory.RConnectionResource;
 /**
  * RController.
  * <p>
- * This class manages some way of communicating with R, executing R code and moving data back and
- * forth.
+ * This class manages some way of communicating with R, executing R code and
+ * moving data back and forth.
  * <p>
  * Currently, this class is a singleton and enforces mutual exclusion.
  * <p>
  */
 public class RController implements IRController {
 
-  private final NodeLogger LOGGER = NodeLogger.getLogger(getClass());
+	private final NodeLogger LOGGER = NodeLogger.getLogger(getClass());
 
-  private RConnectionResource m_connection;
+	private RConnectionResource m_connection;
 
-  private Properties m_rProps;
+	private Properties m_rProps;
 
-  private boolean m_initialized = false;
-  private boolean m_useNodeContext = false;
+	private boolean m_initialized = false;
+	private boolean m_useNodeContext = false;
 
-  /**
-   * Constructor. Calls {@link #initialize()}. To avoid initialization, use
-   * {@link #RController(boolean)}.
-   */
-  public RController() throws RException {
-    initialize();
-  }
+	private static LibRegistry libRegistry = null;
 
-  // --- Initialization & RConnection lifecycle ---
-  @Override
-  public void initialize() throws RException {
-    initR();
-  }
+	/**
+	 * Constructor. Calls {@link #initialize()}. To avoid initialization, use
+	 * {@link #RController(boolean)}.
+	 */
+	public RController() throws RException {
+		initialize();
+	}
 
-  /**
-   * Check if the RController is initialized and throws {@link RControllerNotInitializedException}
-   * if not.
-   */
-  private void checkInitialized() {
-    if (!m_initialized || m_connection == null) {
-      throw new RControllerNotInitializedException();
-    }
-    if (!m_connection.isRInstanceAlive()) {
-      throw new RuntimeException("RServe process terminated unexpectedly");
-    }
-    if (m_connection.isAvailable()) {
-      // resource should never be available, if held by this RController
-      // Available means available to acquire for other RControllers.
-      throw new RuntimeException("Invalid resource state: lost ownership of connection resource.");
-    }
-  }
+	// --- Initialization & RConnection lifecycle ---
+	@Override
+	public void initialize() throws RException {
+		initR();
+	}
 
-  @Override
-  public void close() throws RException {
-    if (m_connection != null) {
-      m_connection.release();
-      m_connection = null;
-    }
+	/**
+	 * Check if the RController is initialized and throws
+	 * {@link RControllerNotInitializedException} if not.
+	 */
+	private void checkInitialized() {
+		if (!m_initialized || m_connection == null) {
+			throw new RControllerNotInitializedException();
+		}
+		if (!m_connection.isRInstanceAlive()) {
+			throw new RuntimeException("RServe process terminated unexpectedly");
+		}
+		if (m_connection.isAvailable()) {
+			// resource should never be available, if held by this RController
+			// Available means available to acquire for other RControllers.
+			throw new RuntimeException("Invalid resource state: lost ownership of connection resource.");
+		}
+	}
 
-    m_initialized = false;
-  }
+	@Override
+	public void close() throws RException {
+		if (m_connection != null) {
+			m_connection.release();
+			m_connection = null;
+		}
 
-  /**
-   * Terminate and relaunch the R process this controller is connected to. This is currently the
-   * only way to interrupt command execution.
-   */
-  private void terminateAndRelaunch() throws Exception {
-    LOGGER.debug("Terminate R process");
+		m_initialized = false;
+	}
 
-    terminateRProcess();
+	/**
+	 * Terminate and relaunch the R process this controller is connected to.
+	 * This is currently the only way to interrupt command execution.
+	 */
+	private void terminateAndRelaunch() throws Exception {
+		LOGGER.debug("Terminate R process");
 
-    try {
-      m_connection = initRConnection();
-      m_initialized = m_connection != null && m_connection.get().isConnected();
-    } catch (Exception e) {
-      throw new Exception("Initializing R with Rserve failed");
-    }
-  }
+		terminateRProcess();
 
-  /**
-   * Terminate the R process started for this RController.
-   */
-  private void terminateRProcess() {
-    if (m_connection != null) {
-      m_connection.destroy(true);
-    }
+		try {
+			m_connection = initRConnection();
+			m_initialized = m_connection != null && m_connection.get().isConnected();
+		} catch (Exception e) {
+			throw new Exception("Initializing R with Rserve failed");
+		}
+	}
 
-    m_initialized = false;
-  }
+	/**
+	 * Terminate the R process started for this RController.
+	 */
+	private void terminateRProcess() {
+		if (m_connection != null) {
+			m_connection.destroy(true);
+		}
 
-  /**
-   * Check if the connection is still valid and recover if not.
-   */
-  private void checkConnectionAndRecover() throws Exception {
-    if (m_connection != null && m_connection.get().isConnected()
-        && m_connection.isRInstanceAlive()) {
-      // connection is fine
-      return;
-    }
+		m_initialized = false;
+	}
 
-    // all of the session data has been lost. We cannot recover from that.
-    terminateAndRelaunch();
-  }
+	/**
+	 * Check if the connection is still valid and recover if not.
+	 */
+	private void checkConnectionAndRecover() throws Exception {
+		if (m_connection != null && m_connection.get().isConnected() && m_connection.isRInstanceAlive()) {
+			// connection is fine
+			return;
+		}
 
-  /**
-   * Create and initialize a R connection
-   *
-   * @return the new RConnection
-   */
-  private RConnectionResource initRConnection() throws RserveException, IOException {
-    final RConnectionResource resource = RConnectionFactory.createConnection();
+		// all of the session data has been lost. We cannot recover from that.
+		terminateAndRelaunch();
+	}
 
-    if (!resource.get().isConnected()) {
-      throw new IOException("Could not initialize RController: Resource was not connected");
-    }
+	/**
+	 * Create and initialize a R connection
+	 *
+	 * @return the new RConnection
+	 */
+	private RConnectionResource initRConnection() throws RserveException, IOException {
+		final RConnectionResource resource = RConnectionFactory.createConnection();
 
-    return resource;
-  }
+		if (!resource.get().isConnected()) {
+			throw new IOException("Could not initialize RController: Resource was not connected");
+		}
 
-  /**
-   * Initialize the underlying REngine with a backend.
-   */
-  private void initR() throws RException {
-    try {
-      final String rHome = RPreferenceInitializer.getR3Provider().getRHome();
-      RBinUtil.checkRHome(rHome);
+		return resource;
+	}
 
-      m_rProps = RBinUtil.retrieveRProperties();
+	/**
+	 * Initialize the underlying REngine with a backend.
+	 * 
+	 * @throws IOException
+	 */
+	private void initR() throws RException {
+		try {
+			final String rHome = RPreferenceInitializer.getR3Provider().getRHome();
+			RBinUtil.checkRHome(rHome);
 
-      if (!m_rProps.containsKey("major")) {
-        throw new RException(
-            "Cannot determine major version of R. Please check the R installation defined in the KNIME preferences.");
-      }
+			m_rProps = RBinUtil.retrieveRProperties();
 
-      final String rserveProp = m_rProps.getProperty("Rserve.path");
-      if (rserveProp == null || rserveProp.isEmpty()) {
-        RPreferenceInitializer.invalidateR3PreferenceProviderCache();
-        throw new RException(
-            "Could not find Rserve package. Please install it in your R installation by running \"install.packages('Rserve')\".");
-      }
-      m_connection = initRConnection();
-    } catch (final InvalidRHomeException ex) {
-      throw new RException("R Home is invalid", ex);
-    } catch (final RserveException | IOException e) {
-      throw new RException("Exception occured during R initialization.", e);
-    }
+			if (!m_rProps.containsKey("major")) {
+				throw new RException(
+						"Cannot determine major version of R. Please check the R installation defined in the KNIME preferences.");
+			}
 
-    m_initialized = (m_connection != null && m_connection.get().isConnected());
-    if (Platform.isWindows()) {
-      try {
-        final String rMemoryLimit = m_rProps.get("memory.limit").toString().trim();
-        // set memory to the one of the used R
-        eval("memory.limit(" + rMemoryLimit + ");");
-      } catch (Exception e) {
-        LOGGER.error("R initialisation failed. " + e.getMessage());
-        throw new RuntimeException(e);
-      }
-    } else if (Platform.isMac()) {
-      // produce a warning message if 'Cairo' package is not installed.
-      try {
-        final REXP ret = eval("find.package('Cairo')");
-        final String cairoPath = ret.asString();
+			final String rserveProp = m_rProps.getProperty("Rserve.path");
+			if (rserveProp == null || rserveProp.isEmpty()) {
+				RPreferenceInitializer.invalidateR3PreferenceProviderCache();
+				throw new RException(
+						"Could not find Rserve package. Please install it in your R installation by running \"install.packages('Rserve')\".");
+			}
+			m_connection = initRConnection();
 
-        if (cairoPath == null || cairoPath.isEmpty()) {
-          // under Mac we need Cairo package to use png()/bmp() etc devices.
-          throw new RException("");
-        }
+		} catch (final InvalidRHomeException ex) {
+			throw new RException("R Home is invalid", ex);
+		} catch (final RserveException | IOException e) {
+			throw new RException("Exception occured during R initialization.", e);
+		}
 
-      } catch (RException | REXPMismatchException e) {
-        LOGGER.warn(
-            "The package 'Cairo' needs to be installed in your R installation for bitmap graphics devices to work properly. Please install it in R using \"install.packages('Cairo')\".");
-      }
-    }
-  }
+		m_initialized = (m_connection != null && m_connection.get().isConnected());
 
-  // --- Simple Getters ---
-  @Override
-  public RConnection getREngine() {
-    checkInitialized();
-    return m_connection.get();
-  }
+		if (Platform.isWindows()) {
+			try {
+				final String rMemoryLimit = m_rProps.get("memory.limit").toString().trim();
+				// set memory to the one of the used R
+				eval("memory.limit(" + rMemoryLimit + ");");
+			} catch (Exception e) {
+				LOGGER.error("R initialisation failed. " + e.getMessage());
+				throw new RuntimeException(e);
+			}
+		} else if (Platform.isMac()) {
+			// produce a warning message if 'Cairo' package is not installed.
+			try {
+				final REXP ret = eval("find.package('Cairo')");
+				final String cairoPath = ret.asString();
 
-  @Override
-  public boolean isInitialized() {
-    return m_initialized;
-  }
+				if (cairoPath == null || cairoPath.isEmpty()) {
+					// under Mac we need Cairo package to use png()/bmp() etc
+					// devices.
+					throw new RException("");
+				}
 
-  // --- R evaluation ---
-  @Override
-  public REXP eval(final String expr) throws RException {
-    try {
-      synchronized (getREngine()) {
-        return getREngine().parseAndEval(expr, null, true);
-      }
-    } catch (REngineException e) {
-      throw new RException(RException.MSG_EVAL_FAILED, e);
-    }
-  }
+			} catch (RException | REXPMismatchException e) {
+				LOGGER.warn(
+						"The package 'Cairo' needs to be installed in your R installation for bitmap graphics devices to work properly. Please install it in R using \"install.packages('Cairo')\".");
+			}
+		}
+	}
 
-  @Override
-  public REXP monitoredEval(final String expr, final ExecutionMonitor exec)
-      throws RException, CanceledExecutionException {
-    checkInitialized();
-    try {
-      return new MonitoredEval(exec).run(expr);
-    } catch (Exception e) {
-      throw new RException(RException.MSG_EVAL_FAILED, e);
-    }
-  }
+	// --- Simple Getters ---
+	@Override
+	public RConnection getREngine() {
+		checkInitialized();
+		return m_connection.get();
+	}
 
-  // --- Monitored Evaluation helpers ---
+	@Override
+	public boolean isInitialized() {
+		return m_initialized;
+	}
 
-  /**
-   * Evaluation of R code with a monitor in a separate thread to cancel the code execution in case
-   * the execution of the node is cancelled.
-   */
-  private final class MonitoredEval {
+	// --- R evaluation ---
+	@Override
+	public REXP eval(final String expr) throws RException {
+		try {
+			synchronized (getREngine()) {
+				return getREngine().parseAndEval(expr, null, true);
+			}
+		} catch (REngineException e) {
+			throw new RException(RException.MSG_EVAL_FAILED, e);
+		}
+	}
 
-    private final int m_interval = 200;
-    private final ExecutionMonitor m_exec;
+	@Override
+	public REXP monitoredEval(final String expr, final ExecutionMonitor exec)
+			throws RException, CanceledExecutionException {
+		checkInitialized();
+		try {
+			return new MonitoredEval(exec).run(expr);
+		} catch (Exception e) {
+			throw new RException(RException.MSG_EVAL_FAILED, e);
+		}
+	}
 
-    /**
-     * Constructor
-     *
-     * @param exec for tracking progress and checking cancelled state.
-     */
-    MonitoredEval(final ExecutionMonitor exec) {
-      m_exec = exec;
-    }
+	// --- Monitored Evaluation helpers ---
 
-    /*
-     * Run the Callable in a thread and make sure to cancel it, in case execution is cancelled.
-     */
-    private REXP monitor(final Callable<REXP> task) {
-      final FutureTask<REXP> runningTask = new FutureTask<>(task);
-      final Thread t =
-          (m_useNodeContext) ? ThreadUtils.threadWithContext(runningTask, "R-Evaluation")
-              : new Thread(runningTask, "R-Evaluation");
-      t.start();
+	/**
+	 * Evaluation of R code with a monitor in a separate thread to cancel the
+	 * code execution in case the execution of the node is cancelled.
+	 */
+	private final class MonitoredEval {
 
-      try {
-        while (!runningTask.isDone()) {
-          Thread.sleep(m_interval);
-          m_exec.checkCanceled();
-        }
+		private final int m_interval = 200;
+		private final ExecutionMonitor m_exec;
 
-        return runningTask.get();
-      } catch (InterruptedException | CanceledExecutionException | ExecutionException e) {
-        try {
-          if (!runningTask.isDone()) {
-            t.interrupt();
+		/**
+		 * Constructor
+		 *
+		 * @param exec
+		 *            for tracking progress and checking cancelled state.
+		 */
+		MonitoredEval(final ExecutionMonitor exec) {
+			m_exec = exec;
+		}
 
-            // The eval() call blocks somewhere in RTalk class,
-            // where it waits for a socket. If we close that, we
-            // should be able to force the interruption of our
-            // evaluation thread.
-            terminateAndRelaunch();
-            // FIXME: Causes a "Socket closed" stack trace to be
-            // printed. Should be cought instead, but needs to be
-            // fixed in REngine first see
-            // https://github.com/s-u/REngine/issues/6
-          }
-        } catch (final Exception e1) {
-          LOGGER.warn("Could not terminate R correctly.");
-        }
-      }
-      return null;
-    }
+		/*
+		 * Run the Callable in a thread and make sure to cancel it, in case
+		 * execution is cancelled.
+		 */
+		private REXP monitor(final Callable<REXP> task) {
+			final FutureTask<REXP> runningTask = new FutureTask<>(task);
+			final Thread t = (m_useNodeContext) ? ThreadUtils.threadWithContext(runningTask, "R-Evaluation")
+					: new Thread(runningTask, "R-Evaluation");
+			t.start();
 
-    /**
-     * Run R code
-     *
-     * @return Result of the code
-     * @throws CanceledExecutionException when execution was cancelled
-     * @throws IOException when initialization of R or Rserve failed when attempting to recover
-     */
-    REXP run(final String cmd)
-        throws REngineException, REXPMismatchException, CanceledExecutionException, Exception {
-      final Future<REXP> future = startMonitoredThread(() -> eval(cmd));
+			try {
+				while (!runningTask.isDone()) {
+					Thread.sleep(m_interval);
+					m_exec.checkCanceled();
+				}
 
-      try {
-        // wait for evaluation to complete
-        return future.get();
-      } catch (InterruptedException | ExecutionException e) {
-        return null;
-      } finally {
-        // Make sure to recover in case user terminated or crashed our
-        // server
-        checkConnectionAndRecover();
-      }
-    }
+				return runningTask.get();
+			} catch (InterruptedException | CanceledExecutionException | ExecutionException e) {
+				try {
+					if (!runningTask.isDone()) {
+						t.interrupt();
 
-    /*
-     * Execute a Callable in a monitored thread
-     */
-    Future<REXP> startMonitoredThread(final Callable<REXP> task) {
-      final FutureTask<REXP> ret = new FutureTask<>(() -> monitor(task));
+						// The eval() call blocks somewhere in RTalk class,
+						// where it waits for a socket. If we close that, we
+						// should be able to force the interruption of our
+						// evaluation thread.
+						terminateAndRelaunch();
+						// FIXME: Causes a "Socket closed" stack trace to be
+						// printed. Should be cought instead, but needs to be
+						// fixed in REngine first see
+						// https://github.com/s-u/REngine/issues/6
+					}
+				} catch (final Exception e1) {
+					LOGGER.warn("Could not terminate R correctly.");
+				}
+			}
+			return null;
+		}
 
-      if (m_useNodeContext) {
-        ThreadUtils.threadWithContext(ret, "R-Monitor").start();
-      } else {
-        new Thread(ret, "R-Monitor").start();
-      }
-      return ret;
-    }
-  }
+		/**
+		 * Run R code
+		 *
+		 * @return Result of the code
+		 * @throws CanceledExecutionException
+		 *             when execution was cancelled
+		 * @throws IOException
+		 *             when initialization of R or Rserve failed when attempting
+		 *             to recover
+		 */
+		REXP run(final String cmd)
+				throws REngineException, REXPMismatchException, CanceledExecutionException, Exception {
+			final Future<REXP> future = startMonitoredThread(() -> eval(cmd));
+
+			try {
+				// wait for evaluation to complete
+				return future.get();
+			} catch (InterruptedException | ExecutionException e) {
+				return null;
+			} finally {
+				// Make sure to recover in case user terminated or crashed our
+				// server
+				checkConnectionAndRecover();
+			}
+		}
+
+		/*
+		 * Execute a Callable in a monitored thread
+		 */
+		Future<REXP> startMonitoredThread(final Callable<REXP> task) {
+			final FutureTask<REXP> ret = new FutureTask<>(() -> monitor(task));
+
+			if (m_useNodeContext) {
+				ThreadUtils.threadWithContext(ret, "R-Monitor").start();
+			} else {
+				new Thread(ret, "R-Monitor").start();
+			}
+			return ret;
+		}
+	}
 }

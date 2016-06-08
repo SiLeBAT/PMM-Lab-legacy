@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,8 +50,9 @@ import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.core.util.FileUtil;
 import org.rosuda.REngine.REXPMismatchException;
 
-import de.bund.bfr.knime.pmm.fskx.FSKNodePlugin;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
+import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
@@ -204,7 +206,7 @@ public class FskPortObject implements PortObject {
 		@Override
 		public FskPortObject loadPortObject(PortObjectZipInputStream in, PortObjectSpec spec, ExecutionMonitor exec)
 				throws IOException, CanceledExecutionException {
-			
+
 			String model = "";
 			String param = "";
 			String viz = "";
@@ -236,18 +238,21 @@ public class FskPortObject implements PortObject {
 				} else if (entryName.equals("library.list")) {
 					List<String> libNames = IOUtils.readLines(in, "UTF-8");
 
-					FSKNodePlugin plugin = FSKNodePlugin.getDefault();
-					// Install missing libraries
-					List<String> missing = libNames.stream().filter(lib -> !plugin.isInstalled(lib))
-							.collect(Collectors.toList());
-
 					try {
-						if (!missing.isEmpty()) {
-							plugin.installLibs(missing);
+						LibRegistry libRegistry = LibRegistry.instance();
+						// Install missing libraries
+						List<String> missingLibs = new LinkedList<>();
+						for (String lib : libNames) {
+							if (!libRegistry.isInstalled(lib)) {
+								missingLibs.add(lib);
+							}
+						}
+						if (!missingLibs.isEmpty()) {
+							libRegistry.installLibs(missingLibs);
 						}
 						// Adds to libs the Paths of the libraries converted to
 						// Files
-						plugin.getPaths(libNames).stream().forEach(p -> libs.add(p.toFile()));
+						libRegistry.getPaths(libNames).forEach(p -> libs.add(p.toFile()));
 					} catch (RException | REXPMismatchException error) {
 						throw new IOException(error.getMessage());
 					}

@@ -48,12 +48,14 @@
 package de.bund.bfr.knime.pmm.fskx.controller;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.NodeLogger;
@@ -91,8 +93,6 @@ public class RController implements IRController {
 
 	private boolean m_initialized = false;
 	private boolean m_useNodeContext = false;
-
-	private static LibRegistry libRegistry = null;
 
 	/**
 	 * Constructor. Calls {@link #initialize()}. To avoid initialization, use
@@ -211,9 +211,13 @@ public class RController implements IRController {
 
 			final String rserveProp = m_rProps.getProperty("Rserve.path");
 			if (rserveProp == null || rserveProp.isEmpty()) {
-				RPreferenceInitializer.invalidateR3PreferenceProviderCache();
-				throw new RException(
-						"Could not find Rserve package. Please install it in your R installation by running \"install.packages('Rserve')\".");
+				try {
+					installRserve();
+				} catch (IOException e) {
+					RPreferenceInitializer.invalidateR3PreferenceProviderCache();
+					throw new RException("Could not find and install Rserve package. "
+							+ "Please install it manually in your R installation by running \"install.packages('Rserve')\".");
+				}
 			}
 			m_connection = initRConnection();
 
@@ -251,6 +255,26 @@ public class RController implements IRController {
 						"The package 'Cairo' needs to be installed in your R installation for bitmap graphics devices to work properly. Please install it in R using \"install.packages('Cairo')\".");
 			}
 		}
+	}
+
+	/**
+	 * Install Rserve just in case the R environment provided by the user does
+	 * not have it installed.
+	 * 
+	 * @throws IOException
+	 */
+	private void installRserve() throws IOException {
+		if (!Platform.isWindows()) {
+			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
+		}
+
+		URL url = getClass().getResource("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-0.zip");
+		url = FileLocator.toFileURL(url);
+		String rServePath = url.toString();
+
+		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+
+		Runtime.getRuntime().exec(rBinPath + " CMD INSTALL " + rServePath);
 	}
 
 	// --- Simple Getters ---

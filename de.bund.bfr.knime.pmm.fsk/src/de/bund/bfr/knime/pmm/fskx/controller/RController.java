@@ -47,18 +47,20 @@
  */
 package de.bund.bfr.knime.pmm.fskx.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.util.FileUtil;
 import org.knime.core.util.ThreadUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -213,12 +215,26 @@ public class RController implements IRController {
 			if (rserveProp == null || rserveProp.isEmpty()) {
 				try {
 					installRserve();
+					m_rProps = RBinUtil.retrieveRProperties();
 				} catch (IOException e) {
 					RPreferenceInitializer.invalidateR3PreferenceProviderCache();
 					throw new RException("Could not find and install Rserve package. "
 							+ "Please install it manually in your R installation by running \"install.packages('Rserve')\".");
 				}
 			}
+			
+			final String miniCranProp = m_rProps.getProperty("miniCran");
+			if (miniCranProp == null || miniCranProp.isEmpty()) {
+				try {
+					installMiniCran();
+					m_rProps = RBinUtil.retrieveRProperties();
+				} catch (IOException e) {
+					RPreferenceInitializer.invalidateR3PreferenceProviderCache();
+					throw new RException("Could not find and install miniCRAN package. "
+							+ "Please install it manually in your R installation by running \"install.packages('miniCRAN')\".");
+				}
+			}
+			
 			m_connection = initRConnection();
 
 		} catch (final InvalidRHomeException ex) {
@@ -268,15 +284,53 @@ public class RController implements IRController {
 			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
 		}
 
-		URL url = getClass().getResource("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-0.zip");
-		url = FileLocator.toFileURL(url);
-		String rServePath = url.toString();
+		InputStream inputStream = getClass().getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-0.zip");
+		
+		File tempFile = FileUtil.createTempFile("Rserve_1.8-0", ".zip");
+		FileOutputStream outputStream = new FileOutputStream(tempFile);
+		FileUtil.copy(inputStream, outputStream);
+		
+		inputStream.close();
+		outputStream.close();
+		
+		String rServePath = tempFile.getAbsolutePath();
 
 		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+		
+		String cmd = rBinPath + " CMD INSTALL " + rServePath;
 
-		Runtime.getRuntime().exec(rBinPath + " CMD INSTALL " + rServePath);
+		Runtime.getRuntime().exec(cmd);
 	}
+	
+	/**
+	 * Install Rserve just in case the R environment provided by the user does
+	 * not have it installed.
+	 * 
+	 * @throws IOException
+	 */
+	private void installMiniCran() throws IOException {
+		if (!Platform.isWindows()) {
+			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
+		}
 
+		InputStream inputStream = getClass().getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.5.zip");
+		
+		File tempFile = FileUtil.createTempFile("miniCRAN_0.2.5", ".zip");
+		FileOutputStream outputStream = new FileOutputStream(tempFile);
+		FileUtil.copy(inputStream, outputStream);
+		
+		inputStream.close();
+		outputStream.close();
+		
+		String miniCranPath = tempFile.getAbsolutePath();
+
+		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+		
+		String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
+
+		Runtime.getRuntime().exec(cmd);
+	}
+	
 	// --- Simple Getters ---
 	@Override
 	public RConnection getREngine() {

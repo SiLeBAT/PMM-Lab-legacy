@@ -1,20 +1,27 @@
 package de.bund.bfr.knime.pmm.fskx.controller;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 
+import com.sun.jna.Platform;
+
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil;
+import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
 
 /**
  * Singleton!! There can only be one.
@@ -52,14 +59,45 @@ public class LibRegistry {
 		installPath.toFile().deleteOnExit();
 		repoPath = Files.createTempDirectory("repo");
 		repoPath.toFile().deleteOnExit();
+		
+		Properties properties = RBinUtil.retrieveRProperties();
+		final String miniCranProp = properties.getProperty("miniCRAN.path");
+		if (miniCranProp == null || miniCranProp.isEmpty()) {
+			try {
+				installMiniCRAN();
+			} catch (IOException e) {
+				RPreferenceInitializer.invalidateR3PreferenceProviderCache();
+				throw new RException("Could not find and install miniCRAN package. "
+						+ "Please install it manually in your R installation by running \"install.packages('miniCRAN')\".");
+			}
+		}
 
 		// ... and initialize installation path attribute
 		repoPathAttr = "path = '" + repoPath.toString().replace("\\", "/") + "'";
 
 		controller = new RController();
-		controller.eval("install.packages('miniCRAN'," + reposAttr + ", " + typeAttr + ")");
 		controller.eval("library(miniCRAN)");
 		controller.eval("makeRepo(c(), " + repoPathAttr + ", " + reposAttr + ", " + typeAttr + ")");
+	}
+	
+	/**
+	 * Install miniCRAN just in case the R environment provided by the user does
+	 * not have it installed.
+	 * 
+	 * @throws IOException
+	 */
+	private void installMiniCRAN() throws IOException {
+		if (!Platform.isWindows()) {
+			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
+		}
+
+		URL url = getClass().getResource("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.5.zip");
+		url = FileLocator.toFileURL(url);
+		String miniCranPath = url.toString();
+
+		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+
+		Runtime.getRuntime().exec(rBinPath + " CMD INSTALL " + miniCranPath);
 	}
 	
 	public static LibRegistry instance() throws IOException, RException {

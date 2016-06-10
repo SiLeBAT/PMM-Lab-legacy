@@ -44,8 +44,8 @@ public class SBMLFactory {
   }
 
   public static PMFCoefficient createPMFCoefficient(String id, double value, String unit, Double P,
-      Double error, Double t, Correlation[] correlations, String desc) {
-    return new PMFCoefficientImpl(id, value, unit, P, error, t, correlations, desc);
+      Double error, Double t, Correlation[] correlations, String desc, Boolean isStart) {
+    return new PMFCoefficientImpl(id, value, unit, P, error, t, correlations, desc, isStart);
   }
 
   public static PMFCoefficient createPMFCoefficient(String id, double value, String unit) {

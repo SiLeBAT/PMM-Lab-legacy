@@ -7,9 +7,9 @@ import org.knime.core.node.ExecutionContext;
 import org.sbml.jsbml.SBMLDocument;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.pmf.file.PrimaryModelWODataFile;
-import de.bund.bfr.pmf.model.PrimaryModelWOData;
-import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmfml.file.PrimaryModelWODataFile;
+import de.bund.bfr.pmfml.model.PrimaryModelWOData;
+import de.bund.bfr.pmfml.sbml.Metadata;
 
 /**
  * Parse tuples from a table with primary models without data.

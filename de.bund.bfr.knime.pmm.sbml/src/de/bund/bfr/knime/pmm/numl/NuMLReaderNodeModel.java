@@ -45,8 +45,8 @@ import de.bund.bfr.knime.pmm.common.reader.DataTuple;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.NuMLReader;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.numl.NuMLReader;
 
 public class NuMLReaderNodeModel extends NodeModel {
 

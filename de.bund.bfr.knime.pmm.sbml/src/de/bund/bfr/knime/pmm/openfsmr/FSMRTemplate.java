@@ -20,8 +20,8 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 
-import de.bund.bfr.pmf.ModelClass;
-import de.bund.bfr.pmf.ModelType;
+import de.bund.bfr.pmfml.ModelClass;
+import de.bund.bfr.pmfml.ModelType;
 
 /**
  * Template for the Food Safety Model Repository. Includes the properties:

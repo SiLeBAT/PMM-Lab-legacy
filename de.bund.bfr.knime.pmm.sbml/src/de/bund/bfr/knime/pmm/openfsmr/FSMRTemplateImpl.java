@@ -20,8 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-import de.bund.bfr.pmf.ModelClass;
-import de.bund.bfr.pmf.ModelType;
+import de.bund.bfr.pmfml.ModelClass;
+import de.bund.bfr.pmfml.ModelType;
 
 /**
  * Implementation of the Open Food Safety Model Repository template ( {@link FSMRTemplate}) based on

@@ -35,7 +35,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import de.bund.bfr.pmf.file.PMFMetadataNode;
+import de.bund.bfr.pmfml.file.PMFMetadataNode;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 

@@ -54,11 +54,10 @@ import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
-import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
-import de.bund.bfr.pmf.file.uri.URIFactory;
+import de.bund.bfr.pmfml.file.uri.UriFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
@@ -130,7 +129,7 @@ class FskxReaderNodeModel extends NodeModel {
 			}
 
 			// Gets model meta data
-			URI pmfUri = URIFactory.createPMFURI();
+			URI pmfUri = UriFactory.createPMFURI();
 			if (archive.getNumEntriesWithFormat(pmfUri) == 1) {
 				ArchiveEntry entry = archive.getEntriesWithFormat(pmfUri).get(0);
 				File f = FileUtil.createTempFile("metaData", ".pmf");

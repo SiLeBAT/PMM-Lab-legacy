@@ -22,15 +22,15 @@ import de.bund.bfr.knime.pmm.extendedtable.items.MDLiteratureItem;
 import de.bund.bfr.knime.pmm.extendedtable.items.MDMatrixXml;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.Tuple;
-import de.bund.bfr.pmf.sbml.Model1Annotation;
-import de.bund.bfr.pmf.sbml.ModelVariable;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.ReferenceType;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.numl.Tuple;
+import de.bund.bfr.pmfml.sbml.Model1Annotation;
+import de.bund.bfr.pmfml.sbml.ModelVariable;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.ReferenceType;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class DataTuple {
 

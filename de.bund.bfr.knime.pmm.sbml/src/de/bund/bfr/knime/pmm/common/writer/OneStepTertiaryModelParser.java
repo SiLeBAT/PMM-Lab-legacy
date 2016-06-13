@@ -19,12 +19,12 @@ import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmf.file.OneStepTertiaryModelFile;
-import de.bund.bfr.pmf.model.OneStepTertiaryModel;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.sbml.DataSourceNode;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.PrimaryModelNode;
+import de.bund.bfr.pmfml.file.OneStepTertiaryModelFile;
+import de.bund.bfr.pmfml.model.OneStepTertiaryModel;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.sbml.DataSourceNode;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.PrimaryModelNode;
 
 /**
  * One Step Fit Tertiary Model

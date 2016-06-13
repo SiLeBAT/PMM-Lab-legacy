@@ -13,7 +13,8 @@ Require-Bundle: org.knime.base,
  de.bund.bfr.knime.pmm.sbml,
  com.google.guava,
  com.fifesoft.rsyntaxtextarea;bundle-version="2.5.8",
- com.sun.jna;bundle-version="3.5.2"
+ com.sun.jna;bundle-version="3.5.2",
+ de.bund.bfr.formats;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR

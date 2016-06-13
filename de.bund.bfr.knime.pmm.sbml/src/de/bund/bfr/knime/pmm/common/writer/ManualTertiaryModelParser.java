@@ -17,9 +17,9 @@ import org.sbml.jsbml.ext.comp.ReplacedBy;
 import org.sbml.jsbml.ext.comp.Submodel;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.pmf.file.ManualTertiaryModelFile;
-import de.bund.bfr.pmf.model.ManualTertiaryModel;
-import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmfml.file.ManualTertiaryModelFile;
+import de.bund.bfr.pmfml.model.ManualTertiaryModel;
+import de.bund.bfr.pmfml.sbml.Metadata;
 
 public class ManualTertiaryModelParser implements Parser {
 

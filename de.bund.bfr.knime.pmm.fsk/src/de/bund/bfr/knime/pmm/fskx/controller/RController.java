@@ -223,7 +223,7 @@ public class RController implements IRController {
 				}
 			}
 			
-			final String miniCranProp = m_rProps.getProperty("miniCran");
+			final String miniCranProp = m_rProps.getProperty("miniCRAN");
 			if (miniCranProp == null || miniCranProp.isEmpty()) {
 				try {
 					installMiniCran();

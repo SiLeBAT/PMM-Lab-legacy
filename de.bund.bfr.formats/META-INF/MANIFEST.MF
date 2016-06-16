@@ -7,9 +7,11 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: lib/fskml-0.0.1-SNAPSHOT.jar,
  lib/pmfml-0.0.1-SNAPSHOT.jar,
  lib/jsbml-1.2-SNAPSHOT-with-dependencies.jar,
- lib/CombineArchive-1.1.jar
+ lib/CombineArchive-1.1.jar,
+ lib/openfsmr-0.0.2.jar
 Bundle-Vendor: BfR
 Export-Package: de.bund.bfr.fskml,
+ de.bund.bfr.openfsmr,
  de.bund.bfr.pmfml,
  de.bund.bfr.pmfml.file,
  de.bund.bfr.pmfml.file.uri,

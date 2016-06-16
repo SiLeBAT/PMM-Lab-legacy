@@ -15,13 +15,13 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  org.hsh.bfr.db,
  de.bund.bfr.knime.pmm.bfrdbiface.lib,
- org.knime.js.core,
- de.bund.bfr.formats;bundle-version="1.0.0"
+ org.knime.js.core
 Export-Package: de.bund.bfr.knime.pmm,
  de.bund.bfr.knime.pmm.editor,
  de.bund.bfr.knime.pmm.js.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: de.bund.bfr.knime.pmm.dbutil,
+ de.bund.bfr.pmf,
  org.apache.commons.lang.builder,
  org.junit;version="4.12.0",
  org.junit.runner,

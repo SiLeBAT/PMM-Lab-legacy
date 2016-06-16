@@ -11,8 +11,8 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmfml.file.ExperimentalDataFile;
-import de.bund.bfr.pmfml.model.ExperimentalData;
+import de.bund.bfr.pmf.file.ExperimentalDataFile;
+import de.bund.bfr.pmf.model.ExperimentalData;
 
 public class ExperimentalDataReader implements Reader {
 

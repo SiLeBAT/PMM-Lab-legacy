@@ -31,17 +31,17 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmfml.file.TwoStepTertiaryModelFile;
-import de.bund.bfr.pmfml.model.PrimaryModelWData;
-import de.bund.bfr.pmfml.model.TwoStepTertiaryModel;
-import de.bund.bfr.pmfml.numl.NuMLDocument;
-import de.bund.bfr.pmfml.sbml.DataSourceNode;
-import de.bund.bfr.pmfml.sbml.GlobalModelIdNode;
-import de.bund.bfr.pmfml.sbml.Metadata;
-import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
-import de.bund.bfr.pmfml.sbml.PrimaryModelNode;
-import de.bund.bfr.pmfml.sbml.Reference;
-import de.bund.bfr.pmfml.sbml.ReferenceSBMLNode;
+import de.bund.bfr.pmf.file.TwoStepTertiaryModelFile;
+import de.bund.bfr.pmf.model.PrimaryModelWData;
+import de.bund.bfr.pmf.model.TwoStepTertiaryModel;
+import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.pmf.sbml.DataSourceNode;
+import de.bund.bfr.pmf.sbml.GlobalModelIdNode;
+import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmf.sbml.MetadataAnnotation;
+import de.bund.bfr.pmf.sbml.PrimaryModelNode;
+import de.bund.bfr.pmf.sbml.Reference;
+import de.bund.bfr.pmf.sbml.ReferenceSBMLNode;
 
 public class TwoStepTertiaryModelParser implements Parser {
 

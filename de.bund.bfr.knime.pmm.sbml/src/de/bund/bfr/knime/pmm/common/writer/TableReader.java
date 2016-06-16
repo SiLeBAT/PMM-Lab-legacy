@@ -26,8 +26,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
-import de.bund.bfr.pmfml.PMFUtil;
-import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
+import de.bund.bfr.pmf.PMFUtil;
+import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
 
 public class TableReader {
 	public final static int LEVEL = 3;

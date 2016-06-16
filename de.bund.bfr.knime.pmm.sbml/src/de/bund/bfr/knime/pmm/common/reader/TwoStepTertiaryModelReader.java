@@ -13,9 +13,9 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmfml.file.TwoStepTertiaryModelFile;
-import de.bund.bfr.pmfml.model.PrimaryModelWData;
-import de.bund.bfr.pmfml.model.TwoStepTertiaryModel;
+import de.bund.bfr.pmf.file.TwoStepTertiaryModelFile;
+import de.bund.bfr.pmf.model.PrimaryModelWData;
+import de.bund.bfr.pmf.model.TwoStepTertiaryModel;
 
 public class TwoStepTertiaryModelReader implements Reader {
 

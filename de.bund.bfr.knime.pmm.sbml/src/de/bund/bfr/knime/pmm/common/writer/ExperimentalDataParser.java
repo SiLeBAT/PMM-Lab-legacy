@@ -6,10 +6,10 @@ import java.util.List;
 import org.knime.core.node.ExecutionContext;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.pmfml.file.ExperimentalDataFile;
-import de.bund.bfr.pmfml.model.ExperimentalData;
-import de.bund.bfr.pmfml.numl.NuMLDocument;
-import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmf.file.ExperimentalDataFile;
+import de.bund.bfr.pmf.model.ExperimentalData;
+import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.pmf.sbml.Metadata;
 
 /**
  * Parse tuples from a table with timeseries.

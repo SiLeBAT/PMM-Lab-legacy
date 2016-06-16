@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 
-import de.bund.bfr.pmfml.ModelClass;
-import de.bund.bfr.pmfml.ModelType;
+import de.bund.bfr.pmf.ModelClass;
+import de.bund.bfr.pmf.ModelType;
 
 public class FSMRTemplateSettingsTest {
 

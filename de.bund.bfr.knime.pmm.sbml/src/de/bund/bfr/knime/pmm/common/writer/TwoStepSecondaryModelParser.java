@@ -13,13 +13,13 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmfml.file.TwoStepSecondaryModelFile;
-import de.bund.bfr.pmfml.model.PrimaryModelWData;
-import de.bund.bfr.pmfml.model.TwoStepSecondaryModel;
-import de.bund.bfr.pmfml.numl.NuMLDocument;
-import de.bund.bfr.pmfml.sbml.DataSourceNode;
-import de.bund.bfr.pmfml.sbml.Metadata;
-import de.bund.bfr.pmfml.sbml.PrimaryModelNode;
+import de.bund.bfr.pmf.file.TwoStepSecondaryModelFile;
+import de.bund.bfr.pmf.model.PrimaryModelWData;
+import de.bund.bfr.pmf.model.TwoStepSecondaryModel;
+import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.pmf.sbml.DataSourceNode;
+import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmf.sbml.PrimaryModelNode;
 
 /**
  * Parse tuples from a table with primary models without data.

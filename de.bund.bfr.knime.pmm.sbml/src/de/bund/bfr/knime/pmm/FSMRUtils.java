@@ -49,21 +49,21 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmfml.ModelClass;
-import de.bund.bfr.pmfml.ModelType;
-import de.bund.bfr.pmfml.numl.ConcentrationOntology;
-import de.bund.bfr.pmfml.numl.NuMLDocument;
-import de.bund.bfr.pmfml.numl.ResultComponent;
-import de.bund.bfr.pmfml.numl.TimeOntology;
-import de.bund.bfr.pmfml.sbml.Limits;
-import de.bund.bfr.pmfml.sbml.LimitsConstraint;
-import de.bund.bfr.pmfml.sbml.Metadata;
-import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
-import de.bund.bfr.pmfml.sbml.ModelRule;
-import de.bund.bfr.pmfml.sbml.PMFCompartment;
-import de.bund.bfr.pmfml.sbml.PMFSpecies;
-import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
-import de.bund.bfr.pmfml.sbml.SBMLFactory;
+import de.bund.bfr.pmf.ModelClass;
+import de.bund.bfr.pmf.ModelType;
+import de.bund.bfr.pmf.numl.ConcentrationOntology;
+import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.pmf.numl.ResultComponent;
+import de.bund.bfr.pmf.numl.TimeOntology;
+import de.bund.bfr.pmf.sbml.Limits;
+import de.bund.bfr.pmf.sbml.LimitsConstraint;
+import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmf.sbml.MetadataAnnotation;
+import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.PMFCompartment;
+import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
+import de.bund.bfr.pmf.sbml.SBMLFactory;
 
 public class FSMRUtils {
 

@@ -21,20 +21,20 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
-import de.bund.bfr.pmfml.ModelClass;
-import de.bund.bfr.pmfml.PMFUtil;
-import de.bund.bfr.pmfml.sbml.Correlation;
-import de.bund.bfr.pmfml.sbml.ModelRule;
-import de.bund.bfr.pmfml.sbml.ModelVariable;
-import de.bund.bfr.pmfml.sbml.PMFCoefficient;
-import de.bund.bfr.pmfml.sbml.PMFCompartment;
-import de.bund.bfr.pmfml.sbml.PMFSpecies;
-import de.bund.bfr.pmfml.sbml.PMFUnit;
-import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
-import de.bund.bfr.pmfml.sbml.Reference;
-import de.bund.bfr.pmfml.sbml.ReferenceType;
-import de.bund.bfr.pmfml.sbml.SBMLFactory;
-import de.bund.bfr.pmfml.sbml.Uncertainties;
+import de.bund.bfr.pmf.ModelClass;
+import de.bund.bfr.pmf.PMFUtil;
+import de.bund.bfr.pmf.sbml.Correlation;
+import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.ModelVariable;
+import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.PMFCompartment;
+import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.PMFUnit;
+import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
+import de.bund.bfr.pmf.sbml.Reference;
+import de.bund.bfr.pmf.sbml.ReferenceType;
+import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.pmf.sbml.Uncertainties;
 
 public class Util {
 

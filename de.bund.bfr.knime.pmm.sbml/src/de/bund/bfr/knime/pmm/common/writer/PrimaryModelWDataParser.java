@@ -9,11 +9,11 @@ import org.sbml.jsbml.xml.XMLNode;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmfml.file.PrimaryModelWDataFile;
-import de.bund.bfr.pmfml.model.PrimaryModelWData;
-import de.bund.bfr.pmfml.numl.NuMLDocument;
-import de.bund.bfr.pmfml.sbml.DataSourceNode;
-import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmf.file.PrimaryModelWDataFile;
+import de.bund.bfr.pmf.model.PrimaryModelWData;
+import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.pmf.sbml.DataSourceNode;
+import de.bund.bfr.pmf.sbml.Metadata;
 
 /**
  * Parse tuples from a table with primary models with data.

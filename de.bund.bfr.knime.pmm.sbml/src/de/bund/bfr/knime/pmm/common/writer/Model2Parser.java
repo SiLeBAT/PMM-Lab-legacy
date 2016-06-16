@@ -20,16 +20,16 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.pmfml.sbml.LimitsConstraint;
-import de.bund.bfr.pmfml.sbml.Metadata;
-import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
-import de.bund.bfr.pmfml.sbml.Model2Annotation;
-import de.bund.bfr.pmfml.sbml.ModelRule;
-import de.bund.bfr.pmfml.sbml.PMFCoefficient;
-import de.bund.bfr.pmfml.sbml.Reference;
-import de.bund.bfr.pmfml.sbml.SecDep;
-import de.bund.bfr.pmfml.sbml.SecIndep;
-import de.bund.bfr.pmfml.sbml.Uncertainties;
+import de.bund.bfr.pmf.sbml.LimitsConstraint;
+import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmf.sbml.MetadataAnnotation;
+import de.bund.bfr.pmf.sbml.Model2Annotation;
+import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.Reference;
+import de.bund.bfr.pmf.sbml.SecDep;
+import de.bund.bfr.pmf.sbml.SecIndep;
+import de.bund.bfr.pmf.sbml.Uncertainties;
 
 public class Model2Parser {
 

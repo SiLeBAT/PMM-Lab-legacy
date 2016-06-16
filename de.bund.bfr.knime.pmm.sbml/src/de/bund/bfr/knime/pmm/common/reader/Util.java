@@ -20,11 +20,11 @@ import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmfml.ModelClass;
-import de.bund.bfr.pmfml.sbml.Limits;
-import de.bund.bfr.pmfml.sbml.LimitsConstraint;
-import de.bund.bfr.pmfml.sbml.ModelRule;
-import de.bund.bfr.pmfml.sbml.Uncertainties;
+import de.bund.bfr.pmf.ModelClass;
+import de.bund.bfr.pmf.sbml.Limits;
+import de.bund.bfr.pmf.sbml.LimitsConstraint;
+import de.bund.bfr.pmf.sbml.ModelRule;
+import de.bund.bfr.pmf.sbml.Uncertainties;
 
 public class Util {
 

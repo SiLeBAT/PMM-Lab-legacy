@@ -8,8 +8,8 @@ import java.text.SimpleDateFormat;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.pmfml.ModelClass;
-import de.bund.bfr.pmfml.ModelType;
+import de.bund.bfr.pmf.ModelClass;
+import de.bund.bfr.pmf.ModelType;
 
 public class FSMRTemplateSettings {
 

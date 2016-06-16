@@ -25,17 +25,17 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.pmfml.PMFUtil;
-import de.bund.bfr.pmfml.sbml.LimitsConstraint;
-import de.bund.bfr.pmfml.sbml.Metadata;
-import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
-import de.bund.bfr.pmfml.sbml.Model1Annotation;
-import de.bund.bfr.pmfml.sbml.PMFCoefficient;
-import de.bund.bfr.pmfml.sbml.PMFCompartment;
-import de.bund.bfr.pmfml.sbml.PMFSpecies;
-import de.bund.bfr.pmfml.sbml.Reference;
-import de.bund.bfr.pmfml.sbml.ReferenceImpl;
-import de.bund.bfr.pmfml.sbml.Uncertainties;
+import de.bund.bfr.pmf.PMFUtil;
+import de.bund.bfr.pmf.sbml.LimitsConstraint;
+import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmf.sbml.MetadataAnnotation;
+import de.bund.bfr.pmf.sbml.Model1Annotation;
+import de.bund.bfr.pmf.sbml.PMFCoefficient;
+import de.bund.bfr.pmf.sbml.PMFCompartment;
+import de.bund.bfr.pmf.sbml.PMFSpecies;
+import de.bund.bfr.pmf.sbml.Reference;
+import de.bund.bfr.pmf.sbml.ReferenceImpl;
+import de.bund.bfr.pmf.sbml.Uncertainties;
 
 public class Model1Parser {
 

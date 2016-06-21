@@ -101,6 +101,7 @@ import de.bund.bfr.knime.pmm.js.common.schema.JsM2SchemaList;
 public final class ModelPlotterNodeModel
 		extends AbstractSVGWizardNodeModel<ModelPlotterViewRepresentation, ModelPlotterViewValue> {
 
+	enum MODEL_TYPE { M12, M1, M2};
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(ModelPlotterNodeModel.class);
 
 	static final String FLOWVAR_FUNCTION_ORIG = "Original Function";
@@ -113,6 +114,7 @@ public final class ModelPlotterNodeModel
 
 	private final ModelPlotterViewConfig m_config;
 	private boolean m_executed = false;
+	private MODEL_TYPE type = null;
 
 	/**
 	 * Constructor of {@code ModelPlotterNodeModel}.
@@ -165,7 +167,10 @@ public final class ModelPlotterNodeModel
 
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		if (!SchemaFactory.createM1Schema().conforms((DataTableSpec) inSpecs[0])) {
+		if (!SchemaFactory.createM12Schema().conforms((DataTableSpec) inSpecs[0]) &&
+			!SchemaFactory.createM1Schema().conforms((DataTableSpec) inSpecs[0]) &&
+			!SchemaFactory.createM2Schema().conforms((DataTableSpec) inSpecs[0])) 
+		{
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
@@ -200,46 +205,16 @@ public final class ModelPlotterNodeModel
 			viewValue.setMaxYAxis(m_config.getMaxYAxis());
 
 			// create schemata
-			List<?> modelList = null;
-			if(SchemaFactory.conformsM12DataSchema(table.getDataTableSpec())) {
-				modelList = codeM12DataSchema(tuples);
-				
-				// convert list to necessary view list
-				JsM12DataSchema[] modelArray = new JsM12DataSchema[modelList.size()];
-				modelArray = modelList.toArray(modelArray);
-				
-				JsM12DataSchemaList list = new JsM12DataSchemaList();
-				list.setModels(modelArray);
-				
-				// set new list to view
-				viewValue.setModels(list);
-			}
-			else if (SchemaFactory.conformsM1DataSchema(table.getDataTableSpec())) {
-				modelList = codeM1DataTuples(tuples);
-				
-				// convert list to necessary view list
-				JsM1DataSchema[] modelArray = new JsM1DataSchema[modelList.size()];
-				modelArray = modelList.toArray(modelArray);
-				
-				JsM1DataSchemaList list = new JsM1DataSchemaList();
-				list.setModels(modelArray);
-				
-				// set new list to view
-				viewValue.setModels(list);
-			}
+			if(SchemaFactory.conformsM12DataSchema(table.getDataTableSpec()))
+				type = MODEL_TYPE.M12;
+			else if (SchemaFactory.conformsM1DataSchema(table.getDataTableSpec())) 
+				type = MODEL_TYPE.M1;
+			else if (SchemaFactory.conformsM2Schema(table.getDataTableSpec())) 
+				type = MODEL_TYPE.M2;
 			else { 
 				LOGGER.error("model schema not supported / unknown data table spec");
 				exec.checkCanceled();
 			}
-			
-			// convert list to necessary view list
-			JsM12DataSchema[] modelArray = new JsM12DataSchema[modelList.size()];
-			modelArray = modelList.toArray(modelArray);
-			JsM12DataSchemaList list = new JsM12DataSchemaList();
-			list.setModels(modelArray);
-			
-			// set new list to view
-			viewValue.setModels(list);
 
 			// create UnitList from DBUnits
 			// (this way we can use the units known to the DB and do not have to
@@ -264,28 +239,89 @@ public final class ModelPlotterNodeModel
 			setViewValue(viewValue);
 			m_executed = true;
 		}
-
+		
+		List<?> modelList = null;
+		
+		if(type == MODEL_TYPE.M12)
+		{
+			modelList = codeM12DataSchema(tuples);
+			
+			// convert list to necessary view list
+			JsM12DataSchema[] modelArray = new JsM12DataSchema[modelList.size()];
+			modelArray = modelList.toArray(modelArray);
+			
+			JsM12DataSchemaList list = new JsM12DataSchemaList();
+			list.setModels(modelArray);
+			
+			// set new list to view
+			viewValue.setM2DataModels(list);
+		}
+		else if (type == MODEL_TYPE.M1)
+		{
+			modelList = codeM1DataSchema(tuples);
+			
+			// convert list to necessary view list
+			JsM1DataSchema[] modelArray = new JsM1DataSchema[modelList.size()];
+			modelArray = modelList.toArray(modelArray);
+			
+			JsM1DataSchemaList list = new JsM1DataSchemaList();
+			list.setModels(modelArray);
+			
+			// set new list to view
+			viewValue.setM1DataModels(list);
+		}
+		else if (type == MODEL_TYPE.M2)
+		{
+			modelList = codeM2Schema(tuples);
+			
+			// convert list to necessary view list
+			JsM2Schema[] modelArray = new JsM2Schema[modelList.size()];
+			modelArray = modelList.toArray(modelArray);
+			
+			JsM2SchemaList list = new JsM2SchemaList();
+			list.setModels(modelArray);
+			
+			// set new list to view
+			viewValue.setM2Models(list);
+		}
+		
 		exec.setProgress(1);
 
 		// return edited table
-		BufferedDataContainer container = exec.createDataContainer(SchemaFactory.createM12DataSchema().createSpec());
+		BufferedDataContainer container = null;
+		List<KnimeTuple> outTuple = null;
 		
-		/*
-			ModelList outModelList = getViewValue().getModels();
-			for (Model1DataTuple m1DataTuple : outModelList.getModels()) {
-				KnimeTuple outTuple = ModelEditorNodeModel.decodeTuple(m1DataTuple);
-				container.addRowToTable(outTuple);
+		if(type == MODEL_TYPE.M12) {
+			container = exec.createDataContainer(SchemaFactory.createM12DataSchema().createSpec());
+			JsM12DataSchemaList outModelList = getViewValue().getM12Models();
+			JsM12DataSchema[] resultSchemaArray = outModelList.getSchemas();
+			List<JsM12DataSchema> resultList = new ArrayList<JsM12DataSchema>();
+			for (JsM12DataSchema jsM12DataSchema : resultSchemaArray) {
+				resultList.add(jsM12DataSchema);
 			}
-		*/
-		
-		JsM12DataSchemaList outModelList = getViewValue().getM12Models();
-		JsM12DataSchema[] resultSchemaArray = outModelList.getSchemas();
-		List<JsM12DataSchema> resultList = new ArrayList<JsM12DataSchema>();
-		for (JsM12DataSchema jsM12DataSchema : resultSchemaArray) {
-			resultList.add(jsM12DataSchema);
+			outTuple = decodeM12DataSchemas(resultList);
+		}
+		else if(type == MODEL_TYPE.M1) {
+			container = exec.createDataContainer(SchemaFactory.createM1DataSchema().createSpec());
+			JsM1DataSchemaList outModelList = getViewValue().getM1Models();
+			JsM1DataSchema[] resultDataSchemaArray = outModelList.getSchemas();
+			List<JsM1DataSchema> resultList = new ArrayList<JsM1DataSchema>();
+			for (JsM1DataSchema jsM1DataDataSchema : resultDataSchemaArray) {
+				resultList.add(jsM1DataDataSchema);
+			}
+			outTuple = decodeM1DataSchemas(resultList);
+		}
+		else if(type == MODEL_TYPE.M2) {
+			container = exec.createDataContainer(SchemaFactory.createM2Schema().createSpec());
+			JsM2SchemaList outModelList = getViewValue().getM2Models();
+			JsM2Schema[] resultSchemaArray = outModelList.getSchemas();
+			List<JsM2Schema> resultList = new ArrayList<JsM2Schema>();
+			for (JsM2Schema jsM2DataSchema : resultSchemaArray) {
+				resultList.add(jsM2DataSchema);
+			}
+			outTuple = decodeM2Schemas(resultList);
 		}
 		
-		List<KnimeTuple> outTuple = decodeM12DataSchemas(resultList);
 		for (KnimeTuple knimeTuple : outTuple) {
 			container.addRowToTable(knimeTuple);
 		}
@@ -295,7 +331,7 @@ public final class ModelPlotterNodeModel
 		String reportName = getViewValue().getReportName();
 		String authors = getViewValue().getAuthors();
 		String comment = getViewValue().getComments();
-		String svgPlot = getViewValue().getSVGPlot();
+		String svgPlot = getViewValue().getSvgPlot();
 
 		KnimeSchema userSchema = new KnimeSchema();
 		userSchema.addStringAttribute(REPORT_NAME);
@@ -318,9 +354,15 @@ public final class ModelPlotterNodeModel
 
 
 	private PortObjectSpec[] createOutputDataTableSpecs() {
-
-		return new PortObjectSpec[] { SchemaFactory.createM12DataSchema().createSpec(), getUserSpec(),
+		if (type == MODEL_TYPE.M12)
+			return new PortObjectSpec[] { SchemaFactory.createM12DataSchema().createSpec(), getUserSpec(),
 				ChartUtilities.getImageSpec(true) };
+		else if (type == MODEL_TYPE.M1)
+			return new PortObjectSpec[] { SchemaFactory.createM1DataSchema().createSpec(), getUserSpec(),
+					ChartUtilities.getImageSpec(true) };
+		else // secondary model
+			return new PortObjectSpec[] { SchemaFactory.createM2Schema().createSpec(), getUserSpec(),
+					ChartUtilities.getImageSpec(true) };
 	}
 
 	private DataTableSpec getUserSpec() {
@@ -387,10 +429,10 @@ public final class ModelPlotterNodeModel
 	
 	private String generateDbuuid(KnimeTuple tuple) {
 		String dbuuid = tuple.getString(Model1Schema.ATT_DBUUID);
-		if(dbuuid.equals("?") || dbuuid.isEmpty())	{
+		if(dbuuid == null || dbuuid.equals("?") || dbuuid.isEmpty())	{
 			LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
 			int seed;
-			if (tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG) == null)
+			if (tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG) != null)
 				seed = ((CatalogModelXml) tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getFormula().hashCode();
 			else
 				seed = tuple.hashCode();
@@ -400,7 +442,7 @@ public final class ModelPlotterNodeModel
 		return dbuuid;
 	}
 
-	private List<JsM1DataSchema> codeM1DataTuples(List<KnimeTuple> tuples) {
+	private List<JsM1DataSchema> codeM1DataSchema(List<KnimeTuple> tuples) {
 
 		List<JsM1DataSchema> schemas = new ArrayList<>(tuples.size());
 
@@ -811,6 +853,15 @@ public final class ModelPlotterNodeModel
 		return schemas;
 	}
 
+
+	private List<JsM2Schema> codeM2Schema(List<KnimeTuple> tuples) {
+		return new ArrayList<JsM2Schema>();
+	}
+	
+	private List<KnimeTuple> decodeM2Schemas(List<JsM2Schema> schemas) {
+		return new ArrayList<KnimeTuple>();
+	}
+	
 	private List<KnimeTuple> decodeM1DataSchemas(List<JsM1DataSchema> schemas) {
 
 		List<KnimeTuple> tuples = new ArrayList<>(schemas.size());
@@ -852,15 +903,17 @@ public final class ModelPlotterNodeModel
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelDoc);
 
 			PmmXmlDoc mLitDoc = new PmmXmlDoc();
-			for (Literature literature : schema.getmLit().getLiterature()) {
-				mLitDoc.add(literature.toLiteratureItem());
-			}
+			if(schema.getmLit().getLiterature() != null)
+				for (Literature literature : schema.getmLit().getLiterature()) {
+					mLitDoc.add(literature.toLiteratureItem());
+				}
 			tuple.setValue(Model1Schema.ATT_MLIT, mLitDoc);
 
 			PmmXmlDoc emLitDoc = new PmmXmlDoc();
-			for (Literature literature : schema.getEmLit().getLiterature()) {
-				emLitDoc.add(literature.toLiteratureItem());
-			}
+			if(schema.getEmLit() != null && schema.getEmLit().getLiterature() != null)
+				for (Literature literature : schema.getEmLit().getLiterature()) {
+					emLitDoc.add(literature.toLiteratureItem());
+				}
 			tuple.setValue(Model1Schema.ATT_EMLIT, emLitDoc);
 
 			if (schema.getDatabaseWritable() == null) {
@@ -877,9 +930,10 @@ public final class ModelPlotterNodeModel
 			tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, schema.getCombaseId());
 
 			PmmXmlDoc miscDoc = new PmmXmlDoc();
-			for (Misc misc : schema.getMiscList().getMiscs()) {
-				miscDoc.add(misc.toMiscXml());
-			}
+			if(schema.getMiscList().getMiscs() != null)
+				for (Misc misc : schema.getMiscList().getMiscs()) {
+					miscDoc.add(misc.toMiscXml());
+				}
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 
 			PmmXmlDoc agentDoc = new PmmXmlDoc();
@@ -895,9 +949,10 @@ public final class ModelPlotterNodeModel
 			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixDoc);
 
 			PmmXmlDoc timeSeriesDoc = new PmmXmlDoc();
-			for (TimeSeries timeSeries : schema.getTimeSeriesList().getTimeSeries()) {
-				timeSeriesDoc.add(timeSeries.toTimeSeriesXml());
-			}
+			if(schema.getTimeSeriesList() != null)
+				for (TimeSeries timeSeries : schema.getTimeSeriesList().getTimeSeries()) {
+					timeSeriesDoc.add(timeSeries.toTimeSeriesXml());
+				}
 			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesDoc);
 
 			PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
@@ -907,9 +962,10 @@ public final class ModelPlotterNodeModel
 			tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 
 			PmmXmlDoc mdLitDoc = new PmmXmlDoc();
-			for (Literature literature : schema.getLiteratureList().getLiterature()) {
-				mdLitDoc.add(literature.toLiteratureItem());
-			}
+			if(schema.getLiteratureList().getLiterature() != null)
+				for (Literature literature : schema.getLiteratureList().getLiterature()) {
+					mdLitDoc.add(literature.toLiteratureItem());
+				}
 			tuple.setValue(TimeSeriesSchema.ATT_LITMD, mdLitDoc);
 
 			tuples.add(tuple);
@@ -1005,7 +1061,7 @@ public final class ModelPlotterNodeModel
 			}
 
 			PmmXmlDoc mdLitDoc = new PmmXmlDoc();
-				if(schema.getLiteratureList().getLiterature() != null)
+			if(schema.getLiteratureList().getLiterature() != null)
 				for (Literature literature : schema.getLiteratureList().getLiterature()) {
 					mdLitDoc.add(literature.toLiteratureItem());
 				}

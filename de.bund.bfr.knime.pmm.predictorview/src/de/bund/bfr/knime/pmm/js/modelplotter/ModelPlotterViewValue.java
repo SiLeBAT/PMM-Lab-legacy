@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.js.modelplotter.depricated;
+package de.bund.bfr.knime.pmm.js.modelplotter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

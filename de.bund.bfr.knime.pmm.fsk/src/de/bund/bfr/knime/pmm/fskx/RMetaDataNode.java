@@ -35,7 +35,7 @@ public class RMetaDataNode {
   private static final String VIZ_SCRIPT_TAG = "visualizationScript";
   private static final String WORKSPACE_TAG = "workspace";
 
-  private Element node;
+  private final Element node;
 
   public RMetaDataNode() {
     node = new Element("metaParent");

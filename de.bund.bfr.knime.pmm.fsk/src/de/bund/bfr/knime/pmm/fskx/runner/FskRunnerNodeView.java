@@ -1,5 +1,5 @@
 /*
- * ------------------------------------------------------------------------
+ * ------------------------------------------------------------------
  *  Copyright by KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
@@ -40,44 +40,67 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ------------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  *
+ * History
+ *   18.09.2007 (thiel): created
  */
-package de.bund.bfr.knime.pmm.fskx.ui;
+package de.bund.bfr.knime.pmm.fskx.runner;
 
 import java.awt.Image;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import org.knime.core.node.NodeView;
+
+import de.bund.bfr.knime.pmm.fskx.ui.RPlotterViewPanel;
 
 /**
- * Displays the R result image.
- * 
- * @author Thomas Gabriel, University of Konstanz
+ * The view of the for the r nodes with image output.
+ *
+ * @author Heiko Hofer
  */
-public class RPlotterViewPanel extends JPanel {
+class FskRunnerNodeView extends NodeView<FskRunnerNodeModel> {
 
-  /** Generated serialVersionUID. */
-  private static final long serialVersionUID = -7551700777887535358L;
+	private final RPlotterViewPanel m_panel;
 
-  private final JLabel m_label = new JLabel("<No Plot>");
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param nodeModel
+	 *            the model associated with this view.
+	 */
+	FskRunnerNodeView(final FskRunnerNodeModel nodeModel) {
+		super(nodeModel);
+		m_panel = new RPlotterViewPanel();
+		super.setComponent(new JScrollPane(m_panel));
+	}
 
-  /** Creates a new panel with an empty label. */
-  public RPlotterViewPanel() {
-    add(m_label);
-  }
+	/**
+	 * Updates the image to display.
+	 *
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void modelChanged() {
+		final FskRunnerNodeModel model = super.getNodeModel();
+		final Image image = model.getResultImage();
+		m_panel.update(image);
+	}
 
-  /** @param image The new image or null to display. */
-  public void update(final Image image) {
-    if (image == null) {
-      m_label.setIcon(null);
-      m_label.setText("<No plot>");
-    } else {
-      m_label.setText(null);
-      m_label.setIcon(new ImageIcon(image));
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onClose() {
+		// empty
+	}
 
-    repaint();
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onOpen() {
+		// empty
+	}
 }

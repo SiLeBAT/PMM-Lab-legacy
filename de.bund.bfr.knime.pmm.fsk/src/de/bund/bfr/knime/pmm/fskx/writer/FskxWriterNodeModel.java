@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
@@ -73,7 +72,6 @@ import de.bund.bfr.pmf.sbml.PMFCompartment;
 import de.bund.bfr.pmf.sbml.PMFSpecies;
 import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
 import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.ReferenceImpl;
 import de.bund.bfr.pmf.sbml.ReferenceSBMLNode;
 import de.bund.bfr.pmf.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.CombineArchive;
@@ -82,12 +80,12 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
  */
-public class FskxWriterNodeModel extends NodeModel {
+class FskxWriterNodeModel extends NodeModel {
 
   // Configuration keys
   protected static final String CFG_FILE = "file";
 
-  private SettingsModelString filePath = new SettingsModelString(CFG_FILE, null);
+  private final SettingsModelString filePath = new SettingsModelString(CFG_FILE, null);
 
   private static final PortType[] inPortTypes = {FskPortObject.TYPE};
   private static final PortType[] outPortTypes = {};
@@ -229,14 +227,6 @@ public class FskxWriterNodeModel extends NodeModel {
     // nothing
   }
 
-  class FileCreationException extends Exception {
-    private static final long serialVersionUID = 1L;
-
-    public FileCreationException(final String descr) {
-      super(descr);
-    }
-  }
-  
   /** Creates SBMLDocument out of a OpenFSMR template. */
   private static SBMLDocument createSbmlDocument(final FSMRTemplate template) {
 
@@ -378,55 +368,15 @@ public class FskxWriterNodeModel extends NodeModel {
     return sbmlDocument;
   }
   
-  static class ModelRuleAnnotation {
+  private static class ModelRuleAnnotation {
 
-    String formulaName;
-    ModelClass modelClass;
-    Reference[] references;
-    int pmmlabID;
-    Annotation annotation;
+    private Annotation annotation;
 
     private static final String FORMULA_TAG = "formulaName";
     private static final String SUBJECT_TAG = "subject";
-    private static final String REFERENCE_TAG = "reference";
     private static final String PMMLAB_ID = "pmmlabID";
 
-    public ModelRuleAnnotation(Annotation annotation) {
-      this.annotation = annotation;
-
-      XMLNode metadata = annotation.getNonRDFannotation().getChildElement("metadata", "");
-
-      // Gets formula name
-      XMLNode nameNode = metadata.getChildElement(FORMULA_TAG, "");
-      this.formulaName = nameNode.getChild(0).getCharacters();
-
-      // Gets formula subject
-      XMLNode modelclassNode = metadata.getChildElement(SUBJECT_TAG, "");
-      if (modelclassNode == null) {
-        this.modelClass = ModelClass.UNKNOWN;
-      } else {
-        this.modelClass = ModelClass.fromName(modelclassNode.getChild(0).getCharacters());
-      }
-
-      // Get PmmLab ID
-      XMLNode idNode = metadata.getChildElement(PMMLAB_ID, "");
-      if (idNode == null) {
-        this.pmmlabID = -1;
-      } else {
-        this.pmmlabID = Integer.parseInt(idNode.getChild(0).getCharacters());
-      }
-
-      // Gets references
-      List<XMLNode> refNodes = metadata.getChildElements(REFERENCE_TAG, "");
-      int numRefNodes = refNodes.size();
-      this.references = new ReferenceImpl[numRefNodes];
-      for (int i = 0; i < numRefNodes; i++) {
-        XMLNode refNode = refNodes.get(i);
-        this.references[i] = new ReferenceSBMLNode(refNode).toReference();
-      }
-    }
-
-    public ModelRuleAnnotation(String formulaName, ModelClass modelClass, int pmmlabID,
+    private ModelRuleAnnotation(String formulaName, ModelClass modelClass, int pmmlabID,
         Reference[] references) {
       // Builds metadata node
       XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
@@ -452,12 +402,6 @@ public class FskxWriterNodeModel extends NodeModel {
       for (Reference ref : references) {
         metadataNode.addChild(new ReferenceSBMLNode(ref).getNode());
       }
-
-      // Saves formulaName, subject and model literature
-      this.formulaName = formulaName;
-      this.modelClass = modelClass;
-      this.pmmlabID = pmmlabID;
-      this.references = references;
     }
   }
 }

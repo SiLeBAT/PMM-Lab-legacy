@@ -20,11 +20,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -81,7 +83,7 @@ public class FSMRUtils {
         new ModelWithoutMicrobialDataTemplateCreator(doc);
     return templateCreator.createTemplate();
   }
-  
+
   public static FSMRTemplate processPrevalenceModel(SBMLDocument doc) {
     return new PrevalenceModelTemplateCreator(doc).createTemplate();
   }
@@ -232,12 +234,14 @@ public class FSMRUtils {
     }
 
     if (template.isSetIndependentVariablesMins()) {
-      String formattedMins = Joiner.on("||").join(template.getIndependentVariablesMins());
+      String formattedMins = Arrays.stream(template.getIndependentVariablesMins())
+          .mapToObj(Double::toString).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS, formattedMins);
     }
 
     if (template.isSetIndependentVariablesMaxs()) {
-      String formattedMaxs = Joiner.on("||").join(template.getIndependentVariablesMaxs());
+      String formattedMaxs = Arrays.stream(template.getIndependentVariablesMaxs())
+          .mapToObj(Double::toString).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS, formattedMaxs);
     }
 
@@ -329,20 +333,14 @@ public class FSMRUtils {
     template.setIndependentVariablesUnits(
         tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS).split("\\|\\|"));
 
-    String formattedIndepVarMins = tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS);
-    String[] indepVarMinTokens = formattedIndepVarMins.split("\\|\\|");
-    Double[] indepVarMins = new Double[indepVarMinTokens.length];
-    for (int i = 0; i < indepVarMinTokens.length; i++) {
-      indepVarMins[i] = Double.valueOf(indepVarMinTokens[i]);
-    }
+    double[] indepVarMins =
+        Arrays.stream(tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS).split("||"))
+            .mapToDouble(Double::parseDouble).toArray();
     template.setIndependentVariablesMins(indepVarMins);
 
-    String formattedIndepVarMaxs = tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS);
-    String[] indepVarMaxTokens = formattedIndepVarMaxs.split("\\|\\|");
-    Double[] indepVarMaxs = new Double[indepVarMaxTokens.length];
-    for (int i = 0; i < indepVarMaxTokens.length; i++) {
-      indepVarMaxs[i] = Double.valueOf(indepVarMaxTokens[i]);
-    }
+    double[] indepVarMaxs =
+        Arrays.stream(tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS).split("||"))
+            .mapToDouble(Double::parseDouble).toArray();
     template.setIndependentVariablesMaxs(indepVarMaxs);
 
     return template;
@@ -924,17 +922,17 @@ class PrevalenceModelTemplateCreator extends ModelWithMicrobialDataTemplateCreat
         }
       }
     }
-    
+
     String[] indepNamesArray = indepNames.toArray(new String[indepNames.size()]);
     template.setIndependentVariables(indepNamesArray);
 
     String[] indepUnitsArray = indepUnits.toArray(new String[indepUnits.size()]);
     template.setIndependentVariablesUnits(indepUnitsArray);
 
-    Double[] indepMinsArray = indepMins.toArray(new Double[indepMins.size()]);
+    double[] indepMinsArray = indepMins.stream().mapToDouble(Double::doubleValue).toArray();
     template.setIndependentVariablesMins(indepMinsArray);
 
-    Double[] indepMaxArray = indepMaxs.toArray(new Double[indepMaxs.size()]);
+    double[] indepMaxArray = indepMaxs.stream().mapToDouble(Double::doubleValue).toArray();
     template.setIndependentVariablesMaxs(indepMaxArray);
   }
 }
@@ -1134,7 +1132,7 @@ class SpreadsheetTemplateCreator extends TemplateCreator {
 
   @Override
   public void setIndependentVariableData() {
-    
+
     String[] indepVars = getStringVal(25).split("\\|\\|");
     for (int i = 0; i < indepVars.length; i++) {
       indepVars[i] = indepVars[i].trim();
@@ -1145,18 +1143,14 @@ class SpreadsheetTemplateCreator extends TemplateCreator {
 
     // Sets minimum values
     String[] indepVarMinTokens = getStringVal(27).split("\\|\\|");
-    Double[] indepVarMins = new Double[indepVarMinTokens.length];
-    for (int i = 0; i < indepVarMinTokens.length; i++) {
-      indepVarMins[i] = Double.valueOf(indepVarMinTokens[i]);
-    }
+    double[] indepVarMins =
+        Arrays.stream(indepVarMinTokens).mapToDouble(Double::parseDouble).toArray();
     template.setIndependentVariablesMins(indepVarMins);
+
 
     // Sets maximum values
     String[] indepVarMaxTokens = getStringVal(28).split("\\|\\|");
-    Double[] indepVarMaxs = new Double[indepVarMaxTokens.length];
-    for (int i = 0; i < indepVarMaxTokens.length; i++) {
-      indepVarMaxs[i] = Double.valueOf(indepVarMaxTokens[i]);
-    }
+    double[] indepVarMaxs = Arrays.stream(indepVarMaxTokens).mapToDouble(Double::parseDouble).toArray();
     template.setIndependentVariablesMaxs(indepVarMaxs);
   }
 

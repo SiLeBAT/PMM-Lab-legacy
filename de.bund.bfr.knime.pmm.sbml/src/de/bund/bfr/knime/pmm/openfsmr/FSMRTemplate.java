@@ -63,154 +63,210 @@ import de.bund.bfr.pmf.ModelType;
 public interface FSMRTemplate extends Serializable {
 
   /**
-   * Returns the model name of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the model name of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the model name is not set
    */
   public String getModelName();
 
   /**
-   * Returns the model id of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the model id of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the model id is not set
    */
   public String getModelId();
 
   /**
-   * Returns the model link of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the model link of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the model link is not set
    */
   public URL getModelLink();
 
   /**
-   * Returns the organism names of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the organism names of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the organism name is not set
    */
   public String getOrganismName();
 
   /**
-   * Returns the organism details of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the organism details of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the organism details is not set
    */
   public String getOrganismDetails();
 
   /**
-   * Returns the matrix name of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the matrix name of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the matrix name is not set
    */
   public String getMatrixName();
 
   /**
-   * Returns the matrix details of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the matrix details of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the matrix details is not set
    */
   public String getMatrixDetails();
 
   /**
-   * Returns the creator of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the creator of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the creator is not set
    */
   public String getCreator();
 
   /**
-   * Returns the family name of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the family name of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the family name is not set
    */
   public String getFamilyName();
 
   /**
-   * Returns the contact of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the contact of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the contact is not set
    */
   public String getContact();
 
   /**
-   * Returns the reference description of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the reference description of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the contact is not set
    */
   public String getReferenceDescription();
 
   /**
-   * Returns the reference description link of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the reference description link of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the reference description link is not set
    */
   public URL getReferenceDescriptionLink();
 
   /**
-   * Returns the created date of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the created date of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the created date is not set
    */
   public Date getCreatedDate();
 
   /**
-   * Returns the modified date of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the modified date of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the modified date is not set
    */
   public Date getModifiedDate();
 
   /**
-   * Returns the rights of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the rights of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the rights are not set
    */
   public String getRights();
 
   /**
-   * Returns the notes of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the notes of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the notes are not set
    */
   public String getNotes();
 
   /**
-   * Returns the curatus status of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the curation status of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the curation status is not set
    */
   public String getCurationStatus();
 
   /**
-   * Returns the {@link ModelType} of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the {@link ModelType} of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the model type is not set
    */
   public ModelType getModelType();
 
   /**
-   * Returns the {@link ModelClass} of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the {@link ModelClass} of this {@link FSMRTemplate}.
+   *
+   * @throws RuntimeException if the model subject is not set
    */
   public ModelClass getModelSubject();
 
   /**
-   * Returns the food process of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the food process of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the food process is not set
    */
   public String getFoodProcess();
 
   /**
-   * Returns the dependent variable of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the dependent variable of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the dependent variable is not set
    */
   public String getDependentVariable();
 
   /**
-   * Returns the dependent variable unit of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the dependent variable unit of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the dependent variable unit is not set
    */
   public String getDependentVariableUnit();
 
   /**
-   * Returns the dependent variable mininum of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the dependent variable mininum of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the dependent variable minimum is not set
    */
-  public Double getDependentVariableMin();
+  public double getDependentVariableMin();
 
   /**
-   * Returns the dependent variable maximum of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the dependent variable maximum of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the dependent variable maximum is not set
    */
-  public Double getDependentVariableMax();
+  public double getDependentVariableMax();
 
   /**
-   * Returns the independent variables of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the independent variables of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the independent variables are not set
    */
   public String[] getIndependentVariables();
 
   /**
-   * Returns the independent variables units of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the independent variables units of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the independent variables units are not set
    */
   public String[] getIndependentVariablesUnits();
 
   /**
-   * Returns the independent variables minimum values of this {@link FSMRTemplate}. If not set,
-   * returns null.
+   * Returns the independent variables minimum values of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the minimum values of the independent variables are not set
    */
-  public Double[] getIndependentVariablesMins();
+  public double[] getIndependentVariablesMins();
 
   /**
-   * Returns the independent variables maximum values of this {@link FSMRTemplate}. If not set,
-   * returns null.
+   * Returns the independent variables maximum values of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the maximum values of the independent variables are not set
    */
-  public Double[] getIndependentVariablesMaxs();
+  public double[] getIndependentVariablesMaxs();
 
   /**
-   * Returns the hasData variable of this {@link FSMRTemplate}. If not set, returns null.
+   * Returns the hasData variable of this {@link FSMRTemplate}.
+   * 
+   * @throws RuntimeException if the hasData variable is not set
    */
-  public Boolean getHasData();
+  public boolean getHasData();
 
   /**
-   * Sets the model name of this {@link FSMRTemplate} with 'modelName'. If not set, returns null.
+   * Sets the model name of this {@link FSMRTemplate} with 'modelName'.
    */
   public void setModelName(String modelName);
 
@@ -325,13 +381,13 @@ public interface FSMRTemplate extends Serializable {
    * Sets the independent variables minimum values of this {@link FSMRTemplate} with
    * 'independentVariableMins'.
    */
-  public void setIndependentVariablesMins(Double[] independentVariableMins);
+  public void setIndependentVariablesMins(double[] independentVariableMins);
 
   /**
    * Sets the independent variables maximum values of this {@link FSMRTemplate} with
    * 'independentVariableMaxs'.
    */
-  public void setIndependentVariablesMaxs(Double[] independentVariableMaxs);
+  public void setIndependentVariablesMaxs(double[] independentVariableMaxs);
 
   /**
    * Sets the hasData variable of this {@link FSMRTemplate} with 'hasData'.

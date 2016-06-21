@@ -212,6 +212,10 @@ public class Model2Tuple {
 			paramXml.setMax(constLimits.getMax());
 			paramXml.setMin(constLimits.getMin());
 		}
+		
+		if (coefficient.isSetIsStart()) {
+		  paramXml.setIsStartParam(coefficient.getIsStart());
+		}
 
 		return paramXml;
 	}

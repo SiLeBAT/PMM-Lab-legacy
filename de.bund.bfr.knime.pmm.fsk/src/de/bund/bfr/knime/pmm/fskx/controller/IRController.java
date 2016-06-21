@@ -17,21 +17,12 @@
 
 package de.bund.bfr.knime.pmm.fskx.controller;
 
-import org.knime.core.data.MissingCell;
-import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
-import org.knime.core.node.port.PortObject;
-import org.knime.core.node.workflow.FlowVariable;
 import org.knime.core.node.workflow.NodeContext;
 import org.knime.core.util.ThreadUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Interface for RController.
@@ -88,21 +79,6 @@ public interface IRController extends AutoCloseable {
      */
     boolean isInitialized();
 
-    /**
-     * Set whether to use {@link NodeContext}s for Threads.
-     *
-     * @see ThreadUtils#threadWithContext(Runnable)
-     * @see ThreadUtils#threadWithContext(Runnable, String)
-     * @see IRController#isUsingNodeContext()
-     */
-    void setUseNodeContext(boolean useNodeContext);
-
-    /**
-     * @return <code>true</code> if currently using NodeContexts in threads.
-     * @see IRController#setUseNodeContext(boolean)
-     */
-    boolean isUsingNodeContext();
-
     /** @return The underlying REngine (usually an {@link RConnection}) */
     RConnection getREngine();
 
@@ -126,138 +102,5 @@ public interface IRController extends AutoCloseable {
      */
     REXP monitoredEval(String cmd, ExecutionMonitor exec)
             throws RException, CanceledExecutionException, InterruptedException;
-
-    /**
-     * Assign a String to an R variable.
-     *
-     * @param expr Expression to assign the value to. Usually a variable name.
-     * @param value Value to assign.
-     * @throws RException
-     */
-    void assign(String expr, String value) throws RException;
-
-    /**
-     * Assign an REXP an R variable.
-     *
-     * @param expr Expression to assign the value to. Usually a variable name.
-     * @param value Value to assign.
-     * @throws RException
-     */
-    void assign(String expr, REXP value) throws RException;
-
-    /**
-     * Assigns an R variable in a separate thread to be able to cancel it.
-     *
-     * @param symbol
-     * @param value
-     * @param exec
-     * @param CanceledExecutionException
-     * @see #monitoredEval(String, ExecutionMonitor)
-     * @see #assign(String)
-     */
-    void monitoredAssign(String symbol, REXP value, ExecutionMonitor exec)
-            throws RException, CanceledExecutionException, InterruptedException;
-
-    /**
-     * Clear the R workspace (remove all variables and imported packages).
-     *
-     * @param exec
-     * @throws CanceledExecutionException
-     */
-    void clearWorkspace(ExecutionMonitor exec) throws RException, CanceledExecutionException;
-
-    /**
-     * @param tempWorkspaceFile
-     * @param exec execution monitor to report progress on
-     * @return List of libraries which were previously imported in the workspace.See
-     *         {@link #importListOfLibrariesAndDelete()}.
-     * @throws CanceledExecutionException
-     */
-    List<String> clearAndReadWorkspace(final File workspaceFile, final ExecutionMonitor exec)
-            throws RException, CanceledExecutionException;
-
-    /**
-     * Write R variables into a R variable in the current workspace.
-     *
-     * @param inFlowVariables
-     * @param name
-     * @param exec
-     * @param CanceledExecutionException
-     */
-    void exportFlowVariables(Collection<FlowVariable> inFlowVariables, String name,
-                             ExecutionMonitor exec) throws RException, CanceledExecutionException;
-
-    /**
-     * Get flow variables from a R variable.
-     *
-     * @param variableName Name of the variable to get the {@link FlowVariable}s from.
-     * @return The extracted flow variables.
-     * @throws RException If an R related error occurred during execution.
-     */
-    Collection<FlowVariable> importFlowVariables(String variableName) throws RException;
-
-    /**
-     * Assign a {@link BufferedDataTable} to a R variable in the current workspace.
-     *
-     * @param symbol R variable to assign to.
-     * @param value The table to assign to the variable.
-     * @param exec For monitoring the progress.
-     * @throws RException If an R related error occurred during execution.
-     * @throws CanceledExecutionException If execution was cancelled.
-     * @throws InterruptedException If a thread was interrupted.
-     */
-    void monitoredAssign(String symbol, BufferedDataTable value, ExecutionMonitor exec)
-            throws RException, CanceledExecutionException, InterruptedException;
-
-    /**
-     * Import a BufferedDataTable from the R expression <code>string</code>.
-     *
-     * @param string R expression (variable for e.g.) to retrieve a data.frame which is then converted
-     *        into a BufferedDataTable.
-     * @param nonNumbersAsMissing Convert NaN and Infinity to {@link MissingCell}.
-     * @param exec Execution context for creating the table and monitoring execution.
-     * @return The created BufferedDataTable.
-     * @throws RException
-     * @throws CanceledExecutionException
-     */
-    BufferedDataTable importBufferedDataTable(String string, boolean nonNumbersAsMissing,
-                                              ExecutionContext exec) throws RException, CanceledExecutionException;
-
-    /**
-     * Get list of libraries imported in the current session and then delete those imports.
-     *
-     * @return The list of deleted imports.
-     */
-    List<String> importListOfLibrariesAndDelete() throws RException;
-
-    /**
-     * Save the workspace in the current R session to the specified file.
-     *
-     * @param workspaceFile File to save the workspace to.
-     * @param exec For monitoring the workspace to.
-     * @throws RException If an R related error occurred during execution.
-     * @throws CanceledExecutionException If execution was cancelled.
-     */
-    void saveWorkspace(File workspaceFile, ExecutionMonitor exec)
-            throws RException, CanceledExecutionException;
-
-    /**
-     * Load a list of R libraries: <code>library(libname)</code>
-     *
-     * @param listOfLibraries
-     * @throws RException
-     */
-    void loadLibraries(List<String> listOfLibraries) throws RException;
-
-    /**
-     * Import RInputPorts and BufferedDataTables into the current R workspace.
-     *
-     * @param inData ports to import
-     * @param exec For monitoring the progress.
-     * @throws RException
-     * @throws CanceledExecutionException
-     */
-    void importDataFromPorts(PortObject[] inData, ExecutionMonitor exec)
-            throws RException, CanceledExecutionException;
 }
 

@@ -41,92 +41,87 @@ import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil.InvalidRHomeException;
  */
 public class RPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-  /** Creates a new preference page. */
-  public RPreferencePage() {
-    super(GRID);
+	/** Creates a new preference page. */
+	public RPreferencePage() {
+		super(GRID);
 
-    setPreferenceStore(FSKNodePlugin.getDefault().getPreferenceStore());
-    setDescription("BfR R nodes preferences");
-  }
+		setPreferenceStore(FSKNodePlugin.getDefault().getPreferenceStore());
+		setDescription("BfR R nodes preferences");
+	}
 
-  @Override
-  protected void createFieldEditors() {
-    Composite parent = getFieldEditorParent();
-    addField(new RHomeDirectoryFieldEditor(RPreferenceInitializer.R2_PATH,
-        "R v2 environment location", parent));
-    addField(new RHomeDirectoryFieldEditor(RPreferenceInitializer.R3_PATH,
-        "R v3 environment location", parent));
-  }
+	@Override
+	protected void createFieldEditors() {
+		Composite parent = getFieldEditorParent();
+		addField(new RHomeDirectoryFieldEditor(RPreferenceInitializer.R3_PATH, "R v3 environment location", parent));
+	}
 
-  public void init(final IWorkbench workbench) {
-    // nothing to do
-  }
+	public void init(final IWorkbench workbench) {
+		// nothing to do
+	}
 
-  /**
-   * Modified DirectoryFieldEditor with an appropriate doCheckState() overridden and verification on
-   * key stroke.
-   * 
-   * @author Jonathan Hale
-   */
-  private class RHomeDirectoryFieldEditor extends DirectoryFieldEditor {
+	/**
+	 * Modified DirectoryFieldEditor with an appropriate doCheckState()
+	 * overridden and verification on key stroke.
+	 * 
+	 * @author Jonathan Hale
+	 */
+	private class RHomeDirectoryFieldEditor extends DirectoryFieldEditor {
 
-    public RHomeDirectoryFieldEditor(final String name, final String labelText,
-        final Composite parent) {
-      init(name, labelText);
-      setChangeButtonText(JFaceResources.getString("openBrowse"));
-      setValidateStrategy(VALIDATE_ON_KEY_STROKE);
-      createControl(parent);
-    }
+		public RHomeDirectoryFieldEditor(final String name, final String labelText, final Composite parent) {
+			init(name, labelText);
+			setChangeButtonText(JFaceResources.getString("openBrowse"));
+			setValidateStrategy(VALIDATE_ON_KEY_STROKE);
+			createControl(parent);
+		}
 
-    @Override
-    protected boolean doCheckState() {
-      final String rHome = getStringValue();
+		@Override
+		protected boolean doCheckState() {
+			final String rHome = getStringValue();
 
-      final Path rHomePath = Paths.get(rHome);
-      if (!Files.isDirectory(rHomePath)) {
-        setMessage("The selected path is not a directory.", ERROR);
-        return false;
-      }
+			final Path rHomePath = Paths.get(rHome);
+			if (!Files.isDirectory(rHomePath)) {
+				setMessage("The selected path is not a directory.", ERROR);
+				return false;
+			}
 
-      try {
-        RBinUtil.checkRHome(rHome, true);
+			try {
+				RBinUtil.checkRHome(rHome, true);
 
-        DefaultRPreferenceProvider prefProvider = new DefaultRPreferenceProvider(rHome);
-        final Properties props = prefProvider.getProperties();
-        // the version numbers may contain spaces
-        final String version =
-            (props.getProperty("major") + "." + props.getProperty("minor")).replace(" ", "");
+				DefaultRPreferenceProvider prefProvider = new DefaultRPreferenceProvider(rHome);
+				final Properties props = prefProvider.getProperties();
+				// the version numbers may contain spaces
+				final String version = (props.getProperty("major") + "." + props.getProperty("minor")).replace(" ", "");
 
-        if ("3.1.0".equals(version)) {
-          setMessage("You have selected an R 3.1.0 installation. "
-              + "Please see http://tech.knime.org/faq#q26 for details.", WARNING);
-          return true;
-        }
+				if ("3.1.0".equals(version)) {
+					setMessage("You have selected an R 3.1.0 installation. "
+							+ "Please see http://tech.knime.org/faq#q26 for details.", WARNING);
+					return true;
+				}
 
-        final String rservePath = props.getProperty("Rserve.path");
-        if (rservePath == null || props.getProperty("Rserve.path").isEmpty()) {
-          setMessage(
-              "The package 'Rserve' needs to be installed in your R installation. Please install it in R using \"install.packages('Rserve')\".",
-              WARNING);
-          return true; // to allow the user to install Rserve later without having to select the
-                       // path via the annoying path dialog again.
-        }
+				final String rservePath = props.getProperty("Rserve.path");
+				if (rservePath == null || props.getProperty("Rserve.path").isEmpty()) {
+					setMessage(
+							"The package 'Rserve' needs to be installed in your R installation. Please install it in R using \"install.packages('Rserve')\".",
+							ERROR);
+					return true;
+				}
 
-        final String cairoPath = props.getProperty("Cairo.path");
-        if (Platform.isMac() && (cairoPath == null || cairoPath.isEmpty())) {
-          // under Mac we need Cairo package to use png()/bmp() etc devices.
-          setMessage(
-              "The package 'Cairo' needs to be installed in your R installation for bitmap graphics devices to work properly. Please install it in R using \"install.packages('Cairo')\".",
-              WARNING);
-          return true;
-        }
+				final String cairoPath = props.getProperty("Cairo.path");
+				if (Platform.isMac() && (cairoPath == null || cairoPath.isEmpty())) {
+					// under Mac we need Cairo package to use png()/bmp() etc
+					// devices.
+					setMessage(
+							"The package 'Cairo' needs to be installed in your R installation for bitmap graphics devices to work properly. Please install it in R using \"install.packages('Cairo')\".",
+							WARNING);
+					return true;
+				}
 
-        setMessage(null, NONE);
-        return true;
-      } catch (InvalidRHomeException e) {
-        setMessage(e.getMessage(), ERROR);
-        return false;
-      }
-    }
-  }
+				setMessage(null, NONE);
+				return true;
+			} catch (InvalidRHomeException e) {
+				setMessage(e.getMessage(), ERROR);
+				return false;
+			}
+		}
+	}
 }

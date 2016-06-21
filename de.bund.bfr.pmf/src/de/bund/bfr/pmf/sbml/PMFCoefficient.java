@@ -53,6 +53,8 @@ public interface PMFCoefficient {
   /** Returns the description of this {@link PMFCoefficient}. If not set return null. */
   public String getDescription();
 
+  public Boolean getIsStart();
+  
   /**
    * Sets the id value of this {@link PMFCoefficient} with 'id'. If 'id' is null or empty it will do
    * nothing.
@@ -88,6 +90,8 @@ public interface PMFCoefficient {
    * null or empty it will do nothing.
    */
   public void setDescription(final String description);
+  
+  public void setIsStart(final boolean isStart);
 
   /** Returns true if the P of this {@link PMFCoefficient} is set. */
   public boolean isSetP();
@@ -103,4 +107,6 @@ public interface PMFCoefficient {
 
   /** Returns true if the description of this {@link PMFCoefficient} is set. */
   public boolean isSetDescription();
+  
+  public boolean isSetIsStart();
 }

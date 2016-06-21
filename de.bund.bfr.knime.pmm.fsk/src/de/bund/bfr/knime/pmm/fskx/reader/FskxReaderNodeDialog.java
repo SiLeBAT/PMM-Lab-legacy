@@ -27,11 +27,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  *
  * @author Miguel de Alba
  */
-public class FskxReaderNodeDialog extends DefaultNodeSettingsPane {
+class FskxReaderNodeDialog extends DefaultNodeSettingsPane {
 
   protected FskxReaderNodeDialog() {
-    super();
-
     // Set model strings
     final SettingsModelString fileName =
         new SettingsModelString(FskxReaderNodeModel.CFGKEY_FILE, "");

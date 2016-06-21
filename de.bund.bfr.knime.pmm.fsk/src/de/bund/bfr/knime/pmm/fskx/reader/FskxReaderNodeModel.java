@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -41,6 +44,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
 import org.knime.ext.r.node.local.port.RPortObject;
+import org.rosuda.REngine.REXPMismatchException;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
@@ -48,6 +52,9 @@ import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
+import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
+import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
+import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
@@ -56,170 +63,182 @@ import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 
-public class FskxReaderNodeModel extends NodeModel {
+class FskxReaderNodeModel extends NodeModel {
 
-  // configuration keys
-  public static final String CFGKEY_FILE = "filename";
+	// configuration keys
+	static final String CFGKEY_FILE = "filename";
 
-  // defaults for persistent state
-  private static final String DEFAULT_FILE = "c:/temp/foo.numl";
+	// defaults for persistent state
+	private static final String DEFAULT_FILE = "c:/temp/foo.numl";
 
-  // defaults for persistent state
-  private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
+	// defaults for persistent state
+	private final SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
-  private static final PortType[] inPortTypes = {};
-  private static final PortType[] outPortTypes = {FskPortObject.TYPE, RPortObject.TYPE};
+	private static final PortType[] inPortTypes = {};
+	private static final PortType[] outPortTypes = { FskPortObject.TYPE, RPortObject.TYPE };
 
-  protected FskxReaderNodeModel() {
-    super(inPortTypes, outPortTypes);
-  }
+	protected FskxReaderNodeModel() {
+		super(inPortTypes, outPortTypes);
+	}
 
-  /**
-   * {@inheritDoc}
-   *
-   * @throws MissingValueError
-   */
-  @Override
-  protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-      throws CombineArchiveException, FileAccessException, MissingValueError {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws MissingValueError
+	 * @throws RException
+	 * @throws REXPMismatchException
+	 */
+	@Override
+	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
+			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException {
 
-    String model = "";
-    String param = "";
-    String viz = "";
-    FSMRTemplate template = new FSMRTemplateImpl();
-    File workspaceFile = null;
-    Set<File> libs = new HashSet<>();
+		String model = "";
+		String param = "";
+		String viz = "";
+		FSMRTemplate template = new FSMRTemplateImpl();
+		File workspaceFile = null;
+		Set<File> libs = new HashSet<>();
 
-    File archiveFile = new File(filename.getStringValue());
-    try (CombineArchive archive = new CombineArchive(archiveFile)) {
-      // Gets annotation
-      RMetaDataNode node = new RMetaDataNode(archive.getDescriptions().get(0).getXmlDescription());
+		File archiveFile = new File(filename.getStringValue());
+		try (CombineArchive archive = new CombineArchive(archiveFile)) {
+			// Gets annotation
+			RMetaDataNode node = new RMetaDataNode(archive.getDescriptions().get(0).getXmlDescription());
 
-      // Gets model script
-      if (node.getMainScript() != null) {
-        ArchiveEntry entry = archive.getEntry(node.getMainScript());
-        model = loadScriptFromEntry(entry);
-      }
+			// Gets model script
+			if (node.getMainScript() != null) {
+				ArchiveEntry entry = archive.getEntry(node.getMainScript());
+				model = loadScriptFromEntry(entry);
+			}
 
-      // Gets parameters script
-      if (node.getParametersScript() != null) {
-        ArchiveEntry entry = archive.getEntry(node.getParametersScript());
-        param = loadScriptFromEntry(entry);
-      }
+			// Gets parameters script
+			if (node.getParametersScript() != null) {
+				ArchiveEntry entry = archive.getEntry(node.getParametersScript());
+				param = loadScriptFromEntry(entry);
+			}
 
-      // Gets visualization script
-      if (node.getVisualizationScript() != null) {
-        ArchiveEntry entry = archive.getEntry(node.getVisualizationScript());
-        viz = loadScriptFromEntry(entry);
-      }
+			// Gets visualization script
+			if (node.getVisualizationScript() != null) {
+				ArchiveEntry entry = archive.getEntry(node.getVisualizationScript());
+				viz = loadScriptFromEntry(entry);
+			}
 
-      // Gets workspace file
-      if (node.getWorkspaceFile() != null) {
-        ArchiveEntry entry = archive.getEntry(node.getWorkspaceFile());
-        workspaceFile = FileUtil.createTempFile("workspace", ".r");
-        entry.extractFile(workspaceFile);
-      }
+			// Gets workspace file
+			if (node.getWorkspaceFile() != null) {
+				ArchiveEntry entry = archive.getEntry(node.getWorkspaceFile());
+				workspaceFile = FileUtil.createTempFile("workspace", ".r");
+				entry.extractFile(workspaceFile);
+			}
 
-      // Gets model meta data
-      URI pmfUri = URIFactory.createPMFURI();
-      if (archive.getNumEntriesWithFormat(pmfUri) == 1) {
-        ArchiveEntry entry = archive.getEntriesWithFormat(pmfUri).get(0);
-        File f = FileUtil.createTempFile("metaData", ".pmf");
-        entry.extractFile(f);
+			// Gets model meta data
+			URI pmfUri = URIFactory.createPMFURI();
+			if (archive.getNumEntriesWithFormat(pmfUri) == 1) {
+				ArchiveEntry entry = archive.getEntriesWithFormat(pmfUri).get(0);
+				File f = FileUtil.createTempFile("metaData", ".pmf");
+				entry.extractFile(f);
 
-        SBMLDocument doc = new SBMLReader().readSBML(f);
-        template = FSMRUtils.processPrevalenceModel(doc);
-      }
+				SBMLDocument doc = new SBMLReader().readSBML(f);
+				template = FSMRUtils.processPrevalenceModel(doc);
+			}
 
-      // Gets R libraries
-      URI zipUri = ZipUri.createURI();
+			// Gets R libraries
+			URI zipUri = ZipUri.createURI();
 
-      File libDir = FileUtil.createTempDir("libs");
-      for (ArchiveEntry entry : archive.getEntriesWithFormat(zipUri)) {
-        String libName = entry.getFileName();
-        // Create file
-        File f = new File(libDir, libName);
-        f.deleteOnExit();
-        // Extract library into f
-        entry.extractFile(f);
-        libs.add(f);
-      }
-    } catch (IOException | JDOMException | ParseException | XMLStreamException e) {
-      e.printStackTrace();
-    }
+			// Gets library names from the zip entries in the CombineArchive
+			List<String> libNames = archive.getEntriesWithFormat(zipUri).stream()
+					.map(entry -> entry.getFileName().split("\\_")[0]).collect(Collectors.toList());
 
-    FskPortObject fskObj = new FskPortObject(model, param, viz, template, workspaceFile, libs);
-    RPortObject rObj = new RPortObject(fskObj.getWorkspaceFile());
+			if (!libNames.isEmpty()) {
 
-    return new PortObject[] {fskObj, rObj};
-  }
+				LibRegistry libRegistry = LibRegistry.instance();
 
-  private String loadScriptFromEntry(final ArchiveEntry entry) throws IOException {
-    // Create temporary file with a random name. The name does not matter, since the file will be
-    // deleted by KNIME itself.
-    File f = FileUtil.createTempFile("script", ".r");
-    entry.extractFile(f);
+				// Filters missing libraries
+				List<String> missingLibs = new LinkedList<>();
+				for (String lib : libNames) {
+					if (!libRegistry.isInstalled(lib)) {
+						missingLibs.add(lib);
+					}
+				}
 
-    // Read script from f and return script
-    FileInputStream fis = new FileInputStream(f);
-    String script = IOUtils.toString(fis, "UTF-8");
-    fis.close();
+				if (!missingLibs.isEmpty()) {
+					libRegistry.installLibs(missingLibs);
+				}
 
-    return script;
-  }
+				// Converts and return set of Paths returned from plugin to set
+				// of Files
+				libs = libRegistry.getPaths(libNames).stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
+			}
 
-  /** {@inheritDoc} */
-  @Override
-  protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
-      throws InvalidSettingsException {
-    return new PortObjectSpec[] {null, null};
-  }
+		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
+			e.printStackTrace();
+		}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void saveSettingsTo(final NodeSettingsWO settings) {
-    filename.saveSettingsTo(settings);
-  }
+		FskPortObject fskObj = new FskPortObject(model, param, viz, template, workspaceFile, libs);
+		RPortObject rObj = new RPortObject(fskObj.getWorkspaceFile());
 
-  /** {@inheritDoc} */
-  @Override
-  protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-      throws InvalidSettingsException {
-    filename.loadSettingsFrom(settings);
-  }
+		return new PortObject[] { fskObj, rObj };
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-    filename.validateSettings(settings);
-  }
+	private String loadScriptFromEntry(final ArchiveEntry entry) throws IOException {
+		// Create temporary file with a random name. The name does not matter,
+		// since the file will be
+		// deleted by KNIME itself.
+		File f = FileUtil.createTempFile("script", ".r");
+		entry.extractFile(f);
 
-  /** {@inheritDoc} */
-  @Override
-  protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-    // nothing
-  }
+		// Read script from f and return script
+		FileInputStream fis = new FileInputStream(f);
+		String script = IOUtils.toString(fis, "UTF-8");
+		fis.close();
 
-  /** {@inheritDoc} */
-  @Override
-  protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-    // nothing
-  }
+		return script;
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void reset() {
-    // does nothing
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { null, null };
+	}
 
-  class FileAccessException extends Exception {
+	/** {@inheritDoc} */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		filename.saveSettingsTo(settings);
+	}
 
-    private static final long serialVersionUID = 1L;
+	/** {@inheritDoc} */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		filename.loadSettingsFrom(settings);
+	}
 
-    public FileAccessException(final String descr) {
-      super(descr);
-    }
-  }
+	/** {@inheritDoc} */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+		filename.validateSettings(settings);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// nothing
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// nothing
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected void reset() {
+		// does nothing
+	}
+
+	private class FileAccessException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+	}
 }

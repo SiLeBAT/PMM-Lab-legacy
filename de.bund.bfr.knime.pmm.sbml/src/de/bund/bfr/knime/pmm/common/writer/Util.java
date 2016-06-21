@@ -48,6 +48,7 @@ public class Util {
 		Double P = paramXml.getP();
 		Double error = paramXml.getError();
 		Double t = paramXml.getT();
+		Boolean isStart = paramXml.isStartParam();
 
 		Map<String, Double> correlationMap = paramXml.getAllCorrelations();
 		Correlation[] correlations = new Correlation[correlationMap.size()];
@@ -64,7 +65,7 @@ public class Util {
 		String desc = paramXml.getDescription();
 
 		PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(name, value, unit, P, error, t, correlations,
-				desc);
+				desc, isStart);
 		return coefficient;
 	}
 

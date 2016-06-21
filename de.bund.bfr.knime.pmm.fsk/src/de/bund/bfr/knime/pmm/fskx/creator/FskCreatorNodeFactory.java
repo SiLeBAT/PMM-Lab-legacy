@@ -1,3 +1,4 @@
+package de.bund.bfr.knime.pmm.fskx.creator;
 /***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
@@ -14,12 +15,41 @@
  *
  * Contributors: Department Biological Safety - BfR
  **************************************************************************************************/
-package de.bund.bfr.knime.pmm.fskx;
 
-/**
- * @author Miguel Alba
- *
- */
-public class MissingValueError extends Exception {
-  private static final long serialVersionUID = 4475779784977781461L;
+
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
+
+public class FskCreatorNodeFactory extends NodeFactory<FskCreatorNodeModel> {
+  
+  /** {@inheritDoc} */
+  @Override
+  public FskCreatorNodeModel createNodeModel() {
+    return new FskCreatorNodeModel();
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public int getNrNodeViews() {
+    return 0;
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public NodeView<FskCreatorNodeModel> createNodeView(final int viewIndex, final FskCreatorNodeModel nodeModel) {
+    return null;
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public boolean hasDialog() {
+    return true;
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public NodeDialogPane createNodeDialogPane() {
+    return new FskCreatorNodeDialog();
+  }
 }

@@ -55,7 +55,6 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.knime.core.node.NodeLogger;
 
-import de.bund.bfr.knime.pmm.fskx.rsnippet.RSnippet;
 import de.bund.bfr.knime.pmm.fskx.rsnippet.RSnippetDocument;
 
 /**
@@ -68,17 +67,13 @@ public class RSnippetTextArea extends RSyntaxTextArea {
 
   private static final NodeLogger LOGGER = NodeLogger.getLogger(RSnippetTextArea.class);
 
-  /**
-   * Create a new component.
-   * 
-   * @param snippet the snippet.
-   */
-  public RSnippetTextArea(final RSnippet snippet) {
+  /** Create a new component. */
+  public RSnippetTextArea() {
 
     // initial text != null causes a NullPointerException
     super(new RSnippetDocument(), null, 20, 60);
 
-    setDocument(snippet.getDocument());
+    setDocument(new RSnippetDocument());
     try {
       applySyntaxColors();
     } catch (Exception e) {

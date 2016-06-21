@@ -29,9 +29,9 @@ import com.google.common.io.Files;
 
 public class RScript {
 
-  private String script;
-  private List<String> libraries = new LinkedList<>();
-  private List<String> sources = new LinkedList<>();
+  private final String script;
+  private final List<String> libraries = new LinkedList<>();
+  private final List<String> sources = new LinkedList<>();
 
   /**
    * Process R script.
@@ -40,10 +40,10 @@ public class RScript {
    * @throws IOException if the file specified by path cannot be read.
    */
   public RScript(final File file) throws IOException {
-    script = Files.toString(file, Charsets.UTF_8); // throws IOException
+	  String fileContents = Files.toString(file, Charsets.UTF_8); // throws IOException
 
     // If no errors are thrown, proceed to extract libraries and sources
-    final String[] lines = script.split("\\r?\\n");
+    final String[] lines = fileContents.split("\\r?\\n");
 
     final Pattern libPattern = Pattern.compile("^\\s*\\b(library|require)\\((\"?.+\"?)\\)");
     final Pattern srcPattern = Pattern.compile("^\\s*\\b(source)\\((\"?.+\"?)\\)");

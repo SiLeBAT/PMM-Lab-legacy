@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.pmm.js.modelplotter.modern;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -855,11 +856,188 @@ public final class ModelPlotterNodeModel
 
 
 	private List<JsM2Schema> codeM2Schema(List<KnimeTuple> tuples) {
-		return new ArrayList<JsM2Schema>();
+		List<JsM2Schema> schemas = new ArrayList<>(tuples.size());
+
+		for (KnimeTuple tuple : tuples) {
+
+			JsM2Schema schema = new JsM2Schema();
+
+			// Catalog model
+			PmmXmlDoc catalogModelDoc = tuple
+					.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+			if (catalogModelDoc.size() > 0) {
+				CatalogModelXml catalogModelXml = (CatalogModelXml) catalogModelDoc
+						.get(0);
+				schema.setCatalogModel(CatalogModel
+						.toCatalogModel(catalogModelXml));
+			}
+
+			// Estimated model
+			PmmXmlDoc estModelDoc = tuple.getPmmXml(Model2Schema.ATT_ESTMODEL);
+			if (estModelDoc.size() > 0) {
+				EstModelXml estModelXml = (EstModelXml) estModelDoc.get(0);
+				schema.setEstModel(EstModel.toEstModel(estModelXml));
+			}
+
+			// Dependent variable
+			PmmXmlDoc depDoc = tuple.getPmmXml(Model2Schema.ATT_DEPENDENT);
+			if (depDoc.size() > 0) {
+				DepXml depXml = (DepXml) depDoc.get(0);
+				schema.setDep(Dep.toDep(depXml));
+			}
+
+			// Parameters
+			PmmXmlDoc paramDoc = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
+			if (paramDoc.size() > 0) {
+				Param[] paramArray = new Param[paramDoc.size()];
+				for (int i = 0; i < paramDoc.size(); i++) {
+					ParamXml paramXml = (ParamXml) paramDoc.get(i);
+					paramArray[i] = Param.toParam(paramXml);
+				}
+
+				ParamList paramList = new ParamList();
+				paramList.setParams(paramArray);
+				schema.setParamList(paramList);
+			}
+
+			// Independent variables
+			PmmXmlDoc indepDoc = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+			if (indepDoc.size() > 0) {
+				Indep[] indepArray = new Indep[indepDoc.size()];
+				for (int i = 0; i < indepDoc.size(); i++) {
+					IndepXml indepXml = (IndepXml) indepDoc.get(i);
+					indepArray[i] = Indep.toIndep(indepXml);
+				}
+
+				IndepList indepList = new IndepList();
+				indepList.setIndeps(indepArray);
+				schema.setIndepList(indepList);
+			}
+
+			// Model literature
+			PmmXmlDoc mLitDoc = tuple.getPmmXml(Model2Schema.ATT_MLIT);
+			if (mLitDoc.size() > 0) {
+				Literature[] litArray = new Literature[mLitDoc.size()];
+				for (int i = 0; i < mLitDoc.size(); i++) {
+					LiteratureItem literatureItem = (LiteratureItem) mLitDoc
+							.get(i);
+					litArray[i] = Literature.toLiterature(literatureItem);
+				}
+
+				LiteratureList litList = new LiteratureList();
+				litList.setLiterature(litArray);
+				schema.setmLit(litList);
+			}
+
+			// Estimated model literature
+			PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
+			if (emLitDoc.size() > 0) {
+				Literature[] litArray = new Literature[emLitDoc.size()];
+				for (int i = 0; i < emLitDoc.size(); i++) {
+					LiteratureItem literatureItem = (LiteratureItem) emLitDoc
+							.get(i);
+					litArray[i] = Literature.toLiterature(literatureItem);
+				}
+
+				LiteratureList litList = new LiteratureList();
+				litList.setLiterature(litArray);
+				schema.setEmLit(litList);
+			}
+
+			// db writable
+			Integer dbWritableFromTuple = tuple
+					.getInt(Model2Schema.ATT_DATABASEWRITABLE);
+			if (dbWritableFromTuple == null) {
+				schema.setDatabaseWritable(false);
+			} else {
+				schema.setDatabaseWritable(Model2Schema.WRITABLE == dbWritableFromTuple);
+			}
+
+			schema.setDbuuid(generateDbuuid(tuple));
+
+			// global model id
+			Integer gidFromTuple = tuple
+					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			if (gidFromTuple != null) {
+				schema.setGlobalModelId(gidFromTuple);
+			}
+
+			schemas.add(schema);
+		}
+
+		return schemas;
 	}
 	
 	private List<KnimeTuple> decodeM2Schemas(List<JsM2Schema> schemas) {
-		return new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples = new ArrayList<>(schemas.size());
+
+		KnimeSchema knimeSchema = SchemaFactory.createM2Schema();
+
+		for (JsM2Schema schema : schemas) {
+
+			KnimeTuple tuple = new KnimeTuple(knimeSchema);
+
+			// Model catalog
+			PmmXmlDoc catalogModelDoc = new PmmXmlDoc();
+			if (schema.getCatalogModel() != null) {
+				catalogModelDoc.add(schema.getCatalogModel()
+						.toCatalogModelXml());
+			}
+			tuple.setValue(Model2Schema.ATT_MODELCATALOG, catalogModelDoc);
+
+			// Estimated model
+			PmmXmlDoc estModelDoc = new PmmXmlDoc();
+			if (schema.getEstModel() != null) {
+				estModelDoc.add(schema.getEstModel().toEstModelXml());
+			}
+			tuple.setValue(Model2Schema.ATT_ESTMODEL, estModelDoc);
+
+			// Dependent variable
+			PmmXmlDoc depDoc = new PmmXmlDoc();
+			if (schema.getDep() != null) {
+				depDoc.add(schema.getDep().toDepXml());
+			}
+			tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
+
+			// Independent variable
+			PmmXmlDoc indepDoc = new PmmXmlDoc();
+			Arrays.stream(schema.getIndepList().getIndeps())
+					.map(Indep::toIndepXml).forEach(indepDoc::add);
+			tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepDoc);
+
+			// Model literature
+			PmmXmlDoc mLitDoc = new PmmXmlDoc();
+			Arrays.stream(schema.getmLit().getLiterature())
+					.map(Literature::toLiteratureItem).forEach(mLitDoc::add);
+			tuple.setValue(Model2Schema.ATT_MLIT, mLitDoc);
+
+			// Estimated model literature
+			PmmXmlDoc emLitDoc = new PmmXmlDoc();
+			Arrays.stream(schema.getEmLit().getLiterature())
+					.map(Literature::toLiteratureItem).forEach(emLitDoc::add);
+
+			// Database writable
+			Boolean dbWritableFromSchema = schema.getDatabaseWritable();
+			if (dbWritableFromSchema == null) {
+				tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, 0);
+			} else {
+				int dbWritable = dbWritableFromSchema ? 1 : 0;
+				tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, dbWritable);
+			}
+
+			// dbuuid
+			tuple.setValue(Model2Schema.ATT_DBUUID, schema.getDbuuid());
+
+			// global model id
+			if (schema.getGlobalModelId() != null) {
+				tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
+						schema.getGlobalModelId());
+			}
+			
+			tuples.add(tuple);
+		}
+		
+		return tuples;
 	}
 	
 	private List<KnimeTuple> decodeM1DataSchemas(List<JsM1DataSchema> schemas) {

@@ -13,11 +13,11 @@ import org.sbml.jsbml.ext.comp.ModelDefinition;
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.file.OneStepSecondaryModelFile;
-import de.bund.bfr.pmf.model.OneStepSecondaryModel;
-import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.file.OneStepSecondaryModelFile;
+import de.bund.bfr.pmfml.model.OneStepSecondaryModel;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
 
 public class OneStepSecondaryModelReader implements Reader {
 

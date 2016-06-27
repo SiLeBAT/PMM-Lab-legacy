@@ -4,8 +4,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
+import de.bund.bfr.openfsmr.FSMRTemplate;
 
 /**
  * Settings of the FSKX editor node. Holds:

@@ -11,10 +11,10 @@ import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.file.PrimaryModelWODataFile;
-import de.bund.bfr.pmf.model.PrimaryModelWOData;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.file.PrimaryModelWODataFile;
+import de.bund.bfr.pmfml.model.PrimaryModelWOData;
 
 public class PrimaryModelWODataReader implements Reader {
 

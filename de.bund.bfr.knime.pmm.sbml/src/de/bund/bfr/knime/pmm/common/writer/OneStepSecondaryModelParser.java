@@ -18,12 +18,12 @@ import org.sbml.jsbml.xml.XMLNode;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.pmf.PMFUtil;
-import de.bund.bfr.pmf.file.OneStepSecondaryModelFile;
-import de.bund.bfr.pmf.model.OneStepSecondaryModel;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.sbml.DataSourceNode;
-import de.bund.bfr.pmf.sbml.Metadata;
+import de.bund.bfr.pmfml.PMFUtil;
+import de.bund.bfr.pmfml.file.OneStepSecondaryModelFile;
+import de.bund.bfr.pmfml.model.OneStepSecondaryModel;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.sbml.DataSourceNode;
+import de.bund.bfr.pmfml.sbml.Metadata;
 
 /**
  * Parse tuples from a table with primary models without data.

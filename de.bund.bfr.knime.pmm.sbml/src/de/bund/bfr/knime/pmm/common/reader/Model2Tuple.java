@@ -28,17 +28,17 @@ import de.bund.bfr.knime.pmm.extendedtable.items.Model2AgentXml;
 import de.bund.bfr.knime.pmm.extendedtable.items.Model2MatrixXml;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.pmf.sbml.Correlation;
-import de.bund.bfr.pmf.sbml.Limits;
-import de.bund.bfr.pmf.sbml.Model2Annotation;
-import de.bund.bfr.pmf.sbml.ModelRule;
-import de.bund.bfr.pmf.sbml.PMFCoefficient;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
-import de.bund.bfr.pmf.sbml.SecDep;
-import de.bund.bfr.pmf.sbml.SecIndep;
+import de.bund.bfr.pmfml.sbml.Correlation;
+import de.bund.bfr.pmfml.sbml.Limits;
+import de.bund.bfr.pmfml.sbml.Model2Annotation;
+import de.bund.bfr.pmfml.sbml.ModelRule;
+import de.bund.bfr.pmfml.sbml.PMFCoefficient;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
+import de.bund.bfr.pmfml.sbml.SecDep;
+import de.bund.bfr.pmfml.sbml.SecIndep;
 
 public class Model2Tuple {
 

@@ -12,11 +12,10 @@ import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
-import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.file.OneStepTertiaryModelFile;
-import de.bund.bfr.pmf.model.OneStepTertiaryModel;
-import de.bund.bfr.pmf.numl.NuMLDocument;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.file.OneStepTertiaryModelFile;
+import de.bund.bfr.pmfml.model.OneStepTertiaryModel;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
 
 public class OneStepTertiaryModelReader implements Reader {
 
@@ -49,7 +48,7 @@ public class OneStepTertiaryModelReader implements Reader {
 		KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
 
 		// Creates container with 'fsmrTuple'
-		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		DataTableSpec fsmrSpec = new de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema().createSpec();
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
 		fsmrContainer.addRowToTable(fsmrTuple);
 		fsmrContainer.close();

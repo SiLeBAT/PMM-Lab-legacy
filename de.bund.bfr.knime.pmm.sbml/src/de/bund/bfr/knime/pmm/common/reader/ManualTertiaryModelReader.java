@@ -15,10 +15,10 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.file.ManualTertiaryModelFile;
-import de.bund.bfr.pmf.model.ManualTertiaryModel;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.file.ManualTertiaryModelFile;
+import de.bund.bfr.pmfml.model.ManualTertiaryModel;
 
 public class ManualTertiaryModelReader implements Reader {
 

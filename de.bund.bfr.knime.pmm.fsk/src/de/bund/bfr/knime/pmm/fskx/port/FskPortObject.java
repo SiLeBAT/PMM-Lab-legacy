@@ -52,11 +52,10 @@ import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
-import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.openfsmr.FSMRTemplateImpl;
 
 /**
  * A port object for an FSK model port providing R scripts and model meta data.

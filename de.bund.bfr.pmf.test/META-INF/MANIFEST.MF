@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: PMF Test
-Bundle-SymbolicName: de.bund.bfr.pmf.test
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: de.bund.bfr.pmf,
- org.junit;bundle-version="4.0.0"

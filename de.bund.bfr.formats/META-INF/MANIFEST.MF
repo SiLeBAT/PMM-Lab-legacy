@@ -24,5 +24,6 @@ Export-Package: de.bund.bfr.openfsmr,
  org.sbml.jsbml,
  org.sbml.jsbml.ext.comp,
  org.sbml.jsbml.text.parser,
+ org.sbml.jsbml.util.filters,
  org.sbml.jsbml.xml,
  org.sbml.jsbml.xml.stax

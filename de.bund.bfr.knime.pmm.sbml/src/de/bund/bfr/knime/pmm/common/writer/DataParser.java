@@ -49,7 +49,7 @@ public class DataParser {
 		String concUnit = aPoint.getConcentrationUnit();
 		PMFUnitDefinition concUnitDef = null;
 		try {
-			concUnitDef = Util.createUnitFromDB(concUnit);
+			concUnitDef = WriterUtils.createUnitFromDB(concUnit);
 		} catch (XMLStreamException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -58,7 +58,7 @@ public class DataParser {
 		String timeUnit = aPoint.getTimeUnit();
 		PMFUnitDefinition timeUnitDef = null;
 		try {
-			timeUnitDef = Util.createUnitFromDB(timeUnit);
+			timeUnitDef = WriterUtils.createUnitFromDB(timeUnit);
 		} catch (XMLStreamException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,16 +67,16 @@ public class DataParser {
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
 
 		PmmXmlDoc miscDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-		PMFCompartment compartment = Util.matrixXml2Compartment(matrixXml, miscDoc);
+		PMFCompartment compartment = WriterUtils.matrixXml2Compartment(matrixXml, miscDoc);
 
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
-		PMFSpecies species = Util.createSpecies(agentXml, concUnit, compartment.getId());
+		PMFSpecies species = WriterUtils.createSpecies(agentXml, concUnit, compartment.getId());
 
 		// Gets microbial data literature
 		PmmXmlDoc mdLitDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
 		Reference[] refs = new ReferenceImpl[mdLitDoc.size()];
 		for (int i = 0; i < mdLitDoc.size(); i++) {
-			refs[i] = Util.literatureItem2Reference((LiteratureItem) mdLitDoc.get(i));
+			refs[i] = WriterUtils.literatureItem2Reference((LiteratureItem) mdLitDoc.get(i));
 		}
 
 		// Creates time ontology

@@ -76,17 +76,17 @@ public class Model2Parser {
 		// Gets model references
 		Reference[] mLits = new Reference[mLitDoc.size()];
 		for (int i = 0; i < mLitDoc.size(); i++) {
-			mLits[i] = Util.literatureItem2Reference((LiteratureItem) mLitDoc.get(i));
+			mLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) mLitDoc.get(i));
 		}
 
 		// Gets estimated model references
 		Reference[] emLits = new Reference[emLitDoc.size()];
 		for (int i = 0; i < emLitDoc.size(); i++) {
-			emLits[i] = Util.literatureItem2Reference((LiteratureItem) emLitDoc.get(i));
+			emLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) emLitDoc.get(i));
 		}
 
 		// Adds model annotation
-		Uncertainties uncertainties = Util.estModel2Uncertainties(estModel);
+		Uncertainties uncertainties = WriterUtils.estModel2Uncertainties(estModel);
 		model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
 
 		// Gets independent parameters
@@ -125,7 +125,7 @@ public class Model2Parser {
 		// Adds constant parameters
 		for (ParamXml paramXml : constXmls) {
 			// Creates SBML parameter
-			PMFCoefficient coefficient = Util.paramXml2Coefficient(paramXml);
+			PMFCoefficient coefficient = WriterUtils.paramXml2Coefficient(paramXml);
 			model.addParameter(coefficient.getParameter());
 
 			// Adds constraint
@@ -144,7 +144,7 @@ public class Model2Parser {
 		}
 
 		// Creates rule of the model and adds it to the rest of rules
-		ModelRule rule = Util.createM2Rule(catModel, mLits);
+		ModelRule rule = WriterUtils.createM2Rule(catModel, mLits);
 		model.addRule(rule.getRule());
 	}
 

@@ -119,7 +119,7 @@ public class TableReader {
 		// Missing units in DB will not be retrievable and thus will lack a list
 		// of units
 		for (String unit : units) {
-			PMFUnitDefinition unitDefinition = Util.createUnitFromDB(unit);
+			PMFUnitDefinition unitDefinition = WriterUtils.createUnitFromDB(unit);
 			if (unitDefinition == null) {
 				UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
 				ud.setName(unit);

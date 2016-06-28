@@ -55,7 +55,7 @@ import org.sbml.jsbml.xml.stax.SBMLWriter;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
-import de.bund.bfr.knime.pmm.common.writer.Util;
+import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
@@ -302,7 +302,7 @@ class FskxWriterNodeModel extends NodeModel {
     }
     for (String unit : unitsSet) {
       try {
-        PMFUnitDefinition unitDef = Util.createUnitFromDB(unit);
+        PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
 
         // unitDef is not in PmmLab DB
         if (unitDef == null) {

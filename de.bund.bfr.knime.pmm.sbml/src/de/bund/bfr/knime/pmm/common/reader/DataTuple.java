@@ -29,7 +29,6 @@ import de.bund.bfr.pmfml.sbml.ModelVariable;
 import de.bund.bfr.pmfml.sbml.PMFCompartment;
 import de.bund.bfr.pmfml.sbml.PMFSpecies;
 import de.bund.bfr.pmfml.sbml.Reference;
-import de.bund.bfr.pmfml.sbml.ReferenceType;
 import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class DataTuple {
@@ -82,7 +81,7 @@ public class DataTuple {
 			Tuple tuple = dimensions[i];
 			data[i] = new double[] { tuple.getConcValue().getValue(), tuple.getTimeValue().getValue() };
 		}
-		PmmXmlDoc mdData = Util.createTimeSeries(timeUnit, concUnit, concUnitObjectType, data);
+		PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, data);
 
 		// Gets model variables
 		ModelVariable[] modelVariables = compartment.getModelVariables();
@@ -94,7 +93,7 @@ public class DataTuple {
 	        for (ModelVariable modelVariable : modelVariables) {
 	            miscs.put(modelVariable.getName(), modelVariable.getValue());
 	        }
-	        miscDoc = Util.parseMiscs(miscs);  
+	        miscDoc = ReaderUtils.parseMiscs(miscs);  
 		}
 
 		// Creates empty model info
@@ -172,7 +171,7 @@ public class DataTuple {
 			for (ModelVariable modelVariable : compartment.getModelVariables()) {
 				miscs.put(modelVariable.getName(), modelVariable.getValue());
 			}
-			miscCell = Util.parseMiscs(miscs);
+			miscCell = ReaderUtils.parseMiscs(miscs);
 		}
 
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);

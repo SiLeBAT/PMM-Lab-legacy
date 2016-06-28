@@ -47,11 +47,11 @@ public class Model2Tuple {
 
 	public Model2Tuple(Model model) {
 
-		Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
+		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
 		// Parses rule
 		ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = Util.model2Rule2CatModel(rule);
+		CatalogModelXml catModel = ReaderUtils.model2Rule2CatModel(rule);
 
 		// Parses dep
 		String depName = rule.getRule().getVariable();
@@ -97,7 +97,7 @@ public class Model2Tuple {
 		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
-		EstModelXml estModel = Util.uncertainties2EstModel(m2Annot.getUncertainties());
+		EstModelXml estModel = ReaderUtils.uncertainties2EstModel(m2Annot.getUncertainties());
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}

@@ -51,10 +51,10 @@ public class Model1Tuple {
     Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
     ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-    CatalogModelXml catModel = Util.model1Rule2CatModel(rule);
+    CatalogModelXml catModel = ReaderUtils.model1Rule2CatModel(rule);
 
     // Parse constraints
-    Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
+    Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
     PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
 
@@ -149,7 +149,7 @@ public class Model1Tuple {
       paramCell.add(paramXml);
     }
 
-    EstModelXml estModel = Util.uncertainties2EstModel(m1Annot.getUncertainties());
+    EstModelXml estModel = ReaderUtils.uncertainties2EstModel(m1Annot.getUncertainties());
     if (model.isSetName()) {
       estModel.setName(model.getName());
     }

@@ -27,15 +27,15 @@ import de.bund.bfr.knime.pmm.extendedtable.items.Model1AgentXml;
 import de.bund.bfr.knime.pmm.extendedtable.items.Model1MatrixXml;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.pmf.sbml.Correlation;
-import de.bund.bfr.pmf.sbml.Limits;
-import de.bund.bfr.pmf.sbml.Model1Annotation;
-import de.bund.bfr.pmf.sbml.ModelRule;
-import de.bund.bfr.pmf.sbml.PMFCoefficient;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.pmfml.sbml.Correlation;
+import de.bund.bfr.pmfml.sbml.Limits;
+import de.bund.bfr.pmfml.sbml.Model1Annotation;
+import de.bund.bfr.pmfml.sbml.ModelRule;
+import de.bund.bfr.pmfml.sbml.PMFCoefficient;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class Model1Tuple {
 
@@ -51,10 +51,10 @@ public class Model1Tuple {
     Model1Annotation m1Annot = new Model1Annotation(model.getAnnotation());
 
     ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-    CatalogModelXml catModel = Util.model1Rule2CatModel(rule);
+    CatalogModelXml catModel = ReaderUtils.model1Rule2CatModel(rule);
 
     // Parse constraints
-    Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
+    Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
     PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
 
@@ -149,7 +149,7 @@ public class Model1Tuple {
       paramCell.add(paramXml);
     }
 
-    EstModelXml estModel = Util.uncertainties2EstModel(m1Annot.getUncertainties());
+    EstModelXml estModel = ReaderUtils.uncertainties2EstModel(m1Annot.getUncertainties());
     if (model.isSetName()) {
       estModel.setName(model.getName());
     }

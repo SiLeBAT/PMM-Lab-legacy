@@ -9,21 +9,21 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmf.ModelType;
-import de.bund.bfr.pmf.numl.AtomicDescription;
-import de.bund.bfr.pmf.numl.AtomicValue;
-import de.bund.bfr.pmf.numl.ConcentrationOntology;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.ResultComponent;
-import de.bund.bfr.pmf.numl.TimeOntology;
-import de.bund.bfr.pmf.numl.Tuple;
-import de.bund.bfr.pmf.numl.TupleDescription;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.ReferenceImpl;
+import de.bund.bfr.pmfml.ModelType;
+import de.bund.bfr.pmfml.numl.AtomicDescription;
+import de.bund.bfr.pmfml.numl.AtomicValue;
+import de.bund.bfr.pmfml.numl.ConcentrationOntology;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.numl.ResultComponent;
+import de.bund.bfr.pmfml.numl.TimeOntology;
+import de.bund.bfr.pmfml.numl.Tuple;
+import de.bund.bfr.pmfml.numl.TupleDescription;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.ReferenceImpl;
 
 public class DataParser {
 	private NuMLDocument numlDocument;
@@ -49,7 +49,7 @@ public class DataParser {
 		String concUnit = aPoint.getConcentrationUnit();
 		PMFUnitDefinition concUnitDef = null;
 		try {
-			concUnitDef = Util.createUnitFromDB(concUnit);
+			concUnitDef = WriterUtils.createUnitFromDB(concUnit);
 		} catch (XMLStreamException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -58,7 +58,7 @@ public class DataParser {
 		String timeUnit = aPoint.getTimeUnit();
 		PMFUnitDefinition timeUnitDef = null;
 		try {
-			timeUnitDef = Util.createUnitFromDB(timeUnit);
+			timeUnitDef = WriterUtils.createUnitFromDB(timeUnit);
 		} catch (XMLStreamException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,16 +67,16 @@ public class DataParser {
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
 
 		PmmXmlDoc miscDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-		PMFCompartment compartment = Util.matrixXml2Compartment(matrixXml, miscDoc);
+		PMFCompartment compartment = WriterUtils.matrixXml2Compartment(matrixXml, miscDoc);
 
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
-		PMFSpecies species = Util.createSpecies(agentXml, concUnit, compartment.getId());
+		PMFSpecies species = WriterUtils.createSpecies(agentXml, concUnit, compartment.getId());
 
 		// Gets microbial data literature
 		PmmXmlDoc mdLitDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
 		Reference[] refs = new ReferenceImpl[mdLitDoc.size()];
 		for (int i = 0; i < mdLitDoc.size(); i++) {
-			refs[i] = Util.literatureItem2Reference((LiteratureItem) mdLitDoc.get(i));
+			refs[i] = WriterUtils.literatureItem2Reference((LiteratureItem) mdLitDoc.get(i));
 		}
 
 		// Creates time ontology

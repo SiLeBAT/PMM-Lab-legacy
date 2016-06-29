@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,7 +55,7 @@ import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.openfsmr.FSMRTemplate;
 
 class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
@@ -99,15 +98,15 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 		// nothing
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 		// nothing
 	}
 
@@ -198,12 +197,13 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		}
 
 		// Reads R libraries
-		Set<File> libs;
-		try {
-			libs = collectLibs().stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
-		} catch (RException | REXPMismatchException e) {
-			LOGGER.error(e.getMessage());
-			libs = new HashSet<>();
+		Set<File> libs = new HashSet<>();
+		if (m_selectedLibs.getStringArrayValue() != null && m_selectedLibs.getStringArrayValue().length > 0) {
+			try {
+				collectLibs().stream().map(Path::toFile).forEach(libs::add);
+			} catch (RException | REXPMismatchException e) {
+				LOGGER.error(e.getMessage());
+			}
 		}
 
 		return new PortObject[] { new FskPortObject(model, param, viz, template, null, libs) };
@@ -240,9 +240,8 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 		// path is not null or whitespace, thus try to read it
 		try {
-			RScript script = new RScript(KnimeUtils.getFile(trimmedPath)); // may
-																			// throw
-																			// IOException
+			// may throw IOException
+			RScript script = new RScript(KnimeUtils.getFile(trimmedPath));
 			return script;
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
@@ -257,17 +256,13 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 		LibRegistry libRegistry = LibRegistry.instance();
 		// Out of all the libraries name only install those missing
-		List<String> missingLibs = new LinkedList<>();
-		for (String lib : libNames) {
-			if (!libRegistry.isInstalled(lib)) {
-				missingLibs.add(lib);
-			}
-		}
+		List<String> missingLibs = libNames.stream().filter(lib -> !libRegistry.isInstalled(lib))
+				.collect(Collectors.toList());
 
 		if (!missingLibs.isEmpty()) {
 			libRegistry.installLibs(missingLibs);
 		}
-		
+
 		return libRegistry.getPaths(libNames);
 	}
 }

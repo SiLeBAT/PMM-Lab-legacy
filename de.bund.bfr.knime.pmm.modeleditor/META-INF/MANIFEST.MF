@@ -22,7 +22,6 @@ Export-Package: de.bund.bfr.knime.pmm,
  de.bund.bfr.knime.pmm.js.common.schema
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: de.bund.bfr.knime.pmm.dbutil,
- de.bund.bfr.pmf,
  org.apache.commons.lang.builder,
  org.junit;version="4.12.0",
  org.junit.runner,

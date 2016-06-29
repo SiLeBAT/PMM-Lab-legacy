@@ -22,15 +22,14 @@ import de.bund.bfr.knime.pmm.extendedtable.items.MDLiteratureItem;
 import de.bund.bfr.knime.pmm.extendedtable.items.MDMatrixXml;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.Tuple;
-import de.bund.bfr.pmf.sbml.Model1Annotation;
-import de.bund.bfr.pmf.sbml.ModelVariable;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.ReferenceType;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.numl.Tuple;
+import de.bund.bfr.pmfml.sbml.Model1Annotation;
+import de.bund.bfr.pmfml.sbml.ModelVariable;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class DataTuple {
 
@@ -82,15 +81,20 @@ public class DataTuple {
 			Tuple tuple = dimensions[i];
 			data[i] = new double[] { tuple.getConcValue().getValue(), tuple.getTimeValue().getValue() };
 		}
-		PmmXmlDoc mdData = Util.createTimeSeries(timeUnit, concUnit, concUnitObjectType, data);
+		PmmXmlDoc mdData = ReaderUtils.createTimeSeries(timeUnit, concUnit, concUnitObjectType, data);
 
 		// Gets model variables
 		ModelVariable[] modelVariables = compartment.getModelVariables();
-		Map<String, Double> miscs = new HashMap<>(modelVariables.length);
-		for (ModelVariable modelVariable : modelVariables) {
-			miscs.put(modelVariable.getName(), modelVariable.getValue());
+		PmmXmlDoc miscDoc;
+		if (modelVariables == null) {
+		  miscDoc = new PmmXmlDoc();
+		} else {
+		  Map<String, Double> miscs = new HashMap<>(modelVariables.length);
+	        for (ModelVariable modelVariable : modelVariables) {
+	            miscs.put(modelVariable.getName(), modelVariable.getValue());
+	        }
+	        miscDoc = ReaderUtils.parseMiscs(miscs);  
 		}
-		PmmXmlDoc miscDoc = Util.parseMiscs(miscs);
 
 		// Creates empty model info
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
@@ -102,25 +106,25 @@ public class DataTuple {
 		// Gets literature items
 		PmmXmlDoc litDoc = new PmmXmlDoc();
 		for (Reference reference : doc.getResultComponent().getReferences()) {
-			String author = (reference.isSetAuthor()) ? reference.getAuthor() : null;
-			Integer year = (reference.isSetYear()) ? reference.getYear() : null;
-			String title = (reference.isSetTitle()) ? reference.getTitle() : null;
-			String abstractText = (reference.isSetAbstractText()) ? reference.getAbstractText() : null;
-			String journal = (reference.isSetJournal()) ? reference.getJournal() : null;
-			String volume = (reference.isSetVolume()) ? reference.getVolume() : null;
-			String issue = (reference.isSetIssue()) ? reference.getIssue() : null;
-			Integer page = (reference.isSetPage()) ? reference.getPage() : null;
-			Integer approvalMode = (reference.isSetApprovalMode()) ? reference.getApprovalMode() : null;
-			String website = (reference.isSetWebsite()) ? reference.getWebsite() : null;
-			ReferenceType type = (reference.isSetType()) ? reference.getType() : null;
-			String comment = (reference.isSetComment()) ? reference.getComment() : null;
+			String author = reference.isSetAuthor() ? reference.getAuthor() : null;
+			Integer year = reference.isSetYear() ? reference.getYear() : null;
+			String title = reference.isSetTitle() ? reference.getTitle() : null;
+			String abstractText = reference.isSetAbstractText() ? reference.getAbstractText() : null;
+			String journal = reference.isSetJournal() ? reference.getJournal() : null;
+			String volume = reference.isSetVolume() ? reference.getVolume() : null;
+			String issue = reference.isSetIssue() ? reference.getIssue() : null;
+			Integer page = reference.isSetPage() ? reference.getPage() : null;
+			Integer approvalMode = reference.isSetApprovalMode() ? reference.getApprovalMode() : null;
+			String website = reference.isSetWebsite() ? reference.getWebsite() : null;
+			int typeValue = reference.isSetType() ? reference.getType().value() : 0;
+			String comment = reference.isSetComment() ? reference.getComment() : null;
 
 			LiteratureItem lit = new LiteratureItem(author, year, title, abstractText, journal, volume, issue, page,
-					approvalMode, website, type.value(), comment);
+					approvalMode, website, typeValue, comment);
 			litDoc.add(lit);
 
 			MDLiteratureItem mdLit = new MDLiteratureItem(author, year, title, abstractText, journal, volume, issue,
-					page, approvalMode, website, type.value(), comment);
+					page, approvalMode, website, typeValue, comment);
 			metadata.addLiteratureItem(mdLit);
 		}
 
@@ -167,7 +171,7 @@ public class DataTuple {
 			for (ModelVariable modelVariable : compartment.getModelVariables()) {
 				miscs.put(modelVariable.getName(), modelVariable.getValue());
 			}
-			miscCell = Util.parseMiscs(miscs);
+			miscCell = ReaderUtils.parseMiscs(miscs);
 		}
 
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);

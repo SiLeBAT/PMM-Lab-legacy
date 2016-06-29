@@ -28,17 +28,17 @@ import de.bund.bfr.knime.pmm.extendedtable.items.Model2AgentXml;
 import de.bund.bfr.knime.pmm.extendedtable.items.Model2MatrixXml;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.pmf.sbml.Correlation;
-import de.bund.bfr.pmf.sbml.Limits;
-import de.bund.bfr.pmf.sbml.Model2Annotation;
-import de.bund.bfr.pmf.sbml.ModelRule;
-import de.bund.bfr.pmf.sbml.PMFCoefficient;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
-import de.bund.bfr.pmf.sbml.SecDep;
-import de.bund.bfr.pmf.sbml.SecIndep;
+import de.bund.bfr.pmfml.sbml.Correlation;
+import de.bund.bfr.pmfml.sbml.Limits;
+import de.bund.bfr.pmfml.sbml.Model2Annotation;
+import de.bund.bfr.pmfml.sbml.ModelRule;
+import de.bund.bfr.pmfml.sbml.PMFCoefficient;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
+import de.bund.bfr.pmfml.sbml.SecDep;
+import de.bund.bfr.pmfml.sbml.SecIndep;
 
 public class Model2Tuple {
 
@@ -47,11 +47,11 @@ public class Model2Tuple {
 
 	public Model2Tuple(Model model) {
 
-		Map<String, Limits> limits = Util.parseConstraints(model.getListOfConstraints());
+		Map<String, Limits> limits = ReaderUtils.parseConstraints(model.getListOfConstraints());
 
 		// Parses rule
 		ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-		CatalogModelXml catModel = Util.model2Rule2CatModel(rule);
+		CatalogModelXml catModel = ReaderUtils.model2Rule2CatModel(rule);
 
 		// Parses dep
 		String depName = rule.getRule().getVariable();
@@ -97,7 +97,7 @@ public class Model2Tuple {
 		Model2Annotation m2Annot = new Model2Annotation(model.getAnnotation());
 
 		// EstModel
-		EstModelXml estModel = Util.uncertainties2EstModel(m2Annot.getUncertainties());
+		EstModelXml estModel = ReaderUtils.uncertainties2EstModel(m2Annot.getUncertainties());
 		if (model.isSetName()) {
 			estModel.setName(model.getName());
 		}

@@ -16,7 +16,7 @@ import org.knime.core.node.port.PortType;
 
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
+import de.bund.bfr.openfsmr.FSMRTemplate;
 
 class FskEditorNodeModel extends NodeModel {
 

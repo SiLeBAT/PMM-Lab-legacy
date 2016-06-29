@@ -20,9 +20,9 @@ import org.knime.core.node.NodeLogger;
 
 import com.google.common.base.Joiner;
 
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
-import de.bund.bfr.pmf.ModelClass;
-import de.bund.bfr.pmf.ModelType;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.ModelClass;
+import de.bund.bfr.pmfml.ModelType;
 
 public class MetaDataPane extends JScrollPane {
 

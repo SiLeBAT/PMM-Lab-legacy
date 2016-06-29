@@ -55,25 +55,25 @@ import org.sbml.jsbml.xml.stax.SBMLWriter;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
-import de.bund.bfr.knime.pmm.common.writer.Util;
+import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
-import de.bund.bfr.pmf.ModelClass;
-import de.bund.bfr.pmf.PMFUtil;
-import de.bund.bfr.pmf.file.uri.URIFactory;
-import de.bund.bfr.pmf.sbml.LimitsConstraint;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.MetadataAnnotation;
-import de.bund.bfr.pmf.sbml.MetadataImpl;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.ReferenceSBMLNode;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.ModelClass;
+import de.bund.bfr.pmfml.PMFUtil;
+import de.bund.bfr.pmfml.file.uri.UriFactory;
+import de.bund.bfr.pmfml.sbml.LimitsConstraint;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
+import de.bund.bfr.pmfml.sbml.MetadataImpl;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.ReferenceSBMLNode;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
@@ -150,7 +150,7 @@ class FskxWriterNodeModel extends NodeModel {
         File f = FileUtil.createTempFile("metaData", ".pmf");
         try {
           new SBMLWriter().write(doc, f);
-          archive.addEntry(f, "metaData.pmf", URIFactory.createPMFURI());
+          archive.addEntry(f, "metaData.pmf", UriFactory.createPMFURI());
         } catch (SBMLException | XMLStreamException e) {
           e.printStackTrace();
         }
@@ -302,7 +302,7 @@ class FskxWriterNodeModel extends NodeModel {
     }
     for (String unit : unitsSet) {
       try {
-        PMFUnitDefinition unitDef = Util.createUnitFromDB(unit);
+        PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
 
         // unitDef is not in PmmLab DB
         if (unitDef == null) {

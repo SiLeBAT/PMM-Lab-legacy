@@ -22,10 +22,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
@@ -34,36 +32,34 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
-import org.sbml.jsbml.Constraint;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
-
-import com.google.common.base.Joiner;
+import org.sbml.jsbml.util.filters.Filter;
 
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 import de.bund.bfr.knime.pmm.dbutil.DBUnits;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplate;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
-import de.bund.bfr.pmf.ModelClass;
-import de.bund.bfr.pmf.ModelType;
-import de.bund.bfr.pmf.numl.ConcentrationOntology;
-import de.bund.bfr.pmf.numl.NuMLDocument;
-import de.bund.bfr.pmf.numl.ResultComponent;
-import de.bund.bfr.pmf.numl.TimeOntology;
-import de.bund.bfr.pmf.sbml.Limits;
-import de.bund.bfr.pmf.sbml.LimitsConstraint;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.MetadataAnnotation;
-import de.bund.bfr.pmf.sbml.ModelRule;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.PMFUnitDefinition;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.openfsmr.FSMRTemplateImpl;
+import de.bund.bfr.pmfml.ModelClass;
+import de.bund.bfr.pmfml.ModelType;
+import de.bund.bfr.pmfml.numl.ConcentrationOntology;
+import de.bund.bfr.pmfml.numl.NuMLDocument;
+import de.bund.bfr.pmfml.numl.ResultComponent;
+import de.bund.bfr.pmfml.numl.TimeOntology;
+import de.bund.bfr.pmfml.sbml.Limits;
+import de.bund.bfr.pmfml.sbml.LimitsConstraint;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
+import de.bund.bfr.pmfml.sbml.ModelRule;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.PMFUnitDefinition;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class FSMRUtils {
 
@@ -96,158 +92,135 @@ public class FSMRUtils {
     KnimeTuple tuple = new KnimeTuple(new OpenFSMRSchema());
 
     if (template.isSetModelName()) {
-      String modelName = template.getModelName();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, modelName);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, template.getModelName());
     }
 
     if (template.isSetModelId()) {
-      String modelId = template.getModelId();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, modelId);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, template.getModelId());
     }
 
     if (template.isSetModelLink()) {
-      URL modelLink = template.getModelLink();
-      String modelLinkAsString = modelLink.toString();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, modelLinkAsString);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, template.getModelLink().toString());
     }
 
     if (template.isSetOrganismName()) {
-      String organismName = template.getOrganismName();
-      tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME, organismName);
+      tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME, template.getOrganismName());
     }
 
     if (template.isSetOrganismDetails()) {
-      String organismDetails = template.getOrganismDetails();
-      tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL, organismDetails);
+      tuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL, template.getOrganismDetails());
     }
 
     if (template.isSetMatrixName()) {
-      String matrixName = template.getMatrixName();
-      tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME, matrixName);
+      tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME, template.getMatrixName());
     }
 
     if (template.isSetMatrixDetails()) {
-      String matrixDetail = template.getMatrixDetails();
-      tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL, matrixDetail);
+      tuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL, template.getMatrixDetails());
     }
 
     if (template.isSetCreator()) {
-      String creator = template.getCreator();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATOR, creator);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATOR, template.getCreator());
     }
 
     if (template.isSetFamilyName()) {
-      String familyName = template.getFamilyName();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME, familyName);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME, template.getFamilyName());
     }
 
     if (template.isSetContact()) {
-      String contact = template.getContact();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CONTACT, contact);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CONTACT, template.getContact());
     }
 
     if (template.isSetReferenceDescription()) {
-      String referenceDescription = template.getReferenceDescription();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION, referenceDescription);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION,
+          template.getReferenceDescription());
     }
 
     if (template.isSetReferenceDescriptionLink()) {
-      URL referenceDescriptionLink = template.getReferenceDescriptionLink();
-      String referenceDescriptionLinkAsString = referenceDescriptionLink.toString();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK,
-          referenceDescriptionLinkAsString);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK, template
+          .getReferenceDescriptionLink().toString());
     }
 
     if (template.isSetCreatedDate()) {
-      Date createdDate = template.getCreatedDate();
-      String createdDateAsString = createdDate.toString();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE, createdDateAsString);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE, template.getCreatedDate().toString());
     }
 
     if (template.isSetModifiedDate()) {
-      Date modifiedDate = template.getModifiedDate();
-      String modifiedDateAsString = modifiedDate.toString();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE, modifiedDateAsString);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE, template.getModifiedDate().toString());
     }
 
     if (template.isSetRights()) {
-      String rights = template.getRights();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_RIGHTS, rights);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_RIGHTS, template.getRights());
     }
 
     if (template.isSetNotes()) {
-      String notes = template.getNotes();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_NOTES, notes);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_NOTES, template.getNotes());
     }
 
     if (template.isSetCurationStatus()) {
-      String curationStatus = template.getCurationStatus();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS, curationStatus);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS, template.getCurationStatus());
     }
 
     if (template.isSetModelType()) {
-      ModelType modelType = template.getModelType();
-      String modelTypeAsString = modelType.toString();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, modelTypeAsString);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, template.getModelType().toString());
     }
 
     if (template.isSetModelSubject()) {
-      ModelClass modelSubject = template.getModelSubject();
-      String modelSubjectAsString = modelSubject.toString();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, modelSubjectAsString);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT, template.getModelSubject().toString());
     }
 
     if (template.isSetFoodProcess()) {
-      String foodProcess = template.getFoodProcess();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS, foodProcess);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS, template.getFoodProcess());
     }
 
     if (template.isSetDependentVariable()) {
-      String dependentVariable = template.getDependentVariable();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE, dependentVariable);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE, template.getDependentVariable());
     }
 
     if (template.isSetDependentVariableUnit()) {
-      String dependentVariableUnit = template.getDependentVariableUnit();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT, dependentVariableUnit);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT,
+          template.getDependentVariableUnit());
     }
 
     if (template.isSetDependentVariableMin()) {
-      double dependentVariableMin = template.getDependentVariableMin();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN, dependentVariableMin);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN,
+          template.getDependentVariableMin());
     }
 
     if (template.isSetDependentVariableMax()) {
-      double dependentVariableMax = template.getDependentVariableMax();
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX, dependentVariableMax);
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX,
+          template.getDependentVariableMax());
     }
 
     if (template.isSetIndependentVariables()) {
       // Join independent variables with commas. E.g. "time,temperature"
-      String formattedIndepentVariables = Joiner.on("||").join(template.getIndependentVariables());
-      tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, formattedIndepentVariables);
+      String formattedVars =
+          Arrays.stream(template.getIndependentVariables()).collect(Collectors.joining("||"));
+      tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE, formattedVars);
     }
 
     if (template.isSetIndependentVariablesUnits()) {
-      String formattedUnits = Joiner.on("||").join(template.getIndependentVariablesUnits());
+      String formattedUnits =
+          Arrays.stream(template.getIndependentVariablesUnits()).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS, formattedUnits);
     }
 
     if (template.isSetIndependentVariablesMins()) {
-      String formattedMins = Arrays.stream(template.getIndependentVariablesMins())
-          .mapToObj(Double::toString).collect(Collectors.joining("||"));
+      String formattedMins =
+          Arrays.stream(template.getIndependentVariablesMins()).mapToObj(Double::toString)
+              .collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS, formattedMins);
     }
 
     if (template.isSetIndependentVariablesMaxs()) {
-      String formattedMaxs = Arrays.stream(template.getIndependentVariablesMaxs())
-          .mapToObj(Double::toString).collect(Collectors.joining("||"));
+      String formattedMaxs =
+          Arrays.stream(template.getIndependentVariablesMaxs()).mapToObj(Double::toString)
+              .collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS, formattedMaxs);
     }
 
     if (template.isSetHasData()) {
-      int hasDataAsInt = template.getHasData() ? 1 : 0;
-      tuple.setValue(OpenFSMRSchema.ATT_HAS_DATA, hasDataAsInt);
+      tuple.setValue(OpenFSMRSchema.ATT_HAS_DATA, template.getHasData() ? 1 : 0);
     }
 
     return tuple;
@@ -275,8 +248,8 @@ public class FSMRUtils {
     template.setFamilyName(tuple.getString(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME));
     template.setContact(tuple.getString(OpenFSMRSchema.ATT_MODEL_CONTACT));
 
-    template
-        .setReferenceDescription(tuple.getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION));
+    template.setReferenceDescription(tuple
+        .getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION));
 
     if (template.isSetReferenceDescriptionLink()) {
       try {
@@ -321,17 +294,17 @@ public class FSMRUtils {
     template.setModelSubject(ModelClass.valueOf(tuple.getString(OpenFSMRSchema.ATT_MODEL_SUBJECT)));
     template.setFoodProcess(tuple.getString(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS));
     template.setDependentVariable(tuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE));
-    template.setDependentVariableUnit(
-        tuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT));
-    template
-        .setDependentVariableMin(tuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN));
-    template
-        .setDependentVariableMax(tuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX));
+    template.setDependentVariableUnit(tuple
+        .getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT));
+    template.setDependentVariableMin(tuple
+        .getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN));
+    template.setDependentVariableMax(tuple
+        .getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX));
 
-    template.setIndependentVariables(
-        tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE).split("\\|\\|"));
-    template.setIndependentVariablesUnits(
-        tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS).split("\\|\\|"));
+    template.setIndependentVariables(tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE)
+        .split("\\|\\|"));
+    template.setIndependentVariablesUnits(tuple.getString(
+        OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS).split("\\|\\|"));
 
     double[] indepVarMins =
         Arrays.stream(tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS).split("||"))
@@ -433,8 +406,7 @@ class DataTemplateCreator extends TemplateCreator {
     template.setOrganismName(species.getName());
 
     if (species.isSetDetail()) {
-      String speciesDetail = species.getDetail();
-      template.setOrganismDetails(speciesDetail);
+      template.setOrganismDetails(species.getDetail());
     }
   }
 
@@ -455,8 +427,7 @@ class DataTemplateCreator extends TemplateCreator {
   public void setCreator() {
     ResultComponent rc = doc.getResultComponent();
     if (rc.isSetCreatorGivenName()) {
-      String creatorGivenName = rc.getCreatorGivenName();
-      template.setCreator(creatorGivenName);
+      template.setCreator(rc.getCreatorGivenName());
     }
   }
 
@@ -464,8 +435,7 @@ class DataTemplateCreator extends TemplateCreator {
   public void setFamilyName() {
     ResultComponent rc = doc.getResultComponent();
     if (rc.isSetCreatorFamilyName()) {
-      String creatorFamilyName = rc.getCreatorFamilyName();
-      template.setFamilyName(creatorFamilyName);
+      template.setFamilyName(rc.getCreatorFamilyName());
     }
   }
 
@@ -473,8 +443,7 @@ class DataTemplateCreator extends TemplateCreator {
   public void setContact() {
     ResultComponent rc = doc.getResultComponent();
     if (rc.isSetCreatorContact()) {
-      String creatorContact = rc.getCreatorContact();
-      template.setContact(creatorContact);
+      template.setContact(rc.getCreatorContact());
     }
   }
 
@@ -520,8 +489,7 @@ class DataTemplateCreator extends TemplateCreator {
   public void setModelRights() {
     ResultComponent rc = doc.getResultComponent();
     if (rc.isSetRights()) {
-      String rights = rc.getRights();
-      template.setRights(rights);
+      template.setRights(rc.getRights());
     }
   }
 
@@ -594,17 +562,14 @@ abstract class ModelTemplateCreator extends TemplateCreator {
 
   @Override
   public void setModelId() {
-    Model model = doc.getModel();
-    String modelId = model.getId();
-    template.setModelId(modelId);
+    template.setModelId(doc.getModel().getId());
   }
 
   @Override
   public void setModelName() {
     Model model = doc.getModel();
     if (model.isSetName()) {
-      String modelName = model.getName();
-      template.setModelName(modelName);
+      template.setModelName(model.getName());
     }
   }
 
@@ -612,8 +577,7 @@ abstract class ModelTemplateCreator extends TemplateCreator {
   public void setCreator() {
     Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
     if (metadata.isSetGivenName()) {
-      String creatorGivenName = metadata.getGivenName();
-      template.setCreator(creatorGivenName);
+      template.setCreator(metadata.getGivenName());
     }
   }
 
@@ -621,8 +585,7 @@ abstract class ModelTemplateCreator extends TemplateCreator {
   public void setFamilyName() {
     Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
     if (metadata.isSetFamilyName()) {
-      String creatorFamilyName = metadata.getFamilyName();
-      template.setFamilyName(creatorFamilyName);
+      template.setFamilyName(metadata.getFamilyName());
     }
   }
 
@@ -630,8 +593,7 @@ abstract class ModelTemplateCreator extends TemplateCreator {
   public void setContact() {
     Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
     if (metadata.isSetContact()) {
-      String creatorContact = metadata.getContact();
-      template.setContact(creatorContact);
+      template.setContact(metadata.getContact());
     }
   }
 
@@ -690,8 +652,7 @@ abstract class ModelTemplateCreator extends TemplateCreator {
   public void setModelRights() {
     Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
     if (metadata.isSetRights()) {
-      String rights = metadata.getRights();
-      template.setRights(rights);
+      template.setRights(metadata.getRights());
     }
   }
 
@@ -699,8 +660,7 @@ abstract class ModelTemplateCreator extends TemplateCreator {
   public void setModelType() {
     Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
     if (metadata.isSetType()) {
-      ModelType modelType = metadata.getType();
-      template.setModelType(modelType);
+      template.setModelType(metadata.getType());
     }
   }
 
@@ -709,8 +669,7 @@ abstract class ModelTemplateCreator extends TemplateCreator {
     Model model = doc.getModel();
     AssignmentRule sbmlRule = (AssignmentRule) model.getRule(0);
     ModelRule pmfRule = new ModelRule(sbmlRule);
-    ModelClass subject = pmfRule.getModelClass();
-    template.setModelSubject(subject);
+    template.setModelSubject(pmfRule.getModelClass());
   }
 
   @Override
@@ -731,8 +690,15 @@ abstract class ModelTemplateCreator extends TemplateCreator {
 
 class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
 
+  private final List<Limits> limits;
+
   public ModelWithMicrobialDataTemplateCreator(SBMLDocument doc) {
     super(doc);
+
+    // Caches limits
+    limits =
+        doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
 
   @Override
@@ -741,12 +707,10 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
     Species sbmlSpecies = model.getSpecies(0);
     PMFSpecies pmfSpecies = SBMLFactory.createPMFSpecies(sbmlSpecies);
 
-    String speciesName = pmfSpecies.getName();
-    template.setOrganismName(speciesName);
+    template.setOrganismName(pmfSpecies.getName());
 
     if (pmfSpecies.isSetDetail()) {
-      String speciesDetail = pmfSpecies.getDetail();
-      template.setOrganismDetails(speciesDetail);
+      template.setOrganismDetails(pmfSpecies.getDetail());
     }
   }
 
@@ -756,12 +720,10 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
     Compartment sbmlCompartment = model.getCompartment(0);
     PMFCompartment pmfCompartment = SBMLFactory.createPMFCompartment(sbmlCompartment);
 
-    String compartmentName = pmfCompartment.getName();
-    template.setMatrixName(compartmentName);
+    template.setMatrixName(pmfCompartment.getName());
 
     if (pmfCompartment.isSetDetail()) {
-      String compartmentDetail = pmfCompartment.getDetail();
-      template.setMatrixDetails(compartmentDetail);
+      template.setMatrixDetails(pmfCompartment.getDetail());
     }
   }
 
@@ -786,18 +748,12 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
       }
 
       // Sets dependent variable min & max
-      for (Constraint constraint : model.getListOfConstraints()) {
-        LimitsConstraint lc = new LimitsConstraint(constraint);
-        Limits lcLimits = lc.getLimits();
-        if (lcLimits.getVar().equals(depUnitID)) {
-          Double min = lcLimits.getMin();
-          if (min != null) {
-            template.setDependentVariableMin(min);
-          }
-          Double max = lcLimits.getMax();
-          if (min != null) {
-            template.setDependentVariableMax(max);
-          }
+      for (Limits lim : limits) {
+        if (lim.getVar().equals(species.getId())) {
+          if (lim.getMin() != null)
+            template.setDependentVariableMin(lim.getMin());
+          if (lim.getMax() != null)
+            template.setDependentVariableMax(lim.getMax());
           break;
         }
       }
@@ -808,25 +764,44 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
   public void setIndependentVariableData() {
     Model model = doc.getModel();
 
-    LinkedList<String> indepVarCategories = new LinkedList<>();
-    for (Parameter parameter : model.getListOfParameters()) {
-      String unitID = parameter.getUnits();
+    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
+      @Override
+      public boolean accepts(Object o) {
+        return !((Parameter) o).isConstant();
+      }
+    });
+
+    final int numParams = indepParams.size();
+    String[] units = new String[numParams];
+    String[] categories = new String[numParams];
+    double[] mins = new double[numParams];
+    double[] maxs = new double[numParams];
+
+    for (int i = 0; i < numParams; i++) {
+      Parameter param = indepParams.get(i);
+      units[i] = param.getUnits();
 
       // Sets independent variable unit
-      String unitName = model.getUnitDefinition(unitID).getName();
+      String unitName = model.getUnitDefinition(units[i]).getName();
+      if (!units[i].equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
+        categories[i] = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+      } else {
+        categories[i] = " ";
+      }
 
-      if (!unitID.equals("dimensionless")) {
-        if (DBUnits.getDBUnits().containsKey(unitName)) {
-          String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-          if (!indepVarCategories.contains(unitCategory)) {
-            indepVarCategories.add(unitCategory);
-          }
+      // Sets minimum and maximum value
+      for (Limits lcLimits : limits) {
+        if (lcLimits.getVar().equals(param.getId())) {
+          mins[i] = lcLimits.getMin();
+          maxs[i] = lcLimits.getMax();
         }
       }
     }
 
-    String[] indepVarArray = indepVarCategories.toArray(new String[indepVarCategories.size()]);
-    template.setIndependentVariables(indepVarArray);
+    template.setIndependentVariables(categories);
+    template.setIndependentVariablesUnits(units);
+    template.setIndependentVariablesMins(mins);
+    template.setIndependentVariablesMaxs(maxs);
   }
 
   @Override
@@ -838,11 +813,18 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
 
 class PrevalenceModelTemplateCreator extends ModelWithMicrobialDataTemplateCreator {
 
+  private final List<Limits> limits;
+
   /**
    * @param doc
    */
   public PrevalenceModelTemplateCreator(SBMLDocument doc) {
     super(doc);
+
+    // Caches limits
+    limits =
+        doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
 
   @Override
@@ -866,16 +848,12 @@ class PrevalenceModelTemplateCreator extends ModelWithMicrobialDataTemplateCreat
     }
 
     // Sets dependent variable min & max
-    for (Constraint constraint : model.getListOfConstraints()) {
-      LimitsConstraint lc = new LimitsConstraint(constraint);
-      Limits lcLimits = lc.getLimits();
-      if (lcLimits.getVar().equals(depId)) {
-        if (lcLimits.getMin() != null) {
-          template.setDependentVariableMin(lcLimits.getMin());
-        }
-        if (lcLimits.getMax() != null) {
-          template.setDependentVariableMax(lcLimits.getMax());
-        }
+    for (Limits lim : limits) {
+      if (lim.getVar().equals(depId)) {
+        if (lim.getMin() != null)
+          template.setDependentVariableMin(lim.getMin());
+        if (lim.getMax() != null)
+          template.setDependentVariableMax(lim.getMax());
         break;
       }
     }
@@ -887,61 +865,63 @@ class PrevalenceModelTemplateCreator extends ModelWithMicrobialDataTemplateCreat
     AssignmentRule rule = (AssignmentRule) model.getRule(0);
     String depId = rule.getVariable();
 
-    List<String> indepNames = new LinkedList<>();
-    List<String> indepUnits = new LinkedList<>();
-    List<Double> indepMins = new LinkedList<>();
-    List<Double> indepMaxs = new LinkedList<>();
-
-    for (Parameter parameter : model.getListOfParameters()) {
-      // Skips parameter for the dependent variable
-      if (parameter.getId().equals(depId)) {
-        continue;
+    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
+      @Override
+      public boolean accepts(Object o) {
+        return !((Parameter)o).getId().equals(depId);
       }
+    });
 
-      indepNames.add(parameter.getName());
+    final int numParams = indepParams.size();
+    String[] units = new String[numParams];
+    String[] names = new String[numParams];
+    double[] mins = new double[numParams];
+    double[] maxs = new double[numParams];
 
-      // Gets and sets independent variable unit
-      String unitId = parameter.getUnits();
-      String unitName = "";
+    for (int i = 0; i < numParams; i++) {
+      Parameter param = indepParams.get(i);
+
+      // variable
+      names[i] = param.getName();
+
+      // unit
+      String unitId = param.getUnits();
+      units[i] = "";
       if (!unitId.equals("dimensionless")) {
         UnitDefinition unitDef = model.getUnitDefinition(unitId);
         if (unitDef != null) {
-          unitName = unitDef.getName();
+          units[i] = unitDef.getName();
         }
       }
-      indepUnits.add(unitName);
-
-      // Sets dependent variable min & max
-      for (Constraint constraint : model.getListOfConstraints()) {
-        LimitsConstraint lc = new LimitsConstraint(constraint);
-        Limits lcLimits = lc.getLimits();
-        if (lcLimits.getVar().equals(parameter.getId())) {
-          indepMins.add(lcLimits.getMin());
-          indepMaxs.add(lcLimits.getMax());
+      
+      for (Limits lim : limits) {
+        if (lim.getVar().equals(param.getId())) {
+          mins[i] = lim.getMin();
+          maxs[i] = lim.getMax();
           break;
         }
       }
     }
-
-    String[] indepNamesArray = indepNames.toArray(new String[indepNames.size()]);
-    template.setIndependentVariables(indepNamesArray);
-
-    String[] indepUnitsArray = indepUnits.toArray(new String[indepUnits.size()]);
-    template.setIndependentVariablesUnits(indepUnitsArray);
-
-    double[] indepMinsArray = indepMins.stream().mapToDouble(Double::doubleValue).toArray();
-    template.setIndependentVariablesMins(indepMinsArray);
-
-    double[] indepMaxArray = indepMaxs.stream().mapToDouble(Double::doubleValue).toArray();
-    template.setIndependentVariablesMaxs(indepMaxArray);
+    
+    template.setIndependentVariables(names);
+    template.setIndependentVariablesUnits(units);
+    template.setIndependentVariablesMins(mins);
+    template.setIndependentVariablesMaxs(maxs);
   }
 }
 
 
 class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
+  
+  private final List<Limits> limits;
 
   public ModelWithoutMicrobialDataTemplateCreator(SBMLDocument doc) {
     super(doc);
+    
+    // Caches limits
+    limits =
+        doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
 
   @Override
@@ -969,11 +949,19 @@ class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
       template.setDependentVariableUnit(unitName);
 
       // Adds unit category
-      Map<String, UnitsFromDB> dbUnits = DBUnits.getDBUnits();
-      if (dbUnits.containsKey(unitName)) {
-        UnitsFromDB ufdb = dbUnits.get(unitName);
-        String unitCategory = ufdb.getKind_of_property_quantity();
-        template.setDependentVariable(unitCategory);
+      if (DBUnits.getDBUnits().containsKey(unitName)) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+        template.setDependentVariable(ufdb.getKind_of_property_quantity());
+      }
+    }
+    
+    for (Limits lim : limits) {
+      if (lim.getVar().equals(depName)) {
+        if (lim.getMin() != null)
+          template.setDependentVariableMin(lim.getMin());
+        if (lim.getMax() != null)
+          template.setDependentVariableMax(lim.getMax());
+        break;
       }
     }
   }
@@ -984,24 +972,48 @@ class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
     ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
     String depName = rule.getRule().getVariable();
 
-    LinkedList<String> unitCategories = new LinkedList<>();
-    for (Parameter param : model.getListOfParameters()) {
-      if (!param.isConstant() && !param.getId().equals(depName)) {
-        String unitID = param.getUnits();
+    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
+      @Override
+      public boolean accepts(Object o) {
+        Parameter param = (Parameter) o;
+        return !param.isConstant() && !param.getId().equals(depName);
+      }
+    });
 
-        // Sets independent variable unit
-        String unitName = model.getUnitDefinition(unitID).getName();
+    final int numParams = indepParams.size();
+    String[] units = new String[numParams];
+    String[] categories = new String[numParams];
+    double[] mins = new double[numParams];
+    double[] maxs = new double[numParams];
 
-        if (!unitID.equals("dimensionless")) {
-          UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-          String unitCategory = ufdb.getKind_of_property_quantity();
-          unitCategories.add(unitCategory);
+    for (int i = 0; i < numParams; i++) {
+      Parameter param = indepParams.get(i);
+
+      final String unitId = param.getUnits();
+
+      // unit
+      units[i] = unitId;
+
+      // category
+      String unitName = model.getUnitDefinition(unitId).getName();
+      if (!unitId.equals("dimensionless")) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName); 
+        categories[i] = ufdb.getKind_of_property_quantity();
+      }
+
+      // min & max
+      for (Limits lim : limits) {
+        if (lim.getVar().equals(param.getId())) {
+          mins[i] = lim.getMin();
+          maxs[i] = lim.getMax();
         }
       }
     }
 
-    String[] unitCategoryArray = unitCategories.toArray(new String[unitCategories.size()]);
-    template.setIndependentVariables(unitCategoryArray);
+    template.setIndependentVariables(categories);
+    template.setIndependentVariablesUnits(units);
+    template.setIndependentVariablesMins(mins);
+    template.setIndependentVariablesMaxs(maxs);
   }
 }
 
@@ -1150,7 +1162,8 @@ class SpreadsheetTemplateCreator extends TemplateCreator {
 
     // Sets maximum values
     String[] indepVarMaxTokens = getStringVal(28).split("\\|\\|");
-    double[] indepVarMaxs = Arrays.stream(indepVarMaxTokens).mapToDouble(Double::parseDouble).toArray();
+    double[] indepVarMaxs =
+        Arrays.stream(indepVarMaxTokens).mapToDouble(Double::parseDouble).toArray();
     template.setIndependentVariablesMaxs(indepVarMaxs);
   }
 

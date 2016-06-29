@@ -20,16 +20,16 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.pmf.sbml.LimitsConstraint;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.MetadataAnnotation;
-import de.bund.bfr.pmf.sbml.Model2Annotation;
-import de.bund.bfr.pmf.sbml.ModelRule;
-import de.bund.bfr.pmf.sbml.PMFCoefficient;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.SecDep;
-import de.bund.bfr.pmf.sbml.SecIndep;
-import de.bund.bfr.pmf.sbml.Uncertainties;
+import de.bund.bfr.pmfml.sbml.LimitsConstraint;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
+import de.bund.bfr.pmfml.sbml.Model2Annotation;
+import de.bund.bfr.pmfml.sbml.ModelRule;
+import de.bund.bfr.pmfml.sbml.PMFCoefficient;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.SecDep;
+import de.bund.bfr.pmfml.sbml.SecIndep;
+import de.bund.bfr.pmfml.sbml.Uncertainties;
 
 public class Model2Parser {
 
@@ -76,17 +76,17 @@ public class Model2Parser {
 		// Gets model references
 		Reference[] mLits = new Reference[mLitDoc.size()];
 		for (int i = 0; i < mLitDoc.size(); i++) {
-			mLits[i] = Util.literatureItem2Reference((LiteratureItem) mLitDoc.get(i));
+			mLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) mLitDoc.get(i));
 		}
 
 		// Gets estimated model references
 		Reference[] emLits = new Reference[emLitDoc.size()];
 		for (int i = 0; i < emLitDoc.size(); i++) {
-			emLits[i] = Util.literatureItem2Reference((LiteratureItem) emLitDoc.get(i));
+			emLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) emLitDoc.get(i));
 		}
 
 		// Adds model annotation
-		Uncertainties uncertainties = Util.estModel2Uncertainties(estModel);
+		Uncertainties uncertainties = WriterUtils.estModel2Uncertainties(estModel);
 		model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
 
 		// Gets independent parameters
@@ -125,7 +125,7 @@ public class Model2Parser {
 		// Adds constant parameters
 		for (ParamXml paramXml : constXmls) {
 			// Creates SBML parameter
-			PMFCoefficient coefficient = Util.paramXml2Coefficient(paramXml);
+			PMFCoefficient coefficient = WriterUtils.paramXml2Coefficient(paramXml);
 			model.addParameter(coefficient.getParameter());
 
 			// Adds constraint
@@ -144,7 +144,7 @@ public class Model2Parser {
 		}
 
 		// Creates rule of the model and adds it to the rest of rules
-		ModelRule rule = Util.createM2Rule(catModel, mLits);
+		ModelRule rule = WriterUtils.createM2Rule(catModel, mLits);
 		model.addRule(rule.getRule());
 	}
 

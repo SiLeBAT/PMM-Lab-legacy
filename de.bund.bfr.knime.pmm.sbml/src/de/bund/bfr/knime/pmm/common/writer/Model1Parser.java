@@ -25,17 +25,17 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.pmf.PMFUtil;
-import de.bund.bfr.pmf.sbml.LimitsConstraint;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.MetadataAnnotation;
-import de.bund.bfr.pmf.sbml.Model1Annotation;
-import de.bund.bfr.pmf.sbml.PMFCoefficient;
-import de.bund.bfr.pmf.sbml.PMFCompartment;
-import de.bund.bfr.pmf.sbml.PMFSpecies;
-import de.bund.bfr.pmf.sbml.Reference;
-import de.bund.bfr.pmf.sbml.ReferenceImpl;
-import de.bund.bfr.pmf.sbml.Uncertainties;
+import de.bund.bfr.pmfml.PMFUtil;
+import de.bund.bfr.pmfml.sbml.LimitsConstraint;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
+import de.bund.bfr.pmfml.sbml.Model1Annotation;
+import de.bund.bfr.pmfml.sbml.PMFCoefficient;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.Reference;
+import de.bund.bfr.pmfml.sbml.ReferenceImpl;
+import de.bund.bfr.pmfml.sbml.Uncertainties;
 
 public class Model1Parser {
 
@@ -96,19 +96,19 @@ public class Model1Parser {
 		List<Reference> emLits = new LinkedList<>();
 		PmmXmlDoc emLitDoc = tuple.getPmmXml(Model1Schema.ATT_EMLIT);
 		for (PmmXmlElementConvertable item : emLitDoc.getElementSet()) {
-			emLits.add(Util.literatureItem2Reference((LiteratureItem) item));
+			emLits.add(WriterUtils.literatureItem2Reference((LiteratureItem) item));
 		}
 
-		Uncertainties uncertainties = Util.estModel2Uncertainties(estModel);
+		Uncertainties uncertainties = WriterUtils.estModel2Uncertainties(estModel);
 		model.setAnnotation(new Model1Annotation(uncertainties, emLits, condId).getAnnotation());
 
 		// Creates and adds compartment to model
-		PMFCompartment compartment = Util.matrixXml2Compartment(matrixXml, miscDoc);
+		PMFCompartment compartment = WriterUtils.matrixXml2Compartment(matrixXml, miscDoc);
 
 		model.addCompartment(compartment.getCompartment());
 
 		// Creates species and adds it to the model
-		PMFSpecies species = Util.createSpecies(agentXml, dep.getUnit(), compartment.getId());
+		PMFSpecies species = WriterUtils.createSpecies(agentXml, dep.getUnit(), compartment.getId());
 		model.addSpecies(species.getSpecies());
 
 		// Adds dep constraint
@@ -140,7 +140,7 @@ public class Model1Parser {
 
 		for (ParamXml paramXml : constXmls) {
 			// Adds constant parameter
-			PMFCoefficient coefficient = Util.paramXml2Coefficient(paramXml);
+			PMFCoefficient coefficient = WriterUtils.paramXml2Coefficient(paramXml);
 			model.addParameter(coefficient.getParameter());
 
 			// Adds constraint
@@ -162,10 +162,10 @@ public class Model1Parser {
 		// Creates rule of the model and adds it to the rest of rules
 		Reference[] modelReferences = new ReferenceImpl[mLits.size()];
 		for (int i = 0; i < mLits.size(); i++) {
-			modelReferences[i] = Util.literatureItem2Reference(mLits.get(i));
+			modelReferences[i] = WriterUtils.literatureItem2Reference(mLits.get(i));
 		}
 
-		model.addRule(Util.createM1Rule(catModel, species.getId(), modelReferences).getRule());
+		model.addRule(WriterUtils.createM1Rule(catModel, species.getId(), modelReferences).getRule());
 	}
 
 	public SBMLDocument getDocument() {

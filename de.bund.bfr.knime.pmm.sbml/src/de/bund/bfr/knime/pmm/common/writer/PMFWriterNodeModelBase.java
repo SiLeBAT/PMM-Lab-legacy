@@ -47,9 +47,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.pmf.ModelType;
-import de.bund.bfr.pmf.sbml.Metadata;
-import de.bund.bfr.pmf.sbml.SBMLFactory;
+import de.bund.bfr.pmfml.ModelType;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 /**
  * Base model implementation of PMFWriter
@@ -86,8 +86,6 @@ public abstract class PMFWriterNodeModelBase extends NodeModel {
 	private SettingsModelString license = new SettingsModelString(CFG_LIC, null);
 	private SettingsModelString notes = new SettingsModelString(CFG_NOTES, null);
 
-	private Parser parser; // current parser
-	
 	protected PMFWriterNodeModelBase() {
 		super(1, 0);
 
@@ -212,27 +210,7 @@ public abstract class PMFWriterNodeModelBase extends NodeModel {
 			return new BufferedDataTable[] {};
 		}
 
-		if (modelType == ModelType.EXPERIMENTAL_DATA) {
-			parser = new ExperimentalDataParser();
-		} else if (modelType == ModelType.PRIMARY_MODEL_WDATA) {
-			parser = new PrimaryModelWDataParser();
-		} else if (modelType == ModelType.PRIMARY_MODEL_WODATA) {
-			parser = new PrimaryModelWODataParser();
-		} else if (modelType == ModelType.TWO_STEP_SECONDARY_MODEL) {
-			parser = new TwoStepSecondaryModelParser();
-		} else if (modelType == ModelType.ONE_STEP_SECONDARY_MODEL) {
-			parser = new OneStepSecondaryModelParser();
-		} else if (modelType == ModelType.MANUAL_SECONDARY_MODEL) {
-			parser = new ManualSecondaryModelParser();
-		} else if (modelType == ModelType.TWO_STEP_TERTIARY_MODEL) {
-			parser = new TwoStepTertiaryModelParser();
-		} else if (modelType == ModelType.ONE_STEP_TERTIARY_MODEL) {
-			parser = new OneStepTertiaryModelParser();
-		} else if (modelType == ModelType.MANUAL_TERTIARY_MODEL) {
-			parser = new ManualTertiaryModelParser();
-		}
-
-		parser.write(tuples, isPMFX(), dir, mdName, metadata, splitModels.getBooleanValue(), modelNotes, exec);
+		WriterUtils.write(tuples, isPMFX(), dir, mdName, metadata, splitModels.getBooleanValue(), modelNotes, exec, modelType);
 
 		return new BufferedDataTable[] {};
 	}

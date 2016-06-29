@@ -1,27 +1,20 @@
 package de.bund.bfr.knime.pmm.fskx.controller;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 
-import com.sun.jna.Platform;
-
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
-import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil;
-import de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer;
 
 /**
  * Singleton!! There can only be one.

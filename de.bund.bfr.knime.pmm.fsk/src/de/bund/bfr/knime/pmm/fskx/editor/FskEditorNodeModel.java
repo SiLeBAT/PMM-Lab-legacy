@@ -18,6 +18,7 @@ import org.knime.core.node.port.PortType;
 
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
 
 class FskEditorNodeModel extends NodeModel {
 
@@ -28,13 +29,13 @@ class FskEditorNodeModel extends NodeModel {
 	static final String MODEL_SCRIPT = "model script";
 	static final String PARAM_SCRIPT = "parameters script";
 	static final String VIZ_SCRIPT = "visualization script";
-//	static final String META_DATA = "meta data";
+	static final String META_DATA = "meta data";
 
 	private final SettingsModelInteger objectNumber;
 	private final SettingsModelString modelScript;
 	private final SettingsModelString paramScript;
 	private final SettingsModelString vizScript;
-//	private final FSMRTemplateSettings templateSettings;
+	private final FSMRTemplateSettings templateSettings;
 
 	public FskEditorNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -46,7 +47,7 @@ class FskEditorNodeModel extends NodeModel {
 		modelScript = new SettingsModelString(MODEL_SCRIPT, "");
 		paramScript = new SettingsModelString(PARAM_SCRIPT, "");
 		vizScript = new SettingsModelString(VIZ_SCRIPT, "");
-//		templateSettings = new FSMRTemplateSettings();
+		templateSettings = new FSMRTemplateSettings();
 	}
 
 	// --- internal settings methods ---
@@ -77,7 +78,7 @@ class FskEditorNodeModel extends NodeModel {
 		modelScript.loadSettingsFrom(settings);
 		paramScript.loadSettingsFrom(settings);
 		vizScript.loadSettingsFrom(settings);
-//		templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
+		templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 
 	/** {@inheritDoc} */
@@ -87,7 +88,7 @@ class FskEditorNodeModel extends NodeModel {
 		modelScript.loadSettingsFrom(settings);
 		paramScript.loadSettingsFrom(settings);
 		vizScript.loadSettingsFrom(settings);
-//		templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
+		templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 
 	/** {@inheritDoc} */
@@ -97,7 +98,7 @@ class FskEditorNodeModel extends NodeModel {
 		modelScript.saveSettingsTo(settings);
 		paramScript.saveSettingsTo(settings);
 		vizScript.saveSettingsTo(settings);
-//		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
+		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 
 	// --- other methods ---
@@ -117,7 +118,7 @@ class FskEditorNodeModel extends NodeModel {
 		// settings)
 
 		FskPortObject outObj = new FskPortObject(modelScript.getStringValue(), paramScript.getStringValue(),
-				vizScript.getStringValue(), inObj.getTemplate(), inObj.getWorkspaceFile(),
+				vizScript.getStringValue(), templateSettings.getTemplate(), inObj.getWorkspaceFile(),
 				inObj.getLibraries());
 
 		return new PortObject[] { outObj };

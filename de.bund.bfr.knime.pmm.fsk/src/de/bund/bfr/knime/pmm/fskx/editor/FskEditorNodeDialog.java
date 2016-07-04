@@ -13,20 +13,22 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
+import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
 
 class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 
 	private ScriptPanel modelScriptPanel = new ScriptPanel("Model script", "", true);
 	private ScriptPanel paramScriptPanel = new ScriptPanel("Parameters script", "", true);
 	private ScriptPanel vizScriptPanel = new ScriptPanel("Visualization script", "", true);
-//	private MetaDataPane metaDataPane;
+	private MetaDataPane metaDataPane;
 
 	private SettingsModelInteger objectNumber;
 	private SettingsModelString modelScript;
 	private SettingsModelString paramScript;
 	private SettingsModelString vizScript;
-//	private FSMRTemplateSettings templateSettings;
+	private FSMRTemplateSettings templateSettings;
 
 	public FskEditorNodeDialog() {
 		addTab("Model script", modelScriptPanel);
@@ -37,7 +39,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 		modelScript = new SettingsModelString(FskEditorNodeModel.MODEL_SCRIPT, "");
 		paramScript = new SettingsModelString(FskEditorNodeModel.PARAM_SCRIPT, "");
 		vizScript = new SettingsModelString(FskEditorNodeModel.VIZ_SCRIPT, "");
-//		templateSettings = new FSMRTemplateSettings();
+		templateSettings = new FSMRTemplateSettings();
 
 		modelScript.addChangeListener(new ChangeListener() {
 			@Override
@@ -70,7 +72,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 			modelScript.loadSettingsFrom(settings);
 			paramScript.loadSettingsFrom(settings);
 			vizScript.loadSettingsFrom(settings);
-//			templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
+			templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
 
 			/*
 			 * Take data from the inputs if: 1) all the scripts are empty then
@@ -86,18 +88,16 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 				modelScript.setStringValue(fskObj.getModelScript());
 				paramScript.setStringValue(fskObj.getParamScript());
 				vizScript.setStringValue(fskObj.getVizScript());
-
-//				if (fskObj.getTemplate() != null)
-//					templateSettings.setTemplate(fskObj.getTemplate());
+				templateSettings.setTemplate(fskObj.getTemplate());
 			}
 		} catch (InvalidSettingsException error) {
 			throw new NotConfigurableException(error.getMessage(), error.getCause());
 		}
 
 		// Panel names
-//		removeTab("Metadata");
-//		metaDataPane = new MetaDataPane(templateSettings.getTemplate(), true);
-//		addTab("Metadata", metaDataPane);
+		removeTab("Metadata");
+		metaDataPane = new MetaDataPane(templateSettings.getTemplate(), true);
+		addTab("Metadata", metaDataPane);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 		vizScript.setStringValue(vizScriptPanel.getTextArea().getText());
 		vizScript.saveSettingsTo(settings);
 
-//		templateSettings.setTemplate(metaDataPane.getMetaData());
-//		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
+		templateSettings.setTemplate(metaDataPane.getMetaData());
+		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 }

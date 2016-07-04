@@ -87,6 +87,10 @@ public class FskPortObject implements PortObject {
 
 	/** R library files. */
 	private final Set<File> m_libs;
+	
+	private static int numOfInstances = 0;
+	
+	private final int objectNum;
 
 	public FskPortObject(final String model, final String param, final String viz, final FSMRTemplate template,
 			final File workspace, final Set<File> libs) {
@@ -96,6 +100,9 @@ public class FskPortObject implements PortObject {
 		m_template = template;
 		m_workspace = workspace;
 		m_libs = libs;
+		
+		objectNum = numOfInstances;
+		numOfInstances += 1;
 	}
 
 	@Override
@@ -140,6 +147,11 @@ public class FskPortObject implements PortObject {
 	/** @return the R library files. */
 	public Set<File> getLibraries() {
 		return m_libs;
+	}
+	
+	/** @return the object number. */
+	public int getObjectNumber() {
+		return objectNum;
 	}
 
 	/**

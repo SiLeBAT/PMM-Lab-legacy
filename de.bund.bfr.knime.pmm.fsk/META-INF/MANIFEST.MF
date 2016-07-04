@@ -14,7 +14,8 @@ Require-Bundle: org.knime.base,
  com.fifesoft.rsyntaxtextarea;bundle-version="2.5.8",
  com.sun.jna;bundle-version="3.5.2",
  de.bund.bfr.formats;bundle-version="1.0.0",
- de.bund.bfr.knime.pmm.common;bundle-version="1.0.0"
+ de.bund.bfr.knime.pmm.common;bundle-version="1.0.0",
+ de.bund.bfr.knime.pmm.sbml;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
@@ -22,7 +23,4 @@ Bundle-ClassPath: library.jar,
  libs/rengine-1.8.4.jar,
  libs/rserve-engine-1.8.4.jar
 Export-Package: de.bund.bfr.knime.pmm.fskx
-Import-Package: de.bund.bfr.knime.pmm,
- de.bund.bfr.knime.pmm.common.writer,
- de.bund.bfr.knime.pmm.openfsmr
 

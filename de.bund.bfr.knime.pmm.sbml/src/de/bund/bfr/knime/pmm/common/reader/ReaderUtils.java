@@ -245,42 +245,23 @@ public class ReaderUtils {
     return tuple;
   }
 
+  private static final Map<ModelType, Reader> READERS = new HashMap<>();
+  static {
+    READERS.put(ModelType.EXPERIMENTAL_DATA, new ExperimentalDataReader());
+    READERS.put(ModelType.PRIMARY_MODEL_WDATA, new PrimaryModelWDataReader());
+    READERS.put(ModelType.PRIMARY_MODEL_WODATA, new PrimaryModelWODataReader());
+    READERS.put(ModelType.TWO_STEP_SECONDARY_MODEL, new TwoStepSecondaryModelReader());
+    READERS.put(ModelType.ONE_STEP_SECONDARY_MODEL, new OneStepSecondaryModelReader());
+    READERS.put(ModelType.MANUAL_SECONDARY_MODEL, new ManualSecondaryModelReader());
+    READERS.put(ModelType.TWO_STEP_TERTIARY_MODEL, new TwoStepTertiaryModelReader());
+    READERS.put(ModelType.ONE_STEP_TERTIARY_MODEL, new OneStepTertiaryModelReader());
+    READERS.put(ModelType.MANUAL_TERTIARY_MODEL, new ManualTertiaryModelReader());
+  }
+  
   public static BufferedDataContainer[] readPMF(String filepath, boolean isPMFX,
       ExecutionContext exec, ModelType modelType) throws Exception {
 
-    Reader reader;
-    switch (modelType) {
-      case EXPERIMENTAL_DATA:
-        reader = new ExperimentalDataReader();
-        break;
-      case PRIMARY_MODEL_WDATA:
-        reader = new PrimaryModelWDataReader();
-        break;
-      case PRIMARY_MODEL_WODATA:
-        reader = new PrimaryModelWODataReader();
-        break;
-      case TWO_STEP_SECONDARY_MODEL:
-        reader = new TwoStepSecondaryModelReader();
-        break;
-      case ONE_STEP_SECONDARY_MODEL:
-        reader = new OneStepSecondaryModelReader();
-        break;
-      case MANUAL_SECONDARY_MODEL:
-        reader = new ManualSecondaryModelReader();
-        break;
-      case TWO_STEP_TERTIARY_MODEL:
-        reader = new TwoStepTertiaryModelReader();
-        break;
-      case ONE_STEP_TERTIARY_MODEL:
-        reader = new OneStepTertiaryModelReader();
-        break;
-      case MANUAL_TERTIARY_MODEL:
-        reader = new ManualTertiaryModelReader();
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid model type: " + modelType);
-    }
-
+    Reader reader = READERS.get(modelType);
     return reader.read(filepath, isPMFX, exec);
   }
 

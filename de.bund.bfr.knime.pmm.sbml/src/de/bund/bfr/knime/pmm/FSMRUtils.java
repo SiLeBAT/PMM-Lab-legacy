@@ -53,6 +53,7 @@ import de.bund.bfr.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 import de.bund.bfr.pmfml.model.ManualSecondaryModel;
+import de.bund.bfr.pmfml.model.ManualTertiaryModel;
 import de.bund.bfr.pmfml.model.OneStepSecondaryModel;
 import de.bund.bfr.pmfml.model.OneStepTertiaryModel;
 import de.bund.bfr.pmfml.model.TwoStepSecondaryModel;
@@ -2247,13 +2248,13 @@ class OneStepTertiaryModelTemplateCreator extends BetterTemplateCreator {
 
   private final SBMLDocument primDoc;
   private final List<SBMLDocument> secDocs;
-  
+
   private final List<Limits> primModelLimits;
 
   public OneStepTertiaryModelTemplateCreator(OneStepTertiaryModel model) {
     primDoc = model.getTertiaryDoc();
     secDocs = model.getSecDocs();
-    
+
     // Caches limits
     primModelLimits =
         primDoc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
@@ -2506,5 +2507,274 @@ class OneStepTertiaryModelTemplateCreator extends BetterTemplateCreator {
   @Override
   public void setHasData() {
     template.setHasData(true);
+  }
+}
+
+
+class ManualTertiaryModelTemplateCreator extends BetterTemplateCreator {
+
+  private final SBMLDocument primDoc;
+  private final List<SBMLDocument> secDocs;
+
+  private final List<Limits> primModelLimits;
+
+  public ManualTertiaryModelTemplateCreator(ManualTertiaryModel model) {
+    primDoc = model.getTertiaryDoc();
+    secDocs = model.getSecDocs();
+
+    // Caches limits
+    primModelLimits =
+        primDoc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
+  }
+
+  @Override
+  public void setModelId() {
+    if (primDoc.getModel().isSetId())
+      template.setModelId(primDoc.getModel().getId());
+  }
+
+  @Override
+  public void setModelName() {
+    if (primDoc.getModel().isSetName())
+      template.setModelName(primDoc.getModel().getName());
+  }
+
+  @Override
+  public void setOrganismData() {
+    PMFSpecies species = SBMLFactory.createPMFSpecies(primDoc.getModel().getSpecies(0));
+
+    if (species.getSpecies().isSetName())
+      template.setOrganismName(species.getSpecies().getName());
+
+    if (species.isSetDetail())
+      template.setOrganismDetails(species.getDetail());
+  }
+
+  @Override
+  public void setMatrixData() {
+    PMFCompartment matrix = SBMLFactory.createPMFCompartment(primDoc.getModel().getCompartment(0));
+
+    if (matrix.getCompartment().isSetName())
+      template.setMatrixName(matrix.getCompartment().getName());
+
+    if (matrix.isSetDetail())
+      template.setMatrixDetails(matrix.getDetail());
+  }
+
+
+  @Override
+  public void setMetadata() {
+    Metadata metadata = new MetadataAnnotation(primDoc.getAnnotation()).getMetadata();
+
+    if (metadata.isSetGivenName())
+      template.setCreator(metadata.getGivenName());
+
+    if (metadata.isSetFamilyName())
+      template.setCreator(metadata.getFamilyName());
+
+    if (metadata.isSetContact())
+      template.setCreator(metadata.getContact());
+
+    if (metadata.isSetReferenceLink()) {
+      String referenceLinkAsString = metadata.getReferenceLink();
+      try {
+        URL referenceLinkAsURL = new URL(referenceLinkAsString);
+        template.setReferenceDescriptionLink(referenceLinkAsURL);
+      } catch (MalformedURLException e) {
+        System.err.println(referenceLinkAsString + " is not a valid URL");
+        e.printStackTrace();
+      }
+    }
+
+    SimpleDateFormat dateFormat =
+        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+
+    if (metadata.isSetCreatedDate()) {
+      String createdDateAsString = metadata.getCreatedDate();
+
+      try {
+        Date createdDate = dateFormat.parse(createdDateAsString);
+        template.setCreatedDate(createdDate);
+      } catch (ParseException e) {
+        System.err.println(createdDateAsString + " is not a valid date");
+        e.printStackTrace();
+      }
+    }
+
+    if (metadata.isSetModifiedDate()) {
+      String modifiedDateAsString = metadata.getModifiedDate();
+
+      try {
+        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
+        template.setModifiedDate(modifiedDate);
+      } catch (ParseException e) {
+        System.err.println(modifiedDateAsString + " is not a valid date");
+        e.printStackTrace();
+      }
+    }
+
+    if (metadata.isSetRights())
+      template.setRights(metadata.getRights());
+
+    if (metadata.isSetType())
+      template.setModelType(metadata.getType());
+
+  }
+
+  @Override
+  public void setModelSubject() {
+    ModelRule rule = new ModelRule((AssignmentRule) primDoc.getModel().getRule(0));
+    template.setModelSubject(rule.getModelClass());
+  }
+
+  @Override
+  public void setModelNotes() {
+    if (primDoc.getModel().isSetNotes()) {
+      try {
+        template.setNotes(primDoc.getModel().getNotesString());
+      } catch (XMLStreamException error) {
+        System.err.println("error accessing the notes of " + primDoc.getModel());
+        error.printStackTrace();
+      }
+    }
+  }
+
+  @Override
+  public void setDependentVariableData() {
+    // Gets data of the dependent variable in the primary model
+    Species species = primDoc.getModel().getSpecies(0);
+
+    if (species.isSetUnits()) {
+      String unitId = species.getUnits();
+
+      // Sets dependent variable unit
+      String unitName = primDoc.getModel().getUnitDefinition(unitId).getName();
+      template.setDependentVariable(unitName);
+
+      // Sets dependent variable
+      if (!unitId.equals("dimensionless")) {
+        if (DBUnits.getDBUnits().containsKey(unitName)) {
+          String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+          template.setDependentVariable(unitCategory);
+        }
+      }
+
+      // Sets dependent variable min & max
+      for (Limits lim : primModelLimits) {
+        if (lim.getVar().equals(species.getId())) {
+          if (lim.getMin() != null)
+            template.setDependentVariableMin(lim.getMin());
+          if (lim.getMax() != null)
+            template.setDependentVariableMax(lim.getMax());
+          break;
+        }
+      }
+    }
+  }
+
+  @Override
+  public void setIndependentVariableData() {
+    final Set<String> vars = new LinkedHashSet<>();
+    final Set<String> units = new LinkedHashSet<>();
+    final Set<Double> mins = new LinkedHashSet<>();
+    final Set<Double> maxs = new LinkedHashSet<>();
+
+    addIndepsFromPrimaryModel(vars, units, mins, maxs);
+    for (SBMLDocument doc : secDocs) {
+      addIndepsFromSecondaryModel(vars, units, mins, maxs, doc.getModel());
+    }
+
+    String[] varsArray = vars.toArray(new String[vars.size()]);
+    String[] unitsArray = vars.toArray(new String[units.size()]);
+    double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
+    double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
+
+    template.setIndependentVariables(varsArray);
+    template.setIndependentVariablesUnits(unitsArray);
+    template.setIndependentVariablesMins(minsArray);
+    template.setIndependentVariablesMaxs(maxsArray);
+  }
+
+  private void addIndepsFromPrimaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
+      Set<Double> maxs) {
+    final Model model = primDoc.getModel();
+    ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+    final String depName = rule.getVariable();
+
+    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
+      @Override
+      public boolean accepts(Object o) {
+        Parameter param = (Parameter) o;
+        return !param.isConstant() && !param.getId().equals(depName);
+      }
+    });
+
+    for (Parameter param : indepParams) {
+      final String unitId = param.getUnits();
+
+      // unit
+      units.add(unitId);
+
+      // category
+      String unitName = model.getUnitDefinition(unitId).getName();
+      if (!unitId.equals("dimensionless")) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+        vars.add(ufdb.getKind_of_property_quantity());
+      }
+
+      // min & max
+      for (Limits lim : primModelLimits) {
+        if (lim.getVar().equals(param.getId())) {
+          mins.add(lim.getMin());
+          maxs.add(lim.getMax());
+        }
+      }
+    }
+  }
+
+  private void addIndepsFromSecondaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
+      Set<Double> maxs, Model secModel) {
+    ModelRule rule = new ModelRule((AssignmentRule) secModel.getRule(0));
+    final String depName = rule.getVariable();
+
+    List<Parameter> indepParams = secModel.getListOfParameters().filterList(new Filter() {
+      @Override
+      public boolean accepts(Object o) {
+        Parameter param = (Parameter) o;
+        return !param.isConstant() && !param.getId().equals(depName);
+      }
+    });
+
+    List<Limits> limits =
+        secModel.getListOfConstraints().stream().map(LimitsConstraint::new)
+            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
+
+    for (Parameter param : indepParams) {
+      final String unitId = param.getUnits();
+
+      // unit
+      units.add(unitId);
+
+      // category
+      String unitName = secModel.getUnitDefinition(unitId).getName();
+      if (!unitId.equals("dimensionless")) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+        vars.add(ufdb.getKind_of_property_quantity());
+      }
+
+      // min & max
+      for (Limits lim : limits) {
+        if (lim.getVar().equals(param.getId())) {
+          mins.add(lim.getMin());
+          maxs.add(lim.getMax());
+        }
+      }
+    }
+  }
+
+  @Override
+  public void setHasData() {
+    template.setHasData(false);
   }
 }

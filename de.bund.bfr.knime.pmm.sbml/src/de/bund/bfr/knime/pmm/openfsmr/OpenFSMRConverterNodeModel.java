@@ -255,10 +255,7 @@ class TwoStepSecondaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? TwoStepSecondaryModelFile.readPMFX(filepath)
             : TwoStepSecondaryModelFile.readPMF(filepath);
 
-    return sms
-        .stream()
-        .map(sm -> FSMRUtils.processModelWithMicrobialData(sm.getPrimModels().get(0).getModelDoc()))
-        .collect(Collectors.toList());
+    return sms.stream().map(FSMRUtils::processTwoStepSecondaryModel).collect(Collectors.toList());
   }
 }
 
@@ -271,8 +268,7 @@ class OneStepSecondaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? OneStepSecondaryModelFile.readPMFX(filepath)
             : OneStepSecondaryModelFile.readPMF(filepath);
 
-    return sms.stream().map(OneStepSecondaryModel::getModelDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return sms.stream().map(FSMRUtils::processOneStepSecondaryModel).collect(Collectors.toList());
   }
 }
 
@@ -285,8 +281,7 @@ class ManualSecondaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? ManualSecondaryModelFile.readPMFX(filepath)
             : ManualSecondaryModelFile.readPMF(filepath);
 
-    return sms.stream().map(ManualSecondaryModel::getDoc)
-        .map(FSMRUtils::processModelWithoutMicrobialData).collect(Collectors.toList());
+    return sms.stream().map(FSMRUtils::processManualSecondaryModel).collect(Collectors.toList());
   }
 }
 
@@ -299,8 +294,7 @@ class TwoStepTertiaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? TwoStepTertiaryModelFile.readPMFX(filepath)
             : TwoStepTertiaryModelFile.readPMF(filepath);
 
-    return tms.stream().map(TwoStepTertiaryModel::getTertDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return tms.stream().map(FSMRUtils::processTwoStepTertiaryModel).collect(Collectors.toList());
   }
 }
 
@@ -313,8 +307,7 @@ class OneStepTertiaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? OneStepTertiaryModelFile.readPMFX(filepath)
             : OneStepTertiaryModelFile.readPMF(filepath);
 
-    return tms.stream().map(OneStepTertiaryModel::getTertiaryDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return tms.stream().map(FSMRUtils::processOneStepTertiaryModel).collect(Collectors.toList());
   }
 }
 
@@ -327,7 +320,6 @@ class ManualTertiaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? ManualTertiaryModelFile.readPMFX(filepath)
             : ManualTertiaryModelFile.readPMF(filepath);
 
-    return tms.stream().map(ManualTertiaryModel::getTertiaryDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return tms.stream().map(FSMRUtils::processManualTertiaryModel).collect(Collectors.toList());
   }
 }

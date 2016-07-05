@@ -523,11 +523,8 @@ public class ReaderUtils {
       modelContainer.close();
 
       // Gets KNIME tuples with the FSMR templates
-      List<SBMLDocument> primModels =
-          models.stream().map(mod -> mod.getPrimModels().get(0).getModelDoc())
-              .collect(Collectors.toList());
       List<KnimeTuple> fsmrTuples =
-          primModels.stream().map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processTwoStepSecondaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR templates
@@ -590,10 +587,8 @@ public class ReaderUtils {
       modelContainer.close();
 
       // Gets KNIME tuples with the FSMR templates
-      List<SBMLDocument> primModels =
-          models.stream().map(OneStepSecondaryModel::getModelDoc).collect(Collectors.toList());
       List<KnimeTuple> fsmrTuples =
-          primModels.stream().map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processOneStepSecondaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with the FSMR templates
@@ -654,8 +649,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(ManualSecondaryModel::getDoc)
-              .map(FSMRUtils::processModelWithoutMicrobialData)
+          models.stream().map(FSMRUtils::processManualSecondaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates cotnainer with OpenFSMR tuples
@@ -697,8 +691,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(TwoStepTertiaryModel::getTertDoc)
-              .map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processTwoStepTertiaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR tuples
@@ -759,8 +752,7 @@ public class ReaderUtils {
 
       // Gets KNIME tuples with the FSMR templates
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(OneStepTertiaryModel::getTertiaryDoc)
-              .map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processOneStepTertiaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR tuples
@@ -825,8 +817,7 @@ public class ReaderUtils {
 
       // Gets KNIME tuples with the FSMR templates
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(ManualTertiaryModel::getTertiaryDoc)
-              .map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processManualTertiaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR tuples

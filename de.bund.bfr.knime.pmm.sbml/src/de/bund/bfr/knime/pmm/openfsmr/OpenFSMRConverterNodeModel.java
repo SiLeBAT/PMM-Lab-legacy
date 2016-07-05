@@ -18,7 +18,9 @@ package de.bund.bfr.knime.pmm.openfsmr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jdom2.Element;
@@ -38,6 +40,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.ModelType;
 import de.bund.bfr.pmfml.file.ExperimentalDataFile;
 import de.bund.bfr.pmfml.file.ManualSecondaryModelFile;
 import de.bund.bfr.pmfml.file.ManualTertiaryModelFile;
@@ -79,6 +82,19 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
   private SettingsModelString selectedDirectory = new SettingsModelString(CFGKEY_DIR, DEFAULT_DIR);
   private SettingsModelStringArray selectedFiles = new SettingsModelStringArray(CFGKEY_FILES,
       DEFAULT_FILES);
+
+  private static final Map<ModelType, Converter> CONVERTERS = new HashMap<>();
+  static {
+    CONVERTERS.put(ModelType.EXPERIMENTAL_DATA, new ExperimentalDataConverter());
+    CONVERTERS.put(ModelType.PRIMARY_MODEL_WDATA, new PrimaryModelWithDataConverter());
+    CONVERTERS.put(ModelType.PRIMARY_MODEL_WODATA, new PrimaryModelWithoutDataConverter());
+    CONVERTERS.put(ModelType.TWO_STEP_SECONDARY_MODEL, new TwoStepSecondaryModelConverter());
+    CONVERTERS.put(ModelType.ONE_STEP_SECONDARY_MODEL, new OneStepSecondaryModelConverter());
+    CONVERTERS.put(ModelType.MANUAL_SECONDARY_MODEL, new ManualSecondaryModelConverter());
+    CONVERTERS.put(ModelType.TWO_STEP_TERTIARY_MODEL, new TwoStepTertiaryModelConverter());
+    CONVERTERS.put(ModelType.ONE_STEP_TERTIARY_MODEL, new OneStepTertiaryModelConverter());
+    CONVERTERS.put(ModelType.MANUAL_TERTIARY_MODEL, new ManualTertiaryModelConverter());
+  }
 
   /** Constructor for the node model. */
   protected OpenFSMRConverterNodeModel() {
@@ -169,38 +185,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
     // c) Close archive
     ca.close();
 
-    Converter converter;
-    switch (pmfMetadataNode.getModelType()) {
-      case EXPERIMENTAL_DATA:
-        converter = new ExperimentalDataConverter();
-        break;
-      case PRIMARY_MODEL_WDATA:
-        converter = new PrimaryModelWithDataConverter();
-        break;
-      case PRIMARY_MODEL_WODATA:
-        converter = new PrimaryModelWithoutDataConverter();
-        break;
-      case TWO_STEP_SECONDARY_MODEL:
-        converter = new TwoStepSecondaryModelConverter();
-        break;
-      case ONE_STEP_SECONDARY_MODEL:
-        converter = new OneStepSecondaryModelConverter();
-        break;
-      case MANUAL_SECONDARY_MODEL:
-        converter = new ManualSecondaryModelConverter();
-        break;
-      case TWO_STEP_TERTIARY_MODEL:
-        converter = new TwoStepTertiaryModelConverter();
-        break;
-      case ONE_STEP_TERTIARY_MODEL:
-        converter = new OneStepTertiaryModelConverter();
-        break;
-      case MANUAL_TERTIARY_MODEL:
-        converter = new ManualTertiaryModelConverter();
-        break;
-      default:
-        throw new RuntimeException("Unsupported file");
-    }
+    Converter converter = CONVERTERS.get(pmfMetadataNode.getModelType());
 
     return converter.convert(filepath);
   }
@@ -270,10 +255,7 @@ class TwoStepSecondaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? TwoStepSecondaryModelFile.readPMFX(filepath)
             : TwoStepSecondaryModelFile.readPMF(filepath);
 
-    return sms
-        .stream()
-        .map(sm -> FSMRUtils.processModelWithMicrobialData(sm.getPrimModels().get(0).getModelDoc()))
-        .collect(Collectors.toList());
+    return sms.stream().map(FSMRUtils::processTwoStepSecondaryModel).collect(Collectors.toList());
   }
 }
 
@@ -286,8 +268,7 @@ class OneStepSecondaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? OneStepSecondaryModelFile.readPMFX(filepath)
             : OneStepSecondaryModelFile.readPMF(filepath);
 
-    return sms.stream().map(OneStepSecondaryModel::getModelDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return sms.stream().map(FSMRUtils::processOneStepSecondaryModel).collect(Collectors.toList());
   }
 }
 
@@ -300,8 +281,7 @@ class ManualSecondaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? ManualSecondaryModelFile.readPMFX(filepath)
             : ManualSecondaryModelFile.readPMF(filepath);
 
-    return sms.stream().map(ManualSecondaryModel::getDoc)
-        .map(FSMRUtils::processModelWithoutMicrobialData).collect(Collectors.toList());
+    return sms.stream().map(FSMRUtils::processManualSecondaryModel).collect(Collectors.toList());
   }
 }
 
@@ -314,8 +294,7 @@ class TwoStepTertiaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? TwoStepTertiaryModelFile.readPMFX(filepath)
             : TwoStepTertiaryModelFile.readPMF(filepath);
 
-    return tms.stream().map(TwoStepTertiaryModel::getTertDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return tms.stream().map(FSMRUtils::processTwoStepTertiaryModel).collect(Collectors.toList());
   }
 }
 
@@ -328,8 +307,7 @@ class OneStepTertiaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? OneStepTertiaryModelFile.readPMFX(filepath)
             : OneStepTertiaryModelFile.readPMF(filepath);
 
-    return tms.stream().map(OneStepTertiaryModel::getTertiaryDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return tms.stream().map(FSMRUtils::processOneStepTertiaryModel).collect(Collectors.toList());
   }
 }
 
@@ -342,7 +320,6 @@ class ManualTertiaryModelConverter implements Converter {
         filepath.endsWith(".pmfx") ? ManualTertiaryModelFile.readPMFX(filepath)
             : ManualTertiaryModelFile.readPMF(filepath);
 
-    return tms.stream().map(ManualTertiaryModel::getTertiaryDoc)
-        .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
+    return tms.stream().map(FSMRUtils::processManualTertiaryModel).collect(Collectors.toList());
   }
 }

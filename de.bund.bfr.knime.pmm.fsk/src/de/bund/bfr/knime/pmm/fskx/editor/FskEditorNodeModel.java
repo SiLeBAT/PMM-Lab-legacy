@@ -117,6 +117,16 @@ class FskEditorNodeModel extends NodeModel {
 		// - Takes R workspace and libraries from input object (not saved yet in
 		// settings)
 
+		// If the node is new and its dialog hasn't been opened (has not
+		// settings yet) then assigns the input
+		if (modelScript.getStringValue().isEmpty() && paramScript.getStringValue().isEmpty()
+				&& vizScript.getStringValue().isEmpty()) {
+			modelScript.setStringValue(inObj.getModelScript());
+			paramScript.setStringValue(inObj.getParamScript());
+			vizScript.setStringValue(inObj.getVizScript());
+			templateSettings.setTemplate(inObj.getTemplate());
+		}
+
 		FskPortObject outObj = new FskPortObject(modelScript.getStringValue(), paramScript.getStringValue(),
 				vizScript.getStringValue(), templateSettings.getTemplate(), inObj.getWorkspaceFile(),
 				inObj.getLibraries());

@@ -470,8 +470,7 @@ public class TableReader {
 			longLegend.put(id, index + "");
 			shortIds.put(id, index + "");
 			stringColumns.get(IDENTIFIER).add(index + "");
-			stringColumns.get(Model1Schema.FORMULA).add(modelName);
-			stringColumns.get(Model1Schema.NAME).add(modelName);
+			stringColumns.get(Model1Schema.FORMULA).add(modelName);			
 			stringColumns.get(Model1Schema.ATT_EMLIT).add(literature);
 			stringColumns.get(Model1Schema.NAME).add(
 					((EstModelXml) estModelXml.get(0)).getName());

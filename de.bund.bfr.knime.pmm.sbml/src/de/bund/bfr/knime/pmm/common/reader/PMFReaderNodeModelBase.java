@@ -32,6 +32,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.pmfml.file.PMFMetadataNode;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.MetaDataObject;
@@ -129,8 +130,8 @@ public abstract class PMFReaderNodeModelBase extends NodeModel {
     // Get model type from annotation in the metadata file
 
     // a) Open archive
-    String filepath = filename.getStringValue();
-    CombineArchive ca = new CombineArchive(new File(filepath));
+    File file = KnimeUtils.getFile(filename.getStringValue());
+    CombineArchive ca = new CombineArchive(file);
 
     // b) Get annotation
     MetaDataObject mdo = ca.getDescriptions().get(0);
@@ -141,7 +142,7 @@ public abstract class PMFReaderNodeModelBase extends NodeModel {
     ca.close();
 
     BufferedDataContainer[] containers =
-        ReaderUtils.readPMF(filepath, isPMFX(), exec, pmfMetadataNode.getModelType());
+        ReaderUtils.readPMF(file, isPMFX(), exec, pmfMetadataNode.getModelType());
     BufferedDataTable[] tables = {containers[0].getTable(), containers[1].getTable()};
     return tables;
   }

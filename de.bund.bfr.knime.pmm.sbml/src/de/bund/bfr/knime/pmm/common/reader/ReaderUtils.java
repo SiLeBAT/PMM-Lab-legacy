@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.common.reader;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -258,11 +259,11 @@ public class ReaderUtils {
     READERS.put(ModelType.MANUAL_TERTIARY_MODEL, new ManualTertiaryModelReader());
   }
   
-  public static BufferedDataContainer[] readPMF(String filepath, boolean isPMFX,
+  public static BufferedDataContainer[] readPMF(File file, boolean isPMFX,
       ExecutionContext exec, ModelType modelType) throws Exception {
 
     Reader reader = READERS.get(modelType);
-    return reader.read(filepath, isPMFX, exec);
+    return reader.read(file, isPMFX, exec);
   }
 
   /**
@@ -277,13 +278,13 @@ public class ReaderUtils {
      * @param isPMFX. If true the reads PMFX file. Else then read PMF file.
      * @throws Exception
      */
-    BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception;
   }
 
   private static class ExperimentalDataReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec dataSpec = SchemaFactory.createDataSchema().createSpec();
@@ -292,9 +293,9 @@ public class ReaderUtils {
       // Reads in experimental data from file
       List<ExperimentalData> eds;
       if (isPMFX) {
-        eds = ExperimentalDataFile.readPMFX(filepath);
+        eds = ExperimentalDataFile.readPMFX(file);
       } else {
-        eds = ExperimentalDataFile.readPMF(filepath);
+        eds = ExperimentalDataFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -323,7 +324,7 @@ public class ReaderUtils {
 
   private static class PrimaryModelWDataReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM1DataSchema().createSpec();
@@ -332,9 +333,9 @@ public class ReaderUtils {
       // Reads in models from file
       List<PrimaryModelWData> models;
       if (isPMFX) {
-        models = PrimaryModelWDataFile.readPMFX(filepath);
+        models = PrimaryModelWDataFile.readPMFX(file);
       } else {
-        models = PrimaryModelWDataFile.readPMF(filepath);
+        models = PrimaryModelWDataFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -400,7 +401,7 @@ public class ReaderUtils {
 
   private static class PrimaryModelWODataReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM1DataSchema().createSpec();
@@ -409,9 +410,9 @@ public class ReaderUtils {
       // Reads in models from file
       List<PrimaryModelWOData> models;
       if (isPMFX) {
-        models = PrimaryModelWODataFile.readPMFX(filepath);
+        models = PrimaryModelWODataFile.readPMFX(file);
       } else {
-        models = PrimaryModelWODataFile.readPMF(filepath);
+        models = PrimaryModelWODataFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -478,7 +479,7 @@ public class ReaderUtils {
 
   private static class TwoStepSecondaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -487,9 +488,9 @@ public class ReaderUtils {
       // Reads in models from file
       List<TwoStepSecondaryModel> models;
       if (isPMFX) {
-        models = TwoStepSecondaryModelFile.readPMFX(filepath);
+        models = TwoStepSecondaryModelFile.readPMFX(file);
       } else {
-        models = TwoStepSecondaryModelFile.readPMF(filepath);
+        models = TwoStepSecondaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -542,7 +543,7 @@ public class ReaderUtils {
 
   private static class OneStepSecondaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -551,9 +552,9 @@ public class ReaderUtils {
       // Reads in models from file
       List<OneStepSecondaryModel> models;
       if (isPMFX) {
-        models = OneStepSecondaryModelFile.readPMFX(filepath);
+        models = OneStepSecondaryModelFile.readPMFX(file);
       } else {
-        models = OneStepSecondaryModelFile.readPMF(filepath);
+        models = OneStepSecondaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -605,7 +606,7 @@ public class ReaderUtils {
 
   private static class ManualSecondaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM2Schema().createSpec();
@@ -614,9 +615,9 @@ public class ReaderUtils {
       // Reads in models from file
       List<ManualSecondaryModel> models;
       if (isPMFX) {
-        models = ManualSecondaryModelFile.readPMFX(filepath);
+        models = ManualSecondaryModelFile.readPMFX(file);
       } else {
-        models = ManualSecondaryModelFile.readPMF(filepath);
+        models = ManualSecondaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -645,7 +646,7 @@ public class ReaderUtils {
 
   private static class TwoStepTertiaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -654,9 +655,9 @@ public class ReaderUtils {
       // Read in models from file
       List<TwoStepTertiaryModel> models;
       if (isPMFX) {
-        models = TwoStepTertiaryModelFile.readPMFX(filepath);
+        models = TwoStepTertiaryModelFile.readPMFX(file);
       } else {
-        models = TwoStepTertiaryModelFile.readPMF(filepath);
+        models = TwoStepTertiaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -706,7 +707,7 @@ public class ReaderUtils {
 
   private static class OneStepTertiaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -715,9 +716,9 @@ public class ReaderUtils {
       // Read in models from file
       List<OneStepTertiaryModel> models;
       if (isPMFX) {
-        models = OneStepTertiaryModelFile.readPMFX(filepath);
+        models = OneStepTertiaryModelFile.readPMFX(file);
       } else {
-        models = OneStepTertiaryModelFile.readPMF(filepath);
+        models = OneStepTertiaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -773,7 +774,7 @@ public class ReaderUtils {
 
   private static class ManualTertiaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -782,9 +783,9 @@ public class ReaderUtils {
       // Read in models from file
       List<ManualTertiaryModel> models;
       if (isPMFX) {
-        models = ManualTertiaryModelFile.readPMFX(filepath);
+        models = ManualTertiaryModelFile.readPMFX(file);
       } else {
-        models = ManualTertiaryModelFile.readPMF(filepath);
+        models = ManualTertiaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container

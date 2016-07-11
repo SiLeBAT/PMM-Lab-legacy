@@ -2202,7 +2202,7 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
 
       // category
       String unitName = model.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
+      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
         UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
         vars.add(ufdb.getKind_of_property_quantity());
       }

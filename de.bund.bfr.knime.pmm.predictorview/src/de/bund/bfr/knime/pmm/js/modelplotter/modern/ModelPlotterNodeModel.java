@@ -115,7 +115,7 @@ public final class ModelPlotterNodeModel
 
 	private final ModelPlotterViewConfig m_config;
 	private boolean m_executed = false;
-	private MODEL_TYPE type = null;
+	private MODEL_TYPE mType = null;
 
 	/**
 	 * Constructor of {@code ModelPlotterNodeModel}.
@@ -168,10 +168,15 @@ public final class ModelPlotterNodeModel
 
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		if (!SchemaFactory.createM12Schema().conforms((DataTableSpec) inSpecs[0]) &&
-			!SchemaFactory.createM1Schema().conforms((DataTableSpec) inSpecs[0]) &&
-			!SchemaFactory.createM2Schema().conforms((DataTableSpec) inSpecs[0])) 
-		{
+		// check input schema
+		if(SchemaFactory.conformsM2Schema((DataTableSpec) inSpecs[0]))
+			mType = MODEL_TYPE.M12;
+		else if (SchemaFactory.conformsM1DataSchema((DataTableSpec) inSpecs[0])) 
+			mType = MODEL_TYPE.M1;
+		else if  (SchemaFactory.conformsM12DataSchema((DataTableSpec) inSpecs[0]))
+			mType = MODEL_TYPE.M12;
+		else { 
+			LOGGER.error("model schema not supported / unknown data table spec");
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
@@ -188,6 +193,7 @@ public final class ModelPlotterNodeModel
 	@Override
 	protected PortObject[] performExecuteCreatePortObjects(PortObject svgImageFromView, PortObject[] inObjects,
 			ExecutionContext exec) throws Exception {
+		
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
 		List<KnimeTuple> tuples = getTuples(table);
 
@@ -204,18 +210,6 @@ public final class ModelPlotterNodeModel
 			viewValue.setMinYAxis(m_config.getMinYAxis());
 			viewValue.setMaxXAxis(m_config.getMaxXAxis());
 			viewValue.setMaxYAxis(m_config.getMaxYAxis());
-
-			// create schemata
-			if(SchemaFactory.conformsM12DataSchema(table.getDataTableSpec()))
-				type = MODEL_TYPE.M12;
-			else if (SchemaFactory.conformsM1DataSchema(table.getDataTableSpec())) 
-				type = MODEL_TYPE.M1;
-			else if (SchemaFactory.conformsM2Schema(table.getDataTableSpec())) 
-				type = MODEL_TYPE.M2;
-			else { 
-				LOGGER.error("model schema not supported / unknown data table spec");
-				exec.checkCanceled();
-			}
 
 			// create UnitList from DBUnits
 			// (this way we can use the units known to the DB and do not have to
@@ -243,7 +237,7 @@ public final class ModelPlotterNodeModel
 		
 		List<?> modelList = null;
 		
-		if(type == MODEL_TYPE.M12)
+		if(mType == MODEL_TYPE.M12)
 		{
 			modelList = codeM12DataSchema(tuples);
 			
@@ -257,7 +251,7 @@ public final class ModelPlotterNodeModel
 			// set new list to view
 			viewValue.setM2DataModels(list);
 		}
-		else if (type == MODEL_TYPE.M1)
+		else if (mType == MODEL_TYPE.M1)
 		{
 			modelList = codeM1DataSchema(tuples);
 			
@@ -271,7 +265,7 @@ public final class ModelPlotterNodeModel
 			// set new list to view
 			viewValue.setM1DataModels(list);
 		}
-		else if (type == MODEL_TYPE.M2)
+		else if (mType == MODEL_TYPE.M2)
 		{
 			modelList = codeM2Schema(tuples);
 			
@@ -292,7 +286,7 @@ public final class ModelPlotterNodeModel
 		BufferedDataContainer container = null;
 		List<KnimeTuple> outTuple = null;
 		
-		if(type == MODEL_TYPE.M12) {
+		if(mType == MODEL_TYPE.M12) {
 			container = exec.createDataContainer(SchemaFactory.createM12DataSchema().createSpec());
 			JsM12DataSchemaList outModelList = getViewValue().getM12Models();
 			JsM12DataSchema[] resultSchemaArray = outModelList.getSchemas();
@@ -302,7 +296,7 @@ public final class ModelPlotterNodeModel
 			}
 			outTuple = decodeM12DataSchemas(resultList);
 		}
-		else if(type == MODEL_TYPE.M1) {
+		else if(mType == MODEL_TYPE.M1) {
 			container = exec.createDataContainer(SchemaFactory.createM1DataSchema().createSpec());
 			JsM1DataSchemaList outModelList = getViewValue().getM1Models();
 			JsM1DataSchema[] resultDataSchemaArray = outModelList.getSchemas();
@@ -312,13 +306,13 @@ public final class ModelPlotterNodeModel
 			}
 			outTuple = decodeM1DataSchemas(resultList);
 		}
-		else if(type == MODEL_TYPE.M2) {
+		else if(mType == MODEL_TYPE.M2) {
 			container = exec.createDataContainer(SchemaFactory.createM2Schema().createSpec());
 			JsM2SchemaList outModelList = getViewValue().getM2Models();
 			JsM2Schema[] resultSchemaArray = outModelList.getSchemas();
 			List<JsM2Schema> resultList = new ArrayList<JsM2Schema>();
-			for (JsM2Schema jsM2DataSchema : resultSchemaArray) {
-				resultList.add(jsM2DataSchema);
+			for (JsM2Schema jsM2Schema : resultSchemaArray) {
+				resultList.add(jsM2Schema);
 			}
 			outTuple = decodeM2Schemas(resultList);
 		}
@@ -348,6 +342,7 @@ public final class ModelPlotterNodeModel
 
 		userContainer.addRowToTable(userTuple);
 		userContainer.close();
+		
 
 		// TODO: finish output
 		return new PortObject[] { container.getTable(), userContainer.getTable(), svgImageFromView };
@@ -355,10 +350,10 @@ public final class ModelPlotterNodeModel
 
 
 	private PortObjectSpec[] createOutputDataTableSpecs() {
-		if (type == MODEL_TYPE.M12)
+		if (mType == MODEL_TYPE.M12)
 			return new PortObjectSpec[] { SchemaFactory.createM12DataSchema().createSpec(), getUserSpec(),
 				ChartUtilities.getImageSpec(true) };
-		else if (type == MODEL_TYPE.M1)
+		else if (mType == MODEL_TYPE.M1)
 			return new PortObjectSpec[] { SchemaFactory.createM1DataSchema().createSpec(), getUserSpec(),
 					ChartUtilities.getImageSpec(true) };
 		else // secondary model

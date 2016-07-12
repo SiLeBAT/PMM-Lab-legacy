@@ -98,6 +98,7 @@ pmm_plotter = function() {
 		}
 		
 		_plotterValue = value;
+		_recentPlot = _plotterValue.svgPlot;
 		_rawModels = value.models.schemas;
 		_dbUnits = value.units.units;
 		// plotterRep = representation; // not used
@@ -692,12 +693,15 @@ pmm_plotter = function() {
 			 fnType: 'linear',
 			 name: model.estModel.name,
 			 fn: functionAsString,
+			 rawFormula: functionAsString,
 			 scope: functionConstants,
 			 color: color,
 			 range: range,
 			 skipTip: false,
 			 modelData: model
 		};
+		
+		resetBinaryFormulaBindings(modelObj);
 		
 		// for given data, we add an additional graph that only includes the data points
 		if(model.dataPoints.length > 0)
@@ -1094,6 +1098,8 @@ pmm_plotter = function() {
 			var constants = _modelObjects[modelIndex].scope;
 			if(constants && constants[parameter] != undefined)
 				constants[parameter] = newValue;
+//			show(_modelObjects[modelIndex]);
+			resetBinaryFormulaBindings(_modelObjects[modelIndex]);
 		}
 		// update global map for future models
 		$.each(_parameterMap, function(index, parameterEntry) {
@@ -1104,6 +1110,85 @@ pmm_plotter = function() {
 		});
 		
 		drawD3Plot();
+	}
+	
+	function resetBinaryFormulaBindings(model) {
+		// not necessary for data points
+		if(model.fnType == 'points')
+			return;
+		
+		var scope = model.scope;
+		var formula = model.rawFormula;
+		
+		// search these: \)*[<>!|&=]\(*
+		// replace for each bracket like this: \([^(]*\([^(]*\)\)[<>!|&=][^)]*\)
+//		show(formula);
+		var booleanStatements = formula.match(/\)*[<>!|&=]+\(*/g);
+//		show(booleanStatements);
+		
+		var refilledStatements = []		
+		// regex cannot deliver outer brackets: we lose some brackets in the match
+		$.each(booleanStatements, function (index, statement) {
+			refilledStatements.push(refillStatement(statement));
+		});
+//		show(refilledStatements);
+		
+		var fullStatements =  [];
+				
+		$.each(refilledStatements, function (index, statement) {
+//			show(statement);
+			var statementRegEx = new RegExp(statement);
+//			show(statementRegEx);
+			fullStatements.push(formula.match(statementRegEx)[0]);
+//			show(fullStatements);		
+		});
+		
+		// replace parameters with their values in each statement
+		$.each (fullStatements, function (index, statement) {
+			if(math.eval(statement, scope) == true)
+				formula = formula.replace(statement, 1);
+			else
+				formula = formula.replace(statement, 0);
+		});
+		
+		// replace old formula with parsed formula (no boolean statements)
+//		show(formula);
+		model.fn = formula;
+		
+		// fill brackets from both sides
+		function refillStatement(statement) {
+			operator = statement.match(/[<>!|&=]+/g)[0];
+			
+			left = statement.split(operator)[0]
+			right = statement.split(operator)[1]
+					
+			leftClosingNum = left.split(")").length - 1;
+			rightOpeningNum = right.split("(").length - 1;
+			
+			escapedOperator = "";
+			escapedStatement = "";
+
+//			show(statement);
+
+			for(i = 0; i < operator.length; i++)
+			{
+				escapedStatement = escapedStatement + "\\" + operator.charAt(i);
+			}
+				
+			for(i = 0; i < leftClosingNum; i++)
+			{
+				escapedStatement = "\\([^(]*" + escapedStatement;
+			}
+			
+			for(i = 0; i < rightOpeningNum; i++)
+			{
+				escapedStatement = escapedStatement + "[^)]\\)*";
+			}
+			
+			escapedStatement = "\\([^(]*" + escapedStatement + "[^)]*\\)";
+			
+			return escapedStatement;
+		}
 	}
 
 	/**
@@ -1442,7 +1527,7 @@ pmm_plotter = function() {
 	
 	modelPlotter.getSVG = function()
 	{
-		return _recentPlot
+		return _recentPlot;
 	}
 	
 	/*

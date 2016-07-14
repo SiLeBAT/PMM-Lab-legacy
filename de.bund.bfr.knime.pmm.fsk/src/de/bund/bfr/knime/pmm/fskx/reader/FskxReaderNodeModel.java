@@ -31,6 +31,9 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.BufferedDataContainer;
+import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -49,12 +52,14 @@ import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
+import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
+import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.pmfml.file.uri.UriFactory;
@@ -74,7 +79,7 @@ class FskxReaderNodeModel extends NodeModel {
 	private final SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
 	private static final PortType[] inPortTypes = {};
-	private static final PortType[] outPortTypes = { FskPortObject.TYPE, RPortObject.TYPE };
+	private static final PortType[] outPortTypes = { FskPortObject.TYPE, RPortObject.TYPE, BufferedDataTable.TYPE };
 
 	protected FskxReaderNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -170,11 +175,20 @@ class FskxReaderNodeModel extends NodeModel {
 		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
 			e.printStackTrace();
 		}
+		
+		// Meta data port
+		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		if (template != null) {
+			KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
+			fsmrContainer.addRowToTable(tuple);
+		}
+		fsmrContainer.close();
 
 		FskPortObject fskObj = new FskPortObject(model, param, viz, template, workspaceFile, libs);
 		RPortObject rObj = new RPortObject(fskObj.getWorkspaceFile());
 
-		return new PortObject[] { fskObj, rObj };
+		return new PortObject[] { fskObj, rObj, fsmrContainer.getTable() };
 	}
 
 	private String loadScriptFromEntry(final ArchiveEntry entry) throws IOException {
@@ -195,7 +209,7 @@ class FskxReaderNodeModel extends NodeModel {
 	/** {@inheritDoc} */
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		return new PortObjectSpec[] { null, null };
+		return inSpecs;
 	}
 
 	/** {@inheritDoc} */

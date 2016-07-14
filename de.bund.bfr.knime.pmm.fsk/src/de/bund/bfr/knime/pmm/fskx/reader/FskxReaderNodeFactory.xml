@@ -31,5 +31,6 @@
 	<ports>
 		<outPort name="FSK object" index="0">FSK object</outPort>
 		<outPort name="R workspace" index="1">R workspace</outPort>
+		<outPort name="Model metadata" index="2">Model metadata</outPort>
 	</ports>
 </knimeNode>

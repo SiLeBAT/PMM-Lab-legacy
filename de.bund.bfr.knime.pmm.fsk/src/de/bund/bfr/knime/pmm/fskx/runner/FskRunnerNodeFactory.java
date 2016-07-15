@@ -3,6 +3,7 @@ package de.bund.bfr.knime.pmm.fskx.runner;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 public class FskRunnerNodeFactory extends NodeFactory<FskRunnerNodeModel> {
 
@@ -29,6 +30,6 @@ public class FskRunnerNodeFactory extends NodeFactory<FskRunnerNodeModel> {
 
   @Override
   protected NodeDialogPane createNodeDialogPane() {
-    return null;
+    return new DefaultNodeSettingsPane();
   }
 }

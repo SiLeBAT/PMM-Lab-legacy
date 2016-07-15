@@ -58,6 +58,8 @@ public class NuMLReaderNodeModel extends NodeModel {
 
 	// persistent state
 	private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
+	
+	private static final DataTableSpec TABLE_SPEC = SchemaFactory.createDataSchema().createSpec();
 
 	/**
 	 * Constructor for the node model
@@ -78,8 +80,7 @@ public class NuMLReaderNodeModel extends NodeModel {
 		NuMLDocument doc = NuMLReader.read(file);
 		KnimeTuple tuple = new DataTuple(doc).getTuple();
 
-		DataTableSpec dataSpec = SchemaFactory.createDataSchema().createSpec();
-		BufferedDataContainer dataContainer = exec.createDataContainer(dataSpec);
+		BufferedDataContainer dataContainer = exec.createDataContainer(TABLE_SPEC);
 		dataContainer.addRowToTable(tuple);
 		dataContainer.close();
 
@@ -92,7 +93,7 @@ public class NuMLReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] { null };
+		return new DataTableSpec[] { TABLE_SPEC };
 	}
 
 	/**

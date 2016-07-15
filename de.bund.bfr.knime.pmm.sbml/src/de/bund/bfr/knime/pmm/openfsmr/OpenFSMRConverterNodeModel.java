@@ -96,6 +96,8 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
     CONVERTERS.put(ModelType.ONE_STEP_TERTIARY_MODEL, new OneStepTertiaryModelConverter());
     CONVERTERS.put(ModelType.MANUAL_TERTIARY_MODEL, new ManualTertiaryModelConverter());
   }
+  
+  private static final DataTableSpec TABLE_SPEC = new OpenFSMRSchema().createSpec();
 
   /** Constructor for the node model. */
   protected OpenFSMRConverterNodeModel() {
@@ -107,7 +109,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
   @Override
   protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
       final ExecutionContext exec) throws Exception {
-    BufferedDataContainer container = exec.createDataContainer(new OpenFSMRSchema().createSpec());
+    BufferedDataContainer container = exec.createDataContainer(TABLE_SPEC);
     for (String selectedFile : selectedFiles.getStringArrayValue()) {
       // Builds full path
       String fullpath = selectedDirectory.getStringValue() + "/" + selectedFile;
@@ -137,7 +139,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
   @Override
   protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] {null};
+    return new DataTableSpec[] {TABLE_SPEC};
   }
 
   /** {@inheritDoc} */

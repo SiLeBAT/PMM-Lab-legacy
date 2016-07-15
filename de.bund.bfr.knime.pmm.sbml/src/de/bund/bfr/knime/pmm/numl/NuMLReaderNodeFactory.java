@@ -42,7 +42,7 @@ public class NuMLReaderNodeFactory extends NodeFactory<NuMLReaderNodeModel> {
 	
 	@Override
 	public NodeView<NuMLReaderNodeModel> createNodeView(final int viewIndex, final NuMLReaderNodeModel nodeModel) {
-		return new NuMLReaderNodeView(nodeModel);
+		return null;
 	}
 	
 	@Override

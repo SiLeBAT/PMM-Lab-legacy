@@ -37,7 +37,7 @@ public class SBMLReaderNodeFactory extends NodeFactory<SBMLReaderNodeModel> {
 	
 	@Override
 	public NodeView<SBMLReaderNodeModel> createNodeView(final int viewIndex, final SBMLReaderNodeModel nodeModel) {
-        return new SBMLReaderNodeView(nodeModel);
+        return null;
     }
 	
 	@Override

@@ -2210,8 +2210,10 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
       // min & max
       for (Limits lim : primModelLimits) {
         if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
+          if (lim.getMin() != null)
+            mins.add(lim.getMin());
+          if (lim.getMax() != null)
+            maxs.add(lim.getMax());
         }
       }
     }

@@ -17,14 +17,51 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfxreader;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
-import de.bund.bfr.knime.pmm.common.reader.PMFReaderNodeModelBase;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
-public class PMFXReaderNodeModel extends PMFReaderNodeModelBase {
+public class PMFXWriterNodeFactory extends NodeFactory<PMFWriterNodeModel> {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected boolean isPMFX() {
+	public PMFWriterNodeModel createNodeModel() {
+		return new PMFWriterNodeModel(true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<PMFWriterNodeModel> createNodeView(final int viewIndex, final PMFWriterNodeModel nodeModel) {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new PMFWriterNodeDialog();
 	}
 }

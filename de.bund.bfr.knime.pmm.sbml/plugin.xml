@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?eclipse version="3.0"?><plugin>
-
+<?eclipse version="3.0"?>
+<plugin>
 	<extension point="org.knime.workbench.repository.nodes">
-	   	<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.numl.NuMLReaderNodeFactory" id="numl.NuMLReaderNodeFactory" />
-		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory" id="sbmlreader.SBMLReaderNodeFactory" />
-		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.openfsmr.OpenFSMRConverterNodeFactory" id="openfsmr.OpenFSMRConverterFactory" />
-  <node
-        category-path="/pmmlab/writer"
-        deprecated="false"
-        factory-class="de.bund.bfr.knime.pmm.pmfxwriter.PMFXWriterNodeFactory"
-        id="de.bund.bfr.knime.pmm.pmfxwriter.PMFXWriterNodeFactory">
-  </node>
-  <node
-        category-path="/pmmlab/reader"
-        deprecated="false"
-        factory-class="de.bund.bfr.knime.pmm.pmfxreader.PMFXReaderNodeFactory"
-        id="de.bund.bfr.knime.pmm.pmfxreader.PMFXReaderNodeFactory">
-  </node>
-	</extension>	
-   
+	   	<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.numl.NuMLReaderNodeFactory"/>
+		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory"/>
+		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.openfsmr.OpenFSMRConverterNodeFactory"/>
+		
+  		<node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFXWriterNodeFactory"/>
+  		<node category-path="/pmmlab/writer" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory"/>
+  		
+  		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFXReaderNodeFactory"/>
+  		<node category-path="/pmmlab/reader" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory"/>
+	</extension>
 </plugin>

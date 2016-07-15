@@ -23,8 +23,6 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-import de.bund.bfr.knime.pmm.common.writer.PMFWriterNodeDialog;
-
 public class PMFWriterNodeFactory 
         extends NodeFactory<PMFWriterNodeModel> {
 
@@ -33,7 +31,7 @@ public class PMFWriterNodeFactory
      */
     @Override
     public PMFWriterNodeModel createNodeModel() {
-        return new PMFWriterNodeModel();
+        return new PMFWriterNodeModel(false);
     }
 
     /**
@@ -68,6 +66,5 @@ public class PMFWriterNodeFactory
     public NodeDialogPane createNodeDialogPane() {
         return new PMFWriterNodeDialog();
     }
-
 }
 

@@ -23,8 +23,6 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-import de.bund.bfr.knime.pmm.common.reader.PMFReaderNodeDialog;
-
 /**
  * <code>NodeFactory</code> for the "SBMLReader" Node.
  * 
@@ -38,7 +36,7 @@ public class PMFReaderNodeFactory
      */
     @Override
     public PMFReaderNodeModel createNodeModel() {
-        return new PMFReaderNodeModel();
+        return new PMFReaderNodeModel(false);
     }
 
     /**
@@ -55,7 +53,7 @@ public class PMFReaderNodeFactory
     @Override
     public NodeView<PMFReaderNodeModel> createNodeView(final int viewIndex,
             final PMFReaderNodeModel nodeModel) {
-        return new PMFReaderNodeView(nodeModel);
+      return null;
     }
 
     /**

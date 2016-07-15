@@ -45,8 +45,6 @@ Export-Package: de.bund.bfr.knime.pmm;
    org.knime.core.node,
    de.bund.bfr.knime.pmm.common.generictablemodel,
    javax.swing",
- de.bund.bfr.knime.pmm.pmfreader;uses:="de.bund.bfr.knime.pmm.common.reader,org.knime.core.node",
- de.bund.bfr.knime.pmm.pmfwriter;uses:="de.bund.bfr.knime.pmm.common.writer,org.knime.core.node",
  de.bund.bfr.knime.pmm.sbmlreader;uses:="org.knime.core.node.defaultnodesettings,org.knime.core.node",
  de.bund.bfr.knime.pmm.sbmlwriter;
   uses:="org.sbml.jsbml,

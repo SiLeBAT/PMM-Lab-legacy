@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,9 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -47,6 +50,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
 import org.knime.ext.r.node.local.port.RPortObject;
+import org.knime.ext.r.node.local.port.RPortObjectSpec;
 import org.rosuda.REngine.REXPMismatchException;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.xml.stax.SBMLReader;
@@ -59,6 +63,7 @@ import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
+import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.openfsmr.FSMRTemplateImpl;
@@ -78,8 +83,13 @@ class FskxReaderNodeModel extends NodeModel {
 	// defaults for persistent state
 	private final SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
-	private static final PortType[] inPortTypes = {};
+	private static final PortType[] inPortTypes = { BufferedDataTable.TYPE_OPTIONAL };
 	private static final PortType[] outPortTypes = { FskPortObject.TYPE, RPortObject.TYPE, BufferedDataTable.TYPE };
+	
+	// Specs
+	private static final FskPortObjectSpec fskSpec = FskPortObjectSpec.INSTANCE;
+	private static final RPortObjectSpec rSpec = RPortObjectSpec.INSTANCE;
+	private static final DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
 
 	protected FskxReaderNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -175,9 +185,25 @@ class FskxReaderNodeModel extends NodeModel {
 		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
 			e.printStackTrace();
 		}
-		
+
+		// Parameters table
+		if (inData.length == 1 && inData[0] != null) {
+			BufferedDataTable paramTable = (BufferedDataTable) inData[0];
+			if (paramTable.size() > 0) {
+				Iterator<DataRow> iterator = paramTable.iterator();
+				StringBuilder sb = new StringBuilder();
+				while (iterator.hasNext()) {
+					DataRow row = iterator.next();
+					String name = ((StringCell) row.getCell(0)).getStringValue();
+					String value = ((StringCell) row.getCell(1)).getStringValue();
+					sb.append(name + " <- " + value + "\n");
+				}
+
+				param = sb.toString();
+			}
+		}
+
 		// Meta data port
-		DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
 		if (template != null) {
 			KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
@@ -209,7 +235,7 @@ class FskxReaderNodeModel extends NodeModel {
 	/** {@inheritDoc} */
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		return inSpecs;
+		return new PortObjectSpec[] { fskSpec, rSpec, fsmrSpec };
 	}
 
 	/** {@inheritDoc} */
@@ -232,15 +258,15 @@ class FskxReaderNodeModel extends NodeModel {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 		// nothing
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 		// nothing
 	}
 

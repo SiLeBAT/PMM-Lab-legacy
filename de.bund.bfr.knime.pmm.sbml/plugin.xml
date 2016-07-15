@@ -3,8 +3,11 @@
 <plugin>
 	<extension point="org.knime.workbench.repository.nodes">
 	   	<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.numl.NuMLReaderNodeFactory"/>
-		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory"/>
+
 		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.openfsmr.OpenFSMRConverterNodeFactory"/>
+
+		<node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.sbmlreader.SBMLReaderNodeFactory"/>
+		<node category-path="/pmmlab/writer" deprecatedd="true" factory-class="de.bund.bfr.knime.pmm.sbmlwriter.SBMLWriterNodeFactory"/>
 		
   		<node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFXWriterNodeFactory"/>
   		<node category-path="/pmmlab/writer" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory"/>

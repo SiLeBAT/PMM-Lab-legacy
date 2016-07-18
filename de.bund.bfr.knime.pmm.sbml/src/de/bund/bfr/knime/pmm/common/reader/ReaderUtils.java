@@ -339,8 +339,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (PrimaryModelWData model : models) {
-        KnimeTuple tuple = parse(model);
-        modelContainer.addRowToTable(tuple);
+        modelContainer.addRowToTable(parse(model));
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -416,8 +415,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (PrimaryModelWOData model : models) {
-        KnimeTuple tuple = parse(model);
-        modelContainer.addRowToTable(tuple);
+        modelContainer.addRowToTable(parse(model));
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -494,10 +492,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (TwoStepSecondaryModel tssm : models) {
-        List<KnimeTuple> tuples = parse(tssm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(tssm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -558,10 +553,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (OneStepSecondaryModel ossm : models) {
-        List<KnimeTuple> tuples = parse(ossm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(ossm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -661,13 +653,9 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (TwoStepTertiaryModel tssm : models) {
-        List<KnimeTuple> tuples = parse(tssm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(tssm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
-
       modelContainer.close();
 
       // Creates tuples and adds them to the container
@@ -722,10 +710,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (OneStepTertiaryModel ostm : models) {
-        List<KnimeTuple> tuples = parse(ostm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(ostm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -789,8 +774,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (ManualTertiaryModel mtm : models) {
-        List<KnimeTuple> tuples = parse(mtm);
-        tuples.forEach(modelContainer::addRowToTable);
+        parse(mtm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 

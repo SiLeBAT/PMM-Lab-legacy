@@ -515,46 +515,39 @@ public class WriterUtils {
         Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
         throws Exception {
 
-      // Sort secondary models
-      Map<Integer, List<KnimeTuple>> secTuples = new HashMap<>();
+      // Group tuples according to its secondary model
+      Map<Integer, List<KnimeTuple>> secModelMap = new HashMap<>();
       for (KnimeTuple tuple : tuples) {
-        // Get secondary EstModel
-        EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-        if (secTuples.containsKey(estModel.getId())) {
-          secTuples.get(estModel.getId()).add(tuple);
+        int secModelId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
+        if (secModelMap.containsKey(secModelId)) {
+          secModelMap.get(secModelId).add(tuple);
         } else {
           List<KnimeTuple> tlist = new LinkedList<>();
           tlist.add(tuple);
-          secTuples.put(estModel.getId(), tlist);
+          secModelMap.put(secModelId, tlist);
         }
       }
 
       // For the tuples of every secondary model
       List<TwoStepSecondaryModel> sms = new LinkedList<>();
-      for (List<KnimeTuple> tupleList : secTuples.values()) {
-        TwoStepSecondaryModel model = parse(tupleList, isPMFX, sms.size(), mdName, metadata, notes);
-        sms.add(model);
+      for (List<KnimeTuple> tupleList : secModelMap.values()) {
+        int modelCounter = sms.size();
+        sms.add(parse(tupleList, isPMFX, modelCounter, mdName, metadata, notes));
       }
 
-      if (isPMFX) {
-        if (splitModels) {
-          for (int numModel = 0; numModel < sms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<TwoStepSecondaryModel> model = new LinkedList<>();
-            model.add(sms.get(numModel));
-            TwoStepSecondaryModelFile.writePMFX(dir, modelName, model);
+      if (splitModels) {
+        for (int numModel = 0; numModel < sms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<TwoStepSecondaryModel> sublist = sms.subList(numModel, numModel+1);
+          if (isPMFX) {
+            TwoStepSecondaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            TwoStepSecondaryModelFile.writePMF(dir, modelName, sublist);
           }
-        } else {
-          TwoStepSecondaryModelFile.writePMFX(dir, mdName, sms);
         }
       } else {
-        if (splitModels) {
-          for (int numModel = 0; numModel < sms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<TwoStepSecondaryModel> model = new LinkedList<>();
-            model.add(sms.get(numModel));
-            TwoStepSecondaryModelFile.writePMF(dir, modelName, model);
-          }
+        if (isPMFX) {
+          TwoStepSecondaryModelFile.writePMFX(dir, mdName, sms);
         } else {
           TwoStepSecondaryModelFile.writePMF(dir, mdName, sms);
         }
@@ -633,48 +626,39 @@ public class WriterUtils {
         Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
         throws Exception {
 
-      // Sort tuples according to its secondary model
-      Map<Integer, List<KnimeTuple>> secMap = new HashMap<>();
+      // Group tuples according to its secondary model
+      Map<Integer, List<KnimeTuple>> secModelMap = new HashMap<>();
       for (KnimeTuple tuple : tuples) {
-        // Get secondary EstModelXml
-        EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-
-        if (secMap.containsKey(estModel.getId())) {
-          secMap.get(estModel.getId()).add(tuple);
+        int secModelId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
+        if (secModelMap.containsKey(secModelId)) {
+          secModelMap.get(secModelId).add(tuple);
         } else {
-          List<KnimeTuple> ltup = new LinkedList<>();
-          ltup.add(tuple);
-          secMap.put(estModel.getId(), ltup);
+          List<KnimeTuple> tlist = new LinkedList<>();
+          tlist.add(tuple);
+          secModelMap.put(secModelId, tlist);
         }
       }
 
       // For the tuples of every secondary model
       List<OneStepSecondaryModel> sms = new LinkedList<>();
-      for (List<KnimeTuple> ltup : secMap.values()) {
+      for (List<KnimeTuple> tupleList : secModelMap.values()) {
         int modelCounter = sms.size();
-        OneStepSecondaryModel model = parse(ltup, isPMFX, mdName, modelCounter, metadata, notes);
-        sms.add(model);
+        sms.add(parse(tupleList, isPMFX, mdName, modelCounter, metadata, notes));
       }
-
-      if (isPMFX) {
-        if (splitModels) {
-          for (int numModel = 0; numModel < sms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<OneStepSecondaryModel> model = new LinkedList<>();
-            model.add(sms.get(numModel));
-            OneStepSecondaryModelFile.writePMFX(dir, modelName, model);
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < sms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<OneStepSecondaryModel> sublist = sms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            OneStepSecondaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            OneStepSecondaryModelFile.writePMF(dir, modelName, sublist);
           }
-        } else {
-          OneStepSecondaryModelFile.writePMFX(dir, mdName, sms);
         }
       } else {
-        if (splitModels) {
-          for (int numModel = 0; numModel < sms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<OneStepSecondaryModel> model = new LinkedList<>();
-            model.add(sms.get(numModel));
-            OneStepSecondaryModelFile.writePMF(dir, modelName, model);
-          }
+        if (isPMFX) {
+          OneStepSecondaryModelFile.writePMFX(dir, mdName, sms);
         } else {
           OneStepSecondaryModelFile.writePMF(dir, mdName, sms);
         }
@@ -746,26 +730,20 @@ public class WriterUtils {
         int mdNum = sms.size();
         sms.add(parse(tuple, isPMFX, mdName, mdNum, metadata, notes));
       }
-
-      if (isPMFX) {
-        if (splitModels) {
-          for (int numModel = 0; numModel < sms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<ManualSecondaryModel> model = new LinkedList<>();
-            model.add(sms.get(numModel));
-            ManualSecondaryModelFile.writePMFX(dir, modelName, model);
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < sms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<ManualSecondaryModel> sublist = sms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            ManualSecondaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            ManualSecondaryModelFile.writePMF(dir, modelName, sublist);
           }
-        } else {
-          ManualSecondaryModelFile.writePMFX(dir, mdName, sms);
         }
       } else {
-        if (splitModels) {
-          for (int numModel = 0; numModel < sms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<ManualSecondaryModel> model = new LinkedList<>();
-            model.add(sms.get(numModel));
-            ManualSecondaryModelFile.writePMF(dir, modelName, model);
-          }
+        if (isPMFX) {
+          ManualSecondaryModelFile.writePMFX(dir, mdName, sms);
         } else {
           ManualSecondaryModelFile.writePMF(dir, mdName, sms);
         }

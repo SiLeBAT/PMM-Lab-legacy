@@ -17,43 +17,52 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.sbmlreader;
+package de.bund.bfr.knime.pmm.pmfreader;
 
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-public class SBMLReaderNodeView extends NodeView<SBMLReaderNodeModel> {
-	
-	/**
-	 * Creates a new view
-	 * @param nodeModel The model (class: {@link SBMLReaderNodeModel})
-	 */
-	protected SBMLReaderNodeView(final SBMLReaderNodeModel nodeModel) {
-		super(nodeModel);
-		// SBMLReaderNodeView has no components
-	}
-	
+public class PMFXReaderNodeFactory extends NodeFactory<PMFReaderNodeModel> {
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void modelChanged() {
-		SBMLReaderNodeModel nodeModel = (SBMLReaderNodeModel) getNodeModel();
-		assert nodeModel != null;
+	public PMFReaderNodeModel createNodeModel() {
+		return new PMFReaderNodeModel(true);
 	}
-		
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onClose() {
-		// TODO things to do when closing the view
+	public int getNrNodeViews() {
+		return 0;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onOpen() {
-		// TODO things to do when opening the view
+	public NodeView<PMFReaderNodeModel> createNodeView(final int viewIndex, final PMFReaderNodeModel nodeModel) {
+		return null;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new PMFReaderNodeDialog(true);
+	}
+
 }

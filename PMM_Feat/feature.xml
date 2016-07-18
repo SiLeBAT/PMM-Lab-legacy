@@ -42,6 +42,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.poi.ooxml"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
+      <import plugin="org.apache.commons.math3"/>
       <import plugin="com.google.guava"/>
       <import plugin="org.knime.xml"/>
       <import plugin="org.knime.ext.poi"/>
@@ -52,7 +53,13 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.log4j"/>
       <import plugin="org.apache.commons.lang"/>
       <import plugin="org.junit"/>
-      <import plugin="org.apache.commons.math3"/>
+      <import plugin="org.knime.product" version="3.1.1" match="greaterOrEqual"/>
+      <import plugin="org.apache.poi.ooxml" version="3.9.0" match="greaterOrEqual"/>
+      <import plugin="org.knime.ext.r.type" version="3.1.0" match="greaterOrEqual"/>
+      <import plugin="com.fifesoft.rsyntaxtextarea" version="2.5.8" match="greaterOrEqual"/>
+      <import plugin="com.sun.jna" version="3.5.2" match="greaterOrEqual"/>
+      <import plugin="de.bund.bfr.knime.pmm.common" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="de.bund.bfr.knime.pmm.sbml" version="1.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -279,6 +286,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.formats"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.fsk"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

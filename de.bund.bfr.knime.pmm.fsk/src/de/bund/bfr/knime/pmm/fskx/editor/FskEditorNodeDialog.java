@@ -1,68 +1,119 @@
 package de.bund.bfr.knime.pmm.fskx.editor;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
+import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
 
 class FskEditorNodeDialog extends DataAwareNodeDialogPane {
-
-	private FskEditorNodeSettings settings = new FskEditorNodeSettings();
 
 	private ScriptPanel modelScriptPanel = new ScriptPanel("Model script", "", true);
 	private ScriptPanel paramScriptPanel = new ScriptPanel("Parameters script", "", true);
 	private ScriptPanel vizScriptPanel = new ScriptPanel("Visualization script", "", true);
 	private MetaDataPane metaDataPane;
 
+	private SettingsModelInteger objectNumber;
+	private SettingsModelString modelScript;
+	private SettingsModelString paramScript;
+	private SettingsModelString vizScript;
+	private FSMRTemplateSettings templateSettings;
+
 	public FskEditorNodeDialog() {
 		addTab("Model script", modelScriptPanel);
 		addTab("Parameters script", paramScriptPanel);
 		addTab("Visualization script", vizScriptPanel);
+
+		objectNumber = new SettingsModelInteger(FskEditorNodeModel.OBJECT_NUMBER, 0);
+		modelScript = new SettingsModelString(FskEditorNodeModel.MODEL_SCRIPT, "");
+		paramScript = new SettingsModelString(FskEditorNodeModel.PARAM_SCRIPT, "");
+		vizScript = new SettingsModelString(FskEditorNodeModel.VIZ_SCRIPT, "");
+		templateSettings = new FSMRTemplateSettings();
+
+		modelScript.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				modelScriptPanel.getTextArea().setText(modelScript.getStringValue());
+			}
+		});
+		paramScript.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				paramScriptPanel.getTextArea().setText(paramScript.getStringValue());
+			}
+		});
+		vizScript.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				vizScriptPanel.getTextArea().setText(vizScript.getStringValue());
+			}
+		});
 	}
 
 	// --- settings methods ---
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 
-		// Create settings: first assigns scripts from input and then apply
-		// changes (if existent) in the passed settings
 		FskPortObject fskObj = (FskPortObject) input[0];
 
-		this.settings.loadSettings(settings);
+		try {
+			objectNumber.loadSettingsFrom(settings);
+			modelScript.loadSettingsFrom(settings);
+			paramScript.loadSettingsFrom(settings);
+			vizScript.loadSettingsFrom(settings);
+			templateSettings.loadFromNodeSettings(settings.getNodeSettings(FskEditorNodeModel.META_DATA));
 
-		if (!this.settings.isSetModelScript())
-			this.settings.setModelScript(fskObj.getModelScript());
-		if (!this.settings.isSetParametersScript())
-			this.settings.setParametersScript(fskObj.getParamScript());
-		if (!this.settings.isSetVisualizationScript())
-			this.settings.setVisualizationScript(fskObj.getVizScript());
-		if (!this.settings.isSetMetaData()) {
-			this.settings.setMetaData(fskObj.getTemplate());
+			/*
+			 * Take data from the inputs if: 1) all the scripts are empty then
+			 * the editor is new, 2) If FSK objects are different then the
+			 * editor was connected to a different node and its settings should
+			 * be cleared
+			 */
+
+			if ((modelScript.getStringValue().isEmpty() && paramScript.getStringValue().isEmpty() && vizScript
+					.getStringValue().isEmpty()) || (objectNumber.getIntValue() != fskObj.getObjectNumber())) {
+
+				objectNumber.setIntValue(fskObj.getObjectNumber());
+				modelScript.setStringValue(fskObj.getModelScript());
+				paramScript.setStringValue(fskObj.getParamScript());
+				vizScript.setStringValue(fskObj.getVizScript());
+				templateSettings.setTemplate(fskObj.getTemplate());
+			}
+		} catch (InvalidSettingsException error) {
+			throw new NotConfigurableException(error.getMessage(), error.getCause());
 		}
-
-		modelScriptPanel.getTextArea().setText(this.settings.getModelScript());
-		paramScriptPanel.getTextArea().setText(this.settings.getParametersScript());
-		vizScriptPanel.getTextArea().setText(this.settings.getVisualizationScript());
 
 		// Panel names
 		removeTab("Metadata");
-		metaDataPane = new MetaDataPane(this.settings.getMetaData(), true);
+		metaDataPane = new MetaDataPane(templateSettings.getTemplate(), true);
 		addTab("Metadata", metaDataPane);
 	}
-	
+
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		// Update and save settings
-		this.settings.setModelScript(modelScriptPanel.getTextArea().getText());
-		this.settings.setParametersScript(paramScriptPanel.getTextArea().getText());
-		this.settings.setVisualizationScript(vizScriptPanel.getTextArea().getText());
-		this.settings.setMetaData(metaDataPane.getMetaData());
-		this.settings.saveSettings(settings);
+		objectNumber.saveSettingsTo(settings);
+
+		modelScript.setStringValue(modelScriptPanel.getTextArea().getText());
+		modelScript.saveSettingsTo(settings);
+
+		paramScript.setStringValue(paramScriptPanel.getTextArea().getText());
+		paramScript.saveSettingsTo(settings);
+
+		vizScript.setStringValue(vizScriptPanel.getTextArea().getText());
+		vizScript.saveSettingsTo(settings);
+
+		templateSettings.setTemplate(metaDataPane.getMetaData());
+		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 }

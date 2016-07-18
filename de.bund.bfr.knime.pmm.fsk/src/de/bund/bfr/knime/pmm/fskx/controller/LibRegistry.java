@@ -61,7 +61,7 @@ public class LibRegistry {
 		controller.eval("makeRepo(c(), " + repoPathAttr + ", " + reposAttr + ", " + typeAttr + ")");
 	}
 	
-	public static LibRegistry instance() throws IOException, RException {
+	public synchronized static LibRegistry instance() throws IOException, RException {
 		if (instance == null) {
 			instance = new LibRegistry();
 		}

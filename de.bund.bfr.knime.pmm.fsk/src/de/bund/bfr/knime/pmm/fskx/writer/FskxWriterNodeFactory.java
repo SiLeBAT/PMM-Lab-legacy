@@ -16,51 +16,68 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.fskx.writer;
 
+import javax.swing.JFileChooser;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 public class FskxWriterNodeFactory extends NodeFactory<FskxWriterNodeModel> {
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public FskxWriterNodeModel createNodeModel() {
-    return new FskxWriterNodeModel();
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FskxWriterNodeModel createNodeModel() {
+		return new FskxWriterNodeModel();
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int getNrNodeViews() {
-    return 0;
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public NodeView<FskxWriterNodeModel> createNodeView(final int viewIndex,
-      final FskxWriterNodeModel nodeModel) {
-    return null;
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<FskxWriterNodeModel> createNodeView(final int viewIndex, final FskxWriterNodeModel nodeModel) {
+		return null;
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasDialog() {
-    return true;
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public NodeDialogPane createNodeDialogPane() {
-    return new FskxWriterNodeDialog();
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		// File dialog chooser
+		final String fileHistoryId = "fileHistory";
+		final int dlgType = JFileChooser.SAVE_DIALOG;
+		final boolean directoryOnly = false;
+		final String validExtensions = ".fskx|.FSKX";
 
+		final SettingsModelString filePath = new SettingsModelString(FskxWriterNodeModel.CFG_FILE, null);
+		final DialogComponentFileChooser fileDlg = new DialogComponentFileChooser(filePath, fileHistoryId, dlgType,
+				directoryOnly, validExtensions);
+		fileDlg.setBorderTitle("Output file");
+
+		DefaultNodeSettingsPane pane = new DefaultNodeSettingsPane();
+		pane.addDialogComponent(fileDlg);
+
+		return pane;
+	}
 }

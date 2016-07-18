@@ -37,7 +37,7 @@ public class OpenFSMRConverterNodeFactory extends NodeFactory<OpenFSMRConverterN
 	
 	@Override
 	public NodeView<OpenFSMRConverterNodeModel> createNodeView(final int viewIndex, final OpenFSMRConverterNodeModel nodeModel) {
-        return new OpenFSMRConverterNodeView(nodeModel);
+        return null;
     }
 	
 	@Override

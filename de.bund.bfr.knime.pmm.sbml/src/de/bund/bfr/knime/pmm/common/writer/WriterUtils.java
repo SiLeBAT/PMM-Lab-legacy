@@ -433,43 +433,45 @@ public class WriterUtils {
    */
   private static class PrimaryModelWDataParser implements Parser {
 
-      @Override
-      public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-              String notes, ExecutionContext exec) throws Exception {
-          
-          final String modelExtension = isPMFX ? "pmf" : "sbml";
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
 
-          List<PrimaryModelWData> pms = new LinkedList<>();
+      final String modelExtension = isPMFX ? "pmf" : "sbml";
 
-          for (KnimeTuple tuple : tuples) {
-              PrimaryModelWData pm;
+      List<PrimaryModelWData> pms = new LinkedList<>();
 
-              Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
-              SBMLDocument sbmlDoc = m1Parser.getDocument();
-              String sbmlDocName = String.format("%s_%d.%s", mdName, pms.size(), modelExtension);
+      for (KnimeTuple tuple : tuples) {
+        PrimaryModelWData pm;
 
-              if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
-                  DataParser dataParser = new DataParser(tuple, metadata, notes);
-                  NuMLDocument numlDoc = dataParser.getDocument();
-                  String numlDocName = String.format("%s_%d.numl", mdName, pms.size());
+        Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
+        SBMLDocument sbmlDoc = m1Parser.getDocument();
+        String sbmlDocName = String.format("%s_%d.%s", mdName, pms.size(), modelExtension);
 
-                  // Adds DataSourceNode to the model
-                  XMLNode dsn = new DataSourceNode(numlDocName).getNode();
-                  sbmlDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "").addChild(dsn);
+        if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
+          DataParser dataParser = new DataParser(tuple, metadata, notes);
+          NuMLDocument numlDoc = dataParser.getDocument();
+          String numlDocName = String.format("%s_%d.numl", mdName, pms.size());
 
-                  pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, numlDocName, numlDoc);
-              } else {
-                  pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, null, null);
-              }
-              pms.add(pm);
-          }
+          // Adds DataSourceNode to the model
+          XMLNode dsn = new DataSourceNode(numlDocName).getNode();
+          sbmlDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "")
+              .addChild(dsn);
 
-          if (isPMFX) {
-              PrimaryModelWDataFile.writePMFX(dir, mdName, pms);
-          } else {
-              PrimaryModelWDataFile.writePMF(dir, mdName, pms);
-          }
+          pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, numlDocName, numlDoc);
+        } else {
+          pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, null, null);
+        }
+        pms.add(pm);
       }
+
+      if (isPMFX) {
+        PrimaryModelWDataFile.writePMFX(dir, mdName, pms);
+      } else {
+        PrimaryModelWDataFile.writePMF(dir, mdName, pms);
+      }
+    }
   }
 
   /**
@@ -477,29 +479,30 @@ public class WriterUtils {
    */
   private static class PrimaryModelWODataParser implements Parser {
 
-      @Override
-      public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-              String notes, ExecutionContext exec) throws Exception {
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
 
-          final String modelExtension = isPMFX ? "pmf" : "sbml";
+      final String modelExtension = isPMFX ? "pmf" : "sbml";
 
-          List<PrimaryModelWOData> pms = new LinkedList<>();
-          for (KnimeTuple tuple : tuples) {
-              Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
+      List<PrimaryModelWOData> pms = new LinkedList<>();
+      for (KnimeTuple tuple : tuples) {
+        Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
 
-              SBMLDocument sbmlDoc = m1Parser.getDocument();
-              String sbmlDocName = String.format("%s_%d.%s", mdName, pms.size(), modelExtension);
+        SBMLDocument sbmlDoc = m1Parser.getDocument();
+        String sbmlDocName = String.format("%s_%d.%s", mdName, pms.size(), modelExtension);
 
-              PrimaryModelWOData pm = new PrimaryModelWOData(sbmlDocName, sbmlDoc);
-              pms.add(pm);
-          }
-          
-          if (isPMFX) {
-              PrimaryModelWODataFile.writePMFX(dir, mdName, pms);
-          } else {
-              PrimaryModelWODataFile.writePMF(dir, mdName, pms);
-          }
+        PrimaryModelWOData pm = new PrimaryModelWOData(sbmlDocName, sbmlDoc);
+        pms.add(pm);
       }
+
+      if (isPMFX) {
+        PrimaryModelWODataFile.writePMFX(dir, mdName, pms);
+      } else {
+        PrimaryModelWODataFile.writePMF(dir, mdName, pms);
+      }
+    }
   }
 
   /**
@@ -507,114 +510,110 @@ public class WriterUtils {
    */
   private static class TwoStepSecondaryModelParser implements Parser {
 
-      @Override
-      public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-              String notes, ExecutionContext exec) throws Exception {
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
 
-          // Sort secondary models
-          Map<Integer, List<KnimeTuple>> secTuples = new HashMap<>();
-          for (KnimeTuple tuple : tuples) {
-              // Get secondary EstModel
-              EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-              if (secTuples.containsKey(estModel.getId())) {
-                  secTuples.get(estModel.getId()).add(tuple);
-              } else {
-                  List<KnimeTuple> tlist = new LinkedList<>();
-                  tlist.add(tuple);
-                  secTuples.put(estModel.getId(), tlist);
-              }
-          }
+      // Group tuples according to its secondary model
+      Map<Integer, List<KnimeTuple>> secModelMap = new HashMap<>();
+      for (KnimeTuple tuple : tuples) {
+        int secModelId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
+        if (secModelMap.containsKey(secModelId)) {
+          secModelMap.get(secModelId).add(tuple);
+        } else {
+          List<KnimeTuple> tlist = new LinkedList<>();
+          tlist.add(tuple);
+          secModelMap.put(secModelId, tlist);
+        }
+      }
 
-          // For the tuples of every secondary model
-          List<TwoStepSecondaryModel> sms = new LinkedList<>();
-          for (List<KnimeTuple> tupleList : secTuples.values()) {
-              TwoStepSecondaryModel model = parse(tupleList, isPMFX, sms.size(), mdName, metadata, notes);
-              sms.add(model);
-          }
+      // For the tuples of every secondary model
+      List<TwoStepSecondaryModel> sms = new LinkedList<>();
+      for (List<KnimeTuple> tupleList : secModelMap.values()) {
+        int modelCounter = sms.size();
+        sms.add(parse(tupleList, isPMFX, modelCounter, mdName, metadata, notes));
+      }
 
+      if (splitModels) {
+        for (int numModel = 0; numModel < sms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<TwoStepSecondaryModel> sublist = sms.subList(numModel, numModel+1);
           if (isPMFX) {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < sms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<TwoStepSecondaryModel> model = new LinkedList<>();
-                      model.add(sms.get(numModel));
-                      TwoStepSecondaryModelFile.writePMFX(dir, modelName, model);
-                  }
-              } else {
-                  TwoStepSecondaryModelFile.writePMFX(dir, mdName, sms);
-              }
+            TwoStepSecondaryModelFile.writePMFX(dir, modelName, sublist);
           } else {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < sms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<TwoStepSecondaryModel> model = new LinkedList<>();
-                      model.add(sms.get(numModel));
-                      TwoStepSecondaryModelFile.writePMF(dir, modelName, model);
-                  }
-              } else {
-                  TwoStepSecondaryModelFile.writePMF(dir, mdName, sms);
-              }
+            TwoStepSecondaryModelFile.writePMF(dir, modelName, sublist);
           }
+        }
+      } else {
+        if (isPMFX) {
+          TwoStepSecondaryModelFile.writePMFX(dir, mdName, sms);
+        } else {
+          TwoStepSecondaryModelFile.writePMF(dir, mdName, sms);
+        }
+      }
+    }
+
+    private static TwoStepSecondaryModel parse(List<KnimeTuple> tuples, boolean isPMFX,
+        int modelNum, String mdName, Metadata metadata, String notes) {
+      /**
+       * <ol>
+       * <li>Create n SBMLDocument for primary models</li>
+       * <li>Parse data and create n NuMLDocument</li>
+       * <li>Create SBMLDocument for secondary model</li>
+       * </ol>
+       */
+      final String modelExtension = isPMFX ? "pmf" : "sbml";
+
+      List<PrimaryModelWData> primModels = new LinkedList<>();
+      for (int i = 0; i < tuples.size(); i++) {
+        KnimeTuple tuple = tuples.get(i);
+        PrimaryModelWData pm;
+
+        Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
+
+        SBMLDocument sbmlDoc = m1Parser.getDocument();
+        String sbmlDocName = String.format("%s.%s", sbmlDoc.getModel().getId(), modelExtension);
+
+        XMLNode metadataNode =
+            sbmlDoc.getModel().getAnnotation().getNonRDFannotation()
+                .getChildElement("metadata", "");
+        if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
+          DataParser dataParser = new DataParser(tuple, metadata, notes);
+
+          NuMLDocument numlDoc = dataParser.getDocument();
+          String numlDocName = String.format("%s.numl", sbmlDoc.getModel().getId());
+
+          // Adds DataSourceNode to the model
+          DataSourceNode dsn = new DataSourceNode(numlDocName);
+          metadataNode.addChild(dsn.getNode());
+
+          pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, numlDocName, numlDoc);
+        } else {
+          pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, null, null);
+        }
+
+        primModels.add(pm);
       }
 
-      private static TwoStepSecondaryModel parse(List<KnimeTuple> tuples, boolean isPMFX, int modelNum, String mdName,
-              Metadata metadata, String notes) {
-          /**
-           * <ol>
-           * <li>Create n SBMLDocument for primary models</li>
-           * <li>Parse data and create n NuMLDocument</li>
-           * <li>Create SBMLDocument for secondary model</li>
-           * </ol>
-           */
-          final String modelExtension = isPMFX ? "pmf" : "sbml";
-          
-          List<PrimaryModelWData> primModels = new LinkedList<>();
-          for (int i = 0; i < tuples.size(); i++) {
-              KnimeTuple tuple = tuples.get(i);
-              PrimaryModelWData pm;
+      // We get the first tuple to query the Model2 columns which are the same
+      // for all the tuples of the secondary model
+      KnimeTuple firstTuple = tuples.get(0);
+      Model2Parser m2Parser = new Model2Parser(firstTuple, metadata, notes);
 
-              Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
-
-              SBMLDocument sbmlDoc = m1Parser.getDocument();
-              String sbmlDocName = String.format("%s.%s", sbmlDoc.getModel().getId(), modelExtension);
-
-              XMLNode metadataNode = sbmlDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
-                      "");
-              if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
-                  DataParser dataParser = new DataParser(tuple, metadata, notes);
-
-                  NuMLDocument numlDoc = dataParser.getDocument();
-                  String numlDocName = String.format("%s.numl", sbmlDoc.getModel().getId());
-
-                  // Adds DataSourceNode to the model
-                  DataSourceNode dsn = new DataSourceNode(numlDocName);
-                  metadataNode.addChild(dsn.getNode());
-
-                  pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, numlDocName, numlDoc);
-              } else {
-                  pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, null, null);
-              }
-
-              primModels.add(pm);
-          }
-
-          // We get the first tuple to query the Model2 columns which are the same
-          // for all the tuples of the secondary model
-          KnimeTuple firstTuple = tuples.get(0);
-          Model2Parser m2Parser = new Model2Parser(firstTuple, metadata, notes);
-
-          SBMLDocument secDoc = m2Parser.getDocument();
-          String secDocName = String.format("%s_%d.%s", mdName, modelNum, modelExtension);
-          // Adds annotation for the primary models
-          XMLNode metadataNode = secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
-          for (PrimaryModelWData pmwd : primModels) {
-              PrimaryModelNode node = new PrimaryModelNode(pmwd.getModelDocName());
-              metadataNode.addChild(node.getNode());
-          }
-
-          // Creates and return TwoStepSecondaryModel
-          return new TwoStepSecondaryModel(secDocName, secDoc, primModels);
+      SBMLDocument secDoc = m2Parser.getDocument();
+      String secDocName = String.format("%s_%d.%s", mdName, modelNum, modelExtension);
+      // Adds annotation for the primary models
+      XMLNode metadataNode =
+          secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+      for (PrimaryModelWData pmwd : primModels) {
+        PrimaryModelNode node = new PrimaryModelNode(pmwd.getModelDocName());
+        metadataNode.addChild(node.getNode());
       }
+
+      // Creates and return TwoStepSecondaryModel
+      return new TwoStepSecondaryModel(secDocName, secDoc, primModels);
+    }
   }
 
   /**
@@ -622,627 +621,270 @@ public class WriterUtils {
    */
   private static class OneStepSecondaryModelParser implements Parser {
 
-      @Override
-      public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-              String notes, ExecutionContext exec) throws Exception {
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
 
-          // Sort tuples according to its secondary model
-          Map<Integer, List<KnimeTuple>> secMap = new HashMap<>();
-          for (KnimeTuple tuple : tuples) {
-              // Get secondary EstModelXml
-              EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
+      // Group tuples according to its secondary model
+      Map<Integer, List<KnimeTuple>> secModelMap = new HashMap<>();
+      for (KnimeTuple tuple : tuples) {
+        int secModelId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
+        if (secModelMap.containsKey(secModelId)) {
+          secModelMap.get(secModelId).add(tuple);
+        } else {
+          List<KnimeTuple> tlist = new LinkedList<>();
+          tlist.add(tuple);
+          secModelMap.put(secModelId, tlist);
+        }
+      }
 
-              if (secMap.containsKey(estModel.getId())) {
-                  secMap.get(estModel.getId()).add(tuple);
-              } else {
-                  List<KnimeTuple> ltup = new LinkedList<>();
-                  ltup.add(tuple);
-                  secMap.put(estModel.getId(), ltup);
-              }
-          }
-
-          // For the tuples of every secondary model
-          List<OneStepSecondaryModel> sms = new LinkedList<>();
-          for (List<KnimeTuple> ltup : secMap.values()) {
-              int modelCounter = sms.size();
-              OneStepSecondaryModel model = parse(ltup, isPMFX, mdName, modelCounter, metadata, notes);
-              sms.add(model);
-          }
-
+      // For the tuples of every secondary model
+      List<OneStepSecondaryModel> sms = new LinkedList<>();
+      for (List<KnimeTuple> tupleList : secModelMap.values()) {
+        int modelCounter = sms.size();
+        sms.add(parse(tupleList, isPMFX, mdName, modelCounter, metadata, notes));
+      }
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < sms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<OneStepSecondaryModel> sublist = sms.subList(numModel, numModel + 1);
           if (isPMFX) {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < sms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<OneStepSecondaryModel> model = new LinkedList<>();
-                      model.add(sms.get(numModel));
-                      OneStepSecondaryModelFile.writePMFX(dir, modelName, model);
-                  }
-              } else {
-                  OneStepSecondaryModelFile.writePMFX(dir, mdName, sms);
-              }
+            OneStepSecondaryModelFile.writePMFX(dir, modelName, sublist);
           } else {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < sms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<OneStepSecondaryModel> model = new LinkedList<>();
-                      model.add(sms.get(numModel));
-                      OneStepSecondaryModelFile.writePMF(dir, modelName, model);
-                  }
-              } else {
-                  OneStepSecondaryModelFile.writePMF(dir, mdName, sms);
-              }
+            OneStepSecondaryModelFile.writePMF(dir, modelName, sublist);
           }
+        }
+      } else {
+        if (isPMFX) {
+          OneStepSecondaryModelFile.writePMFX(dir, mdName, sms);
+        } else {
+          OneStepSecondaryModelFile.writePMF(dir, mdName, sms);
+        }
+      }
+    }
+
+    private static OneStepSecondaryModel parse(List<KnimeTuple> tuples, boolean isPMFX,
+        String mdName, int modelNum, Metadata metadata, String notes) {
+
+      final String modelExtension = isPMFX ? ".pmf" : ".sbml";
+      KnimeTuple firstTuple = tuples.get(0);
+
+      // Retrieve Model2Schema cells
+      EstModelXml secEstModel =
+          (EstModelXml) firstTuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
+
+      Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
+      SBMLDocument doc = m1Parser.getDocument();
+      String docName = String.format("%s_%d.%s", mdName, modelNum, modelExtension);
+
+      Model model = doc.getModel();
+      model.setId(PMFUtil.createId("model" + secEstModel.getId()));
+      CompSBMLDocumentPlugin compDocPlugin =
+          (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
+      CompModelPlugin compModelPlugin = (CompModelPlugin) model.getPlugin(CompConstants.shortLabel);
+
+      // Create secondary model
+      Model secModel = new Model2Parser(firstTuple, metadata, notes).getDocument().getModel();
+      ModelDefinition md = new ModelDefinition(secModel);
+      compDocPlugin.addModelDefinition(md);
+
+      Submodel submodel = compModelPlugin.createSubmodel("submodel");
+      submodel.setModelRef(secModel.getId());
+
+      // Parse data sets and create NuML documents
+      XMLNode metadataNode =
+          md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+      List<NuMLDocument> numlDocs = new LinkedList<>();
+      List<String> numlDocNames = new LinkedList<>();
+      for (KnimeTuple tuple : tuples) {
+        String numlDocName = String.format("data%d.numl", numlDocs.size());
+        numlDocNames.add(numlDocName);
+
+        DataParser dataParser = new DataParser(tuple, metadata, notes);
+        NuMLDocument numlDoc = dataParser.getDocument();
+        numlDocs.add(numlDoc);
+
+        // Adds DataSourceNode to the model
+        metadataNode.addChild(new DataSourceNode(numlDocName).getNode());
       }
 
-      private static OneStepSecondaryModel parse(List<KnimeTuple> tuples, boolean isPMFX, String mdName, int modelNum,
-              Metadata metadata, String notes) {
-          
-          final String modelExtension = isPMFX ? ".pmf" : ".sbml";
-          KnimeTuple firstTuple = tuples.get(0);
-
-          // Retrieve Model2Schema cells
-          EstModelXml secEstModel = (EstModelXml) firstTuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-
-          Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
-          SBMLDocument doc = m1Parser.getDocument();
-          String docName = String.format("%s_%d.%s", mdName, modelNum, modelExtension);
-
-          Model model = doc.getModel();
-          model.setId(PMFUtil.createId("model" + secEstModel.getId()));
-          CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
-          CompModelPlugin compModelPlugin = (CompModelPlugin) model.getPlugin(CompConstants.shortLabel);
-
-          // Create secondary model
-          Model secModel = new Model2Parser(firstTuple, metadata, notes).getDocument().getModel();
-          ModelDefinition md = new ModelDefinition(secModel);
-          compDocPlugin.addModelDefinition(md);
-
-          Submodel submodel = compModelPlugin.createSubmodel("submodel");
-          submodel.setModelRef(secModel.getId());
-
-          // Parse data sets and create NuML documents
-          XMLNode metadataNode = md.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
-          List<NuMLDocument> numlDocs = new LinkedList<>();
-          List<String> numlDocNames = new LinkedList<>();
-          for (KnimeTuple tuple : tuples) {
-              String numlDocName = String.format("data%d.numl", numlDocs.size());
-              numlDocNames.add(numlDocName);
-
-              DataParser dataParser = new DataParser(tuple, metadata, notes);
-              NuMLDocument numlDoc = dataParser.getDocument();
-              numlDocs.add(numlDoc);
-
-              // Adds DataSourceNode to the model
-              metadataNode.addChild(new DataSourceNode(numlDocName).getNode());
-          }
-
-          OneStepSecondaryModel ossm = new OneStepSecondaryModel(docName, doc, numlDocNames, numlDocs);
-          return ossm;
-      }
+      OneStepSecondaryModel ossm = new OneStepSecondaryModel(docName, doc, numlDocNames, numlDocs);
+      return ossm;
+    }
   }
-  
+
   /**
    * Parse tuples from a table with primary models without data.
    */
   private static class ManualSecondaryModelParser implements Parser {
 
-      @Override
-      public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-              String notes, ExecutionContext exec) throws Exception {
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
 
-          List<ManualSecondaryModel> sms = new LinkedList<>();
-          for (KnimeTuple tuple : tuples) {
-              int mdNum = sms.size();
-              sms.add(parse(tuple, isPMFX, mdName, mdNum, metadata, notes));
-          }
-
+      List<ManualSecondaryModel> sms = new LinkedList<>();
+      for (KnimeTuple tuple : tuples) {
+        int mdNum = sms.size();
+        sms.add(parse(tuple, isPMFX, mdName, mdNum, metadata, notes));
+      }
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < sms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<ManualSecondaryModel> sublist = sms.subList(numModel, numModel + 1);
           if (isPMFX) {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < sms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<ManualSecondaryModel> model = new LinkedList<>();
-                      model.add(sms.get(numModel));
-                      ManualSecondaryModelFile.writePMFX(dir, modelName, model);
-                  }
-              } else {
-                  ManualSecondaryModelFile.writePMFX(dir, mdName, sms);
-              }
+            ManualSecondaryModelFile.writePMFX(dir, modelName, sublist);
           } else {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < sms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<ManualSecondaryModel> model = new LinkedList<>();
-                      model.add(sms.get(numModel));
-                      ManualSecondaryModelFile.writePMF(dir, modelName, model);
-                  }
-              } else {
-                  ManualSecondaryModelFile.writePMF(dir, mdName, sms);
-              }
+            ManualSecondaryModelFile.writePMF(dir, modelName, sublist);
           }
+        }
+      } else {
+        if (isPMFX) {
+          ManualSecondaryModelFile.writePMFX(dir, mdName, sms);
+        } else {
+          ManualSecondaryModelFile.writePMF(dir, mdName, sms);
+        }
+      }
+    }
+
+    private static ManualSecondaryModel parse(KnimeTuple tuple, boolean isPMFX, String mdName,
+        int mdNum, Metadata metadata, String notes) {
+
+      final String modelExtension = isPMFX ? "pmf" : "sbml";
+
+      // Retrieve Model2Schema cells
+      CatalogModelXml catModel =
+          (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
+      EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
+      DepXml dep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
+      PmmXmlDoc indepDoc = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+      PmmXmlDoc paramsDoc = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
+      PmmXmlDoc mLitDoc = tuple.getPmmXml(Model2Schema.ATT_MLIT);
+      PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
+      int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+
+      // Gets independent parameters
+      List<IndepXml> indepXmls = new LinkedList<>();
+      for (PmmXmlElementConvertable item : indepDoc.getElementSet()) {
+        indepXmls.add((IndepXml) item);
       }
 
-      private static ManualSecondaryModel parse(KnimeTuple tuple, boolean isPMFX, String mdName, int mdNum,
-              Metadata metadata, String notes) {
-          
-          final String modelExtension = isPMFX ? "pmf" : "sbml";
-
-          // Retrieve Model2Schema cells
-          CatalogModelXml catModel = (CatalogModelXml) tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
-          EstModelXml estModel = (EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-          DepXml dep = (DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
-          PmmXmlDoc indepDoc = tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-          PmmXmlDoc paramsDoc = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
-          PmmXmlDoc mLitDoc = tuple.getPmmXml(Model2Schema.ATT_MLIT);
-          PmmXmlDoc emLitDoc = tuple.getPmmXml(Model2Schema.ATT_EMLIT);
-          int globalModelID = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-
-          // Gets independent parameters
-          List<IndepXml> indepXmls = new LinkedList<>();
-          for (PmmXmlElementConvertable item : indepDoc.getElementSet()) {
-              indepXmls.add((IndepXml) item);
-          }
-
-          // Gets constant parameters
-          List<ParamXml> constXmls = new LinkedList<>();
-          for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
-              constXmls.add((ParamXml) item);
-          }
-
-          String docName = String.format("%s_%d.%s", mdName, mdNum, modelExtension);
-          SBMLDocument doc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
-          // Enables Hierarchical Composition package
-          doc.enablePackage(CompConstants.shortLabel);
-
-          // Adds document annotation
-          doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
-
-          TableReader.addNamespaces(doc);
-
-          // Create model definition
-          String modelId = "model_" + dep.getName();
-          Model model = doc.createModel(modelId);
-          if (estModel.getName() != null) {
-              model.setName(estModel.getName());
-          }
-
-          if (notes != null) {
-              try {
-                  model.setNotes(notes);
-              } catch (XMLStreamException e) {
-                  e.printStackTrace();
-              }
-          }
-
-          try {
-              TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
-          } catch (XMLStreamException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-          }
-
-          // Adds dep
-          Parameter depParam = new SecDep(dep.getName(), dep.getDescription(), dep.getUnit()).getParam();
-          // Adds dep constraint
-          LimitsConstraint depLc = new LimitsConstraint(dep.getName(), dep.getMin(), dep.getMax());
-          if (depLc.getConstraint() != null) {
-              model.addConstraint(depLc.getConstraint());
-          }
-          model.addParameter(depParam);
-
-          // Add independent parameters
-          for (IndepXml indepXml : indepXmls) {
-              // Creates SBML parameter
-              // model.addParameter(new SecIndep(indepXml).getParam());
-              SecIndep secIndep = new SecIndep(indepXml.getName(), indepXml.getDescription(), indepXml.getUnit());
-              model.addParameter(secIndep.getParam());
-              // Adds constraint
-              LimitsConstraint lc = new LimitsConstraint(indepXml.getName(), indepXml.getMin(), indepXml.getMax());
-              if (lc.getConstraint() != null) {
-                  model.addConstraint(lc.getConstraint());
-              }
-          }
-
-          // Adds constant parameters
-          for (ParamXml paramXml : constXmls) {
-              // Creates SBML parameter
-              PMFCoefficient coefficient = WriterUtils.paramXml2Coefficient(paramXml);
-              model.addParameter(coefficient.getParameter());
-
-              // Adds constraint
-              LimitsConstraint lc = new LimitsConstraint(paramXml.getName(), paramXml.getMin(), paramXml.getMax());
-              if (lc.getConstraint() != null) {
-                  model.addConstraint(lc.getConstraint());
-              }
-          }
-
-          // Gets model literature
-          Reference[] mLits = new Reference[mLitDoc.size()];
-          for (int i = 0; i < mLitDoc.size(); i++) {
-              mLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) mLitDoc.get(i));
-          }
-
-          // Gets estimated model literature
-          Reference[] emLits = new Reference[emLitDoc.size()];
-          for (int i = 0; i < emLitDoc.size(); i++) {
-              emLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) emLitDoc.get(i));
-          }
-
-          ModelRule rule2 = WriterUtils.createM2Rule(catModel, mLits);
-          model.addRule(rule2.getRule());
-
-          // Add annotation
-          Uncertainties uncertainties = WriterUtils.estModel2Uncertainties(estModel);
-          model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
-
-          return new ManualSecondaryModel(docName, doc);
+      // Gets constant parameters
+      List<ParamXml> constXmls = new LinkedList<>();
+      for (PmmXmlElementConvertable item : paramsDoc.getElementSet()) {
+        constXmls.add((ParamXml) item);
       }
+
+      String docName = String.format("%s_%d.%s", mdName, mdNum, modelExtension);
+      SBMLDocument doc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
+      // Enables Hierarchical Composition package
+      doc.enablePackage(CompConstants.shortLabel);
+
+      // Adds document annotation
+      doc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
+
+      TableReader.addNamespaces(doc);
+
+      // Create model definition
+      String modelId = "model_" + dep.getName();
+      Model model = doc.createModel(modelId);
+      if (estModel.getName() != null) {
+        model.setName(estModel.getName());
+      }
+
+      if (notes != null) {
+        try {
+          model.setNotes(notes);
+        } catch (XMLStreamException e) {
+          e.printStackTrace();
+        }
+      }
+
+      try {
+        TableReader.addUnitDefinitions(model, dep, indepXmls, constXmls);
+      } catch (XMLStreamException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
+      // Adds dep
+      Parameter depParam =
+          new SecDep(dep.getName(), dep.getDescription(), dep.getUnit()).getParam();
+      // Adds dep constraint
+      LimitsConstraint depLc = new LimitsConstraint(dep.getName(), dep.getMin(), dep.getMax());
+      if (depLc.getConstraint() != null) {
+        model.addConstraint(depLc.getConstraint());
+      }
+      model.addParameter(depParam);
+
+      // Add independent parameters
+      for (IndepXml indepXml : indepXmls) {
+        // Creates SBML parameter
+        // model.addParameter(new SecIndep(indepXml).getParam());
+        SecIndep secIndep =
+            new SecIndep(indepXml.getName(), indepXml.getDescription(), indepXml.getUnit());
+        model.addParameter(secIndep.getParam());
+        // Adds constraint
+        LimitsConstraint lc =
+            new LimitsConstraint(indepXml.getName(), indepXml.getMin(), indepXml.getMax());
+        if (lc.getConstraint() != null) {
+          model.addConstraint(lc.getConstraint());
+        }
+      }
+
+      // Adds constant parameters
+      for (ParamXml paramXml : constXmls) {
+        // Creates SBML parameter
+        PMFCoefficient coefficient = WriterUtils.paramXml2Coefficient(paramXml);
+        model.addParameter(coefficient.getParameter());
+
+        // Adds constraint
+        LimitsConstraint lc =
+            new LimitsConstraint(paramXml.getName(), paramXml.getMin(), paramXml.getMax());
+        if (lc.getConstraint() != null) {
+          model.addConstraint(lc.getConstraint());
+        }
+      }
+
+      // Gets model literature
+      Reference[] mLits = new Reference[mLitDoc.size()];
+      for (int i = 0; i < mLitDoc.size(); i++) {
+        mLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) mLitDoc.get(i));
+      }
+
+      // Gets estimated model literature
+      Reference[] emLits = new Reference[emLitDoc.size()];
+      for (int i = 0; i < emLitDoc.size(); i++) {
+        emLits[i] = WriterUtils.literatureItem2Reference((LiteratureItem) emLitDoc.get(i));
+      }
+
+      ModelRule rule2 = WriterUtils.createM2Rule(catModel, mLits);
+      model.addRule(rule2.getRule());
+
+      // Add annotation
+      Uncertainties uncertainties = WriterUtils.estModel2Uncertainties(estModel);
+      model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits)
+          .getAnnotation());
+
+      return new ManualSecondaryModel(docName, doc);
+    }
   }
 
   private static class TwoStepTertiaryModelParser implements Parser {
 
     @Override
-    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-            String notes, ExecutionContext exec) throws Exception {
-
-        List<TwoStepTertiaryModel> tms = new LinkedList<>();
-
-        // Sort global models
-        Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader.sortGlobalModels(tuples);
-
-        for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
-            List<List<KnimeTuple>> tuplesList = new LinkedList<>();
-            for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
-                tuplesList.add(tertiaryInstance);
-            }
-            // We have a list of tertiary instances. Each instance has the same
-            // microbial data yet different data. Then we'll create a
-            // TwoTertiaryModel from the first instance and create the data from
-            // every instance.
-            int modelNum = tms.size();
-            TwoStepTertiaryModel tm = parse(tuplesList, isPMFX, modelNum, mdName, metadata, notes);
-            tms.add(tm);
-        }
-
-        if (isPMFX) {
-            if (splitModels) {
-                for (int numModel = 0; numModel < tms.size(); numModel++) {
-                    String modelName = mdName + Integer.toString(numModel);
-                    List<TwoStepTertiaryModel> model = new LinkedList<>();
-                    model.add(tms.get(numModel));
-                    TwoStepTertiaryModelFile.writePMFX(dir, modelName, model);
-                }
-            } else {
-                TwoStepTertiaryModelFile.writePMFX(dir, mdName, tms);
-            }
-        } else {
-            if (splitModels) {
-                for (int numModel = 0; numModel < tms.size(); numModel++) {
-                    String modelName = mdName + Integer.toString(numModel);
-                    List<TwoStepTertiaryModel> model = new LinkedList<>();
-                    model.add(tms.get(numModel));
-                    TwoStepTertiaryModelFile.writePMF(dir, modelName, model);
-                }
-            } else {
-                TwoStepTertiaryModelFile.writePMF(dir, mdName, tms);
-            }
-
-        }
-    }
-
-    private static TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, boolean isPMFX, int modelNum,
-            String mdName, Metadata metadata, String notes) {
-
-        final String modelExtension = isPMFX ? "pmf" : "sbml";
-
-        List<PrimaryModelWData> primModels = new LinkedList<>();
-        List<SBMLDocument> secDocs = new LinkedList<>();
-
-        // Parse primary models and their data from every instance. Each
-        // instance has an unique primary model and data set
-        for (List<KnimeTuple> instance : tupleList) {
-            // Get first tuple: All the tuples of an instance have the same
-            // primary model
-            KnimeTuple tuple = instance.get(0);
-            int instanceNum = primModels.size();
-            PrimaryModelWData pm;
-
-            Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
-
-            SBMLDocument sbmlDoc = m1Parser.getDocument();
-            String sbmlDocName = String.format("%s_%d_%d.%s", mdName, modelNum, instanceNum, modelExtension);
-            XMLNode metadataNode = sbmlDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
-                    "");
-
-            if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
-                NuMLDocument numlDoc = new DataParser(tuple, metadata, notes).getDocument();
-                String numlDocName = String.format("%s_%d_%d.numl", mdName, modelNum, instanceNum);
-
-                // Adds DataSourceNode to the model
-                metadataNode.addChild(new DataSourceNode(numlDocName).getNode());
-
-                primModels.add(new PrimaryModelWData(sbmlDocName, sbmlDoc, numlDocName, numlDoc));
-
-            } else {
-                pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, null, null);
-                primModels.add(pm);
-            }
-        }
-
-        // Parse secondary models from the first instance (all the instance have
-        // the same secondary models)
-        List<KnimeTuple> firstInstance = tupleList.get(0);
-        for (KnimeTuple tuple : firstInstance) {
-            SBMLDocument secDoc = new Model2Parser(tuple, metadata, notes).getDocument();
-
-            // Adds annotations for the primary models
-            XMLNode metadataNode = secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
-                    "");
-            for (PrimaryModelWData pm : primModels) {
-                if (pm.getDataDocName() != null) {
-                    metadataNode.addChild(new PrimaryModelNode(pm.getModelDocName()).getNode());
-                }
-            }
-
-            secDocs.add(secDoc);
-        }
-
-        // Creates tertiary model
-        String tertDocName = String.format("%s_%s.%s", mdName, modelNum, modelExtension);
-        SBMLDocument tertDoc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
-        // Enable Hierarchical Compositon package
-        tertDoc.enablePackage(CompConstants.shortLabel);
-        CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
-        TableReader.addNamespaces(tertDoc);
-
-        // Adds document annotation
-        tertDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
-
-        Model model = tertDoc.createModel("model");
-        KnimeTuple aTuple = tupleList.get(0).get(0);
-
-        // Builds metadata node
-        XMLTriple metadataTriple = new XMLTriple("metadata", null, "pmf");
-        XMLNode metadataNode = new XMLNode(metadataTriple);
-        model.getAnnotation().setNonRDFAnnotation(metadataNode);
-
-        // Builds global model id node
-        int gmId = aTuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
-        metadataNode.addChild(new GlobalModelIdNode(gmId).getNode());
-
-        // Get literature references
-        PmmXmlDoc litDoc = aTuple.getPmmXml(Model1Schema.ATT_EMLIT);
-        List<LiteratureItem> lits = new LinkedList<>();
-        for (PmmXmlElementConvertable item : litDoc.getElementSet()) {
-            lits.add((LiteratureItem) item);
-        }
-
-        // Builds reference nodes
-        for (LiteratureItem lit : lits) {
-            Reference ref = WriterUtils.literatureItem2Reference(lit);
-            metadataNode.addChild(new ReferenceSBMLNode(ref).getNode());
-        }
-
-        // Gets a primary model
-        Model primModel = primModels.get(0).getModelDoc().getModel();
-
-        // Adds species
-        Species species = primModel.getSpecies(0);
-        model.addSpecies(new Species(species));
-
-        // Adds compartment
-        Compartment compartment = primModel.getCompartment(0);
-        model.addCompartment(new Compartment(compartment));
-
-        // Adds rule
-        AssignmentRule rule = (AssignmentRule) primModel.getRule(0);
-        model.addRule(new AssignmentRule(rule));
-
-        // Assigns parameters of the primary model
-        for (Parameter p : primModel.getListOfParameters()) {
-            Parameter p2 = new Parameter(p);
-            if (p2.isSetAnnotation()) {
-                p2.setAnnotation(new Annotation());
-            }
-            model.addParameter(p2);
-        }
-
-        CompModelPlugin modelPlugin = (CompModelPlugin) model.getPlugin(CompConstants.shortLabel);
-
-        // Creates ExternalModelDefinition
-        List<String> secDocNames = new LinkedList<>();
-        for (SBMLDocument secDoc : secDocs) {
-            // Gets model definition id from secDoc
-            String mdId = secDoc.getModel().getId();
-
-            String secDocName = String.format("%s.%s", secDoc.getModel().getId(), modelExtension);
-            secDocNames.add(secDocName);
-
-            // Creates and adds an ExternalModelDefinition to the tertiary model
-            ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(mdId);
-            emd.setSource(secDocName);
-            emd.setModelRef(mdId);
-
-            String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
-
-            // Creates submodel
-            Submodel submodel = modelPlugin.createSubmodel("submodel_" + depId);
-            submodel.setModelRef(mdId);
-
-            Parameter parameter = model.getParameter(depId);
-
-            CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
-            ReplacedBy replacedBy = plugin.createReplacedBy();
-            replacedBy.setIdRef(depId);
-            replacedBy.setSubmodelRef(submodel.getId());
-        }
-
-        // Assigns unit definitions of the primary model
-        model.setListOfUnitDefinitions(new ListOf<UnitDefinition>(primModel.getListOfUnitDefinitions()));
-
-        TwoStepTertiaryModel tstm = new TwoStepTertiaryModel(tertDocName, tertDoc, primModels, secDocNames, secDocs);
-        return tstm;
-    }
-}
-  
-  /**
-   * One Step Fit Tertiary Model
-   * 
-   * @author Miguel Alba
-   */
-  private static class OneStepTertiaryModelParser implements Parser {
-
-      @Override
-      public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName, Metadata metadata, boolean splitModels,
-              String notes, ExecutionContext exec) throws Exception {
-
-          List<OneStepTertiaryModel> tms = new LinkedList<>();
-
-          // Sort global models
-          Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader.sortGlobalModels(tuples);
-
-          // Parse tertiary models
-          for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
-              List<List<KnimeTuple>> tuplesList = new LinkedList<>();
-              for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
-                  tuplesList.add(tertiaryInstance);
-              }
-              /**
-               * We have a list of tertiary instances. Each instance has the same
-               * microbial data yet different data. Then we'll create a
-               * TwoTertiaryModel from the first instance and create the data from
-               * every instance.
-               */
-              int mdNum = tms.size();
-              OneStepTertiaryModel tm = parse(tuplesList, isPMFX, mdName, mdNum, metadata, notes);
-              tms.add(tm);
-          }
-
-          if (isPMFX) {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < tms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<OneStepTertiaryModel> model = new LinkedList<>();
-                      model.add(tms.get(numModel));
-                      OneStepTertiaryModelFile.writePMFX(dir, modelName, model);
-                  }
-              } else {
-                  OneStepTertiaryModelFile.writePMFX(dir, mdName, tms);
-              }
-          } else {
-              if (splitModels) {
-                  for (int numModel = 0; numModel < tms.size(); numModel++) {
-                      String modelName = mdName + Integer.toString(numModel);
-                      List<OneStepTertiaryModel> model = new LinkedList<>();
-                      model.add(tms.get(numModel));
-                      OneStepTertiaryModelFile.writePMF(dir, modelName, model);
-                  }
-              } else {
-                  OneStepTertiaryModelFile.writePMF(dir, mdName, tms);
-              }
-          }
-      }
-
-      private static OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, boolean isPMFX, String mdName,
-              int mdNum, Metadata metadata, String notes) {
-
-          final String modelExtension = isPMFX ? "pmf" : "sbml";
-
-          List<String> numlDocNames = new LinkedList<>();
-          List<NuMLDocument> numlDocs = new LinkedList<>();
-          for (List<KnimeTuple> instance : tupleList) {
-              // Get first tuple: All the tuples of an instance have the same data
-              KnimeTuple tuple = instance.get(0);
-              if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
-                  int dataCounter = numlDocs.size();
-                  String numlDocName = String.format("data_%d_%d.numl", mdNum, dataCounter);
-                  numlDocNames.add(numlDocName);
-
-                  DataParser dataParser = new DataParser(tuple, metadata, notes);
-                  NuMLDocument numlDoc = dataParser.getDocument();
-                  numlDocs.add(numlDoc);
-              }
-          }
-
-          // We'll get microbial data from the first instance
-          List<KnimeTuple> firstInstance = tupleList.get(0);
-          // and the primary model from the first tuple
-          KnimeTuple firstTuple = firstInstance.get(0);
-
-          Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
-          SBMLDocument tertDoc = m1Parser.getDocument();
-          String tertDocName = String.format("%s_%s.%s", mdName, mdNum, modelExtension);
-          CompSBMLDocumentPlugin compDocPlugin = (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
-
-          // Adds DataSourceNode to the tertiary model
-          XMLNode tertMetadataNode = tertDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata",
-                  "");
-          for (String numlDocName : numlDocNames) {
-              tertMetadataNode.addChild(new DataSourceNode(numlDocName).getNode());
-          }
-
-          CompModelPlugin modelPlugin = (CompModelPlugin) tertDoc.getModel().getPlugin(CompConstants.shortLabel);
-
-          // Add submodels and model definitions
-          List<String> secDocNames = new LinkedList<>();
-          List<SBMLDocument> secDocs = new LinkedList<>();
-          for (KnimeTuple tuple : firstInstance) {
-
-              SBMLDocument secDoc = new Model2Parser(tuple, metadata, notes).getDocument();
-
-              String secModelId = secDoc.getModel().getId();
-              String secDocName = String.format("%s.%s", secModelId, modelExtension);
-
-              secDocNames.add(secDocName);
-              secDocs.add(secDoc);
-
-              // Creates and adds an ExternalModelDefinition
-              ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(secModelId);
-              emd.setSource(secDocName);
-              emd.setModelRef(secModelId);
-
-              String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
-
-              Submodel submodel = modelPlugin.createSubmodel("submodel_" + depId);
-              submodel.setModelRef(emd.getId());
-
-              Parameter parameter = tertDoc.getModel().getParameter(depId);
-
-              CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
-              ReplacedBy replacedBy = plugin.createReplacedBy();
-              replacedBy.setIdRef(depId);
-              replacedBy.setSubmodelRef(submodel.getId());
-
-              // Add annotation for the primary model
-              XMLNode secMetadataNode = secDoc.getModel().getAnnotation().getNonRDFannotation()
-                      .getChildElement("metadata", "");
-              secMetadataNode.addChild(new PrimaryModelNode(tertDocName).getNode());
-
-              // Adds DataSourceNodes to the sec model
-              for (String numlDocName : numlDocNames) {
-                  secMetadataNode.addChild(new DataSourceNode(numlDocName).getNode());
-              }
-          }
-
-          OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDocName, tertDoc, secDocNames, secDocs, numlDocNames,
-                  numlDocs);
-          return tstm;
-      }
-  }
-  
-  private static class ManualTertiaryModelParser implements Parser {
-
-    @Override
     public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
         Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
-            throws Exception {
+        throws Exception {
 
-      List<ManualTertiaryModel> tms = new LinkedList<>();
+      List<TwoStepTertiaryModel> tms = new LinkedList<>();
 
       // Sort global models
       Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader.sortGlobalModels(tuples);
 
-      // Parse tertiary models
-      int modelCounter = 0;
       for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
         List<List<KnimeTuple>> tuplesList = new LinkedList<>();
         for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
@@ -1252,46 +894,387 @@ public class WriterUtils {
         // microbial data yet different data. Then we'll create a
         // TwoTertiaryModel from the first instance and create the data from
         // every instance.
-        ManualTertiaryModel tm = parse(tuplesList, isPMFX, mdName, modelCounter, metadata, notes);
+        int modelNum = tms.size();
+        TwoStepTertiaryModel tm = parse(tuplesList, isPMFX, modelNum, mdName, metadata, notes);
         tms.add(tm);
-
-        modelCounter++;
       }
-
-      if (isPMFX) {
-        if (splitModels) {
-          for (int numModel = 0; numModel < tms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<ManualTertiaryModel> model = new LinkedList<>();
-            model.add(tms.get(numModel));
-            ManualTertiaryModelFile.writePMFX(dir, modelName, model);
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < tms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<TwoStepTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            TwoStepTertiaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            TwoStepTertiaryModelFile.writePMF(dir, modelName, sublist);
           }
-        } else {
-          ManualTertiaryModelFile.writePMFX(dir, mdName, tms);
         }
       } else {
-        if (splitModels) {
-          for (int numModel = 0; numModel < tms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<ManualTertiaryModel> model = new LinkedList<>();
-            model.add(tms.get(numModel));
-            ManualTertiaryModelFile.writePMF(dir, modelName, model);
+        if (isPMFX) {
+          TwoStepTertiaryModelFile.writePMFX(dir, mdName, tms);
+        } else {
+          TwoStepTertiaryModelFile.writePMF(dir, mdName, tms);
+        }
+      }
+    }
+
+    private static TwoStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, boolean isPMFX,
+        int modelNum, String mdName, Metadata metadata, String notes) {
+
+      final String modelExtension = isPMFX ? "pmf" : "sbml";
+
+      List<PrimaryModelWData> primModels = new LinkedList<>();
+      List<SBMLDocument> secDocs = new LinkedList<>();
+
+      // Parse primary models and their data from every instance. Each
+      // instance has an unique primary model and data set
+      for (List<KnimeTuple> instance : tupleList) {
+        // Get first tuple: All the tuples of an instance have the same
+        // primary model
+        KnimeTuple tuple = instance.get(0);
+        int instanceNum = primModels.size();
+        PrimaryModelWData pm;
+
+        Model1Parser m1Parser = new Model1Parser(tuple, metadata, notes);
+
+        SBMLDocument sbmlDoc = m1Parser.getDocument();
+        String sbmlDocName =
+            String.format("%s_%d_%d.%s", mdName, modelNum, instanceNum, modelExtension);
+        XMLNode metadataNode =
+            sbmlDoc.getModel().getAnnotation().getNonRDFannotation()
+                .getChildElement("metadata", "");
+
+        if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
+          NuMLDocument numlDoc = new DataParser(tuple, metadata, notes).getDocument();
+          String numlDocName = String.format("%s_%d_%d.numl", mdName, modelNum, instanceNum);
+
+          // Adds DataSourceNode to the model
+          metadataNode.addChild(new DataSourceNode(numlDocName).getNode());
+
+          primModels.add(new PrimaryModelWData(sbmlDocName, sbmlDoc, numlDocName, numlDoc));
+
+        } else {
+          pm = new PrimaryModelWData(sbmlDocName, sbmlDoc, null, null);
+          primModels.add(pm);
+        }
+      }
+
+      // Parse secondary models from the first instance (all the instance have
+      // the same secondary models)
+      List<KnimeTuple> firstInstance = tupleList.get(0);
+      for (KnimeTuple tuple : firstInstance) {
+        SBMLDocument secDoc = new Model2Parser(tuple, metadata, notes).getDocument();
+
+        // Adds annotations for the primary models
+        XMLNode metadataNode =
+            secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+        for (PrimaryModelWData pm : primModels) {
+          if (pm.getDataDocName() != null) {
+            metadataNode.addChild(new PrimaryModelNode(pm.getModelDocName()).getNode());
           }
+        }
+
+        secDocs.add(secDoc);
+      }
+
+      // Creates tertiary model
+      String tertDocName = String.format("%s_%s.%s", mdName, modelNum, modelExtension);
+      SBMLDocument tertDoc = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
+      // Enable Hierarchical Compositon package
+      tertDoc.enablePackage(CompConstants.shortLabel);
+      CompSBMLDocumentPlugin compDocPlugin =
+          (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
+      TableReader.addNamespaces(tertDoc);
+
+      // Adds document annotation
+      tertDoc.setAnnotation(new MetadataAnnotation(metadata).getAnnotation());
+
+      Model model = tertDoc.createModel("model");
+      KnimeTuple aTuple = tupleList.get(0).get(0);
+
+      // Builds metadata node
+      XMLTriple metadataTriple = new XMLTriple("metadata", null, "pmf");
+      XMLNode metadataNode = new XMLNode(metadataTriple);
+      model.getAnnotation().setNonRDFAnnotation(metadataNode);
+
+      // Builds global model id node
+      int gmId = aTuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+      metadataNode.addChild(new GlobalModelIdNode(gmId).getNode());
+
+      // Get literature references
+      PmmXmlDoc litDoc = aTuple.getPmmXml(Model1Schema.ATT_EMLIT);
+      List<LiteratureItem> lits = new LinkedList<>();
+      for (PmmXmlElementConvertable item : litDoc.getElementSet()) {
+        lits.add((LiteratureItem) item);
+      }
+
+      // Builds reference nodes
+      for (LiteratureItem lit : lits) {
+        Reference ref = WriterUtils.literatureItem2Reference(lit);
+        metadataNode.addChild(new ReferenceSBMLNode(ref).getNode());
+      }
+
+      // Gets a primary model
+      Model primModel = primModels.get(0).getModelDoc().getModel();
+
+      // Adds species
+      Species species = primModel.getSpecies(0);
+      model.addSpecies(new Species(species));
+
+      // Adds compartment
+      Compartment compartment = primModel.getCompartment(0);
+      model.addCompartment(new Compartment(compartment));
+
+      // Adds rule
+      AssignmentRule rule = (AssignmentRule) primModel.getRule(0);
+      model.addRule(new AssignmentRule(rule));
+
+      // Assigns parameters of the primary model
+      for (Parameter p : primModel.getListOfParameters()) {
+        Parameter p2 = new Parameter(p);
+        if (p2.isSetAnnotation()) {
+          p2.setAnnotation(new Annotation());
+        }
+        model.addParameter(p2);
+      }
+
+      CompModelPlugin modelPlugin = (CompModelPlugin) model.getPlugin(CompConstants.shortLabel);
+
+      // Creates ExternalModelDefinition
+      List<String> secDocNames = new LinkedList<>();
+      for (SBMLDocument secDoc : secDocs) {
+        // Gets model definition id from secDoc
+        String mdId = secDoc.getModel().getId();
+
+        String secDocName = String.format("%s.%s", secDoc.getModel().getId(), modelExtension);
+        secDocNames.add(secDocName);
+
+        // Creates and adds an ExternalModelDefinition to the tertiary model
+        ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(mdId);
+        emd.setSource(secDocName);
+        emd.setModelRef(mdId);
+
+        String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+
+        // Creates submodel
+        Submodel submodel = modelPlugin.createSubmodel("submodel_" + depId);
+        submodel.setModelRef(mdId);
+
+        Parameter parameter = model.getParameter(depId);
+
+        CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
+        ReplacedBy replacedBy = plugin.createReplacedBy();
+        replacedBy.setIdRef(depId);
+        replacedBy.setSubmodelRef(submodel.getId());
+      }
+
+      // Assigns unit definitions of the primary model
+      model.setListOfUnitDefinitions(new ListOf<UnitDefinition>(primModel
+          .getListOfUnitDefinitions()));
+
+      TwoStepTertiaryModel tstm =
+          new TwoStepTertiaryModel(tertDocName, tertDoc, primModels, secDocNames, secDocs);
+      return tstm;
+    }
+  }
+
+  /**
+   * One Step Fit Tertiary Model
+   * 
+   * @author Miguel Alba
+   */
+  private static class OneStepTertiaryModelParser implements Parser {
+
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
+
+      List<OneStepTertiaryModel> tms = new LinkedList<>();
+
+      // Sort global models
+      Map<Integer, Map<Integer, List<KnimeTuple>>> gms = TableReader.sortGlobalModels(tuples);
+
+      // Parse tertiary models
+      for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
+        List<List<KnimeTuple>> tuplesList = new LinkedList<>();
+        for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
+          tuplesList.add(tertiaryInstance);
+        }
+        /**
+         * We have a list of tertiary instances. Each instance has the same microbial data yet
+         * different data. Then we'll create a TwoTertiaryModel from the first instance and create
+         * the data from every instance.
+         */
+        int mdNum = tms.size();
+        OneStepTertiaryModel tm = parse(tuplesList, isPMFX, mdName, mdNum, metadata, notes);
+        tms.add(tm);
+      }
+
+      if (splitModels) {
+        for (int numModel = 0; numModel < tms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<OneStepTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            OneStepTertiaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            OneStepTertiaryModelFile.writePMF(dir, modelName, sublist);
+          }
+        }
+      } else {
+        if (isPMFX) {
+          OneStepTertiaryModelFile.writePMFX(dir, mdName, tms);
+        } else {
+          OneStepTertiaryModelFile.writePMF(dir, mdName, tms);
+        }
+      }
+    }
+
+    private static OneStepTertiaryModel parse(List<List<KnimeTuple>> tupleList, boolean isPMFX,
+        String mdName, int mdNum, Metadata metadata, String notes) {
+
+      final String modelExtension = isPMFX ? "pmf" : "sbml";
+
+      List<String> numlDocNames = new LinkedList<>();
+      List<NuMLDocument> numlDocs = new LinkedList<>();
+      for (List<KnimeTuple> instance : tupleList) {
+        // Get first tuple: All the tuples of an instance have the same data
+        KnimeTuple tuple = instance.get(0);
+        if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
+          int dataCounter = numlDocs.size();
+          String numlDocName = String.format("data_%d_%d.numl", mdNum, dataCounter);
+          numlDocNames.add(numlDocName);
+
+          DataParser dataParser = new DataParser(tuple, metadata, notes);
+          NuMLDocument numlDoc = dataParser.getDocument();
+          numlDocs.add(numlDoc);
+        }
+      }
+
+      // We'll get microbial data from the first instance
+      List<KnimeTuple> firstInstance = tupleList.get(0);
+      // and the primary model from the first tuple
+      KnimeTuple firstTuple = firstInstance.get(0);
+
+      Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
+      SBMLDocument tertDoc = m1Parser.getDocument();
+      String tertDocName = String.format("%s_%s.%s", mdName, mdNum, modelExtension);
+      CompSBMLDocumentPlugin compDocPlugin =
+          (CompSBMLDocumentPlugin) tertDoc.getPlugin(CompConstants.shortLabel);
+
+      // Adds DataSourceNode to the tertiary model
+      XMLNode tertMetadataNode =
+          tertDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+      for (String numlDocName : numlDocNames) {
+        tertMetadataNode.addChild(new DataSourceNode(numlDocName).getNode());
+      }
+
+      CompModelPlugin modelPlugin =
+          (CompModelPlugin) tertDoc.getModel().getPlugin(CompConstants.shortLabel);
+
+      // Add submodels and model definitions
+      List<String> secDocNames = new LinkedList<>();
+      List<SBMLDocument> secDocs = new LinkedList<>();
+      for (KnimeTuple tuple : firstInstance) {
+
+        SBMLDocument secDoc = new Model2Parser(tuple, metadata, notes).getDocument();
+
+        String secModelId = secDoc.getModel().getId();
+        String secDocName = String.format("%s.%s", secModelId, modelExtension);
+
+        secDocNames.add(secDocName);
+        secDocs.add(secDoc);
+
+        // Creates and adds an ExternalModelDefinition
+        ExternalModelDefinition emd = compDocPlugin.createExternalModelDefinition(secModelId);
+        emd.setSource(secDocName);
+        emd.setModelRef(secModelId);
+
+        String depId = ((AssignmentRule) secDoc.getModel().getRule(0)).getVariable();
+
+        Submodel submodel = modelPlugin.createSubmodel("submodel_" + depId);
+        submodel.setModelRef(emd.getId());
+
+        Parameter parameter = tertDoc.getModel().getParameter(depId);
+
+        CompSBasePlugin plugin = (CompSBasePlugin) parameter.getPlugin(CompConstants.shortLabel);
+        ReplacedBy replacedBy = plugin.createReplacedBy();
+        replacedBy.setIdRef(depId);
+        replacedBy.setSubmodelRef(submodel.getId());
+
+        // Add annotation for the primary model
+        XMLNode secMetadataNode =
+            secDoc.getModel().getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+        secMetadataNode.addChild(new PrimaryModelNode(tertDocName).getNode());
+
+        // Adds DataSourceNodes to the sec model
+        for (String numlDocName : numlDocNames) {
+          secMetadataNode.addChild(new DataSourceNode(numlDocName).getNode());
+        }
+      }
+
+      OneStepTertiaryModel tstm =
+          new OneStepTertiaryModel(tertDocName, tertDoc, secDocNames, secDocs, numlDocNames,
+              numlDocs);
+      return tstm;
+    }
+  }
+
+  private static class ManualTertiaryModelParser implements Parser {
+
+    @Override
+    public void write(List<KnimeTuple> tuples, boolean isPMFX, String dir, String mdName,
+        Metadata metadata, boolean splitModels, String notes, ExecutionContext exec)
+        throws Exception {
+
+      List<ManualTertiaryModel> tms = new LinkedList<>();
+
+      // Sort tertiary models
+      Map<Integer, List<KnimeTuple>> tertiaryModelMap = new HashMap<>();
+      for (KnimeTuple tuple : tuples) {
+        int primModelId = ((EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL).get(0)).getId();
+
+        // primary model in tuple is already in tertiaryModelMap
+        if (tertiaryModelMap.containsKey(primModelId)) {
+          tertiaryModelMap.get(primModelId).add(tuple);
+        } else {
+          LinkedList<KnimeTuple> tupleList = new LinkedList<>();
+          tupleList.add(tuple);
+          tertiaryModelMap.put(primModelId, tupleList);
+        }
+      }
+      
+      for (List<KnimeTuple> tupleList : tertiaryModelMap.values()) {
+        int modelCounter = tms.size();
+        tms.add(parse(tupleList, isPMFX, mdName, modelCounter, metadata, notes));
+      }
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < tms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<ManualTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            ManualTertiaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            ManualTertiaryModelFile.writePMF(dir, modelName, sublist);
+          }
+        }
+      } else {
+        if (isPMFX) {
+          ManualTertiaryModelFile.writePMFX(dir, mdName, tms);
         } else {
           ManualTertiaryModelFile.writePMF(dir, mdName, tms);
         }
       }
     }
 
-    private static ManualTertiaryModel parse(List<List<KnimeTuple>> tupleList, boolean isPMFX,
+    private static ManualTertiaryModel parse(List<KnimeTuple> tupleList, boolean isPMFX,
         String mdName, int modelNum, Metadata metadata, String notes) {
 
       final String modelExtension = isPMFX ? "pmf" : "sbml";
 
-      // We'll get microbial data from the first instance
-      List<KnimeTuple> firstInstance = tupleList.get(0);
-      // and the primary model from the first tuple
-      KnimeTuple firstTuple = firstInstance.get(0);
+      // We'll get microbial data from the primary of the first tuple
+      KnimeTuple firstTuple = tupleList.get(0);
 
       // Creates SBMLDocument for the tertiary model
       Model1Parser m1Parser = new Model1Parser(firstTuple, metadata, notes);
@@ -1307,8 +1290,7 @@ public class WriterUtils {
       List<String> secDocNames = new LinkedList<>();
       List<SBMLDocument> secDocs = new LinkedList<>();
 
-      for (int i = 0; i < firstInstance.size(); i++) {
-        KnimeTuple tuple = firstInstance.get(i);
+      for (KnimeTuple tuple : tupleList) {
 
         Model2Parser m2Parser = new Model2Parser(tuple, metadata, notes);
         SBMLDocument secDoc = m2Parser.getDocument();

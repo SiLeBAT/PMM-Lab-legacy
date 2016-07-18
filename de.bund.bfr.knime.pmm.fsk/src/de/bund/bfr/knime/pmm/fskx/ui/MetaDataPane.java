@@ -18,8 +18,6 @@ import javax.swing.table.TableColumnModel;
 
 import org.knime.core.node.NodeLogger;
 
-import com.google.common.base.Joiner;
-
 import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
@@ -29,7 +27,7 @@ public class MetaDataPane extends JScrollPane {
 	private static final long serialVersionUID = -3455056721681075796L;
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(MetaDataPane.class);
-	
+
 	private final static Map<ModelType, String> modelTypeStrings;
 
 	static {
@@ -43,7 +41,7 @@ public class MetaDataPane extends JScrollPane {
 		modelTypeStrings.put(ModelType.MANUAL_SECONDARY_MODEL, "Manual secondary model");
 		modelTypeStrings.put(ModelType.TWO_STEP_TERTIARY_MODEL, "Two step tertiary model");
 		modelTypeStrings.put(ModelType.ONE_STEP_TERTIARY_MODEL, "One step tertiary model");
-		modelTypeStrings.put(ModelType.MANUAL_TERTIARY_MODEL, "Manual tertiary model");	
+		modelTypeStrings.put(ModelType.MANUAL_TERTIARY_MODEL, "Manual tertiary model");
 	}
 
 	private static enum Col {
@@ -96,19 +94,19 @@ public class MetaDataPane extends JScrollPane {
 			super(new TableModel(template, editable));
 
 			TableColumnModel columnModel = getColumnModel();
-			
+
 			// Set columns witdth
 			for (int ncol = 0; ncol < getColumnCount(); ncol++) {
 				columnModel.getColumn(ncol).setPreferredWidth(150);
 			}
 			setAutoResizeMode(AUTO_RESIZE_OFF);
-			
+
 			// Set special editors
 			columnModel.getColumn(Col.Model_Type.ordinal()).setCellEditor(new ModelTypeEditor());
 			columnModel.getColumn(Col.Model_Subject.ordinal()).setCellEditor(new ModelSubjectEditor());
 		}
 	}
-	
+
 	private static class ModelTypeEditor extends DefaultCellEditor {
 
 		private static final long serialVersionUID = 2923508881330612951L;
@@ -117,25 +115,25 @@ public class MetaDataPane extends JScrollPane {
 		static {
 			comboBox = new JComboBox<>();
 			modelTypeStrings.values().forEach(modelType -> comboBox.addItem(modelType));
-			comboBox.addItem("");  // empty string for non defined model types
+			comboBox.addItem(""); // empty string for non defined model types
 		}
 
 		public ModelTypeEditor() {
 			super(comboBox);
 		}
 	}
-	
+
 	private static class ModelSubjectEditor extends DefaultCellEditor {
-		
+
 		private static final long serialVersionUID = -3451495357854026436L;
 		private static JComboBox<String> comboBox;
-		
+
 		static {
-			comboBox =  new JComboBox<>();
+			comboBox = new JComboBox<>();
 			Arrays.stream(ModelClass.values()).forEach(modelClass -> comboBox.addItem(modelClass.fullName()));
-			comboBox.addItem("");  // empty string for non defined model class
+			comboBox.addItem(""); // empty string for non defined model class
 		}
-		
+
 		public ModelSubjectEditor() {
 			super(comboBox);
 		}
@@ -183,7 +181,6 @@ public class MetaDataPane extends JScrollPane {
 		private FSMRTemplate template;
 		private boolean editable;
 
-		private static final Joiner joiner = Joiner.on("||"); // utility joiner
 		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
 		public TableModel(FSMRTemplate template, boolean editable) {
@@ -259,9 +256,11 @@ public class MetaDataPane extends JScrollPane {
 			case Dependent_Variable_Max:
 				return template.isSetDependentVariableMax() ? Double.toString(template.getDependentVariableMax()) : "";
 			case Independent_Variable:
-				return template.isSetIndependentVariables() ? template.getIndependentVariables().toString() : "";
+				return template.isSetIndependentVariables() ? Arrays.stream(template.getIndependentVariables())
+						.collect(Collectors.joining("||")) : "";
 			case Independent_Variable_Units:
-				return template.isSetIndependentVariables() ? joiner.join(template.getIndependentVariables()) : "";
+				return template.isSetIndependentVariablesUnits() ? Arrays.stream(
+						template.getIndependentVariablesUnits()).collect(Collectors.joining("||")) : "";
 			case Independent_Variable_Mins:
 				return template.isSetIndependentVariablesMins() ? Arrays.stream(template.getIndependentVariablesMins())
 						.mapToObj(Double::toString).collect(Collectors.joining("||")) : "";

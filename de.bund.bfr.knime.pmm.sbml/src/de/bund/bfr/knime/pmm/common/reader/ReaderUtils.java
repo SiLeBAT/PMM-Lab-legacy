@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.common.reader;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,7 +25,6 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
@@ -245,43 +245,24 @@ public class ReaderUtils {
     return tuple;
   }
 
-  public static BufferedDataContainer[] readPMF(String filepath, boolean isPMFX,
+  private static final Map<ModelType, Reader> READERS = new HashMap<>();
+  static {
+    READERS.put(ModelType.EXPERIMENTAL_DATA, new ExperimentalDataReader());
+    READERS.put(ModelType.PRIMARY_MODEL_WDATA, new PrimaryModelWDataReader());
+    READERS.put(ModelType.PRIMARY_MODEL_WODATA, new PrimaryModelWODataReader());
+    READERS.put(ModelType.TWO_STEP_SECONDARY_MODEL, new TwoStepSecondaryModelReader());
+    READERS.put(ModelType.ONE_STEP_SECONDARY_MODEL, new OneStepSecondaryModelReader());
+    READERS.put(ModelType.MANUAL_SECONDARY_MODEL, new ManualSecondaryModelReader());
+    READERS.put(ModelType.TWO_STEP_TERTIARY_MODEL, new TwoStepTertiaryModelReader());
+    READERS.put(ModelType.ONE_STEP_TERTIARY_MODEL, new OneStepTertiaryModelReader());
+    READERS.put(ModelType.MANUAL_TERTIARY_MODEL, new ManualTertiaryModelReader());
+  }
+  
+  public static BufferedDataContainer[] readPMF(File file, boolean isPMFX,
       ExecutionContext exec, ModelType modelType) throws Exception {
 
-    Reader reader;
-    switch (modelType) {
-      case EXPERIMENTAL_DATA:
-        reader = new ExperimentalDataReader();
-        break;
-      case PRIMARY_MODEL_WDATA:
-        reader = new PrimaryModelWDataReader();
-        break;
-      case PRIMARY_MODEL_WODATA:
-        reader = new PrimaryModelWODataReader();
-        break;
-      case TWO_STEP_SECONDARY_MODEL:
-        reader = new TwoStepSecondaryModelReader();
-        break;
-      case ONE_STEP_SECONDARY_MODEL:
-        reader = new OneStepSecondaryModelReader();
-        break;
-      case MANUAL_SECONDARY_MODEL:
-        reader = new ManualSecondaryModelReader();
-        break;
-      case TWO_STEP_TERTIARY_MODEL:
-        reader = new TwoStepTertiaryModelReader();
-        break;
-      case ONE_STEP_TERTIARY_MODEL:
-        reader = new OneStepTertiaryModelReader();
-        break;
-      case MANUAL_TERTIARY_MODEL:
-        reader = new ManualTertiaryModelReader();
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid model type: " + modelType);
-    }
-
-    return reader.read(filepath, isPMFX, exec);
+    Reader reader = READERS.get(modelType);
+    return reader.read(file, isPMFX, exec);
   }
 
   /**
@@ -296,13 +277,13 @@ public class ReaderUtils {
      * @param isPMFX. If true the reads PMFX file. Else then read PMF file.
      * @throws Exception
      */
-    BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception;
   }
 
   private static class ExperimentalDataReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec dataSpec = SchemaFactory.createDataSchema().createSpec();
@@ -311,9 +292,9 @@ public class ReaderUtils {
       // Reads in experimental data from file
       List<ExperimentalData> eds;
       if (isPMFX) {
-        eds = ExperimentalDataFile.readPMFX(filepath);
+        eds = ExperimentalDataFile.readPMFX(file);
       } else {
-        eds = ExperimentalDataFile.readPMF(filepath);
+        eds = ExperimentalDataFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -342,7 +323,7 @@ public class ReaderUtils {
 
   private static class PrimaryModelWDataReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM1DataSchema().createSpec();
@@ -351,15 +332,14 @@ public class ReaderUtils {
       // Reads in models from file
       List<PrimaryModelWData> models;
       if (isPMFX) {
-        models = PrimaryModelWDataFile.readPMFX(filepath);
+        models = PrimaryModelWDataFile.readPMFX(file);
       } else {
-        models = PrimaryModelWDataFile.readPMF(filepath);
+        models = PrimaryModelWDataFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (PrimaryModelWData model : models) {
-        KnimeTuple tuple = parse(model);
-        modelContainer.addRowToTable(tuple);
+        modelContainer.addRowToTable(parse(model));
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -419,7 +399,7 @@ public class ReaderUtils {
 
   private static class PrimaryModelWODataReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM1DataSchema().createSpec();
@@ -428,15 +408,14 @@ public class ReaderUtils {
       // Reads in models from file
       List<PrimaryModelWOData> models;
       if (isPMFX) {
-        models = PrimaryModelWODataFile.readPMFX(filepath);
+        models = PrimaryModelWODataFile.readPMFX(file);
       } else {
-        models = PrimaryModelWODataFile.readPMF(filepath);
+        models = PrimaryModelWODataFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (PrimaryModelWOData model : models) {
-        KnimeTuple tuple = parse(model);
-        modelContainer.addRowToTable(tuple);
+        modelContainer.addRowToTable(parse(model));
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -497,7 +476,7 @@ public class ReaderUtils {
 
   private static class TwoStepSecondaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -506,28 +485,22 @@ public class ReaderUtils {
       // Reads in models from file
       List<TwoStepSecondaryModel> models;
       if (isPMFX) {
-        models = TwoStepSecondaryModelFile.readPMFX(filepath);
+        models = TwoStepSecondaryModelFile.readPMFX(file);
       } else {
-        models = TwoStepSecondaryModelFile.readPMF(filepath);
+        models = TwoStepSecondaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (TwoStepSecondaryModel tssm : models) {
-        List<KnimeTuple> tuples = parse(tssm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(tssm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
       modelContainer.close();
 
       // Gets KNIME tuples with the FSMR templates
-      List<SBMLDocument> primModels =
-          models.stream().map(mod -> mod.getPrimModels().get(0).getModelDoc())
-              .collect(Collectors.toList());
       List<KnimeTuple> fsmrTuples =
-          primModels.stream().map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processTwoStepSecondaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR templates
@@ -564,7 +537,7 @@ public class ReaderUtils {
 
   private static class OneStepSecondaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -573,27 +546,22 @@ public class ReaderUtils {
       // Reads in models from file
       List<OneStepSecondaryModel> models;
       if (isPMFX) {
-        models = OneStepSecondaryModelFile.readPMFX(filepath);
+        models = OneStepSecondaryModelFile.readPMFX(file);
       } else {
-        models = OneStepSecondaryModelFile.readPMF(filepath);
+        models = OneStepSecondaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (OneStepSecondaryModel ossm : models) {
-        List<KnimeTuple> tuples = parse(ossm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(ossm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
       modelContainer.close();
 
       // Gets KNIME tuples with the FSMR templates
-      List<SBMLDocument> primModels =
-          models.stream().map(OneStepSecondaryModel::getModelDoc).collect(Collectors.toList());
       List<KnimeTuple> fsmrTuples =
-          primModels.stream().map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processOneStepSecondaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with the FSMR templates
@@ -629,7 +597,7 @@ public class ReaderUtils {
 
   private static class ManualSecondaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM2Schema().createSpec();
@@ -638,9 +606,9 @@ public class ReaderUtils {
       // Reads in models from file
       List<ManualSecondaryModel> models;
       if (isPMFX) {
-        models = ManualSecondaryModelFile.readPMFX(filepath);
+        models = ManualSecondaryModelFile.readPMFX(file);
       } else {
-        models = ManualSecondaryModelFile.readPMF(filepath);
+        models = ManualSecondaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
@@ -654,8 +622,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(ManualSecondaryModel::getDoc)
-              .map(FSMRUtils::processModelWithoutMicrobialData)
+          models.stream().map(FSMRUtils::processManualSecondaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates cotnainer with OpenFSMR tuples
@@ -670,7 +637,7 @@ public class ReaderUtils {
 
   private static class TwoStepTertiaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -679,26 +646,21 @@ public class ReaderUtils {
       // Read in models from file
       List<TwoStepTertiaryModel> models;
       if (isPMFX) {
-        models = TwoStepTertiaryModelFile.readPMFX(filepath);
+        models = TwoStepTertiaryModelFile.readPMFX(file);
       } else {
-        models = TwoStepTertiaryModelFile.readPMF(filepath);
+        models = TwoStepTertiaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (TwoStepTertiaryModel tssm : models) {
-        List<KnimeTuple> tuples = parse(tssm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(tssm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
-
       modelContainer.close();
 
       // Creates tuples and adds them to the container
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(TwoStepTertiaryModel::getTertDoc)
-              .map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processTwoStepTertiaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR tuples
@@ -732,7 +694,7 @@ public class ReaderUtils {
 
   private static class OneStepTertiaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -741,17 +703,14 @@ public class ReaderUtils {
       // Read in models from file
       List<OneStepTertiaryModel> models;
       if (isPMFX) {
-        models = OneStepTertiaryModelFile.readPMFX(filepath);
+        models = OneStepTertiaryModelFile.readPMFX(file);
       } else {
-        models = OneStepTertiaryModelFile.readPMF(filepath);
+        models = OneStepTertiaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (OneStepTertiaryModel ostm : models) {
-        List<KnimeTuple> tuples = parse(ostm);
-        for (KnimeTuple tuple : tuples) {
-          modelContainer.addRowToTable(tuple);
-        }
+        parse(ostm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -759,8 +718,7 @@ public class ReaderUtils {
 
       // Gets KNIME tuples with the FSMR templates
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(OneStepTertiaryModel::getTertiaryDoc)
-              .map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processOneStepTertiaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR tuples
@@ -800,7 +758,7 @@ public class ReaderUtils {
 
   private static class ManualTertiaryModelReader implements Reader {
 
-    public BufferedDataContainer[] read(String filepath, boolean isPMFX, ExecutionContext exec)
+    public BufferedDataContainer[] read(File file, boolean isPMFX, ExecutionContext exec)
         throws Exception {
       // Creates table spec and container
       DataTableSpec modelSpec = SchemaFactory.createM12DataSchema().createSpec();
@@ -809,15 +767,14 @@ public class ReaderUtils {
       // Read in models from file
       List<ManualTertiaryModel> models;
       if (isPMFX) {
-        models = ManualTertiaryModelFile.readPMFX(filepath);
+        models = ManualTertiaryModelFile.readPMFX(file);
       } else {
-        models = ManualTertiaryModelFile.readPMF(filepath);
+        models = ManualTertiaryModelFile.readPMF(file);
       }
 
       // Creates tuples and adds them to the container
       for (ManualTertiaryModel mtm : models) {
-        List<KnimeTuple> tuples = parse(mtm);
-        tuples.forEach(modelContainer::addRowToTable);
+        parse(mtm).forEach(modelContainer::addRowToTable);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
 
@@ -825,8 +782,7 @@ public class ReaderUtils {
 
       // Gets KNIME tuples with the FSMR templates
       List<KnimeTuple> fsmrTuples =
-          models.stream().map(ManualTertiaryModel::getTertiaryDoc)
-              .map(FSMRUtils::processModelWithMicrobialData)
+          models.stream().map(FSMRUtils::processManualTertiaryModel)
               .map(FSMRUtils::createTupleFromTemplate).collect(Collectors.toList());
 
       // Creates container with OpenFSMR tuples
@@ -846,11 +802,6 @@ public class ReaderUtils {
       List<KnimeTuple> rows = new LinkedList<>();
       for (SBMLDocument secDoc : mtm.getSecDocs()) {
         KnimeTuple m2Tuple = new Model2Tuple(secDoc.getModel()).getTuple();
-
-        EstModelXml estModelXml = (EstModelXml) m2Tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-        estModelXml.setId(MathUtilities.getRandomNegativeInt());
-        m2Tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModelXml));
-
         rows.add(ReaderUtils.mergeTuples(dataTuple, m1Tuple, m2Tuple));
       }
 

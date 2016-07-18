@@ -17,54 +17,51 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.pmfxreader;
+package de.bund.bfr.knime.pmm.pmfwriter;
 
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-/**
- * <code>NodeView</code> for the "SBMLReader" Node.
- * 
- * Author: Miguel de Alba Aparicio Contact: malba@optimumquality.es
- */
-public class PMFXReaderNodeView extends NodeView<PMFXReaderNodeModel> {
+public class PMFXWriterNodeFactory extends NodeFactory<PMFWriterNodeModel> {
 
 	/**
-	 * Creates a new view.
-	 * 
-	 * @param nodeModel
-	 *            The model (class: {@link PMFXReaderNodeModel})
+	 * {@inheritDoc}
 	 */
-	protected PMFXReaderNodeView(final PMFXReaderNodeModel nodeModel) {
-		super(nodeModel);
-		// PMFReaderNodeView has no components
+	@Override
+	public PMFWriterNodeModel createNodeModel() {
+		return new PMFWriterNodeModel(true);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void modelChanged() {
-		// TODO retrieve the new model from your nodemodel and
-		// update the view.
-		PMFXReaderNodeModel nodeModel = (PMFXReaderNodeModel) getNodeModel();
-		assert nodeModel != null;
-		// be aware of a possibly not executed nodeModel! The data you retrieve
-		// from your nodemodel could be null, emtpy, or invalid in any kind.
+	public int getNrNodeViews() {
+		return 0;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onClose() {
-		// TODO things to do when closing the view
+	public NodeView<PMFWriterNodeModel> createNodeView(final int viewIndex, final PMFWriterNodeModel nodeModel) {
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onOpen() {
-		// TODO things to do when opening the view
+	public boolean hasDialog() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new PMFWriterNodeDialog();
 	}
 }

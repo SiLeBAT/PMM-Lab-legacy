@@ -14,7 +14,7 @@
  *
  * Contributors: Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.fskx.writer;
+package de.bund.bfr.knime.pmm.pmfreader;
 
 import javax.swing.JFileChooser;
 
@@ -22,21 +22,42 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-class FskxWriterNodeDialog extends DefaultNodeSettingsPane {
+/**
+ * <code>NodeDialog</code> for the "SBMLReader" Node.
+ * 
+ * 
+ * 
+ * creation of a simple dialog with standard components. If you need a more complex dialog please
+ * derive directly from
+ * 
+ * 
+ * Author: Miguel de Alba Aparicio (malba@optimumquality.es)
+ */
 
-  protected FskxWriterNodeDialog() {
+public class PMFReaderNodeDialog extends DefaultNodeSettingsPane {
 
-    // File dialog chooser
-    final String fileHistoryId = "fileHistory";
-    final int dlgType = JFileChooser.SAVE_DIALOG;
-    final boolean directoryOnly = false;
-    final String validExtensions = ".fskx|.FSKX";
+  DialogComponentFileChooser fileChooser;
 
-    final SettingsModelString filePath =
-        new SettingsModelString(FskxWriterNodeModel.CFG_FILE, null);
-    final DialogComponentFileChooser fileDlg = new DialogComponentFileChooser(filePath,
-        fileHistoryId, dlgType, directoryOnly, validExtensions);
-    fileDlg.setBorderTitle("Output file");
-    addDialogComponent(fileDlg);
+  /**
+   * New pane for configuring SBMLReader node dialog.
+   */
+  public PMFReaderNodeDialog(boolean isPMFX) {
+    // Set model strings
+    final SettingsModelString fileName =
+        new SettingsModelString(PMFReaderNodeModel.CFGKEY_FILE, "");
+    fileName.setEnabled(true);
+
+    // Create fileChooser
+    final String fileExtension = isPMFX ? ".pmfx" : ".pmf";
+    fileChooser =
+        new DialogComponentFileChooser(fileName, "filename-history", JFileChooser.OPEN_DIALOG,
+            fileExtension);
+
+    // Add widgets
+    createNewGroup("Data Source");
+    addDialogComponent(fileChooser);
+
+    // start showing fileChooser
+    fileChooser.getComponentPanel().setVisible(true);
   }
 }

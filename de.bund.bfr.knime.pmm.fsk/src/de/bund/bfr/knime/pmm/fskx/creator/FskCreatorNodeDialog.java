@@ -1,4 +1,5 @@
 package de.bund.bfr.knime.pmm.fskx.creator;
+
 /***************************************************************************************************
  * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
@@ -16,9 +17,19 @@ package de.bund.bfr.knime.pmm.fskx.creator;
  * Contributors: Department Biological Safety - BfR
  **************************************************************************************************/
 
+import java.io.File;
+import java.io.FileFilter;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.JFileChooser;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -27,94 +38,130 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
-import de.bund.bfr.knime.pmm.common.ui.BoxFileSelection;
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 
 class FskCreatorNodeDialog extends NodeDialogPane {
 
-  // models
-  private final SettingsModelString m_modelScript;
-  private final SettingsModelString m_paramScript;
-  private final SettingsModelString m_visualizationScript;
-  private final SettingsModelString m_metaDataDoc;
-  private final SettingsModelString m_libDirectory;
-  private final SettingsModelStringArray m_selectedLibs;
+	// models
+	private final SettingsModelString m_modelScript;
+	private final SettingsModelString m_paramScript;
+	private final SettingsModelString m_visualizationScript;
+	private final SettingsModelString m_metaDataDoc;
+	private final SettingsModelString m_libDirectory;
+	private final SettingsModelStringArray m_selectedLibs;
 
-  private static final int dialogType = JFileChooser.OPEN_DIALOG; // type of the dialogs
+	/** Chooser to pick the libraries. */
+	private final DialogComponentStringListSelection libChooser;
 
-  protected FskCreatorNodeDialog() {
+	// type of the dialogs
+	private static final int dialogType = JFileChooser.OPEN_DIALOG;
 
-    super();
+	protected FskCreatorNodeDialog() {
 
-    m_modelScript = new SettingsModelString(FskCreatorNodeModel.CFGKEY_MODEL_SCRIPT, "");
-    m_paramScript = new SettingsModelString(FskCreatorNodeModel.CFGKEY_PARAM_SCRIPT, "");
-    m_visualizationScript = new SettingsModelString(FskCreatorNodeModel.CFGKEY_VISUALIZATION_SCRIPT, "");
-    m_metaDataDoc = new SettingsModelString(FskCreatorNodeModel.CFGKEY_SPREADSHEET, "");
-    m_libDirectory = new SettingsModelString(FskCreatorNodeModel.CFGKEY_DIR_LIBS, "");
-    m_selectedLibs = new SettingsModelStringArray(FskCreatorNodeModel.CFGKEY_LIBS, new String[0]);
+		m_modelScript = new SettingsModelString(FskCreatorNodeModel.CFGKEY_MODEL_SCRIPT, "");
+		m_paramScript = new SettingsModelString(FskCreatorNodeModel.CFGKEY_PARAM_SCRIPT, "");
+		m_visualizationScript = new SettingsModelString(FskCreatorNodeModel.CFGKEY_VISUALIZATION_SCRIPT, "");
+		m_metaDataDoc = new SettingsModelString(FskCreatorNodeModel.CFGKEY_SPREADSHEET, "");
+		m_libDirectory = new SettingsModelString(FskCreatorNodeModel.CFGKEY_DIR_LIBS, "");
+		m_selectedLibs = new SettingsModelStringArray(FskCreatorNodeModel.CFGKEY_LIBS, new String[0]);
 
-    // Creates the GUI
-    Box box = Box.createHorizontalBox();
-    box.add(createFilesSelection());
-    // box.add(createLibsSelection());
-    box.add(new BoxFileSelection(m_libDirectory, m_selectedLibs, ".zip", "R libraries selection"));
-    addTab("Selection", box);
-    removeTab("Options");
-  }
+		// Creates the GUI
+		Box box = Box.createHorizontalBox();
+		box.add(createFilesSelection());
 
-  /** Creates Box to select R scripts and spreadsheet with meta data. */
-  private Box createFilesSelection() {
-    String rFilters = ".r|.R"; // Extension filters for the R scripts
+		DialogComponentFileChooser dirChooser = new DialogComponentFileChooser(m_libDirectory, "lib-dir", dialogType,
+				true);
+		dirChooser.addChangeListener(new DirChangeListener());
 
-    DialogComponentFileChooser modelScriptChooser =
-        new DialogComponentFileChooser(m_modelScript, "modelScript-history", dialogType, rFilters);
-    modelScriptChooser.setBorderTitle("Select model script");
+		libChooser = new DialogComponentStringListSelection(m_selectedLibs, "Select libs", Arrays.asList(""), true, 10);
 
-    DialogComponentFileChooser paramScriptChooser =
-        new DialogComponentFileChooser(m_paramScript, "paramScript-history", dialogType, rFilters);
-    paramScriptChooser.setBorderTitle("Select param script");
+		Box librariesBox = Box.createVerticalBox();
+		librariesBox.add(dirChooser.getComponentPanel());
+		librariesBox.add(libChooser.getComponentPanel());
+		box.add(librariesBox);
 
-    DialogComponentFileChooser vizScriptChooser = new DialogComponentFileChooser(
-        m_visualizationScript, "vizScript-history", dialogType, rFilters);
-    vizScriptChooser.setBorderTitle("Select visualization script");
+		addTab("Selection", box);
+		removeTab("Options");
+	}
 
-    DialogComponentFileChooser metaDataChooser =
-        new DialogComponentFileChooser(m_metaDataDoc, "metaData-history", dialogType);
-    metaDataChooser.setBorderTitle("Select spreadsheet");
+	/** Creates Box to select R scripts and spreadsheet with meta data. */
+	private Box createFilesSelection() {
+		String rFilters = ".r|.R"; // Extension filters for the R scripts
 
-    Box box = Box.createVerticalBox();
-    box.add(modelScriptChooser.getComponentPanel());
-    box.add(paramScriptChooser.getComponentPanel());
-    box.add(vizScriptChooser.getComponentPanel());
-    box.add(metaDataChooser.getComponentPanel());
+		DialogComponentFileChooser modelScriptChooser = new DialogComponentFileChooser(m_modelScript,
+				"modelScript-history", dialogType, rFilters);
+		modelScriptChooser.setBorderTitle("Select model script");
 
-    return box;
-  }
+		DialogComponentFileChooser paramScriptChooser = new DialogComponentFileChooser(m_paramScript,
+				"paramScript-history", dialogType, rFilters);
+		paramScriptChooser.setBorderTitle("Select param script");
 
-  @Override
-  protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
-      throws NotConfigurableException {
-    try {
-      m_modelScript.loadSettingsFrom(settings);
-      m_paramScript.loadSettingsFrom(settings);
-      m_visualizationScript.loadSettingsFrom(settings);
-      m_metaDataDoc.loadSettingsFrom(settings);
-      m_libDirectory.loadSettingsFrom(settings);
-      m_selectedLibs.loadSettingsFrom(settings);
-    } catch (InvalidSettingsException e) {
-      throw new NotConfigurableException(e.getMessage(), e.getCause());
-    }
-  }
+		DialogComponentFileChooser vizScriptChooser = new DialogComponentFileChooser(m_visualizationScript,
+				"vizScript-history", dialogType, rFilters);
+		vizScriptChooser.setBorderTitle("Select visualization script");
 
-  @Override
-  public void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-    m_modelScript.saveSettingsTo(settings);
-    m_paramScript.saveSettingsTo(settings);
-    m_visualizationScript.saveSettingsTo(settings);
-    m_metaDataDoc.saveSettingsTo(settings);
-    m_libDirectory.saveSettingsTo(settings);
-    m_selectedLibs.saveSettingsTo(settings);
-  }
+		DialogComponentFileChooser metaDataChooser = new DialogComponentFileChooser(m_metaDataDoc, "metaData-history",
+				dialogType);
+		metaDataChooser.setBorderTitle("Select spreadsheet");
+
+		Box box = Box.createVerticalBox();
+		box.add(modelScriptChooser.getComponentPanel());
+		box.add(paramScriptChooser.getComponentPanel());
+		box.add(vizScriptChooser.getComponentPanel());
+		box.add(metaDataChooser.getComponentPanel());
+
+		return box;
+	}
+
+	private class DirChangeListener implements ChangeListener {
+
+		private FileFilter filter = new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return new FileNameExtensionFilter("Zip files", "zip").accept(pathname);
+			}
+		};
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			try {
+				File dirFile = KnimeUtils.getFile(m_libDirectory.getStringValue());
+				File[] filesInDir = dirFile.listFiles(filter);
+				if (filesInDir.length > 0) {
+					List<String> fnames = Arrays.stream(filesInDir).map(File::getName).collect(Collectors.toList());
+					libChooser.replaceListItems(fnames, (String[]) null);
+				}
+			} catch (InvalidPathException | MalformedURLException error) {
+				error.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
+		try {
+			m_modelScript.loadSettingsFrom(settings);
+			m_paramScript.loadSettingsFrom(settings);
+			m_visualizationScript.loadSettingsFrom(settings);
+			m_metaDataDoc.loadSettingsFrom(settings);
+			m_libDirectory.loadSettingsFrom(settings);
+			m_selectedLibs.loadSettingsFrom(settings);
+		} catch (InvalidSettingsException e) {
+			throw new NotConfigurableException(e.getMessage(), e.getCause());
+		}
+	}
+
+	@Override
+	public void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		m_modelScript.saveSettingsTo(settings);
+		m_paramScript.saveSettingsTo(settings);
+		m_visualizationScript.saveSettingsTo(settings);
+		m_metaDataDoc.saveSettingsTo(settings);
+		m_libDirectory.saveSettingsTo(settings);
+		m_selectedLibs.saveSettingsTo(settings);
+	}
 }

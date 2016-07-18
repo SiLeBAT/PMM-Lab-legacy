@@ -25,7 +25,6 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
@@ -819,11 +818,6 @@ public class ReaderUtils {
       List<KnimeTuple> rows = new LinkedList<>();
       for (SBMLDocument secDoc : mtm.getSecDocs()) {
         KnimeTuple m2Tuple = new Model2Tuple(secDoc.getModel()).getTuple();
-
-        EstModelXml estModelXml = (EstModelXml) m2Tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0);
-        estModelXml.setId(MathUtilities.getRandomNegativeInt());
-        m2Tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModelXml));
-
         rows.add(ReaderUtils.mergeTuples(dataTuple, m1Tuple, m2Tuple));
       }
 

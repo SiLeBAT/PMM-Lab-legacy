@@ -898,30 +898,23 @@ public class WriterUtils {
         TwoStepTertiaryModel tm = parse(tuplesList, isPMFX, modelNum, mdName, metadata, notes);
         tms.add(tm);
       }
-
-      if (isPMFX) {
-        if (splitModels) {
-          for (int numModel = 0; numModel < tms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<TwoStepTertiaryModel> model = new LinkedList<>();
-            model.add(tms.get(numModel));
-            TwoStepTertiaryModelFile.writePMFX(dir, modelName, model);
+      
+      if (splitModels) {
+        for (int numModel = 0; numModel < tms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<TwoStepTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            TwoStepTertiaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            TwoStepTertiaryModelFile.writePMF(dir, modelName, sublist);
           }
-        } else {
-          TwoStepTertiaryModelFile.writePMFX(dir, mdName, tms);
         }
       } else {
-        if (splitModels) {
-          for (int numModel = 0; numModel < tms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<TwoStepTertiaryModel> model = new LinkedList<>();
-            model.add(tms.get(numModel));
-            TwoStepTertiaryModelFile.writePMF(dir, modelName, model);
-          }
+        if (isPMFX) {
+          TwoStepTertiaryModelFile.writePMFX(dir, mdName, tms);
         } else {
           TwoStepTertiaryModelFile.writePMF(dir, mdName, tms);
         }
-
       }
     }
 
@@ -1118,25 +1111,19 @@ public class WriterUtils {
         tms.add(tm);
       }
 
-      if (isPMFX) {
-        if (splitModels) {
-          for (int numModel = 0; numModel < tms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<OneStepTertiaryModel> model = new LinkedList<>();
-            model.add(tms.get(numModel));
-            OneStepTertiaryModelFile.writePMFX(dir, modelName, model);
+      if (splitModels) {
+        for (int numModel = 0; numModel < tms.size(); numModel++) {
+          String modelName = mdName + Integer.toString(numModel);
+          List<OneStepTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
+          if (isPMFX) {
+            OneStepTertiaryModelFile.writePMFX(dir, modelName, sublist);
+          } else {
+            OneStepTertiaryModelFile.writePMF(dir, modelName, sublist);
           }
-        } else {
-          OneStepTertiaryModelFile.writePMFX(dir, mdName, tms);
         }
       } else {
-        if (splitModels) {
-          for (int numModel = 0; numModel < tms.size(); numModel++) {
-            String modelName = mdName + Integer.toString(numModel);
-            List<OneStepTertiaryModel> model = new LinkedList<>();
-            model.add(tms.get(numModel));
-            OneStepTertiaryModelFile.writePMF(dir, modelName, model);
-          }
+        if (isPMFX) {
+          OneStepTertiaryModelFile.writePMFX(dir, mdName, tms);
         } else {
           OneStepTertiaryModelFile.writePMF(dir, mdName, tms);
         }

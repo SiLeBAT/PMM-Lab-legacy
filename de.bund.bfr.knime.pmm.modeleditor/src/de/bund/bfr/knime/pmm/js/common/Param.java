@@ -501,7 +501,8 @@ public class Param implements ViewValue {
 		int j = 0;
 		for (Map.Entry<String, Double> entry : obtainedCorrelations.entrySet()) {
 			obtainedCorrelationNames[j] = entry.getKey();
-			obtainedCorrelationValues[j] = entry.getValue();
+			if(entry.getValue() != null)
+				obtainedCorrelationValues[j] = entry.getValue();
 			j++;
 		}
 		

@@ -32,6 +32,7 @@ pmm_plotter = function() {
 	var _colorsArray = [];
 	var _rawModels = [];
 	var _dbUnits = [];
+	var _mType;
 	var _parameterMap = [];
 	var _recentPlot;
 	var _COLORS = [			// copied frum function plot
@@ -55,6 +56,7 @@ pmm_plotter = function() {
 	var msgNext = "Next";
 	var msg_To_ = " to ";
 	var msgNoType = "No Type";
+	var msgNoName = "No Name";
 	var msgDone = "Done";
 	var msgReportName = "Report Name";
 	var msgAuthorsNames = "Authors";
@@ -72,9 +74,13 @@ pmm_plotter = function() {
 	var	msg_error_unknownUnit = "unknown unit: ";
 	var	msg_error_xUnitUnknown = "the x unit of one function is unknown to the database: transformation impossible";
 	var	msg_error_yUnitUnknown = "the y unit of one function is unknown or has no conversion factor in the database: transformation impossible";
-	var msg_error_noConversionFunctionFactor = "The PMM-Lab database does not know the unit provided by the model - model cannot be added. Unit: "
+	var msg_error_noConversionFunctionFactor = "The PMM-Lab database does not know the unit provided by the model - model cannot be added. Unit: ";
+	var msg_error_notSupported_booleanOnX = "The selected model contains boolean statements (a>b) on the x-Axis. This feature is not yet supported.";
+	var msg_error_notSupported_secondaryModel = "The selected model is a secondary model. Secondary models are not yet supported. The result can be unexpected.";
+	var msg_error_null = "A secondary formula contains a 'null' parameter. This cannot be parsed correctly."
 	
 	var _internalId = 0;
+	var _defaultRangeValue = 13.37;
 	var _xUnit = msgUnknown;
 	var _yUnit = msgUnknown;
 	
@@ -92,7 +98,7 @@ pmm_plotter = function() {
 	
 	modelPlotter.init = function(representation, value) {
 		
-		// view bug - require js prevents global variable behavior 
+		// view-bug - require js prevents global variable behavior 
 		if (!window.functionPlot) {
 			window.functionPlot = parent.KnimePageLoader.getLibrary("de/bund/bfr/knime/pmm/js/modelplotter/function-plot");
 		}
@@ -101,6 +107,7 @@ pmm_plotter = function() {
 		_recentPlot = _plotterValue.svgPlot;
 		_rawModels = value.models.schemas;
 		_dbUnits = value.units.units;
+		_mType = value.modelType;
 		// plotterRep = representation; // not used
 
 		initLayout();
@@ -290,8 +297,16 @@ pmm_plotter = function() {
 					// only add if not added before
 					if(idList.indexOf(dbuuid) == -1)
 					{
-						var type = _rawModels[i].matrix.name;
-						var modelName = _rawModels[i].estModel.name;
+						var type = msgNoType;
+						if(_rawModels[i].matrix && _rawModels[i].matrix.name && _rawModels[i].matrix.name != "")
+							type = _rawModels[i].matrix.name;
+
+						var modelName = msgNoName;
+						if(_rawModels[i].estModel.name)
+							modelName = _rawModels[i].estModel.name;
+						else if (_rawModels[i].catalogModel.name)
+							modelName = _rawModels[i].catalogModel.name;
+							
 						// pass data
 						addSelectOption(dbuuid, modelName, type);
 						// remember id
@@ -313,8 +328,7 @@ pmm_plotter = function() {
 	 */
 	function addSelectOption(dbuuid, modelName, type)
 	{
-		if(!type || type == "")
-			type = msgNoType;
+
 		
 		// html <option>
 		var option = document.createElement("option");
@@ -364,9 +378,8 @@ pmm_plotter = function() {
 		
 		if(modelList.length >= 1)
 		{
-			model = createTertiaryModel(modelList); // this has to be done first
+			model = parseModel(modelList); // this has to be done first
 			model.paramList.params.Y0 = _plotterValue.y0; // set the value from the settings here
-			
 			var dbuuid = model.dbuuid;
 			var modelName = model.estModel.name;
 			var functionAsString = prepareFunction(model.indeps, model.formula, model.xUnit, model.yUnit);
@@ -500,8 +513,14 @@ pmm_plotter = function() {
 		 * @param modelList all models (data rows) that belong to the same model id
 		 * @return tertiary model (if applicable)
 		 */
-		function createTertiaryModel(modelList)
+		function parseModel(modelList)
 		{
+
+			// secondary models are not yet supported
+			if(_mType == "M2") {
+				show(msg_error_notSupported_secondaryModel);
+			}
+				
 			/*
 			 * we use the primary model data as a foundation for the tertiary model
 			 * this applies to the attributes that are equal in all secondary models/data rows
@@ -509,10 +528,10 @@ pmm_plotter = function() {
 			var tertiaryModel = modelList[0]; // primary model data is shared
 			var formulaPrim = tertiaryModel.catalogModel.formula; // main formula is shared
 			var paramsPrim = tertiaryModel.paramList.params; // so are the primary parameters
-			var indepsPrim = tertiaryModel.indepList.indeps; // so are the primary parameters
+			var indepsPrim = tertiaryModel.indepList.indeps; // so are the indepdent parameters
 			var depPrim = tertiaryModel.dep; // so are the primary parameters
-			
 			var secondaryIndeps = []; // gather the variable independents for the sliders
+			
 			
 			// get the global xUnit from the model
 			$.each(indepsPrim, function(i) {
@@ -525,6 +544,7 @@ pmm_plotter = function() {
 					return true;
 				}
 			});
+			
 			if(depPrim)
 			{
 				tertiaryModel.yUnit = depPrim.unit;
@@ -570,7 +590,7 @@ pmm_plotter = function() {
 					if(paramsSec)
 						$.each(paramsSec, function(index, param) {
 							var regex = new RegExp("\\b" + param["name"] + "\\b", "gi");
-							formulaSec = formulaSec.replace(regex, param["value"]);			 
+							formulaSec = formulaSec.replace(regex, param["value"]);
 						});
 					modelSec.formula = formulaSec; // new field holds the flat formula
 				});
@@ -583,6 +603,10 @@ pmm_plotter = function() {
 					
 					if(formulaSecRaw.indexOf("=") != -1)
 					{
+						if(formulaSecRaw.indexOf("null") != -1) {
+							show(msg_error_null);
+							return false;
+						}
 						// parameter name
 						parameterPrim = formulaSecRaw.split("=")[0];
 						// its formula from the secondary model
@@ -615,7 +639,10 @@ pmm_plotter = function() {
 				});
 			}
 			var points = [];
-			var timeSeries = tertiaryModel.timeSeriesList.timeSeries;
+			
+			var timeSeries;
+			if(tertiaryModel.timeSeriesList)
+				timeSeries = tertiaryModel.timeSeriesList.timeSeries;
 			
 			if(timeSeries)
 			{
@@ -629,7 +656,6 @@ pmm_plotter = function() {
 			}
 			
 			tertiaryModel.dataPoints = points;	
-			
 			/*
 			* post check
 			* if you want to rename parameters consistently for all upcoming actions,
@@ -659,6 +685,7 @@ pmm_plotter = function() {
 				// renaming at last
 				indep.name = newName;
 			});
+			
 			tertiaryModel.formula = formulaPrim;
 			tertiaryModel.indeps = secondaryIndeps;
 			
@@ -700,7 +727,7 @@ pmm_plotter = function() {
 			 skipTip: false,
 			 modelData: model
 		};
-		
+
 		resetBinaryFormulaBindings(modelObj);
 		
 		// for given data, we add an additional graph that only includes the data points
@@ -726,7 +753,6 @@ pmm_plotter = function() {
 		
 		// create dom elements in the meta accordion
 		addMetaData(modelObj);
-
 		// update plot and sliders after adding new function
 		updateParameterSliders();
 		
@@ -889,8 +915,11 @@ pmm_plotter = function() {
 		// function parameter
 		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter);
 		// quality score
-		var matrix = modelObject.modelData.matrix;
-		addMetaParagraph(msgMatrix, (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
+		if(modelObject.modelData.matrix)
+		{
+			var matrix = modelObject.modelData.matrix;
+			addMetaParagraph(msgMatrix, (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
+		}
 		
 		// ... add more paragraphs/attributes here ...
 		
@@ -983,9 +1012,8 @@ pmm_plotter = function() {
 					
 					// determine slider range
 					// standard values if no range given
-					var sliderMin = value - 13.37;
-					var sliderMax = value + 13.37;
-					
+					var sliderMin = value - _defaultRangeValue;
+					var sliderMax = value + _defaultRangeValue;
 					$.each(_parameterMap, function (index, range) {
 						if(range.name == constant)
 						{
@@ -1098,7 +1126,6 @@ pmm_plotter = function() {
 			var constants = _modelObjects[modelIndex].scope;
 			if(constants && constants[parameter] != undefined)
 				constants[parameter] = newValue;
-//			show(_modelObjects[modelIndex]);
 			resetBinaryFormulaBindings(_modelObjects[modelIndex]);
 		}
 		// update global map for future models
@@ -1112,6 +1139,8 @@ pmm_plotter = function() {
 		drawD3Plot();
 	}
 	
+	// this whole function is a workaround to replace the non-existing recursion of JS regexes
+	// we parse the boollean operators and recreate their according terms
 	function resetBinaryFormulaBindings(model) {
 		// not necessary for data points
 		if(model.fnType == 'points')
@@ -1122,25 +1151,58 @@ pmm_plotter = function() {
 		
 		// search these: \)*[<>!|&=]\(*
 		// replace for each bracket like this: \([^(]*\([^(]*\)\)[<>!|&=][^)]*\)
-//		show(formula);
 		var booleanStatements = formula.match(/\)*[<>!|&=]+\(*/g);
-//		show(booleanStatements);
+		if(!booleanStatements || booleanStatements.length <= 0)
+			return;
 		
 		var refilledStatements = []		
 		// regex cannot deliver outer brackets: we lose some brackets in the match
 		$.each(booleanStatements, function (index, statement) {
 			refilledStatements.push(refillStatement(statement));
 		});
-//		show(refilledStatements);
-		
 		var fullStatements =  [];
 				
 		$.each(refilledStatements, function (index, statement) {
-//			show(statement);
 			var statementRegEx = new RegExp(statement);
-//			show(statementRegEx);
 			fullStatements.push(formula.match(statementRegEx)[0]);
-//			show(fullStatements);		
+	
+		});
+		
+
+		// fill still missing brackets
+		$.each(fullStatements, function (index, statement) {
+			opening = statement.split("(").length
+			closing = statement.split(")").length
+			
+			if(opening == closing)
+				return;
+
+			
+			if(opening > closing)
+			{
+				for(i=0; i < (opening - closing); i++)
+				{
+					statement = statement + ")";
+				}
+				fullStatements[index] = statement;
+			}
+			else if(closing > opening)
+			{
+				for(i=0; i < (closing - opening); i++)
+				{
+					statement = "(" + statement;
+				}
+				fullStatements[index] = statement;
+			}
+	
+		});
+		
+		$.each(fullStatements, function (index, statement) {
+			// if the statement affects the x-axis, we cannot yet calculate the result
+			if((new RegExp("\\bx\\b","g")).test(statement)) {
+				show(msg_error_notSupported_booleanOnX);
+				return false;
+			}	
 		});
 		
 		// replace parameters with their values in each statement
@@ -1152,9 +1214,8 @@ pmm_plotter = function() {
 		});
 		
 		// replace old formula with parsed formula (no boolean statements)
-//		show(formula);
 		model.fn = formula;
-		
+
 		// fill brackets from both sides
 		function refillStatement(statement) {
 			operator = statement.match(/[<>!|&=]+/g)[0];
@@ -1168,13 +1229,11 @@ pmm_plotter = function() {
 			escapedOperator = "";
 			escapedStatement = "";
 
-//			show(statement);
-
-			for(i = 0; i < operator.length; i++)
+			for(i = 0; i < statement.length; i++)
 			{
-				escapedStatement = escapedStatement + "\\" + operator.charAt(i);
+				escapedStatement = escapedStatement + "\\" + statement.charAt(i);
 			}
-				
+			
 			for(i = 0; i < leftClosingNum; i++)
 			{
 				escapedStatement = "\\([^(]*" + escapedStatement;
@@ -1182,7 +1241,7 @@ pmm_plotter = function() {
 			
 			for(i = 0; i < rightOpeningNum; i++)
 			{
-				escapedStatement = escapedStatement + "[^)]\\)*";
+				escapedStatement = escapedStatement + "[^)]*\\)";
 			}
 			
 			escapedStatement = "\\([^(]*" + escapedStatement + "[^)]*\\)";

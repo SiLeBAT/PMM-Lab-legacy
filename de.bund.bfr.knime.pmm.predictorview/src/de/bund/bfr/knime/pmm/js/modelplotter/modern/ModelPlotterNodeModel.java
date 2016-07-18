@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -169,16 +170,17 @@ public final class ModelPlotterNodeModel
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		// check input schema
-		if(SchemaFactory.conformsM2Schema((DataTableSpec) inSpecs[0]))
+		if(SchemaFactory.conformsM12DataSchema((DataTableSpec) inSpecs[0]))
 			mType = MODEL_TYPE.M12;
 		else if (SchemaFactory.conformsM1DataSchema((DataTableSpec) inSpecs[0])) 
 			mType = MODEL_TYPE.M1;
-		else if  (SchemaFactory.conformsM12DataSchema((DataTableSpec) inSpecs[0]))
-			mType = MODEL_TYPE.M12;
+		else if  (SchemaFactory.conformsM2Schema((DataTableSpec) inSpecs[0]))
+			mType = MODEL_TYPE.M2;
 		else { 
 			LOGGER.error("model schema not supported / unknown data table spec");
 			throw new InvalidSettingsException("Wrong input!");
 		}
+		
 
 		return createOutputDataTableSpecs();
 	}
@@ -198,10 +200,12 @@ public final class ModelPlotterNodeModel
 		List<KnimeTuple> tuples = getTuples(table);
 
 		ModelPlotterViewValue viewValue = getViewValue();
+		
 		if (viewValue == null) {
 			viewValue = createEmptyViewValue();
 			setViewValue(viewValue);
 		}
+		viewValue.setModelType(mType);
 
 		if (!m_executed) {
 			// Config of JavaScript view
@@ -964,6 +968,7 @@ public final class ModelPlotterNodeModel
 	}
 	
 	private List<KnimeTuple> decodeM2Schemas(List<JsM2Schema> schemas) {
+
 		List<KnimeTuple> tuples = new ArrayList<>(schemas.size());
 
 		KnimeSchema knimeSchema = SchemaFactory.createM2Schema();
@@ -1002,15 +1007,20 @@ public final class ModelPlotterNodeModel
 
 			// Model literature
 			PmmXmlDoc mLitDoc = new PmmXmlDoc();
-			Arrays.stream(schema.getmLit().getLiterature())
+			if(schema.getmLit().getLiterature() != null) {
+				Arrays.stream(schema.getmLit().getLiterature())
 					.map(Literature::toLiteratureItem).forEach(mLitDoc::add);
+			}
 			tuple.setValue(Model2Schema.ATT_MLIT, mLitDoc);
 
 			// Estimated model literature
 			PmmXmlDoc emLitDoc = new PmmXmlDoc();
-			Arrays.stream(schema.getEmLit().getLiterature())
+			if(schema.getEmLit().getLiterature() != null) {
+				Arrays.stream(schema.getEmLit().getLiterature())
 					.map(Literature::toLiteratureItem).forEach(emLitDoc::add);
-
+			}
+			tuple.setValue(Model2Schema.ATT_EMLIT, mLitDoc);
+			
 			// Database writable
 			Boolean dbWritableFromSchema = schema.getDatabaseWritable();
 			if (dbWritableFromSchema == null) {

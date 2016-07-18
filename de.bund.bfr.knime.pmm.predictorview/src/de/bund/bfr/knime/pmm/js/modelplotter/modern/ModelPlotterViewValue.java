@@ -1,6 +1,6 @@
 package de.bund.bfr.knime.pmm.js.modelplotter.modern;
 
-import org.knime.core.data.DataType;
+import static de.bund.bfr.knime.pmm.js.modelplotter.modern.ModelPlotterNodeModel.MODEL_TYPE;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -33,6 +33,7 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	static final String COMMENTS = "comments";
 	static final String REPORT_NAME = "reportName";
 	static final String SVG_PLOT = "svgPlot";
+	private MODEL_TYPE modelType;
 
 	// Configuration keys
 	private JsM1DataSchemaList m1_models;
@@ -48,9 +49,14 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	}
 
 	public ViewValue getModels() {
-		if(m12_models.getSchemas() != null)
+		if(getModelType() == MODEL_TYPE.M12)
 			return m12_models;
-		else return m1_models;
+		else if(getModelType() == MODEL_TYPE.M1)
+			return m1_models;
+		else if(getModelType() == MODEL_TYPE.M2)
+			return m2_models;
+		else
+			return null;
 	}
 
 	public JsM1DataSchemaList getM1Models() {
@@ -224,5 +230,13 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	public void setSvgPlot(String mSVGPlot) {
 		this.mSvgPlot = mSVGPlot;
+	}
+
+	public MODEL_TYPE getModelType() {
+		return modelType;
+	}
+
+	public void setModelType(MODEL_TYPE modelType) {
+		this.modelType = modelType;
 	}
 }

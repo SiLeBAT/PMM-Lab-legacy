@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-annotations,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
- de.bund.bfr.knime.pmm.modeleditor;bundle-version="1.0.0"
+ de.bund.bfr.knime.pmm.modeleditor
 Import-Package: de.bund.bfr.knime.pmm.dbutil
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.predictorview

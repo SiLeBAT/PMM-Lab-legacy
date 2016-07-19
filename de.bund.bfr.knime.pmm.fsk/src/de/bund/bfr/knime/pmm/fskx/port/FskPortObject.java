@@ -74,7 +74,7 @@ public class FskPortObject implements PortObject {
 	private final String m_model;
 
 	/** Parameters script. */
-	private final String m_param;
+	private String m_param;
 
 	/** Visualization script. */
 	private final String m_viz;
@@ -123,6 +123,10 @@ public class FskPortObject implements PortObject {
 	/** @return the parameters script. */
 	public String getParamScript() {
 		return m_param;
+	}
+	
+	public void setParamScript(final String script) {
+		m_param = script;
 	}
 
 	/** @return the visualization script. */

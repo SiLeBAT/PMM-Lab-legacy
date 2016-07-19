@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +31,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -83,7 +80,7 @@ class FskxReaderNodeModel extends NodeModel {
 	// defaults for persistent state
 	private final SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
-	private static final PortType[] inPortTypes = { BufferedDataTable.TYPE_OPTIONAL };
+	private static final PortType[] inPortTypes = { };
 	private static final PortType[] outPortTypes = { FskPortObject.TYPE, RPortObject.TYPE, BufferedDataTable.TYPE };
 	
 	// Specs
@@ -184,23 +181,6 @@ class FskxReaderNodeModel extends NodeModel {
 
 		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
 			e.printStackTrace();
-		}
-
-		// Parameters table
-		if (inData.length == 1 && inData[0] != null) {
-			BufferedDataTable paramTable = (BufferedDataTable) inData[0];
-			if (paramTable.size() > 0) {
-				Iterator<DataRow> iterator = paramTable.iterator();
-				StringBuilder sb = new StringBuilder();
-				while (iterator.hasNext()) {
-					DataRow row = iterator.next();
-					String name = ((StringCell) row.getCell(0)).getStringValue();
-					String value = ((StringCell) row.getCell(1)).getStringValue();
-					sb.append(name + " <- " + value + "\n");
-				}
-
-				param = sb.toString();
-			}
 		}
 
 		// Meta data port

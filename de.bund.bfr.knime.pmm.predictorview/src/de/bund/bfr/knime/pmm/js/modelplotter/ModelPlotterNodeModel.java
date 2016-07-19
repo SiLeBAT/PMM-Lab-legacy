@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.pmm.js.modelplotter.depricated;
+package de.bund.bfr.knime.pmm.js.modelplotter;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -50,7 +50,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.js.modelplotter.depricated.ModelPlotterViewValue.Variable;
+import de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterViewValue.Variable;
 //import de.bund.bfr.knime.pmm.js.modelplotter.modern.ModelPlotterViewRepresentation.Variable;
 import de.bund.bfr.knime.pmm.predictorview.TableReader;
 
@@ -109,7 +109,7 @@ public final class ModelPlotterNodeModel extends AbstractWizardNodeModel<ModelPl
 
 	@Override
 	public String getJavascriptObjectID() {
-		return "de.bund.bfr.knime.pmm.js.modelplotter.depricated";
+		return "de.bund.bfr.knime.pmm.js.modelplotter";
 	}
 
 	@Override

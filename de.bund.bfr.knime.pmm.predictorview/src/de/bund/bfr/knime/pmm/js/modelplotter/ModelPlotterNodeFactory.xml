@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <knimeNode icon="./PredictorView.png" type="Visualizer" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-    <name>Predictor View JS (depricated)</name>
+    <name>Predictor View JS (deprecated)</name>
     
     <shortDescription>
         The model plotter plots the first PMM model available in the input data table in a

@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.js.modelplotter.modern;
 
+import static de.bund.bfr.knime.pmm.js.modelplotter.modern.ModelPlotterNodeModel.MODEL_TYPE;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -8,8 +9,11 @@ import org.knime.js.core.JSONViewContent;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import de.bund.bfr.knime.pmm.js.common.ModelList;
 import de.bund.bfr.knime.pmm.js.common.UnitList;
+import de.bund.bfr.knime.pmm.js.common.ViewValue;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM12DataSchemaList;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM1DataSchemaList;
+import de.bund.bfr.knime.pmm.js.common.schema.JsM2SchemaList;
 
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -22,30 +26,61 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private String mAuthors;
 	private String mComments;
 	private String mReportName;
-	private String mSVGPlot;
+	private String mSvgPlot;
 	private double y0;
 	
 	static final String AUTHORS = "authors";
 	static final String COMMENTS = "comments";
 	static final String REPORT_NAME = "reportName";
 	static final String SVG_PLOT = "svgPlot";
+	private MODEL_TYPE modelType;
 
 	// Configuration keys
-	private ModelList m_models;
+	private JsM1DataSchemaList m1_models;
+	private JsM12DataSchemaList m12_models;
+	private JsM2SchemaList m2_models;
 	private UnitList m_units;
 
 	public ModelPlotterViewValue() {
 		// Query database
-		m_models = new ModelList();
+		m1_models = new JsM1DataSchemaList();
+		m12_models = new JsM12DataSchemaList();
 		m_units = new UnitList();
 	}
 
-	public ModelList getModels() {
-		return m_models;
+	public ViewValue getModels() {
+		if(getModelType() == MODEL_TYPE.M12)
+			return m12_models;
+		else if(getModelType() == MODEL_TYPE.M1)
+			return m1_models;
+		else if(getModelType() == MODEL_TYPE.M2)
+			return m2_models;
+		else
+			return null;
 	}
 
-	public void setModels(ModelList models) {
-		m_models = models;
+	public JsM1DataSchemaList getM1Models() {
+		return m1_models;
+	}
+	
+	public void setM1DataModels(JsM1DataSchemaList models) {
+		m1_models = models;
+	}
+	
+	public JsM2SchemaList getM2Models() {
+		return m2_models;
+	}
+	
+	public void setM2Models(JsM2SchemaList models) {
+		m2_models = models;
+	}
+	
+	public JsM12DataSchemaList getM12Models() {
+		return m12_models;
+	}
+	
+	public void setM2DataModels(JsM12DataSchemaList models) {
+		m12_models = models;
 	}
 	
 	public UnitList getUnits() {
@@ -61,7 +96,7 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		settings.addString(AUTHORS, getAuthors());
 		settings.addString(COMMENTS, getComments());
 		settings.addString(REPORT_NAME, getReportName());
-		settings.addString(SVG_PLOT, getSVGPlot());
+		settings.addString(SVG_PLOT, getSvgPlot());
 	}
 
 	@Override
@@ -69,7 +104,7 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		setAuthors(settings.getString(AUTHORS));
 		setComments(settings.getString(COMMENTS));
 		setReportName(settings.getString(REPORT_NAME));
-		setSVGPlot(settings.getString(SVG_PLOT));
+		setSvgPlot(settings.getString(SVG_PLOT));
 	}
 
 	@Override
@@ -85,6 +120,9 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		if((this.mReportName != null && !this.mReportName.equals(otherView.mReportName)) ||
 			this.mReportName == null && otherView.mReportName != null)
 			return false;
+		if((this.mSvgPlot != null && !this.mSvgPlot.equals(otherView.mSvgPlot)) ||
+				this.mSvgPlot == null && otherView.mSvgPlot != null)
+			return false;
 			
 		return true;
 	}
@@ -98,6 +136,8 @@ public class ModelPlotterViewValue extends JSONViewContent {
 			hash += this.mComments.hashCode();
 		if(this.mReportName != null)
 			hash += this.mReportName.hashCode();
+		if(this.mSvgPlot != null)
+			hash += this.mSvgPlot.hashCode();
 		
 		return hash;
 	}
@@ -184,11 +224,19 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		this.mReportName = reportName;
 	}
 
-	public String getSVGPlot() {
-		return mSVGPlot;
+	public String getSvgPlot() {
+		return mSvgPlot;
 	}
 
-	public void setSVGPlot(String mSVGPlot) {
-		this.mSVGPlot = mSVGPlot;
+	public void setSvgPlot(String mSVGPlot) {
+		this.mSvgPlot = mSVGPlot;
+	}
+
+	public MODEL_TYPE getModelType() {
+		return modelType;
+	}
+
+	public void setModelType(MODEL_TYPE modelType) {
+		this.modelType = modelType;
 	}
 }

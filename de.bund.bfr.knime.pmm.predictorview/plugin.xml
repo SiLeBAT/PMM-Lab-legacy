@@ -26,8 +26,8 @@
             id="de.bund.bfr.knime.pmm.js.modelplotter.modern.ModelPlotterNodeFactory"/>
       <node
             category-path="/pmmlab/views"            
-            factory-class="de.bund.bfr.knime.pmm.js.modelplotter.depricated.ModelPlotterNodeFactory"
-            id="de.bund.bfr.knime.pmm.js.modelplotter.depricated.ModelPlotterNodeFactory"/>
+            factory-class="de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterNodeFactory"
+            id="de.bund.bfr.knime.pmm.js.modelplotter.ModelPlotterNodeFactory"/>
    </extension>
    <extension
          point="org.knime.js.core.javascriptComponents">
@@ -46,10 +46,10 @@
          point="org.knime.js.core.javascriptComponents">
       <javascriptComponent
             getComponentValue-method-name="getComponentValue"
-            implementationBundleID="de.bund.bfr.knime.pmm.js.modelplotter.depricated.bundle"
+            implementationBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle"
             init-method-name="init"
-            javascriptComponentID="de.bund.bfr.knime.pmm.js.modelplotter.depricated"
-            name="Model Plotter (depricated)"
+            javascriptComponentID="de.bund.bfr.knime.pmm.js.modelplotter"
+            name="Model Plotter (deprecated)"
             namespace="bfr_model_plotter"
             setValidationError-method-name="setValidationError"
             validate-method-name="validate">
@@ -221,7 +221,7 @@
             debug="true"
             name="Model Plotter"
             version="1.0.0"
-            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.depricated.bundle">
+            webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
          <webResource
                relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
                relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">

@@ -294,7 +294,7 @@ public class EstModel implements ViewValue {
 	 * 
 	 * @param checked the checked status to be set
 	 */
-	public void setChecked(final boolean checked) {
+	public void setChecked(final Boolean checked) {
 		this.checked = checked;
 	}
 

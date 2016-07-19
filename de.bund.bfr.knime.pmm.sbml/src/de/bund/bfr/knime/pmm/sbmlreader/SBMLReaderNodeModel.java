@@ -18,10 +18,8 @@ package de.bund.bfr.knime.pmm.sbmlreader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -41,12 +39,9 @@ import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
 import org.sbml.jsbml.xml.XMLNode;
 
-import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.reader.DataTuple;
 import de.bund.bfr.knime.pmm.common.reader.Model1Tuple;
 import de.bund.bfr.knime.pmm.common.reader.Model2Tuple;
-import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.Model2Schema;
@@ -59,11 +54,11 @@ public class SBMLReaderNodeModel extends NodeModel {
   // configuration keys
   public static final String CFGKEY_FILE = "filename";
 
-  // defaults for persistent state
-  private static final String DEFAULT_FILE = "c:/temp/foo.sbml";
-
   // persistent state
-  private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
+  private SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, "");
+
+  private ModelType modelType;
+  private DataTableSpec tableSpec;
 
   /**
    * Constructor for the node model
@@ -71,15 +66,6 @@ public class SBMLReaderNodeModel extends NodeModel {
   protected SBMLReaderNodeModel() {
     // 0 input ports and 1 input port
     super(0, 1);
-  }
-
-  private static final Map<ModelType, DocumentHandler> HANDLERS = new HashMap<>();
-  static {
-    HANDLERS.put(ModelType.PRIMARY_MODEL_WDATA, new PrimaryModelHandler());
-    HANDLERS.put(ModelType.PRIMARY_MODEL_WODATA, new PrimaryModelHandler());
-    HANDLERS.put(ModelType.TWO_STEP_SECONDARY_MODEL, new TwoStepSecondaryModelHandler());
-    HANDLERS.put(ModelType.ONE_STEP_SECONDARY_MODEL, new OneStepSecondaryModelHandler());
-    HANDLERS.put(ModelType.MANUAL_SECONDARY_MODEL, new ManualSecondaryModelHandler());
   }
 
   /**
@@ -92,24 +78,27 @@ public class SBMLReaderNodeModel extends NodeModel {
     // Gets model type from the document annotation
     SBMLDocument doc = new SBMLReader().readSBML(filename.getStringValue());
 
-    XMLNode docMetadata = doc.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
-    XMLNode typeNode = docMetadata.getChildElement("type", "");
-    String modelTypeString = typeNode.getChild(0).getCharacters();
-    ModelType modelType = ModelType.valueOf(modelTypeString);
+    KnimeTuple tuple;
 
-    if (modelType == ModelType.EXPERIMENTAL_DATA) {
-      setWarningMessage("SBML Reader does not support NuML. NuML Reader does.");
-      throw new Exception();
-    } else if (modelType == ModelType.TWO_STEP_TERTIARY_MODEL
-        || modelType == ModelType.ONE_STEP_TERTIARY_MODEL
-        || modelType == ModelType.MANUAL_TERTIARY_MODEL) {
-      setWarningMessage("Tertiary models not supported currently");
-      throw new Exception();
+    if (modelType == ModelType.PRIMARY_MODEL_WDATA || modelType == ModelType.PRIMARY_MODEL_WODATA) {
+      tuple = readPrimaryModel(doc);
+    } else if (modelType == ModelType.TWO_STEP_SECONDARY_MODEL) {
+      tuple = readTwoStepSecondaryModel(doc);
+    } else if (modelType == ModelType.ONE_STEP_SECONDARY_MODEL) {
+      tuple = readOneStepSecondaryModel(doc);
+    } else if (modelType == ModelType.MANUAL_SECONDARY_MODEL) {
+      tuple = readManualSecondaryModel(doc);
     } else {
-      DocumentHandler handler = HANDLERS.get(modelType);
-      BufferedDataContainer container = handler.processDocument(exec, doc);
-      return new BufferedDataTable[] {container.getTable()};
+      throw new InvalidSettingsException("Invalid model type.\n"
+          + "This error should have been detected in #validateSettings");
     }
+
+    BufferedDataContainer container = exec.createDataContainer(tableSpec);
+    container.addRowToTable(tuple);
+    container.close();
+    exec.setProgress(1.0);
+
+    return new BufferedDataTable[] {container.getTable()};
   }
 
   /**
@@ -118,7 +107,25 @@ public class SBMLReaderNodeModel extends NodeModel {
   @Override
   protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
       throws InvalidSettingsException {
-    return new DataTableSpec[] {null};
+
+    /*
+     * The modelType is assigned in the validate method. Possible values are: PRIMARY_MODEL_WDATA,
+     * PRIMARY_MODEL_WODATA, TWO_STEP_SECONDARY_MODEL, ONE_STEP_SECONDARY_MODEL and
+     * MANUAL_SECONDARY_MODEL
+     */
+    if (modelType == ModelType.PRIMARY_MODEL_WDATA || modelType == ModelType.PRIMARY_MODEL_WODATA) {
+      tableSpec = SchemaFactory.createM1DataSchema().createSpec();
+    } else if (modelType == ModelType.TWO_STEP_SECONDARY_MODEL
+        || modelType == ModelType.MANUAL_SECONDARY_MODEL) {
+      tableSpec = SchemaFactory.createM2Schema().createSpec();
+    } else if (modelType == ModelType.ONE_STEP_SECONDARY_MODEL) {
+      tableSpec = SchemaFactory.createM12DataSchema().createSpec();
+    } else {
+      throw new InvalidSettingsException("Invalid model type.\n"
+          + "This error should have been detected in #validateSettings");
+    }
+
+    return new DataTableSpec[] {tableSpec};
   }
 
   /**
@@ -143,7 +150,35 @@ public class SBMLReaderNodeModel extends NodeModel {
    */
   @Override
   protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-    filename.validateSettings(settings);
+
+    final String filenameVal = settings.getString(CFGKEY_FILE);
+
+    if (filenameVal.isEmpty()) {
+      throw new InvalidSettingsException("Node is not configured. Missing file path");
+    }
+
+    if (filenameVal.endsWith(".numl")) {
+      throw new InvalidSettingsException("SBML Reader does not support NuML. NuML Reader does.");
+    }
+
+    // Gets model type from the document annotation
+    SBMLDocument doc;
+    try {
+      doc = new SBMLReader().readSBML(filenameVal);
+    } catch (XMLStreamException | IOException e) {
+      throw new InvalidSettingsException(filenameVal + " cannot be opened");
+    }
+
+    XMLNode docMetadata = doc.getAnnotation().getNonRDFannotation().getChildElement("metadata", "");
+    XMLNode typeNode = docMetadata.getChildElement("type", "");
+    String modelTypeString = typeNode.getChild(0).getCharacters();
+    modelType = ModelType.valueOf(modelTypeString);
+
+    if (modelType == ModelType.TWO_STEP_TERTIARY_MODEL
+        || modelType == ModelType.ONE_STEP_TERTIARY_MODEL
+        || modelType == ModelType.MANUAL_TERTIARY_MODEL) {
+      throw new InvalidSettingsException("Tertiary models not supported currently");
+    }
   }
 
   /**
@@ -164,71 +199,17 @@ public class SBMLReaderNodeModel extends NodeModel {
    */
   protected void saveInternals(final File internDir, final ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {}
-}
 
-
-abstract class DocumentHandler {
-
-  public BufferedDataContainer processDocument(final ExecutionContext exec, final SBMLDocument doc) {
-
-    // Creates table spec
-    final DataTableSpec spec = createSpec();
-
-    // Creates container
-    final BufferedDataContainer container = exec.createDataContainer(spec);
-
-    // Creates tuple from 'doc'
-    KnimeTuple tuple = readModel(doc);
-
-    // Adds tuple
-    container.addRowToTable(tuple);
-
-    // Updates the progress bar
-    exec.setProgress(1.0);
-
-    // closes the container
-    container.close();
-
-    return container;
+  // --- utility methods ---
+  private KnimeTuple readPrimaryModel(final SBMLDocument doc) {
+    return mergeTuples(new DataTuple(doc).getTuple(), new Model1Tuple(doc).getTuple());
   }
 
-  protected abstract DataTableSpec createSpec();
-
-  protected abstract KnimeTuple readModel(SBMLDocument doc);
-}
-
-
-class PrimaryModelHandler extends DocumentHandler {
-
-  protected DataTableSpec createSpec() {
-    return SchemaFactory.createM1DataSchema().createSpec();
-  }
-
-  protected KnimeTuple readModel(SBMLDocument doc) {
-    return Util.mergeTuples(new DataTuple(doc).getTuple(), new Model1Tuple(doc).getTuple());
-  }
-}
-
-
-class TwoStepSecondaryModelHandler extends DocumentHandler {
-
-  protected DataTableSpec createSpec() {
-    return SchemaFactory.createM2Schema().createSpec();
-  }
-
-  protected KnimeTuple readModel(SBMLDocument doc) {
+  private KnimeTuple readTwoStepSecondaryModel(final SBMLDocument doc) {
     return new Model2Tuple(doc.getModel()).getTuple();
   }
-}
 
-
-class OneStepSecondaryModelHandler extends DocumentHandler {
-
-  protected DataTableSpec createSpec() {
-    return SchemaFactory.createM12DataSchema().createSpec();
-  }
-
-  protected KnimeTuple readModel(SBMLDocument doc) {
+  private KnimeTuple readOneStepSecondaryModel(final SBMLDocument doc) {
     // Parses data columns
     final KnimeTuple dataTuple = new DataTuple(doc).getTuple();
 
@@ -241,76 +222,17 @@ class OneStepSecondaryModelHandler extends DocumentHandler {
     ModelDefinition secModel = secCompPlugin.getModelDefinition(0);
     final KnimeTuple m2Tuple = new Model2Tuple(secModel).getTuple();
 
-    final KnimeTuple row = Util.mergeTuples(dataTuple, m1Tuple, m2Tuple);
+    final KnimeTuple row = mergeTuples(dataTuple, m1Tuple, m2Tuple);
     return row;
   }
-}
 
-
-class ManualSecondaryModelHandler extends DocumentHandler {
-
-  protected DataTableSpec createSpec() {
-    return SchemaFactory.createM2Schema().createSpec();
-  }
-
-  protected KnimeTuple readModel(SBMLDocument doc) {
+  private KnimeTuple readManualSecondaryModel(final SBMLDocument doc) {
     return new Model2Tuple(doc.getModel()).getTuple();
   }
-}
-
-
-class TertiaryModelHandler extends DocumentHandler {
-
-  protected DataTableSpec createSpec() {
-    return SchemaFactory.createM1DataSchema().createSpec();
-  }
-
-  protected KnimeTuple readModel(SBMLDocument doc) {
-    return Util.mergeTuples(new DataTuple(doc).getTuple(), new Model1Tuple(doc).getTuple());
-  }
-}
-
-
-class Util {
-
-  private Util() {}
-
-  public static PmmXmlDoc parseMiscs(final Map<String, Double> miscs) {
-    PmmXmlDoc cell = new PmmXmlDoc();
-
-    if (miscs != null) {
-      // First misc item has id -1 and the rest of items have negative
-      // ints
-      int counter = -1;
-      for (Map.Entry<String, Double> entry : miscs.entrySet()) {
-        String name = entry.getKey();
-        Double value = entry.getValue();
-
-        if (name.equals("Temperature")) {
-          final List<String> categories = Arrays.asList(Categories.getTempCategory().getName());
-          final String description = name;
-          final String unit = Categories.getTempCategory().getStandardUnit();
-
-          final MiscXml miscXml = new MiscXml(counter, name, description, value, categories, unit);
-          cell.add(miscXml);
-
-          counter--;
-        } else if (name.equals("pH")) {
-          final List<String> categories = Arrays.asList(Categories.getPhCategory().getName());
-          final String description = name;
-          final String unit = Categories.getPhUnit();
-
-          final MiscXml miscXml = new MiscXml(counter, name, description, value, categories, unit);
-          cell.add(miscXml);
-
-          counter--;
-        }
-      }
-    }
-    return cell;
-  }
-
-  public static KnimeTuple mergeTuples(final KnimeTuple dataTuple, final KnimeTuple m1Tuple) {
+  
+  // --- other utility methods ---
+  
+  private static KnimeTuple mergeTuples(final KnimeTuple dataTuple, final KnimeTuple m1Tuple) {
     final KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
     // Copies data columns
@@ -344,7 +266,7 @@ class Util {
     return tuple;
   }
 
-  public static KnimeTuple mergeTuples(final KnimeTuple dataTuple, final KnimeTuple m1Tuple,
+  private static KnimeTuple mergeTuples(final KnimeTuple dataTuple, final KnimeTuple m1Tuple,
       final KnimeTuple m2Tuple) {
 
     final KnimeTuple tuple = new KnimeTuple(SchemaFactory.createM12DataSchema());
@@ -394,3 +316,15 @@ class Util {
     return tuple;
   }
 }
+
+// Maybe useful in the future
+//class TertiaryModelHandler extends DocumentHandler {
+//
+//  protected DataTableSpec createSpec() {
+//    return SchemaFactory.createM1DataSchema().createSpec();
+//  }
+//
+//  protected KnimeTuple readModel(SBMLDocument doc) {
+//    return Util.mergeTuples(new DataTuple(doc).getTuple(), new Model1Tuple(doc).getTuple());
+//  }
+//}

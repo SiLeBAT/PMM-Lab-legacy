@@ -21,10 +21,6 @@ package de.bund.bfr.knime.pmm.numl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -38,11 +34,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.reader.DataTuple;
-import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.pmfml.numl.NuMLDocument;
@@ -141,82 +133,5 @@ public class NuMLReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
-	}
-}
-
-
-class Util {
-	private Util() {
-	}
-
-	/**
-	 * Parses misc items.
-	 * 
-	 * @param miscs
-	 *            . Dictionary that maps miscs names and their values.
-	 * @return
-	 */
-	public static PmmXmlDoc parseMiscs(Map<String, Double> miscs) {
-		PmmXmlDoc cell = new PmmXmlDoc();
-
-		if (miscs != null) {
-			// First misc item has id -1 and the rest of items have negative
-			// ints
-			int counter = -1;
-			for (Entry<String, Double> entry : miscs.entrySet()) {
-				String name = entry.getKey();
-				Double value = entry.getValue();
-
-				List<String> categories;
-				String description, unit;
-
-				switch (name) {
-				case "Temperature":
-					categories = Arrays.asList(Categories.getTempCategory().getName());
-					description = name;
-					unit = Categories.getTempCategory().getStandardUnit();
-
-					cell.add(new MiscXml(counter, name, description, value, categories, unit));
-
-					counter -= 1;
-					break;
-
-				case "pH":
-					categories = Arrays.asList(Categories.getPhCategory().getName());
-					description = name;
-					unit = Categories.getPhUnit();
-
-					cell.add(new MiscXml(counter, name, description, value, categories, unit));
-
-					counter -= 1;
-					break;
-				}
-			}
-		}
-		return cell;
-	}
-	
-	/**
-	 * Creates time series
-	 */
-	public static PmmXmlDoc createTimeSeries(String timeUnit, String concUnit, String concUnitObjectType,
-			double[][] data) {
-
-		PmmXmlDoc mdData = new PmmXmlDoc();
-
-		Double concStdDev = null;
-		Integer numberOfMeasurements = null;
-
-		for (double[] point : data) {
-			double conc = point[0];
-			double time = point[1];
-			String name = "t" + mdData.size();
-
-			TimeSeriesXml t = new TimeSeriesXml(name, time, timeUnit, conc, concUnit, concStdDev, numberOfMeasurements);
-			t.setConcentrationUnitObjectType(concUnitObjectType);
-			mdData.add(t);
-		}
-
-		return mdData;
 	}
 }

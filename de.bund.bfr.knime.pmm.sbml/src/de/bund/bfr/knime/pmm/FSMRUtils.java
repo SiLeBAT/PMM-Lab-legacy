@@ -32,6 +32,8 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Model;
@@ -714,7 +716,9 @@ abstract class ModelTemplateCreator extends TemplateCreator {
     Model model = doc.getModel();
     if (model.isSetNotes()) {
       try {
-        String notes = model.getNotesString();
+        String htmlString = model.getNotesString();
+        Document htmlDoc = Jsoup.parse(htmlString);
+        String notes = htmlDoc.text();
         template.setNotes(notes);
       } catch (XMLStreamException e) {
         System.err.println("Error accesing the notes of " + model);

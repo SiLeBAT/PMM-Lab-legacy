@@ -20,10 +20,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -80,13 +84,13 @@ class FskxReaderNodeModel extends NodeModel {
 	// defaults for persistent state
 	private final SettingsModelString filename = new SettingsModelString(CFGKEY_FILE, DEFAULT_FILE);
 
-	private static final PortType[] inPortTypes = { };
+	private static final PortType[] inPortTypes = {};
 	private static final PortType[] outPortTypes = { FskPortObject.TYPE, RPortObject.TYPE, BufferedDataTable.TYPE };
-	
+
 	// Specs
 	private static final FskPortObjectSpec fskSpec = FskPortObjectSpec.INSTANCE;
 	private static final RPortObjectSpec rSpec = RPortObjectSpec.INSTANCE;
-	private static final DataTableSpec fsmrSpec = new OpenFSMRSchema().createSpec();
+	private static final DataTableSpec fsmrSpec = new MetaDataSchema().createSpec();
 
 	protected FskxReaderNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -175,8 +179,7 @@ class FskxReaderNodeModel extends NodeModel {
 				}
 
 				// Converts and return set of Paths returned from plugin to set
-				// of Files
-				libs = libRegistry.getPaths(libNames).stream().map(lib -> lib.toFile()).collect(Collectors.toSet());
+				libs = libRegistry.getPaths(libNames).stream().map(Path::toFile).collect(Collectors.toSet());
 			}
 
 		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
@@ -186,8 +189,78 @@ class FskxReaderNodeModel extends NodeModel {
 		// Meta data port
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
 		if (template != null) {
-			KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
-			fsmrContainer.addRowToTable(tuple);
+			KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
+
+			MetaDataSchema metaDataSchema = new MetaDataSchema();
+			KnimeTuple metaDataTuple = new KnimeTuple(metaDataSchema);
+			// Copy fields from fsmrTuple
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_NAME));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_ID));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_LINK));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_ORGANISM_NAME));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_ORGANISM_DETAIL));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_ENVIRONMENT_NAME));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATOR,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CREATOR));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CONTACT,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CONTACT));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CREATED_DATE));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_RIGHTS,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_RIGHTS));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_NOTES, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_NOTES));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_TYPE));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_SUBJECT));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN,
+					fsmrTuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX,
+					fsmrTuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS,
+					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS));
+			metaDataTuple.setValue(OpenFSMRSchema.ATT_HAS_DATA, fsmrTuple.getInt(OpenFSMRSchema.ATT_HAS_DATA));
+
+			Map<String, String> indepValues = new HashMap<>();
+			for (String line : param.split("\\r?\\n")) {
+				if (line.indexOf("<-") != -1) {
+					String[] tokens = line.split("<-");
+					String variableName = tokens[0].trim();
+					String variableValue = tokens[1].trim();
+					indepValues.put(variableName, variableValue);
+				}
+			}
+			String values = Arrays.stream(template.getIndependentVariables()).map(indepValues::get)
+					.collect(Collectors.joining("||"));
+			metaDataTuple.setValue(MetaDataSchema.ATT_INDEPENDENT_VARIABLE_VALUES, values);
+
+			fsmrContainer.addRowToTable(metaDataTuple);
 		}
 		fsmrContainer.close();
 
@@ -259,5 +332,23 @@ class FskxReaderNodeModel extends NodeModel {
 	private class FileAccessException extends Exception {
 
 		private static final long serialVersionUID = 1L;
+	}
+
+	/*
+	 * Temporal metadata schema that extends the OpenFSMRSchema with the values
+	 * of the independent variables (which are defined in the parameters
+	 * script).
+	 * 
+	 * It would be eventually replaced with the metadata schema defined in the
+	 * guidance document.
+	 */
+	private static class MetaDataSchema extends OpenFSMRSchema {
+
+		public static final String ATT_INDEPENDENT_VARIABLE_VALUES = "Model-IndependentVariableValues";
+
+		public MetaDataSchema() {
+			super();
+			addStringAttribute(ATT_INDEPENDENT_VARIABLE_VALUES);
+		}
 	}
 }

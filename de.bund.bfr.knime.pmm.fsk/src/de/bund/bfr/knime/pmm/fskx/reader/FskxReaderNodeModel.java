@@ -20,14 +20,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +38,14 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
+import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -57,7 +67,6 @@ import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.FSMRUtils;
-import de.bund.bfr.knime.pmm.extendedtable.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
@@ -65,7 +74,6 @@ import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.knime.pmm.openfsmr.OpenFSMRSchema;
 import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.pmfml.file.uri.UriFactory;
@@ -90,7 +98,7 @@ class FskxReaderNodeModel extends NodeModel {
 	// Specs
 	private static final FskPortObjectSpec fskSpec = FskPortObjectSpec.INSTANCE;
 	private static final RPortObjectSpec rSpec = RPortObjectSpec.INSTANCE;
-	private static final DataTableSpec fsmrSpec = new MetaDataSchema().createSpec();
+	private static final DataTableSpec fsmrSpec = createMetaDataTableSpec();
 
 	protected FskxReaderNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -187,66 +195,68 @@ class FskxReaderNodeModel extends NodeModel {
 		}
 
 		// Meta data port
-		BufferedDataContainer fsmrContainer = exec.createDataContainer(fsmrSpec);
+		BufferedDataContainer fsmrContainer = exec.createDataContainer(createMetaDataTableSpec());
 		if (template != null) {
-			KnimeTuple fsmrTuple = FSMRUtils.createTupleFromTemplate(template);
-
-			MetaDataSchema metaDataSchema = new MetaDataSchema();
-			KnimeTuple metaDataTuple = new KnimeTuple(metaDataSchema);
-			// Copy fields from fsmrTuple
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_NAME));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_ID, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_ID));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_LINK, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_LINK));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_ORGANISM_NAME,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_ORGANISM_NAME));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_ORGANISM_DETAIL,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_ORGANISM_DETAIL));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_NAME,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_ENVIRONMENT_NAME));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_ENVIRONMENT_DETAIL));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATOR,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CREATOR));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CONTACT,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CONTACT));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CREATED_DATE));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_RIGHTS,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_RIGHTS));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_NOTES, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_NOTES));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_CURATION_STATUS));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_TYPE, fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_TYPE));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_SUBJECT,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_SUBJECT));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN,
-					fsmrTuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX,
-					fsmrTuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS,
-					fsmrTuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS));
-			metaDataTuple.setValue(OpenFSMRSchema.ATT_HAS_DATA, fsmrTuple.getInt(OpenFSMRSchema.ATT_HAS_DATA));
-
+			MetaDataTuple metadataTuple = new MetaDataTuple();
+			if (template.isSetModelName())
+				metadataTuple.setModelName(template.getModelName());
+			if (template.isSetModelId()) 
+				metadataTuple.setModelId(template.getModelId());
+			if (template.isSetModelLink()) 
+				metadataTuple.setModelLink(template.getModelLink());
+			if (template.isSetOrganismName()) 
+				metadataTuple.setOrganismName(template.getOrganismName());
+			if (template.isSetOrganismDetails()) 
+				metadataTuple.setOrganismDetails(template.getOrganismDetails());
+			if (template.isSetMatrixName()) 
+				metadataTuple.setMatrixName(template.getMatrixName());
+			if (template.isSetMatrixDetails()) 
+				metadataTuple.setMatrixDetails(template.getMatrixDetails());
+			if (template.isSetCreator()) 
+				metadataTuple.setCreator(template.getCreator());
+			if (template.isSetFamilyName()) 
+				metadataTuple.setFamilyName(template.getFamilyName());
+			if (template.isSetContact()) 
+				metadataTuple.setContact(template.getContact());
+			if (template.isSetReferenceDescription()) 
+				metadataTuple.setReferenceDescription(template.getReferenceDescription());
+			if (template.isSetReferenceDescriptionLink()) 
+				metadataTuple.setReferenceDescriptionLink(template.getReferenceDescriptionLink());
+			if (template.isSetCreatedDate()) 
+				metadataTuple.setCreatedDate(template.getCreatedDate().toString());
+			if (template.isSetModifiedDate()) 
+				metadataTuple.setModifiedDate(template.getModifiedDate().toString());
+			if (template.isSetRights()) 
+				metadataTuple.setRights(template.getRights());
+			if (template.isSetNotes()) 
+				metadataTuple.setNotes(template.getNotes());
+			if (template.isSetCurationStatus()) 
+				metadataTuple.setCurationStatus(template.getCurationStatus());
+			if (template.isSetModelType()) 
+				metadataTuple.setModelType(template.getModelType().toString());
+			if (template.isSetModelSubject()) 
+				metadataTuple.setModelSubject(template.getModelSubject().toString());
+			if (template.isSetFoodProcess()) 
+				metadataTuple.setFoodProcess(template.getFoodProcess());
+			if (template.isSetDependentVariable()) 
+				metadataTuple.setDependentVariable(template.getDependentVariable());
+			if (template.isSetDependentVariableUnit()) 
+				metadataTuple.setDependentVariableUnit(template.getDependentVariableUnit());
+			if (template.isSetDependentVariableMin()) 
+				metadataTuple.setDependentVariableMin(template.getDependentVariableMin());
+			if (template.isSetDependentVariableMax()) 
+				metadataTuple.setDependentVariableMax(template.getDependentVariableMax());
+			if (template.isSetIndependentVariables()) 
+				metadataTuple.setIndependentVariables(template.getIndependentVariables());
+			if (template.isSetIndependentVariablesUnits())
+				metadataTuple.setIndependentVariablesUnits(template.getIndependentVariablesUnits());
+			if (template.isSetIndependentVariablesMins()) 
+				metadataTuple.setIndependentVariablesMins(template.getIndependentVariablesMins());
+			if (template.isSetIndependentVariablesMaxs()) 
+				metadataTuple.setIndependentVariablesMaxs(template.getIndependentVariablesMaxs());
+			if (template.isSetHasData())
+				metadataTuple.setHasData(template.getHasData());
+			
 			Map<String, String> indepValues = new HashMap<>();
 			for (String line : param.split("\\r?\\n")) {
 				if (line.indexOf("<-") != -1) {
@@ -258,9 +268,9 @@ class FskxReaderNodeModel extends NodeModel {
 			}
 			String values = Arrays.stream(template.getIndependentVariables()).map(indepValues::get)
 					.collect(Collectors.joining("||"));
-			metaDataTuple.setValue(MetaDataSchema.ATT_INDEPENDENT_VARIABLE_VALUES, values);
+			metadataTuple.setIndependentVariablesValues(values);
 
-			fsmrContainer.addRowToTable(metaDataTuple);
+			fsmrContainer.addRowToTable(metadataTuple);
 		}
 		fsmrContainer.close();
 
@@ -334,21 +344,346 @@ class FskxReaderNodeModel extends NodeModel {
 		private static final long serialVersionUID = 1L;
 	}
 
-	/*
-	 * Temporal metadata schema that extends the OpenFSMRSchema with the values
-	 * of the independent variables (which are defined in the parameters
-	 * script).
-	 * 
-	 * It would be eventually replaced with the metadata schema defined in the
-	 * guidance document.
-	 */
-	private static class MetaDataSchema extends OpenFSMRSchema {
+	private enum MetaDataKeys {
+		name,
+		id,
+		model_link,
+		species,
+		species_details,
+		matrix,
+		matrix_details,
+		creator,
+		family_name,
+		contact,
+		reference_description,
+		reference_description_link,
+		created_date,
+		modified_date,
+		rights,
+		notes,
+		curation_status,
+		model_type,
+		subject,
+		food_process,
+		depvar,
+		depvar_unit,
+		depvar_min,
+		depvar_max,
+		indepvars,
+		indepvars_units,
+		indepvars_mins,
+		indepvars_maxs,
+		indepvars_values,
+		has_data
+	}
 
-		public static final String ATT_INDEPENDENT_VARIABLE_VALUES = "Model-IndependentVariableValues";
+	private static DataTableSpec createMetaDataTableSpec() {
+		int numKeys = MetaDataKeys.values().length;
 
-		public MetaDataSchema() {
-			super();
-			addStringAttribute(ATT_INDEPENDENT_VARIABLE_VALUES);
+		String[] names = new String[numKeys];
+		DataType[] types = new DataType[numKeys];
+
+		names[MetaDataKeys.name.ordinal()] = "Model name";
+		types[MetaDataKeys.name.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.id.ordinal()] = "Model id";
+		types[MetaDataKeys.id.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.model_link.ordinal()] = "Model link";
+		types[MetaDataKeys.model_link.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.species.ordinal()] = "Organism";
+		types[MetaDataKeys.species.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.species_details.ordinal()] = "Organism details";
+		types[MetaDataKeys.species_details.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.matrix.ordinal()] = "Environment";
+		types[MetaDataKeys.matrix.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.matrix_details.ordinal()] = "Environment details";
+		types[MetaDataKeys.matrix_details.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.creator.ordinal()] = "Model creator";
+		types[MetaDataKeys.creator.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.family_name.ordinal()] = "Model family name";
+		types[MetaDataKeys.family_name.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.contact.ordinal()] = "Model contact";
+		types[MetaDataKeys.contact.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.reference_description.ordinal()] = "Model reference description";
+		types[MetaDataKeys.reference_description.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.reference_description_link.ordinal()] = "Model reference description link";
+		types[MetaDataKeys.reference_description_link.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.created_date.ordinal()] = "Created date";
+		types[MetaDataKeys.created_date.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.modified_date.ordinal()] = "Modified date";
+		types[MetaDataKeys.modified_date.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.rights.ordinal()] = "Rights";
+		types[MetaDataKeys.rights.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.notes.ordinal()] = "Notes";
+		types[MetaDataKeys.notes.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.curation_status.ordinal()] = "Curation status";
+		types[MetaDataKeys.curation_status.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.model_type.ordinal()] = "Model type";
+		types[MetaDataKeys.model_type.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.subject.ordinal()] = "Subject";
+		types[MetaDataKeys.subject.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.food_process.ordinal()] = "Food process";
+		types[MetaDataKeys.food_process.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.depvar.ordinal()] = "Dependent variable";
+		types[MetaDataKeys.depvar.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.depvar_unit.ordinal()] = "Dependent variable unit";
+		types[MetaDataKeys.depvar_unit.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.depvar_min.ordinal()] = "Dependent variable min";
+		types[MetaDataKeys.depvar_min.ordinal()] = DoubleCell.TYPE;
+
+		names[MetaDataKeys.depvar_max.ordinal()] = "Dependent variable max";
+		types[MetaDataKeys.depvar_max.ordinal()] = DoubleCell.TYPE;
+
+		names[MetaDataKeys.indepvars.ordinal()] = "Independent variables";
+		types[MetaDataKeys.indepvars.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.indepvars_units.ordinal()] = "Independent variable units";
+		types[MetaDataKeys.indepvars_units.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.indepvars_mins.ordinal()] = "Independent variable mins";
+		types[MetaDataKeys.indepvars_mins.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.indepvars_maxs.ordinal()] = "Independent variable maxs";
+		types[MetaDataKeys.indepvars_maxs.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.indepvars_values.ordinal()] = "Independent variable values";
+		types[MetaDataKeys.indepvars_values.ordinal()] = StringCell.TYPE;
+
+		names[MetaDataKeys.has_data.ordinal()] = "Has data?";
+		types[MetaDataKeys.has_data.ordinal()] = BooleanCell.TYPE;
+
+		return new DataTableSpec(DataTableSpec.createColumnSpecs(names, types));
+	}
+
+	private static class MetaDataTuple implements DataRow {
+
+		private DataCell[] cell;
+		private final RowKey rowKey;
+
+		public MetaDataTuple() {
+			cell = new DataCell[MetaDataKeys.values().length];
+
+			cell[MetaDataKeys.name.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.id.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.model_link.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.species.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.species_details.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.matrix.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.matrix_details.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.creator.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.family_name.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.contact.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.reference_description.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.reference_description_link.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.created_date.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.modified_date.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.rights.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.notes.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.curation_status.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.model_type.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.subject.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.food_process.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.depvar.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.depvar_unit.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.depvar_min.ordinal()] = new DoubleCell(Double.NaN);
+			cell[MetaDataKeys.depvar_max.ordinal()] = new DoubleCell(Double.NaN);
+			cell[MetaDataKeys.indepvars.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.indepvars_units.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.indepvars_mins.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.indepvars_maxs.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.indepvars_values.ordinal()] = new StringCell("");
+			cell[MetaDataKeys.has_data.ordinal()] = BooleanCell.FALSE;
+
+			rowKey = new RowKey(String.valueOf(new Random().nextInt()));
+		}
+
+		// --- DataRow methods ---
+
+		@Override
+		public int getNumCells() {
+			return cell.length;
+		}
+
+		@Override
+		public RowKey getKey() {
+			return rowKey;
+		}
+
+		@Override
+		public DataCell getCell(final int index) {
+			return cell[index];
+		}
+
+		@Override
+		public Iterator<DataCell> iterator() {
+			return new MetaDataTupleIterator(cell);
+		}
+
+		class MetaDataTupleIterator implements Iterator<DataCell> {
+
+			private int i;
+			private DataCell[] cell;
+
+			public MetaDataTupleIterator(final DataCell[] cell) {
+				i = 0;
+				this.cell = cell;
+			}
+
+			@Override
+			public boolean hasNext() {
+				return i < cell.length;
+			}
+
+			@Override
+			public DataCell next() {
+				return cell[i++];
+			}
+		}
+
+		// --- utility ---
+		void setModelName(final String modelName) {
+			cell[MetaDataKeys.name.ordinal()] = new StringCell(modelName);
+		}
+
+		void setModelId(final String modelId) {
+			cell[MetaDataKeys.id.ordinal()] = new StringCell(modelId);
+		}
+
+		void setModelLink(final URL link) {
+			cell[MetaDataKeys.model_link.ordinal()] = new StringCell(link.toString());
+		}
+
+		void setOrganismName(final String organismName) {
+			cell[MetaDataKeys.species.ordinal()] = new StringCell(organismName);
+		}
+
+		void setOrganismDetails(final String organismDetails) {
+			cell[MetaDataKeys.species_details.ordinal()] = new StringCell(organismDetails);
+		}
+
+		void setMatrixName(final String matrixName) {
+			cell[MetaDataKeys.matrix.ordinal()] = new StringCell(matrixName);
+		}
+
+		void setMatrixDetails(final String matrixDetails) {
+			cell[MetaDataKeys.matrix_details.ordinal()] = new StringCell(matrixDetails);
+		}
+
+		void setCreator(final String creator) {
+			cell[MetaDataKeys.creator.ordinal()] = new StringCell(creator);
+		}
+
+		void setFamilyName(final String familyName) {
+			cell[MetaDataKeys.family_name.ordinal()] = new StringCell(familyName);
+		}
+
+		void setContact(final String contact) {
+			cell[MetaDataKeys.contact.ordinal()] = new StringCell(contact);
+		}
+
+		void setReferenceDescription(final String referenceDescription) {
+			cell[MetaDataKeys.reference_description.ordinal()] = new StringCell(referenceDescription);
+		}
+
+		void setReferenceDescriptionLink(final URL link) {
+			cell[MetaDataKeys.reference_description_link.ordinal()] = new StringCell(link.toString());
+		}
+
+		void setCreatedDate(final String createdDate) {
+			cell[MetaDataKeys.created_date.ordinal()] = new StringCell(createdDate);
+		}
+
+		void setModifiedDate(final String modifiedDate) {
+			cell[MetaDataKeys.modified_date.ordinal()] = new StringCell(modifiedDate);
+		}
+
+		void setRights(final String rights) {
+			cell[MetaDataKeys.rights.ordinal()] = new StringCell(rights);
+		}
+
+		void setNotes(final String notes) {
+			cell[MetaDataKeys.notes.ordinal()] = new StringCell(notes);
+		}
+
+		void setCurationStatus(final String curationStatus) {
+			cell[MetaDataKeys.curation_status.ordinal()] = new StringCell(curationStatus);
+		}
+
+		void setModelType(final String modelType) {
+			cell[MetaDataKeys.model_type.ordinal()] = new StringCell(modelType);
+		}
+
+		void setModelSubject(final String modelSubject) {
+			cell[MetaDataKeys.subject.ordinal()] = new StringCell(modelSubject);
+		}
+
+		void setFoodProcess(final String foodProcess) {
+			cell[MetaDataKeys.food_process.ordinal()] = new StringCell(foodProcess);
+		}
+
+		void setDependentVariable(final String var) {
+			cell[MetaDataKeys.depvar.ordinal()] = new StringCell(var);
+		}
+
+		void setDependentVariableUnit(final String unit) {
+			cell[MetaDataKeys.depvar_unit.ordinal()] = new StringCell(unit);
+		}
+
+		void setDependentVariableMin(final double min) {
+			cell[MetaDataKeys.depvar_min.ordinal()] = new DoubleCell(min);
+		}
+
+		void setDependentVariableMax(final double max) {
+			cell[MetaDataKeys.depvar_max.ordinal()] = new DoubleCell(max);
+		}
+
+		void setIndependentVariables(final String[] vars) {
+			String formattedVars = Arrays.stream(vars).collect(Collectors.joining("||"));
+			cell[MetaDataKeys.indepvars.ordinal()] = new StringCell(formattedVars);
+		}
+
+		void setIndependentVariablesUnits(final String[] units) {
+			String formattedVars = Arrays.stream(units).collect(Collectors.joining("||"));
+			cell[MetaDataKeys.indepvars_units.ordinal()] = new StringCell(formattedVars);
+		}
+
+		void setIndependentVariablesMins(final double[] mins) {
+			String formattedMins = Arrays.stream(mins).mapToObj(Double::toString).collect(Collectors.joining("||"));
+			cell[MetaDataKeys.indepvars_mins.ordinal()] = new StringCell(formattedMins);
+		}
+
+		void setIndependentVariablesMaxs(final double[] maxs) {
+			String formattedMaxs = Arrays.stream(maxs).mapToObj(Double::toString).collect(Collectors.joining("||"));
+			cell[MetaDataKeys.indepvars_maxs.ordinal()] = new StringCell(formattedMaxs);
+		}
+
+		void setIndependentVariablesValues(final String values) {
+			cell[MetaDataKeys.indepvars_values.ordinal()] = new StringCell(values);
+		}
+
+		void setHasData(final boolean hasData) {
+			cell[MetaDataKeys.has_data.ordinal()] = hasData ? BooleanCell.TRUE : BooleanCell.FALSE;
 		}
 	}
 }

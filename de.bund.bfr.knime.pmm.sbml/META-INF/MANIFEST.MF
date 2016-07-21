@@ -49,6 +49,9 @@ Export-Package: de.bund.bfr.knime.pmm;
   uses:="org.sbml.jsbml,
    org.knime.core.node.defaultnodesettings,
    org.knime.core.node,
-   javax.swing"
+   javax.swing",
+ org.jsoup
 Import-Package: org.apache.poi.xssf.usermodel
+Bundle-ClassPath: sbmlreader.jar,
+ jsoup-1.9.2.jar
 

@@ -26,7 +26,6 @@ pmm_plotter = function() {
 	
 	var _plotterValue;
 	//	var plotterRep; // not used
-	
 	var _modelObjects = [];
 	var _modelObjectsTemp = []; // for temporarily stored models like data points
 	var _colorsArray = [];
@@ -105,7 +104,8 @@ pmm_plotter = function() {
 		
 		_plotterValue = value;
 		_recentPlot = _plotterValue.svgPlot;
-		_rawModels = value.models.schemas;
+		if(value.models)
+			_rawModels = value.models.schemas;
 		_dbUnits = value.units.units;
 		_mType = value.modelType;
 		// plotterRep = representation; // not used
@@ -1576,7 +1576,7 @@ pmm_plotter = function() {
 	
 	modelPlotter.setValidationError = function () 
 	{ 
-		show("validation error");
+		console.log("validation error");
 	}
 	
 	modelPlotter.getComponentValue = function() 

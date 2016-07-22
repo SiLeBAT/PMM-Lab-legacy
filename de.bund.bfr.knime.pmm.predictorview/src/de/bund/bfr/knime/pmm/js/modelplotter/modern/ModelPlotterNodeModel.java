@@ -366,7 +366,12 @@ public final class ModelPlotterNodeModel
 	}
 
 	private DataTableSpec getUserSpec() {
-		String[] fields = { AUTHORS, REPORT_NAME, COMMENT, SVG_PLOT };
+		String[] fields = new String[4];
+		fields[0] = REPORT_NAME;
+		fields[1] = AUTHORS;
+		fields[2] = COMMENT;
+		fields[3] = SVG_PLOT;
+	
 		DataType[] types = { StringCell.TYPE, StringCell.TYPE, StringCell.TYPE, StringCell.TYPE };
 		DataTableSpec userDataSpec = new DataTableSpec(fields, types);
 		return userDataSpec;

@@ -432,9 +432,9 @@ public final class ModelPlotterNodeModel
 		return true;
 	}
 	
-	private String generateDbuuid(KnimeTuple tuple) {
-		String dbuuid = tuple.getString(Model1Schema.ATT_DBUUID);
-		if(dbuuid == null || dbuuid.equals("?") || dbuuid.isEmpty())	{
+	private String getDbuuid(KnimeTuple tuple) {
+		String gid = tuple.getString(Model2Schema.ATT_GLOBAL_MODEL_ID);
+		if(gid == null || gid.equals("?") || gid.isEmpty())	{
 			LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
 			int seed;
 			if (tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG) != null)
@@ -442,9 +442,9 @@ public final class ModelPlotterNodeModel
 			else
 				seed = tuple.hashCode();
 			/* "g" for "generated"; max 6 digits */
-			dbuuid = "g" + String.valueOf((new Random(seed)).nextInt(999999)); 
+			gid = "g" + String.valueOf((new Random(seed)).nextInt(999999)); 
 		}
-		return dbuuid;
+		return gid;
 	}
 
 	private List<JsM1DataSchema> codeM1DataSchema(List<KnimeTuple> tuples) {
@@ -532,7 +532,7 @@ public final class ModelPlotterNodeModel
 				schema.setDatabaseWritable(Model1Schema.WRITABLE == tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
 			}
 
-			schema.setDbuuid(generateDbuuid(tuple));
+			schema.setDbuuid(getDbuuid(tuple));
 
 			// TimeSeriesSchema fields
 			schema.setCondId(tuple.getInt(TimeSeriesSchema.ATT_CONDID));
@@ -701,7 +701,7 @@ public final class ModelPlotterNodeModel
 				schema.setDatabaseWritable(dbWritable);
 			}
 
-			schema.setDbuuid(generateDbuuid(firstTuple));
+			schema.setDbuuid(getDbuuid(firstTuple));
 
 				
 
@@ -957,7 +957,7 @@ public final class ModelPlotterNodeModel
 				schema.setDatabaseWritable(Model2Schema.WRITABLE == dbWritableFromTuple);
 			}
 
-			schema.setDbuuid(generateDbuuid(tuple));
+			schema.setDbuuid(getDbuuid(tuple));
 
 			// global model id
 			Integer gidFromTuple = tuple

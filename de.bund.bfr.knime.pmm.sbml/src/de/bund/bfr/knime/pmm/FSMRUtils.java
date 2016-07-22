@@ -176,8 +176,8 @@ public class FSMRUtils {
     }
 
     if (template.isSetReferenceDescriptionLink()) {
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK, template
-          .getReferenceDescriptionLink().toString());
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION_LINK,
+          template.getReferenceDescriptionLink().toString());
     }
 
     if (template.isSetCreatedDate()) {
@@ -245,16 +245,14 @@ public class FSMRUtils {
     }
 
     if (template.isSetIndependentVariablesMins()) {
-      String formattedMins =
-          Arrays.stream(template.getIndependentVariablesMins()).mapToObj(Double::toString)
-              .collect(Collectors.joining("||"));
+      String formattedMins = Arrays.stream(template.getIndependentVariablesMins())
+          .mapToObj(Double::toString).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS, formattedMins);
     }
 
     if (template.isSetIndependentVariablesMaxs()) {
-      String formattedMaxs =
-          Arrays.stream(template.getIndependentVariablesMaxs()).mapToObj(Double::toString)
-              .collect(Collectors.joining("||"));
+      String formattedMaxs = Arrays.stream(template.getIndependentVariablesMaxs())
+          .mapToObj(Double::toString).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS, formattedMaxs);
     }
 
@@ -287,8 +285,8 @@ public class FSMRUtils {
     template.setFamilyName(tuple.getString(OpenFSMRSchema.ATT_MODEL_FAMILY_NAME));
     template.setContact(tuple.getString(OpenFSMRSchema.ATT_MODEL_CONTACT));
 
-    template.setReferenceDescription(tuple
-        .getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION));
+    template
+        .setReferenceDescription(tuple.getString(OpenFSMRSchema.ATT_MODEL_REFERENCE_DESCRIPTION));
 
     if (template.isSetReferenceDescriptionLink()) {
       try {
@@ -333,17 +331,17 @@ public class FSMRUtils {
     template.setModelSubject(ModelClass.valueOf(tuple.getString(OpenFSMRSchema.ATT_MODEL_SUBJECT)));
     template.setFoodProcess(tuple.getString(OpenFSMRSchema.ATT_MODEL_FOOD_PROCESS));
     template.setDependentVariable(tuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE));
-    template.setDependentVariableUnit(tuple
-        .getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT));
-    template.setDependentVariableMin(tuple
-        .getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN));
-    template.setDependentVariableMax(tuple
-        .getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX));
+    template.setDependentVariableUnit(
+        tuple.getString(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_UNIT));
+    template
+        .setDependentVariableMin(tuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MIN));
+    template
+        .setDependentVariableMax(tuple.getDouble(OpenFSMRSchema.ATT_MODEL_DEPENDENT_VARIABLE_MAX));
 
-    template.setIndependentVariables(tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE)
-        .split("\\|\\|"));
-    template.setIndependentVariablesUnits(tuple.getString(
-        OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS).split("\\|\\|"));
+    template.setIndependentVariables(
+        tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE).split("\\|\\|"));
+    template.setIndependentVariablesUnits(
+        tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS).split("\\|\\|"));
 
     double[] indepVarMins =
         Arrays.stream(tuple.getString(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS).split("||"))
@@ -737,9 +735,8 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
     super(doc);
 
     // Caches limits
-    limits =
-        doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
-            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
+    limits = doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+        .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
 
   @Override
@@ -863,9 +860,8 @@ class PrevalenceModelTemplateCreator extends ModelWithMicrobialDataTemplateCreat
     super(doc);
 
     // Caches limits
-    limits =
-        doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
-            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
+    limits = doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+        .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
 
   @Override
@@ -960,9 +956,8 @@ class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
     super(doc);
 
     // Caches limits
-    limits =
-        doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
-            .map(LimitsConstraint::getLimits).collect(Collectors.toList());
+    limits = doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
+        .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
 
   @Override
@@ -2239,16 +2234,19 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
     List<Limits> limits = getLimitsFromModel(secModel);
 
     for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
 
-      // unit
-      units.add(unitId);
+      if (param.isSetUnits()) {
+        final String unitId = param.getUnits();
 
-      // category
-      String unitName = secModel.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
+        // unit
+        units.add(unitId);
+
+        // category
+        String unitName = secModel.getUnitDefinition(unitId).getName();
+        if (!unitId.equals("dimensionless")) {
+          UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+          vars.add(ufdb.getKind_of_property_quantity());
+        }
       }
 
       // min & max

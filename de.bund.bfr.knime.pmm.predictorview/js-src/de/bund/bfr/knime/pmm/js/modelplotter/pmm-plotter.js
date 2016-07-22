@@ -553,9 +553,10 @@ pmm_plotter = function() {
 			// add primary independents (which are in the parameters here)
 			$.each(paramsPrim, function(index, indep) {
 				// convention: if a parameter has no mininmum or maximum but a value, it shall not be dynamic
-				if( (indep.min == undefined || indep.min == "" || indep.min == null) && 
+				if( ((indep.min == undefined || indep.min == "" || indep.min == null) && 
 					(indep.max == undefined || indep.max == "" || indep.max == null) &&
-					(indep.value != undefined && indep.value !== ""))
+					(indep.value != undefined && indep.value !== "")) 
+					|| indep.start == true) // "isStart"-Flag means this should not be variable
 				{
 					var regex = new RegExp("\\b" + indep["name"] + "\\b", "gi");
 					formulaPrim = formulaPrim.replace(regex, indep["value"]);

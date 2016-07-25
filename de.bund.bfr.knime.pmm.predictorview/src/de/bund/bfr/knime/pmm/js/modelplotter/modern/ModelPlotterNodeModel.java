@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -602,23 +602,23 @@ public final class ModelPlotterNodeModel
 
 		// sort tuples according to primary models
 		// combined model = (Model1Schema + TimeSeriesSchema) + n x Model2Schema
-		HashMap<Integer, List<KnimeTuple>> combinedTuples = new HashMap<>();
+		Map<Integer, List<KnimeTuple>> tertiaryModelMap = new HashMap<>();
 		for (KnimeTuple tuple : tuples) {
-			PmmXmlDoc catModelDoc = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-			CatalogModelXml catModelXml = (CatalogModelXml) catModelDoc.get(0);
-			int catModelId = catModelXml.getId();
-
-			if (combinedTuples.containsKey(catModelId)) {
-				combinedTuples.get(catModelId).add(tuple);
+			int gmId = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			
+			if (tertiaryModelMap.containsKey(gmId)) {
+				// Add tuple to existing tertiary model
+				tertiaryModelMap.get(gmId).add(tuple);
 			} else {
-				List<KnimeTuple> newCombinedTuple = new LinkedList<>();
-				newCombinedTuple.add(tuple);
-				combinedTuples.put(catModelId, newCombinedTuple);
+				// Create tertiary model and add it
+				LinkedList<KnimeTuple> tupleList = new LinkedList<>();
+				tupleList.add(tuple);
+				tertiaryModelMap.put(gmId, tupleList);
 			}
 		}
 
-		List<JsM12DataSchema> schemas = new ArrayList<>(combinedTuples.size());
-		for (List<KnimeTuple> combinedTuple : combinedTuples.values()) {
+		List<JsM12DataSchema> schemas = new ArrayList<>(tertiaryModelMap.size());
+		for (List<KnimeTuple> combinedTuple : tertiaryModelMap.values()) {
 
 			JsM12DataSchema schema = new JsM12DataSchema();
 			KnimeTuple firstTuple = combinedTuple.get(0);

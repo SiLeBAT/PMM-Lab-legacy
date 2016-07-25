@@ -2,9 +2,13 @@ package de.bund.bfr.knime.pmm.fskx;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -13,7 +17,6 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 
 public class FskMetaDataTuple implements DataRow {
@@ -79,8 +82,8 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.food_process.ordinal()] = new StringCell("");
 		cell[Key.depvar.ordinal()] = new StringCell("");
 		cell[Key.depvar_unit.ordinal()] = new StringCell("");
-		cell[Key.depvar_min.ordinal()] = new DoubleCell(Double.NaN);
-		cell[Key.depvar_max.ordinal()] = new DoubleCell(Double.NaN);
+		cell[Key.depvar_min.ordinal()] = new StringCell("");
+		cell[Key.depvar_max.ordinal()] = new StringCell("");
 		cell[Key.indepvars.ordinal()] = new StringCell("");
 		cell[Key.indepvars_units.ordinal()] = new StringCell("");
 		cell[Key.indepvars_mins.ordinal()] = new StringCell("");
@@ -98,6 +101,9 @@ public class FskMetaDataTuple implements DataRow {
 		}
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
+
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy",
+			Locale.ENGLISH);
 
 	// --- DataRow methods ---
 
@@ -161,7 +167,7 @@ public class FskMetaDataTuple implements DataRow {
 	/**
 	 * @return whether the model name is set
 	 */
-	public boolean isGetModelName() {
+	public boolean isSetModelName() {
 		String value = ((StringCell) cell[Key.name.ordinal()]).getStringValue();
 		return !value.isEmpty();
 	}
@@ -587,11 +593,16 @@ public class FskMetaDataTuple implements DataRow {
 	 * @throws RuntimeException
 	 *             if not set
 	 */
-	public String getCreatedDate() {
+	public Date getCreatedDate() {
 		String value = ((StringCell) cell[Key.created_date.ordinal()]).getStringValue();
 		if (value.isEmpty())
 			throw new RuntimeException("Creation date is not set");
-		return value;
+		try {
+			return dateFormat.parse(value);
+		} catch (ParseException e) {
+			// The dates stored are always checked so this exception should not occur
+			throw new RuntimeException(e.getMessage(), e.getCause());
+		}
 	}
 
 	/**
@@ -622,11 +633,16 @@ public class FskMetaDataTuple implements DataRow {
 	 * @throws RuntimeException
 	 *             if not set
 	 */
-	public String getModifiedDate() {
+	public Date getModifiedDate() {
 		String value = ((StringCell) cell[Key.modified_date.ordinal()]).getStringValue();
 		if (value.isEmpty())
 			throw new RuntimeException("Last modification date is not set");
-		return value;
+		try {
+			return dateFormat.parse(value);
+		} catch (ParseException error) {
+			// The dates stored are always checked so this exception should not occur
+			throw new RuntimeException(error.getMessage(), error.getCause());
+		}
 	}
 
 	/**
@@ -943,18 +959,18 @@ public class FskMetaDataTuple implements DataRow {
 	 *             if not set
 	 */
 	public double getDependentVariableMin() {
-		double value = ((DoubleCell) cell[Key.depvar_unit.ordinal()]).getDoubleValue();
-		if (Double.isNaN(value))
+		String value = ((StringCell) cell[Key.depvar_min.ordinal()]).getStringValue();
+		if (value.isEmpty())
 			throw new RuntimeException("Minimum value of the dependent variable is not set");
-		return value;
+		return Double.parseDouble(value);
 	}
 
 	/**
 	 * @return whether the minimum value of the dependent variable is set
 	 */
 	public boolean isSetDependentVariableMin() {
-		double value = ((DoubleCell) cell[Key.depvar_unit.ordinal()]).getDoubleValue();
-		return !Double.isNaN(value);
+		String value = ((StringCell) cell[Key.depvar_unit.ordinal()]).getStringValue();
+		return !value.isEmpty();
 	}
 
 	/**
@@ -963,12 +979,12 @@ public class FskMetaDataTuple implements DataRow {
 	 */
 	public void setDependentVariableMin(final double min) {
 		if (!Double.isNaN(min))
-			cell[Key.depvar_min.ordinal()] = new DoubleCell(min);
+			cell[Key.depvar_min.ordinal()] = new StringCell(Double.toString(min));
 	}
 
 	/** Unsets the minimum value of the dependent variable. */
 	public void unsetDependentVariableMin() {
-		cell[Key.depvar_min.ordinal()] = new DoubleCell(Double.NaN);
+		cell[Key.depvar_min.ordinal()] = new StringCell("");
 	}
 
 	// * dependent variable max
@@ -979,18 +995,18 @@ public class FskMetaDataTuple implements DataRow {
 	 *             if not set
 	 */
 	public double getDependentVariableMax() {
-		double value = ((DoubleCell) cell[Key.depvar_max.ordinal()]).getDoubleValue();
-		if (Double.isNaN(value))
+		String value = ((StringCell) cell[Key.depvar_max.ordinal()]).getStringValue();
+		if (value.isEmpty())
 			throw new RuntimeException("the maximum value of the dependent variable is not set");
-		return value;
+		return Double.parseDouble(value);
 	}
 
 	/**
 	 * @return whether the maximum value of the dependent variable is not set
 	 */
 	public boolean isSetDependentVariableMax() {
-		double value = ((DoubleCell) cell[Key.depvar_max.ordinal()]).getDoubleValue();
-		return !Double.isNaN(value);
+		String value = ((StringCell) cell[Key.depvar_max.ordinal()]).getStringValue();
+		return !value.isEmpty();
 	}
 
 	/**
@@ -999,12 +1015,12 @@ public class FskMetaDataTuple implements DataRow {
 	 */
 	public void setDependentVariableMax(final double max) {
 		if (!Double.isNaN(max))
-			cell[Key.depvar_max.ordinal()] = new DoubleCell(max);
+			cell[Key.depvar_max.ordinal()] = new StringCell(Double.toString(max));
 	}
 
 	/** Unsets the maximum value of the dependent variable. */
 	public void unsetDependentVariableMax() {
-		cell[Key.depvar_max.ordinal()] = new DoubleCell(Double.NaN);
+		cell[Key.depvar_max.ordinal()] = new StringCell("");
 	}
 
 	// * independent variables
@@ -1089,7 +1105,7 @@ public class FskMetaDataTuple implements DataRow {
 		String formattedMins = ((StringCell) cell[Key.indepvars_mins.ordinal()]).getStringValue();
 		if (formattedMins.isEmpty())
 			throw new RuntimeException("Minimum values of the independent variables are not set");
-		return Arrays.stream(formattedMins.split("||")).map(Double::valueOf).collect(Collectors.toList());
+		return Arrays.stream(formattedMins.split("\\|\\|")).map(Double::valueOf).collect(Collectors.toList());
 	}
 
 	/**
@@ -1127,7 +1143,7 @@ public class FskMetaDataTuple implements DataRow {
 		String formattedMaxs = ((StringCell) cell[Key.indepvars_maxs.ordinal()]).getStringValue();
 		if (formattedMaxs.isEmpty())
 			throw new RuntimeException("Maximum values of the independent variables are not set");
-		return Arrays.stream(formattedMaxs.split("||")).map(Double::valueOf).collect(Collectors.toList());
+		return Arrays.stream(formattedMaxs.split("\\|\\|")).map(Double::valueOf).collect(Collectors.toList());
 	}
 
 	/**
@@ -1287,10 +1303,10 @@ public class FskMetaDataTuple implements DataRow {
 		types[Key.depvar_unit.ordinal()] = StringCell.TYPE;
 
 		names[Key.depvar_min.ordinal()] = "Dependent variable min";
-		types[Key.depvar_min.ordinal()] = DoubleCell.TYPE;
+		types[Key.depvar_min.ordinal()] = StringCell.TYPE;
 
 		names[Key.depvar_max.ordinal()] = "Dependent variable max";
-		types[Key.depvar_max.ordinal()] = DoubleCell.TYPE;
+		types[Key.depvar_max.ordinal()] = StringCell.TYPE;
 
 		names[Key.indepvars.ordinal()] = "Independent variables";
 		types[Key.indepvars.ordinal()] = StringCell.TYPE;

@@ -114,22 +114,6 @@ class FskRunnerNodeModel extends NodeModel {
 		exec.checkCanceled();
 		FskPortObject fskObj = (FskPortObject) inObjects[0];
 
-		// Parameters table
-		// if (inObjects.length == 2 && inObjects[1] != null) {
-		// BufferedDataTable paramTable = (BufferedDataTable) inObjects[1];
-		// if (paramTable.size() > 0) {
-		// Iterator<DataRow> iterator = paramTable.iterator();
-		// StringBuilder sb = new StringBuilder();
-		// while (iterator.hasNext()) {
-		// DataRow row = iterator.next();
-		// String name = ((StringCell) row.getCell(0)).getStringValue();
-		// String value = ((StringCell) row.getCell(1)).getStringValue();
-		// sb.append(name + " <- " + value + "\n");
-		// }
-		// fskObj.setParamScript(sb.toString());
-		// }
-		// }
-
 		// If a metadata table is connected then update the model metadata
 		if (inObjects.length == 2 && inObjects[1] != null) {
 			BufferedDataTable metadataTable = (BufferedDataTable) inObjects[1];
@@ -194,6 +178,17 @@ class FskRunnerNodeModel extends NodeModel {
 							tuple.getIndependentVariablesMaxs().stream().mapToDouble(Double::doubleValue).toArray());
 				if (tuple.isSetHasData())
 					template.setHasData(Boolean.valueOf(tuple.getHasData()));
+				
+				// Replace with the default values with the new metadata
+				if (tuple.isSetIndependentVariables() && tuple.isSetIndependentVariablesValues()) {
+					StringBuilder sb = new StringBuilder();
+					for (int i = 0; i < tuple.getIndependentVariables().size(); i++) {
+						String var = tuple.getIndependentVariables().get(i);
+						String value = tuple.getIndependentVariablesValues().get(i).toString();
+						sb.append(var + " <- " + value + "\n");
+					}
+					fskObj.setParamScript(sb.toString());
+				}
 			}
 		}
 

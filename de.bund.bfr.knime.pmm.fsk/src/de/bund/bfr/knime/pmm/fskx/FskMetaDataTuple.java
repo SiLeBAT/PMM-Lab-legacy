@@ -600,7 +600,8 @@ public class FskMetaDataTuple implements DataRow {
 		try {
 			return dateFormat.parse(value);
 		} catch (ParseException e) {
-			// The dates stored are always checked so this exception should not occur
+			// The dates stored are always checked so this exception should not
+			// occur
 			throw new RuntimeException(e.getMessage(), e.getCause());
 		}
 	}
@@ -640,7 +641,8 @@ public class FskMetaDataTuple implements DataRow {
 		try {
 			return dateFormat.parse(value);
 		} catch (ParseException error) {
-			// The dates stored are always checked so this exception should not occur
+			// The dates stored are always checked so this exception should not
+			// occur
 			throw new RuntimeException(error.getMessage(), error.getCause());
 		}
 	}
@@ -1033,7 +1035,7 @@ public class FskMetaDataTuple implements DataRow {
 		String formattedVars = ((StringCell) cell[Key.indepvars.ordinal()]).getStringValue();
 		if (formattedVars.isEmpty())
 			throw new RuntimeException("Independent variables are not set");
-		return Arrays.asList(formattedVars.split("||"));
+		return Arrays.asList(formattedVars.split("\\|\\|"));
 	}
 
 	/**
@@ -1069,7 +1071,7 @@ public class FskMetaDataTuple implements DataRow {
 		String formattedUnits = ((StringCell) cell[Key.indepvars_units.ordinal()]).getStringValue();
 		if (formattedUnits.isEmpty())
 			throw new RuntimeException("Units of the independent variables are not set");
-		return Arrays.asList(formattedUnits.split("||"));
+		return Arrays.asList(formattedUnits.split("\\|\\|"));
 	}
 
 	/**
@@ -1175,11 +1177,11 @@ public class FskMetaDataTuple implements DataRow {
 	 * @throws RuntimeException
 	 *             if not set
 	 */
-	public String getIndependentVariablesValues() {
-		String value = ((StringCell) cell[Key.indepvars_values.ordinal()]).getStringValue();
-		if (value.isEmpty())
+	public List<Double> getIndependentVariablesValues() {
+		String formattedValues = ((StringCell) cell[Key.indepvars_values.ordinal()]).getStringValue();
+		if (formattedValues.isEmpty())
 			throw new RuntimeException("Values of the independent variables are not set");
-		return value;
+		return Arrays.stream(formattedValues.split("\\|\\|")).map(Double::valueOf).collect(Collectors.toList());
 	}
 
 	/**

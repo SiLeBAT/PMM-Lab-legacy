@@ -8,4 +8,6 @@ Import-Package: org.jdom2,
  org.junit,
  org.junit.runner,
  org.junit.runners
-Require-Bundle: de.bund.bfr.knime.pmm.fsk;bundle-version="2.0.0"
+Require-Bundle: de.bund.bfr.knime.pmm.fsk;bundle-version="2.0.0",
+ org.junit,
+ de.bund.bfr.formats

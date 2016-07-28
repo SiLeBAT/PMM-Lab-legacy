@@ -25,7 +25,6 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,14 +164,9 @@ class FskxReaderNodeModel extends NodeModel {
 
 				LibRegistry libRegistry = LibRegistry.instance();
 
-				// Filters missing libraries
-				List<String> missingLibs = new LinkedList<>();
-				for (String lib : libNames) {
-					if (!libRegistry.isInstalled(lib)) {
-						missingLibs.add(lib);
-					}
-				}
-
+				// Filters and installs missing libraries
+				List<String> missingLibs = libNames.stream().filter(lib -> !libRegistry.isInstalled(lib))
+						.collect(Collectors.toList());
 				if (!missingLibs.isEmpty()) {
 					libRegistry.installLibs(missingLibs);
 				}
@@ -191,51 +185,51 @@ class FskxReaderNodeModel extends NodeModel {
 			FskMetaDataTuple metadataTuple = new FskMetaDataTuple();
 			if (template.isSetModelName())
 				metadataTuple.setModelName(template.getModelName());
-			if (template.isSetModelId()) 
+			if (template.isSetModelId())
 				metadataTuple.setModelId(template.getModelId());
-			if (template.isSetModelLink()) 
+			if (template.isSetModelLink())
 				metadataTuple.setModelLink(template.getModelLink());
-			if (template.isSetOrganismName()) 
+			if (template.isSetOrganismName())
 				metadataTuple.setOrganismName(template.getOrganismName());
-			if (template.isSetOrganismDetails()) 
+			if (template.isSetOrganismDetails())
 				metadataTuple.setOrganismDetails(template.getOrganismDetails());
-			if (template.isSetMatrixName()) 
+			if (template.isSetMatrixName())
 				metadataTuple.setMatrixName(template.getMatrixName());
-			if (template.isSetMatrixDetails()) 
+			if (template.isSetMatrixDetails())
 				metadataTuple.setMatrixDetails(template.getMatrixDetails());
-			if (template.isSetCreator()) 
+			if (template.isSetCreator())
 				metadataTuple.setCreator(template.getCreator());
-			if (template.isSetFamilyName()) 
+			if (template.isSetFamilyName())
 				metadataTuple.setFamilyName(template.getFamilyName());
-			if (template.isSetContact()) 
+			if (template.isSetContact())
 				metadataTuple.setContact(template.getContact());
-			if (template.isSetReferenceDescription()) 
+			if (template.isSetReferenceDescription())
 				metadataTuple.setReferenceDescription(template.getReferenceDescription());
-			if (template.isSetReferenceDescriptionLink()) 
+			if (template.isSetReferenceDescriptionLink())
 				metadataTuple.setReferenceDescriptionLink(template.getReferenceDescriptionLink());
-			if (template.isSetCreatedDate()) 
+			if (template.isSetCreatedDate())
 				metadataTuple.setCreatedDate(template.getCreatedDate().toString());
 			if (template.isSetModifiedDate())
 				metadataTuple.setModifiedDate(template.getModifiedDate().toString());
-			if (template.isSetRights()) 
+			if (template.isSetRights())
 				metadataTuple.setRights(template.getRights());
-			if (template.isSetNotes()) 
+			if (template.isSetNotes())
 				metadataTuple.setNotes(template.getNotes());
-			if (template.isSetCurationStatus()) 
+			if (template.isSetCurationStatus())
 				metadataTuple.setCurationStatus(template.getCurationStatus());
-			if (template.isSetModelType()) 
+			if (template.isSetModelType())
 				metadataTuple.setModelType(template.getModelType().toString());
-			if (template.isSetModelSubject()) 
+			if (template.isSetModelSubject())
 				metadataTuple.setModelSubject(template.getModelSubject().toString());
-			if (template.isSetFoodProcess()) 
+			if (template.isSetFoodProcess())
 				metadataTuple.setFoodProcess(template.getFoodProcess());
-			if (template.isSetDependentVariable()) 
+			if (template.isSetDependentVariable())
 				metadataTuple.setDependentVariable(template.getDependentVariable());
-			if (template.isSetDependentVariableUnit()) 
+			if (template.isSetDependentVariableUnit())
 				metadataTuple.setDependentVariableUnit(template.getDependentVariableUnit());
-			if (template.isSetDependentVariableMin()) 
+			if (template.isSetDependentVariableMin())
 				metadataTuple.setDependentVariableMin(template.getDependentVariableMin());
-			if (template.isSetDependentVariableMax()) 
+			if (template.isSetDependentVariableMax())
 				metadataTuple.setDependentVariableMax(template.getDependentVariableMax());
 			if (template.isSetIndependentVariables()) {
 				String[] vars = template.getIndependentVariables();
@@ -257,7 +251,7 @@ class FskxReaderNodeModel extends NodeModel {
 			}
 			if (template.isSetHasData())
 				metadataTuple.setHasData(Boolean.toString(template.getHasData()));
-			
+
 			Map<String, String> indepValues = new HashMap<>();
 			for (String line : param.split("\\r?\\n")) {
 				if (line.indexOf("<-") != -1) {
@@ -322,15 +316,15 @@ class FskxReaderNodeModel extends NodeModel {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// nothing
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// nothing
 	}
 
@@ -339,7 +333,7 @@ class FskxReaderNodeModel extends NodeModel {
 	protected void reset() {
 		// does nothing
 	}
-	
+
 	// --- utility ---
 
 	private class FileAccessException extends Exception {

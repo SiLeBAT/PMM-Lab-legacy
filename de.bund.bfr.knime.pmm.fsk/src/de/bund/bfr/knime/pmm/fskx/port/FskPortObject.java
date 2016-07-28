@@ -25,6 +25,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +59,7 @@ import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
 import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.openfsmr.FSMRTemplateImpl;
+import de.bund.bfr.pmfml.ModelType;
 
 /**
  * A port object for an FSK model port providing R scripts and model meta data.
@@ -87,9 +91,9 @@ public class FskPortObject implements PortObject {
 
 	/** R library files. */
 	private final Set<File> m_libs;
-	
+
 	private static int numOfInstances = 0;
-	
+
 	private final int objectNum;
 
 	public FskPortObject(final String model, final String param, final String viz, final FSMRTemplate template,
@@ -100,7 +104,7 @@ public class FskPortObject implements PortObject {
 		m_template = template;
 		m_workspace = workspace;
 		m_libs = libs;
-		
+
 		objectNum = numOfInstances;
 		numOfInstances += 1;
 	}
@@ -124,7 +128,7 @@ public class FskPortObject implements PortObject {
 	public String getParamScript() {
 		return m_param;
 	}
-	
+
 	public void setParamScript(final String script) {
 		m_param = script;
 	}
@@ -152,7 +156,7 @@ public class FskPortObject implements PortObject {
 	public Set<File> getLibraries() {
 		return m_libs;
 	}
-	
+
 	/** @return the object number. */
 	public int getObjectNumber() {
 		return objectNum;
@@ -194,7 +198,7 @@ public class FskPortObject implements PortObject {
 			if (portObject.m_template != null) {
 				out.putNextEntry(new ZipEntry(META_DATA));
 				ObjectOutputStream oos = new ObjectOutputStream(out);
-				oos.writeObject(portObject.m_template);
+				oos.writeObject(new SerializableTemplate(portObject.m_template));
 				out.closeEntry();
 			}
 
@@ -240,9 +244,8 @@ public class FskPortObject implements PortObject {
 				} else if (entryName.equals(VIZ)) {
 					viz = IOUtils.toString(in, "UTF-8");
 				} else if (entryName.equals(META_DATA)) {
-					ObjectInputStream ois = new ObjectInputStream(in);
-					try {
-						template = (FSMRTemplateImpl) ois.readObject();
+					try (ObjectInputStream ois = new ObjectInputStream(in)) {
+						template = ((SerializableTemplate) ois.readObject()).toTemplate();
 					} catch (ClassNotFoundException e) {
 					}
 				} else if (entryName.equals(WORKSPACE)) {
@@ -324,6 +327,106 @@ public class FskPortObject implements PortObject {
 			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 			add(new JScrollPane(list));
+		}
+	}
+
+	private static class SerializableTemplate implements Serializable {
+
+		private static final long serialVersionUID = 3622901912356010807L;
+
+		String modelName;
+		String modelId;
+		URL modelLink;
+		String organism;
+		String organismDetails;
+		String matrix;
+		String matrixDetails;
+		String creator;
+		String familyName;
+		String contact;
+		String referenceDescription;
+		URL referenceDescriptionLink;
+		Date createdDate;
+		Date modifiedDate;
+		String rights;
+		String notes;
+		String curationStatus;
+		ModelType modelType;
+		String foodProcess;
+		String depvar;
+		String depvarUnit;
+		Double depvarMin;
+		Double depvarMax;
+		String[] indepvars;
+		String[] indepvarUnits;
+		double[] indepvarMins;
+		double[] indepvarMaxs;
+		Boolean hasData;
+
+		SerializableTemplate(FSMRTemplate template) {
+			modelName = template.isSetModelName() ? template.getModelName() : null;
+			modelId = template.isSetModelId() ? template.getModelId() : null;
+			modelLink = template.isSetModelLink() ? template.getModelLink() : null;
+			organism = template.isSetOrganismName() ? template.getOrganismName() : null;
+			organismDetails = template.isSetOrganismDetails() ? template.getOrganismDetails() : null;
+			matrix = template.isSetMatrixName() ? template.getMatrixName() : null;
+			matrixDetails = template.isSetMatrixDetails() ? template.getMatrixDetails() : null;
+			creator = template.isSetCreator() ? template.getCreator() : null;
+			familyName = template.isSetFamilyName() ? template.getFamilyName() : null;
+			contact = template.isSetContact() ? template.getContact() : null;
+			referenceDescription = template.isSetReferenceDescription() ? template.getReferenceDescription() : null;
+			referenceDescriptionLink = template.isSetReferenceDescriptionLink() ? template.getReferenceDescriptionLink()
+					: null;
+			createdDate = template.isSetCreatedDate() ? template.getCreatedDate() : null;
+			modifiedDate = template.isSetModifiedDate() ? template.getModifiedDate() : null;
+			rights = template.isSetRights() ? template.getRights() : null;
+			notes = template.isSetNotes() ? template.getNotes() : null;
+			curationStatus = template.isSetCurationStatus() ? template.getCurationStatus() : null;
+			modelType = template.isSetModelType() ? template.getModelType() : null;
+			foodProcess = template.isSetFoodProcess() ? template.getFoodProcess() : null;
+			depvar = template.isSetDependentVariable() ? template.getDependentVariable() : null;
+			depvarUnit = template.isSetDependentVariableUnit() ? template.getDependentVariableUnit() : null;
+			depvarMin = template.isSetDependentVariableMin() ? template.getDependentVariableMin() : null;
+			depvarMax = template.isSetDependentVariableMax() ? template.getDependentVariableMax() : null;
+			indepvars = template.isSetIndependentVariables() ? template.getIndependentVariables() : null;
+			indepvarUnits = template.isSetIndependentVariablesUnits() ? template.getIndependentVariablesUnits() : null;
+			indepvarMins = template.isSetIndependentVariablesMins() ? template.getIndependentVariablesMins() : null;
+			indepvarMaxs = template.isSetIndependentVariablesMaxs() ? template.getIndependentVariablesMaxs() : null;
+			hasData = template.isSetHasData() ? template.getHasData() : null;
+		}
+
+		FSMRTemplate toTemplate() {
+			FSMRTemplate template = new FSMRTemplateImpl();
+			template.setModelName(modelName);
+			template.setModelId(modelId);
+			template.setModelLink(modelLink);
+			template.setOrganismName(organism);
+			template.setOrganismDetails(organismDetails);
+			template.setMatrixName(matrix);
+			template.setMatrixDetails(matrixDetails);
+			template.setCreator(creator);
+			template.setFamilyName(familyName);
+			template.setContact(contact);
+			template.setReferenceDescription(referenceDescription);
+			template.setReferenceDescriptionLink(referenceDescriptionLink);
+			template.setCreatedDate(createdDate);
+			template.setModifiedDate(modifiedDate);
+			template.setRights(rights);
+			template.setNotes(notes);
+			template.setCurationStatus(curationStatus);
+			template.setModelType(modelType);
+			template.setFoodProcess(foodProcess);
+			template.setDependentVariable(depvar);
+			template.setDependentVariableUnit(depvarUnit);
+			template.setDependentVariableMin(depvarMin);
+			template.setDependentVariableMax(depvarMax);
+			template.setIndependentVariables(indepvars);
+			template.setIndependentVariablesUnits(indepvarUnits);
+			template.setIndependentVariablesMins(indepvarMins);
+			template.setIndependentVariablesMaxs(indepvarMaxs);
+			template.setHasData(hasData);
+			
+			return template;
 		}
 	}
 }

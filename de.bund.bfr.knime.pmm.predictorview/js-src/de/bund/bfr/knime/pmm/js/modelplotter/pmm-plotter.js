@@ -515,7 +515,6 @@ pmm_plotter = function() {
 		 */
 		function parseModel(modelList)
 		{
-
 			// secondary models are not yet supported
 			if(_mType == "M2") {
 				show(msg_error_notSupported_secondaryModel);
@@ -531,7 +530,7 @@ pmm_plotter = function() {
 			var indepsPrim = tertiaryModel.indepList.indeps; // so are the indepdent parameters
 			var depPrim = tertiaryModel.dep; // so are the primary parameters
 			var secondaryIndeps = []; // gather the variable independents for the sliders
-			
+			var secondaryIndepNames = []; // keep name list to distinguish them from the indeps
 			
 			// get the global xUnit from the model
 			$.each(indepsPrim, function(i) {
@@ -550,13 +549,38 @@ pmm_plotter = function() {
 				tertiaryModel.yUnit = depPrim.unit;
 			}
 			
+			// inject nested formula in primary formula
+			$.each(tertiaryModel.m2List.schemas, function(index, modelSec) {
+				var parameterPrim;
+				var formulaSecRaw = modelSec.catalogModel.formula;
+				if(formulaSecRaw.indexOf("=") != -1)
+				{
+					if(formulaSecRaw.indexOf("null") != -1) {
+						show(msg_error_null);
+						return false;
+					}
+					parameterPrim = formulaSecRaw.split("=")[0];
+					secondaryIndepNames.push(parameterPrim);
+				}
+			});
+			
 			// add primary independents (which are in the parameters here)
 			$.each(paramsPrim, function(index, indep) {
-				// convention: if a parameter has no mininmum or maximum but a value, it shall not be dynamic
-				if( ((indep.min == undefined || indep.min == "" || indep.min == null) && 
-					(indep.max == undefined || indep.max == "" || indep.max == null) &&
-					(indep.value != undefined && indep.value !== "")) 
-					|| indep.start == false) // "isStart"-Flag means this should not be variable
+				// convention #1: do not exchange a secondary formula dependent
+				// convention #2: if a parameter has no mininmum or maximum but a value, it shall not be dynamic
+				// convention #3: a parameter with "isStart"-Flag shall have a fixed value
+				
+				if( ( 
+						(indep.min == undefined || indep.min == "" || indep.min == null) && 
+						(indep.max == undefined || indep.max == "" || indep.max == null) &&
+						(indep.value != undefined && indep.value !== "")
+					) 
+					||  
+					(
+						(indep.start == false) &&  // "isStart"-Flag means this should not be variable
+						(secondaryIndepNames.indexOf(indep.name) == -1)
+					) // unless its a secondaryIndep
+				)
 				{
 					var regex = new RegExp("\\b" + indep["name"] + "\\b", "gi");
 					formulaPrim = formulaPrim.replace(regex, indep["value"]);
@@ -590,15 +614,16 @@ pmm_plotter = function() {
 					// the values from paramsSec
 					if(paramsSec)
 						$.each(paramsSec, function(index, param) {
+							formulaSec
 							var regex = new RegExp("\\b" + param["name"] + "\\b", "gi");
 							formulaSec = formulaSec.replace(regex, param["value"]);
 						});
-					modelSec.formula = formulaSec; // new field holds the flat formula
+					modelSec.formula = formulaSec; // new field "formula" holds the flat formula
 				});
 	
 				// inject nested formula in primary formula
 				$.each(tertiaryModel.m2List.schemas, function(index, modelSec) {
-					var formulaSecRaw = modelSec.formula;
+					var formulaSecRaw = modelSec.formula; // this field is newly created before
 					var formulaSec;
 					var parameterPrim;  
 					

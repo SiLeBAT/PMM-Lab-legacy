@@ -244,7 +244,8 @@ public class FskPortObject implements PortObject {
 				} else if (entryName.equals(VIZ)) {
 					viz = IOUtils.toString(in, "UTF-8");
 				} else if (entryName.equals(META_DATA)) {
-					try (ObjectInputStream ois = new ObjectInputStream(in)) {
+					try {
+						ObjectInputStream ois = new ObjectInputStream(in);
 						template = ((SerializableTemplate) ois.readObject()).toTemplate();
 					} catch (ClassNotFoundException e) {
 					}

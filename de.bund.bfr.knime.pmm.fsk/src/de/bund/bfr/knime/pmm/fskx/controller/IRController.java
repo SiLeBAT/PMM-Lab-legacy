@@ -19,8 +19,6 @@ package de.bund.bfr.knime.pmm.fskx.controller;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
-import org.knime.core.node.workflow.NodeContext;
-import org.knime.core.util.ThreadUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 

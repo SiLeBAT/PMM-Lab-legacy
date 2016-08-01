@@ -22,12 +22,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.base.node.util.exttool.ExtToolOutputNodeModel;
 import org.knime.core.node.CanceledExecutionException;
@@ -45,17 +50,20 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
 import org.rosuda.REngine.REXPMismatchException;
 
+//
 import com.google.common.base.Strings;
 
-import de.bund.bfr.knime.pmm.FSMRUtils;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.pmfml.ModelClass;
+import de.bund.bfr.pmfml.ModelType;
 
 class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
@@ -98,15 +106,15 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// nothing
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// nothing
 	}
 
@@ -187,13 +195,13 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		}
 
 		// Reads model meta data
-		FSMRTemplate template;
+		FskMetaData template;
 		try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
 			// Finds the workbook instance for XLSX file
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
 			fis.close();
 
-			template = FSMRUtils.processSpreadsheet(workbook);
+			template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
 
 		// Reads R libraries
@@ -264,5 +272,157 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		}
 
 		return libRegistry.getPaths(libNames);
+	}
+
+	private static class SpreadsheetHandler {
+
+		private static final int id_row = 2;
+		private static final int name_row = 1;
+		private static final int organism_row = 3;
+		private static final int organism_detail_row = 4;
+		private static final int matrix_row = 5;
+		private static final int matrix_detail_row = 6;
+		private static final int creator_row = 7;
+		private static final int reference_description_row = 8;
+		private static final int created_date_row = 9;
+		private static final int modified_date_row = 10;
+		private static final int rights_row = 11;
+		private static final int type_row = 13;
+		private static final int subject_row = 14;
+		private static final int notes_row = 12;
+		private static final int depvar_row = 21;
+		private static final int depvar_unit_row = 22;
+		private static final int depvar_min_row = 23;
+		private static final int depvar_max_row = 24;
+		private static final int indepvar_row = 25;
+		private static final int indepvar_unit_row = 26;
+		private static final int indepvar_min_row = 27;
+		private static final int indepvar_max_row = 28;
+		// values??
+
+		static FskMetaData processSpreadsheet(final XSSFSheet sheet) {
+
+			FskMetaData template = new FskMetaDataImpl();
+
+			template.setModelId(getStringVal(sheet, id_row));
+			template.setModelName(getStringVal(sheet, name_row));
+
+			// organism data
+			template.setOrganism(getStringVal(sheet, organism_row));
+			template.setOrganismDetails(getStringVal(sheet, organism_detail_row));
+
+			// matrix data
+			template.setMatrix(getStringVal(sheet, matrix_row));
+			template.setMatrixDetails(getStringVal(sheet, matrix_detail_row));
+
+			template.setCreator(getStringVal(sheet, creator_row));
+
+			// no family name in the spreadsheet
+			// no contact in the spreadsheet
+
+			template.setReferenceDescription(getStringVal(sheet, reference_description_row));
+			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+
+			// created date
+			{
+				Double dateAsDouble = getNumericalVal(sheet, created_date_row);
+				String dateAsString = dateAsDouble.toString();
+				try {
+					Date date = dateFormat.parse(dateAsString);
+					template.setCreatedDate(date);
+				} catch (ParseException e) {
+					System.err.println(dateAsString + " is not a valid date");
+					e.printStackTrace();
+				}
+			}
+
+			// modified date
+			{
+				Double dateAsDouble = getNumericalVal(sheet, modified_date_row);
+				String dateAsString = dateAsDouble.toString();
+				try {
+					Date date = dateFormat.parse(dateAsString);
+					template.setModifiedDate(date);
+				} catch (ParseException e) {
+					System.err.println(dateAsString + " is not a valid date");
+					e.printStackTrace();
+				}
+			}
+
+			template.setRights(getStringVal(sheet, rights_row));
+
+			// model type
+			{
+				try {
+					String modelType = getStringVal(sheet, type_row);
+					template.setModelType(ModelType.valueOf(modelType));
+				}
+				// if modelTypeAsString is not a valid ModelType
+				catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				}
+			}
+
+			// model subject
+			{
+				String subject = getStringVal(sheet, subject_row);
+				try {
+					template.setModelSubject(ModelClass.valueOf(subject));
+				} catch (IllegalArgumentException e) {
+					template.setModelSubject(ModelClass.UNKNOWN);
+					e.printStackTrace();
+				}
+			}
+
+			// model notes
+			template.setNotes(getStringVal(sheet, notes_row));
+
+			// dep var
+			template.setDependentVariable(getStringVal(sheet, depvar_row));
+			template.setDependentVariableUnit(getStringVal(sheet, depvar_unit_row));
+			template.setDependentVariableMin(getNumericalVal(sheet, depvar_min_row));
+			template.setDependentVariableMax(getNumericalVal(sheet, depvar_max_row));
+
+			// indep vars
+			{
+				List<String> vars = Arrays.stream(getStringVal(sheet, indepvar_row).split("\\|\\|")).map(String::trim)
+						.collect(Collectors.toList());
+				template.setIndependentVariables(vars);
+
+				List<String> units = Arrays.stream(getStringVal(sheet, indepvar_unit_row).split("\\|\\|"))
+						.map(String::trim).collect(Collectors.toList());
+				template.setIndependentVariableUnits(units);
+
+				List<Double> mins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|"))
+						.map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
+				template.setIndependentVariableMins(mins);
+
+				List<Double> maxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|"))
+						.map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
+				template.setIndependentVariableMaxs(maxs);
+
+				// no values in the spreadsheet
+			}
+
+			template.setHasData(false);
+			
+			return template;
+		}
+
+		/**
+		 * Gets the string value for the fifth column which holds the value for
+		 * that row.
+		 */
+		private static String getStringVal(final XSSFSheet sheet, final int rownum) {
+			return sheet.getRow(rownum).getCell(5).getStringCellValue();
+		}
+
+		/**
+		 * Gets the numerical value for the fifth column which holds the value
+		 * for that row.
+		 */
+		private static double getNumericalVal(final XSSFSheet sheet, final int rownum) {
+			return sheet.getRow(rownum).getCell(5).getNumericCellValue();
+		}
 	}
 }

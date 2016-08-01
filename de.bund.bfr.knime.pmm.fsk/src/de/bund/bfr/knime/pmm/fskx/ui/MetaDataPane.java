@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.knime.core.node.NodeLogger;
 
-import de.bund.bfr.openfsmr.FSMRTemplate;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
@@ -73,24 +74,25 @@ public class MetaDataPane extends JScrollPane {
 		Independent_Variable_Units,
 		Independent_Variable_Mins,
 		Independent_Variable_Maxs,
+		Independent_Variable_Values,
 		Has_Data
 	};
 
-	private final FSMRTemplate template;
+	private final FskMetaData template;
 
-	public MetaDataPane(FSMRTemplate template, boolean editable) {
+	public MetaDataPane(FskMetaData template, boolean editable) {
 		super(new Table(template, editable));
 		this.template = template;
 	}
 
-	public FSMRTemplate getMetaData() {
+	public FskMetaData getMetaData() {
 		return template;
 	}
 
 	private static class Table extends JTable {
 		private static final long serialVersionUID = 8776004658791577404L;
 
-		public Table(FSMRTemplate template, boolean editable) {
+		public Table(FskMetaData template, boolean editable) {
 			super(new TableModel(template, editable));
 
 			TableColumnModel columnModel = getColumnModel();
@@ -175,15 +177,16 @@ public class MetaDataPane extends JScrollPane {
 			names[Col.Independent_Variable_Units.ordinal()] = "Independent variable units";
 			names[Col.Independent_Variable_Mins.ordinal()] = "Independent variable minimum values";
 			names[Col.Independent_Variable_Maxs.ordinal()] = "Independent variable maximum values";
+			names[Col.Independent_Variable_Values.ordinal()] = "Independent variable values";
 			names[Col.Has_Data.ordinal()] = "Has data?";
 		}
 
-		private FSMRTemplate template;
+		private FskMetaData template;
 		private boolean editable;
 
 		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
-		public TableModel(FSMRTemplate template, boolean editable) {
+		public TableModel(FskMetaData template, boolean editable) {
 			this.template = template;
 			this.editable = editable;
 		}
@@ -213,11 +216,11 @@ public class MetaDataPane extends JScrollPane {
 			case Model_Link:
 				return template.isSetModelLink() ? template.getModelLink().toString() : "";
 			case Organism_Name:
-				return template.isSetOrganismName() ? template.getOrganismName() : "";
+				return template.isSetOrganism() ? template.getOrganism() : "";
 			case Organism_Detail:
 				return template.isSetOrganismDetails() ? template.getOrganismDetails() : "";
 			case Environment_Name:
-				return template.isSetMatrixName() ? template.getMatrixName() : "";
+				return template.isSetMatrix() ? template.getMatrix() : "";
 			case Environment_Detail:
 				return template.isSetMatrixDetails() ? template.getMatrixDetails() : "";
 			case Model_Creator:
@@ -240,7 +243,7 @@ public class MetaDataPane extends JScrollPane {
 			case Model_Notes:
 				return template.isSetNotes() ? template.getNotes() : "";
 			case Model_Curation_Status:
-				return template.isSetCurationStatus() ? template.getCurationStatus() : "";
+				return Boolean.toString(template.isCurated());
 			case Model_Type:
 				return template.isSetModelType() ? modelTypeStrings.get(template.getModelType()) : "";
 			case Model_Subject:
@@ -256,19 +259,22 @@ public class MetaDataPane extends JScrollPane {
 			case Dependent_Variable_Max:
 				return template.isSetDependentVariableMax() ? Double.toString(template.getDependentVariableMax()) : "";
 			case Independent_Variable:
-				return template.isSetIndependentVariables() ? Arrays.stream(template.getIndependentVariables())
-						.collect(Collectors.joining("||")) : "";
+				return template.isSetIndependentVariables()
+						? template.getIndependentVariables().stream().collect(Collectors.joining("||")) : "";
 			case Independent_Variable_Units:
-				return template.isSetIndependentVariablesUnits() ? Arrays.stream(
-						template.getIndependentVariablesUnits()).collect(Collectors.joining("||")) : "";
+				return template.isSetIndependentVariableUnits()
+						? template.getIndependentVariableUnits().stream().collect(Collectors.joining("||")) : "";
 			case Independent_Variable_Mins:
-				return template.isSetIndependentVariablesMins() ? Arrays.stream(template.getIndependentVariablesMins())
-						.mapToObj(Double::toString).collect(Collectors.joining("||")) : "";
+				return template.isSetIndependentVariableMins() ? template.getIndependentVariableMins().stream()
+						.map(min -> min.toString()).collect(Collectors.joining("||")) : "";
 			case Independent_Variable_Maxs:
-				return template.isSetIndependentVariablesMaxs() ? Arrays.stream(template.getIndependentVariablesMaxs())
-						.mapToObj(Double::toString).collect(Collectors.joining("||")) : "";
+				return template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs().stream()
+						.map(max -> max.toString()).collect(Collectors.joining("||")) : "";
+			case Independent_Variable_Values:
+				return template.isSetIndependentVariableValues() ? template.getIndependentVariableValues().stream()
+						.map(val -> val.toString()).collect(Collectors.joining("||")) : "";
 			case Has_Data:
-				return template.isSetHasData() ? Boolean.toString(template.getHasData()) : "";
+				return Boolean.toString(template.hasData());
 			}
 			throw new RuntimeException("Invalid row & col" + row + " " + col);
 		}
@@ -293,13 +299,13 @@ public class MetaDataPane extends JScrollPane {
 				}
 				break;
 			case Organism_Name:
-				template.setOrganismName(stringValue);
+				template.setOrganism(stringValue);
 				break;
 			case Organism_Detail:
 				template.setOrganismDetails(stringValue);
 				break;
 			case Environment_Name:
-				template.setMatrixName(stringValue);
+				template.setMatrix(stringValue);
 				break;
 			case Environment_Detail:
 				template.setMatrixDetails(stringValue);
@@ -345,7 +351,7 @@ public class MetaDataPane extends JScrollPane {
 				template.setNotes(stringValue);
 				break;
 			case Model_Curation_Status:
-				template.setCurationStatus(stringValue);
+				template.setCurated(Boolean.parseBoolean(stringValue));
 				break;
 			case Model_Type:
 				if (stringValue.isEmpty()) {
@@ -376,40 +382,31 @@ public class MetaDataPane extends JScrollPane {
 				template.setDependentVariableUnit(stringValue);
 				break;
 			case Dependent_Variable_Min:
-				try {
-					template.setDependentVariableMin(Double.parseDouble(stringValue));
-				} catch (NullPointerException | NumberFormatException e) {
-					LOGGER.warn("NaN");
-				}
+				template.setDependentVariableMin(Double.parseDouble(stringValue));
 				break;
 			case Dependent_Variable_Max:
-				try {
-					template.setDependentVariableMax(Double.parseDouble(stringValue));
-				} catch (NullPointerException | NumberFormatException e) {
-					LOGGER.warn("NaN");
-				}
+				template.setDependentVariableMax(Double.parseDouble(stringValue));
 				break;
 			case Independent_Variable:
-				template.setIndependentVariables(stringValue.split("||"));
+				template.setIndependentVariables(Arrays.asList(stringValue.split("||")));
 				break;
 			case Independent_Variable_Units:
-				template.setIndependentVariablesUnits(stringValue.split("||"));
+				template.setIndependentVariableUnits(Arrays.asList(stringValue.split("||")));
 				break;
 			case Independent_Variable_Mins:
-				try {
-					double[] mins = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).toArray();
-					template.setIndependentVariablesMins(mins);
-				} catch (NumberFormatException e) {
-					LOGGER.warn("NaN");
-				}
+				List<Double> mins = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).boxed()
+						.collect(Collectors.toList());
+				template.setIndependentVariableMins(mins);
 				break;
 			case Independent_Variable_Maxs:
-				try {
-					double[] maxs = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).toArray();
-					template.setIndependentVariablesMaxs(maxs);
-				} catch (NumberFormatException e) {
-					LOGGER.warn("NaN");
-				}
+				List<Double> maxs = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).boxed()
+						.collect(Collectors.toList());
+				template.setIndependentVariableMaxs(maxs);
+				break;
+			case Independent_Variable_Values:
+				List<Double> values = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).boxed()
+						.collect(Collectors.toList());
+				template.setIndependentVariableValues(values);
 				break;
 			case Has_Data:
 				template.setHasData(Boolean.parseBoolean(stringValue));

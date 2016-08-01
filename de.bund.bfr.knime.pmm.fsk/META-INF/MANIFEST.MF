@@ -21,6 +21,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR
 Bundle-ClassPath: library.jar,
  libs/rengine-1.8.4.jar,
- libs/rserve-engine-1.8.4.jar
+ libs/rserve-engine-1.8.4.jar,
+ libs/jsoup-1.9.2.jar
 Export-Package: de.bund.bfr.knime.pmm.fskx
 

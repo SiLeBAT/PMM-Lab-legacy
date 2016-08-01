@@ -12,10 +12,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.knime.pmm.fskx.FskTemplateSettings;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
 
 class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 
@@ -28,7 +28,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 	private SettingsModelString modelScript;
 	private SettingsModelString paramScript;
 	private SettingsModelString vizScript;
-	private FSMRTemplateSettings templateSettings;
+	private FskTemplateSettings templateSettings;
 
 	public FskEditorNodeDialog() {
 		addTab("Model script", modelScriptPanel);
@@ -39,7 +39,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 		modelScript = new SettingsModelString(FskEditorNodeModel.MODEL_SCRIPT, "");
 		paramScript = new SettingsModelString(FskEditorNodeModel.PARAM_SCRIPT, "");
 		vizScript = new SettingsModelString(FskEditorNodeModel.VIZ_SCRIPT, "");
-		templateSettings = new FSMRTemplateSettings();
+		templateSettings = new FskTemplateSettings();
 
 		modelScript.addChangeListener(new ChangeListener() {
 			@Override

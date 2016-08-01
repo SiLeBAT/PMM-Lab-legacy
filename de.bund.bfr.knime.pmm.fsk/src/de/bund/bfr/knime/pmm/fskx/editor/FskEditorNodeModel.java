@@ -16,9 +16,9 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
+import de.bund.bfr.knime.pmm.fskx.FskTemplateSettings;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.knime.pmm.openfsmr.FSMRTemplateSettings;
 
 class FskEditorNodeModel extends NodeModel {
 
@@ -35,7 +35,7 @@ class FskEditorNodeModel extends NodeModel {
 	private final SettingsModelString modelScript;
 	private final SettingsModelString paramScript;
 	private final SettingsModelString vizScript;
-	private final FSMRTemplateSettings templateSettings;
+	private final FskTemplateSettings templateSettings;
 
 	public FskEditorNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -47,7 +47,7 @@ class FskEditorNodeModel extends NodeModel {
 		modelScript = new SettingsModelString(MODEL_SCRIPT, "");
 		paramScript = new SettingsModelString(PARAM_SCRIPT, "");
 		vizScript = new SettingsModelString(VIZ_SCRIPT, "");
-		templateSettings = new FSMRTemplateSettings();
+		templateSettings = new FskTemplateSettings();
 	}
 
 	// --- internal settings methods ---

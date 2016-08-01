@@ -56,11 +56,11 @@ import org.sbml.jsbml.xml.stax.SBMLWriter;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
-import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.PMFUtil;
 import de.bund.bfr.pmfml.file.uri.UriFactory;
@@ -82,328 +82,317 @@ import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
  */
 class FskxWriterNodeModel extends NodeModel {
 
-  // Configuration keys
-  protected static final String CFG_FILE = "file";
+	// Configuration keys
+	protected static final String CFG_FILE = "file";
 
-  private final SettingsModelString filePath = new SettingsModelString(CFG_FILE, null);
+	private final SettingsModelString filePath = new SettingsModelString(CFG_FILE, null);
 
-  private static final PortType[] inPortTypes = {FskPortObject.TYPE};
-  private static final PortType[] outPortTypes = {};
+	private static final PortType[] inPortTypes = { FskPortObject.TYPE };
+	private static final PortType[] outPortTypes = {};
 
-  protected FskxWriterNodeModel() {
-    super(inPortTypes, outPortTypes);
-  }
+	protected FskxWriterNodeModel() {
+		super(inPortTypes, outPortTypes);
+	}
 
-  /**
-   * {@inheritDoc}
-   * 
-   * @throws FileCreationException If a critical file could not be created. E.g. model script.
-   * @throws IOException
-   */
-  @Override
-  protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-      throws CombineArchiveException {
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws FileCreationException
+	 *             If a critical file could not be created. E.g. model script.
+	 * @throws IOException
+	 */
+	@Override
+	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
+			throws CombineArchiveException {
 
-    FskPortObject portObject = (FskPortObject) inData[0];
-    
-    
-    try {
-      Files.deleteIfExists(Paths.get(filePath.getStringValue()));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+		FskPortObject portObject = (FskPortObject) inData[0];
 
-    // try to create CombineArchive
-    try (CombineArchive archive = new CombineArchive(new File(filePath.getStringValue()))) {
+		try {
+			Files.deleteIfExists(Paths.get(filePath.getStringValue()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-      RMetaDataNode metaDataNode = new RMetaDataNode();
-      URI rUri = RUri.createURI();
+		// try to create CombineArchive
+		try (CombineArchive archive = new CombineArchive(new File(filePath.getStringValue()))) {
 
-      // Adds model script
-      if (portObject.getModelScript() != null) {
-        archive.addEntry(createScriptFile(portObject.getModelScript()), "model.r", rUri);
-        metaDataNode.setMainScript("model.r");
-      }
+			RMetaDataNode metaDataNode = new RMetaDataNode();
+			URI rUri = RUri.createURI();
 
-      // Adds parameters script
-      if (portObject.getParamScript() != null) {
-        archive.addEntry(createScriptFile(portObject.getParamScript()), "param.r", rUri);
-        metaDataNode.setParamScript("param.r");
-      }
+			// Adds model script
+			if (portObject.getModelScript() != null) {
+				archive.addEntry(createScriptFile(portObject.getModelScript()), "model.r", rUri);
+				metaDataNode.setMainScript("model.r");
+			}
 
-      // Adds visualization script
-      if (portObject.getVizScript() != null) {
-        archive.addEntry(createScriptFile(portObject.getVizScript()), "visualization.r", rUri);
-        metaDataNode.setVisualizationScript("visualization.r");
-      }
-      
-      // Adds R workspace file
-      if (portObject.getWorkspaceFile() != null) {
-        archive.addEntry(portObject.getWorkspaceFile(), "workspace.r", rUri);
-        metaDataNode.setWorkspaceFile("workspace.r");
-      }
+			// Adds parameters script
+			if (portObject.getParamScript() != null) {
+				archive.addEntry(createScriptFile(portObject.getParamScript()), "param.r", rUri);
+				metaDataNode.setParamScript("param.r");
+			}
 
-      // Adds model meta data
-      if (portObject.getTemplate() != null) {
-        SBMLDocument doc = createSbmlDocument(portObject.getTemplate());
-        
-        File f = FileUtil.createTempFile("metaData", ".pmf");
-        try {
-          new SBMLWriter().write(doc, f);
-          archive.addEntry(f, "metaData.pmf", UriFactory.createPMFURI());
-        } catch (SBMLException | XMLStreamException e) {
-          e.printStackTrace();
-        }
-      }
-      
-      // Adds R libraries
-      URI zipUri = ZipUri.createURI();
-      for (File lib : portObject.getLibraries()) {
-        archive.addEntry(lib, lib.getName(), zipUri);
-      }
-      
-      archive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
-      archive.pack();
+			// Adds visualization script
+			if (portObject.getVizScript() != null) {
+				archive.addEntry(createScriptFile(portObject.getVizScript()), "visualization.r", rUri);
+				metaDataNode.setVisualizationScript("visualization.r");
+			}
 
-    } catch (IOException | JDOMException | ParseException | TransformerException e1) {
-      e1.printStackTrace();
-    }
+			// Adds R workspace file
+			if (portObject.getWorkspaceFile() != null) {
+				archive.addEntry(portObject.getWorkspaceFile(), "workspace.r", rUri);
+				metaDataNode.setWorkspaceFile("workspace.r");
+			}
 
-    return new PortObject[] {};
-  }
-  
-  private File createScriptFile(String script) throws IOException {
-    File f = FileUtil.createTempFile("script", ".r");
-    try (FileWriter fw = new FileWriter(f)) {
-      fw.write(script);
-    }
-    
-    return f;
-  }
+			// Adds model meta data
+			if (portObject.getTemplate() != null) {
+				SBMLDocument doc = createSbmlDocument(portObject.getTemplate());
 
-  /** {@inheritDoc} */
-  @Override
-  protected void reset() {
-    // does nothing
-  }
+				File f = FileUtil.createTempFile("metaData", ".pmf");
+				try {
+					new SBMLWriter().write(doc, f);
+					archive.addEntry(f, "metaData.pmf", UriFactory.createPMFURI());
+				} catch (SBMLException | XMLStreamException e) {
+					e.printStackTrace();
+				}
+			}
 
-  /** {@inheritDoc} */
-  @Override
-  protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
-      throws InvalidSettingsException {
-    return new PortObjectSpec[] {};
-  }
+			// Adds R libraries
+			URI zipUri = ZipUri.createURI();
+			for (File lib : portObject.getLibraries()) {
+				archive.addEntry(lib, lib.getName(), zipUri);
+			}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void saveSettingsTo(final NodeSettingsWO settings) {
-    filePath.saveSettingsTo(settings);
-  }
+			archive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
+			archive.pack();
 
-  /** {@inheritDoc} */
-  @Override
-  protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-      throws InvalidSettingsException {
-    filePath.loadSettingsFrom(settings);
-  }
+		} catch (IOException | JDOMException | ParseException | TransformerException e1) {
+			e1.printStackTrace();
+		}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-    filePath.validateSettings(settings);
-  }
+		return new PortObject[] {};
+	}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-    // nothing
-  }
+	private File createScriptFile(String script) throws IOException {
+		File f = FileUtil.createTempFile("script", ".r");
+		try (FileWriter fw = new FileWriter(f)) {
+			fw.write(script);
+		}
 
-  /** {@inheritDoc} */
-  @Override
-  protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-    // nothing
-  }
+		return f;
+	}
 
-  /** Creates SBMLDocument out of a OpenFSMR template. */
-  private static SBMLDocument createSbmlDocument(final FSMRTemplate template) {
+	/** {@inheritDoc} */
+	@Override
+	protected void reset() {
+		// does nothing
+	}
 
-    // Creates SBMLDocument for the primary model
-    final SBMLDocument sbmlDocument = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
+	/** {@inheritDoc} */
+	@Override
+	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] {};
+	}
 
-    // Adds namespaces to the sbmlDocument
-    TableReader.addNamespaces(sbmlDocument);
+	/** {@inheritDoc} */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		filePath.saveSettingsTo(settings);
+	}
 
-    // Adds document annotation
-    Metadata metaData = new MetadataImpl();
-    if (template.isSetCreator()) {
-      metaData.setGivenName(template.getCreator());
-    }
-    if (template.isSetFamilyName()) {
-      metaData.setFamilyName(template.getFamilyName());
-    }
-    if (template.isSetContact()) {
-      metaData.setContact(template.getContact());
-    }
-    if (template.isSetCreatedDate()) {
-      metaData.setCreatedDate(template.getCreatedDate().toString());
-    }
-    if (template.isSetModifiedDate()) {
-      metaData.setModifiedDate(template.getModifiedDate().toString());
-    }
-    if (template.isSetCreatedDate()) {
-      metaData.setType(template.getModelType());
-    }
-    if (template.isSetRights()) {
-      metaData.setRights(template.getRights());
-    }
-    if (template.isSetReferenceDescriptionLink()) {
-      metaData.setReferenceLink(template.getReferenceDescriptionLink().toString());
-    }
+	/** {@inheritDoc} */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		filePath.loadSettingsFrom(settings);
+	}
 
-    sbmlDocument.setAnnotation(new MetadataAnnotation(metaData).getAnnotation());
+	/** {@inheritDoc} */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+		filePath.validateSettings(settings);
+	}
 
-    // Creates model and names it
-    Model model = sbmlDocument.createModel(PMFUtil.createId(template.getModelId()));
-    if (template.isSetModelName()) {
-      model.setName(template.getModelName());
-    }
+	/** {@inheritDoc} */
+	@Override
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// nothing
+	}
 
-    // Sets model notes
-    if (template.isSetNotes()) {
-      try {
-        model.setNotes(template.getNotes());
-      } catch (XMLStreamException e) {
-        e.printStackTrace();
-      }
-    }
+	/** {@inheritDoc} */
+	@Override
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// nothing
+	}
 
-    // Creates and adds compartment to the model
-    PMFCompartment compartment = SBMLFactory
-        .createPMFCompartment(PMFUtil.createId(template.getMatrixName()), template.getMatrixName());
-    compartment.setDetail(template.getMatrixDetails());
-    model.addCompartment(compartment.getCompartment());
+	/** Creates SBMLDocument out of a OpenFSMR template. */
+	private static SBMLDocument createSbmlDocument(final FskMetaData template) {
 
-    // Creates and adds species to the model
-    String speciesId = PMFUtil.createId(template.getOrganismName());
-    String speciesName = template.getOrganismName();
-    String speciesUnit = PMFUtil.createId(template.getDependentVariableUnit());
-    PMFSpecies species =
-        SBMLFactory.createPMFSpecies(compartment.getId(), speciesId, speciesName, speciesUnit);
-    model.addSpecies(species.getSpecies());
+		// Creates SBMLDocument for the primary model
+		final SBMLDocument sbmlDocument = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
 
-    // Add unit definitions here (before parameters)
-    Set<String> unitsSet = new LinkedHashSet<>();
-    unitsSet.add(template.getDependentVariableUnit().trim());
-    for (String unit : template.getIndependentVariablesUnits()) {
-      unitsSet.add(unit.trim());
-    }
-    for (String unit : unitsSet) {
-      try {
-        PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
+		// Adds namespaces to the sbmlDocument
+		TableReader.addNamespaces(sbmlDocument);
 
-        // unitDef is not in PmmLab DB
-        if (unitDef == null) {
-          UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
-          ud.setName(unit);
-        } else {
-          model.addUnitDefinition(unitDef.getUnitDefinition());
-        }
-      } catch (XMLStreamException e) {
-        e.printStackTrace();
-      }
-    }
+		// Adds document annotation
+		Metadata metaData = new MetadataImpl();
+		if (template.isSetCreator()) {
+			metaData.setGivenName(template.getCreator());
+		}
+		if (template.isSetFamilyName()) {
+			metaData.setFamilyName(template.getFamilyName());
+		}
+		if (template.isSetContact()) {
+			metaData.setContact(template.getContact());
+		}
+		if (template.isSetCreatedDate()) {
+			metaData.setCreatedDate(template.getCreatedDate().toString());
+		}
+		if (template.isSetModifiedDate()) {
+			metaData.setModifiedDate(template.getModifiedDate().toString());
+		}
+		if (template.isSetCreatedDate()) {
+			metaData.setType(template.getModelType());
+		}
+		if (template.isSetRights()) {
+			metaData.setRights(template.getRights());
+		}
+		if (template.isSetReferenceDescriptionLink()) {
+			metaData.setReferenceLink(template.getReferenceDescriptionLink().toString());
+		}
 
-    // Adds dep parameter
-    Parameter depParam = new Parameter(PMFUtil.createId(template.getDependentVariable()));
-    depParam.setName(template.getDependentVariable());
-    depParam.setUnits(PMFUtil.createId(template.getDependentVariableUnit()));
-    model.addParameter(depParam);
+		sbmlDocument.setAnnotation(new MetadataAnnotation(metaData).getAnnotation());
 
-    // Adds dep constraint
-    if (template.isSetDependentVariableMin() || template.isSetDependentVariableMax()) {
-      LimitsConstraint lc = new LimitsConstraint(template.getDependentVariable(),
-          template.getDependentVariableMin(), template.getDependentVariableMax());
-      if (lc.getConstraint() != null) {
-        model.addConstraint(lc.getConstraint());
-      }
-    }
+		// Creates model and names it
+		Model model = sbmlDocument.createModel(PMFUtil.createId(template.getModelId()));
+		if (template.isSetModelName()) {
+			model.setName(template.getModelName());
+		}
 
-    // Adds independent parameters
-    for (int i = 0; i < template.getIndependentVariables().length; i++) {
-      String var = template.getIndependentVariables()[i];
-      Parameter param = model.createParameter(PMFUtil.createId(var));
-      param.setName(var);
+		// Sets model notes
+		if (template.isSetNotes()) {
+			try {
+				model.setNotes(template.getNotes());
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+		}
 
-      try {
-        param.setUnits(PMFUtil.createId(template.getIndependentVariablesUnits()[i]));
-      } catch (IllegalArgumentException e) {
-        e.printStackTrace();
-      }
+		// Creates and adds compartment to the model
+		PMFCompartment compartment = SBMLFactory.createPMFCompartment(PMFUtil.createId(template.getMatrix()),
+				template.getMatrix());
+		compartment.setDetail(template.getMatrixDetails());
+		model.addCompartment(compartment.getCompartment());
 
-      Double min = template.isSetIndependentVariablesMins()
-          ? template.getIndependentVariablesMins()[i] : null;
-      Double max = template.isSetIndependentVariablesMaxs()
-          ? template.getIndependentVariablesMaxs()[i] : null;
-      LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
-      if (lc.getConstraint() != null) {
-        model.addConstraint(lc.getConstraint());
-      }
-    }
+		// Creates and adds species to the model
+		String speciesId = PMFUtil.createId(template.getOrganism());
+		String speciesName = template.getOrganism();
+		String speciesUnit = PMFUtil.createId(template.getDependentVariableUnit());
+		PMFSpecies species = SBMLFactory.createPMFSpecies(compartment.getId(), speciesId, speciesName, speciesUnit);
+		model.addSpecies(species.getSpecies());
 
-    // Add rule
-    String formulaName = "Missing formula name";
-    ModelClass modelClass = template.getModelSubject();
-    int modelId = MathUtilities.getRandomNegativeInt();
-    Reference[] references = new Reference[0];
+		// Add unit definitions here (before parameters)
+		Set<String> unitsSet = new LinkedHashSet<>();
+		unitsSet.add(template.getDependentVariableUnit().trim());
+		template.getIndependentVariableUnits().forEach(unit -> unitsSet.add(unit.trim()));
+		for (String unit : unitsSet) {
+			try {
+				PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
 
-    AssignmentRule rule = new AssignmentRule(3, 1);
-    rule.setVariable(depParam.getId());
-    rule.setAnnotation(
-        new ModelRuleAnnotation(formulaName, modelClass, modelId, references).annotation);
-    model.addRule(rule);
+				// unitDef is not in PmmLab DB
+				if (unitDef == null) {
+					UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
+					ud.setName(unit);
+				} else {
+					model.addUnitDefinition(unitDef.getUnitDefinition());
+				}
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+		}
 
-    return sbmlDocument;
-  }
-  
-  private static class ModelRuleAnnotation {
+		// Adds dep parameter
+		Parameter depParam = new Parameter(PMFUtil.createId(template.getDependentVariable()));
+		depParam.setName(template.getDependentVariable());
+		depParam.setUnits(PMFUtil.createId(template.getDependentVariableUnit()));
+		model.addParameter(depParam);
 
-    private Annotation annotation;
+		// Adds dep constraint
+		if (template.isSetDependentVariableMin() || template.isSetDependentVariableMax()) {
+			LimitsConstraint lc = new LimitsConstraint(template.getDependentVariable(),
+					template.getDependentVariableMin(), template.getDependentVariableMax());
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
+			}
+		}
 
-    private static final String FORMULA_TAG = "formulaName";
-    private static final String SUBJECT_TAG = "subject";
-    private static final String PMMLAB_ID = "pmmlabID";
+		// Adds independent parameters
+		for (int i = 0; i < template.getIndependentVariables().size(); i++) {
+			String var = template.getIndependentVariables().get(i);
+			Parameter param = model.createParameter(PMFUtil.createId(var));
+			param.setName(var);
 
-    private ModelRuleAnnotation(String formulaName, ModelClass modelClass, int pmmlabID,
-        Reference[] references) {
-      // Builds metadata node
-      XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
-      this.annotation = new Annotation();
-      this.annotation.setNonRDFAnnotation(metadataNode);
+			try {
+				param.setUnits(PMFUtil.createId(template.getIndependentVariableUnits().get(i)));
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
 
-      // Creates annotation for formula name
-      XMLNode nameNode = new XMLNode(new XMLTriple(FORMULA_TAG, null, "pmmlab"));
-      nameNode.addChild(new XMLNode(formulaName));
-      metadataNode.addChild(nameNode);
+			Double min = template.isSetIndependentVariableMins() ? template.getIndependentVariableMins().get(i) : null;
+			Double max = template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs().get(i) : null;
+			LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
+			if (lc.getConstraint() != null) {
+				model.addConstraint(lc.getConstraint());
+			}
+		}
 
-      // Creates annotation for modelClass
-      XMLNode modelClassNode = new XMLNode(new XMLTriple(SUBJECT_TAG, null, "pmmlab"));
-      modelClassNode.addChild(new XMLNode(modelClass.fullName()));
-      metadataNode.addChild(modelClassNode);
+		// Add rule
+		String formulaName = "Missing formula name";
+		ModelClass modelClass = template.isSetModelSubject() ? template.getModelSubject() : ModelClass.UNKNOWN;
+		int modelId = MathUtilities.getRandomNegativeInt();
+		Reference[] references = new Reference[0];
 
-      // Create annotation for pmmlabID
-      XMLNode idNode = new XMLNode(new XMLTriple(PMMLAB_ID, null, "pmmlab"));
-      idNode.addChild(new XMLNode(new Integer(pmmlabID).toString()));
-      metadataNode.addChild(idNode);
+		AssignmentRule rule = new AssignmentRule(3, 1);
+		rule.setVariable(depParam.getId());
+		rule.setAnnotation(new ModelRuleAnnotation(formulaName, modelClass, modelId, references).annotation);
+		model.addRule(rule);
 
-      // Builds reference nodes
-      for (Reference ref : references) {
-        metadataNode.addChild(new ReferenceSBMLNode(ref).getNode());
-      }
-    }
-  }
+		return sbmlDocument;
+	}
+
+	private static class ModelRuleAnnotation {
+
+		private Annotation annotation;
+
+		private static final String FORMULA_TAG = "formulaName";
+		private static final String SUBJECT_TAG = "subject";
+		private static final String PMMLAB_ID = "pmmlabID";
+
+		private ModelRuleAnnotation(String formulaName, ModelClass modelClass, int pmmlabID, Reference[] references) {
+			// Builds metadata node
+			XMLNode metadataNode = new XMLNode(new XMLTriple("metadata", null, "pmf"));
+			this.annotation = new Annotation();
+			this.annotation.setNonRDFAnnotation(metadataNode);
+
+			// Creates annotation for formula name
+			XMLNode nameNode = new XMLNode(new XMLTriple(FORMULA_TAG, null, "pmmlab"));
+			nameNode.addChild(new XMLNode(formulaName));
+			metadataNode.addChild(nameNode);
+
+			// Creates annotation for modelClass
+			XMLNode modelClassNode = new XMLNode(new XMLTriple(SUBJECT_TAG, null, "pmmlab"));
+			modelClassNode.addChild(new XMLNode(modelClass.fullName()));
+			metadataNode.addChild(modelClassNode);
+
+			// Create annotation for pmmlabID
+			XMLNode idNode = new XMLNode(new XMLTriple(PMMLAB_ID, null, "pmmlab"));
+			idNode.addChild(new XMLNode(new Integer(pmmlabID).toString()));
+			metadataNode.addChild(idNode);
+
+			// Builds reference nodes
+			for (Reference ref : references) {
+				metadataNode.addChild(new ReferenceSBMLNode(ref).getNode());
+			}
+		}
+	}
 }
-
-

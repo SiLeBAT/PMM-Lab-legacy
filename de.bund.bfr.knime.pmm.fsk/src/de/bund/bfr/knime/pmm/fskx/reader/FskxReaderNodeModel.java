@@ -19,14 +19,17 @@ package de.bund.bfr.knime.pmm.fskx.reader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +37,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom2.JDOMException;
+import org.jsoup.Jsoup;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -52,10 +56,16 @@ import org.knime.core.util.FileUtil;
 import org.knime.ext.r.node.local.port.RPortObject;
 import org.knime.ext.r.node.local.port.RPortObjectSpec;
 import org.rosuda.REngine.REXPMismatchException;
+import org.sbml.jsbml.AssignmentRule;
+import org.sbml.jsbml.Model;
+import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.UnitDefinition;
+import org.sbml.jsbml.util.filters.Filter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
-import de.bund.bfr.knime.pmm.FSMRUtils;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
@@ -64,9 +74,15 @@ import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.openfsmr.FSMRTemplate;
-import de.bund.bfr.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.pmfml.file.uri.UriFactory;
+import de.bund.bfr.pmfml.sbml.Limits;
+import de.bund.bfr.pmfml.sbml.LimitsConstraint;
+import de.bund.bfr.pmfml.sbml.Metadata;
+import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
+import de.bund.bfr.pmfml.sbml.ModelRule;
+import de.bund.bfr.pmfml.sbml.PMFCompartment;
+import de.bund.bfr.pmfml.sbml.PMFSpecies;
+import de.bund.bfr.pmfml.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.ArchiveEntry;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.CombineArchiveException;
@@ -88,7 +104,7 @@ class FskxReaderNodeModel extends NodeModel {
 	// Specs
 	private static final FskPortObjectSpec fskSpec = FskPortObjectSpec.INSTANCE;
 	private static final RPortObjectSpec rSpec = RPortObjectSpec.INSTANCE;
-	private static final DataTableSpec metadataSpec = FskMetaDataTuple.createMetaDataTableSpec();
+	private static final DataTableSpec metadataSpec = FskMetaDataTuple.createSpec();
 
 	protected FskxReaderNodeModel() {
 		super(inPortTypes, outPortTypes);
@@ -108,7 +124,7 @@ class FskxReaderNodeModel extends NodeModel {
 		String model = "";
 		String param = "";
 		String viz = "";
-		FSMRTemplate template = new FSMRTemplateImpl();
+		FskMetaData template = null;
 		File workspaceFile = null;
 		Set<File> libs = new HashSet<>();
 
@@ -150,7 +166,7 @@ class FskxReaderNodeModel extends NodeModel {
 				entry.extractFile(f);
 
 				SBMLDocument doc = new SBMLReader().readSBML(f);
-				template = FSMRUtils.processPrevalenceModel(doc);
+				template = processMetadata(doc);
 			}
 
 			// Gets R libraries
@@ -182,90 +198,7 @@ class FskxReaderNodeModel extends NodeModel {
 		// Meta data port
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(metadataSpec);
 		if (template != null) {
-			FskMetaDataTuple metadataTuple = new FskMetaDataTuple();
-			if (template.isSetModelName())
-				metadataTuple.setModelName(template.getModelName());
-			if (template.isSetModelId())
-				metadataTuple.setModelId(template.getModelId());
-			if (template.isSetModelLink())
-				metadataTuple.setModelLink(template.getModelLink());
-			if (template.isSetOrganismName())
-				metadataTuple.setOrganismName(template.getOrganismName());
-			if (template.isSetOrganismDetails())
-				metadataTuple.setOrganismDetails(template.getOrganismDetails());
-			if (template.isSetMatrixName())
-				metadataTuple.setMatrixName(template.getMatrixName());
-			if (template.isSetMatrixDetails())
-				metadataTuple.setMatrixDetails(template.getMatrixDetails());
-			if (template.isSetCreator())
-				metadataTuple.setCreator(template.getCreator());
-			if (template.isSetFamilyName())
-				metadataTuple.setFamilyName(template.getFamilyName());
-			if (template.isSetContact())
-				metadataTuple.setContact(template.getContact());
-			if (template.isSetReferenceDescription())
-				metadataTuple.setReferenceDescription(template.getReferenceDescription());
-			if (template.isSetReferenceDescriptionLink())
-				metadataTuple.setReferenceDescriptionLink(template.getReferenceDescriptionLink());
-			if (template.isSetCreatedDate())
-				metadataTuple.setCreatedDate(template.getCreatedDate().toString());
-			if (template.isSetModifiedDate())
-				metadataTuple.setModifiedDate(template.getModifiedDate().toString());
-			if (template.isSetRights())
-				metadataTuple.setRights(template.getRights());
-			if (template.isSetNotes())
-				metadataTuple.setNotes(template.getNotes());
-			if (template.isSetCurationStatus())
-				metadataTuple.setCurationStatus(template.getCurationStatus());
-			if (template.isSetModelType())
-				metadataTuple.setModelType(template.getModelType().toString());
-			if (template.isSetModelSubject())
-				metadataTuple.setModelSubject(template.getModelSubject().toString());
-			if (template.isSetFoodProcess())
-				metadataTuple.setFoodProcess(template.getFoodProcess());
-			if (template.isSetDependentVariable())
-				metadataTuple.setDependentVariable(template.getDependentVariable());
-			if (template.isSetDependentVariableUnit())
-				metadataTuple.setDependentVariableUnit(template.getDependentVariableUnit());
-			if (template.isSetDependentVariableMin())
-				metadataTuple.setDependentVariableMin(template.getDependentVariableMin());
-			if (template.isSetDependentVariableMax())
-				metadataTuple.setDependentVariableMax(template.getDependentVariableMax());
-			if (template.isSetIndependentVariables()) {
-				String[] vars = template.getIndependentVariables();
-				metadataTuple.setIndependentVariables(Arrays.asList(vars));
-			}
-			if (template.isSetIndependentVariablesUnits()) {
-				String[] units = template.getIndependentVariablesUnits();
-				metadataTuple.setIndependentVariablesUnits(Arrays.asList(units));
-			}
-			if (template.isSetIndependentVariablesMins()) {
-				double[] mins = template.getIndependentVariablesMins();
-				List<Double> objList = Arrays.stream(mins).boxed().collect(Collectors.toList());
-				metadataTuple.setIndependentVariablesMins(objList);
-			}
-			if (template.isSetIndependentVariablesMaxs()) {
-				double[] maxs = template.getIndependentVariablesMaxs();
-				List<Double> objList = Arrays.stream(maxs).boxed().collect(Collectors.toList());
-				metadataTuple.setIndependentVariablesMaxs(objList);
-			}
-			if (template.isSetHasData())
-				metadataTuple.setHasData(Boolean.toString(template.getHasData()));
-
-			Map<String, String> indepValues = new HashMap<>();
-			for (String line : param.split("\\r?\\n")) {
-				if (line.indexOf("<-") != -1) {
-					String[] tokens = line.split("<-");
-					String variableName = tokens[0].trim();
-					String variableValue = tokens[1].trim();
-					indepValues.put(variableName, variableValue);
-				}
-			}
-			String values = Arrays.stream(template.getIndependentVariables()).map(indepValues::get)
-					.collect(Collectors.joining("||"));
-			metadataTuple.setIndependentVariablesValues(values);
-
-			fsmrContainer.addRowToTable(metadataTuple);
+			fsmrContainer.addRowToTable(new FskMetaDataTuple(template));
 		}
 		fsmrContainer.close();
 
@@ -339,5 +272,200 @@ class FskxReaderNodeModel extends NodeModel {
 	private class FileAccessException extends Exception {
 
 		private static final long serialVersionUID = 1L;
+	}
+
+	// TODO: take functionality out of FSMRUtils processPrevalenceModel
+	private FskMetaData processMetadata(final SBMLDocument doc) {
+
+		FskMetaData template = new FskMetaDataImpl();
+
+		Model model = doc.getModel();
+		AssignmentRule rule = (AssignmentRule) model.getRule(0);
+
+		// caches limits
+		List<Limits> limits = model.getListOfConstraints().stream().map(LimitsConstraint::new)
+				.map(LimitsConstraint::getLimits).collect(Collectors.toList());
+
+		// model id
+		template.setModelId(model.getId());
+
+		// model name
+		if (model.isSetName())
+			template.setModelName(model.getName());
+
+		// organism data
+		{
+			PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
+			template.setOrganism(species.getName());
+			if (species.isSetDetail()) {
+				template.setOrganismDetails(species.getDetail());
+			}
+		}
+
+		// matrix data
+		{
+			PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
+			template.setMatrix(compartment.getName());
+			if (compartment.isSetDetail()) {
+				template.setMatrixDetails(compartment.getDetail());
+			}
+		}
+
+		// creator
+		Metadata metadataAnnot = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
+		if (metadataAnnot.isSetGivenName()) {
+			template.setCreator(metadataAnnot.getGivenName());
+		}
+
+		// family name
+		if (metadataAnnot.isSetFamilyName()) {
+			template.setFamilyName(metadataAnnot.getFamilyName());
+		}
+
+		// contact
+		if (metadataAnnot.isSetContact()) {
+			template.setContact(metadataAnnot.getContact());
+		}
+
+		// reference description link
+		if (metadataAnnot.isSetReferenceLink()) {
+			String linkAsString = metadataAnnot.getReferenceLink();
+			try {
+				URL link = new URL(linkAsString);
+				template.setReferenceDescriptionLink(link);
+			} catch (MalformedURLException e) {
+				System.err.println(linkAsString + " is not a valid URL");
+				e.printStackTrace();
+			}
+		}
+
+		// created date
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+		if (metadataAnnot.isSetCreatedDate()) {
+			String dateAsString = metadataAnnot.getCreatedDate();
+			try {
+				Date date = dateFormat.parse(dateAsString);
+				template.setCreatedDate(date);
+			} catch (ParseException e) {
+				System.err.println(dateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// modified date
+		if (metadataAnnot.isSetModifiedDate()) {
+			String dateAsString = metadataAnnot.getModifiedDate();
+			try {
+				Date date = dateFormat.parse(dateAsString);
+				template.setModifiedDate(date);
+			} catch (ParseException e) {
+				System.err.println(dateAsString + " is not a valid date");
+				e.printStackTrace();
+			}
+		}
+
+		// model rights
+		if (metadataAnnot.isSetRights()) {
+			template.setRights(metadataAnnot.getRights());
+		}
+
+		// model type
+		if (metadataAnnot.isSetType()) {
+			template.setModelType(metadataAnnot.getType());
+		}
+
+		// model subject
+		{
+			ModelRule pmfRule = new ModelRule(rule);
+			template.setModelSubject(pmfRule.getModelClass());
+		}
+
+		// model notes
+		if (model.isSetNotes()) {
+			try {
+				template.setNotes(Jsoup.parse(model.getNotesString()).text());
+			} catch (XMLStreamException e) {
+				System.err.println("Error accesing the notes of " + model);
+				e.printStackTrace();
+			}
+		}
+
+		// dependent variable data
+		{
+			String depId = rule.getVariable();
+
+			// Gets parameter for the dependent variable and sets it
+			Parameter param = model.getParameter(depId);
+			template.setDependentVariable(param.getName());
+
+			// Gets and sets dependent variable unit
+			String unitId = param.getUnits();
+			if (!unitId.equals("dimensionless")) {
+				UnitDefinition unitDef = model.getUnitDefinition(unitId);
+				if (unitDef != null) {
+					template.setDependentVariableUnit(unitDef.getName());
+				}
+			}
+
+			// Sets dependent variable min & max
+			for (Limits lim : limits) {
+				if (lim.getVar().equals(depId)) {
+					if (lim.getMin() != null)
+						template.setDependentVariableMin(lim.getMin());
+					if (lim.getMax() != null)
+						template.setDependentVariableMax(lim.getMax());
+					break;
+				}
+			}
+		}
+
+		// independent variable data
+		{
+			String depId = rule.getVariable();
+
+			List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
+				@Override
+				public boolean accepts(Object o) {
+					return !((Parameter) o).getId().equals(depId);
+				}
+			});
+
+			final int numParams = indepParams.size();
+			List<String> units = new ArrayList<>(numParams);
+			List<String> names = new ArrayList<>(numParams);
+			List<Double> mins = new ArrayList<>(numParams);
+			List<Double> maxs = new ArrayList<>(numParams);
+
+			for (Parameter param : indepParams) {
+
+				// unit
+				String unitId = param.getUnits();
+				String unit = "";
+				if (!unitId.equals("dimensionless")) {
+					UnitDefinition unitDef = model.getUnitDefinition(unitId);
+					if (unitDef != null) {
+						unit = unitDef.getName();
+					}
+				}
+
+				Limits paramLimits = limits.stream().filter(lim -> lim.getVar().equals(param.getId())).findFirst()
+						.get();
+
+				names.add(param.getName());
+				units.add(unit);
+				mins.add(paramLimits.getMin());
+				maxs.add(paramLimits.getMax());
+			}
+
+			template.setIndependentVariables(names);
+			template.setIndependentVariableUnits(units);
+			template.setIndependentVariableMins(mins);
+			template.setIndependentVariableMaxs(maxs);
+		}
+		
+		// has data
+		template.setHasData(false);
+		
+		return template;
 	}
 }

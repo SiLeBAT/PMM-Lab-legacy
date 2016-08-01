@@ -53,12 +53,12 @@ import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.core.util.FileUtil;
 import org.rosuda.REngine.REXPMismatchException;
 
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
-import de.bund.bfr.openfsmr.FSMRTemplate;
-import de.bund.bfr.openfsmr.FSMRTemplateImpl;
 import de.bund.bfr.pmfml.ModelType;
 
 /**
@@ -84,7 +84,7 @@ public class FskPortObject implements PortObject {
 	private final String m_viz;
 
 	/** Model meta data. */
-	private final FSMRTemplate m_template;
+	private FskMetaData m_template;
 
 	/** R workspace file. */
 	private File m_workspace;
@@ -96,7 +96,7 @@ public class FskPortObject implements PortObject {
 
 	private final int objectNum;
 
-	public FskPortObject(final String model, final String param, final String viz, final FSMRTemplate template,
+	public FskPortObject(final String model, final String param, final String viz, final FskMetaData template,
 			final File workspace, final Set<File> libs) {
 		m_model = model;
 		m_param = param;
@@ -139,8 +139,12 @@ public class FskPortObject implements PortObject {
 	}
 
 	/** @return the template. */
-	public FSMRTemplate getTemplate() {
+	public FskMetaData getTemplate() {
 		return m_template;
+	}
+	
+	public void setTemplate(final FskMetaData template) {
+		m_template = template;
 	}
 
 	/** @return the R workspace file. */
@@ -229,7 +233,7 @@ public class FskPortObject implements PortObject {
 			String model = "";
 			String param = "";
 			String viz = "";
-			FSMRTemplate template = null;
+			FskMetaData template = null;
 			File workspaceFile = null;
 			Set<File> libs = new HashSet<>();
 
@@ -351,26 +355,26 @@ public class FskPortObject implements PortObject {
 		Date modifiedDate;
 		String rights;
 		String notes;
-		String curationStatus;
+		boolean isCurated;
 		ModelType modelType;
 		String foodProcess;
 		String depvar;
 		String depvarUnit;
 		Double depvarMin;
 		Double depvarMax;
-		String[] indepvars;
-		String[] indepvarUnits;
-		double[] indepvarMins;
-		double[] indepvarMaxs;
-		Boolean hasData;
+		List<String> indepvars;
+		List<String> indepvarUnits;
+		List<Double> indepvarMins;
+		List<Double> indepvarMaxs;
+		boolean hasData;
 
-		SerializableTemplate(FSMRTemplate template) {
+		SerializableTemplate(FskMetaData template) {
 			modelName = template.isSetModelName() ? template.getModelName() : null;
 			modelId = template.isSetModelId() ? template.getModelId() : null;
 			modelLink = template.isSetModelLink() ? template.getModelLink() : null;
-			organism = template.isSetOrganismName() ? template.getOrganismName() : null;
+			organism = template.isSetOrganism() ? template.getOrganism() : null;
 			organismDetails = template.isSetOrganismDetails() ? template.getOrganismDetails() : null;
-			matrix = template.isSetMatrixName() ? template.getMatrixName() : null;
+			matrix = template.isSetMatrix() ? template.getMatrix() : null;
 			matrixDetails = template.isSetMatrixDetails() ? template.getMatrixDetails() : null;
 			creator = template.isSetCreator() ? template.getCreator() : null;
 			familyName = template.isSetFamilyName() ? template.getFamilyName() : null;
@@ -382,7 +386,7 @@ public class FskPortObject implements PortObject {
 			modifiedDate = template.isSetModifiedDate() ? template.getModifiedDate() : null;
 			rights = template.isSetRights() ? template.getRights() : null;
 			notes = template.isSetNotes() ? template.getNotes() : null;
-			curationStatus = template.isSetCurationStatus() ? template.getCurationStatus() : null;
+			isCurated = template.isCurated();
 			modelType = template.isSetModelType() ? template.getModelType() : null;
 			foodProcess = template.isSetFoodProcess() ? template.getFoodProcess() : null;
 			depvar = template.isSetDependentVariable() ? template.getDependentVariable() : null;
@@ -390,20 +394,21 @@ public class FskPortObject implements PortObject {
 			depvarMin = template.isSetDependentVariableMin() ? template.getDependentVariableMin() : null;
 			depvarMax = template.isSetDependentVariableMax() ? template.getDependentVariableMax() : null;
 			indepvars = template.isSetIndependentVariables() ? template.getIndependentVariables() : null;
-			indepvarUnits = template.isSetIndependentVariablesUnits() ? template.getIndependentVariablesUnits() : null;
-			indepvarMins = template.isSetIndependentVariablesMins() ? template.getIndependentVariablesMins() : null;
-			indepvarMaxs = template.isSetIndependentVariablesMaxs() ? template.getIndependentVariablesMaxs() : null;
-			hasData = template.isSetHasData() ? template.getHasData() : null;
+			indepvarUnits = template.isSetIndependentVariableUnits() ? template.getIndependentVariableUnits() : null;
+			indepvarMins = template.isSetIndependentVariableMins() ? template.getIndependentVariableMins() : null;
+			indepvarMaxs = template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs() : null;
+			hasData = template.hasData();
 		}
 
-		FSMRTemplate toTemplate() {
-			FSMRTemplate template = new FSMRTemplateImpl();
+		FskMetaData toTemplate() {
+			FskMetaData template = new FskMetaDataImpl();
+
 			template.setModelName(modelName);
 			template.setModelId(modelId);
 			template.setModelLink(modelLink);
-			template.setOrganismName(organism);
+			template.setOrganism(organism);
 			template.setOrganismDetails(organismDetails);
-			template.setMatrixName(matrix);
+			template.setMatrix(matrix);
 			template.setMatrixDetails(matrixDetails);
 			template.setCreator(creator);
 			template.setFamilyName(familyName);
@@ -414,7 +419,7 @@ public class FskPortObject implements PortObject {
 			template.setModifiedDate(modifiedDate);
 			template.setRights(rights);
 			template.setNotes(notes);
-			template.setCurationStatus(curationStatus);
+			template.setCurated(isCurated);
 			template.setModelType(modelType);
 			template.setFoodProcess(foodProcess);
 			template.setDependentVariable(depvar);
@@ -422,9 +427,9 @@ public class FskPortObject implements PortObject {
 			template.setDependentVariableMin(depvarMin);
 			template.setDependentVariableMax(depvarMax);
 			template.setIndependentVariables(indepvars);
-			template.setIndependentVariablesUnits(indepvarUnits);
-			template.setIndependentVariablesMins(indepvarMins);
-			template.setIndependentVariablesMaxs(indepvarMaxs);
+			template.setIndependentVariableUnits(indepvarUnits);
+			template.setIndependentVariableMins(indepvarMins);
+			template.setIndependentVariableMaxs(indepvarMaxs);
 			template.setHasData(hasData);
 			
 			return template;

@@ -92,7 +92,6 @@ public class ReaderUtils {
     if (miscs != null) {
       // First misc item has id -1 and the rest of items have negative
       // ints
-      int counter = -1;
       for (Entry<String, Double> entry : miscs.entrySet()) {
         String name = entry.getKey();
         Double value = entry.getValue();
@@ -106,9 +105,7 @@ public class ReaderUtils {
             description = name;
             unit = Categories.getTempCategory().getStandardUnit();
 
-            cell.add(new MiscXml(counter, name, description, value, categories, unit));
-
-            counter -= 1;
+            cell.add(new MiscXml(-1, name, description, value, categories, unit));
             break;
 
           case "pH":
@@ -116,9 +113,14 @@ public class ReaderUtils {
             description = name;
             unit = Categories.getPhUnit();
 
-            cell.add(new MiscXml(counter, name, description, value, categories, unit));
+            cell.add(new MiscXml(-2, name, description, value, categories, unit));
+            break;
 
-            counter -= 1;
+          case "aw":
+            categories = Arrays.asList(Categories.getAwCategory().getName());
+            description = name;
+            unit = Categories.getAwCategory().getStandardUnit();
+            cell.add(new MiscXml(-3, name, description, value, categories, unit));
             break;
         }
       }

@@ -1272,6 +1272,17 @@ abstract class BetterTemplateCreator {
     if (compartment.isSetDetail())
       template.setMatrixDetails(compartment.getDetail());
   }
+  
+  void setNotesFromModel(final Model model) {
+    if (model.isSetNotes()) {
+      try {
+        template.setNotes(model.getNotesString());
+      } catch (XMLStreamException error) {
+        System.err.println("error accessing the notes of " + model);
+        error.printStackTrace();
+      }
+    }
+  }
 }
 
 
@@ -1383,14 +1394,7 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setModelNotes() {
-    if (secModelDoc.getModel().isSetNotes()) {
-      try {
-        template.setNotes(secModelDoc.getModel().getNotesString());
-      } catch (XMLStreamException error) {
-        System.err.println("error accessing the notes of " + secModelDoc.getModel());
-        error.printStackTrace();
-      }
-    }
+    setNotesFromModel(secModelDoc.getModel());
   }
 
   @Override
@@ -1644,14 +1648,7 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setModelNotes() {
-    if (primModel.isSetNotes()) {
-      try {
-        template.setNotes(primModel.getNotesString());
-      } catch (XMLStreamException error) {
-        System.err.println("error accessing the notes of " + primModel);
-        error.printStackTrace();
-      }
-    }
+    setNotesFromModel(primModel);
   }
 
   @Override
@@ -1890,14 +1887,7 @@ class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setModelNotes() {
-    if (doc.getModel().isSetNotes()) {
-      try {
-        template.setNotes(doc.getModel().getNotesString());
-      } catch (XMLStreamException error) {
-        System.err.println("error accessing the notes of " + doc.getModel());
-        error.printStackTrace();
-      }
-    }
+    setNotesFromModel(doc.getModel());
   }
 
   @Override
@@ -2097,14 +2087,7 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setModelNotes() {
-    if (primDoc.getModel().isSetNotes()) {
-      try {
-        template.setNotes(primDoc.getModel().getNotesString());
-      } catch (XMLStreamException error) {
-        System.err.println("error accessing the notes of " + primDoc.getModel());
-        error.printStackTrace();
-      }
-    }
+    setNotesFromModel(primDoc.getModel());
   }
 
   @Override

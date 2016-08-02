@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.sbml.jsbml.AssignmentRule;
@@ -40,7 +38,6 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.Species;
-import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.ext.comp.CompConstants;
 import org.sbml.jsbml.ext.comp.CompSBMLDocumentPlugin;
 import org.sbml.jsbml.ext.comp.ModelDefinition;
@@ -91,14 +88,6 @@ public class FSMRUtils {
     ModelWithoutMicrobialDataTemplateCreator templateCreator =
         new ModelWithoutMicrobialDataTemplateCreator(doc);
     return templateCreator.createTemplate();
-  }
-
-  public static FSMRTemplate processPrevalenceModel(SBMLDocument doc) {
-    return new PrevalenceModelTemplateCreator(doc).createTemplate();
-  }
-
-  public static FSMRTemplate processSpreadsheet(XSSFWorkbook workbook) {
-    return new SpreadsheetTemplateCreator(workbook.getSheetAt(0)).createTemplate();
   }
 
   // Secondary models
@@ -848,106 +837,6 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
   }
 }
 
-
-class PrevalenceModelTemplateCreator extends ModelWithMicrobialDataTemplateCreator {
-
-  private final List<Limits> limits;
-
-  /**
-   * @param doc
-   */
-  public PrevalenceModelTemplateCreator(SBMLDocument doc) {
-    super(doc);
-
-    // Caches limits
-    limits = doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
-        .map(LimitsConstraint::getLimits).collect(Collectors.toList());
-  }
-
-  @Override
-  public void setDependentVariableData() {
-    // Gets dependent variable id
-    Model model = doc.getModel();
-    AssignmentRule rule = (AssignmentRule) model.getRule(0);
-    String depId = rule.getVariable();
-
-    // Gets parameter for the dependent variable and sets it
-    Parameter param = model.getParameter(depId);
-    template.setDependentVariable(param.getName());
-
-    // Gets and sets dependent variable unit
-    String unitId = param.getUnits();
-    if (!unitId.equals("dimensionless")) {
-      UnitDefinition unitDef = model.getUnitDefinition(unitId);
-      if (unitDef != null) {
-        template.setDependentVariableUnit(unitDef.getName());
-      }
-    }
-
-    // Sets dependent variable min & max
-    for (Limits lim : limits) {
-      if (lim.getVar().equals(depId)) {
-        if (lim.getMin() != null)
-          template.setDependentVariableMin(lim.getMin());
-        if (lim.getMax() != null)
-          template.setDependentVariableMax(lim.getMax());
-        break;
-      }
-    }
-  }
-
-  @Override
-  public void setIndependentVariableData() {
-    Model model = doc.getModel();
-    AssignmentRule rule = (AssignmentRule) model.getRule(0);
-    String depId = rule.getVariable();
-
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        return !((Parameter) o).getId().equals(depId);
-      }
-    });
-
-    final int numParams = indepParams.size();
-    String[] units = new String[numParams];
-    String[] names = new String[numParams];
-    double[] mins = new double[numParams];
-    double[] maxs = new double[numParams];
-
-    for (int i = 0; i < numParams; i++) {
-      Parameter param = indepParams.get(i);
-
-      // variable
-      names[i] = param.getName();
-
-      // unit
-      String unitId = param.getUnits();
-      units[i] = "";
-      if (!unitId.equals("dimensionless")) {
-        UnitDefinition unitDef = model.getUnitDefinition(unitId);
-        if (unitDef != null) {
-          units[i] = unitDef.getName();
-        }
-      }
-
-      for (Limits lim : limits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins[i] = lim.getMin();
-          maxs[i] = lim.getMax();
-          break;
-        }
-      }
-    }
-
-    template.setIndependentVariables(names);
-    template.setIndependentVariablesUnits(units);
-    template.setIndependentVariablesMins(mins);
-    template.setIndependentVariablesMaxs(maxs);
-  }
-}
-
-
 class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
 
   private final List<Limits> limits;
@@ -1050,167 +939,6 @@ class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
     template.setIndependentVariablesUnits(units);
     template.setIndependentVariablesMins(mins);
     template.setIndependentVariablesMaxs(maxs);
-  }
-}
-
-
-/** Creates a OpenFSMR template from a XLSX spreadsheet. */
-class SpreadsheetTemplateCreator extends TemplateCreator {
-
-  private XSSFSheet sheet;
-
-  public SpreadsheetTemplateCreator(final XSSFSheet sheet) {
-    this.sheet = sheet;
-  }
-
-  @Override
-  public void setModelId() {
-    template.setModelId(getStringVal(2));
-  }
-
-  @Override
-  public void setModelName() {
-    template.setModelName(getStringVal(1));
-  }
-
-  @Override
-  public void setOrganismData() {
-    template.setOrganismName(getStringVal(3));
-    template.setOrganismDetails(getStringVal(4));
-  }
-
-  @Override
-  public void setMatrixData() {
-    template.setMatrixName(getStringVal(5));
-    template.setMatrixDetails(getStringVal(6));
-  }
-
-  @Override
-  public void setCreator() {
-    template.setCreator(getStringVal(7));
-  }
-
-  @Override
-  public void setFamilyName() {
-    // No family name in the spreadsheet
-  }
-
-  @Override
-  public void setContact() {
-    // No contact in the spreadsheet
-  }
-
-  @Override
-  public void setReferenceDescriptionLink() {
-    template.setReferenceDescription(getStringVal(8));
-  }
-
-  @Override
-  public void setCreatedDate() {
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-    Double createdDateAsDouble = sheet.getRow(9).getCell(5).getNumericCellValue();
-    String createdDateAsString = createdDateAsDouble.toString();
-    try {
-      Date createdDate = dateFormat.parse(createdDateAsString);
-      template.setCreatedDate(createdDate);
-    } catch (ParseException e) {
-      System.err.println(createdDateAsString + " is not a valid date");
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void setModifiedDate() {
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-    Double modifiedDateAsDouble = sheet.getRow(10).getCell(5).getNumericCellValue();
-    String modifiedDateAsString = modifiedDateAsDouble.toString();
-    try {
-      Date modifiedDate = dateFormat.parse(modifiedDateAsString);
-      template.setModifiedDate(modifiedDate);
-    } catch (ParseException e) {
-      System.err.println(modifiedDateAsString + " is not a valid date");
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void setModelRights() {
-    template.setRights(getStringVal(11));
-  }
-
-  @Override
-  public void setModelType() {
-    String modelTypeAsString = getStringVal(13);
-    try {
-      template.setModelType(ModelType.valueOf(modelTypeAsString));
-    }
-    // if modelTypeAsString is not a valid ModelType
-    catch (IllegalArgumentException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void setModelSubject() {
-    String modelSubject = getStringVal(14);
-    try {
-      template.setModelSubject(ModelClass.valueOf(modelSubject));
-    }
-    // if modelSubject is not a valid ModelClass
-    catch (IllegalArgumentException e) {
-      template.setModelSubject(ModelClass.UNKNOWN);
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void setModelNotes() {
-    template.setNotes(getStringVal(12));
-  }
-
-  @Override
-  public void setDependentVariableData() {
-    template.setDependentVariable(getStringVal(21));
-    template.setDependentVariableUnit(getStringVal(22));
-    template.setDependentVariableMin(sheet.getRow(23).getCell(5).getNumericCellValue());
-    template.setDependentVariableMax(sheet.getRow(24).getCell(5).getNumericCellValue());
-  }
-
-  @Override
-  public void setIndependentVariableData() {
-
-    String[] indepVars = getStringVal(25).split("\\|\\|");
-    for (int i = 0; i < indepVars.length; i++) {
-      indepVars[i] = indepVars[i].trim();
-    }
-    template.setIndependentVariables(indepVars);
-
-    template.setIndependentVariablesUnits(getStringVal(26).split("\\|\\|"));
-
-    // Sets minimum values
-    String[] indepVarMinTokens = getStringVal(27).split("\\|\\|");
-    double[] indepVarMins =
-        Arrays.stream(indepVarMinTokens).mapToDouble(Double::parseDouble).toArray();
-    template.setIndependentVariablesMins(indepVarMins);
-
-
-    // Sets maximum values
-    String[] indepVarMaxTokens = getStringVal(28).split("\\|\\|");
-    double[] indepVarMaxs =
-        Arrays.stream(indepVarMaxTokens).mapToDouble(Double::parseDouble).toArray();
-    template.setIndependentVariablesMaxs(indepVarMaxs);
-  }
-
-  @Override
-  public void setHasData() {
-    template.setHasData(false);
-  }
-
-  /** Gets the string value of the fifth column which holds the value for that row. */
-  private String getStringVal(int rownum) {
-    return sheet.getRow(rownum).getCell(5).getStringCellValue();
   }
 }
 

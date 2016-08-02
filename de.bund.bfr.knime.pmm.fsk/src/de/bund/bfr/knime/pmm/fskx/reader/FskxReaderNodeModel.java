@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,6 +65,7 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.util.filters.Filter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
+import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
@@ -116,10 +118,12 @@ class FskxReaderNodeModel extends NodeModel {
 	 * @throws MissingValueError
 	 * @throws RException
 	 * @throws REXPMismatchException
+	 * @throws MalformedURLException 
+	 * @throws InvalidPathException 
 	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException {
+			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException, InvalidPathException, MalformedURLException {
 
 		String model = "";
 		String param = "";
@@ -128,7 +132,7 @@ class FskxReaderNodeModel extends NodeModel {
 		File workspaceFile = null;
 		Set<File> libs = new HashSet<>();
 
-		File archiveFile = new File(filename.getStringValue());
+		File archiveFile = KnimeUtils.getFile(filename.getStringValue());
 		try (CombineArchive archive = new CombineArchive(archiveFile)) {
 			// Gets annotation
 			RMetaDataNode node = new RMetaDataNode(archive.getDescriptions().get(0).getXmlDescription());

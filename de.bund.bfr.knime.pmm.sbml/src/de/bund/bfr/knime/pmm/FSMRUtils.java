@@ -1400,7 +1400,7 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
       // Sets dependent variable unit
       String depUnitName = model.getUnitDefinition(depUnitId).getName();
-      template.setDependentVariable(depUnitName);
+      template.setDependentVariableUnit(depUnitName);
 
       // Sets dependent variable
       if (!depUnitId.equals("dimensionless")) {
@@ -1437,7 +1437,7 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
     addIndepsFromSecondaryModel(vars, units, mins, maxs);
 
     String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = vars.toArray(new String[units.size()]);
+    String[] unitsArray = units.toArray(new String[units.size()]);
     double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
     double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
 
@@ -1670,7 +1670,7 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
       // Sets dependent variable unit
       String depUnitName = primModel.getUnitDefinition(depUnitId).getName();
-      template.setDependentVariable(depUnitName);
+      template.setDependentVariableUnit(depUnitName);
 
       // Sets dependent variable
       if (!depUnitId.equals("dimensionless")) {
@@ -1707,7 +1707,7 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
     addIndepsFromSecondaryModel(vars, units, mins, maxs);
 
     String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = vars.toArray(new String[units.size()]);
+    String[] unitsArray = units.toArray(new String[units.size()]);
     double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
     double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
 
@@ -1979,7 +1979,7 @@ class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
     }
 
     String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = vars.toArray(new String[units.size()]);
+    String[] unitsArray = units.toArray(new String[units.size()]);
     double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
     double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
 
@@ -2133,8 +2133,8 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
 
       // Sets dependent variable unit
       String unitName = primDoc.getModel().getUnitDefinition(unitId).getName();
-      template.setDependentVariable(unitName);
-
+      template.setDependentVariableUnit(unitName);
+      
       // Sets dependent variable
       if (!unitId.equals("dimensionless")) {
         if (DBUnits.getDBUnits().containsKey(unitName)) {
@@ -2169,7 +2169,7 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
     }
 
     String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = vars.toArray(new String[units.size()]);
+    String[] unitsArray = units.toArray(new String[units.size()]);
     double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
     double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
 

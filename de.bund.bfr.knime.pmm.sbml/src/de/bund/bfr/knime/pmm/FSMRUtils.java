@@ -32,6 +32,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.sbml.jsbml.Annotation;
 import org.sbml.jsbml.AssignmentRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.Model;
@@ -744,6 +745,7 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
   }
 }
 
+
 class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
 
   private final List<Limits> limits;
@@ -893,21 +895,21 @@ abstract class BetterTemplateCreator {
     return model.getListOfConstraints().stream().map(LimitsConstraint::new)
         .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
-  
+
   void setOrganismDataFromSpecies(final PMFSpecies species) {
     if (species.getSpecies().isSetName())
       template.setOrganismName(species.getSpecies().getName());
     if (species.isSetDetail())
       template.setOrganismDetails(species.getDetail());
   }
-  
+
   void setMatrixDataFromCompartment(final PMFCompartment compartment) {
     if (compartment.getCompartment().isSetName())
       template.setMatrixName(compartment.getCompartment().getName());
     if (compartment.isSetDetail())
       template.setMatrixDetails(compartment.getDetail());
   }
-  
+
   void setNotesFromModel(final Model model) {
     if (model.isSetNotes()) {
       try {
@@ -917,6 +919,63 @@ abstract class BetterTemplateCreator {
         error.printStackTrace();
       }
     }
+  }
+
+  void setMetaDataFromAnnotation(final Annotation annotation) {
+    Metadata metadata = new MetadataAnnotation(annotation).getMetadata();
+
+    if (metadata.isSetGivenName())
+      template.setCreator(metadata.getGivenName());
+
+    if (metadata.isSetFamilyName())
+      template.setFamilyName(metadata.getFamilyName());
+
+    if (metadata.isSetContact())
+      template.setContact(metadata.getContact());
+
+    if (metadata.isSetReferenceLink()) {
+      String referenceLinkAsString = metadata.getReferenceLink();
+      try {
+        URL referenceLinkAsURL = new URL(referenceLinkAsString);
+        template.setReferenceDescriptionLink(referenceLinkAsURL);
+      } catch (MalformedURLException e) {
+        System.err.println(referenceLinkAsString + " is not a valid URL");
+        e.printStackTrace();
+      }
+    }
+
+    SimpleDateFormat dateFormat =
+        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+
+    if (metadata.isSetCreatedDate()) {
+      String createdDateAsString = metadata.getCreatedDate();
+
+      try {
+        Date createdDate = dateFormat.parse(createdDateAsString);
+        template.setCreatedDate(createdDate);
+      } catch (ParseException e) {
+        System.err.println(createdDateAsString + " is not a valid date");
+        e.printStackTrace();
+      }
+    }
+
+    if (metadata.isSetModifiedDate()) {
+      String modifiedDateAsString = metadata.getModifiedDate();
+
+      try {
+        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
+        template.setModifiedDate(modifiedDate);
+      } catch (ParseException e) {
+        System.err.println(modifiedDateAsString + " is not a valid date");
+        e.printStackTrace();
+      }
+    }
+
+    if (metadata.isSetRights())
+      template.setRights(metadata.getRights());
+
+    if (metadata.isSetType())
+      template.setModelType(metadata.getType());
   }
 }
 
@@ -965,60 +1024,7 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setMetadata() {
-    Metadata metadata = new MetadataAnnotation(secModelDoc.getAnnotation()).getMetadata();
-
-    if (metadata.isSetGivenName())
-      template.setCreator(metadata.getGivenName());
-
-    if (metadata.isSetFamilyName())
-      template.setCreator(metadata.getFamilyName());
-
-    if (metadata.isSetContact())
-      template.setCreator(metadata.getContact());
-
-    if (metadata.isSetReferenceLink()) {
-      String referenceLinkAsString = metadata.getReferenceLink();
-      try {
-        URL referenceLinkAsURL = new URL(referenceLinkAsString);
-        template.setReferenceDescriptionLink(referenceLinkAsURL);
-      } catch (MalformedURLException e) {
-        System.err.println(referenceLinkAsString + " is not a valid URL");
-        e.printStackTrace();
-      }
-    }
-
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-
-    if (metadata.isSetCreatedDate()) {
-      String createdDateAsString = metadata.getCreatedDate();
-
-      try {
-        Date createdDate = dateFormat.parse(createdDateAsString);
-        template.setCreatedDate(createdDate);
-      } catch (ParseException e) {
-        System.err.println(createdDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetModifiedDate()) {
-      String modifiedDateAsString = metadata.getModifiedDate();
-
-      try {
-        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
-        template.setModifiedDate(modifiedDate);
-      } catch (ParseException e) {
-        System.err.println(modifiedDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetRights())
-      template.setRights(metadata.getRights());
-
-    if (metadata.isSetType())
-      template.setModelType(metadata.getType());
+    setMetaDataFromAnnotation(secModelDoc.getAnnotation());
   }
 
   @Override
@@ -1219,60 +1225,7 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setMetadata() {
-    Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
-
-    if (metadata.isSetGivenName())
-      template.setCreator(metadata.getGivenName());
-
-    if (metadata.isSetFamilyName())
-      template.setCreator(metadata.getFamilyName());
-
-    if (metadata.isSetContact())
-      template.setCreator(metadata.getContact());
-
-    if (metadata.isSetReferenceLink()) {
-      String referenceLinkAsString = metadata.getReferenceLink();
-      try {
-        URL referenceLinkAsURL = new URL(referenceLinkAsString);
-        template.setReferenceDescriptionLink(referenceLinkAsURL);
-      } catch (MalformedURLException e) {
-        System.err.println(referenceLinkAsString + " is not a valid URL");
-        e.printStackTrace();
-      }
-    }
-
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-
-    if (metadata.isSetCreatedDate()) {
-      String createdDateAsString = metadata.getCreatedDate();
-
-      try {
-        Date createdDate = dateFormat.parse(createdDateAsString);
-        template.setCreatedDate(createdDate);
-      } catch (ParseException e) {
-        System.err.println(createdDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetModifiedDate()) {
-      String modifiedDateAsString = metadata.getModifiedDate();
-
-      try {
-        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
-        template.setModifiedDate(modifiedDate);
-      } catch (ParseException e) {
-        System.err.println(modifiedDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetRights())
-      template.setRights(metadata.getRights());
-
-    if (metadata.isSetType())
-      template.setModelType(metadata.getType());
+    setMetaDataFromAnnotation(doc.getAnnotation());
   }
 
   @Override
@@ -1458,60 +1411,7 @@ class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setMetadata() {
-    Metadata metadata = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
-
-    if (metadata.isSetGivenName())
-      template.setCreator(metadata.getGivenName());
-
-    if (metadata.isSetFamilyName())
-      template.setCreator(metadata.getFamilyName());
-
-    if (metadata.isSetContact())
-      template.setCreator(metadata.getContact());
-
-    if (metadata.isSetReferenceLink()) {
-      String referenceLinkAsString = metadata.getReferenceLink();
-      try {
-        URL referenceLinkAsURL = new URL(referenceLinkAsString);
-        template.setReferenceDescriptionLink(referenceLinkAsURL);
-      } catch (MalformedURLException e) {
-        System.err.println(referenceLinkAsString + " is not a valid URL");
-        e.printStackTrace();
-      }
-    }
-
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-
-    if (metadata.isSetCreatedDate()) {
-      String createdDateAsString = metadata.getCreatedDate();
-
-      try {
-        Date createdDate = dateFormat.parse(createdDateAsString);
-        template.setCreatedDate(createdDate);
-      } catch (ParseException e) {
-        System.err.println(createdDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetModifiedDate()) {
-      String modifiedDateAsString = metadata.getModifiedDate();
-
-      try {
-        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
-        template.setModifiedDate(modifiedDate);
-      } catch (ParseException e) {
-        System.err.println(modifiedDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetRights())
-      template.setRights(metadata.getRights());
-
-    if (metadata.isSetType())
-      template.setModelType(metadata.getType());
+    setMetaDataFromAnnotation(doc.getAnnotation());
   }
 
   @Override
@@ -1658,60 +1558,7 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setMetadata() {
-    Metadata metadata = new MetadataAnnotation(primDoc.getAnnotation()).getMetadata();
-
-    if (metadata.isSetGivenName())
-      template.setCreator(metadata.getGivenName());
-
-    if (metadata.isSetFamilyName())
-      template.setCreator(metadata.getFamilyName());
-
-    if (metadata.isSetContact())
-      template.setCreator(metadata.getContact());
-
-    if (metadata.isSetReferenceLink()) {
-      String referenceLinkAsString = metadata.getReferenceLink();
-      try {
-        URL referenceLinkAsURL = new URL(referenceLinkAsString);
-        template.setReferenceDescriptionLink(referenceLinkAsURL);
-      } catch (MalformedURLException e) {
-        System.err.println(referenceLinkAsString + " is not a valid URL");
-        e.printStackTrace();
-      }
-    }
-
-    SimpleDateFormat dateFormat =
-        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-
-    if (metadata.isSetCreatedDate()) {
-      String createdDateAsString = metadata.getCreatedDate();
-
-      try {
-        Date createdDate = dateFormat.parse(createdDateAsString);
-        template.setCreatedDate(createdDate);
-      } catch (ParseException e) {
-        System.err.println(createdDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetModifiedDate()) {
-      String modifiedDateAsString = metadata.getModifiedDate();
-
-      try {
-        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
-        template.setModifiedDate(modifiedDate);
-      } catch (ParseException e) {
-        System.err.println(modifiedDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-
-    if (metadata.isSetRights())
-      template.setRights(metadata.getRights());
-
-    if (metadata.isSetType())
-      template.setModelType(metadata.getType());
+    setMetaDataFromAnnotation(primDoc.getAnnotation());
   }
 
   @Override
@@ -1736,7 +1583,7 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
       // Sets dependent variable unit
       String unitName = primDoc.getModel().getUnitDefinition(unitId).getName();
       template.setDependentVariableUnit(unitName);
-      
+
       // Sets dependent variable
       if (!unitId.equals("dimensionless")) {
         if (DBUnits.getDBUnits().containsKey(unitName)) {

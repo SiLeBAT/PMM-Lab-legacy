@@ -1258,6 +1258,20 @@ abstract class BetterTemplateCreator {
     return model.getListOfConstraints().stream().map(LimitsConstraint::new)
         .map(LimitsConstraint::getLimits).collect(Collectors.toList());
   }
+  
+  void setOrganismDataFromSpecies(final PMFSpecies species) {
+    if (species.getSpecies().isSetName())
+      template.setOrganismName(species.getSpecies().getName());
+    if (species.isSetDetail())
+      template.setOrganismDetails(species.getDetail());
+  }
+  
+  void setMatrixDataFromCompartment(final PMFCompartment compartment) {
+    if (compartment.getCompartment().isSetName())
+      template.setMatrixName(compartment.getCompartment().getName());
+    if (compartment.isSetDetail())
+      template.setMatrixDetails(compartment.getDetail());
+  }
 }
 
 
@@ -1293,24 +1307,14 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   @Override
   public void setOrganismData() {
     PMFSpecies species = SBMLFactory.createPMFSpecies(primModelDoc.getModel().getSpecies(0));
-
-    if (species.getSpecies().isSetName())
-      template.setOrganismName(species.getSpecies().getName());
-
-    if (species.isSetDetail())
-      template.setOrganismDetails(species.getDetail());
+    setOrganismDataFromSpecies(species);
   }
 
   @Override
   public void setMatrixData() {
     PMFCompartment matrix =
         SBMLFactory.createPMFCompartment(primModelDoc.getModel().getCompartment(0));
-
-    if (matrix.getCompartment().isSetName())
-      template.setMatrixName(matrix.getCompartment().getName());
-
-    if (matrix.isSetDetail())
-      template.setMatrixDetails(matrix.getDetail());
+    setMatrixDataFromCompartment(matrix);
   }
 
   @Override
@@ -1565,23 +1569,13 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   @Override
   public void setOrganismData() {
     PMFSpecies species = SBMLFactory.createPMFSpecies(primModel.getSpecies(0));
-
-    if (species.getSpecies().isSetName())
-      template.setOrganismName(species.getSpecies().getName());
-
-    if (species.isSetDetail())
-      template.setOrganismDetails(species.getDetail());
+    setOrganismDataFromSpecies(species);
   }
 
   @Override
   public void setMatrixData() {
     PMFCompartment matrix = SBMLFactory.createPMFCompartment(primModel.getCompartment(0));
-
-    if (matrix.getCompartment().isSetName())
-      template.setMatrixName(matrix.getCompartment().getName());
-
-    if (matrix.isSetDetail())
-      template.setMatrixDetails(matrix.getDetail());
+    setMatrixDataFromCompartment(matrix);
   }
 
   @Override
@@ -2028,23 +2022,13 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
   @Override
   public void setOrganismData() {
     PMFSpecies species = SBMLFactory.createPMFSpecies(primDoc.getModel().getSpecies(0));
-
-    if (species.getSpecies().isSetName())
-      template.setOrganismName(species.getSpecies().getName());
-
-    if (species.isSetDetail())
-      template.setOrganismDetails(species.getDetail());
+    setOrganismDataFromSpecies(species);
   }
 
   @Override
   public void setMatrixData() {
     PMFCompartment matrix = SBMLFactory.createPMFCompartment(primDoc.getModel().getCompartment(0));
-
-    if (matrix.getCompartment().isSetName())
-      template.setMatrixName(matrix.getCompartment().getName());
-
-    if (matrix.isSetDetail())
-      template.setMatrixDetails(matrix.getDetail());
+    setMatrixDataFromCompartment(matrix);
   }
 
   @Override

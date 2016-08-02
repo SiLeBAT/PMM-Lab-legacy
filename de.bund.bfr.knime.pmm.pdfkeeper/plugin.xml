@@ -17,7 +17,7 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/"
+            category-path="/pmmlab"
             factory-class="de.bund.bfr.knime.pmm.pdfkeeper.PdfKeeperNodeFactory"
             id="de.bund.bfr.knime.pmm.pdfkeeper.PdfKeeperNodeFactory"/>
    </extension>

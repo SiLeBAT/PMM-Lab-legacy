@@ -981,6 +981,36 @@ abstract class BetterTemplateCreator {
     if (metadata.isSetType())
       template.setModelType(metadata.getType());
   }
+
+  void setDependentVariableData(final Model model, final List<Limits> limits) {
+
+    Species species = model.getSpecies(0);
+
+    if (species.isSetUnits()) {
+      String unitId = species.getUnits();
+
+      // Sets unit
+      String unitName = model.getUnitDefinition(unitId).getName();
+      template.setDependentVariableUnit(unitName);
+
+      // Sets variable
+      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
+        String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+        template.setDependentVariable(unitCategory);
+      }
+      
+      // Sets minimum and maximum values
+      for (Limits lim : limits) {
+        if (lim.getVar().equals(species.getId())) {
+          if (lim.getMin() != null)
+            template.setDependentVariableMin(lim.getMin());
+          if (lim.getMax() != null)
+            template.setDependentVariableMax(lim.getMax());
+          break;
+        }
+      }
+    }
+  }
 }
 
 
@@ -1041,37 +1071,7 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setDependentVariableData() {
-    // Gets data of the dependent variable in the primary model
-    Model model = primModelDoc.getModel();
-    Species species = model.getSpecies(0);
-
-    if (species.isSetUnits()) {
-      String depUnitId = species.getUnits();
-
-      // Sets dependent variable unit
-      String depUnitName = model.getUnitDefinition(depUnitId).getName();
-      template.setDependentVariableUnit(depUnitName);
-
-      // Sets dependent variable
-      if (!depUnitId.equals("dimensionless")) {
-        if (DBUnits.getDBUnits().containsKey(depUnitName)) {
-          String depUnitCategory =
-              DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity();
-          template.setDependentVariable(depUnitCategory);
-        }
-      }
-
-      // Sets dependent variable min & max
-      for (Limits lim : primModelLimits) {
-        if (lim.getVar().equals(species.getId())) {
-          if (lim.getMin() != null)
-            template.setDependentVariableMin(lim.getMin());
-          if (lim.getMax() != null)
-            template.setDependentVariableMax(lim.getMax());
-          break;
-        }
-      }
-    }
+    setDependentVariableData(primModelDoc.getModel(), primModelLimits);
   }
 
   @Override
@@ -1240,36 +1240,7 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setDependentVariableData() {
-    // Gets data of the dependent variable in the primary model
-    Species species = primModel.getSpecies(0);
-
-    if (species.isSetUnits()) {
-      String depUnitId = species.getUnits();
-
-      // Sets dependent variable unit
-      String depUnitName = primModel.getUnitDefinition(depUnitId).getName();
-      template.setDependentVariableUnit(depUnitName);
-
-      // Sets dependent variable
-      if (!depUnitId.equals("dimensionless")) {
-        if (DBUnits.getDBUnits().containsKey(depUnitName)) {
-          String depUnitCategory =
-              DBUnits.getDBUnits().get(depUnitName).getKind_of_property_quantity();
-          template.setDependentVariable(depUnitCategory);
-        }
-      }
-
-      // Sets dependent variable min & max
-      for (Limits lim : primModelLimits) {
-        if (lim.getVar().equals(species.getId())) {
-          if (lim.getMin() != null)
-            template.setDependentVariableMin(lim.getMin());
-          if (lim.getMax() != null)
-            template.setDependentVariableMax(lim.getMax());
-          break;
-        }
-      }
-    }
+    setDependentVariableData(primModel, primModelLimits);
   }
 
   @Override
@@ -1571,35 +1542,7 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
 
   @Override
   public void setDependentVariableData() {
-    // Gets data of the dependent variable in the primary model
-    Species species = primDoc.getModel().getSpecies(0);
-
-    if (species.isSetUnits()) {
-      String unitId = species.getUnits();
-
-      // Sets dependent variable unit
-      String unitName = primDoc.getModel().getUnitDefinition(unitId).getName();
-      template.setDependentVariableUnit(unitName);
-
-      // Sets dependent variable
-      if (!unitId.equals("dimensionless")) {
-        if (DBUnits.getDBUnits().containsKey(unitName)) {
-          String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-          template.setDependentVariable(unitCategory);
-        }
-      }
-
-      // Sets dependent variable min & max
-      for (Limits lim : primModelLimits) {
-        if (lim.getVar().equals(species.getId())) {
-          if (lim.getMin() != null)
-            template.setDependentVariableMin(lim.getMin());
-          if (lim.getMax() != null)
-            template.setDependentVariableMax(lim.getMax());
-          break;
-        }
-      }
-    }
+    setDependentVariableData(primDoc.getModel(), primModelLimits);
   }
 
   @Override

@@ -75,8 +75,7 @@ import de.bund.bfr.pmfml.sbml.SBMLFactory;
 public class FSMRUtils {
 
   public static FSMRTemplate processData(NuMLDocument doc) {
-    DataTemplateCreator templateCreator = new DataTemplateCreator(doc);
-    return templateCreator.createTemplate();
+    return new DataTemplateCreator(doc).createTemplate();
   }
 
   public static FSMRTemplate processModelWithMicrobialData(SBMLDocument doc) {
@@ -246,239 +245,7 @@ public class FSMRUtils {
   }
 }
 
-
 abstract class TemplateCreator {
-
-  protected FSMRTemplate template = new FSMRTemplateImpl();
-
-  public final FSMRTemplate createTemplate() {
-    setModelId();
-    setModelName();
-    setOrganismData();
-    setMatrixData();
-    setCreator();
-    setFamilyName();
-    setContact();
-    setReferenceDescriptionLink();
-    setCreatedDate();
-    setModifiedDate();
-    setModelRights();
-    setModelType();
-    setModelSubject();
-    setModelNotes();
-    setDependentVariableData();
-    setIndependentVariableData();
-    setHasData();
-    return template;
-  }
-
-  abstract public void setModelId();
-
-  abstract public void setModelName();
-
-  abstract public void setOrganismData();
-
-  abstract public void setMatrixData();
-
-  abstract public void setCreator();
-
-  abstract public void setFamilyName();
-
-  abstract public void setContact();
-
-  abstract public void setReferenceDescriptionLink();
-
-  abstract public void setCreatedDate();
-
-  abstract public void setModifiedDate();
-
-  abstract public void setModelRights();
-
-  abstract public void setModelType();
-
-  abstract public void setModelSubject();
-
-  abstract public void setModelNotes();
-
-  abstract public void setDependentVariableData();
-
-  abstract public void setIndependentVariableData();
-
-  abstract public void setHasData();
-}
-
-
-class DataTemplateCreator extends TemplateCreator {
-
-  private NuMLDocument doc;
-
-  public DataTemplateCreator(NuMLDocument doc) {
-    this.doc = doc;
-  }
-
-  // TODO: setModelId
-  @Override
-  public void setModelId() {}
-
-  // TODO: setModelName
-  @Override
-  public void setModelName() {}
-
-  @Override
-  public void setOrganismData() {
-    ConcentrationOntology concOntology = doc.getConcentrationOntologyTerm();
-    PMFSpecies species = concOntology.getSpecies();
-
-    template.setOrganismName(species.getName());
-
-    if (species.isSetDetail()) {
-      template.setOrganismDetails(species.getDetail());
-    }
-  }
-
-  @Override
-  public void setMatrixData() {
-    ConcentrationOntology concOntology = doc.getConcentrationOntologyTerm();
-    PMFCompartment compartment = concOntology.getCompartment();
-
-    template.setMatrixName(compartment.getName());
-
-    if (compartment.isSetDetail()) {
-      String matrixDetail = compartment.getDetail();
-      template.setMatrixDetails(matrixDetail);
-    }
-  }
-
-  @Override
-  public void setCreator() {
-    ResultComponent rc = doc.getResultComponent();
-    if (rc.isSetCreatorGivenName()) {
-      template.setCreator(rc.getCreatorGivenName());
-    }
-  }
-
-  @Override
-  public void setFamilyName() {
-    ResultComponent rc = doc.getResultComponent();
-    if (rc.isSetCreatorFamilyName()) {
-      template.setFamilyName(rc.getCreatorFamilyName());
-    }
-  }
-
-  @Override
-  public void setContact() {
-    ResultComponent rc = doc.getResultComponent();
-    if (rc.isSetCreatorContact()) {
-      template.setContact(rc.getCreatorContact());
-    }
-  }
-
-  // TODO: setReferenceDescriptionLink
-  @Override
-  public void setReferenceDescriptionLink() {}
-
-  @Override
-  public void setCreatedDate() {
-    ResultComponent rc = doc.getResultComponent();
-    if (rc.isSetCreatedDate()) {
-      SimpleDateFormat dateFormat =
-          new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-      String createdDateAsString = rc.getCreatedDate();
-      try {
-        Date createdDate = dateFormat.parse(createdDateAsString);
-        template.setCreatedDate(createdDate);
-      } catch (ParseException e) {
-        System.err.println(createdDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-  }
-
-  @Override
-  public void setModifiedDate() {
-    ResultComponent rc = doc.getResultComponent();
-    if (rc.isSetModifiedDate()) {
-      SimpleDateFormat dateFormat =
-          new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
-      String modifiedDateAsString = rc.getModifiedDate();
-      try {
-        Date modifiedDate = dateFormat.parse(modifiedDateAsString);
-        template.setModifiedDate(modifiedDate);
-      } catch (ParseException e) {
-        System.err.println(modifiedDateAsString + " is not a valid date");
-        e.printStackTrace();
-      }
-    }
-  }
-
-  @Override
-  public void setModelRights() {
-    ResultComponent rc = doc.getResultComponent();
-    if (rc.isSetRights()) {
-      template.setRights(rc.getRights());
-    }
-  }
-
-  @Override
-  public void setModelType() {
-    template.setModelType(ModelType.EXPERIMENTAL_DATA);
-  }
-
-  /**
-   * Sets model subject as ModelClass.UNKNOWN since the data files do not keep the subject of the
-   * model.
-   */
-  @Override
-  public void setModelSubject() {
-    template.setModelSubject(ModelClass.UNKNOWN);
-  }
-
-  // TODO: setModelNotes
-  @Override
-  public void setModelNotes() {}
-
-  @Override
-  public void setDependentVariableData() {
-    ConcentrationOntology concOntology = doc.getConcentrationOntologyTerm();
-    PMFUnitDefinition unitDef = concOntology.getUnitDefinition();
-    String unitName = unitDef.getName();
-
-    // Sets dependent variable unit
-    template.setDependentVariableUnit(unitName);
-
-    // Sets dependent variable
-    if (!unitDef.getId().equals("dimensionless")) {
-      UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-      String unitCategory = ufdb.getKind_of_property_quantity();
-      template.setDependentVariable(unitCategory);
-    }
-
-    /**
-     * NuMLDocument do not keep the limits of the variables so it is not possible to retrieve the
-     * min & max values of the dependent variable.
-     */
-  }
-
-  @Override
-  public void setIndependentVariableData() {
-    TimeOntology timeOntology = doc.getTimeOntologyTerm();
-    PMFUnitDefinition unitDef = timeOntology.getUnitDefinition();
-    String unitName = unitDef.getName();
-
-    UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-    String unitCategory = ufdb.getKind_of_property_quantity();
-
-    template.setIndependentVariables(new String[] {unitCategory});
-  }
-
-  @Override
-  public void setHasData() {
-    template.setHasData(true);
-  }
-}
-
-
-abstract class BetterTemplateCreator {
   protected FSMRTemplate template = new FSMRTemplateImpl();
 
   public final FSMRTemplate createTemplate() {
@@ -496,25 +263,25 @@ abstract class BetterTemplateCreator {
     return template;
   }
 
-  abstract public void setModelId();
+  abstract void setModelId();
 
-  abstract public void setModelName();
+  abstract void setModelName();
 
-  abstract public void setOrganismData();
+  abstract void setOrganismData();
 
-  abstract public void setMatrixData();
+  abstract void setMatrixData();
 
-  abstract public void setMetadata();
+  abstract void setMetadata();
 
-  abstract public void setModelSubject();
+  abstract void setModelSubject();
 
-  abstract public void setModelNotes();
+  abstract void setModelNotes();
 
-  abstract public void setDependentVariableData();
+  abstract void setDependentVariableData();
 
-  abstract public void setIndependentVariableData();
+  abstract void setIndependentVariableData();
 
-  abstract public void setHasData();
+  abstract void setHasData();
 
   // util methods
   protected static List<Limits> getLimitsFromModel(Model model) {
@@ -643,13 +410,158 @@ abstract class BetterTemplateCreator {
 }
 
 
-class PrimaryModelTemplateCreator extends BetterTemplateCreator {
+// TODO: rename to DataTemplateCreator once the original class is removed
+class DataTemplateCreator extends TemplateCreator {
+
+  private NuMLDocument doc;
+
+  DataTemplateCreator(final NuMLDocument doc) {
+    this.doc = doc;
+  }
+
+  @Override
+  void setModelId() {
+    // TODO: set model id
+  }
+
+  @Override
+  void setModelName() {
+    // TODO: set model name
+  }
+
+  @Override
+  void setOrganismData() {
+    ConcentrationOntology ontology = doc.getConcentrationOntologyTerm();
+    Species species = ontology.getSpecies().getSpecies();
+    setOrganismDataFromSpecies(species);
+  }
+
+  @Override
+  void setMatrixData() {
+    ConcentrationOntology ontology = doc.getConcentrationOntologyTerm();
+    Compartment compartment = ontology.getCompartment().getCompartment();
+    setMatrixDataFromCompartment(compartment);
+  }
+
+  @Override
+  void setMetadata() {
+    ResultComponent rc = doc.getResultComponent();
+
+    // Creator
+    if (rc.isSetCreatorGivenName())
+      template.setCreator(rc.getCreatorGivenName());
+
+    // Family name
+    if (rc.isSetCreatorFamilyName())
+      template.setFamilyName(rc.getCreatorFamilyName());
+
+    // Contact
+    if (rc.isSetCreatorContact())
+      template.setContact(rc.getCreatorContact());
+
+    // No link to reference description
+
+    SimpleDateFormat dateFormat =
+        new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
+
+    // Created date
+    if (rc.isSetCreatedDate()) {
+      String dateAsString = rc.getCreatedDate();
+      try {
+        Date date = dateFormat.parse(dateAsString);
+        template.setCreatedDate(date);
+      } catch (ParseException error) {
+        System.err.println(dateAsString + " is not a valid date");
+        error.printStackTrace();
+      }
+    }
+
+    // Modified date
+    if (rc.isSetModifiedDate()) {
+      String dateAsString = rc.getModifiedDate();
+      try {
+        Date date = dateFormat.parse(dateAsString);
+        template.setModifiedDate(date);
+      } catch (ParseException error) {
+        System.err.println(dateAsString + " is not a valid date");
+        error.printStackTrace();
+      }
+    }
+
+    // Model rights
+    if (rc.isSetRights())
+      template.setRights(rc.getRights());
+
+    // Model type
+    template.setModelType(ModelType.EXPERIMENTAL_DATA);
+  }
+
+  @Override
+  void setModelSubject() {
+    template.setModelSubject(ModelClass.UNKNOWN);
+  }
+
+  @Override
+  void setModelNotes() {
+    // TODO: setModelNotes
+  }
+
+  @Override
+  void setDependentVariableData() {
+    ConcentrationOntology ontology = doc.getConcentrationOntologyTerm();
+    PMFUnitDefinition unitDef = ontology.getUnitDefinition();
+
+    // Sets unit
+    String unitName = unitDef.getName();
+    template.setDependentVariableUnit(unitName);
+
+    // Sets variable
+    if (!unitDef.getId().equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
+      String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+      template.setDependentVariable(unitCategory);
+    }
+
+    /**
+     * NuMLDocument does not keep the limits of the variables, so it is not possible to retrieve the
+     * min & max values of the dependent variable.
+     */
+  }
+
+  @Override
+  void setIndependentVariableData() {
+    TimeOntology ontology = doc.getTimeOntologyTerm();
+    PMFUnitDefinition unitDef = ontology.getUnitDefinition();
+
+    // Sets unit
+    String unitName = unitDef.getName();
+    template.setIndependentVariablesUnits(new String[] {unitName});
+
+    // Sets variable
+    if (DBUnits.getDBUnits().containsKey(unitName)) {
+      String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+      template.setIndependentVariables(new String[] {unitCategory});
+    }
+
+    /**
+     * NuMLDocument does not keep the limits of the variables, so it is not possible to retrieve the
+     * min & max values of the dependent variable.
+     */
+  }
+
+  @Override
+  void setHasData() {
+    template.setHasData(true);
+  }
+}
+
+
+class PrimaryModelTemplateCreator extends TemplateCreator {
 
   private SBMLDocument doc;
   private final List<Limits> limits;
 
 
-  public PrimaryModelTemplateCreator(final SBMLDocument doc) {
+  PrimaryModelTemplateCreator(final SBMLDocument doc) {
     this.doc = doc;
 
     // Caches limits
@@ -658,12 +570,12 @@ class PrimaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setModelId() {
+  void setModelId() {
     template.setModelId(doc.getModel().getId());
   }
 
   @Override
-  public void setModelName() {
+  void setModelName() {
     Model model = doc.getModel();
     if (model.isSetName()) {
       template.setModelName(model.getName());
@@ -671,38 +583,38 @@ class PrimaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setOrganismData() {
+  void setOrganismData() {
     setOrganismDataFromSpecies(doc.getModel().getSpecies(0));
   }
 
   @Override
-  public void setMatrixData() {
+  void setMatrixData() {
     setMatrixDataFromCompartment(doc.getModel().getCompartment(0));
   }
 
   @Override
-  public void setMetadata() {
+  void setMetadata() {
     setMetaDataFromAnnotation(doc.getAnnotation());
   }
 
   @Override
-  public void setModelSubject() {
+  void setModelSubject() {
     ModelRule pmfRule = new ModelRule((AssignmentRule) doc.getModel().getRule(0));
     template.setModelSubject(pmfRule.getModelClass());
   }
 
   @Override
-  public void setModelNotes() {
+  void setModelNotes() {
     setNotesFromModel(doc.getModel());
   }
 
   @Override
-  public void setDependentVariableData() {
+  void setDependentVariableData() {
     setDependentVariableData(doc.getModel(), limits);
   }
 
   @Override
-  public void setIndependentVariableData() {
+  void setIndependentVariableData() {
     Model model = doc.getModel();
 
     List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
@@ -746,13 +658,13 @@ class PrimaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(true);
   }
 }
 
 
-class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
+class TwoStepSecondaryModelTemplateCreator extends TemplateCreator {
 
   private final SBMLDocument secModelDoc;
   private final SBMLDocument primModelDoc;
@@ -760,7 +672,7 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   private final List<Limits> secModelLimits;
   private final List<Limits> primModelLimits;
 
-  public TwoStepSecondaryModelTemplateCreator(TwoStepSecondaryModel model) {
+  TwoStepSecondaryModelTemplateCreator(TwoStepSecondaryModel model) {
     secModelDoc = model.getSecDoc();
     primModelDoc = model.getPrimModels().get(0).getModelDoc();
 
@@ -770,50 +682,50 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setModelId() {
+  void setModelId() {
     if (secModelDoc.getModel().isSetId())
       template.setModelId(secModelDoc.getModel().getId());
   }
 
   @Override
-  public void setModelName() {
+  void setModelName() {
     if (secModelDoc.getModel().isSetName())
       template.setModelName(secModelDoc.getModel().getName());
   }
 
   @Override
-  public void setOrganismData() {
+  void setOrganismData() {
     setOrganismDataFromSpecies(primModelDoc.getModel().getSpecies(0));
   }
 
   @Override
-  public void setMatrixData() {
+  void setMatrixData() {
     setMatrixDataFromCompartment(primModelDoc.getModel().getCompartment(0));
   }
 
   @Override
-  public void setMetadata() {
+  void setMetadata() {
     setMetaDataFromAnnotation(secModelDoc.getAnnotation());
   }
 
   @Override
-  public void setModelSubject() {
+  void setModelSubject() {
     ModelRule pmfRule = new ModelRule((AssignmentRule) secModelDoc.getModel().getRule(0));
     template.setModelSubject(pmfRule.getModelClass());
   }
 
   @Override
-  public void setModelNotes() {
+  void setModelNotes() {
     setNotesFromModel(secModelDoc.getModel());
   }
 
   @Override
-  public void setDependentVariableData() {
+  void setDependentVariableData() {
     setDependentVariableData(primModelDoc.getModel(), primModelLimits);
   }
 
   @Override
-  public void setIndependentVariableData() {
+  void setIndependentVariableData() {
     final Set<String> vars = new LinkedHashSet<>();
     final Set<String> units = new LinkedHashSet<>();
     final Set<Double> mins = new LinkedHashSet<>();
@@ -910,13 +822,13 @@ class TwoStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(true);
   }
 }
 
 
-class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
+class OneStepSecondaryModelTemplateCreator extends TemplateCreator {
 
   private final SBMLDocument doc;
   private final Model primModel;
@@ -925,7 +837,7 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   private final List<Limits> secModelLimits;
   private final List<Limits> primModelLimits;
 
-  public OneStepSecondaryModelTemplateCreator(OneStepSecondaryModel model) {
+  OneStepSecondaryModelTemplateCreator(OneStepSecondaryModel model) {
     doc = model.getModelDoc();
     primModel = model.getModelDoc().getModel();
 
@@ -939,50 +851,50 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setModelId() {
+  void setModelId() {
     if (primModel.isSetId())
       template.setModelId(primModel.getId());
   }
 
   @Override
-  public void setModelName() {
+  void setModelName() {
     if (primModel.isSetName())
       template.setModelName(primModel.getName());
   }
 
   @Override
-  public void setOrganismData() {
+  void setOrganismData() {
     setOrganismDataFromSpecies(primModel.getSpecies(0));
   }
 
   @Override
-  public void setMatrixData() {
+  void setMatrixData() {
     setMatrixDataFromCompartment(primModel.getCompartment(0));
   }
 
   @Override
-  public void setMetadata() {
+  void setMetadata() {
     setMetaDataFromAnnotation(doc.getAnnotation());
   }
 
   @Override
-  public void setModelSubject() {
+  void setModelSubject() {
     ModelRule pmfRule = new ModelRule((AssignmentRule) primModel.getRule(0));
     template.setModelSubject(pmfRule.getModelClass());
   }
 
   @Override
-  public void setModelNotes() {
+  void setModelNotes() {
     setNotesFromModel(primModel);
   }
 
   @Override
-  public void setDependentVariableData() {
+  void setDependentVariableData() {
     setDependentVariableData(primModel, primModelLimits);
   }
 
   @Override
-  public void setIndependentVariableData() {
+  void setIndependentVariableData() {
     final Set<String> vars = new LinkedHashSet<>();
     final Set<String> units = new LinkedHashSet<>();
     final Set<Double> mins = new LinkedHashSet<>();
@@ -1077,18 +989,18 @@ class OneStepSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(true);
   }
 }
 
 
-class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
+class ManualSecondaryModelTemplateCreator extends TemplateCreator {
 
   private final SBMLDocument doc;
   private final List<Limits> limits;
 
-  public ManualSecondaryModelTemplateCreator(ManualSecondaryModel model) {
+  ManualSecondaryModelTemplateCreator(ManualSecondaryModel model) {
     doc = model.getDoc();
 
     // Caches limits
@@ -1096,45 +1008,45 @@ class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setModelId() {
+  void setModelId() {
     if (doc.getModel().isSetId())
       template.setModelId(doc.getModel().getId());
   }
 
   @Override
-  public void setModelName() {
+  void setModelName() {
     if (doc.getModel().isSetName())
       template.setModelName(doc.getModel().getName());
   }
 
   @Override
-  public void setOrganismData() {
+  void setOrganismData() {
     // Does nothing - manual tertiary models has no associated microbial data
   }
 
   @Override
-  public void setMatrixData() {
+  void setMatrixData() {
     // Does nothing - manual tertiary models have no associated microbial data
   }
 
   @Override
-  public void setMetadata() {
+  void setMetadata() {
     setMetaDataFromAnnotation(doc.getAnnotation());
   }
 
   @Override
-  public void setModelSubject() {
+  void setModelSubject() {
     ModelRule pmfRule = new ModelRule((AssignmentRule) doc.getModel().getRule(0));
     template.setModelSubject(pmfRule.getModelClass());
   }
 
   @Override
-  public void setModelNotes() {
+  void setModelNotes() {
     setNotesFromModel(doc.getModel());
   }
 
   @Override
-  public void setDependentVariableData() {
+  void setDependentVariableData() {
 
     Model model = doc.getModel();
     ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
@@ -1166,7 +1078,7 @@ class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setIndependentVariableData() {
+  void setIndependentVariableData() {
     final Set<String> vars = new LinkedHashSet<>();
     final Set<String> units = new LinkedHashSet<>();
     final Set<Double> mins = new LinkedHashSet<>();
@@ -1217,21 +1129,21 @@ class ManualSecondaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(false);
   }
 }
 
 
 
-abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
+abstract class TertiaryModelTemplateCreator extends TemplateCreator {
 
   private final SBMLDocument primDoc;
   private final List<SBMLDocument> secDocs;
 
   private final List<Limits> primModelLimits;
 
-  public TertiaryModelTemplateCreator(SBMLDocument primaryModelDoc,
+  TertiaryModelTemplateCreator(SBMLDocument primaryModelDoc,
       List<SBMLDocument> secondaryModelDocs) {
     primDoc = primaryModelDoc;
     secDocs = secondaryModelDocs;
@@ -1241,50 +1153,50 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
   }
 
   @Override
-  public void setModelId() {
+  void setModelId() {
     if (primDoc.getModel().isSetId())
       template.setModelId(primDoc.getModel().getId());
   }
 
   @Override
-  public void setModelName() {
+  void setModelName() {
     if (primDoc.getModel().isSetName())
       template.setModelName(primDoc.getModel().getName());
   }
 
   @Override
-  public void setOrganismData() {
+  void setOrganismData() {
     setOrganismDataFromSpecies(primDoc.getModel().getSpecies(0));
   }
 
   @Override
-  public void setMatrixData() {
+  void setMatrixData() {
     setMatrixDataFromCompartment(primDoc.getModel().getCompartment(0));
   }
 
   @Override
-  public void setMetadata() {
+  void setMetadata() {
     setMetaDataFromAnnotation(primDoc.getAnnotation());
   }
 
   @Override
-  public void setModelSubject() {
+  void setModelSubject() {
     ModelRule rule = new ModelRule((AssignmentRule) primDoc.getModel().getRule(0));
     template.setModelSubject(rule.getModelClass());
   }
 
   @Override
-  public void setModelNotes() {
+  void setModelNotes() {
     setNotesFromModel(primDoc.getModel());
   }
 
   @Override
-  public void setDependentVariableData() {
+  void setDependentVariableData() {
     setDependentVariableData(primDoc.getModel(), primModelLimits);
   }
 
   @Override
-  public void setIndependentVariableData() {
+  void setIndependentVariableData() {
     final Set<String> vars = new LinkedHashSet<>();
     final Set<String> units = new LinkedHashSet<>();
     final Set<Double> mins = new LinkedHashSet<>();
@@ -1390,12 +1302,12 @@ abstract class TertiaryModelTemplateCreator extends BetterTemplateCreator {
 
 class TwoStepTertiaryModelTemplateCreator extends TertiaryModelTemplateCreator {
 
-  public TwoStepTertiaryModelTemplateCreator(TwoStepTertiaryModel model) {
+  TwoStepTertiaryModelTemplateCreator(TwoStepTertiaryModel model) {
     super(model.getPrimModels().get(0).getModelDoc(), model.getSecDocs());
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(true);
   }
 }
@@ -1403,12 +1315,12 @@ class TwoStepTertiaryModelTemplateCreator extends TertiaryModelTemplateCreator {
 
 class OneStepTertiaryModelTemplateCreator extends TertiaryModelTemplateCreator {
 
-  public OneStepTertiaryModelTemplateCreator(OneStepTertiaryModel model) {
+  OneStepTertiaryModelTemplateCreator(OneStepTertiaryModel model) {
     super(model.getTertiaryDoc(), model.getSecDocs());
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(true);
   }
 }
@@ -1416,12 +1328,12 @@ class OneStepTertiaryModelTemplateCreator extends TertiaryModelTemplateCreator {
 
 class ManualTertiaryModelTemplateCreator extends TertiaryModelTemplateCreator {
 
-  public ManualTertiaryModelTemplateCreator(ManualTertiaryModel model) {
+  ManualTertiaryModelTemplateCreator(ManualTertiaryModel model) {
     super(model.getTertiaryDoc(), model.getSecDocs());
   }
 
   @Override
-  public void setHasData() {
+  void setHasData() {
     template.setHasData(false);
   }
 }

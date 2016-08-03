@@ -85,12 +85,6 @@ public class FSMRUtils {
     return templateCreator.createTemplate();
   }
 
-  public static FSMRTemplate processModelWithoutMicrobialData(SBMLDocument doc) {
-    ModelWithoutMicrobialDataTemplateCreator templateCreator =
-        new ModelWithoutMicrobialDataTemplateCreator(doc);
-    return templateCreator.createTemplate();
-  }
-
   // Secondary models
   public static FSMRTemplate processTwoStepSecondaryModel(TwoStepSecondaryModel model) {
     return new TwoStepSecondaryModelTemplateCreator(model).createTemplate();
@@ -744,113 +738,6 @@ class ModelWithMicrobialDataTemplateCreator extends ModelTemplateCreator {
     template.setHasData(true);
   }
 }
-
-
-class ModelWithoutMicrobialDataTemplateCreator extends ModelTemplateCreator {
-
-  private final List<Limits> limits;
-
-  public ModelWithoutMicrobialDataTemplateCreator(SBMLDocument doc) {
-    super(doc);
-
-    // Caches limits
-    limits = doc.getModel().getListOfConstraints().stream().map(LimitsConstraint::new)
-        .map(LimitsConstraint::getLimits).collect(Collectors.toList());
-  }
-
-  @Override
-  public void setOrganismData() {}
-
-  @Override
-  public void setMatrixData() {}
-
-  @Override
-  public void setHasData() {
-    template.setHasData(false);
-  }
-
-  @Override
-  public void setDependentVariableData() {
-    Model model = doc.getModel();
-    ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-    String depName = rule.getRule().getVariable();
-    Parameter param = model.getParameter(depName);
-
-    if (param.isSetUnits()) {
-      // Adds unit
-      String unitID = param.getUnits();
-      String unitName = model.getUnitDefinition(unitID).getName();
-      template.setDependentVariableUnit(unitName);
-
-      // Adds unit category
-      if (DBUnits.getDBUnits().containsKey(unitName)) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        template.setDependentVariable(ufdb.getKind_of_property_quantity());
-      }
-    }
-
-    for (Limits lim : limits) {
-      if (lim.getVar().equals(depName)) {
-        if (lim.getMin() != null)
-          template.setDependentVariableMin(lim.getMin());
-        if (lim.getMax() != null)
-          template.setDependentVariableMax(lim.getMax());
-        break;
-      }
-    }
-  }
-
-  @Override
-  public void setIndependentVariableData() {
-    Model model = doc.getModel();
-    ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-    String depName = rule.getRule().getVariable();
-
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    final int numParams = indepParams.size();
-    String[] units = new String[numParams];
-    String[] categories = new String[numParams];
-    double[] mins = new double[numParams];
-    double[] maxs = new double[numParams];
-
-    for (int i = 0; i < numParams; i++) {
-      Parameter param = indepParams.get(i);
-
-      final String unitId = param.getUnits();
-
-      // unit
-      units[i] = unitId;
-
-      // category
-      String unitName = model.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        categories[i] = ufdb.getKind_of_property_quantity();
-      }
-
-      // min & max
-      for (Limits lim : limits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins[i] = lim.getMin();
-          maxs[i] = lim.getMax();
-        }
-      }
-    }
-
-    template.setIndependentVariables(categories);
-    template.setIndependentVariablesUnits(units);
-    template.setIndependentVariablesMins(mins);
-    template.setIndependentVariablesMaxs(maxs);
-  }
-}
-
 
 abstract class BetterTemplateCreator {
   protected FSMRTemplate template = new FSMRTemplateImpl();

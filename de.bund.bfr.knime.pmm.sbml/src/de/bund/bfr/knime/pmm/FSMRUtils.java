@@ -20,12 +20,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
@@ -245,6 +245,7 @@ public class FSMRUtils {
   }
 }
 
+
 abstract class TemplateCreator {
   protected FSMRTemplate template = new FSMRTemplateImpl();
 
@@ -378,39 +379,108 @@ abstract class TemplateCreator {
       template.setModelType(metadata.getType());
   }
 
-  void setDependentVariableData(final Model model, final List<Limits> limits) {
+//  void setDependentVariableData(final Model model, final List<Limits> limits) {
+//
+//    Species species = model.getSpecies(0);
+//
+//    if (species.isSetUnits()) {
+//      String unitId = species.getUnits();
+//
+//      // Sets unit
+//      String unitName = model.getUnitDefinition(unitId).getName();
+//      template.setDependentVariableUnit(unitName);
+//
+//      // Sets variable
+//      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
+//        String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
+//        template.setDependentVariable(unitCategory);
+//      }
+//
+//      // Sets minimum and maximum values
+//      for (Limits lim : limits) {
+//        if (lim.getVar().equals(species.getId())) {
+//          if (lim.getMin() != null)
+//            template.setDependentVariableMin(lim.getMin());
+//          if (lim.getMax() != null)
+//            template.setDependentVariableMax(lim.getMax());
+//          break;
+//        }
+//      }
+//    }
+//  }
 
+  static Filter nonConstantFilter = new Filter() {
+    @Override
+    public boolean accepts(Object o) {
+      return !((Parameter) o).isConstant();
+    }
+  };
+  
+  static VariableData processDependentVariable(final Model model, final List<Limits> limits) {
+    
+    VariableData var = new VariableData();
+    
     Species species = model.getSpecies(0);
-
     if (species.isSetUnits()) {
-      String unitId = species.getUnits();
-
-      // Sets unit
-      String unitName = model.getUnitDefinition(unitId).getName();
-      template.setDependentVariableUnit(unitName);
-
+      var.unit = species.getUnits();  // Sets unit
+      
       // Sets variable
-      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
-        String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-        template.setDependentVariable(unitCategory);
-      }
-
-      // Sets minimum and maximum values
-      for (Limits lim : limits) {
-        if (lim.getVar().equals(species.getId())) {
-          if (lim.getMin() != null)
-            template.setDependentVariableMin(lim.getMin());
-          if (lim.getMax() != null)
-            template.setDependentVariableMax(lim.getMax());
-          break;
-        }
+      String unitName = model.getUnitDefinition(var.unit).getName();
+      if (!var.unit.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+        var.var = ufdb.getKind_of_property_quantity();
       }
     }
+    
+    // Sets minimum and maximum values
+    var.min = Double.NaN;
+    var.max = Double.NaN;
+    for (Limits lim : limits) {
+      if (lim.getVar().equals(species.getId())) {
+        var.min = lim.getMin();
+        var.max = lim.getMax();
+        break;
+      }
+    }
+    
+    return var;
+  }
+
+  static VariableData processVariable(final Parameter param, final Model model,
+      final List<Limits> limits) {
+
+    VariableData var = new VariableData();
+    var.unit = param.getUnits(); // Sets unit
+
+    // Sets variable
+    String unitName = model.getUnitDefinition(var.unit).getName();
+    if (!var.unit.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
+      UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+      var.var = ufdb.getKind_of_property_quantity();
+    }
+
+    // Sets minimum and maximum values
+    var.min = Double.NaN;
+    var.max = Double.NaN;
+    for (Limits lim : limits) {
+      if (lim.getVar().equals(param.getId())) {
+        var.min = lim.getMin();
+        var.max = lim.getMax();
+        break;
+      }
+    }
+
+    return var;
   }
 }
 
+class VariableData {
+  String var;
+  String unit;
+  Double min;
+  Double max;
+}
 
-// TODO: rename to DataTemplateCreator once the original class is removed
 class DataTemplateCreator extends TemplateCreator {
 
   private NuMLDocument doc;
@@ -610,51 +680,45 @@ class PrimaryModelTemplateCreator extends TemplateCreator {
 
   @Override
   void setDependentVariableData() {
-    setDependentVariableData(doc.getModel(), limits);
+    VariableData var = processDependentVariable(doc.getModel(), limits);
+    template.setDependentVariable(var.var);
+    template.setDependentVariableUnit(var.unit);
+    template.setDependentVariableMin(var.min);
+    template.setDependentVariableMax(var.max);
   }
 
   @Override
   void setIndependentVariableData() {
+
     Model model = doc.getModel();
+    List<Parameter> params = model.getListOfParameters().filterList(nonConstantFilter);
 
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        return !((Parameter) o).isConstant();
-      }
-    });
+    // Declare list of variables
+    List<VariableData> variables = new ArrayList<>(params.size());
 
-    final int numParams = indepParams.size();
-    String[] units = new String[numParams];
-    String[] categories = new String[numParams];
-    double[] mins = new double[numParams];
-    double[] maxs = new double[numParams];
-
-    for (int i = 0; i < numParams; i++) {
-      Parameter param = indepParams.get(i);
-      units[i] = param.getUnits();
-
-      // Sets independent variable unit
-      String unitName = model.getUnitDefinition(units[i]).getName();
-      if (!units[i].equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
-        categories[i] = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-      } else {
-        categories[i] = " ";
-      }
-
-      // Sets minimum and maximum value
-      for (Limits lcLimits : limits) {
-        if (lcLimits.getVar().equals(param.getId())) {
-          mins[i] = lcLimits.getMin();
-          maxs[i] = lcLimits.getMax();
-        }
-      }
+    for (Parameter param : params) {
+      variables.add(processVariable(param, model, limits));
     }
 
-    template.setIndependentVariables(categories);
-    template.setIndependentVariablesUnits(units);
-    template.setIndependentVariablesMins(mins);
-    template.setIndependentVariablesMaxs(maxs);
+    // Converts variables to arrays
+    String[] varsArray = new String[variables.size()];
+    String[] unitsArray = new String[variables.size()];
+    double[] minsArray = new double[variables.size()];
+    double[] maxsArray = new double[variables.size()];
+
+    for (int i = 0; i < variables.size(); i++) {
+      VariableData var = variables.get(i);
+      varsArray[i] = var.var;
+      unitsArray[i] = var.unit;
+      minsArray[i] = var.min;
+      maxsArray[i] = var.max;
+    }
+
+    // Assigns data from arrays to templates
+    template.setIndependentVariables(varsArray);
+    template.setIndependentVariablesUnits(unitsArray);
+    template.setIndependentVariablesMins(minsArray);
+    template.setIndependentVariablesMaxs(maxsArray);
   }
 
   @Override
@@ -662,6 +726,8 @@ class PrimaryModelTemplateCreator extends TemplateCreator {
     template.setHasData(true);
   }
 }
+
+
 
 
 class TwoStepSecondaryModelTemplateCreator extends TemplateCreator {
@@ -721,104 +787,70 @@ class TwoStepSecondaryModelTemplateCreator extends TemplateCreator {
 
   @Override
   void setDependentVariableData() {
-    setDependentVariableData(primModelDoc.getModel(), primModelLimits);
+    VariableData var = processDependentVariable(primModelDoc.getModel(), primModelLimits);
+    template.setDependentVariable(var.var);
+    template.setDependentVariableUnit(var.unit);
+    template.setDependentVariableMin(var.min);
+    template.setDependentVariableMax(var.max);
   }
 
   @Override
   void setIndependentVariableData() {
-    final Set<String> vars = new LinkedHashSet<>();
-    final Set<String> units = new LinkedHashSet<>();
-    final Set<Double> mins = new LinkedHashSet<>();
-    final Set<Double> maxs = new LinkedHashSet<>();
+
+    // Declare sets to hold data
+    List<VariableData> variableList = new LinkedList<>();
 
     // Gets independent variables from primary model
-    addIndepsFromPrimaryModel(vars, units, mins, maxs);
+    {
+      // Gets name of dependent variable from the model rule (1)
+      Model model = primModelDoc.getModel();
+      ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+      String depName = rule.getVariable();
+
+      // Filter SBML parameters associated to independent variables
+      List<Parameter> params = model.getListOfParameters().filterList(nonConstantFilter).stream()
+          .filter(p -> !p.getId().equals(depName)).collect(Collectors.toList());
+
+      for (Parameter param : params) {
+        variableList.add(processVariable(param, model, primModelLimits));
+      }
+    }
+
     // Gets independent variables from secondary model
-    addIndepsFromSecondaryModel(vars, units, mins, maxs);
+    {
+      // Gets name of dependent variable from the model rule (2)
+      Model model = secModelDoc.getModel();
+      ModelRule rule2 = new ModelRule((AssignmentRule) model.getRule(0));
+      String depName = rule2.getVariable();
 
-    String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = units.toArray(new String[units.size()]);
-    double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
-    double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
+      // Filters SBML parameters associated to the independent variables
+      List<Parameter> params = model.getListOfParameters().filterList(nonConstantFilter).stream()
+          .filter(p -> !p.getId().equals(depName)).collect(Collectors.toList());
 
+      for (Parameter param : params) {
+        variableList.add(processVariable(param, model, secModelLimits));
+      }
+    }
+
+    // Converts variableList to arrays
+    String[] varsArray = new String[variableList.size()];
+    String[] unitsArray = new String[variableList.size()];
+    double[] minsArray = new double[variableList.size()];
+    double[] maxsArray = new double[variableList.size()];
+
+    for (int i = 0; i < variableList.size(); i++) {
+      VariableData var = variableList.get(i);
+      varsArray[i] = var.var;
+      unitsArray[i] = var.unit;
+      minsArray[i] = var.min;
+      maxsArray[i] = var.max;
+    }
+
+    // Assigns data from arrays to templates
     template.setIndependentVariables(varsArray);
     template.setIndependentVariablesUnits(unitsArray);
     template.setIndependentVariablesMins(minsArray);
     template.setIndependentVariablesMaxs(maxsArray);
-  }
-
-  private void addIndepsFromPrimaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
-      Set<Double> maxs) {
-    final Model model = primModelDoc.getModel();
-    ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-    final String depName = rule.getVariable();
-
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
-
-      // unit
-      units.add(unitId);
-
-      // category
-      String unitName = model.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
-      }
-
-      // min & max
-      for (Limits lim : primModelLimits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
-        }
-      }
-    }
-  }
-
-  private void addIndepsFromSecondaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
-      Set<Double> maxs) {
-    final Model model = secModelDoc.getModel();
-    ModelRule rule2 = new ModelRule((AssignmentRule) model.getRule(0));
-    final String depName = rule2.getVariable();
-
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
-
-      // unit
-      units.add(unitId);
-
-      // category
-      String unitName = model.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
-      }
-
-      // min & max
-      for (Limits lim : secModelLimits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
-        }
-      }
-    }
   }
 
   @Override
@@ -890,102 +922,63 @@ class OneStepSecondaryModelTemplateCreator extends TemplateCreator {
 
   @Override
   void setDependentVariableData() {
-    setDependentVariableData(primModel, primModelLimits);
+    VariableData var = processDependentVariable(primModel, primModelLimits);
+    template.setDependentVariable(var.var);
+    template.setDependentVariableUnit(var.unit);
+    template.setDependentVariableMin(var.min);
+    template.setDependentVariableMax(var.max);
   }
 
   @Override
   void setIndependentVariableData() {
-    final Set<String> vars = new LinkedHashSet<>();
-    final Set<String> units = new LinkedHashSet<>();
-    final Set<Double> mins = new LinkedHashSet<>();
-    final Set<Double> maxs = new LinkedHashSet<>();
+
+    List<VariableData> variables = new LinkedList<>();
 
     // Gets independent variables from primary model
-    addIndepsFromPrimaryModel(vars, units, mins, maxs);
+    {
+      ModelRule rule = new ModelRule((AssignmentRule) primModel.getRule(0));
+      String depName = rule.getVariable();
+
+      List<Parameter> params = primModel.getListOfParameters().filterList(nonConstantFilter)
+          .stream().filter(p -> !p.getId().equals(depName)).collect(Collectors.toList());
+
+      for (Parameter param : params) {
+        variables.add(processVariable(param, primModel, primModelLimits));
+      }
+    }
+
     // Gets independent variables from secondary model
-    addIndepsFromSecondaryModel(vars, units, mins, maxs);
+    {
+      ModelRule rule = new ModelRule((AssignmentRule) secModel.getRule(0));
+      String depName = rule.getVariable();
 
-    String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = units.toArray(new String[units.size()]);
-    double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
-    double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
+      List<Parameter> params = secModel.getListOfParameters().filterList(nonConstantFilter).stream()
+          .filter(p -> !p.getId().equals(depName)).collect(Collectors.toList());
 
+      for (Parameter param : params) {
+        variables.add(processVariable(param, secModel, secModelLimits));
+      }
+    }
+
+    // Converts variables to arrays
+    String[] varsArray = new String[variables.size()];
+    String[] unitsArray = new String[variables.size()];
+    double[] minsArray = new double[variables.size()];
+    double[] maxsArray = new double[variables.size()];
+
+    for (int i = 0; i < variables.size(); i++) {
+      VariableData var = variables.get(i);
+      varsArray[i] = var.var;
+      unitsArray[i] = var.unit;
+      minsArray[i] = var.min;
+      maxsArray[i] = var.max;
+    }
+
+    // Assigns data from arrays to templates
     template.setIndependentVariables(varsArray);
     template.setIndependentVariablesUnits(unitsArray);
     template.setIndependentVariablesMins(minsArray);
     template.setIndependentVariablesMaxs(maxsArray);
-  }
-
-  private void addIndepsFromPrimaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
-      Set<Double> maxs) {
-    ModelRule rule = new ModelRule((AssignmentRule) primModel.getRule(0));
-    final String depName = rule.getVariable();
-
-    List<Parameter> indepParams = primModel.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
-
-      // unit
-      units.add(unitId);
-
-      // category
-      String unitName = primModel.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
-      }
-
-      // min & max
-      for (Limits lim : primModelLimits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
-        }
-      }
-    }
-  }
-
-  private void addIndepsFromSecondaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
-      Set<Double> maxs) {
-    ModelRule rule = new ModelRule((AssignmentRule) secModel.getRule(0));
-    final String depName = rule.getVariable();
-
-    List<Parameter> indepParams = secModel.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
-
-      // unit
-      units.add(unitId);
-
-      // category
-      String unitName = secModel.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
-      }
-
-      // min & max
-      for (Limits lim : secModelLimits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
-        }
-      }
-    }
   }
 
   @Override
@@ -1079,48 +1072,29 @@ class ManualSecondaryModelTemplateCreator extends TemplateCreator {
 
   @Override
   void setIndependentVariableData() {
-    final Set<String> vars = new LinkedHashSet<>();
-    final Set<String> units = new LinkedHashSet<>();
-    final Set<Double> mins = new LinkedHashSet<>();
-    final Set<Double> maxs = new LinkedHashSet<>();
 
-    final Model model = doc.getModel();
-    final String depName = new ModelRule((AssignmentRule) model.getRule(0)).getVariable();
+    Model model = doc.getModel();
+    String depName = new ModelRule((AssignmentRule) model.getRule(0)).getVariable();
+    List<Parameter> params = model.getListOfParameters().filterList(nonConstantFilter).stream()
+        .filter(p -> !p.getId().equals(depName)).collect(Collectors.toList());
 
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
-
-      // unit
-      units.add(unitId);
-
-      // category
-      String unitName = model.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless")) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
-      }
-
-      // min & max
-      for (Limits lim : limits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
-        }
-      }
+    // Declare variables
+    List<VariableData> variables = new ArrayList<>(params.size());
+    for (Parameter param : params) {
+      variables.add(processVariable(param, model, limits));
     }
-
-    String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = units.toArray(new String[units.size()]);
-    double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
-    double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
+    
+    String[] varsArray = new String[variables.size()];
+    String[] unitsArray = new String[variables.size()];
+    double[] minsArray = new double[variables.size()];
+    double[] maxsArray = new double[variables.size()];
+    for (int i = 0; i < variables.size(); i++) {
+      VariableData var = variables.get(i);
+      varsArray[i] = var.var;
+      unitsArray[i] = var.unit;
+      minsArray[i] = var.min;
+      maxsArray[i] = var.max;
+    }
 
     template.setIndependentVariables(varsArray);
     template.setIndependentVariablesUnits(unitsArray);
@@ -1133,7 +1107,6 @@ class ManualSecondaryModelTemplateCreator extends TemplateCreator {
     template.setHasData(false);
   }
 }
-
 
 
 abstract class TertiaryModelTemplateCreator extends TemplateCreator {
@@ -1192,110 +1165,73 @@ abstract class TertiaryModelTemplateCreator extends TemplateCreator {
 
   @Override
   void setDependentVariableData() {
-    setDependentVariableData(primDoc.getModel(), primModelLimits);
+    VariableData var = processDependentVariable(primDoc.getModel(), primModelLimits);
+    template.setDependentVariable(var.var);
+    template.setDependentVariableUnit(var.unit);
+    template.setDependentVariableMin(var.min);
+    template.setDependentVariableMax(var.max);
   }
 
   @Override
   void setIndependentVariableData() {
-    final Set<String> vars = new LinkedHashSet<>();
-    final Set<String> units = new LinkedHashSet<>();
-    final Set<Double> mins = new LinkedHashSet<>();
-    final Set<Double> maxs = new LinkedHashSet<>();
 
-    addIndepsFromPrimaryModel(vars, units, mins, maxs);
-    for (SBMLDocument doc : secDocs) {
-      addIndepsFromSecondaryModel(vars, units, mins, maxs, doc.getModel());
+    // Declare list of variables
+    List<VariableData> variables = new LinkedList<>();
+
+    // Gets variables from the primary model
+    {
+      // Gets name of the dependent variable from the model rule (1)
+      Model model = primDoc.getModel();
+      ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+      String depName = rule.getVariable();
+
+      // Filter SBML parameters associated to independent variables
+      List<Parameter> params = model.getListOfParameters().filterList(nonConstantFilter).stream()
+          .filter(p -> p.getId().equals(depName)).collect(Collectors.toList());
+
+      for (Parameter param : params) {
+        variables.add(processVariable(param, model, primModelLimits));
+      }
     }
 
-    String[] varsArray = vars.toArray(new String[vars.size()]);
-    String[] unitsArray = units.toArray(new String[units.size()]);
-    double[] minsArray = mins.stream().mapToDouble(Double::doubleValue).toArray();
-    double[] maxsArray = maxs.stream().mapToDouble(Double::doubleValue).toArray();
+    // Gets variables from the secondary models
+    {
+      for (SBMLDocument doc : secDocs) {
+        // Gets name of the dependent variable from the model rule (2)
+        Model model = doc.getModel();
+        ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
+        String depName = rule.getVariable();
 
+        // Filters SBML parameters associated to the independent variables
+        List<Parameter> params = model.getListOfParameters().filterList(nonConstantFilter).stream()
+            .filter(p -> !p.getId().equals(depName)).collect(Collectors.toList());
+
+        List<Limits> limits = getLimitsFromModel(model);
+        for (Parameter param : params) {
+          variables.add(processVariable(param, model, limits));
+        }
+      }
+    }
+
+    // Converts variables to arrays
+    String[] varsArray = new String[variables.size()];
+    String[] unitsArray = new String[variables.size()];
+    double[] minsArray = new double[variables.size()];
+    double[] maxsArray = new double[variables.size()];
+
+    for (int i = 0; i < variables.size(); i++) {
+      VariableData var = variables.get(i);
+      varsArray[i] = var.var;
+      unitsArray[i] = var.unit;
+      minsArray[i] = var.min;
+      maxsArray[i] = var.max;
+    }
+
+    // Assigns data from arrays to templates
     template.setIndependentVariables(varsArray);
     template.setIndependentVariablesUnits(unitsArray);
     template.setIndependentVariablesMins(minsArray);
     template.setIndependentVariablesMaxs(maxsArray);
-  }
-
-  private void addIndepsFromPrimaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
-      Set<Double> maxs) {
-    final Model model = primDoc.getModel();
-    ModelRule rule = new ModelRule((AssignmentRule) model.getRule(0));
-    final String depName = rule.getVariable();
-
-    List<Parameter> indepParams = model.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    for (Parameter param : indepParams) {
-      final String unitId = param.getUnits();
-
-      // unit
-      units.add(unitId);
-
-      // category
-      String unitName = model.getUnitDefinition(unitId).getName();
-      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        vars.add(ufdb.getKind_of_property_quantity());
-      }
-
-      // min & max
-      for (Limits lim : primModelLimits) {
-        if (lim.getVar().equals(param.getId())) {
-          if (lim.getMin() != null)
-            mins.add(lim.getMin());
-          if (lim.getMax() != null)
-            maxs.add(lim.getMax());
-        }
-      }
-    }
-  }
-
-  private void addIndepsFromSecondaryModel(Set<String> vars, Set<String> units, Set<Double> mins,
-      Set<Double> maxs, Model secModel) {
-    ModelRule rule = new ModelRule((AssignmentRule) secModel.getRule(0));
-    final String depName = rule.getVariable();
-
-    List<Parameter> indepParams = secModel.getListOfParameters().filterList(new Filter() {
-      @Override
-      public boolean accepts(Object o) {
-        Parameter param = (Parameter) o;
-        return !param.isConstant() && !param.getId().equals(depName);
-      }
-    });
-
-    List<Limits> limits = getLimitsFromModel(secModel);
-
-    for (Parameter param : indepParams) {
-
-      if (param.isSetUnits()) {
-        final String unitId = param.getUnits();
-
-        // unit
-        units.add(unitId);
-
-        // category
-        String unitName = secModel.getUnitDefinition(unitId).getName();
-        if (!unitId.equals("dimensionless")) {
-          UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-          vars.add(ufdb.getKind_of_property_quantity());
-        }
-      }
-
-      // min & max
-      for (Limits lim : limits) {
-        if (lim.getVar().equals(param.getId())) {
-          mins.add(lim.getMin());
-          maxs.add(lim.getMax());
-        }
-      }
-    }
   }
 }
 

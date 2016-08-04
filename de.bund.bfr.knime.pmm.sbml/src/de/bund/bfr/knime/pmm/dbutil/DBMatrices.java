@@ -37,17 +37,17 @@ public class DBMatrices {
 	}
 
 	/** Get matrices from DB with their ids as keys */
-	public static List<MatrixXml> getDBMatrices() {
+	public synchronized static List<MatrixXml> getDBMatrices() {
 		if (dbMatrices == null) {
 			dbMatrices = new LinkedList<>();
-			ResultSet rs = DBKernel.getResultSet("SELECT * FROM \"Matrices\"",
-					true);
-			try {
-				while (rs.next()) {
-					dbMatrices.add(new MatrixXml(rs.getInt("ID"), rs
-							.getString("Matrixname"), null));
-				}
+			try (ResultSet rs = DBKernel.getResultSet("SELECT * FROM \"Matrices\"", true)) {
+			  while (rs.next()) {
+			    int matrixId = rs.getInt("ID");
+			    String matrixName = rs.getString("Matrixname");
+			    dbMatrices.add(new MatrixXml(matrixId, matrixName, null));
+			  }
 			} catch (SQLException e) {
+			  e.printStackTrace();
 			}
 		}
 

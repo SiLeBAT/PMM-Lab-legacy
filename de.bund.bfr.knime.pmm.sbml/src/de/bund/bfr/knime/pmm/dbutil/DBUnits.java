@@ -16,8 +16,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.dbutil;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import de.bund.bfr.knime.pmm.common.units.UnitsFromDB;
 
@@ -37,8 +37,10 @@ public class DBUnits {
       tempUnits.askDB();
 
       // Create unit map with unit display as keys
-      dbUnits = tempUnits.getMap().values().stream()
-          .collect(Collectors.toMap(u -> u.getDisplay_in_GUI_as(), u -> u));
+      dbUnits = new HashMap<>();
+      for (UnitsFromDB ufdb : tempUnits.getMap().values()) {
+          dbUnits.put(ufdb.getDisplay_in_GUI_as(), ufdb);
+      }
     }
     return dbUnits;
   }

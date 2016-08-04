@@ -75,7 +75,28 @@ class FskCreatorNodeDialog extends NodeDialogPane {
 
 		DialogComponentFileChooser dirChooser = new DialogComponentFileChooser(m_libDirectory, "lib-dir", dialogType,
 				true);
-		dirChooser.addChangeListener(new DirChangeListener());
+		dirChooser.addChangeListener(new ChangeListener() {
+			private FileFilter filter = new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return new FileNameExtensionFilter("Zip files", "zip").accept(pathname);
+				}
+			};
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				try {
+					File dirFile = KnimeUtils.getFile(m_libDirectory.getStringValue());
+					File[] filesInDir = dirFile.listFiles(filter);
+					if (filesInDir.length > 0) {
+						List<String> fnames = Arrays.stream(filesInDir).map(File::getName).collect(Collectors.toList());
+						libChooser.replaceListItems(fnames, (String[]) null);
+					}
+				} catch (InvalidPathException | MalformedURLException error) {
+					error.printStackTrace();
+				}
+			}
+		});
 
 		libChooser = new DialogComponentStringListSelection(m_selectedLibs, "Select libs", Arrays.asList(""), true, 10);
 
@@ -115,30 +136,6 @@ class FskCreatorNodeDialog extends NodeDialogPane {
 		box.add(metaDataChooser.getComponentPanel());
 
 		return box;
-	}
-
-	private class DirChangeListener implements ChangeListener {
-
-		private FileFilter filter = new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return new FileNameExtensionFilter("Zip files", "zip").accept(pathname);
-			}
-		};
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			try {
-				File dirFile = KnimeUtils.getFile(m_libDirectory.getStringValue());
-				File[] filesInDir = dirFile.listFiles(filter);
-				if (filesInDir.length > 0) {
-					List<String> fnames = Arrays.stream(filesInDir).map(File::getName).collect(Collectors.toList());
-					libChooser.replaceListItems(fnames, (String[]) null);
-				}
-			} catch (InvalidPathException | MalformedURLException error) {
-				error.printStackTrace();
-			}
-		}
 	}
 
 	@Override

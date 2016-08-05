@@ -110,6 +110,8 @@ public class FSMRUtils {
 
   public static KnimeTuple createTupleFromTemplate(FSMRTemplate template) {
     KnimeTuple tuple = new KnimeTuple(new OpenFSMRSchema());
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     if (template.isSetModelName()) {
       tuple.setValue(OpenFSMRSchema.ATT_MODEL_NAME, template.getModelName());
@@ -162,11 +164,11 @@ public class FSMRUtils {
     }
 
     if (template.isSetCreatedDate()) {
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE, template.getCreatedDate().toString());
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_CREATED_DATE, sdf.format(template.getCreatedDate()));
     }
 
     if (template.isSetModifiedDate()) {
-      tuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE, template.getModifiedDate().toString());
+      tuple.setValue(OpenFSMRSchema.ATT_MODEL_MODIFIED_DATE, sdf.format(template.getModifiedDate()));
     }
 
     if (template.isSetRights()) {

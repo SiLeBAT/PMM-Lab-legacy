@@ -379,59 +379,30 @@ abstract class TemplateCreator {
       template.setModelType(metadata.getType());
   }
 
-//  void setDependentVariableData(final Model model, final List<Limits> limits) {
-//
-//    Species species = model.getSpecies(0);
-//
-//    if (species.isSetUnits()) {
-//      String unitId = species.getUnits();
-//
-//      // Sets unit
-//      String unitName = model.getUnitDefinition(unitId).getName();
-//      template.setDependentVariableUnit(unitName);
-//
-//      // Sets variable
-//      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
-//        String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-//        template.setDependentVariable(unitCategory);
-//      }
-//
-//      // Sets minimum and maximum values
-//      for (Limits lim : limits) {
-//        if (lim.getVar().equals(species.getId())) {
-//          if (lim.getMin() != null)
-//            template.setDependentVariableMin(lim.getMin());
-//          if (lim.getMax() != null)
-//            template.setDependentVariableMax(lim.getMax());
-//          break;
-//        }
-//      }
-//    }
-//  }
-
   static Filter nonConstantFilter = new Filter() {
     @Override
     public boolean accepts(Object o) {
       return !((Parameter) o).isConstant();
     }
   };
-  
+
   static VariableData processDependentVariable(final Model model, final List<Limits> limits) {
-    
+
     VariableData var = new VariableData();
-    
+
     Species species = model.getSpecies(0);
     if (species.isSetUnits()) {
-      var.unit = species.getUnits();  // Sets unit
-      
+      var.unit = species.getUnits(); // Sets unit
+
       // Sets variable
       String unitName = model.getUnitDefinition(var.unit).getName();
       if (!var.unit.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
         UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        var.var = ufdb.getKind_of_property_quantity();
+        String category = ufdb.getKind_of_property_quantity();
+        var.var = category + " -> " + var.unit;
       }
     }
-    
+
     // Sets minimum and maximum values
     var.min = Double.NaN;
     var.max = Double.NaN;
@@ -442,7 +413,7 @@ abstract class TemplateCreator {
         break;
       }
     }
-    
+
     return var;
   }
 
@@ -453,10 +424,14 @@ abstract class TemplateCreator {
     var.unit = param.getUnits(); // Sets unit
 
     // Sets variable
-    String unitName = model.getUnitDefinition(var.unit).getName();
-    if (!var.unit.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
-      UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-      var.var = ufdb.getKind_of_property_quantity();
+    var.var = "";
+    if (!var.unit.isEmpty() && !var.unit.equals("dimensionless")) {
+      String unitName = model.getUnitDefinition(var.unit).getName();
+      if (DBUnits.getDBUnits().containsKey(unitName)) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+        String category = ufdb.getKind_of_property_quantity();
+        var.var = category + " -> " + var.unit;
+      }
     }
 
     // Sets minimum and maximum values
@@ -474,12 +449,14 @@ abstract class TemplateCreator {
   }
 }
 
+
 class VariableData {
   String var;
   String unit;
   Double min;
   Double max;
 }
+
 
 class DataTemplateCreator extends TemplateCreator {
 
@@ -588,7 +565,7 @@ class DataTemplateCreator extends TemplateCreator {
     // Sets variable
     if (!unitDef.getId().equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
       String unitCategory = DBUnits.getDBUnits().get(unitName).getKind_of_property_quantity();
-      template.setDependentVariable(unitCategory);
+      template.setDependentVariable(unitCategory + " -> " + unitName);
     }
 
     /**
@@ -726,7 +703,6 @@ class PrimaryModelTemplateCreator extends TemplateCreator {
     template.setHasData(true);
   }
 }
-
 
 
 
@@ -1055,7 +1031,8 @@ class ManualSecondaryModelTemplateCreator extends TemplateCreator {
       // Adds unit category
       if (DBUnits.getDBUnits().containsKey(unitName)) {
         UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        template.setDependentVariable(ufdb.getKind_of_property_quantity());
+        String category = ufdb.getKind_of_property_quantity();
+        template.setDependentVariable(category + " -> " + unitName);
       }
     }
 
@@ -1083,7 +1060,7 @@ class ManualSecondaryModelTemplateCreator extends TemplateCreator {
     for (Parameter param : params) {
       variables.add(processVariable(param, model, limits));
     }
-    
+
     String[] varsArray = new String[variables.size()];
     String[] unitsArray = new String[variables.size()];
     double[] minsArray = new double[variables.size()];

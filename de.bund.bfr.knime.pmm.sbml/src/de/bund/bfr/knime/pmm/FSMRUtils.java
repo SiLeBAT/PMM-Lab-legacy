@@ -221,19 +221,19 @@ public class FSMRUtils {
 
     if (template.isSetIndependentVariablesUnits()) {
       String formattedUnits =
-          Arrays.stream(template.getIndependentVariablesUnits()).collect(Collectors.joining("||"));
+          Arrays.stream(template.getIndependentVariablesUnits()).map(s -> s == null ? "?" : s).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_UNITS, formattedUnits);
     }
 
     if (template.isSetIndependentVariablesMins()) {
       String formattedMins = Arrays.stream(template.getIndependentVariablesMins())
-          .mapToObj(Double::toString).collect(Collectors.joining("||"));
+          .mapToObj(d -> Double.isNaN(d) ? "?" : Double.toString(d)).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MINS, formattedMins);
     }
 
     if (template.isSetIndependentVariablesMaxs()) {
       String formattedMaxs = Arrays.stream(template.getIndependentVariablesMaxs())
-          .mapToObj(Double::toString).collect(Collectors.joining("||"));
+          .mapToObj(d -> Double.isNaN(d) ? "?" : Double.toString(d)).collect(Collectors.joining("||"));
       tuple.setValue(OpenFSMRSchema.ATT_INDEPENDENT_VARIABLE_MAXS, formattedMaxs);
     }
 
@@ -392,12 +392,15 @@ abstract class TemplateCreator {
 
     Species species = model.getSpecies(0);
     if (species.isSetUnits()) {
-      var.unit = species.getUnits(); // Sets unit
+      
+      String unitId = species.getUnits();
+      
+      // Sets unit
+      var.unit = model.getUnitDefinition(unitId).getName(); // Sets unit
 
       // Sets variable
-      String unitName = model.getUnitDefinition(var.unit).getName();
-      if (!var.unit.equals("dimensionless") && DBUnits.getDBUnits().containsKey(unitName)) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
+      if (!unitId.equals("dimensionless") && DBUnits.getDBUnits().containsKey(var.unit)) {
+        UnitsFromDB ufdb = DBUnits.getDBUnits().get(var.unit);
         String category = ufdb.getKind_of_property_quantity();
         var.var = category + " -> " + var.unit;
       }
@@ -421,16 +424,16 @@ abstract class TemplateCreator {
       final List<Limits> limits) {
 
     VariableData var = new VariableData();
-    var.unit = param.getUnits(); // Sets unit
-
-    // Sets variable
-    var.var = "";
-    if (!var.unit.isEmpty() && !var.unit.equals("dimensionless")) {
-      String unitName = model.getUnitDefinition(var.unit).getName();
+    var.var = param.getId();  // Sets variable
+    
+    // Sets unit
+    String unitId = param.getUnits();
+    if (!unitId.isEmpty() && !unitId.equals("dimensionless")) {
+      String unitName = model.getUnitDefinition(unitId).getName();
       if (DBUnits.getDBUnits().containsKey(unitName)) {
         UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
         String category = ufdb.getKind_of_property_quantity();
-        var.var = category + " -> " + var.unit;
+        var.unit = category + " -> " + unitName;
       }
     }
 
@@ -660,8 +663,12 @@ class PrimaryModelTemplateCreator extends TemplateCreator {
     VariableData var = processDependentVariable(doc.getModel(), limits);
     template.setDependentVariable(var.var);
     template.setDependentVariableUnit(var.unit);
-    template.setDependentVariableMin(var.min);
-    template.setDependentVariableMax(var.max);
+    if (!Double.isNaN(var.min)) {
+      template.setDependentVariableMin(var.min);
+    }
+    if (!Double.isNaN(var.max)) {
+      template.setDependentVariableMax(var.max);
+    }
   }
 
   @Override
@@ -766,8 +773,12 @@ class TwoStepSecondaryModelTemplateCreator extends TemplateCreator {
     VariableData var = processDependentVariable(primModelDoc.getModel(), primModelLimits);
     template.setDependentVariable(var.var);
     template.setDependentVariableUnit(var.unit);
-    template.setDependentVariableMin(var.min);
-    template.setDependentVariableMax(var.max);
+    if (!Double.isNaN(var.min)) {
+      template.setDependentVariableMin(var.min);
+    }
+    if (!Double.isNaN(var.max)) {
+      template.setDependentVariableMax(var.max);
+    }
   }
 
   @Override
@@ -901,8 +912,12 @@ class OneStepSecondaryModelTemplateCreator extends TemplateCreator {
     VariableData var = processDependentVariable(primModel, primModelLimits);
     template.setDependentVariable(var.var);
     template.setDependentVariableUnit(var.unit);
-    template.setDependentVariableMin(var.min);
-    template.setDependentVariableMax(var.max);
+    if (!Double.isNaN(var.min)) {
+      template.setDependentVariableMin(var.min);
+    }
+    if (!Double.isNaN(var.max)) {
+      template.setDependentVariableMax(var.max);
+    }
   }
 
   @Override
@@ -1145,8 +1160,12 @@ abstract class TertiaryModelTemplateCreator extends TemplateCreator {
     VariableData var = processDependentVariable(primDoc.getModel(), primModelLimits);
     template.setDependentVariable(var.var);
     template.setDependentVariableUnit(var.unit);
-    template.setDependentVariableMin(var.min);
-    template.setDependentVariableMax(var.max);
+    if (!Double.isNaN(var.min)) {
+      template.setDependentVariableMin(var.min);
+    }
+    if (!Double.isNaN(var.max)) {
+      template.setDependentVariableMax(var.max);
+    }
   }
 
   @Override

@@ -1,10 +1,13 @@
 package de.bund.bfr.knime.pmm.fskx.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,9 +54,9 @@ public class LibRegistry {
 	private LibRegistry() throws IOException, RException {
 		// Create directories
 		installPath = Files.createTempDirectory("install");
-		installPath.toFile().deleteOnExit();
 		repoPath = Files.createTempDirectory("repo");
-		repoPath.toFile().deleteOnExit();
+		
+		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		
 		// ... and initialize installation path attribute
 		repoPathAttr = "path = '" + repoPath.toString().replace("\\", "/") + "'";
@@ -155,5 +158,42 @@ public class LibRegistry {
 
 	public Path getInstallationPath() {
 		return installPath;
+	}
+	
+	public Path getRepositoryPath() {
+		return repoPath;
+	}
+
+	/**
+	 * Shutdown hook that deletes recursively the directories used to download
+	 * and install the R libraries, repository and installation paths
+	 * respectively.
+	 */
+	private class ShutdownHook extends Thread {
+
+		public ShutdownHook() {
+			// Does nothing
+		}
+
+		@Override
+		public void run() {
+			// Delete installation path
+			try {
+				Files.walk(getInstallationPath(), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder())
+						.map(Path::toFile).forEach(File::delete);
+			} catch (IOException error) {
+				System.err.println("Installation path could not be removed. Remove manually.");
+				error.printStackTrace();
+			}
+
+			// Delete repository path
+			try {
+				Files.walk(getRepositoryPath(), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder())
+						.map(Path::toFile).forEach(File::delete);
+			} catch (IOException error) {
+				System.err.println("Repository path could not be removed. Remove manually.");
+				error.printStackTrace();
+			}
+		}
 	}
 }

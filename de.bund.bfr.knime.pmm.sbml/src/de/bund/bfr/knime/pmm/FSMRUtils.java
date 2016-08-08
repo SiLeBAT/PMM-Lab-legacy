@@ -431,12 +431,7 @@ abstract class TemplateCreator {
     // Sets unit
     String unitId = param.getUnits();
     if (!unitId.isEmpty() && !unitId.equals("dimensionless")) {
-      String unitName = model.getUnitDefinition(unitId).getName();
-      if (DBUnits.getDBUnits().containsKey(unitName)) {
-        UnitsFromDB ufdb = DBUnits.getDBUnits().get(unitName);
-        String category = ufdb.getKind_of_property_quantity();
-        var.unit = category + " -> " + unitName;
-      }
+      var.unit = model.getUnitDefinition(unitId).getName();
     }
 
     // Sets minimum and maximum values

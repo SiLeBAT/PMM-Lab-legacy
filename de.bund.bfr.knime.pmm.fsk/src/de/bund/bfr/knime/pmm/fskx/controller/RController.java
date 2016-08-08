@@ -222,7 +222,7 @@ public class RController implements IRController {
 							+ "Please install it manually in your R installation by running \"install.packages('Rserve')\".");
 				}
 			}
-			
+
 			final String miniCranProp = m_rProps.getProperty("miniCRAN");
 			if (miniCranProp == null || miniCranProp.isEmpty()) {
 				try {
@@ -234,7 +234,7 @@ public class RController implements IRController {
 							+ "Please install it manually in your R installation by running \"install.packages('miniCRAN')\".");
 				}
 			}
-			
+
 			m_connection = initRConnection();
 
 		} catch (final InvalidRHomeException ex) {
@@ -279,58 +279,145 @@ public class RController implements IRController {
 	 * 
 	 * @throws IOException
 	 */
+	// private void installRserve() throws IOException {
+	// if (!Platform.isWindows()) {
+	// throw new RuntimeException("Non suppported platform, sorry." +
+	// System.getProperty("os.name"));
+	// }
+	//
+	// InputStream inputStream =
+	// getClass().getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-0.zip");
+	//
+	// File tempFile = FileUtil.createTempFile("Rserve_1.8-0", ".zip");
+	// FileOutputStream outputStream = new FileOutputStream(tempFile);
+	// FileUtil.copy(inputStream, outputStream);
+	//
+	// inputStream.close();
+	// outputStream.close();
+	//
+	// String rServePath = tempFile.getAbsolutePath();
+	//
+	// String rBinPath =
+	// RPreferenceInitializer.getR3Provider().getRBinPath("R");
+	//
+	// String cmd = rBinPath + " CMD INSTALL " + rServePath;
+	//
+	// Runtime.getRuntime().exec(cmd);
+	// }
+
 	private void installRserve() throws IOException {
-		if (!Platform.isWindows()) {
+		if (Platform.isWindows()) {
+
+			InputStream inputStream = getClass()
+					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-0.zip");
+
+			File tempFile = FileUtil.createTempFile("Rserve_1.8-0", ".zip");
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileUtil.copy(inputStream, outputStream);
+
+			inputStream.close();
+			outputStream.close();
+
+			String rServePath = tempFile.getAbsolutePath();
+			String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+			String cmd = rBinPath + " CMD INSTALL " + rServePath;
+
+			Runtime.getRuntime().exec(cmd);
+		} else if (Platform.isLinux()) {
+			InputStream inputStream = getClass()
+					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-5.tar.gz");
+
+			File tempFile = FileUtil.createTempFile("Rserve_1.8-5", ".tar.gz");
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileUtil.copy(inputStream, outputStream);
+
+			inputStream.close();
+			outputStream.close();
+
+			String rServePath = tempFile.getAbsolutePath();
+			String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+			String cmd = rBinPath + " CMD INSTALL " + rServePath;
+
+			Runtime.getRuntime().exec(cmd);
+
+		} else {
 			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
 		}
-
-		InputStream inputStream = getClass().getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-0.zip");
-		
-		File tempFile = FileUtil.createTempFile("Rserve_1.8-0", ".zip");
-		FileOutputStream outputStream = new FileOutputStream(tempFile);
-		FileUtil.copy(inputStream, outputStream);
-		
-		inputStream.close();
-		outputStream.close();
-		
-		String rServePath = tempFile.getAbsolutePath();
-
-		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
-		
-		String cmd = rBinPath + " CMD INSTALL " + rServePath;
-
-		Runtime.getRuntime().exec(cmd);
 	}
-	
+
 	/**
 	 * Install Rserve just in case the R environment provided by the user does
 	 * not have it installed.
 	 * 
 	 * @throws IOException
 	 */
+//	private void installMiniCran() throws IOException {
+//		if (!Platform.isWindows()) {
+//			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
+//		}
+//
+//		InputStream inputStream = getClass().getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.5.zip");
+//
+//		File tempFile = FileUtil.createTempFile("miniCRAN_0.2.5", ".zip");
+//		FileOutputStream outputStream = new FileOutputStream(tempFile);
+//		FileUtil.copy(inputStream, outputStream);
+//
+//		inputStream.close();
+//		outputStream.close();
+//
+//		String miniCranPath = tempFile.getAbsolutePath();
+//
+//		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+//
+//		String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
+//
+//		Runtime.getRuntime().exec(cmd);
+//	}
+
 	private void installMiniCran() throws IOException {
-		if (!Platform.isWindows()) {
+
+		if (Platform.isWindows()) {
+			InputStream inputStream = getClass()
+					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.5.zip");
+
+			File tempFile = FileUtil.createTempFile("miniCRAN_0.2.5", ".zip");
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileUtil.copy(inputStream, outputStream);
+
+			inputStream.close();
+			outputStream.close();
+
+			String miniCranPath = tempFile.getAbsolutePath();
+
+			String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+
+			String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
+
+			Runtime.getRuntime().exec(cmd);
+		} else if (Platform.isLinux()) {
+			InputStream inputStream = getClass()
+					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.5.tar.gz");
+
+			File tempFile = FileUtil.createTempFile("miniCRAN_0.2.5", ".tar.gz");
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileUtil.copy(inputStream, outputStream);
+
+			inputStream.close();
+			outputStream.close();
+
+			String miniCranPath = tempFile.getAbsolutePath();
+
+			String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+
+			String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
+
+			Runtime.getRuntime().exec(cmd);
+
+		} else {
 			throw new RuntimeException("Non suppported platform, sorry." + System.getProperty("os.name"));
 		}
-
-		InputStream inputStream = getClass().getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.5.zip");
-		
-		File tempFile = FileUtil.createTempFile("miniCRAN_0.2.5", ".zip");
-		FileOutputStream outputStream = new FileOutputStream(tempFile);
-		FileUtil.copy(inputStream, outputStream);
-		
-		inputStream.close();
-		outputStream.close();
-		
-		String miniCranPath = tempFile.getAbsolutePath();
-
-		String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
-		
-		String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
-
-		Runtime.getRuntime().exec(cmd);
 	}
-	
+
 	// --- Simple Getters ---
 	@Override
 	public RConnection getREngine() {

@@ -93,7 +93,7 @@ public class DefaultRPreferenceProvider implements RPreferenceProvider {
         return binPath.resolve("i386").toString() + File.separator + command + ".exe";
       }
     } else {
-      return binPath + File.separator + "Rserve.dbg";
+      return binPath + File.separator + command;
     }
   }
 

@@ -115,7 +115,7 @@ public class DefaultRPreferenceProvider implements RPreferenceProvider {
     }
 
     else {
-      return rserveLibs.resolve("RServe.dbg").toString();
+      return rserveLibs.resolve("Rserve.dbg").toString();
     }
   }
 

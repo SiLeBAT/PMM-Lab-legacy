@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 
+import com.sun.jna.Platform;
+
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 
 /**
@@ -38,7 +40,7 @@ public class LibRegistry {
 	private static final String reposAttr = "repos = 'http://cran.us.r-project.org'";
 
 	/** R type attribute: holds repository attribute. */
-	private static final String typeAttr = "type = 'win.binary'";
+	private final String typeAttr;  // = "type = 'win.binary'";
 
 	/** Utility set to keep count of installed libraries. */
 	private final Set<String> installedLibs = new HashSet<>();
@@ -56,6 +58,12 @@ public class LibRegistry {
 		// ... and initialize installation path attribute
 		repoPathAttr = "path = '" + repoPath.toString().replace("\\", "/") + "'";
 
+		if (Platform.isWindows()) {
+			typeAttr = "type = 'win.binary'";
+		} else {
+			typeAttr = "type = 'source'";
+		}
+		
 		controller = new RController();
 		controller.eval("library(miniCRAN)");
 		controller.eval("makeRepo(c(), " + repoPathAttr + ", " + reposAttr + ", " + typeAttr + ")");

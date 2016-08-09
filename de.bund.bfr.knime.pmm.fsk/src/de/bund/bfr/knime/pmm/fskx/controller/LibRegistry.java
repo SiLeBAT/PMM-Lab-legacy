@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import org.rosuda.REngine.REXP;
@@ -27,7 +26,7 @@ import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
  * @author Miguel Alba
  */
 public class LibRegistry {
-	
+
 	private static LibRegistry instance;
 
 	/** Installation path. */
@@ -35,15 +34,6 @@ public class LibRegistry {
 
 	/** miniCRAN repository path. */
 	private final Path repoPath;
-	
-	/** R path attribute: holds installation path. */
-	private final String repoPathAttr;
-
-	/** R repo attribute: holds remote repository. */
-	private static final String reposAttr = "repos = 'http://cran.us.r-project.org'";
-
-	/** R type attribute: holds repository attribute. */
-	private final String typeAttr;  // = "type = 'win.binary'";
 
 	/** Utility set to keep count of installed libraries. */
 	private final Set<String> installedLibs = new HashSet<>();
@@ -51,29 +41,27 @@ public class LibRegistry {
 	/** Utility RController for running R commands. */
 	private final RController controller;
 
+	private String type;
+
 	private LibRegistry() throws IOException, RException {
 		// Create directories
 		installPath = Files.createTempDirectory("install");
 		repoPath = Files.createTempDirectory("repo");
-		
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-		
-		// ... and initialize installation path attribute
-		repoPathAttr = "path = '" + repoPath.toString().replace("\\", "/") + "'";
 
 		if (Platform.isWindows()) {
-			typeAttr = "type = 'win.binary'";
+			type = "win.binary";
 		} else if (Platform.isMac()) {
-			typeAttr = "type = 'mac.binary'";
+			type = "mac.binary";
 		} else {
-			typeAttr = "type = 'source'";
+			type = "source";
 		}
-		
+
 		controller = new RController();
-		controller.eval("library(miniCRAN)");
-		controller.eval("makeRepo(c(), " + repoPathAttr + ", " + reposAttr + ", " + typeAttr + ")");
+		controller.eval(RCommandBuilder.library("miniCRAN"));
+		controller.eval(RCommandBuilder.makeRepo(repoPath, "http://cran.us.r-project.org", type));
 	}
-	
+
 	public static LibRegistry instance() throws IOException, RException {
 		if (instance == null) {
 			instance = new LibRegistry();
@@ -102,32 +90,19 @@ public class LibRegistry {
 	 */
 	public void installLibs(final List<String> libs) throws RException, REXPMismatchException {
 
-		final UnaryOperator<String> quoteOperator = astring -> '"' + astring + '"';
-
-		// Creates R package list: c('pkg1', 'pkg2', ..., 'pkgN')
-		final List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
-		final String pkgList = "c(" + String.join(",", quotedLibs) + ")";
-
-		// Gets list of R dependencies of libs: c('dep1', 'dep2', ...,
-		// 'depN')
-		String cmd = "pkgDep(" + pkgList + ", availPkgs = cranJuly2014, " + typeAttr + ")";
-		REXP rexp = controller.eval(cmd);
+		// Gets list of R dependencies of libs: c('dep1', 'dep2', ..., 'depN')
+		REXP rexp = controller.eval(RCommandBuilder.pkgDep(libs, type));
 		List<String> deps = Arrays.asList(rexp.asStrings());
-		List<String> quotedDeps = deps.stream().map(quoteOperator).collect(Collectors.toList());
-		String depList = "c(" + String.join(",", quotedDeps) + ")";
 
 		// Adds the dependencies to the miniCRAN repository
-		controller.eval("addPackage(" + depList + ", " + repoPathAttr + ", " + reposAttr + "," + typeAttr + ")");
+		controller.eval(RCommandBuilder.addPackage(deps, repoPath, "http://cran.us.r-project.org", type));
 
 		// Gets the paths to the binaries of these dependencies
-		rexp = controller.eval("checkVersions(" + depList + ", " + repoPathAttr + ", " + typeAttr + ")");
-		List<String> paths = Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
-		String fileList = "c(" + String.join(",", paths) + ")";
+		rexp = controller.eval(RCommandBuilder.checkVersions(deps, repoPath, type));
+		List<String> paths = Arrays.asList(rexp.asStrings());
 
 		// Install binaries
-		String cmd2 = "install.packages(" + fileList + ", repos = NULL, lib = '"
-				+ installPath.toString().replace("\\", "/") + "', " + typeAttr + ")";
-		controller.eval(cmd2);
+		controller.eval(RCommandBuilder.installPackages(paths, installPath, type));
 
 		// Adds names of installed libraries to utility set
 		installedLibs.addAll(deps);
@@ -142,18 +117,12 @@ public class LibRegistry {
 	 * @throws REXPMismatchException
 	 */
 	public Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
-
-		UnaryOperator<String> quoteOperator = astring -> "'" + astring + "'";
-
 		// Gets list of R dependencies of libs
-		List<String> quotedLibs = libs.stream().map(quoteOperator).collect(Collectors.toList());
-		String libList = "c(" + String.join(",", quotedLibs) + ")";
-		REXP rexp = controller.eval("pkgDep(" + libList + ", availPkgs = cranJuly2014, " + typeAttr + ")");
+		REXP rexp = controller.eval(RCommandBuilder.pkgDep(libs, type));
+		String[] deps = controller.eval(RCommandBuilder.pkgDep(libs, type)).asStrings();
 
 		// Gets the paths to the binaries of these dependencies
-		List<String> deps = Arrays.stream(rexp.asStrings()).map(quoteOperator).collect(Collectors.toList());
-		String depList = "c(" + String.join(",", deps) + ")";
-		rexp = controller.eval("checkVersions(" + depList + ", " + repoPathAttr + ", " + typeAttr + ")");
+		rexp = controller.eval(RCommandBuilder.checkVersions(Arrays.asList(deps), repoPath, type));
 
 		return Arrays.stream(rexp.asStrings()).map(path -> Paths.get(path)).collect(Collectors.toSet());
 	}
@@ -161,7 +130,7 @@ public class LibRegistry {
 	public Path getInstallationPath() {
 		return installPath;
 	}
-	
+
 	public Path getRepositoryPath() {
 		return repoPath;
 	}
@@ -196,6 +165,45 @@ public class LibRegistry {
 				System.err.println("Repository path could not be removed. Remove manually.");
 				error.printStackTrace();
 			}
+		}
+	}
+
+	private static class RCommandBuilder {
+
+		// Utility method. Should not be used outside of RCommandBuilder.
+		static String _pkgList(final List<String> pkgs) {
+			return "c(" + pkgs.stream().map(pkg -> "'" + pkg + "'").collect(Collectors.joining(", ")) + ")";
+		}
+
+		// Utility method. Should not be used outside of RCommandBuilder.
+		static String _path2String(final Path path) {
+			return path.toString().replace("\\", "/");
+		}
+
+		static String library(final String libraryName) {
+			return "library(" + libraryName + ")";
+		}
+
+		static String installPackages(final List<String> pkgs, final Path path, final String type) {
+			return "install.packages(" + _pkgList(pkgs) + ", repos = NULL, lib = '" + _path2String(path) + "', type = '"
+					+ type + "')";
+		}
+
+		static String makeRepo(final Path path, final String repos, final String type) {
+			return "makeRepo(c(), '" + _path2String(path) + "', repos = '" + repos + "', type = '" + type + "')";
+		}
+
+		static String pkgDep(final List<String> pkgs, final String type) {
+			return "pkgDep(" + _pkgList(pkgs) + ", availPkgs = cranJuly2014, type = " + type + ")";
+		}
+
+		static String addPackage(final List<String> pkgs, final Path path, final String repos, final String type) {
+			return "addPackage(" + _pkgList(pkgs) + ", '" + _path2String(path) + "', repos = '" + repos + "', type = '"
+					+ type + "')";
+		}
+
+		static String checkVersions(final List<String> pkgs, final Path path, final String type) {
+			return "checkVersions(" + _pkgList(pkgs) + ", '" + _path2String(path) + "', type = '" + type + "')";
 		}
 	}
 }

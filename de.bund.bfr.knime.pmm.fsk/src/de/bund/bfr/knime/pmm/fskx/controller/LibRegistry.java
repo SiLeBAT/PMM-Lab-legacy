@@ -63,6 +63,8 @@ public class LibRegistry {
 
 		if (Platform.isWindows()) {
 			typeAttr = "type = 'win.binary'";
+		} else if (Platform.isMac()) {
+			typeAttr = "type = 'mac.binary'";
 		} else {
 			typeAttr = "type = 'source'";
 		}

@@ -296,6 +296,22 @@ public class RController implements IRController {
 			String cmd = rBinPath + " CMD INSTALL " + rServePath;
 
 			Runtime.getRuntime().exec(cmd);
+		} else if (Platform.isMac()) {
+			InputStream inputStream = getClass()
+					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.7-3.tgz");
+
+			File tempFile = FileUtil.createTempFile("Rserve_1.7.3", ".tgz");
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileUtil.copy(inputStream, outputStream);
+
+			inputStream.close();
+			outputStream.close();
+
+			String rServePath = tempFile.getAbsolutePath();
+			String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+			String cmd = rBinPath + " CMD INSTALL " + rServePath;
+
+			Runtime.getRuntime().exec(cmd);
 		} else if (Platform.isLinux()) {
 			InputStream inputStream = getClass()
 					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/Rserve_1.8-5.tar.gz");
@@ -345,6 +361,25 @@ public class RController implements IRController {
 			String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
 
 			Runtime.getRuntime().exec(cmd);
+		} else if (Platform.isMac()) {
+			InputStream inputStream = getClass()
+					.getResourceAsStream("/de/bund/bfr/knime/pmm/fskx/res/miniCRAN_0.2.6.tgz");
+
+			File tempFile = FileUtil.createTempFile("miniCRAN_0.2.6", ".tgz");
+			FileOutputStream outputStream = new FileOutputStream(tempFile);
+			FileUtil.copy(inputStream, outputStream);
+
+			inputStream.close();
+			outputStream.close();
+
+			String miniCranPath = tempFile.getAbsolutePath();
+
+			String rBinPath = RPreferenceInitializer.getR3Provider().getRBinPath("R");
+
+			String cmd = rBinPath + " CMD INSTALL " + miniCranPath;
+
+			Runtime.getRuntime().exec(cmd);
+			
 		} else if (Platform.isLinux()) {		
 			String cmd = "install.packages('miniCRAN', repos = 'http://cran.us.r-project.org')";
 			eval(cmd);

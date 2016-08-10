@@ -99,7 +99,7 @@ public class LibRegistry {
 		rWrapper.addPackage(deps, repoPath, "http://cran.us.r-project.org", type);
 
 		// Gets the paths to the binaries of these dependencies
-		List<String> paths = rWrapper.checkVersions(deps, repoPath, type);
+		List<Path> paths = rWrapper.checkVersions(deps, repoPath, type);
 
 		// Install binaries
 		rWrapper.installPackages(paths, installPath, type);
@@ -121,8 +121,8 @@ public class LibRegistry {
 		List<String> deps = rWrapper.pkgDep(libs, type);
 
 		// Gets the paths to the binaries of these dependencies
-		List<String> paths = rWrapper.checkVersions(deps, repoPath, type);
-		return paths.stream().map(Paths::get).collect(Collectors.toSet());
+		List<Path> paths = rWrapper.checkVersions(deps, repoPath, type);
+		return new HashSet<>(paths);
 	}
 
 	public Path getInstallationPath() {
@@ -209,8 +209,11 @@ public class LibRegistry {
 		 *      "https://stat.ethz.ch/R-manual/R-devel/library/utils/html/install.packages.html">
 		 *      R documentation</a>
 		 */
-		void installPackages(final List<String> pkgs, final Path lib, final String type) throws RException {
-			String cmd = "install.packages(" + _pkgList(pkgs) + ", repos = NULL, lib = '" + _path2String(lib)
+		void installPackages(final List<Path> pkgs, final Path lib, final String type) throws RException {
+			String pkgsAsString = pkgs.stream().map(pkg -> "'" + pkg.toString().replace("\\", "/") + "'")
+					.collect(Collectors.joining(", "));
+			String pkgList = "c(" + pkgsAsString + ")";
+			String cmd = "install.packages(" + pkgList + ", repos = NULL, lib = '" + _path2String(lib)
 					+ "', type = '" + type + "')";
 			controller.eval(cmd);
 		}
@@ -262,11 +265,11 @@ public class LibRegistry {
 		 *      "https://cran.r-project.org/web/packages/miniCRAN/miniCRAN.pdf">
 		 *      miniCRAN documentation</a>
 		 */
-		List<String> checkVersions(final List<String> pkgs, final Path path, final String type)
+		List<Path> checkVersions(final List<String> pkgs, final Path path, final String type)
 				throws REXPMismatchException, RException {
 			String cmd = "checkVersions(" + _pkgList(pkgs) + ", '" + _path2String(path) + "', type = '" + type + "')";
-			REXP rexp = controller.eval(cmd);
-			return Arrays.asList(rexp.asStrings());
+			String[] pathsArray = controller.eval(cmd).asStrings();
+			return Arrays.stream(pathsArray).map(Paths::get).collect(Collectors.toList());
 		}
 
 		/**

@@ -736,9 +736,9 @@ pmm_plotter = function() {
 	function addFunctionObject(dbuuid, functionAsString, functionConstants, model)
 	{
 		var color = getNextColor(); // functionPlot provides 9 colors
-		var maxRange = _plotterValue.maxXAxis * 1000; // obligatoric for the range feature // TODO: dynamic maximum
+		var maxRange = _plotterValue.maxXAxis * 1000; // obligatoric for the range feature 
 		var range = [0, maxRange];
-		var id = ++_internalId;
+		var id = ++_internalId; // no other id is unique
 		
 		var modelObj = { 
 			 id: id,
@@ -754,6 +754,7 @@ pmm_plotter = function() {
 			 modelData: model
 		};
 
+		// resolve "(a<b)" parts of the formula
 		resetBinaryFormulaBindings(modelObj);
 		
 		// for given data, we add an additional graph that only includes the data points
@@ -889,6 +890,7 @@ pmm_plotter = function() {
 		// accordion-specific jQuery semantic for append()
 		$("#metaDataWrapper").append(header);
 		
+		// delete button area (cross)
 		var deleteDiv = document.createElement("span");
 		deleteDiv.setAttribute("style", "float: right; color: transparent; background: transparent; border: transparent;")
 		header.appendChild(deleteDiv);
@@ -900,7 +902,6 @@ pmm_plotter = function() {
 	        },
 	        text: false
 	    }).click(function(event) {
-	    	// we use color as an additional identifier in case the same model was added more than once
 	    	deleteFunctionObject(modelObject.id);
 	    });
 	    deleteButton.setAttribute("style", 	"color: transparent; background: transparent; border: transparent;");
@@ -909,11 +910,12 @@ pmm_plotter = function() {
 		// color field
 		var colorDiv = document.createElement("span");
 		colorDiv.setAttribute("style", 
-				"float: left; color: " + modelObject.color 
-				+ "; background:  " + modelObject.color 
-				+ "; border: 1px solid #cac3c3; margin-right: 5px; height: 10px; width: 10px; margin-top: 3px;")
+			"float: left; color: " + modelObject.color 
+			+ "; background:  " + modelObject.color 
+			+ "; border: 1px solid #cac3c3; margin-right: 5px; height: 10px; width: 10px; margin-top: 3px;")
 		header.appendChild(colorDiv);
 
+		// the field has to include a button instance to show a rectangle
 		var colorDivSub = document.createElement("button");
 	    $(colorDivSub).button({
 	        icons: {
@@ -927,7 +929,7 @@ pmm_plotter = function() {
 				+ modelObject.color + "; border: 0px; height: 10px; width: 10px;")
 		colorDiv.appendChild(colorDivSub);
 		
-		// meta content divs divs
+		// meta content divs
 		var metaDiv = document.createElement("div");
 		metaDiv.setAttribute("id", modelObject.id);
 		$("#metaDataWrapper").append(metaDiv);
@@ -937,7 +939,7 @@ pmm_plotter = function() {
 		// model formula (function)
 		addMetaParagraph(msgScore, modelObject.modelData.estModel.qualityScore, msgNoScore);
 		// matrix data
-		addMetaParagraph(msgFunction, reparseFunction(modelObject.fn), msgNoFunction);
+		addMetaParagraph(msgFunction, unparseFunction(modelObject.fn), msgNoFunction);
 		// function parameter
 		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter);
 		// quality score
@@ -981,7 +983,7 @@ pmm_plotter = function() {
 		 * 
 		 * @param formula function formula
 		 */
-		function reparseFunction(formula)
+		function unparseFunction(formula)
 		{
 			newFormula = formula.replace(/\bx\b/gi, msgTime);
 			newFormula = newFormula.replace(/\blog\b/gi, "ln");
@@ -1018,15 +1020,16 @@ pmm_plotter = function() {
 	    var sliderWrapper = document.getElementById("sliderWrapper");
 	    var sliderIds = []; // ids of all sliders that correspond to a constant from the used models
 	    
-	    // add or update sliders
+	    // iterate over all models
 	    for (var modelIndex in _modelObjects)
 	    {
-	    	var constants = _modelObjects[modelIndex].scope;
-	    	if(constants)
+	    	var scopeParameters = _modelObjects[modelIndex].scope;
+	    	if(scopeParameters)
 	    	{
-		    	$.each(constants, function(constant, value)
+	    		// iterate over scope parameters
+		    	$.each(scopeParameters, function(parameter, value)
 		    	{
-					var sliderId = "slider_" + constant.toUpperCase();
+					var sliderId = "slider_" + parameter.toUpperCase();
 					sliderIds.push(sliderId); // remember active sliders
 					
 					// do not recreate if already in the DOM
@@ -1040,8 +1043,9 @@ pmm_plotter = function() {
 					// standard values if no range given
 					var sliderMin = value - _defaultRangeValue;
 					var sliderMax = value + _defaultRangeValue;
+					
 					$.each(_parameterMap, function (index, range) {
-						if(range.name == constant)
+						if(range.name == parameter)
 						{
 							if(range.min != undefined)
 								sliderMin = range.min;
@@ -1052,6 +1056,7 @@ pmm_plotter = function() {
 					
 					sliderMin = roundValue(sliderMin);
 					sliderMax = roundValue(sliderMax);
+					
 					/*
 					 * the layout structure is as follows:
 					 * > sliderBox
@@ -1065,7 +1070,7 @@ pmm_plotter = function() {
 				    sliderWrapper.appendChild(sliderBox);
 				    
 					var sliderLabel = document.createElement("div");
-					var labelText = "<b>" + constant + "</b>" + " (" + sliderMin + msg_To_ + sliderMax + ")";
+					var labelText = "<b>" + parameter + "</b>" + " (" + sliderMin + msg_To_ + sliderMax + ")";
 					sliderLabel.innerHTML = labelText;
 					sliderLabel.setAttribute("style" , "font-size: 10px;");
 					sliderBox.appendChild(sliderLabel);
@@ -1099,7 +1104,7 @@ pmm_plotter = function() {
 				        slide: function( event, ui ) {
 				            $(sliderValueInput).val( ui.value );
 				            // delay prevents excessive redrawing
-				            window.setTimeout(updateFunctionParameter(constant, ui.value), _defaultTimeout);
+				            window.setTimeout(updateFunctionParameter(parameter, ui.value), _defaultTimeout);
 				        }
 				    });
 					$(sliderValueInput).change(function() {
@@ -1108,7 +1113,7 @@ pmm_plotter = function() {
 							if(this.value == undefined || this.value == "")
 								return;
 							// delay prevents excessive redrawing
-							window.setTimeout(updateFunctionParameter(constant, this.value), _defaultTimeout);
+							window.setTimeout(updateFunctionParameter(parameter, this.value), _defaultTimeout);
 					});
 					// react immediately on key input
 					$(sliderValueInput).keyup(function() {
@@ -1165,8 +1170,18 @@ pmm_plotter = function() {
 		drawD3Plot();
 	}
 	
-	// this whole function is a workaround to replace the non-existing recursion of JS regexes
-	// we parse the boollean operators and recreate their according terms
+	/**
+	 * This function is a workaround and parser to replace the non-existing recursion of 
+	 * JS regexes. We parse the boolean operators and recreate their according terms.
+	 * 
+	 * As a RegEx in standard JS does neither support recursion nor references, we can only 
+	 * recevie the full boolean statements in three steps:
+	 * 
+	 * 1. 	get all operators and their directly attached brackets.
+	 * 2. 	convert results from 1. into regexes that include all 
+	 * 		brackets that belong to the full statements
+	 * 3. 	research the formula by using all regexes from 2.
+	 */
 	function resetBinaryFormulaBindings(model) {
 		// not necessary for data points
 		if(model.fnType == 'points')
@@ -1175,26 +1190,25 @@ pmm_plotter = function() {
 		var scope = model.scope;
 		var formula = model.rawFormula;
 		
-		// search these: \)*[<>!|&=]\(*
-		// replace for each bracket like this: \([^(]*\([^(]*\)\)[<>!|&=][^)]*\)
+		// search these: \)*[<>!|&=]\(* (the operator within the statement plus the attached brackets)
+		// results -> '))<(' or '))=((' etc.
 		var booleanStatements = formula.match(/\)*[<>!|&=]+\(*/g);
 		if(!booleanStatements || booleanStatements.length <= 0)
 			return;
 		
+		// we rebuild new regexes from the statements by adding the missing brackets as regex parts
 		var refilledStatements = []		
-		// regex cannot deliver outer brackets: we lose some brackets in the match
 		$.each(booleanStatements, function (index, statement) {
 			refilledStatements.push(refillStatement(statement));
 		});
 		var fullStatements =  [];
-				
+
+		// we now search again with are rebuild regexes
 		$.each(refilledStatements, function (index, statement) {
 			var statementRegEx = new RegExp(statement);
 			fullStatements.push(formula.match(statementRegEx)[0]);
-	
 		});
 		
-
 		// fill still missing brackets
 		$.each(fullStatements, function (index, statement) {
 			opening = statement.split("(").length
@@ -1202,7 +1216,6 @@ pmm_plotter = function() {
 			
 			if(opening == closing)
 				return;
-
 			
 			if(opening > closing)
 			{
@@ -1212,7 +1225,7 @@ pmm_plotter = function() {
 				}
 				fullStatements[index] = statement;
 			}
-			else if(closing > opening)
+			else // (closing > opening)
 			{
 				for(i=0; i < (closing - opening); i++)
 				{
@@ -1220,11 +1233,10 @@ pmm_plotter = function() {
 				}
 				fullStatements[index] = statement;
 			}
-	
 		});
 		
+		// if the statement affects the x-axis, we cannot yet calculate the result
 		$.each(fullStatements, function (index, statement) {
-			// if the statement affects the x-axis, we cannot yet calculate the result
 			if((new RegExp("\\bx\\b","g")).test(statement)) {
 				show(msg_error_notSupported_booleanOnX);
 				return false;
@@ -1240,9 +1252,10 @@ pmm_plotter = function() {
 		});
 		
 		// replace old formula with parsed formula (no boolean statements)
+		// the actual formula is still saved in the "rawFormula" property of the model
 		model.fn = formula;
 
-		// fill brackets from both sides
+		// replace brackets from both sides with bracket regex
 		function refillStatement(statement) {
 			operator = statement.match(/[<>!|&=]+/g)[0];
 			
@@ -1293,9 +1306,8 @@ pmm_plotter = function() {
 		var wrapper = document.getElementById("plotterWrapper");
 		wrapper.appendChild(d3Plot);
 		
-		// plot
-		try
-		{
+		// actual plot
+		try {
 			functionPlot({
 			    target: '#d3plotter',
 			    xDomain: [-1, _plotterValue.maxXAxis],
@@ -1322,6 +1334,11 @@ pmm_plotter = function() {
 
 		window.setTimeout(serializePlot(), _defaultTimeout);
 		
+		/**
+		 * [nested function]
+		 * Converts the svg image into a String instance. This can be used to 
+		 * provide the image on a KNIME image port.
+		 */
 		function serializePlot() {
 			var svgElement = document.getElementById("d3plotter").firstChild;
 			var serializer = new XMLSerializer();

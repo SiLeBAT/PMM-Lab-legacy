@@ -49,9 +49,10 @@ pmm_plotter = function() {
 	var msgTime = "Time";
 	var msgNoMatrix = "no matrix data provided";
 	var msgNoParameter = "no parameter provided";
-	var msgNoName = "no name found";
+	var msgNoName = "no name provided";
 	var msgNoFunction = "no function provided";
 	var msgNoScore = "no quality score provided";
+	var msgNoLiterature = "no literature provided";
 	var msgNext = "Next";
 	var msg_To_ = " to ";
 	var msgNoType = "No Type";
@@ -63,6 +64,8 @@ pmm_plotter = function() {
 	var msgUnknown = "unknown";
 	var msgIn = " in ";
 	var msgName = "Name";
+	var msgCatalogModel = "Catalog Model";
+	var msgLiterature = "Literature";
 	var msgScore = "Quality Score";
 	var msgFunction = "Function";
 	var msgParameter = "Initial Parameters";
@@ -780,12 +783,12 @@ pmm_plotter = function() {
 		
 		// create dom elements in the meta accordion
 		addMetaData(modelObj);
+		
 		// update plot and sliders after adding new function
 		updateParameterSliders();
 		
 		// redraw with all models
 		drawD3Plot();
-		
 	}
 	
 	/**
@@ -936,18 +939,28 @@ pmm_plotter = function() {
 
 		// name of the model
 		addMetaParagraph(msgName, modelObject.name, msgNoName);
-		// model formula (function)
-		addMetaParagraph(msgScore, modelObject.modelData.estModel.qualityScore, msgNoScore);
+		
+		// name of the underlying catalog model
+		addMetaParagraph(msgCatalogModel, modelObject.modelData.catalogModel.name, msgNoName);
+		
 		// matrix data
-		addMetaParagraph(msgFunction, unparseFunction(modelObject.fn), msgNoFunction);
-		// function parameter
-		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter);
-		// quality score
 		if(modelObject.modelData.matrix)
 		{
 			var matrix = modelObject.modelData.matrix;
 			addMetaParagraph(msgMatrix, (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
 		}
+
+		// quality score
+		addMetaParagraph(msgScore, modelObject.modelData.estModel.qualityScore, msgNoScore);
+		
+		// model formula (function)
+		addMetaParagraph(msgFunction, unparseFunction(modelObject.fn), msgNoFunction);
+		
+		// function parameter
+		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter);
+
+		// literature
+		addMetaParagraph(msgLiterature, unfoldLiterature(modelObject.modelData.mLit.literature), msgNoLiterature);
 		
 		// ... add more paragraphs/attributes here ...
 		
@@ -1002,11 +1015,37 @@ pmm_plotter = function() {
 			if(!paramArray)
 				return null;
 			var list = "";
+			
 			$.each(paramArray, function(elem) 
 				{
 					list += ("<li>" + elem + ": " + paramArray[elem] + "</li>");
 				}
 			);
+			var domElement = "<ul type='square'>" + list + "</ul>";
+			return domElement;
+		}
+		
+		/**
+		 * [nested function]
+		 * parses the parameter array and creates a DOM list from its items
+		 * 
+		 * @param paramArray an array of key value pairs that contains the 
+		 * 		  literature or references for the model
+		 */
+		function unfoldLiterature(literatureArray)
+		{
+			if(!literatureArray)
+				return null;
+			var list = "";
+			
+			$.each(literatureArray, function(i, lit) 
+				{
+					list += ("<li><b>(" + lit.year + ") " + lit.author + "</b><br />" 
+							+ lit.title
+							+ "</li>");
+				}
+			);
+			
 			var domElement = "<ul type='square'>" + list + "</ul>";
 			return domElement;
 		}

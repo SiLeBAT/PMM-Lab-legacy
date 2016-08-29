@@ -745,11 +745,11 @@ pmm_plotter = function() {
 		
 		var modelObj = { 
 			 id: id,
-             dbuuid: dbuuid,
+             dbuuid: dbuuid, // global model id
 			 fnType: 'linear',
 			 name: model.estModel.name,
-			 fn: functionAsString,
-			 rawFormula: functionAsString,
+			 fn: functionAsString,	
+			 rawFormula: functionAsString,	// this never changes
 			 scope: functionConstants,
 			 color: color,
 			 range: range,
@@ -759,6 +759,10 @@ pmm_plotter = function() {
 
 		// resolve "(a<b)" parts of the formula
 		resetBinaryFormulaBindings(modelObj);
+
+		// resolve "(x<b)" parts of the formula
+		resetBinaryFormulaBindingsOnX(modelObj);
+
 		
 		// for given data, we add an additional graph that only includes the data points
 		if(model.dataPoints.length > 0)
@@ -938,29 +942,32 @@ pmm_plotter = function() {
 		$("#metaDataWrapper").append(metaDiv);
 
 		// name of the model
-		addMetaParagraph(msgName, modelObject.name, msgNoName);
+		addMetaParagraph(msgName, modelObject.name, msgNoName, false);
 		
 		// name of the underlying catalog model
-		addMetaParagraph(msgCatalogModel, modelObject.modelData.catalogModel.name, msgNoName);
+		addMetaParagraph(msgCatalogModel, modelObject.modelData.catalogModel.name, msgNoName, false);
 		
 		// matrix data
 		if(modelObject.modelData.matrix)
 		{
 			var matrix = modelObject.modelData.matrix;
-			addMetaParagraph(msgMatrix, (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix);
+			addMetaParagraph(msgMatrix, (matrix.name || "") + "; " + (matrix.detail || ""), msgNoMatrix, false);
 		}
 
 		// quality score
-		addMetaParagraph(msgScore, modelObject.modelData.estModel.qualityScore, msgNoScore);
+		addMetaParagraph(msgScore, modelObject.modelData.estModel.qualityScore, msgNoScore, false);
+		
+		var colorDivSub = document.createElement("div");
+		metaDiv.setAttribute("id", modelObject.id + "functionAccordion");
 		
 		// model formula (function)
-		addMetaParagraph(msgFunction, unparseFunction(modelObject.fn), msgNoFunction);
+		addMetaParagraph(msgFunction, unparseFunction(modelObject.fn), msgNoFunction, true);
 		
 		// function parameter
-		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter);
+		addMetaParagraph(msgParameter, unfoldScope(modelObject.scope), msgNoParameter, true);
 
 		// literature
-		addMetaParagraph(msgLiterature, unfoldLiterature(modelObject.modelData.mLit.literature), msgNoLiterature);
+		addMetaParagraph(msgLiterature, unfoldLiterature(modelObject.modelData.mLit.literature), msgNoLiterature, true);
 		
 		// ... add more paragraphs/attributes here ...
 		
@@ -979,7 +986,7 @@ pmm_plotter = function() {
 		 * @param content the value of the parameter
 		 * @param alt alternative msg if parameter is null or empty
 		 */
-		function addMetaParagraph(title, content, alt) 
+		function addMetaParagraph(title, content, alt, asAccordion) 
 		{
 			var header = "<div style='font-weight: bold; font-size:10px;'>" + title + "</div>";
 			if(!content || content == "; ")
@@ -988,6 +995,12 @@ pmm_plotter = function() {
 			
 			var paragraph = $("<p></p>").append(header, inner);
 			$(metaDiv).append(paragraph);
+			
+			if(asAccordion)
+				$(paragraph).accordion({
+					content: "height-style",
+					collapsible: true
+				});
 		}
 		
 		/**
@@ -1294,7 +1307,14 @@ pmm_plotter = function() {
 		// the actual formula is still saved in the "rawFormula" property of the model
 		model.fn = formula;
 
-		// replace brackets from both sides with bracket regex
+		/**
+		 * [nested function]
+		 * replace brackets from both sides with bracket regex
+		 * 
+		 * @param statement a boolean statement that has brackets
+		 * 
+		 * @return a boolean statement that serves as a regex
+		 */
 		function refillStatement(statement) {
 			operator = statement.match(/[<>!|&=]+/g)[0];
 			
@@ -1326,6 +1346,43 @@ pmm_plotter = function() {
 			
 			return escapedStatement;
 		}
+	}
+	
+	/**
+	 * [Implement the function according to the enhancement guide.]
+	 * Converts a function into n+1 functions where n is the number of boolean statements.
+	 * 
+	 * @param model a model object
+	 * 
+	 */
+	function resetBinaryFormulaBindingsOnX(model) {
+		// var oldFormula = model.fn;
+		// var formulas = []
+				
+		// 1. extract boolean statements
+		// 2. use known parameters to replace all but x
+		// 3. find thresholds for given values
+		// 4. determine formula ranges by looking at the threshold values
+		// 5. make n+1 formulas (n=amount of thresholds)
+		// 6. limit formula ranges according to determined thresholds
+		
+		/* 7. add all new formulas as the formula of a model copy: 
+			The first formula will be set as the formula (fn-field) of the current 
+			modelObject (the "model" parameter) at the end of this method. 
+			More model objects with the same ids (id, dbuuid) have to be created for 
+			the other formulas. All models have to be pushed to the "_modelArray" 
+			eventually.
+		
+			$.each(formulas, function(index, newFormula) {
+				if(index!=0) { // do not push the first, it will be set in the end.
+					cloneModel
+					replace formula
+					push to _modelArray
+				}
+			});
+		*/		
+		
+		// model.fn = formulas[0]
 	}
 
 	/**

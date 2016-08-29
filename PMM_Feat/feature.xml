@@ -58,6 +58,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.ext.r.type" version="3.1.0" match="greaterOrEqual"/>
       <import plugin="com.fifesoft.rsyntaxtextarea" version="2.5.8" match="greaterOrEqual"/>
       <import plugin="com.sun.jna" version="3.5.2" match="greaterOrEqual"/>
+      <import plugin="org.knime.r"/>
    </requires>
 
    <plugin

@@ -15,7 +15,8 @@ Require-Bundle: org.knime.base,
  com.sun.jna;bundle-version="3.5.2",
  de.bund.bfr.formats,
  de.bund.bfr.knime.pmm.common,
- de.bund.bfr.knime.pmm.sbml
+ de.bund.bfr.knime.pmm.sbml,
+ org.knime.r
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR

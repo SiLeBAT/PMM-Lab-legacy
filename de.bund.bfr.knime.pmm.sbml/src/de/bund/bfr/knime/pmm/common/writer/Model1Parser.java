@@ -49,7 +49,7 @@ public class Model1Parser {
 		// Retrieves TimeSeriesSchema cells
 		AgentXml agentXml = (AgentXml) tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT).get(0);
 		MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX).get(0);
-		int condId = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+		String condId = Integer.toString(tuple.getInt(TimeSeriesSchema.ATT_CONDID));
 		PmmXmlDoc miscDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 		// Retrieves Model1Schema cells

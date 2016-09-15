@@ -12,7 +12,6 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.pmfml.ModelClass;
 
 public class FskMetaDataTuple implements DataRow {
@@ -155,8 +154,7 @@ public class FskMetaDataTuple implements DataRow {
 
 		cell[Key.has_data.ordinal()] = new StringCell(Boolean.toString(template.hasData()));
 
-		Random random = MathUtilities.getRandomGenerator();
-		rowKey = new RowKey(String.valueOf(random.nextInt()));
+		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
 
 	// --- DataRow methods ---
@@ -178,21 +176,27 @@ public class FskMetaDataTuple implements DataRow {
 
 	@Override
 	public Iterator<DataCell> iterator() {
-		return new MetaDataTupleIterator();
+		return new MetaDataTupleIterator(cell);
 	}
 
 	class MetaDataTupleIterator implements Iterator<DataCell> {
 
-		private int i = 0;
+		private int i;
+		private DataCell[] cell;
+
+		public MetaDataTupleIterator(final DataCell[] cell) {
+			i = 0;
+			this.cell = cell;
+		}
 
 		@Override
 		public boolean hasNext() {
-			return i < getNumCells();
+			return i < cell.length;
 		}
 
 		@Override
 		public DataCell next() {
-			return getCell(i);
+			return cell[i++];
 		}
 	}
 	

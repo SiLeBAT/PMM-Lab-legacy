@@ -18,7 +18,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.knime.core.node.NodeLogger;
 
-import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
@@ -77,21 +77,21 @@ public class MetaDataPane extends JScrollPane {
 		Has_Data
 	};
 
-	private final SimpleFskMetaData template;
+	private final FskMetaData template;
 
-	public MetaDataPane(SimpleFskMetaData template, boolean editable) {
+	public MetaDataPane(FskMetaData template, boolean editable) {
 		super(new Table(template, editable));
 		this.template = template;
 	}
 
-	public SimpleFskMetaData getMetaData() {
+	public FskMetaData getMetaData() {
 		return template;
 	}
 
 	private static class Table extends JTable {
 		private static final long serialVersionUID = 8776004658791577404L;
 
-		public Table(SimpleFskMetaData template, boolean editable) {
+		public Table(FskMetaData template, boolean editable) {
 			super(new TableModel(template, editable));
 
 			TableColumnModel columnModel = getColumnModel();
@@ -180,12 +180,12 @@ public class MetaDataPane extends JScrollPane {
 			names[Col.Has_Data.ordinal()] = "Has data?";
 		}
 
-		private SimpleFskMetaData template;
+		private FskMetaData template;
 		private boolean editable;
 
 		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
-		public TableModel(SimpleFskMetaData template, boolean editable) {
+		public TableModel(FskMetaData template, boolean editable) {
 			this.template = template;
 			this.editable = editable;
 		}

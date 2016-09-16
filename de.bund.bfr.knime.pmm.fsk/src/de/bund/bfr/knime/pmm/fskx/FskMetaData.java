@@ -7,7 +7,7 @@ import java.util.List;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
-public class SimpleFskMetaData {
+public class FskMetaData {
 	
 	/** Null or empty string if not set. */
 	public String modelName;

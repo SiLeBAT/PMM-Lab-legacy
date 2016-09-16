@@ -68,7 +68,7 @@ import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
-import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
@@ -127,7 +127,7 @@ class FskxReaderNodeModel extends NodeModel {
 		String model = "";
 		String param = "";
 		String viz = "";
-		SimpleFskMetaData template = null;
+		FskMetaData template = null;
 		File workspaceFile = null;
 		Set<File> libs = new HashSet<>();
 
@@ -278,9 +278,9 @@ class FskxReaderNodeModel extends NodeModel {
 	}
 
 	// TODO: take functionality out of FSMRUtils processPrevalenceModel
-	private SimpleFskMetaData processMetadata(final SBMLDocument doc) {
+	private FskMetaData processMetadata(final SBMLDocument doc) {
 
-		SimpleFskMetaData template = new SimpleFskMetaData();
+		FskMetaData template = new FskMetaData();
 
 		Model model = doc.getModel();
 		AssignmentRule rule = (AssignmentRule) model.getRule(0);

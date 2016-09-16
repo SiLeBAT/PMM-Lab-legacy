@@ -53,7 +53,7 @@ import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.core.util.FileUtil;
 import org.rosuda.REngine.REXPMismatchException;
 
-import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
@@ -83,7 +83,7 @@ public class FskPortObject implements PortObject {
 	private final String m_viz;
 
 	/** Model meta data. */
-	private SimpleFskMetaData m_template;
+	private FskMetaData m_template;
 
 	/** R workspace file. */
 	private File m_workspace;
@@ -95,7 +95,7 @@ public class FskPortObject implements PortObject {
 
 	private final int objectNum;
 
-	public FskPortObject(final String model, final String param, final String viz, final SimpleFskMetaData template,
+	public FskPortObject(final String model, final String param, final String viz, final FskMetaData template,
 			final File workspace, final Set<File> libs) {
 		m_model = model;
 		m_param = param;
@@ -138,11 +138,11 @@ public class FskPortObject implements PortObject {
 	}
 
 	/** @return the template. */
-	public SimpleFskMetaData getTemplate() {
+	public FskMetaData getTemplate() {
 		return m_template;
 	}
 	
-	public void setTemplate(final SimpleFskMetaData template) {
+	public void setTemplate(final FskMetaData template) {
 		m_template = template;
 	}
 
@@ -232,7 +232,7 @@ public class FskPortObject implements PortObject {
 			String model = "";
 			String param = "";
 			String viz = "";
-			SimpleFskMetaData template = null;
+			FskMetaData template = null;
 			File workspaceFile = null;
 			Set<File> libs = new HashSet<>();
 
@@ -367,7 +367,7 @@ public class FskPortObject implements PortObject {
 		List<Double> indepvarMaxs;
 		boolean hasData;
 		
-		SerializableTemplate(SimpleFskMetaData template) {
+		SerializableTemplate(FskMetaData template) {
 			modelName = template.modelName;
 			modelId = template.modelId;
 			modelLink = template.modelLink;
@@ -397,8 +397,8 @@ public class FskPortObject implements PortObject {
 			hasData = template.hasData;
 		}
 		
-		SimpleFskMetaData toTemplate() {
-			SimpleFskMetaData template = new SimpleFskMetaData();
+		FskMetaData toTemplate() {
+			FskMetaData template = new FskMetaData();
 			template.modelName = modelName;
 			template.modelId = modelId;
 			template.modelLink = modelLink;

@@ -40,7 +40,7 @@ import org.knime.ext.r.node.local.port.RPortObjectSpec;
 import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
-import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
@@ -128,7 +128,7 @@ class FskRunnerNodeModel extends NodeModel {
 			if (metadataTable.size() == 1) {
 				Iterator<DataRow> iterator = metadataTable.iterator();
 				DataRow dataRow = iterator.next();
-				SimpleFskMetaData template = tuple2Template(dataRow);
+				FskMetaData template = tuple2Template(dataRow);
 				fskObj.setTemplate(template);
 
 				// Replace with the default values with the new metadata
@@ -264,9 +264,9 @@ class FskRunnerNodeModel extends NodeModel {
 		}
 	}
 
-	private SimpleFskMetaData tuple2Template(final DataRow row) {
+	private FskMetaData tuple2Template(final DataRow row) {
 
-		SimpleFskMetaData template = new SimpleFskMetaData();
+		FskMetaData template = new FskMetaData();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 
 		template.modelName = ((StringCell) row.getCell(FskMetaDataTuple.Key.name.ordinal())).getStringValue();

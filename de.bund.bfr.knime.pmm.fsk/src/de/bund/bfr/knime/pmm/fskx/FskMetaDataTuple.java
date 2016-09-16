@@ -54,7 +54,7 @@ public class FskMetaDataTuple implements DataRow {
 	private DataCell[] cell;
 	private final RowKey rowKey;
 
-	public FskMetaDataTuple(final SimpleFskMetaData template) {
+	public FskMetaDataTuple(final FskMetaData template) {
 		cell = new DataCell[Key.values().length];
 
 		cell[Key.name.ordinal()] = new StringCell(Strings.nullToEmpty(template.modelName));

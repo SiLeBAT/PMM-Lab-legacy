@@ -50,13 +50,13 @@ public class FskTemplateSettings {
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
-	private SimpleFskMetaData template = new SimpleFskMetaData();
+	private FskMetaData template = new FskMetaData();
 
-	public SimpleFskMetaData getTemplate() {
+	public FskMetaData getTemplate() {
 		return template;
 	}
 
-	public void setTemplate(SimpleFskMetaData template) {
+	public void setTemplate(FskMetaData template) {
 		this.template = template;
 	}
 

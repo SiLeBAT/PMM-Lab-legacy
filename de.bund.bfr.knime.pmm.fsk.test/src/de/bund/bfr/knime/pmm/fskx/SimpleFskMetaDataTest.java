@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 public class SimpleFskMetaDataTest extends TestCase {
 
   public void testDefaultValues() {
-    SimpleFskMetaData metadata = new SimpleFskMetaData();
+    FskMetaData metadata = new FskMetaData();
     assertNull(metadata.modelName);
     assertNull(metadata.modelId);
     assertNull(metadata.modelLink);

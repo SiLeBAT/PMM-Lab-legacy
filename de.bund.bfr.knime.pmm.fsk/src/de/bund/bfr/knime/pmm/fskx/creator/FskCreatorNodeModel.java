@@ -55,7 +55,7 @@ import com.google.common.base.Strings;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
-import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
@@ -193,7 +193,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		}
 
 		// Reads model meta data
-		SimpleFskMetaData template;
+		FskMetaData template;
 		try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
 			// Finds the workbook instance for XLSX file
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -298,9 +298,9 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		private static final int indepvar_max_row = 28;
 		// values??
 
-		static SimpleFskMetaData processSpreadsheet(final XSSFSheet sheet) {
+		static FskMetaData processSpreadsheet(final XSSFSheet sheet) {
 
-			SimpleFskMetaData template = new SimpleFskMetaData();
+			FskMetaData template = new FskMetaData();
 
 			template.modelId = getStringVal(sheet, id_row);
 			template.modelName = getStringVal(sheet, name_row);

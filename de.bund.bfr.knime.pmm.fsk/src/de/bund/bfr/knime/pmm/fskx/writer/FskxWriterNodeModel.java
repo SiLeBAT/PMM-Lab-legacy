@@ -58,7 +58,7 @@ import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
-import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
@@ -226,7 +226,7 @@ class FskxWriterNodeModel extends NodeModel {
 	}
 
 	/** Creates SBMLDocument out of a OpenFSMR template. */
-	private static SBMLDocument createSbmlDocument(final SimpleFskMetaData template) {
+	private static SBMLDocument createSbmlDocument(final FskMetaData template) {
 
 		// Creates SBMLDocument for the primary model
 		final SBMLDocument sbmlDocument = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);

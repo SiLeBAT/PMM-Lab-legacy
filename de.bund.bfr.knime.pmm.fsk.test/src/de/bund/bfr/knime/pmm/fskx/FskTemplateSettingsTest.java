@@ -24,7 +24,7 @@ import de.bund.bfr.pmfml.ModelType;
 
 public class FskTemplateSettingsTest {
 
-  private final SimpleFskMetaData template = new SimpleFskMetaData();
+  private final FskMetaData template = new FskMetaData();
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
   @Before
@@ -158,7 +158,7 @@ public class FskTemplateSettingsTest {
   private void testLoadingFilledSettings(final NodeSettings settings) {
     FskTemplateSettings templateSettings = new FskTemplateSettings();
     templateSettings.loadFromNodeSettings(settings);
-    SimpleFskMetaData templateFromSettings = templateSettings.getTemplate();
+    FskMetaData templateFromSettings = templateSettings.getTemplate();
 
     assertEquals(template.modelName, templateFromSettings.modelName);
     assertEquals(template.modelId, templateFromSettings.modelId);
@@ -196,7 +196,7 @@ public class FskTemplateSettingsTest {
 
     // test empty settings
     FskTemplateSettings templateSettings = new FskTemplateSettings();
-    templateSettings.setTemplate(new SimpleFskMetaData());
+    templateSettings.setTemplate(new FskMetaData());
 
     NodeSettings emptySettings = new NodeSettings("empty settings");
     templateSettings.saveToNodeSettings(emptySettings);
@@ -210,7 +210,7 @@ public class FskTemplateSettingsTest {
     testSavingFilledSettings(filledSettings);
   }
 
-  private void testInexistenceInTemplate(final SimpleFskMetaData template) {
+  private void testInexistenceInTemplate(final FskMetaData template) {
     assertTrue(template.modelName == null || template.modelName.isEmpty());
     assertTrue(template.modelId == null || template.modelId.isEmpty());
     assertNull(template.modelLink);
@@ -241,7 +241,7 @@ public class FskTemplateSettingsTest {
     assertTrue(template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty());
   }
 
-  private void testExistenceInTemplate(final SimpleFskMetaData template) {
+  private void testExistenceInTemplate(final FskMetaData template) {
     assertTrue(template.modelName != null && !template.modelName.isEmpty());
     assertTrue(template.modelId != null && !template.modelId.isEmpty());
     assertNotNull(template.modelLink);

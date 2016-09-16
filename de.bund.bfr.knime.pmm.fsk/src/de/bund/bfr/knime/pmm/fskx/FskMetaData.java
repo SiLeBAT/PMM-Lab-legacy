@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.fskx;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -7,8 +8,10 @@ import java.util.List;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
-public class FskMetaData {
+public class FskMetaData implements Serializable {
 	
+	private static final long serialVersionUID = -625136501840140815L;
+
 	/** Null or empty string if not set. */
 	public String modelName;
 	

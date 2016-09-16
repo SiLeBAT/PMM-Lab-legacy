@@ -25,9 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,7 +55,6 @@ import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
 import de.bund.bfr.knime.pmm.fskx.ui.ScriptPanel;
-import de.bund.bfr.pmfml.ModelType;
 
 /**
  * A port object for an FSK model port providing R scripts and model meta data.
@@ -201,7 +197,7 @@ public class FskPortObject implements PortObject {
 			if (portObject.m_template != null) {
 				out.putNextEntry(new ZipEntry(META_DATA));
 				ObjectOutputStream oos = new ObjectOutputStream(out);
-				oos.writeObject(new SerializableTemplate(portObject.m_template));
+				oos.writeObject(portObject.m_template);
 				out.closeEntry();
 			}
 
@@ -249,7 +245,7 @@ public class FskPortObject implements PortObject {
 				} else if (entryName.equals(META_DATA)) {
 					try {
 						ObjectInputStream ois = new ObjectInputStream(in);
-						template = ((SerializableTemplate) ois.readObject()).toTemplate();
+						template = (FskMetaData) ois.readObject();
 					} catch (ClassNotFoundException e) {
 					}
 				} else if (entryName.equals(WORKSPACE)) {
@@ -331,104 +327,6 @@ public class FskPortObject implements PortObject {
 			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 			add(new JScrollPane(list));
-		}
-	}
-
-	private static class SerializableTemplate implements Serializable {
-
-		private static final long serialVersionUID = 3622901912356010807L;
-
-		String modelName;
-		String modelId;
-		URL modelLink;
-		String organism;
-		String organismDetails;
-		String matrix;
-		String matrixDetails;
-		String creator;
-		String familyName;
-		String contact;
-		String referenceDescription;
-		URL referenceDescriptionLink;
-		Date createdDate;
-		Date modifiedDate;
-		String rights;
-		String notes;
-		boolean isCurated;
-		ModelType modelType;
-		String foodProcess;
-		String depvar;
-		String depvarUnit;
-		Double depvarMin;
-		Double depvarMax;
-		List<String> indepvars;
-		List<String> indepvarUnits;
-		List<Double> indepvarMins;
-		List<Double> indepvarMaxs;
-		boolean hasData;
-		
-		SerializableTemplate(FskMetaData template) {
-			modelName = template.modelName;
-			modelId = template.modelId;
-			modelLink = template.modelLink;
-			organism = template.organism;
-			organismDetails = template.organismDetails;
-			matrix = template.matrix;
-			matrixDetails = template.matrixDetails;
-			creator = template.creator;
-			familyName = template.familyName;
-			contact = template.contact;
-			referenceDescription = template.referenceDescription;
-			referenceDescriptionLink = template.referenceDescriptionLink;
-			createdDate = template.createdDate;
-			modifiedDate = template.modifiedDate;
-			rights = template.rights;
-			notes = template.notes;
-			isCurated = template.curated;
-			modelType = template.type;
-			depvar = template.dependentVariable;
-			depvarUnit = template.dependentVariableUnit;
-			depvarMin = template.dependentVariableMin;
-			depvarMax = template.dependentVariableMax;
-			indepvars = template.independentVariables;
-			indepvarUnits = template.independentVariableUnits;
-			indepvarMins = template.independentVariableMins;
-			indepvarMaxs = template.independentVariableMaxs;
-			hasData = template.hasData;
-		}
-		
-		FskMetaData toTemplate() {
-			FskMetaData template = new FskMetaData();
-			template.modelName = modelName;
-			template.modelId = modelId;
-			template.modelLink = modelLink;
-			template.organism = organism;
-			template.organismDetails = organismDetails;
-			template.matrix = matrix;
-			template.matrixDetails = matrixDetails;
-			template.creator = creator;
-			template.familyName = familyName;
-			template.contact = contact;
-			template.referenceDescription = referenceDescription;
-			template.referenceDescriptionLink = referenceDescriptionLink;
-			template.createdDate = createdDate;
-			template.modifiedDate = modifiedDate;
-			template.rights = rights;
-			template.notes = notes;
-			template.curated = isCurated;
-			template.type = modelType;
-			template.foodProcess = foodProcess;
-			template.dependentVariable = depvar;
-			template.dependentVariableUnit = depvarUnit;
-			template.dependentVariableMin = depvarMin;
-			template.dependentVariableMax = depvarMax;
-			template.independentVariables = indepvars;
-			template.independentVariableUnits = indepvarUnits;
-			template.independentVariableMins = indepvarMins;
-			template.independentVariableMaxs = indepvarMaxs;
-			template.hasData = hasData;
-			
-			return template;
 		}
 	}
 }

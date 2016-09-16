@@ -53,8 +53,7 @@ import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.core.util.FileUtil;
 import org.rosuda.REngine.REXPMismatchException;
 
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
-import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
+import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.ui.MetaDataPane;
@@ -84,7 +83,7 @@ public class FskPortObject implements PortObject {
 	private final String m_viz;
 
 	/** Model meta data. */
-	private FskMetaData m_template;
+	private SimpleFskMetaData m_template;
 
 	/** R workspace file. */
 	private File m_workspace;
@@ -96,7 +95,7 @@ public class FskPortObject implements PortObject {
 
 	private final int objectNum;
 
-	public FskPortObject(final String model, final String param, final String viz, final FskMetaData template,
+	public FskPortObject(final String model, final String param, final String viz, final SimpleFskMetaData template,
 			final File workspace, final Set<File> libs) {
 		m_model = model;
 		m_param = param;
@@ -139,11 +138,11 @@ public class FskPortObject implements PortObject {
 	}
 
 	/** @return the template. */
-	public FskMetaData getTemplate() {
+	public SimpleFskMetaData getTemplate() {
 		return m_template;
 	}
 	
-	public void setTemplate(final FskMetaData template) {
+	public void setTemplate(final SimpleFskMetaData template) {
 		m_template = template;
 	}
 
@@ -233,7 +232,7 @@ public class FskPortObject implements PortObject {
 			String model = "";
 			String param = "";
 			String viz = "";
-			FskMetaData template = null;
+			SimpleFskMetaData template = null;
 			File workspaceFile = null;
 			Set<File> libs = new HashSet<>();
 
@@ -367,70 +366,67 @@ public class FskPortObject implements PortObject {
 		List<Double> indepvarMins;
 		List<Double> indepvarMaxs;
 		boolean hasData;
-
-		SerializableTemplate(FskMetaData template) {
-			modelName = template.isSetModelName() ? template.getModelName() : null;
-			modelId = template.isSetModelId() ? template.getModelId() : null;
-			modelLink = template.isSetModelLink() ? template.getModelLink() : null;
-			organism = template.isSetOrganism() ? template.getOrganism() : null;
-			organismDetails = template.isSetOrganismDetails() ? template.getOrganismDetails() : null;
-			matrix = template.isSetMatrix() ? template.getMatrix() : null;
-			matrixDetails = template.isSetMatrixDetails() ? template.getMatrixDetails() : null;
-			creator = template.isSetCreator() ? template.getCreator() : null;
-			familyName = template.isSetFamilyName() ? template.getFamilyName() : null;
-			contact = template.isSetContact() ? template.getContact() : null;
-			referenceDescription = template.isSetReferenceDescription() ? template.getReferenceDescription() : null;
-			referenceDescriptionLink = template.isSetReferenceDescriptionLink() ? template.getReferenceDescriptionLink()
-					: null;
-			createdDate = template.isSetCreatedDate() ? template.getCreatedDate() : null;
-			modifiedDate = template.isSetModifiedDate() ? template.getModifiedDate() : null;
-			rights = template.isSetRights() ? template.getRights() : null;
-			notes = template.isSetNotes() ? template.getNotes() : null;
-			isCurated = template.isCurated();
-			modelType = template.isSetModelType() ? template.getModelType() : null;
-			foodProcess = template.isSetFoodProcess() ? template.getFoodProcess() : null;
-			depvar = template.isSetDependentVariable() ? template.getDependentVariable() : null;
-			depvarUnit = template.isSetDependentVariableUnit() ? template.getDependentVariableUnit() : null;
-			depvarMin = template.isSetDependentVariableMin() ? template.getDependentVariableMin() : null;
-			depvarMax = template.isSetDependentVariableMax() ? template.getDependentVariableMax() : null;
-			indepvars = template.isSetIndependentVariables() ? template.getIndependentVariables() : null;
-			indepvarUnits = template.isSetIndependentVariableUnits() ? template.getIndependentVariableUnits() : null;
-			indepvarMins = template.isSetIndependentVariableMins() ? template.getIndependentVariableMins() : null;
-			indepvarMaxs = template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs() : null;
-			hasData = template.hasData();
+		
+		SerializableTemplate(SimpleFskMetaData template) {
+			modelName = template.modelName;
+			modelId = template.modelId;
+			modelLink = template.modelLink;
+			organism = template.organism;
+			organismDetails = template.organismDetails;
+			matrix = template.matrix;
+			matrixDetails = template.matrixDetails;
+			creator = template.creator;
+			familyName = template.familyName;
+			contact = template.contact;
+			referenceDescription = template.referenceDescription;
+			referenceDescriptionLink = template.referenceDescriptionLink;
+			createdDate = template.createdDate;
+			modifiedDate = template.modifiedDate;
+			rights = template.rights;
+			notes = template.notes;
+			isCurated = template.curated;
+			modelType = template.type;
+			depvar = template.dependentVariable;
+			depvarUnit = template.dependentVariableUnit;
+			depvarMin = template.dependentVariableMin;
+			depvarMax = template.dependentVariableMax;
+			indepvars = template.independentVariables;
+			indepvarUnits = template.independentVariableUnits;
+			indepvarMins = template.independentVariableMins;
+			indepvarMaxs = template.independentVariableMaxs;
+			hasData = template.hasData;
 		}
-
-		FskMetaData toTemplate() {
-			FskMetaData template = new FskMetaDataImpl();
-
-			template.setModelName(modelName);
-			template.setModelId(modelId);
-			template.setModelLink(modelLink);
-			template.setOrganism(organism);
-			template.setOrganismDetails(organismDetails);
-			template.setMatrix(matrix);
-			template.setMatrixDetails(matrixDetails);
-			template.setCreator(creator);
-			template.setFamilyName(familyName);
-			template.setContact(contact);
-			template.setReferenceDescription(referenceDescription);
-			template.setReferenceDescriptionLink(referenceDescriptionLink);
-			template.setCreatedDate(createdDate);
-			template.setModifiedDate(modifiedDate);
-			template.setRights(rights);
-			template.setNotes(notes);
-			template.setCurated(isCurated);
-			template.setModelType(modelType);
-			template.setFoodProcess(foodProcess);
-			template.setDependentVariable(depvar);
-			template.setDependentVariableUnit(depvarUnit);
-			template.setDependentVariableMin(depvarMin);
-			template.setDependentVariableMax(depvarMax);
-			template.setIndependentVariables(indepvars);
-			template.setIndependentVariableUnits(indepvarUnits);
-			template.setIndependentVariableMins(indepvarMins);
-			template.setIndependentVariableMaxs(indepvarMaxs);
-			template.setHasData(hasData);
+		
+		SimpleFskMetaData toTemplate() {
+			SimpleFskMetaData template = new SimpleFskMetaData();
+			template.modelName = modelName;
+			template.modelId = modelId;
+			template.modelLink = modelLink;
+			template.organism = organism;
+			template.organismDetails = organismDetails;
+			template.matrix = matrix;
+			template.matrixDetails = matrixDetails;
+			template.creator = creator;
+			template.familyName = familyName;
+			template.contact = contact;
+			template.referenceDescription = referenceDescription;
+			template.referenceDescriptionLink = referenceDescriptionLink;
+			template.createdDate = createdDate;
+			template.modifiedDate = modifiedDate;
+			template.rights = rights;
+			template.notes = notes;
+			template.curated = isCurated;
+			template.type = modelType;
+			template.foodProcess = foodProcess;
+			template.dependentVariable = depvar;
+			template.dependentVariableUnit = depvarUnit;
+			template.dependentVariableMin = depvarMin;
+			template.dependentVariableMax = depvarMax;
+			template.independentVariables = indepvars;
+			template.independentVariableUnits = indepvarUnits;
+			template.independentVariableMins = indepvarMins;
+			template.independentVariableMaxs = indepvarMaxs;
+			template.hasData = hasData;
 			
 			return template;
 		}

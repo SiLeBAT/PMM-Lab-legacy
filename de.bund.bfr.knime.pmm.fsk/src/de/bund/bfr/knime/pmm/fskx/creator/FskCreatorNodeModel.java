@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -54,10 +53,9 @@ import org.rosuda.REngine.REXPMismatchException;
 import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
-import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
+import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
@@ -195,7 +193,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		}
 
 		// Reads model meta data
-		FskMetaData template;
+		SimpleFskMetaData template;
 		try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
 			// Finds the workbook instance for XLSX file
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -300,27 +298,27 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		private static final int indepvar_max_row = 28;
 		// values??
 
-		static FskMetaData processSpreadsheet(final XSSFSheet sheet) {
+		static SimpleFskMetaData processSpreadsheet(final XSSFSheet sheet) {
 
-			FskMetaData template = new FskMetaDataImpl();
+			SimpleFskMetaData template = new SimpleFskMetaData();
 
-			template.setModelId(getStringVal(sheet, id_row));
-			template.setModelName(getStringVal(sheet, name_row));
+			template.modelId = getStringVal(sheet, id_row);
+			template.modelName = getStringVal(sheet, name_row);
 
 			// organism data
-			template.setOrganism(getStringVal(sheet, organism_row));
-			template.setOrganismDetails(getStringVal(sheet, organism_detail_row));
+			template.organism = getStringVal(sheet, organism_row);
+			template.organismDetails = getStringVal(sheet, organism_detail_row);
 
 			// matrix data
-			template.setMatrix(getStringVal(sheet, matrix_row));
-			template.setMatrixDetails(getStringVal(sheet, matrix_detail_row));
+			template.matrix = getStringVal(sheet, matrix_row);
+			template.matrixDetails = getStringVal(sheet, matrix_detail_row);
 
-			template.setCreator(getStringVal(sheet, creator_row));
+			template.creator = getStringVal(sheet, creator_row);
 
 			// no family name in the spreadsheet
 			// no contact in the spreadsheet
 
-			template.setReferenceDescription(getStringVal(sheet, reference_description_row));
+			template.referenceDescription = getStringVal(sheet, reference_description_row);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 
 			// created date
@@ -328,8 +326,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 				Double dateAsDouble = getNumericalVal(sheet, created_date_row);
 				String dateAsString = dateAsDouble.toString();
 				try {
-					Date date = dateFormat.parse(dateAsString);
-					template.setCreatedDate(date);
+					template.createdDate = dateFormat.parse(dateAsString);
 				} catch (ParseException e) {
 					System.err.println(dateAsString + " is not a valid date");
 					e.printStackTrace();
@@ -341,21 +338,20 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 				Double dateAsDouble = getNumericalVal(sheet, modified_date_row);
 				String dateAsString = dateAsDouble.toString();
 				try {
-					Date date = dateFormat.parse(dateAsString);
-					template.setModifiedDate(date);
+					template.modifiedDate = dateFormat.parse(dateAsString);
 				} catch (ParseException e) {
 					System.err.println(dateAsString + " is not a valid date");
 					e.printStackTrace();
 				}
 			}
 
-			template.setRights(getStringVal(sheet, rights_row));
+			template.rights = getStringVal(sheet, rights_row);
 
 			// model type
 			{
 				try {
 					String modelType = getStringVal(sheet, type_row);
-					template.setModelType(ModelType.valueOf(modelType));
+					template.type = ModelType.valueOf(modelType);
 				}
 				// if modelTypeAsString is not a valid ModelType
 				catch (IllegalArgumentException e) {
@@ -367,44 +363,32 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			{
 				String subject = getStringVal(sheet, subject_row);
 				try {
-					template.setModelSubject(ModelClass.valueOf(subject));
+					template.subject = ModelClass.valueOf(subject);
 				} catch (IllegalArgumentException e) {
-					template.setModelSubject(ModelClass.UNKNOWN);
+					template.subject = ModelClass.UNKNOWN;
 					e.printStackTrace();
 				}
 			}
 
 			// model notes
-			template.setNotes(getStringVal(sheet, notes_row));
+			template.notes = getStringVal(sheet, notes_row);
 
 			// dep var
-			template.setDependentVariable(getStringVal(sheet, depvar_row));
-			template.setDependentVariableUnit(getStringVal(sheet, depvar_unit_row));
-			template.setDependentVariableMin(getNumericalVal(sheet, depvar_min_row));
-			template.setDependentVariableMax(getNumericalVal(sheet, depvar_max_row));
+			template.dependentVariable = getStringVal(sheet, depvar_row);
+			template.dependentVariableUnit = getStringVal(sheet, depvar_unit_row);
+			template.dependentVariableMin = getNumericalVal(sheet, depvar_min_row);
+			template.dependentVariableMax = getNumericalVal(sheet, depvar_max_row);
 
 			// indep vars
 			{
-				List<String> vars = Arrays.stream(getStringVal(sheet, indepvar_row).split("\\|\\|")).map(String::trim)
-						.collect(Collectors.toList());
-				template.setIndependentVariables(vars);
-
-				List<String> units = Arrays.stream(getStringVal(sheet, indepvar_unit_row).split("\\|\\|"))
-						.map(String::trim).collect(Collectors.toList());
-				template.setIndependentVariableUnits(units);
-
-				List<Double> mins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|"))
-						.map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
-				template.setIndependentVariableMins(mins);
-
-				List<Double> maxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|"))
-						.map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
-				template.setIndependentVariableMaxs(maxs);
-
+				template.independentVariables = Arrays.stream(getStringVal(sheet, indepvar_row).split("\\|\\|")).map(String::trim).collect(Collectors.toList());
+				template.independentVariableUnits = Arrays.stream(getStringVal(sheet, indepvar_unit_row).split("\\|\\|")).map(String::trim).collect(Collectors.toList());
+				template.independentVariableMins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|")).map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
+				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|")).map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
 				// no values in the spreadsheet
 			}
 
-			template.setHasData(false);
+			template.hasData = false;
 			
 			return template;
 		}

@@ -56,9 +56,9 @@ import org.sbml.jsbml.xml.stax.SBMLWriter;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
+import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
@@ -226,7 +226,7 @@ class FskxWriterNodeModel extends NodeModel {
 	}
 
 	/** Creates SBMLDocument out of a OpenFSMR template. */
-	private static SBMLDocument createSbmlDocument(final FskMetaData template) {
+	private static SBMLDocument createSbmlDocument(final SimpleFskMetaData template) {
 
 		// Creates SBMLDocument for the primary model
 		final SBMLDocument sbmlDocument = new SBMLDocument(TableReader.LEVEL, TableReader.VERSION);
@@ -236,65 +236,65 @@ class FskxWriterNodeModel extends NodeModel {
 
 		// Adds document annotation
 		Metadata metaData = new MetadataImpl();
-		if (template.isSetCreator()) {
-			metaData.setGivenName(template.getCreator());
+		if (template.creator != null && !template.creator.isEmpty()) {
+			metaData.setGivenName(template.creator);
 		}
-		if (template.isSetFamilyName()) {
-			metaData.setFamilyName(template.getFamilyName());
+		if (template.familyName != null && !template.familyName.isEmpty()) {
+			metaData.setFamilyName(template.familyName);
 		}
-		if (template.isSetContact()) {
-			metaData.setContact(template.getContact());
+		if (template.contact != null && !template.contact.isEmpty()) {
+			metaData.setContact(template.contact);
 		}
-		if (template.isSetCreatedDate()) {
-			metaData.setCreatedDate(template.getCreatedDate().toString());
+		if (template.createdDate != null) {
+			metaData.setCreatedDate(template.createdDate.toString());
 		}
-		if (template.isSetModifiedDate()) {
-			metaData.setModifiedDate(template.getModifiedDate().toString());
+		if (template.modifiedDate != null) {
+			metaData.setModifiedDate(template.modifiedDate.toString());
 		}
-		if (template.isSetCreatedDate()) {
-			metaData.setType(template.getModelType());
+		if (template.type != null) {
+			metaData.setType(template.type);
 		}
-		if (template.isSetRights()) {
-			metaData.setRights(template.getRights());
+		if (template.rights != null && !template.rights.isEmpty()) {
+			metaData.setRights(template.rights);
 		}
-		if (template.isSetReferenceDescriptionLink()) {
-			metaData.setReferenceLink(template.getReferenceDescriptionLink().toString());
+		if (template.referenceDescriptionLink != null) {
+			metaData.setReferenceLink(template.referenceDescriptionLink.toString());
 		}
 
 		sbmlDocument.setAnnotation(new MetadataAnnotation(metaData).getAnnotation());
 
 		// Creates model and names it
-		Model model = sbmlDocument.createModel(PMFUtil.createId(template.getModelId()));
-		if (template.isSetModelName()) {
-			model.setName(template.getModelName());
+		Model model = sbmlDocument.createModel(PMFUtil.createId(template.modelId));
+		if (template.modelName != null && !template.modelName.isEmpty()) {
+			model.setName(template.modelName);
 		}
 
 		// Sets model notes
-		if (template.isSetNotes()) {
+		if (template.notes != null && !template.notes.isEmpty()) {
 			try {
-				model.setNotes(template.getNotes());
+				model.setNotes(template.notes);
 			} catch (XMLStreamException e) {
 				e.printStackTrace();
 			}
 		}
 
 		// Creates and adds compartment to the model
-		PMFCompartment compartment = SBMLFactory.createPMFCompartment(PMFUtil.createId(template.getMatrix()),
-				template.getMatrix());
-		compartment.setDetail(template.getMatrixDetails());
+		PMFCompartment compartment = SBMLFactory.createPMFCompartment(PMFUtil.createId(template.matrix),
+				template.matrix);
+		compartment.setDetail(template.matrixDetails);
 		model.addCompartment(compartment.getCompartment());
 
 		// Creates and adds species to the model
-		String speciesId = PMFUtil.createId(template.getOrganism());
-		String speciesName = template.getOrganism();
-		String speciesUnit = PMFUtil.createId(template.getDependentVariableUnit());
+		String speciesId = PMFUtil.createId(template.organism);
+		String speciesName = template.organism;
+		String speciesUnit = PMFUtil.createId(template.dependentVariableUnit);
 		PMFSpecies species = SBMLFactory.createPMFSpecies(compartment.getId(), speciesId, speciesName, speciesUnit);
 		model.addSpecies(species.getSpecies());
 
 		// Add unit definitions here (before parameters)
 		Set<String> unitsSet = new LinkedHashSet<>();
-		unitsSet.add(template.getDependentVariableUnit().trim());
-		template.getIndependentVariableUnits().forEach(unit -> unitsSet.add(unit.trim()));
+		unitsSet.add(template.dependentVariableUnit.trim());
+		template.independentVariableUnits.forEach(unit -> unitsSet.add(unit.trim()));
 		for (String unit : unitsSet) {
 			try {
 				PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
@@ -312,34 +312,35 @@ class FskxWriterNodeModel extends NodeModel {
 		}
 
 		// Adds dep parameter
-		Parameter depParam = new Parameter(PMFUtil.createId(template.getDependentVariable()));
-		depParam.setName(template.getDependentVariable());
-		depParam.setUnits(PMFUtil.createId(template.getDependentVariableUnit()));
+		Parameter depParam = new Parameter(PMFUtil.createId(template.dependentVariable));
+		depParam.setName(template.dependentVariable);
+		depParam.setUnits(PMFUtil.createId(template.dependentVariableUnit));
 		model.addParameter(depParam);
 
 		// Adds dep constraint
-		if (template.isSetDependentVariableMin() || template.isSetDependentVariableMax()) {
-			LimitsConstraint lc = new LimitsConstraint(template.getDependentVariable(),
-					template.getDependentVariableMin(), template.getDependentVariableMax());
+		if (!Double.isNaN(template.dependentVariableMin)) {
+			LimitsConstraint lc = new LimitsConstraint(template.dependentVariable, template.dependentVariableMin,
+					template.dependentVariableMax);
 			if (lc.getConstraint() != null) {
 				model.addConstraint(lc.getConstraint());
 			}
 		}
 
 		// Adds independent parameters
-		for (int i = 0; i < template.getIndependentVariables().size(); i++) {
-			String var = template.getIndependentVariables().get(i);
+		for (int i = 0; i < template.independentVariables.size(); i++) {
+			String var = template.independentVariables.get(i);
 			Parameter param = model.createParameter(PMFUtil.createId(var));
 			param.setName(var);
 
 			try {
-				param.setUnits(PMFUtil.createId(template.getIndependentVariableUnits().get(i)));
+				param.setUnits(PMFUtil.createId(template.independentVariableUnits.get(i)));
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			}
 
-			Double min = template.isSetIndependentVariableMins() ? template.getIndependentVariableMins().get(i) : null;
-			Double max = template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs().get(i) : null;
+			Double min = template.independentVariableMins == null || template.independentVariableMins.isEmpty() ? null : template.independentVariableMins.get(i);
+			Double max = template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty() ? null : template.independentVariableMaxs.get(i);
+
 			LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
 			if (lc.getConstraint() != null) {
 				model.addConstraint(lc.getConstraint());
@@ -348,7 +349,7 @@ class FskxWriterNodeModel extends NodeModel {
 
 		// Add rule
 		String formulaName = "Missing formula name";
-		ModelClass modelClass = template.isSetModelSubject() ? template.getModelSubject() : ModelClass.UNKNOWN;
+		ModelClass modelClass = template.subject == null ? ModelClass.UNKNOWN : template.subject;
 		int modelId = MathUtilities.getRandomNegativeInt();
 		Reference[] references = new Reference[0];
 

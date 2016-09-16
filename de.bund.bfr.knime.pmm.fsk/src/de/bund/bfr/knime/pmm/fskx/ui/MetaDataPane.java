@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.knime.core.node.NodeLogger;
 
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
@@ -78,21 +77,21 @@ public class MetaDataPane extends JScrollPane {
 		Has_Data
 	};
 
-	private final FskMetaData template;
+	private final SimpleFskMetaData template;
 
-	public MetaDataPane(FskMetaData template, boolean editable) {
+	public MetaDataPane(SimpleFskMetaData template, boolean editable) {
 		super(new Table(template, editable));
 		this.template = template;
 	}
 
-	public FskMetaData getMetaData() {
+	public SimpleFskMetaData getMetaData() {
 		return template;
 	}
 
 	private static class Table extends JTable {
 		private static final long serialVersionUID = 8776004658791577404L;
 
-		public Table(FskMetaData template, boolean editable) {
+		public Table(SimpleFskMetaData template, boolean editable) {
 			super(new TableModel(template, editable));
 
 			TableColumnModel columnModel = getColumnModel();
@@ -181,12 +180,12 @@ public class MetaDataPane extends JScrollPane {
 			names[Col.Has_Data.ordinal()] = "Has data?";
 		}
 
-		private FskMetaData template;
+		private SimpleFskMetaData template;
 		private boolean editable;
 
 		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
-		public TableModel(FskMetaData template, boolean editable) {
+		public TableModel(SimpleFskMetaData template, boolean editable) {
 			this.template = template;
 			this.editable = editable;
 		}
@@ -210,71 +209,75 @@ public class MetaDataPane extends JScrollPane {
 		public Object getValueAt(int row, int col) {
 			switch (Col.values()[col]) {
 			case Model_Name:
-				return template.isSetModelName() ? template.getModelName() : "";
+				return template.modelName;
 			case Model_Id:
-				return template.isSetModelId() ? template.getModelId() : "";
+				return template.modelId;
 			case Model_Link:
-				return template.isSetModelLink() ? template.getModelLink().toString() : "";
+				return template.modelLink;
 			case Organism_Name:
-				return template.isSetOrganism() ? template.getOrganism() : "";
+				return template.organism;
 			case Organism_Detail:
-				return template.isSetOrganismDetails() ? template.getOrganismDetails() : "";
+				return template.organismDetails;
 			case Environment_Name:
-				return template.isSetMatrix() ? template.getMatrix() : "";
+				return template.matrix;
 			case Environment_Detail:
-				return template.isSetMatrixDetails() ? template.getMatrixDetails() : "";
+				return template.matrixDetails;
 			case Model_Creator:
-				return template.isSetCreator() ? template.getCreator() : "";
+				return template.creator;
 			case Model_Family_Name:
-				return template.isSetFamilyName() ? template.getFamilyName() : "";
+				return template.familyName;
 			case Model_Contact:
-				return template.isSetContact() ? template.getContact() : "";
+				return template.contact;
 			case Model_Reference_Description:
-				return template.isSetReferenceDescription() ? template.getReferenceDescription() : "";
+				return template.referenceDescription;
 			case Model_Reference_Description_Link:
-				return template.isSetReferenceDescriptionLink() ? template.getReferenceDescriptionLink().toString()
-						: "";
+				return template.referenceDescriptionLink == null ? "" : template.referenceDescriptionLink.toString();
 			case Model_Created_Date:
-				return template.isSetCreatedDate() ? dateFormat.format(template.getCreatedDate()) : "";
+				return template.createdDate == null ? "" : template.createdDate;
 			case Model_Modified_Date:
-				return template.isSetModifiedDate() ? template.getModifiedDate().toString() : "";
+				return template.modifiedDate == null ? "" : template.modifiedDate;
 			case Model_Rights:
-				return template.isSetRights() ? template.getRights() : "";
+				return template.rights;
 			case Model_Notes:
-				return template.isSetNotes() ? template.getNotes() : "";
+				return template.notes;
 			case Model_Curation_Status:
-				return Boolean.toString(template.isCurated());
+				return Boolean.toString(template.curated);
 			case Model_Type:
-				return template.isSetModelType() ? modelTypeStrings.get(template.getModelType()) : "";
+				return template.type == null ? "" : modelTypeStrings.get(template.type);
 			case Model_Subject:
-				return template.isSetModelSubject() ? template.getModelSubject().fullName() : "";
+				return template.subject == null ? "" : template.subject.fullName();
 			case Model_Food_Process:
-				return template.isSetFoodProcess() ? template.getFoodProcess() : "";
+				return template.foodProcess;
 			case Dependent_Variable:
-				return template.isSetDependentVariable() ? template.getDependentVariable().toString() : "";
+				return template.dependentVariable;
 			case Dependent_Variable_Unit:
-				return template.isSetDependentVariableUnit() ? template.getDependentVariableUnit().toString() : "";
+				return template.dependentVariableUnit;
 			case Dependent_Variable_Min:
-				return template.isSetDependentVariableMin() ? Double.toString(template.getDependentVariableMin()) : "";
+				return Double.isNaN(template.dependentVariableMin) ? ""
+						: Double.toString(template.dependentVariableMin);
 			case Dependent_Variable_Max:
-				return template.isSetDependentVariableMax() ? Double.toString(template.getDependentVariableMax()) : "";
+				return Double.isNaN(template.dependentVariableMax) ? ""
+						: Double.toString(template.dependentVariableMax);
 			case Independent_Variable:
-				return template.isSetIndependentVariables()
-						? template.getIndependentVariables().stream().collect(Collectors.joining("||")) : "";
+				return template.independentVariables == null || template.independentVariables.isEmpty() ? ""
+						: template.independentVariables.stream().collect(Collectors.joining("||"));
 			case Independent_Variable_Units:
-				return template.isSetIndependentVariableUnits()
-						? template.getIndependentVariableUnits().stream().collect(Collectors.joining("||")) : "";
+				return template.independentVariableUnits == null || template.independentVariableUnits.isEmpty() ? ""
+						: template.independentVariableUnits.stream().collect(Collectors.joining("||"));
 			case Independent_Variable_Mins:
-				return template.isSetIndependentVariableMins() ? template.getIndependentVariableMins().stream()
-						.map(min -> min.toString()).collect(Collectors.joining("||")) : "";
+				return template.independentVariableMins == null || template.independentVariableMins.isEmpty() ? ""
+						: template.independentVariableMins.stream().map(min -> min.toString())
+								.collect(Collectors.joining("||"));
 			case Independent_Variable_Maxs:
-				return template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs().stream()
-						.map(max -> max.toString()).collect(Collectors.joining("||")) : "";
+				return template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty() ? ""
+						: template.independentVariableMaxs.stream().map(max -> max.toString())
+								.collect(Collectors.joining("||"));
 			case Independent_Variable_Values:
-				return template.isSetIndependentVariableValues() ? template.getIndependentVariableValues().stream()
-						.map(val -> val.toString()).collect(Collectors.joining("||")) : "";
+				return template.independentVariableValues == null || template.independentVariableValues.isEmpty() ? ""
+						: template.independentVariableValues.stream().map(val -> val.toString())
+								.collect(Collectors.joining("||"));
 			case Has_Data:
-				return Boolean.toString(template.hasData());
+				return Boolean.toString(template.hasData);
 			}
 			throw new RuntimeException("Invalid row & col" + row + " " + col);
 		}
@@ -286,130 +289,122 @@ public class MetaDataPane extends JScrollPane {
 
 			switch (Col.values()[columnIndex]) {
 			case Model_Name:
-				template.setModelName(stringValue);
+				template.modelName = stringValue;
 				break;
 			case Model_Id:
-				template.setModelId(stringValue);
+				template.modelId = stringValue;
 				break;
 			case Model_Link:
 				try {
-					template.setModelLink(new URL(stringValue));
+					template.modelLink = new URL(stringValue);
 				} catch (MalformedURLException e) {
 					LOGGER.warnWithFormat("Invalid url: %s", e);
 				}
 				break;
 			case Organism_Name:
-				template.setOrganism(stringValue);
+				template.organism = stringValue;
 				break;
 			case Organism_Detail:
-				template.setOrganismDetails(stringValue);
+				template.organismDetails = stringValue;
 				break;
 			case Environment_Name:
-				template.setMatrix(stringValue);
+				template.matrix = stringValue;
 				break;
 			case Environment_Detail:
-				template.setMatrixDetails(stringValue);
+				template.matrixDetails = stringValue;
 				break;
 			case Model_Creator:
-				template.setCreator(stringValue);
+				template.creator = stringValue;
 				break;
 			case Model_Family_Name:
-				template.setFamilyName(stringValue);
+				template.familyName = stringValue;
 				break;
 			case Model_Contact:
-				template.setContact(stringValue);
+				template.contact = stringValue;
 				break;
 			case Model_Reference_Description:
-				template.setReferenceDescription(stringValue);
+				template.referenceDescription = stringValue;
 				break;
 			case Model_Reference_Description_Link:
 				try {
-					URL descriptionLink = new URL(stringValue);
-					template.setReferenceDescriptionLink(descriptionLink);
+					template.referenceDescriptionLink = new URL(stringValue);
 				} catch (MalformedURLException e) {
 					LOGGER.warn("Invalid url\n" + e.getMessage());
 				}
 				break;
 			case Model_Created_Date:
 				try {
-					template.setCreatedDate(dateFormat.parse(stringValue));
+					template.createdDate = dateFormat.parse(stringValue);
 				} catch (ParseException e) {
 					LOGGER.warn("Invalid date");
 				}
 				break;
 			case Model_Modified_Date:
 				try {
-					template.setModifiedDate(dateFormat.parse(stringValue));
+					template.modifiedDate = dateFormat.parse(stringValue);
 				} catch (ParseException e) {
 					LOGGER.warn("Invalid date");
 				}
 				break;
 			case Model_Rights:
-				template.setRights(stringValue);
+				template.rights = stringValue;
 				break;
 			case Model_Notes:
-				template.setNotes(stringValue);
+				template.notes = stringValue;
 				break;
 			case Model_Curation_Status:
-				template.setCurated(Boolean.parseBoolean(stringValue));
+				template.curated = Boolean.parseBoolean(stringValue);
 				break;
 			case Model_Type:
 				if (stringValue.isEmpty()) {
-					template.unsetModelType();
+					template.type = null;
 				} else {
 					for (Map.Entry<ModelType, String> entry : modelTypeStrings.entrySet()) {
 						if (stringValue.equals(entry.getValue())) {
-							template.setModelType(entry.getKey());
+							template.type = entry.getKey();
 							break;
 						}
 					}
 				}
 				break;
 			case Model_Subject:
-				if (stringValue.isEmpty()) {
-					template.unsetModelSubject();
-				} else {
-					template.setModelSubject(ModelClass.fromName(stringValue));
-				}
+				template.subject = stringValue.isEmpty() ? null : ModelClass.fromName(stringValue);
 				break;
 			case Model_Food_Process:
-				template.setFoodProcess(stringValue);
+				template.foodProcess = stringValue;
 				break;
 			case Dependent_Variable:
-				template.setDependentVariable(stringValue);
+				template.dependentVariable = stringValue;
 				break;
 			case Dependent_Variable_Unit:
-				template.setDependentVariableUnit(stringValue);
+				template.dependentVariableUnit = stringValue;
 				break;
 			case Dependent_Variable_Min:
-				template.setDependentVariableMin(Double.parseDouble(stringValue));
+				template.dependentVariableMin = Double.parseDouble(stringValue);
 				break;
 			case Dependent_Variable_Max:
-				template.setDependentVariableMax(Double.parseDouble(stringValue));
+				template.dependentVariableMax = Double.parseDouble(stringValue);
 				break;
 			case Independent_Variable:
-				template.setIndependentVariables(Arrays.asList(stringValue.split("||")));
+				template.independentVariables = Arrays.asList(stringValue.split("||"));
 				break;
 			case Independent_Variable_Units:
-				template.setIndependentVariableUnits(Arrays.asList(stringValue.split("||")));
+				template.independentVariableUnits = Arrays.asList(stringValue.split("||"));
 				break;
 			case Independent_Variable_Mins:
-				List<Double> mins = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).boxed()
-						.collect(Collectors.toList());
-				template.setIndependentVariableMins(mins);
+				template.independentVariableMins = Arrays.stream(stringValue.split("||"))
+						.mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
 				break;
 			case Independent_Variable_Maxs:
-				List<Double> maxs = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).boxed()
-						.collect(Collectors.toList());
-				template.setIndependentVariableMaxs(maxs);
+				template.independentVariableMaxs = Arrays.stream(stringValue.split("||"))
+						.mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
 				break;
 			case Independent_Variable_Values:
-				List<Double> values = Arrays.stream(stringValue.split("||")).mapToDouble(Double::parseDouble).boxed()
-						.collect(Collectors.toList());
-				template.setIndependentVariableValues(values);
+				template.independentVariableValues = Arrays.stream(stringValue.split("||"))
+						.mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
 				break;
 			case Has_Data:
-				template.setHasData(Boolean.parseBoolean(stringValue));
+				template.hasData = Boolean.parseBoolean(stringValue);
 				break;
 			}
 		}

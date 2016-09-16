@@ -52,107 +52,60 @@ public class FskMetaDataTuple implements DataRow {
 	private DataCell[] cell;
 	private final RowKey rowKey;
 
-	public FskMetaDataTuple(final FskMetaData template) {
+	public FskMetaDataTuple(final SimpleFskMetaData template) {
 		cell = new DataCell[Key.values().length];
 
-		cell[Key.name.ordinal()] = new StringCell("");
-
-		String name = template.isSetModelName() ? template.getModelName() : "";
-		cell[Key.name.ordinal()] = new StringCell(name);
-
-		String id = template.isSetModelId() ? template.getModelId() : "";
-		cell[Key.id.ordinal()] = new StringCell(id);
-
-		String link = template.isSetModelLink() ? template.getModelLink().toString() : "";
-		cell[Key.model_link.ordinal()] = new StringCell(link);
-
-		String organism = template.isSetOrganism() ? template.getOrganism() : "";
-		cell[Key.species.ordinal()] = new StringCell(organism);
-
-		String organismDetails = template.isSetOrganismDetails() ? template.getOrganismDetails() : "";
-		cell[Key.species_details.ordinal()] = new StringCell(organismDetails);
-
-		String matrix = template.isSetMatrix() ? template.getMatrix() : "";
-		cell[Key.matrix.ordinal()] = new StringCell(matrix);
-
-		String matrixDetails = template.isSetMatrixDetails() ? template.getMatrixDetails() : "";
-		cell[Key.matrix_details.ordinal()] = new StringCell(matrixDetails);
-
-		String creator = template.isSetCreator() ? template.getCreator() : "";
-		cell[Key.creator.ordinal()] = new StringCell(creator);
-
-		String family = template.isSetFamilyName() ? template.getFamilyName() : "";
-		cell[Key.family_name.ordinal()] = new StringCell(family);
-
-		String contact = template.isSetContact() ? template.getContact() : "";
-		cell[Key.contact.ordinal()] = new StringCell(contact);
-
-		String referenceDescription = template.isSetReferenceDescription() ? template.getReferenceDescription() : "";
-		cell[Key.reference_description.ordinal()] = new StringCell(referenceDescription);
-
-		String referenceDescriptionLink = template.isSetReferenceDescriptionLink()
-				? template.getReferenceDescriptionLink().toString() : "";
-		cell[Key.reference_description_link.ordinal()] = new StringCell(referenceDescriptionLink);
-
-		String createdDate = template.isSetCreatedDate() ? template.getCreatedDate().toString() : "";
-		cell[Key.created_date.ordinal()] = new StringCell(createdDate);
-
-		String modifiedDate = template.isSetModifiedDate() ? template.getModifiedDate().toString() : "";
-		cell[Key.modified_date.ordinal()] = new StringCell(modifiedDate);
-
-		String rights = template.isSetRights() ? template.getRights() : "";
-		cell[Key.rights.ordinal()] = new StringCell(rights);
-
-		String notes = template.isSetNotes() ? template.getNotes() : "";
-		cell[Key.notes.ordinal()] = new StringCell(notes);
-
-		cell[Key.curation_status.ordinal()] = new StringCell(Boolean.toString(template.isCurated()));
-
-		String modelType = template.isSetModelType() ? template.getModelType().toString() : "";
-		cell[Key.model_type.ordinal()] = new StringCell(modelType);
-
-		String subject = template.isSetModelSubject() ? template.getModelSubject().fullName()
-				: ModelClass.UNKNOWN.fullName();
-		cell[Key.subject.ordinal()] = new StringCell(subject);
-
-		String foodProcess = template.isSetFoodProcess() ? template.getFoodProcess() : "";
-		cell[Key.food_process.ordinal()] = new StringCell(foodProcess);
-
-		String depvar = template.isSetDependentVariable() ? template.getDependentVariable() : "";
-		cell[Key.depvar.ordinal()] = new StringCell(depvar);
-
-		String depvarUnit = template.isSetDependentVariableUnit() ? template.getDependentVariableUnit() : "";
-		cell[Key.depvar_unit.ordinal()] = new StringCell(depvarUnit);
-
-		String depvarMin = template.isSetDependentVariableMin() ? Double.toString(template.getDependentVariableMin())
-				: "";
-		cell[Key.depvar_min.ordinal()] = new StringCell(depvarMin);
-
-		String depvarMax = template.isSetDependentVariableMax() ? Double.toString(template.getDependentVariableMax())
-				: "";
-		cell[Key.depvar_max.ordinal()] = new StringCell(depvarMax);
-
-		String indepvars = template.isSetIndependentVariables()
-				? template.getIndependentVariables().stream().collect(Collectors.joining("||")) : "";
-		cell[Key.indepvars.ordinal()] = new StringCell(indepvars);
-
-		String indepvarUnits = template.isSetIndependentVariableUnits()
-				? template.getIndependentVariableUnits().stream().collect(Collectors.joining("||")) : "";
-		cell[Key.indepvars_units.ordinal()] = new StringCell(indepvarUnits);
-
-		String indepvarMins = template.isSetIndependentVariableMins() ? template.getIndependentVariableMins().stream()
-				.map(min -> min.toString()).collect(Collectors.joining("||")) : "";
-		cell[Key.indepvars_mins.ordinal()] = new StringCell(indepvarMins);
-
-		String indepvarMaxs = template.isSetIndependentVariableMaxs() ? template.getIndependentVariableMaxs().stream()
-				.map(max -> max.toString()).collect(Collectors.joining("||")) : "";
-		cell[Key.indepvars_maxs.ordinal()] = new StringCell(indepvarMaxs);
-
-		String indepvarValues = template.isSetIndependentVariableValues() ? template.getIndependentVariableValues()
-				.stream().map(val -> val.toString()).collect(Collectors.joining("||")) : "";
-		cell[Key.indepvars_values.ordinal()] = new StringCell(indepvarValues);
-
-		cell[Key.has_data.ordinal()] = new StringCell(Boolean.toString(template.hasData()));
+		cell[Key.name.ordinal()] = new StringCell(template.modelName);
+		cell[Key.id.ordinal()] = new StringCell(template.modelId);
+		cell[Key.model_link.ordinal()] = new StringCell(
+				template.modelLink == null ? "" : template.modelLink.toString());
+		cell[Key.species.ordinal()] = new StringCell(template.organism);
+		cell[Key.species_details.ordinal()] = new StringCell(template.organismDetails);
+		cell[Key.matrix.ordinal()] = new StringCell(template.matrix);
+		cell[Key.matrix_details.ordinal()] = new StringCell(template.matrixDetails);
+		cell[Key.creator.ordinal()] = new StringCell(template.creator);
+		cell[Key.family_name.ordinal()] = new StringCell(template.familyName);
+		cell[Key.contact.ordinal()] = new StringCell(template.contact);
+		cell[Key.reference_description.ordinal()] = new StringCell(template.referenceDescription);
+		cell[Key.reference_description_link.ordinal()] = new StringCell(
+				template.referenceDescriptionLink == null ? "" : template.referenceDescriptionLink.toString());
+		cell[Key.created_date.ordinal()] = new StringCell(
+				template.createdDate == null ? "" : template.createdDate.toString());
+		cell[Key.modified_date.ordinal()] = new StringCell(
+				template.modifiedDate == null ? "" : template.modifiedDate.toString());
+		cell[Key.rights.ordinal()] = new StringCell(template.rights);
+		cell[Key.notes.ordinal()] = new StringCell(template.notes);
+		cell[Key.curation_status.ordinal()] = new StringCell(Boolean.toString(template.curated));
+		cell[Key.model_type.ordinal()] = new StringCell(template.type == null ? "" : template.type.toString());
+		cell[Key.subject.ordinal()] = new StringCell(
+				template.subject == null ? ModelClass.UNKNOWN.fullName() : template.subject.fullName());
+		cell[Key.food_process.ordinal()] = new StringCell(template.foodProcess);
+		cell[Key.depvar.ordinal()] = new StringCell(template.dependentVariable);
+		cell[Key.depvar_unit.ordinal()] = new StringCell(template.dependentVariableUnit);
+		cell[Key.depvar_min.ordinal()] = new StringCell(
+				Double.isNaN(template.dependentVariableMin) ? "" : Double.toString(template.dependentVariableMin));
+		cell[Key.depvar_max.ordinal()] = new StringCell(
+				Double.isNaN(template.dependentVariableMax) ? "" : Double.toString(template.dependentVariableMax));
+		cell[Key.indepvars.ordinal()] = new StringCell(
+				template.independentVariables == null || template.independentVariables.isEmpty() ? ""
+						: template.independentVariables.stream().collect(Collectors.joining("||")));
+		cell[Key.indepvars_units.ordinal()] = new StringCell(
+				template.independentVariableUnits == null || template.independentVariableUnits.isEmpty() ? ""
+						: template.independentVariableUnits.isEmpty() ? ""
+								: template.independentVariableUnits.stream().collect(Collectors.joining("||")));
+		cell[Key.indepvars_mins.ordinal()] = new StringCell(
+				template.independentVariableMins == null || template.independentVariableMins.isEmpty() ? ""
+						: template.independentVariableMins.stream().map(min -> min.toString())
+								.collect(Collectors.joining("||")));
+		cell[Key.indepvars_maxs.ordinal()] = new StringCell(
+				template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty() ? ""
+						: template.independentVariableMaxs.stream().map(max -> max.toString())
+								.collect(Collectors.joining("||")));
+		cell[Key.indepvars_values.ordinal()] = new StringCell(
+				template.independentVariableValues == null || template.independentVariableValues.isEmpty() ? ""
+						: template.independentVariableValues.stream().map(val -> val.toString())
+								.collect(Collectors.joining("||")));
+		cell[Key.has_data.ordinal()] = new StringCell(Boolean.toString(template.hasData));
 
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
@@ -199,7 +152,7 @@ public class FskMetaDataTuple implements DataRow {
 			return cell[i++];
 		}
 	}
-	
+
 	// other utility methods
 	public static DataTableSpec createSpec() {
 
@@ -239,7 +192,7 @@ public class FskMetaDataTuple implements DataRow {
 
 		DataType[] types = new DataType[numKeys];
 		Arrays.fill(types, StringCell.TYPE);
-		
+
 		return new DataTableSpec(DataTableSpec.createColumnSpecs(names, types));
 	}
 }

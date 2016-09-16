@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -66,11 +65,10 @@ import org.sbml.jsbml.util.filters.Filter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
-import de.bund.bfr.knime.pmm.fskx.FskMetaDataImpl;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.SimpleFskMetaData;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
@@ -118,17 +116,18 @@ class FskxReaderNodeModel extends NodeModel {
 	 * @throws MissingValueError
 	 * @throws RException
 	 * @throws REXPMismatchException
-	 * @throws MalformedURLException 
-	 * @throws InvalidPathException 
+	 * @throws MalformedURLException
+	 * @throws InvalidPathException
 	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException, InvalidPathException, MalformedURLException {
+			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException,
+			InvalidPathException, MalformedURLException {
 
 		String model = "";
 		String param = "";
 		String viz = "";
-		FskMetaData template = null;
+		SimpleFskMetaData template = null;
 		File workspaceFile = null;
 		Set<File> libs = new HashSet<>();
 
@@ -279,9 +278,9 @@ class FskxReaderNodeModel extends NodeModel {
 	}
 
 	// TODO: take functionality out of FSMRUtils processPrevalenceModel
-	private FskMetaData processMetadata(final SBMLDocument doc) {
+	private SimpleFskMetaData processMetadata(final SBMLDocument doc) {
 
-		FskMetaData template = new FskMetaDataImpl();
+		SimpleFskMetaData template = new SimpleFskMetaData();
 
 		Model model = doc.getModel();
 		AssignmentRule rule = (AssignmentRule) model.getRule(0);
@@ -290,53 +289,48 @@ class FskxReaderNodeModel extends NodeModel {
 		List<Limits> limits = model.getListOfConstraints().stream().map(LimitsConstraint::new)
 				.map(LimitsConstraint::getLimits).collect(Collectors.toList());
 
-		// model id
-		template.setModelId(model.getId());
-
-		// model name
-		if (model.isSetName())
-			template.setModelName(model.getName());
+		template.modelId = model.getId();
+		template.modelName = model.getName();
 
 		// organism data
 		{
 			PMFSpecies species = SBMLFactory.createPMFSpecies(model.getSpecies(0));
-			template.setOrganism(species.getName());
+			template.organism = species.getName();
 			if (species.isSetDetail()) {
-				template.setOrganismDetails(species.getDetail());
+				template.organismDetails = species.getDetail();
 			}
 		}
 
 		// matrix data
 		{
 			PMFCompartment compartment = SBMLFactory.createPMFCompartment(model.getCompartment(0));
-			template.setMatrix(compartment.getName());
+			template.matrix = compartment.getName();
 			if (compartment.isSetDetail()) {
-				template.setMatrixDetails(compartment.getDetail());
+				template.matrixDetails = compartment.getDetail();
 			}
 		}
 
 		// creator
 		Metadata metadataAnnot = new MetadataAnnotation(doc.getAnnotation()).getMetadata();
 		if (metadataAnnot.isSetGivenName()) {
-			template.setCreator(metadataAnnot.getGivenName());
+			template.creator = metadataAnnot.getGivenName();
 		}
 
 		// family name
 		if (metadataAnnot.isSetFamilyName()) {
-			template.setFamilyName(metadataAnnot.getFamilyName());
+			template.familyName = metadataAnnot.getFamilyName();
 		}
 
 		// contact
 		if (metadataAnnot.isSetContact()) {
-			template.setContact(metadataAnnot.getContact());
+			template.contact = metadataAnnot.getContact();
 		}
 
 		// reference description link
 		if (metadataAnnot.isSetReferenceLink()) {
 			String linkAsString = metadataAnnot.getReferenceLink();
 			try {
-				URL link = new URL(linkAsString);
-				template.setReferenceDescriptionLink(link);
+				template.referenceDescriptionLink = new URL(linkAsString);
 			} catch (MalformedURLException e) {
 				System.err.println(linkAsString + " is not a valid URL");
 				e.printStackTrace();
@@ -348,8 +342,7 @@ class FskxReaderNodeModel extends NodeModel {
 		if (metadataAnnot.isSetCreatedDate()) {
 			String dateAsString = metadataAnnot.getCreatedDate();
 			try {
-				Date date = dateFormat.parse(dateAsString);
-				template.setCreatedDate(date);
+				template.createdDate = dateFormat.parse(dateAsString);
 			} catch (ParseException e) {
 				System.err.println(dateAsString + " is not a valid date");
 				e.printStackTrace();
@@ -360,8 +353,7 @@ class FskxReaderNodeModel extends NodeModel {
 		if (metadataAnnot.isSetModifiedDate()) {
 			String dateAsString = metadataAnnot.getModifiedDate();
 			try {
-				Date date = dateFormat.parse(dateAsString);
-				template.setModifiedDate(date);
+				template.modifiedDate = dateFormat.parse(dateAsString);
 			} catch (ParseException e) {
 				System.err.println(dateAsString + " is not a valid date");
 				e.printStackTrace();
@@ -370,24 +362,20 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// model rights
 		if (metadataAnnot.isSetRights()) {
-			template.setRights(metadataAnnot.getRights());
+			template.rights = metadataAnnot.getRights();
 		}
 
 		// model type
 		if (metadataAnnot.isSetType()) {
-			template.setModelType(metadataAnnot.getType());
+			template.type = metadataAnnot.getType();
 		}
 
-		// model subject
-		{
-			ModelRule pmfRule = new ModelRule(rule);
-			template.setModelSubject(pmfRule.getModelClass());
-		}
+		template.subject = new ModelRule(rule).getModelClass();
 
 		// model notes
 		if (model.isSetNotes()) {
 			try {
-				template.setNotes(Jsoup.parse(model.getNotesString()).text());
+				template.notes = Jsoup.parse(model.getNotesString()).text();
 			} catch (XMLStreamException e) {
 				System.err.println("Error accesing the notes of " + model);
 				e.printStackTrace();
@@ -400,14 +388,14 @@ class FskxReaderNodeModel extends NodeModel {
 
 			// Gets parameter for the dependent variable and sets it
 			Parameter param = model.getParameter(depId);
-			template.setDependentVariable(param.getName());
+			template.dependentVariable = param.getName();
 
 			// Gets and sets dependent variable unit
 			String unitId = param.getUnits();
 			if (!unitId.equals("dimensionless")) {
 				UnitDefinition unitDef = model.getUnitDefinition(unitId);
 				if (unitDef != null) {
-					template.setDependentVariableUnit(unitDef.getName());
+					template.dependentVariableUnit = unitDef.getName();
 				}
 			}
 
@@ -415,9 +403,9 @@ class FskxReaderNodeModel extends NodeModel {
 			for (Limits lim : limits) {
 				if (lim.getVar().equals(depId)) {
 					if (lim.getMin() != null)
-						template.setDependentVariableMin(lim.getMin());
+						template.dependentVariableMin = lim.getMin();
 					if (lim.getMax() != null)
-						template.setDependentVariableMax(lim.getMax());
+						template.dependentVariableMax = lim.getMax();
 					break;
 				}
 			}
@@ -461,15 +449,14 @@ class FskxReaderNodeModel extends NodeModel {
 				maxs.add(paramLimits.getMax());
 			}
 
-			template.setIndependentVariables(names);
-			template.setIndependentVariableUnits(units);
-			template.setIndependentVariableMins(mins);
-			template.setIndependentVariableMaxs(maxs);
+			template.independentVariables = names;
+			template.independentVariableUnits = units;
+			template.independentVariableMins = mins;
+			template.independentVariableMaxs = maxs;
 		}
-		
-		// has data
-		template.setHasData(false);
-		
+
+		template.hasData = false;
+
 		return template;
 	}
 }

@@ -123,12 +123,9 @@ class FskxReaderNodeModel extends NodeModel {
 			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException,
 			InvalidPathException, MalformedURLException {
 
-		String model = "";
-		String param = "";
-		String viz = "";
-		FskMetaData template = null;
-		File workspaceFile = null;
 		Set<File> libs = new HashSet<>();
+		
+		FskPortObject portObj = new FskPortObject();
 
 		File archiveFile = KnimeUtils.getFile(filename.getStringValue());
 		try (CombineArchive archive = new CombineArchive(archiveFile)) {
@@ -138,26 +135,26 @@ class FskxReaderNodeModel extends NodeModel {
 			// Gets model script
 			if (node.getMainScript() != null) {
 				ArchiveEntry entry = archive.getEntry(node.getMainScript());
-				model = loadScriptFromEntry(entry);
+				portObj.model = loadScriptFromEntry(entry);
 			}
 
 			// Gets parameters script
 			if (node.getParametersScript() != null) {
 				ArchiveEntry entry = archive.getEntry(node.getParametersScript());
-				param = loadScriptFromEntry(entry);
+				portObj.param = loadScriptFromEntry(entry);
 			}
 
 			// Gets visualization script
 			if (node.getVisualizationScript() != null) {
 				ArchiveEntry entry = archive.getEntry(node.getVisualizationScript());
-				viz = loadScriptFromEntry(entry);
+				portObj.viz = loadScriptFromEntry(entry);
 			}
 
 			// Gets workspace file
 			if (node.getWorkspaceFile() != null) {
 				ArchiveEntry entry = archive.getEntry(node.getWorkspaceFile());
-				workspaceFile = FileUtil.createTempFile("workspace", ".r");
-				entry.extractFile(workspaceFile);
+				portObj.workspace = FileUtil.createTempFile("workspace", ".r");
+				entry.extractFile(portObj.workspace);
 			}
 
 			// Gets model meta data
@@ -168,7 +165,7 @@ class FskxReaderNodeModel extends NodeModel {
 				entry.extractFile(f);
 
 				SBMLDocument doc = new SBMLReader().readSBML(f);
-				template = processMetadata(doc);
+				portObj.template = processMetadata(doc);
 			}
 
 			// Gets R libraries
@@ -199,15 +196,16 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// Meta data port
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(metadataSpec);
-		if (template != null) {
-			fsmrContainer.addRowToTable(new FskMetaDataTuple(template));
+		if (portObj.template != null) {
+			fsmrContainer.addRowToTable(new FskMetaDataTuple(portObj.template));
 		}
 		fsmrContainer.close();
 
-		FskPortObject fskObj = new FskPortObject(model, param, viz, template, workspaceFile, libs);
-		RPortObject rObj = new RPortObject(fskObj.getWorkspaceFile());
+		portObj.getLibraries().addAll(libs);
 
-		return new PortObject[] { fskObj, rObj, fsmrContainer.getTable() };
+		RPortObject rObj = new RPortObject(portObj.workspace);
+
+		return new PortObject[] { portObj, rObj, fsmrContainer.getTable() };
 	}
 
 	private String loadScriptFromEntry(final ArchiveEntry entry) throws IOException {

@@ -128,7 +128,7 @@ class FskEditorNodeModel extends NodeModel {
 		}
 
 		FskPortObject outObj = new FskPortObject(modelScript.getStringValue(), paramScript.getStringValue(),
-				vizScript.getStringValue(), templateSettings.template, inObj.getWorkspaceFile(), inObj.getLibraries());
+				vizScript.getStringValue(), templateSettings.template, inObj.workspace, inObj.getLibraries());
 
 		return new PortObject[] { outObj };
 	}

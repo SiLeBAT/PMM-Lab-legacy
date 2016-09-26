@@ -138,8 +138,8 @@ class FskxWriterNodeModel extends NodeModel {
 			}
 
 			// Adds R workspace file
-			if (portObject.getWorkspaceFile() != null) {
-				archive.addEntry(portObject.getWorkspaceFile(), "workspace.r", rUri);
+			if (portObject.workspace != null) {
+				archive.addEntry(portObject.workspace, "workspace.r", rUri);
 				metaDataNode.setWorkspaceFile("workspace.r");
 			}
 

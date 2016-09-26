@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -53,9 +52,9 @@ import org.rosuda.REngine.REXPMismatchException;
 import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
@@ -165,54 +164,51 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
 			throws InvalidSettingsException, IOException, MissingValueError {
 
+		FskPortObject portObj = new FskPortObject();
+
 		// Reads model script
-		String model;
 		try {
 			RScript modelScript = readScript(m_modelScript.getStringValue());
-			model = modelScript.getScript();
+			portObj.model = modelScript.getScript();
 		} catch (IOException e) {
-			model = "";
+			portObj.model = "";
 		}
 
 		// Reads parameters script
-		String param;
 		try {
 			RScript paramScript = readScript(m_paramScript.getStringValue());
-			param = paramScript.getScript();
-		} catch (IOException | InvalidSettingsException e) {
-			param = "";
+			portObj.param = paramScript.getScript();
+		} catch (IOException e) {
+			portObj.param = "";
 		}
 
 		// Reads visualization script
-		String viz;
 		try {
 			RScript vizScript = readScript(m_vizScript.getStringValue());
-			viz = vizScript.getScript();
-		} catch (IOException | InvalidSettingsException e) {
-			viz = "";
+			portObj.viz = vizScript.getScript();
+		} catch (IOException e) {
+			portObj.viz = "";
 		}
 
 		// Reads model meta data
-		FskMetaData template;
 		try (InputStream fis = FileUtil.openInputStream(m_metaDataDoc.getStringValue())) {
 			// Finds the workbook instance for XLSX file
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
 			fis.close();
-
-			template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
+			
+			portObj.template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
-
+		
 		// Reads R libraries
-		Set<File> libs = new HashSet<>();
 		if (m_selectedLibs.getStringArrayValue() != null && m_selectedLibs.getStringArrayValue().length > 0) {
 			try {
-				collectLibs().stream().map(Path::toFile).forEach(libs::add);
+				collectLibs().stream().map(Path::toFile).forEach(l -> portObj.getLibraries().add(l));
 			} catch (RException | REXPMismatchException e) {
 				LOGGER.error(e.getMessage());
 			}
 		}
-
-		return new PortObject[] { new FskPortObject(model, param, viz, template, null, libs) };
+		
+		return new PortObject[] { portObj };
 	}
 
 	/** {@inheritDoc} */

@@ -82,7 +82,7 @@ public class FskPortObject implements PortObject {
 	public FskMetaData template;
 
 	/** R workspace file. */
-	private File m_workspace;
+	public File workspace;
 
 	/** R library files. */
 	private final Set<File> m_libs;
@@ -90,6 +90,13 @@ public class FskPortObject implements PortObject {
 	private static int numOfInstances = 0;
 
 	private final int objectNum;
+	
+	public FskPortObject() {
+		m_libs = new HashSet<>();
+		
+		objectNum = numOfInstances;
+		numOfInstances += 1;
+	}
 
 	public FskPortObject(final String model, final String param, final String viz, final FskMetaData template,
 			final File workspace, final Set<File> libs) {
@@ -97,7 +104,7 @@ public class FskPortObject implements PortObject {
 		this.param = param;
 		this.viz = viz;
 		this.template = template;
-		m_workspace = workspace;
+		this.workspace = workspace;
 		m_libs = libs;
 
 		objectNum = numOfInstances;
@@ -112,15 +119,6 @@ public class FskPortObject implements PortObject {
 	@Override
 	public String getSummary() {
 		return "FSK Object";
-	}
-
-	/** @return the R workspace file. */
-	public File getWorkspaceFile() {
-		return m_workspace;
-	}
-
-	public void setWorkspaceFile(final File workspace) {
-		m_workspace = workspace;
 	}
 
 	/** @return the R library files. */
@@ -174,9 +172,9 @@ public class FskPortObject implements PortObject {
 			}
 
 			// workspace entry
-			if (portObject.m_workspace != null) {
+			if (portObject.workspace != null) {
 				out.putNextEntry(new ZipEntry(WORKSPACE));
-				try (FileInputStream fis = new FileInputStream(portObject.m_workspace)) {
+				try (FileInputStream fis = new FileInputStream(portObject.workspace)) {
 					FileUtil.copy(fis, out);
 				}
 				out.closeEntry();

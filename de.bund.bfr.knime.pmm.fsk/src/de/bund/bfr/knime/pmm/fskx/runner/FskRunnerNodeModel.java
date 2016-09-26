@@ -146,7 +146,7 @@ class FskRunnerNodeModel extends NodeModel {
 		try (RController controller = new RController()) {
 			fskObj = runSnippet(controller, (FskPortObject) inObjects[0], exec);
 		}
-		RPortObject rObj = new RPortObject(fskObj.getWorkspaceFile());
+		RPortObject rObj = new RPortObject(fskObj.workspace);
 
 		try (FileInputStream fis = new FileInputStream(internalSettings.imageFile)) {
 			final PNGImageContent content = new PNGImageContent(fis);
@@ -173,14 +173,10 @@ class FskRunnerNodeModel extends NodeModel {
 		controller.eval(fskObj.param + "\n" + fskObj.model);
 
 		// Save workspace
-		File wf;
-		if (fskObj.getWorkspaceFile() == null) {
-			wf = FileUtil.createTempFile("workspace", ".R");
-			fskObj.setWorkspaceFile(wf);
-		} else {
-			wf = fskObj.getWorkspaceFile();
+		if (fskObj.workspace == null ) {
+			fskObj.workspace = FileUtil.createTempFile("workspace", ".R");
 		}
-		controller.eval("save.image('" + wf.getAbsolutePath().replace("\\", "/") + "')");
+		controller.eval("save.image('" + fskObj.workspace.getAbsolutePath().replace("\\", "/") + "')");
 
 		// Creates chart into m_imageFile
 		try {

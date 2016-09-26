@@ -119,6 +119,10 @@ public class FskTemplateSettings {
 			if (independentVariables != null)
 				template.independentVariables = Arrays.asList(independentVariables);
 
+			String[] independentVariableUnits = settings.getStringArray(INDEPENDENT_VARIABLES_UNITS, (String[]) null);
+			if (independentVariableUnits != null)
+				template.independentVariableUnits = Arrays.asList(independentVariableUnits);
+
 			double[] independentVariablesMins = settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS, (double[]) null);
 			if (independentVariablesMins != null)
 				template.independentVariableMins = Arrays.stream(independentVariablesMins).boxed()
@@ -148,14 +152,18 @@ public class FskTemplateSettings {
 	/**
 	 * Saves {@link FSMRTemplate} into a {@link NodeSettingsWO}.
 	 * <p>
+	 * Missing string values are replace with <code>null</code>
+	 * </p>
+	 * <p>
 	 * Missing single doubles are replaced with {@link Double#NaN}.
+	 * </p>
 	 * 
 	 * @param settings
 	 */
 	public void saveToNodeSettings(final NodeSettingsWO settings) {
 		settings.addString(MODEL_NAME, template.modelName);
 		settings.addString(MODEL_ID, template.modelId);
-		settings.addString(MODEL_LINK, template.modelLink == null ? "" : template.modelLink.toString());
+		settings.addString(MODEL_LINK, template.modelLink == null ? null : template.modelLink.toString());
 		settings.addString(ORGANISM_NAME, template.organism);
 		settings.addString(ORGANISM_DETAILS, template.organismDetails);
 		settings.addString(MATRIX_NAME, template.matrix);
@@ -164,13 +172,15 @@ public class FskTemplateSettings {
 		settings.addString(FAMILY_NAME, template.familyName);
 		settings.addString(CONTACT, template.contact);
 		settings.addString(REFERENCE_DESCRIPTION, template.referenceDescription);
-		settings.addString(REFERENCE_DESCRIPTION_LINK, template.referenceDescriptionLink == null ? "" : template.referenceDescriptionLink.toString());
-		settings.addString(CREATED_DATE, template.createdDate == null ? "" : template.createdDate.toString());
-		settings.addString(MODIFIED_DATE, template.modifiedDate == null ? "" : template.modifiedDate.toString());
+		settings.addString(REFERENCE_DESCRIPTION_LINK,
+				template.referenceDescriptionLink == null ? null : template.referenceDescriptionLink.toString());
+		settings.addString(CREATED_DATE, template.createdDate == null ? null : dateFormat.format(template.createdDate));
+		settings.addString(MODIFIED_DATE,
+				template.modifiedDate == null ? null : dateFormat.format(template.modifiedDate));
 		settings.addString(RIGHTS, template.rights);
 		settings.addString(NOTES, template.notes);
 		settings.addBoolean(CURATION_STATUS, template.curated);
-		settings.addString(MODEL_TYPE, template.type == null ? "" : template.type.name());
+		settings.addString(MODEL_TYPE, template.type == null ? null : template.type.name());
 		settings.addString(MODEL_SUBJECT, template.subject == null ? "" : template.subject.fullName());
 		settings.addString(FOOD_PROCESS, template.foodProcess);
 		settings.addString(DEPENDENT_VARIABLE, template.dependentVariable);
@@ -179,25 +189,40 @@ public class FskTemplateSettings {
 		settings.addDouble(DEPENDENT_VARIABLE_MAX, template.dependentVariableMax);
 
 		if (template.independentVariables != null && !template.independentVariables.isEmpty()) {
-			settings.addStringArray(INDEPENDENT_VARIABLES, template.independentVariables.toArray(new String[template.independentVariables.size()]));
+			settings.addStringArray(INDEPENDENT_VARIABLES,
+					template.independentVariables.toArray(new String[template.independentVariables.size()]));
+		} else {
+			settings.addStringArray(INDEPENDENT_VARIABLES, (String[]) null);
 		}
-		
+
 		if (template.independentVariableUnits != null && !template.independentVariableUnits.isEmpty()) {
-			settings.addStringArray(INDEPENDENT_VARIABLES_UNITS, template.independentVariableUnits.toArray(new String[template.independentVariableUnits.size()]));
+			settings.addStringArray(INDEPENDENT_VARIABLES_UNITS,
+					template.independentVariableUnits.toArray(new String[template.independentVariableUnits.size()]));
+		} else {
+			settings.addStringArray(INDEPENDENT_VARIABLES_UNITS, (String[]) null);
 		}
-		
+
 		if (template.independentVariableMins != null && !template.independentVariableMins.isEmpty()) {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, template.independentVariableMins.stream().mapToDouble(Double::doubleValue).toArray());
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS,
+					template.independentVariableMins.stream().mapToDouble(Double::doubleValue).toArray());
+		} else {
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, (double[]) null);
 		}
 
 		if (template.independentVariableMaxs != null && !template.independentVariableMaxs.isEmpty()) {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, template.independentVariableMaxs.stream().mapToDouble(Double::doubleValue).toArray());
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS,
+					template.independentVariableMaxs.stream().mapToDouble(Double::doubleValue).toArray());
+		} else {
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, (double[]) null);
 		}
 
 		if (template.independentVariableValues != null && !template.independentVariableValues.isEmpty()) {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_VALUES, template.independentVariableValues.stream().mapToDouble(Double::doubleValue).toArray());
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_VALUES,
+					template.independentVariableValues.stream().mapToDouble(Double::doubleValue).toArray());
+		} else {
+			settings.addDoubleArray(INDEPENDENT_VARIABLES_VALUES, (double[]) null);
 		}
-		
+
 		settings.addBoolean(HAS_DATA, template.hasData);
 	}
 }

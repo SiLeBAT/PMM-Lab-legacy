@@ -12,4 +12,5 @@ Require-Bundle: de.bund.bfr.knime.pmm.fsk;bundle-version="2.0.0",
  org.junit,
  de.bund.bfr.formats,
  org.knime.core.util,
- org.knime.core
+ org.knime.core,
+ com.google.guava

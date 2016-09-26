@@ -18,11 +18,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import de.bund.bfr.knime.pmm.fskx.FskTemplateSettingsTest;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNodeTest;
 import de.bund.bfr.knime.pmm.fskx.RScriptTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RMetaDataNodeTest.class, RScriptTest.class,})
+@SuiteClasses({ FskTemplateSettingsTest.class, RMetaDataNodeTest.class, RScriptTest.class,})
 public class FSKTests {
   // nothing here
 }

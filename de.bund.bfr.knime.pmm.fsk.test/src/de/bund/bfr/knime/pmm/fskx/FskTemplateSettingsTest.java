@@ -13,11 +13,15 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
+
+import com.google.common.base.Strings;
 
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
@@ -134,7 +138,7 @@ public class FskTemplateSettingsTest {
     filledSettings.addString("Modified date", dateFormat.format(template.modifiedDate));
     filledSettings.addString("Rights", template.rights);
     filledSettings.addString("Notes", template.notes);
-    filledSettings.addBoolean("Curated", template.curated);
+    filledSettings.addBoolean("Curation status", template.curated);
     filledSettings.addString("Model type", template.type.name());
     filledSettings.addString("Model subject", template.subject.fullName());
     filledSettings.addString("Food process", template.foodProcess);
@@ -211,65 +215,71 @@ public class FskTemplateSettingsTest {
   }
 
   private void testInexistenceInTemplate(final FskMetaData template) {
-    assertTrue(template.modelName == null || template.modelName.isEmpty());
-    assertTrue(template.modelId == null || template.modelId.isEmpty());
+    assertTrue(Strings.isNullOrEmpty(template.modelName));
+    assertTrue(Strings.isNullOrEmpty(template.modelId));
     assertNull(template.modelLink);
-    assertTrue(template.organism == null || template.organism.isEmpty());
-    assertTrue(template.organismDetails == null || template.organismDetails.isEmpty());
-    assertTrue(template.matrix == null || template.matrix.isEmpty());
-    assertTrue(template.matrixDetails == null || template.matrixDetails.isEmpty());
-    assertTrue(template.creator == null || template.creator.isEmpty());
-    assertTrue(template.familyName == null || template.familyName.isEmpty());
-    assertTrue(template.contact == null || template.contact.isEmpty());
-    assertTrue(template.referenceDescription == null || template.referenceDescription.isEmpty());
+    assertTrue(Strings.isNullOrEmpty(template.organism));
+    assertTrue(Strings.isNullOrEmpty(template.organismDetails));
+    assertTrue(Strings.isNullOrEmpty(template.matrix));
+    assertTrue(Strings.isNullOrEmpty(template.matrixDetails));
+    assertTrue(Strings.isNullOrEmpty(template.creator));
+    assertTrue(Strings.isNullOrEmpty(template.familyName));
+    assertTrue(Strings.isNullOrEmpty(template.contact));
+    assertTrue(Strings.isNullOrEmpty(template.referenceDescription));
     assertNull(template.referenceDescriptionLink);
     assertNull(template.createdDate);
     assertNull(template.modifiedDate);
-    assertTrue(template.rights == null || template.rights.isEmpty());
-    assertTrue(template.notes == null || template.notes.isEmpty());
+    assertTrue(Strings.isNullOrEmpty(template.rights));
+    assertTrue(Strings.isNullOrEmpty(template.notes));
     assertFalse(template.curated);
     assertNull(template.type);
-    assertNull(template.subject);
-    assertTrue(template.foodProcess == null || template.foodProcess.isEmpty());
-    assertFalse(template.dependentVariable == null || template.dependentVariable.isEmpty());
-    assertFalse(template.dependentVariableUnit == null || template.dependentVariableUnit.isEmpty());
+    assertEquals(template.subject, ModelClass.UNKNOWN);
+    assertTrue(Strings.isNullOrEmpty(template.foodProcess));
+    assertTrue(Strings.isNullOrEmpty(template.dependentVariable));
+    assertTrue(Strings.isNullOrEmpty(template.dependentVariableUnit));
     assertTrue(Double.isNaN(template.dependentVariableMin));
     assertTrue(Double.isNaN(template.dependentVariableMax));
     assertTrue(template.independentVariables == null || template.independentVariables.isEmpty());
-    assertTrue(template.independentVariableUnits == null || template.independentVariableUnits.isEmpty());
-    assertTrue(template.independentVariableMins == null || template.independentVariableMins.isEmpty());
-    assertTrue(template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty());
+    assertTrue(
+        template.independentVariableUnits == null || template.independentVariableUnits.isEmpty());
+    assertTrue(
+        template.independentVariableMins == null || template.independentVariableMins.isEmpty());
+    assertTrue(
+        template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty());
   }
 
   private void testExistenceInTemplate(final FskMetaData template) {
-    assertTrue(template.modelName != null && !template.modelName.isEmpty());
-    assertTrue(template.modelId != null && !template.modelId.isEmpty());
+    assertFalse(Strings.isNullOrEmpty(template.modelName));
+    assertFalse(Strings.isNullOrEmpty(template.modelId));
     assertNotNull(template.modelLink);
-    assertTrue(template.organism != null && !template.organism.isEmpty());
-    assertTrue(template.organismDetails != null && !template.organismDetails.isEmpty());
-    assertTrue(template.matrix != null && !template.matrix.isEmpty());
-    assertTrue(template.matrixDetails != null && !template.matrixDetails.isEmpty());
-    assertTrue(template.creator != null && !template.creator.isEmpty());
-    assertTrue(template.familyName != null && !template.familyName.isEmpty());
-    assertTrue(template.contact != null && !template.contact.isEmpty());
-    assertTrue(template.referenceDescription != null && !template.referenceDescription.isEmpty());
+    assertFalse(Strings.isNullOrEmpty(template.organism));
+    assertFalse(Strings.isNullOrEmpty(template.organismDetails));
+    assertFalse(Strings.isNullOrEmpty(template.matrix));
+    assertFalse(Strings.isNullOrEmpty(template.matrixDetails));
+    assertFalse(Strings.isNullOrEmpty(template.creator));
+    assertFalse(Strings.isNullOrEmpty(template.familyName));
+    assertFalse(Strings.isNullOrEmpty(template.contact));
+    assertFalse(Strings.isNullOrEmpty(template.referenceDescription));
     assertNotNull(template.referenceDescriptionLink);
     assertNotNull(template.createdDate);
     assertNotNull(template.modifiedDate);
-    assertTrue(template.rights != null && !template.rights.isEmpty());
-    assertTrue(template.notes != null && !template.notes.isEmpty());
+    assertFalse(Strings.isNullOrEmpty(template.rights));
+    assertFalse(Strings.isNullOrEmpty(template.notes));
     assertTrue(template.curated);
     assertNotNull(template.type);
     assertNotNull(template.subject);
-    assertTrue(template.foodProcess != null && !template.foodProcess.isEmpty());
-    assertTrue(template.dependentVariable != null && !template.dependentVariable.isEmpty());
-    assertTrue(template.dependentVariableUnit != null && !template.dependentVariableUnit.isEmpty());
+    assertFalse(Strings.isNullOrEmpty(template.foodProcess));
+    assertFalse(Strings.isNullOrEmpty(template.dependentVariable));
+    assertFalse(Strings.isNullOrEmpty(template.dependentVariableUnit));
     assertFalse(Double.isNaN(template.dependentVariableMin));
     assertFalse(Double.isNaN(template.dependentVariableMax));
     assertTrue(template.independentVariables != null && !template.independentVariables.isEmpty());
-    assertTrue(template.independentVariableUnits != null && !template.independentVariableUnits.isEmpty());
-    assertTrue(template.independentVariableMins != null && !template.independentVariableMins.isEmpty());
-    assertTrue(template.independentVariableMaxs != null && !template.independentVariableMaxs.isEmpty());
+    assertTrue(
+        template.independentVariableUnits != null && !template.independentVariableUnits.isEmpty());
+    assertTrue(
+        template.independentVariableMins != null && !template.independentVariableMins.isEmpty());
+    assertTrue(
+        template.independentVariableMaxs != null && !template.independentVariableMaxs.isEmpty());
   }
 
   private void testSavingEmptySettings(final NodeSettings settings)
@@ -290,14 +300,14 @@ public class FskTemplateSettingsTest {
     assertNull(settings.getString("Modified date"));
     assertNull(settings.getString("Rights"));
     assertNull(settings.getString("Notes"));
-    assertNull(settings.getString("Curation status"));
+    assertFalse(settings.getBoolean("Curation status"));
     assertNull(settings.getString("Model type"));
-    assertNull(settings.getString("Model subject"));
+    assertEquals(settings.getString("Model subject"), ModelClass.UNKNOWN.fullName());
     assertNull(settings.getString("Food process"));
     assertNull(settings.getString("Dependent variable"));
     assertNull(settings.getString("Dependent variable unit"));
-    assertEquals(Double.NaN, settings.getDouble("Dependent variable minimum value"), .0);
-    assertEquals(Double.NaN, settings.getDouble("Dependent variable maximum value"), .0);
+    assertTrue(Double.isNaN(settings.getDouble("Dependent variable minimum value")));
+    assertTrue(Double.isNaN(settings.getDouble("Dependent variable maximum value")));
     assertNull(settings.getStringArray("Independent variables"));
     assertNull(settings.getStringArray("Independent variables units"));
     assertNull(settings.getDoubleArray("Independent variables minimum values"));
@@ -337,9 +347,23 @@ public class FskTemplateSettingsTest {
         Arrays.asList(settings.getStringArray("Independent variables")));
     assertEquals(template.independentVariableUnits,
         Arrays.asList(settings.getStringArray("Independent variables units")));
-    assertEquals(template.independentVariableMins,
-        Arrays.asList(settings.getDoubleArray("Independent variables minimum values")));
-    assertEquals(template.independentVariableMaxs,
-        Arrays.asList(settings.getDoubleArray("Independent variables maximum values")));
+
+    // TODO: should replace Lists in FskMetaData with arrays to simplify the checking with settings
+    // arrays
+    {
+      List<Double> obtained =
+          Arrays.stream(settings.getDoubleArray("Independent variables minimum values")).boxed()
+              .collect(Collectors.toList());
+      assertEquals(template.independentVariableMins, obtained);
+    }
+
+    // TODO: should replace Lists in FskMetaData with arrays to simplify the checking with settings
+    // arrays
+    {
+      List<Double> obtained =
+          Arrays.stream(settings.getDoubleArray("Independent variables maximum values")).boxed()
+              .collect(Collectors.toList());
+      assertEquals(template.independentVariableMaxs, obtained);
+    }
   }
 }

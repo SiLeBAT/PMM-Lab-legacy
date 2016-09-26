@@ -128,19 +128,18 @@ class FskRunnerNodeModel extends NodeModel {
 			if (metadataTable.size() == 1) {
 				Iterator<DataRow> iterator = metadataTable.iterator();
 				DataRow dataRow = iterator.next();
-				FskMetaData template = tuple2Template(dataRow);
-				fskObj.setTemplate(template);
+				fskObj.template = tuple2Template(dataRow);
 
 				// Replace with the default values with the new metadata
-				if (template.independentVariables != null && !template.independentVariables.isEmpty() &&
-						template.independentVariableValues != null && !template.independentVariableValues.isEmpty()) {
+				if (fskObj.template.independentVariables != null && !fskObj.template.independentVariables.isEmpty() &&
+						fskObj.template.independentVariableValues != null && !fskObj.template.independentVariableValues.isEmpty()) {
 					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < template.independentVariables.size(); i++) {
-						String var = template.independentVariables.get(i);
-						String value = template.independentVariableUnits.get(i);
+					for (int i = 0; i < fskObj.template.independentVariables.size(); i++) {
+						String var = fskObj.template.independentVariables.get(i);
+						String value = fskObj.template.independentVariableUnits.get(i);
 						sb.append(var + " <- " + value + "\n");
 					}
-					fskObj.setParamScript(sb.toString());
+					fskObj.param = sb.toString();
 				}
 			}
 		}
@@ -172,7 +171,7 @@ class FskRunnerNodeModel extends NodeModel {
 		String[] newPaths = controller.eval(cmd).asStrings();
 
 		// Run model
-		controller.eval(fskObj.getParamScript() + "\n" + fskObj.getModelScript());
+		controller.eval(fskObj.param + "\n" + fskObj.model);
 
 		// Save workspace
 		File wf;
@@ -188,7 +187,7 @@ class FskRunnerNodeModel extends NodeModel {
 		try {
 			controller.eval("png(\"" + internalSettings.imageFile.getAbsolutePath().replace("\\", "/")
 					+ "\", width=640, height=640, pointsize=12, bg=\"#ffffff\", res=\"NA\")");
-			controller.eval(fskObj.getVizScript() + "\n");
+			controller.eval(fskObj.viz + "\n");
 			controller.eval("dev.off()");
 		} catch (RException e) {
 			LOGGER.warn("Visualization script failed");

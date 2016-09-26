@@ -85,10 +85,10 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 					.getStringValue().isEmpty()) || (objectNumber.getIntValue() != fskObj.getObjectNumber())) {
 
 				objectNumber.setIntValue(fskObj.getObjectNumber());
-				modelScript.setStringValue(fskObj.getModelScript());
-				paramScript.setStringValue(fskObj.getParamScript());
-				vizScript.setStringValue(fskObj.getVizScript());
-				templateSettings.setTemplate(fskObj.getTemplate());
+				modelScript.setStringValue(fskObj.model);
+				paramScript.setStringValue(fskObj.param);
+				vizScript.setStringValue(fskObj.viz);
+				templateSettings.setTemplate(fskObj.template);
 			}
 		} catch (InvalidSettingsException error) {
 			throw new NotConfigurableException(error.getMessage(), error.getCause());

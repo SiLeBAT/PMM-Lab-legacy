@@ -70,16 +70,16 @@ public class FskPortObject implements PortObject {
 	public static final PortType TYPE = PortTypeRegistry.getInstance().getPortType(FskPortObject.class);
 
 	/** Model script. */
-	private final String m_model;
+	public String model;
 
 	/** Parameters script. */
-	private String m_param;
+	public String param;
 
 	/** Visualization script. */
-	private final String m_viz;
+	public String viz;
 
 	/** Model meta data. */
-	private FskMetaData m_template;
+	public FskMetaData template;
 
 	/** R workspace file. */
 	private File m_workspace;
@@ -93,10 +93,10 @@ public class FskPortObject implements PortObject {
 
 	public FskPortObject(final String model, final String param, final String viz, final FskMetaData template,
 			final File workspace, final Set<File> libs) {
-		m_model = model;
-		m_param = param;
-		m_viz = viz;
-		m_template = template;
+		this.model = model;
+		this.param = param;
+		this.viz = viz;
+		this.template = template;
 		m_workspace = workspace;
 		m_libs = libs;
 
@@ -112,34 +112,6 @@ public class FskPortObject implements PortObject {
 	@Override
 	public String getSummary() {
 		return "FSK Object";
-	}
-
-	/** @return the model script. */
-	public String getModelScript() {
-		return m_model;
-	}
-
-	/** @return the parameters script. */
-	public String getParamScript() {
-		return m_param;
-	}
-
-	public void setParamScript(final String script) {
-		m_param = script;
-	}
-
-	/** @return the visualization script. */
-	public String getVizScript() {
-		return m_viz;
-	}
-
-	/** @return the template. */
-	public FskMetaData getTemplate() {
-		return m_template;
-	}
-	
-	public void setTemplate(final FskMetaData template) {
-		m_template = template;
 	}
 
 	/** @return the R workspace file. */
@@ -180,24 +152,24 @@ public class FskPortObject implements PortObject {
 				final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
 			// model entry (file with model script)
 			out.putNextEntry(new ZipEntry(MODEL));
-			IOUtils.write(portObject.m_model, out);
+			IOUtils.write(portObject.model, out);
 			out.closeEntry();
 
 			// param entry (file with param script)
 			out.putNextEntry(new ZipEntry(PARAM));
-			IOUtils.write(portObject.m_param, out);
+			IOUtils.write(portObject.param, out);
 			out.closeEntry();
 
 			// viz entry (file with visualization script)
 			out.putNextEntry(new ZipEntry(VIZ));
-			IOUtils.write(portObject.m_viz, out);
+			IOUtils.write(portObject.viz, out);
 			out.closeEntry();
 
 			// template entry (file with model meta data)
-			if (portObject.m_template != null) {
+			if (portObject.template != null) {
 				out.putNextEntry(new ZipEntry(META_DATA));
 				ObjectOutputStream oos = new ObjectOutputStream(out);
-				oos.writeObject(portObject.m_template);
+				oos.writeObject(portObject.template);
 				out.closeEntry();
 			}
 
@@ -286,9 +258,9 @@ public class FskPortObject implements PortObject {
 	/** {Override} */
 	@Override
 	public JComponent[] getViews() {
-		JPanel modelScriptPanel = new ScriptPanel("Model script", m_model, false);
-		JPanel paramScriptPanel = new ScriptPanel("Param script", m_param, false);
-		JPanel vizScriptPanel = new ScriptPanel("Visualization script", m_viz, false);
+		JPanel modelScriptPanel = new ScriptPanel("Model script", model, false);
+		JPanel paramScriptPanel = new ScriptPanel("Param script", param, false);
+		JPanel vizScriptPanel = new ScriptPanel("Visualization script", viz, false);
 
 		return new JComponent[] { modelScriptPanel, paramScriptPanel, vizScriptPanel, new MetaDataPanel(),
 				new LibrariesPanel() };
@@ -302,7 +274,7 @@ public class FskPortObject implements PortObject {
 		MetaDataPanel() {
 			super(new BorderLayout());
 			setName("Meta data");
-			add(new MetaDataPane(m_template, false));
+			add(new MetaDataPane(template, false));
 		}
 	}
 

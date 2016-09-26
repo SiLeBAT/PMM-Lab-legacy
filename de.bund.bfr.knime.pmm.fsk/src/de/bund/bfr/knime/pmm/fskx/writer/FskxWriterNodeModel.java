@@ -120,20 +120,20 @@ class FskxWriterNodeModel extends NodeModel {
 			URI rUri = RUri.createURI();
 
 			// Adds model script
-			if (portObject.getModelScript() != null) {
-				archive.addEntry(createScriptFile(portObject.getModelScript()), "model.r", rUri);
+			if (portObject.model != null) {
+				archive.addEntry(createScriptFile(portObject.model), "model.r", rUri);
 				metaDataNode.setMainScript("model.r");
 			}
 
 			// Adds parameters script
-			if (portObject.getParamScript() != null) {
-				archive.addEntry(createScriptFile(portObject.getParamScript()), "param.r", rUri);
+			if (portObject.param != null) {
+				archive.addEntry(createScriptFile(portObject.param), "param.r", rUri);
 				metaDataNode.setParamScript("param.r");
 			}
 
 			// Adds visualization script
-			if (portObject.getVizScript() != null) {
-				archive.addEntry(createScriptFile(portObject.getVizScript()), "visualization.r", rUri);
+			if (portObject.viz != null) {
+				archive.addEntry(createScriptFile(portObject.viz), "visualization.r", rUri);
 				metaDataNode.setVisualizationScript("visualization.r");
 			}
 
@@ -144,8 +144,8 @@ class FskxWriterNodeModel extends NodeModel {
 			}
 
 			// Adds model meta data
-			if (portObject.getTemplate() != null) {
-				SBMLDocument doc = createSbmlDocument(portObject.getTemplate());
+			if (portObject.template != null) {
+				SBMLDocument doc = createSbmlDocument(portObject.template);
 
 				File f = FileUtil.createTempFile("metaData", ".pmf");
 				try {

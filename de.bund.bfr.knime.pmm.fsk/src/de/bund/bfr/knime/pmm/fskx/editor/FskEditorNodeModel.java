@@ -121,10 +121,10 @@ class FskEditorNodeModel extends NodeModel {
 		// settings yet) then assigns the input
 		if (modelScript.getStringValue().isEmpty() && paramScript.getStringValue().isEmpty()
 				&& vizScript.getStringValue().isEmpty()) {
-			modelScript.setStringValue(inObj.getModelScript());
-			paramScript.setStringValue(inObj.getParamScript());
-			vizScript.setStringValue(inObj.getVizScript());
-			templateSettings.setTemplate(inObj.getTemplate());
+			modelScript.setStringValue(inObj.model);
+			paramScript.setStringValue(inObj.param);
+			vizScript.setStringValue(inObj.viz);
+			templateSettings.setTemplate(inObj.template);
 		}
 
 		FskPortObject outObj = new FskPortObject(modelScript.getStringValue(), paramScript.getStringValue(),

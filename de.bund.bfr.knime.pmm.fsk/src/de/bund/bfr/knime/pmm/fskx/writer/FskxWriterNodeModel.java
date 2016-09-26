@@ -158,7 +158,7 @@ class FskxWriterNodeModel extends NodeModel {
 
 			// Adds R libraries
 			URI zipUri = ZipUri.createURI();
-			for (File lib : portObject.getLibraries()) {
+			for (File lib : portObject.libs) {
 				archive.addEntry(lib, lib.getName(), zipUri);
 			}
 

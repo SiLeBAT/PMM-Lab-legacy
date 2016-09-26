@@ -85,14 +85,14 @@ public class FskPortObject implements PortObject {
 	public File workspace;
 
 	/** R library files. */
-	private final Set<File> m_libs;
+	public final Set<File> libs;
 
 	private static int numOfInstances = 0;
 
 	private final int objectNum;
 	
 	public FskPortObject() {
-		m_libs = new HashSet<>();
+		libs = new HashSet<>();
 		
 		objectNum = numOfInstances;
 		numOfInstances += 1;
@@ -105,7 +105,7 @@ public class FskPortObject implements PortObject {
 		this.viz = viz;
 		this.template = template;
 		this.workspace = workspace;
-		m_libs = libs;
+		this.libs = libs;
 
 		objectNum = numOfInstances;
 		numOfInstances += 1;
@@ -119,11 +119,6 @@ public class FskPortObject implements PortObject {
 	@Override
 	public String getSummary() {
 		return "FSK Object";
-	}
-
-	/** @return the R library files. */
-	public Set<File> getLibraries() {
-		return m_libs;
 	}
 
 	/** @return the object number. */
@@ -180,9 +175,9 @@ public class FskPortObject implements PortObject {
 				out.closeEntry();
 			}
 
-			if (!portObject.m_libs.isEmpty()) {
+			if (!portObject.libs.isEmpty()) {
 				out.putNextEntry(new ZipEntry("library.list"));
-				List<String> libNames = portObject.m_libs.stream().map(f -> f.getName().split("\\_")[0])
+				List<String> libNames = portObject.libs.stream().map(f -> f.getName().split("\\_")[0])
 						.collect(Collectors.toList());
 				IOUtils.writeLines(libNames, "\n", out, "UTF-8");
 				out.closeEntry();
@@ -285,9 +280,9 @@ public class FskPortObject implements PortObject {
 			super(new BorderLayout());
 			setName("Libraries list");
 
-			String[] libNames = new String[m_libs.size()];
+			String[] libNames = new String[libs.size()];
 			int i = 0;
-			for (File lib : m_libs) {
+			for (File lib : libs) {
 				libNames[i] = lib.getName();
 				i++;
 			}

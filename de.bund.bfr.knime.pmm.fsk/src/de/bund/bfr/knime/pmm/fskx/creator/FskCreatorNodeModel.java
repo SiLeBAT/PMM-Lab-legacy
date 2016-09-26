@@ -199,7 +199,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		// Reads R libraries
 		if (m_selectedLibs.getStringArrayValue() != null && m_selectedLibs.getStringArrayValue().length > 0) {
 			try {
-				collectLibs().stream().map(Path::toFile).forEach(l -> portObj.getLibraries().add(l));
+				collectLibs().stream().map(Path::toFile).forEach(l -> portObj.libs.add(l));
 			} catch (RException | REXPMismatchException e) {
 				LOGGER.error(e.getMessage());
 			}

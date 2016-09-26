@@ -26,7 +26,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -123,8 +122,6 @@ class FskxReaderNodeModel extends NodeModel {
 			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException,
 			InvalidPathException, MalformedURLException {
 
-		Set<File> libs = new HashSet<>();
-		
 		FskPortObject portObj = new FskPortObject();
 
 		File archiveFile = KnimeUtils.getFile(filename.getStringValue());
@@ -187,7 +184,8 @@ class FskxReaderNodeModel extends NodeModel {
 				}
 
 				// Converts and return set of Paths returned from plugin to set
-				libs = libRegistry.getPaths(libNames).stream().map(Path::toFile).collect(Collectors.toSet());
+				Set<File> libs = libRegistry.getPaths(libNames).stream().map(Path::toFile).collect(Collectors.toSet());
+				portObj.libs.addAll(libs);
 			}
 
 		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
@@ -200,8 +198,6 @@ class FskxReaderNodeModel extends NodeModel {
 			fsmrContainer.addRowToTable(new FskMetaDataTuple(portObj.template));
 		}
 		fsmrContainer.close();
-
-		portObj.getLibraries().addAll(libs);
 
 		RPortObject rObj = new RPortObject(portObj.workspace);
 
@@ -420,17 +416,17 @@ class FskxReaderNodeModel extends NodeModel {
 			});
 
 			final int numParams = indepParams.size();
-			
+
 			template.independentVariables = new String[numParams];
 			template.independentVariableUnits = new String[numParams];
 			template.independentVariableMins = new double[numParams];
 			template.independentVariableMaxs = new double[numParams];
-			
+
 			for (int p = 0; p < numParams; p++) {
 				Parameter param = indepParams.get(p);
-				
+
 				template.independentVariables[p] = param.getName();
-				
+
 				// unit
 				String unitId = param.getUnits();
 				template.independentVariableUnits[p] = "";
@@ -440,7 +436,7 @@ class FskxReaderNodeModel extends NodeModel {
 						template.independentVariableUnits[p] = unitDef.getName();
 					}
 				}
-				
+
 				Limits paramLimits = limits.stream().filter(lim -> lim.getVar().equals(param.getId())).findFirst()
 						.get();
 				template.independentVariableMins[p] = paramLimits.getMin();

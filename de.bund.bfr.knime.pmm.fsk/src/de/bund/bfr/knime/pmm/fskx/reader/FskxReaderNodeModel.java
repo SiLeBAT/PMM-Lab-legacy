@@ -26,7 +26,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -65,10 +64,10 @@ import org.sbml.jsbml.util.filters.Filter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
@@ -423,37 +422,32 @@ class FskxReaderNodeModel extends NodeModel {
 			});
 
 			final int numParams = indepParams.size();
-			// TODO: simplify using array fields of template directly instead of these lists
-			List<String> units = new ArrayList<>(numParams);
-			List<String> names = new ArrayList<>(numParams);
-			List<Double> mins = new ArrayList<>(numParams);
-			List<Double> maxs = new ArrayList<>(numParams);
-
-			for (Parameter param : indepParams) {
-
+			
+			template.independentVariables = new String[numParams];
+			template.independentVariableUnits = new String[numParams];
+			template.independentVariableMins = new double[numParams];
+			template.independentVariableMaxs = new double[numParams];
+			
+			for (int p = 0; p < numParams; p++) {
+				Parameter param = indepParams.get(p);
+				
+				template.independentVariables[p] = param.getName();
+				
 				// unit
 				String unitId = param.getUnits();
-				String unit = "";
+				template.independentVariableUnits[p] = "";
 				if (!unitId.equals("dimensionless")) {
 					UnitDefinition unitDef = model.getUnitDefinition(unitId);
 					if (unitDef != null) {
-						unit = unitDef.getName();
+						template.independentVariableUnits[p] = unitDef.getName();
 					}
 				}
-
+				
 				Limits paramLimits = limits.stream().filter(lim -> lim.getVar().equals(param.getId())).findFirst()
 						.get();
-
-				names.add(param.getName());
-				units.add(unit);
-				mins.add(paramLimits.getMin());
-				maxs.add(paramLimits.getMax());
+				template.independentVariableMins[p] = paramLimits.getMin();
+				template.independentVariableMaxs[p] = paramLimits.getMax();
 			}
-
-			template.independentVariables = names.toArray(new String[0]);
-			template.independentVariableUnits = units.toArray(new String[0]);
-			template.independentVariableMins = mins.stream().mapToDouble(Double::doubleValue).toArray();
-			template.independentVariableMaxs = maxs.stream().mapToDouble(Double::doubleValue).toArray();
 		}
 
 		template.hasData = false;

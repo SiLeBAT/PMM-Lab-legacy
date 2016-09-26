@@ -88,7 +88,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 				modelScript.setStringValue(fskObj.model);
 				paramScript.setStringValue(fskObj.param);
 				vizScript.setStringValue(fskObj.viz);
-				templateSettings.setTemplate(fskObj.template);
+				templateSettings.template = fskObj.template;
 			}
 		} catch (InvalidSettingsException error) {
 			throw new NotConfigurableException(error.getMessage(), error.getCause());
@@ -96,7 +96,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 
 		// Panel names
 		removeTab("Metadata");
-		metaDataPane = new MetaDataPane(templateSettings.getTemplate(), true);
+		metaDataPane = new MetaDataPane(templateSettings.template, true);
 		addTab("Metadata", metaDataPane);
 	}
 
@@ -113,7 +113,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 		vizScript.setStringValue(vizScriptPanel.getTextArea().getText());
 		vizScript.saveSettingsTo(settings);
 
-		templateSettings.setTemplate(metaDataPane.getMetaData());
+		templateSettings.template = metaDataPane.getMetaData();
 		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 }

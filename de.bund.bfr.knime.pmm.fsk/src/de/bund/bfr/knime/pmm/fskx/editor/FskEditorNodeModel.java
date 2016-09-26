@@ -53,15 +53,15 @@ class FskEditorNodeModel extends NodeModel {
 	// --- internal settings methods ---
 	/** {@inheritDoc} */
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// no internal settings
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 		// no internal settings
 	}
 
@@ -124,12 +124,11 @@ class FskEditorNodeModel extends NodeModel {
 			modelScript.setStringValue(inObj.model);
 			paramScript.setStringValue(inObj.param);
 			vizScript.setStringValue(inObj.viz);
-			templateSettings.setTemplate(inObj.template);
+			templateSettings.template = inObj.template;
 		}
 
 		FskPortObject outObj = new FskPortObject(modelScript.getStringValue(), paramScript.getStringValue(),
-				vizScript.getStringValue(), templateSettings.getTemplate(), inObj.getWorkspaceFile(),
-				inObj.getLibraries());
+				vizScript.getStringValue(), templateSettings.template, inObj.getWorkspaceFile(), inObj.getLibraries());
 
 		return new PortObject[] { outObj };
 	}

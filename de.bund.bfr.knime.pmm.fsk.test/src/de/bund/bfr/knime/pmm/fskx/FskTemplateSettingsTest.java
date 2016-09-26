@@ -76,10 +76,10 @@ public class FskTemplateSettingsTest {
   @Test
   public void testTemplate() {
     FskTemplateSettings settings = new FskTemplateSettings();
-    testInexistenceInTemplate(settings.getTemplate());
+    testInexistenceInTemplate(settings.template);
 
-    settings.setTemplate(template);
-    testExistenceInTemplate(settings.getTemplate());
+    settings.template = template;
+    testExistenceInTemplate(settings.template);
   }
 
   @Test
@@ -117,7 +117,7 @@ public class FskTemplateSettingsTest {
 
     FskTemplateSettings templateSettings = new FskTemplateSettings();
     templateSettings.loadFromNodeSettings(emptySettings);
-    testInexistenceInTemplate(templateSettings.getTemplate());
+    testInexistenceInTemplate(templateSettings.template);
 
     // test filled settings
     NodeSettings filledSettings = new NodeSettings("filled settings");
@@ -162,7 +162,7 @@ public class FskTemplateSettingsTest {
   private void testLoadingFilledSettings(final NodeSettings settings) {
     FskTemplateSettings templateSettings = new FskTemplateSettings();
     templateSettings.loadFromNodeSettings(settings);
-    FskMetaData templateFromSettings = templateSettings.getTemplate();
+    FskMetaData templateFromSettings = templateSettings.template;
 
     assertEquals(template.modelName, templateFromSettings.modelName);
     assertEquals(template.modelId, templateFromSettings.modelId);
@@ -200,14 +200,14 @@ public class FskTemplateSettingsTest {
 
     // test empty settings
     FskTemplateSettings templateSettings = new FskTemplateSettings();
-    templateSettings.setTemplate(new FskMetaData());
+    templateSettings.template = new FskMetaData();
 
     NodeSettings emptySettings = new NodeSettings("empty settings");
     templateSettings.saveToNodeSettings(emptySettings);
     testSavingEmptySettings(emptySettings);
 
     // test filled settings
-    templateSettings.setTemplate(template);
+    templateSettings.template = template;
 
     NodeSettings filledSettings = new NodeSettings("irrelevant key");
     templateSettings.saveToNodeSettings(filledSettings);

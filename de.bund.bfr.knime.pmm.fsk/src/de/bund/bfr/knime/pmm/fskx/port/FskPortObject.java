@@ -90,10 +90,10 @@ public class FskPortObject implements PortObject {
 	private static int numOfInstances = 0;
 
 	private final int objectNum;
-	
+
 	public FskPortObject() {
 		libs = new HashSet<>();
-		
+
 		objectNum = numOfInstances;
 		numOfInstances += 1;
 	}
@@ -190,32 +190,27 @@ public class FskPortObject implements PortObject {
 		public FskPortObject loadPortObject(PortObjectZipInputStream in, PortObjectSpec spec, ExecutionMonitor exec)
 				throws IOException, CanceledExecutionException {
 
-			String model = "";
-			String param = "";
-			String viz = "";
-			FskMetaData template = null;
-			File workspaceFile = null;
-			Set<File> libs = new HashSet<>();
+			FskPortObject portObj = new FskPortObject();
 
 			ZipEntry entry;
 			while ((entry = in.getNextEntry()) != null) {
 				String entryName = entry.getName();
 
 				if (entryName.equals(MODEL)) {
-					model = IOUtils.toString(in, "UTF-8");
+					portObj.model = IOUtils.toString(in, "UTF-8");
 				} else if (entryName.equals(PARAM)) {
-					param = IOUtils.toString(in, "UTF-8");
+					portObj.param = IOUtils.toString(in, "UTF-8");
 				} else if (entryName.equals(VIZ)) {
-					viz = IOUtils.toString(in, "UTF-8");
+					portObj.viz = IOUtils.toString(in, "UTF-8");
 				} else if (entryName.equals(META_DATA)) {
 					try {
 						ObjectInputStream ois = new ObjectInputStream(in);
-						template = (FskMetaData) ois.readObject();
+						portObj.template = (FskMetaData) ois.readObject();
 					} catch (ClassNotFoundException e) {
 					}
 				} else if (entryName.equals(WORKSPACE)) {
-					workspaceFile = FileUtil.createTempFile("workspace", ".r");
-					FileOutputStream fos = new FileOutputStream(workspaceFile);
+					portObj.workspace = FileUtil.createTempFile("workspace", ".r");
+					FileOutputStream fos = new FileOutputStream(portObj.workspace);
 					FileUtil.copy(in, fos);
 					fos.close();
 				} else if (entryName.equals("library.list")) {
@@ -235,7 +230,7 @@ public class FskPortObject implements PortObject {
 						}
 						// Adds to libs the Paths of the libraries converted to
 						// Files
-						libRegistry.getPaths(libNames).forEach(p -> libs.add(p.toFile()));
+						libRegistry.getPaths(libNames).forEach(p -> portObj.libs.add(p.toFile()));
 					} catch (RException | REXPMismatchException error) {
 						throw new IOException(error.getMessage());
 					}
@@ -244,7 +239,7 @@ public class FskPortObject implements PortObject {
 
 			in.close();
 
-			return new FskPortObject(model, param, viz, template, workspaceFile, libs);
+			return portObj;
 		}
 	}
 

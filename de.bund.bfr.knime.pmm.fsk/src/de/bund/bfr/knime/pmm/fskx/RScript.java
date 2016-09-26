@@ -29,69 +29,48 @@ import com.google.common.io.Files;
 
 public class RScript {
 
-  private final String script;
-  private final List<String> libraries = new LinkedList<>();
-  private final List<String> sources = new LinkedList<>();
+	/** R script. */
+	public final String script;
 
-  /**
-   * Process R script.
-   * 
-   * @param file.
-   * @throws IOException if the file specified by path cannot be read.
-   */
-  public RScript(final File file) throws IOException {
-	  String fileContents = Files.toString(file, Charsets.UTF_8); // throws IOException
+	/** Names of the libraries imported in the R script. */
+	public final List<String> libraries = new LinkedList<>();
 
-    // If no errors are thrown, proceed to extract libraries and sources
-    final String[] lines = fileContents.split("\\r?\\n");
+	/** Names of the source files linked in the R script. */
+	public final List<String> sources = new LinkedList<>();
 
-    final Pattern libPattern = Pattern.compile("^\\s*\\b(library|require)\\((\"?.+\"?)\\)");
-    final Pattern srcPattern = Pattern.compile("^\\s*\\b(source)\\((\"?.+\"?)\\)");
+	/**
+	 * Process R script.
+	 * 
+	 * @param file.
+	 * @throws IOException
+	 *             if the file specified by path cannot be read.
+	 */
+	public RScript(final File file) throws IOException {
+		String fileContents = Files.toString(file, Charsets.UTF_8); // throws
+																	// IOException
 
-    StringBuilder sb = new StringBuilder();
-    for (final String line : lines) {
-      sb.append(line + '\n');
+		// If no errors are thrown, proceed to extract libraries and sources
+		final String[] lines = fileContents.split("\\r?\\n");
 
-      final Matcher libMatcher = libPattern.matcher(line);
-      final Matcher srcMatcher = srcPattern.matcher(line);
+		final Pattern libPattern = Pattern.compile("^\\s*\\b(library|require)\\((\"?.+\"?)\\)");
+		final Pattern srcPattern = Pattern.compile("^\\s*\\b(source)\\((\"?.+\"?)\\)");
 
-      if (libMatcher.find()) {
-        final String libName = libMatcher.group(2).replace("\"", "");
-        getLibraries().add(libName);
-      } else if (srcMatcher.find()) {
-        final String srcName = srcMatcher.group(2).replace("\"", "");
-        getSources().add(srcName);
-      }
-    }
+		StringBuilder sb = new StringBuilder();
+		for (final String line : lines) {
+			sb.append(line + '\n');
 
-    script = sb.toString();
-  }
+			final Matcher libMatcher = libPattern.matcher(line);
+			final Matcher srcMatcher = srcPattern.matcher(line);
 
-  /**
-   * Gets the R script.
-   * 
-   * @return the R script.
-   */
-  public String getScript() {
-    return script;
-  }
+			if (libMatcher.find()) {
+				final String libName = libMatcher.group(2).replace("\"", "");
+				libraries.add(libName);
+			} else if (srcMatcher.find()) {
+				final String srcName = srcMatcher.group(2).replace("\"", "");
+				sources.add(srcName);
+			}
+		}
 
-
-  /**
-   * Gets the names of the source files linked in the R script.
-   * 
-   * @return the names of the source files linked in the R script.
-   */
-  public List<String> getSources() {
-    return sources;
-  }
-
-  /**
-   * Gets the names of the libraries imported in the R script.
-   * 
-   * @return the names of the libraries imported in the R script.
-   */
-  public List<String> getLibraries() {
-    return libraries;
-  }
+		script = sb.toString();
+	}
 }

@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,15 +57,8 @@ public class RScriptTest {
 
   @Test
   public void test() {
-    
-    assertEquals(origScript, rScript.getScript());
-
-    List<String> expectedLibraries = Arrays.asList("triangle");
-    List<String> obtainedLibraries = rScript.getLibraries();
-    assertEquals(expectedLibraries, obtainedLibraries);
-
-    List<String> expectedSources = Arrays.asList("other.R");
-    List<String> obtainedSources = rScript.getSources();
-    assertEquals(expectedSources, obtainedSources);
+    assertEquals(origScript, rScript.script);
+    assertEquals(Arrays.asList("triangle"), rScript.libraries);
+    assertEquals(Arrays.asList("other.R"), rScript.sources);
   }
 }

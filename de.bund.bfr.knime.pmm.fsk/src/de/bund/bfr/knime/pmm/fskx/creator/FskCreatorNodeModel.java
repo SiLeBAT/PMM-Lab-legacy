@@ -168,24 +168,21 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 		// Reads model script
 		try {
-			RScript modelScript = readScript(m_modelScript.getStringValue());
-			portObj.model = modelScript.getScript();
+			portObj.model = readScript(m_modelScript.getStringValue()).script;
 		} catch (IOException e) {
 			portObj.model = "";
 		}
 
 		// Reads parameters script
 		try {
-			RScript paramScript = readScript(m_paramScript.getStringValue());
-			portObj.param = paramScript.getScript();
+			portObj.param = readScript(m_paramScript.getStringValue()).script;
 		} catch (IOException e) {
 			portObj.param = "";
 		}
 
 		// Reads visualization script
 		try {
-			RScript vizScript = readScript(m_vizScript.getStringValue());
-			portObj.viz = vizScript.getScript();
+			portObj.viz = readScript(m_vizScript.getStringValue()).script;
 		} catch (IOException e) {
 			portObj.viz = "";
 		}

@@ -4,8 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -107,27 +105,11 @@ public class FskTemplateSettings {
 			template.dependentVariableMin = settings.getDouble(DEPENDENT_VARIABLE_MIN, Double.NaN);
 			template.dependentVariableMax = settings.getDouble(DEPENDENT_VARIABLE_MAX, Double.NaN);
 
-			String[] independentVariables = settings.getStringArray(INDEPENDENT_VARIABLES, (String[]) null);
-			if (independentVariables != null)
-				template.independentVariables = Arrays.asList(independentVariables);
-
-			String[] independentVariableUnits = settings.getStringArray(INDEPENDENT_VARIABLES_UNITS, (String[]) null);
-			if (independentVariableUnits != null)
-				template.independentVariableUnits = Arrays.asList(independentVariableUnits);
-
-			double[] independentVariablesMins = settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS, (double[]) null);
-			if (independentVariablesMins != null)
-				template.independentVariableMins = Arrays.stream(independentVariablesMins).boxed()
-						.collect(Collectors.toList());
-
-			double[] independentVariablesMaxs = settings.getDoubleArray(INDEPENDENT_VARIABLES_MAXS, (double[]) null);
-			if (independentVariablesMaxs != null)
-				template.independentVariableMaxs = Arrays.stream(independentVariablesMaxs).boxed()
-						.collect(Collectors.toList());
-
-			double[] indepvarValues = settings.getDoubleArray(INDEPENDENT_VARIABLES_VALUES, (double[]) null);
-			if (indepvarValues != null)
-				template.independentVariableValues = Arrays.stream(indepvarValues).boxed().collect(Collectors.toList());
+			template.independentVariables = settings.getStringArray(INDEPENDENT_VARIABLES, (String[]) null);
+			template.independentVariableUnits = settings.getStringArray(INDEPENDENT_VARIABLES_UNITS, (String[]) null);
+			template.independentVariableMins = settings.getDoubleArray(INDEPENDENT_VARIABLES_MINS, (double[]) null);
+			template.independentVariableMaxs = settings.getDoubleArray(INDEPENDENT_VARIABLES_MAXS, (double[]) null);
+			template.independentVariableValues = settings.getDoubleArray(INDEPENDENT_VARIABLES_VALUES, (double[]) null);
 
 			template.hasData = settings.getBoolean(HAS_DATA, false);
 		} catch (MalformedURLException e) {
@@ -180,40 +162,11 @@ public class FskTemplateSettings {
 		settings.addDouble(DEPENDENT_VARIABLE_MIN, template.dependentVariableMin);
 		settings.addDouble(DEPENDENT_VARIABLE_MAX, template.dependentVariableMax);
 
-		if (template.independentVariables != null && !template.independentVariables.isEmpty()) {
-			settings.addStringArray(INDEPENDENT_VARIABLES,
-					template.independentVariables.toArray(new String[template.independentVariables.size()]));
-		} else {
-			settings.addStringArray(INDEPENDENT_VARIABLES, (String[]) null);
-		}
-
-		if (template.independentVariableUnits != null && !template.independentVariableUnits.isEmpty()) {
-			settings.addStringArray(INDEPENDENT_VARIABLES_UNITS,
-					template.independentVariableUnits.toArray(new String[template.independentVariableUnits.size()]));
-		} else {
-			settings.addStringArray(INDEPENDENT_VARIABLES_UNITS, (String[]) null);
-		}
-
-		if (template.independentVariableMins != null && !template.independentVariableMins.isEmpty()) {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS,
-					template.independentVariableMins.stream().mapToDouble(Double::doubleValue).toArray());
-		} else {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, (double[]) null);
-		}
-
-		if (template.independentVariableMaxs != null && !template.independentVariableMaxs.isEmpty()) {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS,
-					template.independentVariableMaxs.stream().mapToDouble(Double::doubleValue).toArray());
-		} else {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, (double[]) null);
-		}
-
-		if (template.independentVariableValues != null && !template.independentVariableValues.isEmpty()) {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_VALUES,
-					template.independentVariableValues.stream().mapToDouble(Double::doubleValue).toArray());
-		} else {
-			settings.addDoubleArray(INDEPENDENT_VARIABLES_VALUES, (double[]) null);
-		}
+		settings.addStringArray(INDEPENDENT_VARIABLES, template.independentVariables);
+		settings.addStringArray(INDEPENDENT_VARIABLES_UNITS, template.independentVariableUnits);
+		settings.addDoubleArray(INDEPENDENT_VARIABLES_MINS, template.independentVariableMins);
+		settings.addDoubleArray(INDEPENDENT_VARIABLES_MAXS, template.independentVariableMaxs);
+		settings.addDoubleArray(INDEPENDENT_VARIABLES_VALUES, template.independentVariableValues);
 
 		settings.addBoolean(HAS_DATA, template.hasData);
 	}

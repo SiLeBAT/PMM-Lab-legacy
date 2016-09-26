@@ -423,6 +423,7 @@ class FskxReaderNodeModel extends NodeModel {
 			});
 
 			final int numParams = indepParams.size();
+			// TODO: simplify using array fields of template directly instead of these lists
 			List<String> units = new ArrayList<>(numParams);
 			List<String> names = new ArrayList<>(numParams);
 			List<Double> mins = new ArrayList<>(numParams);
@@ -449,10 +450,10 @@ class FskxReaderNodeModel extends NodeModel {
 				maxs.add(paramLimits.getMax());
 			}
 
-			template.independentVariables = names;
-			template.independentVariableUnits = units;
-			template.independentVariableMins = mins;
-			template.independentVariableMaxs = maxs;
+			template.independentVariables = names.toArray(new String[0]);
+			template.independentVariableUnits = units.toArray(new String[0]);
+			template.independentVariableMins = mins.stream().mapToDouble(Double::doubleValue).toArray();
+			template.independentVariableMaxs = maxs.stream().mapToDouble(Double::doubleValue).toArray();
 		}
 
 		template.hasData = false;

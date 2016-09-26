@@ -3,7 +3,6 @@ package de.bund.bfr.knime.pmm.fskx;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
-import java.util.List;
 
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
@@ -84,20 +83,20 @@ public class FskMetaData implements Serializable {
 	/** Double.NaN if not set. */
 	public double dependentVariableMax = Double.NaN;
 	
-	/** Null or empty list if not set. */
-	public List<String> independentVariables;
+	/** Null if not set. */
+	public String[] independentVariables;
 	
-	/** Null or empty list if not set. */
-	public List<String> independentVariableUnits;
+	/** Null if not set. */
+	public String[] independentVariableUnits;
 	
-	/** Null or empty list if not set. */
-	public List<Double> independentVariableMins;
+	/** Null if not set. */
+	public double[] independentVariableMins;
 	
-	/** Null or empty list if not set. */
-	public List<Double> independentVariableMaxs;
+	/** Null if not set. */
+	public double[] independentVariableMaxs;
 	
-	/** Null or empty list if not set. */
-	public List<Double> independentVariableValues;
+	/** Null if not set. */
+	public double[] independentVariableValues;
 	
 	/** <code>false</code> if not set */
 	public boolean hasData;

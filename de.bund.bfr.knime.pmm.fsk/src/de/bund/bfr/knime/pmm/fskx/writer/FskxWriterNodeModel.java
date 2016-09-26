@@ -294,7 +294,8 @@ class FskxWriterNodeModel extends NodeModel {
 		// Add unit definitions here (before parameters)
 		Set<String> unitsSet = new LinkedHashSet<>();
 		unitsSet.add(template.dependentVariableUnit.trim());
-		template.independentVariableUnits.forEach(unit -> unitsSet.add(unit.trim()));
+		for (String unit : template.independentVariableUnits)
+			unitsSet.add(unit.trim());
 		for (String unit : unitsSet) {
 			try {
 				PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
@@ -327,19 +328,21 @@ class FskxWriterNodeModel extends NodeModel {
 		}
 
 		// Adds independent parameters
-		for (int i = 0; i < template.independentVariables.size(); i++) {
-			String var = template.independentVariables.get(i);
+		for (int i = 0; i < template.independentVariables.length; i++) {
+			String var = template.independentVariables[i];
 			Parameter param = model.createParameter(PMFUtil.createId(var));
 			param.setName(var);
 
 			try {
-				param.setUnits(PMFUtil.createId(template.independentVariableUnits.get(i)));
+				param.setUnits(PMFUtil.createId(template.independentVariableUnits[i]));
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			}
 
-			Double min = template.independentVariableMins == null || template.independentVariableMins.isEmpty() ? null : template.independentVariableMins.get(i);
-			Double max = template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty() ? null : template.independentVariableMaxs.get(i);
+			Double min = template.independentVariableMins == null || template.independentVariableMins.length == 0 ? null
+					: template.independentVariableMins[i];
+			Double max = template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0 ? null
+					: template.independentVariableMaxs[i];
 
 			LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
 			if (lc.getConstraint() != null) {

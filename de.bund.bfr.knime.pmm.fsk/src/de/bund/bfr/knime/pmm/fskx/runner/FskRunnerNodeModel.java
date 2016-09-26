@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.def.StringCell;
@@ -39,8 +38,8 @@ import org.knime.ext.r.node.local.port.RPortObject;
 import org.knime.ext.r.node.local.port.RPortObjectSpec;
 import org.rosuda.REngine.REXPMismatchException;
 
-import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
@@ -131,12 +130,12 @@ class FskRunnerNodeModel extends NodeModel {
 				fskObj.template = tuple2Template(dataRow);
 
 				// Replace with the default values with the new metadata
-				if (fskObj.template.independentVariables != null && !fskObj.template.independentVariables.isEmpty() &&
-						fskObj.template.independentVariableValues != null && !fskObj.template.independentVariableValues.isEmpty()) {
+				if (fskObj.template.independentVariables != null && fskObj.template.independentVariables.length > 0 &&
+						fskObj.template.independentVariableValues != null && fskObj.template.independentVariableValues.length > 0) {
 					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < fskObj.template.independentVariables.size(); i++) {
-						String var = fskObj.template.independentVariables.get(i);
-						String value = fskObj.template.independentVariableUnits.get(i);
+					for (int i = 0; i < fskObj.template.independentVariables.length; i++) {
+						String var = fskObj.template.independentVariables[i];
+						String value = fskObj.template.independentVariableUnits[i];
 						sb.append(var + " <- " + value + "\n");
 					}
 					fskObj.param = sb.toString();
@@ -361,7 +360,7 @@ class FskRunnerNodeModel extends NodeModel {
 		{
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars.ordinal());
 			if (!cell.getStringValue().isEmpty()) {
-				template.independentVariables = Arrays.asList(cell.getStringValue().split("\\|\\|"));
+				template.independentVariables = cell.getStringValue().split("\\|\\|");
 			}
 		}
 
@@ -369,7 +368,7 @@ class FskRunnerNodeModel extends NodeModel {
 		{
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_units.ordinal());
 			if (!cell.getStringValue().isEmpty()) {
-				template.independentVariableUnits = Arrays.asList(cell.getStringValue().split("\\|\\|"));
+				template.independentVariableUnits = cell.getStringValue().split("\\|\\|");
 			}
 		}
 
@@ -378,8 +377,7 @@ class FskRunnerNodeModel extends NodeModel {
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_mins.ordinal());
 			if (!cell.getStringValue().isEmpty()) {
 				String[] tokens = cell.getStringValue().split("\\|\\|");
-				template.independentVariableMins = Arrays.stream(tokens).map(Double::parseDouble)
-						.collect(Collectors.toList());
+				template.independentVariableMins = Arrays.stream(tokens).mapToDouble(Double::parseDouble).toArray();
 			}
 		}
 
@@ -388,8 +386,7 @@ class FskRunnerNodeModel extends NodeModel {
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_maxs.ordinal());
 			if (!cell.getStringValue().isEmpty()) {
 				String[] tokens = cell.getStringValue().split("\\|\\|");
-				template.independentVariableMaxs = Arrays.stream(tokens).map(Double::parseDouble)
-						.collect(Collectors.toList());
+				template.independentVariableMaxs = Arrays.stream(tokens).mapToDouble(Double::parseDouble).toArray();
 			}
 		}
 
@@ -398,8 +395,7 @@ class FskRunnerNodeModel extends NodeModel {
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal());
 			if (!cell.getStringValue().isEmpty()) {
 				String[] tokens = cell.getStringValue().split("\\|\\|");
-				template.independentVariableValues = Arrays.stream(tokens).map(Double::parseDouble)
-						.collect(Collectors.toList());
+				template.independentVariableValues = Arrays.stream(tokens).mapToDouble(Double::parseDouble).toArray();
 			}
 		}
 

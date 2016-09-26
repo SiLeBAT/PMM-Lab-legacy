@@ -259,22 +259,22 @@ public class MetaDataPane extends JScrollPane {
 				return Double.isNaN(template.dependentVariableMax) ? ""
 						: Double.toString(template.dependentVariableMax);
 			case Independent_Variable:
-				return template.independentVariables == null || template.independentVariables.isEmpty() ? ""
-						: template.independentVariables.stream().collect(Collectors.joining("||"));
+				return template.independentVariables == null || template.independentVariables.length == 0 ? ""
+						: String.join("||", template.independentVariables);
 			case Independent_Variable_Units:
-				return template.independentVariableUnits == null || template.independentVariableUnits.isEmpty() ? ""
-						: template.independentVariableUnits.stream().collect(Collectors.joining("||"));
+				return template.independentVariableUnits == null || template.independentVariableUnits.length == 0 ? ""
+						: String.join("||", template.independentVariableUnits);
 			case Independent_Variable_Mins:
-				return template.independentVariableMins == null || template.independentVariableMins.isEmpty() ? ""
-						: template.independentVariableMins.stream().map(min -> min.toString())
+				return template.independentVariableMins == null || template.independentVariableMins.length == 0 ? ""
+						: Arrays.stream(template.independentVariableMins).mapToObj(min -> Double.toString(min))
 								.collect(Collectors.joining("||"));
 			case Independent_Variable_Maxs:
-				return template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty() ? ""
-						: template.independentVariableMaxs.stream().map(max -> max.toString())
+				return template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0 ? ""
+						: Arrays.stream(template.independentVariableMins).mapToObj(max -> Double.toString(max))
 								.collect(Collectors.joining("||"));
 			case Independent_Variable_Values:
-				return template.independentVariableValues == null || template.independentVariableValues.isEmpty() ? ""
-						: template.independentVariableValues.stream().map(val -> val.toString())
+				return template.independentVariableValues == null || template.independentVariableValues.length == 0 ? ""
+						: Arrays.stream(template.independentVariableValues).mapToObj(val -> Double.toString(val))
 								.collect(Collectors.joining("||"));
 			case Has_Data:
 				return Boolean.toString(template.hasData);
@@ -386,22 +386,22 @@ public class MetaDataPane extends JScrollPane {
 				template.dependentVariableMax = Double.parseDouble(stringValue);
 				break;
 			case Independent_Variable:
-				template.independentVariables = Arrays.asList(stringValue.split("||"));
+				template.independentVariables = stringValue.split("||");
 				break;
 			case Independent_Variable_Units:
-				template.independentVariableUnits = Arrays.asList(stringValue.split("||"));
+				template.independentVariableUnits = stringValue.split("||");
 				break;
 			case Independent_Variable_Mins:
 				template.independentVariableMins = Arrays.stream(stringValue.split("||"))
-						.mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
+						.mapToDouble(Double::parseDouble).toArray();
 				break;
 			case Independent_Variable_Maxs:
 				template.independentVariableMaxs = Arrays.stream(stringValue.split("||"))
-						.mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
+						.mapToDouble(Double::parseDouble).toArray();
 				break;
 			case Independent_Variable_Values:
 				template.independentVariableValues = Arrays.stream(stringValue.split("||"))
-						.mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
+						.mapToDouble(Double::parseDouble).toArray();
 				break;
 			case Has_Data:
 				template.hasData = Boolean.parseBoolean(stringValue);

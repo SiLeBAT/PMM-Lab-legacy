@@ -89,23 +89,22 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.depvar_max.ordinal()] = new StringCell(
 				Double.isNaN(template.dependentVariableMax) ? "" : Double.toString(template.dependentVariableMax));
 		cell[Key.indepvars.ordinal()] = new StringCell(
-				template.independentVariables == null || template.independentVariables.isEmpty() ? ""
-						: template.independentVariables.stream().collect(Collectors.joining("||")));
+				template.independentVariables == null || template.independentVariables.length == 0 ? ""
+						: String.join("||", template.independentVariables));
 		cell[Key.indepvars_units.ordinal()] = new StringCell(
-				template.independentVariableUnits == null || template.independentVariableUnits.isEmpty() ? ""
-						: template.independentVariableUnits.isEmpty() ? ""
-								: template.independentVariableUnits.stream().collect(Collectors.joining("||")));
+				template.independentVariableUnits == null || template.independentVariableUnits.length == 0 ? ""
+						: String.join("||", template.independentVariableUnits));
 		cell[Key.indepvars_mins.ordinal()] = new StringCell(
-				template.independentVariableMins == null || template.independentVariableMins.isEmpty() ? ""
-						: template.independentVariableMins.stream().map(min -> min.toString())
+				template.independentVariableMins == null || template.independentVariableMins.length == 0 ? ""
+						: Arrays.stream(template.independentVariableMins).mapToObj(d -> Double.toString(d))
 								.collect(Collectors.joining("||")));
 		cell[Key.indepvars_maxs.ordinal()] = new StringCell(
-				template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty() ? ""
-						: template.independentVariableMaxs.stream().map(max -> max.toString())
+				template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0 ? ""
+						: Arrays.stream(template.independentVariableMaxs).mapToObj(d -> Double.toString(d))
 								.collect(Collectors.joining("||")));
 		cell[Key.indepvars_values.ordinal()] = new StringCell(
-				template.independentVariableValues == null || template.independentVariableValues.isEmpty() ? ""
-						: template.independentVariableValues.stream().map(val -> val.toString())
+				template.independentVariableValues == null || template.independentVariableValues.length == 0 ? ""
+						: Arrays.stream(template.independentVariableValues).mapToObj(d -> Double.toString(d))
 								.collect(Collectors.joining("||")));
 		cell[Key.has_data.ordinal()] = new StringCell(Boolean.toString(template.hasData));
 

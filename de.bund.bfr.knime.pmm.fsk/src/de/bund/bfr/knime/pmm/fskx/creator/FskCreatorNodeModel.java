@@ -381,15 +381,15 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 			// indep vars
 			{
-				template.independentVariables = Arrays.stream(getStringVal(sheet, indepvar_row).split("\\|\\|")).map(String::trim).collect(Collectors.toList());
-				template.independentVariableUnits = Arrays.stream(getStringVal(sheet, indepvar_unit_row).split("\\|\\|")).map(String::trim).collect(Collectors.toList());
-				template.independentVariableMins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|")).map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
-				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|")).map(String::trim).map(Double::parseDouble).collect(Collectors.toList());
+				template.independentVariables = getStringVal(sheet, indepvar_row).split("\\|\\|");
+				template.independentVariableUnits = getStringVal(sheet, indepvar_unit_row).split("\\|\\|");
+				template.independentVariableMins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|")).mapToDouble(Double::parseDouble).toArray();
+				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|")).mapToDouble(Double::parseDouble).toArray();
 				// no values in the spreadsheet
 			}
 
 			template.hasData = false;
-			
+
 			return template;
 		}
 

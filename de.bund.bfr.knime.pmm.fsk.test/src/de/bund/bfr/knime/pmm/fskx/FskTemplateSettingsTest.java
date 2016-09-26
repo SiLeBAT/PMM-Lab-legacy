@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.fskx;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -10,11 +11,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,10 +60,10 @@ public class FskTemplateSettingsTest {
       template.dependentVariableUnit = "ln";
       template.dependentVariableMin = 0.0;
       template.dependentVariableMax = 10.0;
-      template.independentVariables = Arrays.asList("time", "temperature");
-      template.independentVariableUnits = Arrays.asList("s", "°C");
-      template.independentVariableMins = Arrays.asList(0.0, 1.0);
-      template.independentVariableMaxs = Arrays.asList(0.0, 1.0);
+      template.independentVariables = new String[] {"time", "temperature"};
+      template.independentVariableUnits = new String[] {"s", "°C"};
+      template.independentVariableMins = new double[] {0.0, 1.0};
+      template.independentVariableMaxs = new double[] {0.0, 1.0};
       template.hasData = false;
     } catch (MalformedURLException e) {
       // passed url here are correct
@@ -146,14 +144,12 @@ public class FskTemplateSettingsTest {
     filledSettings.addString("Dependent variable unit", template.dependentVariableUnit);
     filledSettings.addDouble("Dependent variable minimum value", template.dependentVariableMin);
     filledSettings.addDouble("Dependent variable maximum value", template.dependentVariableMax);
-    filledSettings.addStringArray("Independent variables",
-        template.independentVariables.toArray(new String[0]));
-    filledSettings.addStringArray("Independent variables units",
-        template.independentVariableUnits.toArray(new String[0]));
+    filledSettings.addStringArray("Independent variables", template.independentVariables);
+    filledSettings.addStringArray("Independent variables units", template.independentVariableUnits);
     filledSettings.addDoubleArray("Independent variables minimum values",
-        template.independentVariableMins.stream().mapToDouble(Double::doubleValue).toArray());
+        template.independentVariableMins);
     filledSettings.addDoubleArray("Independent variables maximum values",
-        template.independentVariableMaxs.stream().mapToDouble(Double::doubleValue).toArray());
+        template.independentVariableMaxs);
     filledSettings.addBoolean("Has data?", template.hasData);
 
     testLoadingFilledSettings(filledSettings);
@@ -187,10 +183,11 @@ public class FskTemplateSettingsTest {
     assertEquals(template.dependentVariableUnit, templateFromSettings.dependentVariableUnit);
     assertEquals(template.dependentVariableMin, templateFromSettings.dependentVariableMin, .0);
     assertEquals(template.dependentVariableMax, templateFromSettings.dependentVariableMax, .0);
-    assertEquals(template.independentVariables, templateFromSettings.independentVariables);
-    assertEquals(template.independentVariableUnits, templateFromSettings.independentVariableUnits);
-    assertEquals(template.independentVariableMins, templateFromSettings.independentVariableMins);
-    assertEquals(template.independentVariableMaxs, templateFromSettings.independentVariableMaxs);
+    assertArrayEquals(template.independentVariables, templateFromSettings.independentVariables);
+    assertArrayEquals(template.independentVariableUnits,
+        templateFromSettings.independentVariableUnits);
+    assertArrayEquals(template.independentVariableMins, templateFromSettings.independentVariableMins, 0.0);
+    assertArrayEquals(template.independentVariableMaxs, templateFromSettings.independentVariableMaxs, 0.0);
     assertEquals(template.hasData, templateFromSettings.hasData);
   }
 
@@ -239,13 +236,13 @@ public class FskTemplateSettingsTest {
     assertTrue(Strings.isNullOrEmpty(template.dependentVariableUnit));
     assertTrue(Double.isNaN(template.dependentVariableMin));
     assertTrue(Double.isNaN(template.dependentVariableMax));
-    assertTrue(template.independentVariables == null || template.independentVariables.isEmpty());
+    assertTrue(template.independentVariables == null || template.independentVariables.length == 0);
     assertTrue(
-        template.independentVariableUnits == null || template.independentVariableUnits.isEmpty());
+        template.independentVariableUnits == null || template.independentVariableUnits.length == 0);
     assertTrue(
-        template.independentVariableMins == null || template.independentVariableMins.isEmpty());
+        template.independentVariableMins == null || template.independentVariableMins.length == 0);
     assertTrue(
-        template.independentVariableMaxs == null || template.independentVariableMaxs.isEmpty());
+        template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0);
   }
 
   private void testExistenceInTemplate(final FskMetaData template) {
@@ -273,13 +270,13 @@ public class FskTemplateSettingsTest {
     assertFalse(Strings.isNullOrEmpty(template.dependentVariableUnit));
     assertFalse(Double.isNaN(template.dependentVariableMin));
     assertFalse(Double.isNaN(template.dependentVariableMax));
-    assertTrue(template.independentVariables != null && !template.independentVariables.isEmpty());
+    assertTrue(template.independentVariables != null && template.independentVariables.length > 0);
     assertTrue(
-        template.independentVariableUnits != null && !template.independentVariableUnits.isEmpty());
+        template.independentVariableUnits != null && template.independentVariableUnits.length > 0);
     assertTrue(
-        template.independentVariableMins != null && !template.independentVariableMins.isEmpty());
+        template.independentVariableMins != null && template.independentVariableMins.length > 0);
     assertTrue(
-        template.independentVariableMaxs != null && !template.independentVariableMaxs.isEmpty());
+        template.independentVariableMaxs != null && template.independentVariableMaxs.length > 0);
   }
 
   private void testSavingEmptySettings(final NodeSettings settings)
@@ -337,33 +334,21 @@ public class FskTemplateSettingsTest {
     assertEquals(template.type, ModelType.valueOf(settings.getString("Model type")));
     assertEquals(template.subject, ModelClass.fromName(settings.getString("Model subject")));
     assertEquals(template.foodProcess, settings.getString("Food process"));
+
     assertEquals(template.dependentVariable, settings.getString("Dependent variable"));
     assertEquals(template.dependentVariableUnit, settings.getString("Dependent variable unit"));
     assertEquals(template.dependentVariableMin,
         settings.getDouble("Dependent variable minimum value"), .0);
     assertEquals(template.dependentVariableMax,
         settings.getDouble("Dependent variable maximum value"), .0);
-    assertEquals(template.independentVariables,
-        Arrays.asList(settings.getStringArray("Independent variables")));
-    assertEquals(template.independentVariableUnits,
-        Arrays.asList(settings.getStringArray("Independent variables units")));
 
-    // TODO: should replace Lists in FskMetaData with arrays to simplify the checking with settings
-    // arrays
-    {
-      List<Double> obtained =
-          Arrays.stream(settings.getDoubleArray("Independent variables minimum values")).boxed()
-              .collect(Collectors.toList());
-      assertEquals(template.independentVariableMins, obtained);
-    }
-
-    // TODO: should replace Lists in FskMetaData with arrays to simplify the checking with settings
-    // arrays
-    {
-      List<Double> obtained =
-          Arrays.stream(settings.getDoubleArray("Independent variables maximum values")).boxed()
-              .collect(Collectors.toList());
-      assertEquals(template.independentVariableMaxs, obtained);
-    }
+    assertArrayEquals(template.independentVariables,
+        settings.getStringArray("Independent variables"));
+    assertArrayEquals(template.independentVariableUnits,
+        settings.getStringArray("Independent variables units"));
+    assertArrayEquals(template.independentVariableMins,
+        settings.getDoubleArray("Independent variables minimum values"), 0.0);
+    assertArrayEquals(template.independentVariableMaxs,
+        settings.getDoubleArray("Independent variables maximum values"), 0.0);
   }
 }

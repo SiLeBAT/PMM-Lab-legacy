@@ -77,15 +77,11 @@ public class MetaDataPane extends JScrollPane {
 		Has_Data
 	};
 
-	private final FskMetaData template;
+	public final FskMetaData template;
 
 	public MetaDataPane(FskMetaData template, boolean editable) {
 		super(new Table(template, editable));
 		this.template = template;
-	}
-
-	public FskMetaData getMetaData() {
-		return template;
 	}
 
 	private static class Table extends JTable {

@@ -267,28 +267,28 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 	private static class SpreadsheetHandler {
 
-		private static final int id_row = 2;
-		private static final int name_row = 1;
-		private static final int organism_row = 3;
-		private static final int organism_detail_row = 4;
-		private static final int matrix_row = 5;
-		private static final int matrix_detail_row = 6;
-		private static final int creator_row = 7;
-		private static final int reference_description_row = 8;
-		private static final int created_date_row = 9;
-		private static final int modified_date_row = 10;
-		private static final int rights_row = 11;
-		private static final int type_row = 13;
-		private static final int subject_row = 14;
-		private static final int notes_row = 12;
-		private static final int depvar_row = 21;
-		private static final int depvar_unit_row = 22;
-		private static final int depvar_min_row = 23;
-		private static final int depvar_max_row = 24;
-		private static final int indepvar_row = 25;
-		private static final int indepvar_unit_row = 26;
-		private static final int indepvar_min_row = 27;
-		private static final int indepvar_max_row = 28;
+		private static final byte id_row = 2;
+		private static final byte name_row = 1;
+		private static final byte organism_row = 3;
+		private static final byte organism_detail_row = 4;
+		private static final byte matrix_row = 5;
+		private static final byte matrix_detail_row = 6;
+		private static final byte creator_row = 7;
+		private static final byte reference_description_row = 8;
+		private static final byte created_date_row = 9;
+		private static final byte modified_date_row = 10;
+		private static final byte rights_row = 11;
+		private static final byte type_row = 13;
+		private static final byte subject_row = 14;
+		private static final byte notes_row = 12;
+		private static final byte depvar_row = 21;
+		private static final byte depvar_unit_row = 22;
+		private static final byte depvar_min_row = 23;
+		private static final byte depvar_max_row = 24;
+		private static final byte indepvar_row = 25;
+		private static final byte indepvar_unit_row = 26;
+		private static final byte indepvar_min_row = 27;
+		private static final byte indepvar_max_row = 28;
 		// values??
 
 		static FskMetaData processSpreadsheet(final XSSFSheet sheet) {
@@ -390,7 +390,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		 * Gets the string value for the fifth column which holds the value for
 		 * that row.
 		 */
-		private static String getStringVal(final XSSFSheet sheet, final int rownum) {
+		private static String getStringVal(final XSSFSheet sheet, final byte rownum) {
 			return sheet.getRow(rownum).getCell(5).getStringCellValue();
 		}
 
@@ -398,7 +398,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		 * Gets the numerical value for the fifth column which holds the value
 		 * for that row.
 		 */
-		private static double getNumericalVal(final XSSFSheet sheet, final int rownum) {
+		private static double getNumericalVal(final XSSFSheet sheet, final byte rownum) {
 			return sheet.getRow(rownum).getCell(5).getNumericCellValue();
 		}
 	}

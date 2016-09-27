@@ -113,7 +113,7 @@ class FskEditorNodeDialog extends DataAwareNodeDialogPane {
 		vizScript.setStringValue(vizScriptPanel.getTextArea().getText());
 		vizScript.saveSettingsTo(settings);
 
-		templateSettings.template = metaDataPane.getMetaData();
+		templateSettings.template = metaDataPane.template;
 		templateSettings.saveToNodeSettings(settings.addNodeSettings(FskEditorNodeModel.META_DATA));
 	}
 }

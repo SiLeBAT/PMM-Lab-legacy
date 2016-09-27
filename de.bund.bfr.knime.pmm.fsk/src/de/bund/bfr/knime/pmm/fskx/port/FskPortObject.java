@@ -93,6 +93,7 @@ public class FskPortObject implements PortObject {
 
 	public FskPortObject() {
 		libs = new HashSet<>();
+		template = new FskMetaData();
 
 		objectNum = numOfInstances;
 		numOfInstances += 1;

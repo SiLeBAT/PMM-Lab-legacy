@@ -22,11 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -192,10 +189,10 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			// Finds the workbook instance for XLSX file
 			XSSFWorkbook workbook = new XSSFWorkbook(fis);
 			fis.close();
-			
+
 			portObj.template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
-		
+
 		// Reads R libraries
 		if (m_selectedLibs.getStringArrayValue() != null && m_selectedLibs.getStringArrayValue().length > 0) {
 			try {
@@ -204,7 +201,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 				LOGGER.error(e.getMessage());
 			}
 		}
-		
+
 		return new PortObject[] { portObj };
 	}
 
@@ -312,31 +309,9 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			// no contact in the spreadsheet
 
 			template.referenceDescription = getStringVal(sheet, reference_description_row);
-			SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 
-			// created date
-			{
-				Double dateAsDouble = getNumericalVal(sheet, created_date_row);
-				String dateAsString = dateAsDouble.toString();
-				try {
-					template.createdDate = dateFormat.parse(dateAsString);
-				} catch (ParseException e) {
-					System.err.println(dateAsString + " is not a valid date");
-					e.printStackTrace();
-				}
-			}
-
-			// modified date
-			{
-				Double dateAsDouble = getNumericalVal(sheet, modified_date_row);
-				String dateAsString = dateAsDouble.toString();
-				try {
-					template.modifiedDate = dateFormat.parse(dateAsString);
-				} catch (ParseException e) {
-					System.err.println(dateAsString + " is not a valid date");
-					e.printStackTrace();
-				}
-			}
+			template.createdDate = sheet.getRow(created_date_row).getCell(5).getDateCellValue();
+			template.modifiedDate = sheet.getRow(modified_date_row).getCell(5).getDateCellValue();
 
 			template.rights = getStringVal(sheet, rights_row);
 
@@ -376,8 +351,10 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			{
 				template.independentVariables = getStringVal(sheet, indepvar_row).split("\\|\\|");
 				template.independentVariableUnits = getStringVal(sheet, indepvar_unit_row).split("\\|\\|");
-				template.independentVariableMins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|")).mapToDouble(Double::parseDouble).toArray();
-				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|")).mapToDouble(Double::parseDouble).toArray();
+				template.independentVariableMins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|"))
+						.mapToDouble(Double::parseDouble).toArray();
+				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|"))
+						.mapToDouble(Double::parseDouble).toArray();
 				// no values in the spreadsheet
 			}
 

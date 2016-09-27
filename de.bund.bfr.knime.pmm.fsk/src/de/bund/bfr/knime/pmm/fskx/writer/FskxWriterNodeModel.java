@@ -246,10 +246,10 @@ class FskxWriterNodeModel extends NodeModel {
 			metaData.setContact(template.contact);
 		}
 		if (template.createdDate != null) {
-			metaData.setCreatedDate(template.createdDate.toString());
+			metaData.setCreatedDate(FskMetaData.dateFormat.format(template.createdDate));
 		}
 		if (template.modifiedDate != null) {
-			metaData.setModifiedDate(template.modifiedDate.toString());
+			metaData.setModifiedDate(FskMetaData.dateFormat.format(template.modifiedDate));
 		}
 		if (template.type != null) {
 			metaData.setType(template.type);

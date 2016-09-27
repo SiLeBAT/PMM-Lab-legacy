@@ -148,9 +148,10 @@ public class FskTemplateSettings {
 		settings.addString(REFERENCE_DESCRIPTION, template.referenceDescription);
 		settings.addString(REFERENCE_DESCRIPTION_LINK,
 				template.referenceDescriptionLink == null ? null : template.referenceDescriptionLink.toString());
-		settings.addString(CREATED_DATE, template.createdDate == null ? null : dateFormat.format(template.createdDate));
+		settings.addString(CREATED_DATE,
+				template.createdDate == null ? null : FskMetaData.dateFormat.format(template.createdDate));
 		settings.addString(MODIFIED_DATE,
-				template.modifiedDate == null ? null : dateFormat.format(template.modifiedDate));
+				template.modifiedDate == null ? null : FskMetaData.dateFormat.format(template.modifiedDate));
 		settings.addString(RIGHTS, template.rights);
 		settings.addString(NOTES, template.notes);
 		settings.addBoolean(CURATION_STATUS, template.curated);

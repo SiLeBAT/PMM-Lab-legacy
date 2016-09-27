@@ -25,9 +25,7 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -331,11 +329,10 @@ class FskxReaderNodeModel extends NodeModel {
 		}
 
 		// created date
-		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 		if (metadataAnnot.isSetCreatedDate()) {
 			String dateAsString = metadataAnnot.getCreatedDate();
 			try {
-				template.createdDate = dateFormat.parse(dateAsString);
+				template.createdDate = FskMetaData.dateFormat.parse(dateAsString);
 			} catch (ParseException e) {
 				System.err.println(dateAsString + " is not a valid date");
 				e.printStackTrace();
@@ -346,7 +343,7 @@ class FskxReaderNodeModel extends NodeModel {
 		if (metadataAnnot.isSetModifiedDate()) {
 			String dateAsString = metadataAnnot.getModifiedDate();
 			try {
-				template.modifiedDate = dateFormat.parse(dateAsString);
+				template.modifiedDate = FskMetaData.dateFormat.parse(dateAsString);
 			} catch (ParseException e) {
 				System.err.println(dateAsString + " is not a valid date");
 				e.printStackTrace();

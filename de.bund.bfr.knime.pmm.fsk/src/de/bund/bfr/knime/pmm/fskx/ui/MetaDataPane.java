@@ -3,7 +3,6 @@ package de.bund.bfr.knime.pmm.fskx.ui;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -179,8 +178,6 @@ public class MetaDataPane extends JScrollPane {
 		private FskMetaData template;
 		private boolean editable;
 
-		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
-
 		public TableModel(FskMetaData template, boolean editable) {
 			this.template = template;
 			this.editable = editable;
@@ -229,9 +226,9 @@ public class MetaDataPane extends JScrollPane {
 			case Model_Reference_Description_Link:
 				return template.referenceDescriptionLink == null ? "" : template.referenceDescriptionLink.toString();
 			case Model_Created_Date:
-				return template.createdDate == null ? "" : template.createdDate;
+				return template.createdDate == null ? "" : FskMetaData.dateFormat.format(template.createdDate);
 			case Model_Modified_Date:
-				return template.modifiedDate == null ? "" : template.modifiedDate;
+				return template.modifiedDate == null ? "" : FskMetaData.dateFormat.format(template.modifiedDate);
 			case Model_Rights:
 				return template.rights;
 			case Model_Notes:
@@ -330,14 +327,14 @@ public class MetaDataPane extends JScrollPane {
 				break;
 			case Model_Created_Date:
 				try {
-					template.createdDate = dateFormat.parse(stringValue);
+					template.createdDate = FskMetaData.dateFormat.parse(stringValue);
 				} catch (ParseException e) {
 					LOGGER.warn("Invalid date");
 				}
 				break;
 			case Model_Modified_Date:
 				try {
-					template.modifiedDate = dateFormat.parse(stringValue);
+					template.modifiedDate = FskMetaData.dateFormat.parse(stringValue);
 				} catch (ParseException e) {
 					LOGGER.warn("Invalid date");
 				}

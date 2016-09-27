@@ -11,10 +11,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Locale;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.def.StringCell;
@@ -261,7 +259,6 @@ class FskRunnerNodeModel extends NodeModel {
 	private FskMetaData tuple2Template(final DataRow row) {
 
 		FskMetaData template = new FskMetaData();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy", Locale.ENGLISH);
 
 		template.modelName = ((StringCell) row.getCell(FskMetaDataTuple.Key.name.ordinal())).getStringValue();
 		template.modelId = ((StringCell) row.getCell(FskMetaDataTuple.Key.id.ordinal())).getStringValue();
@@ -294,7 +291,7 @@ class FskRunnerNodeModel extends NodeModel {
 		{
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.created_date.ordinal());
 			try {
-				template.createdDate = dateFormat.parse(cell.getStringValue());
+				template.createdDate = FskMetaData.dateFormat.parse(cell.getStringValue());
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -305,7 +302,7 @@ class FskRunnerNodeModel extends NodeModel {
 		{
 			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.modified_date.ordinal());
 			try {
-				template.modifiedDate = dateFormat.parse(cell.getStringValue());
+				template.modifiedDate = FskMetaData.dateFormat.parse(cell.getStringValue());
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

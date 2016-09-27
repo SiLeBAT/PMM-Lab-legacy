@@ -61,10 +61,13 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.id.ordinal()] = new StringCell(Strings.nullToEmpty(template.modelId));
 		cell[Key.model_link.ordinal()] = new StringCell(
 				template.modelLink == null ? "" : template.modelLink.toString());
+
 		cell[Key.species.ordinal()] = new StringCell(Strings.nullToEmpty(template.organism));
 		cell[Key.species_details.ordinal()] = new StringCell(Strings.nullToEmpty(template.organismDetails));
+
 		cell[Key.matrix.ordinal()] = new StringCell(Strings.nullToEmpty(template.matrix));
 		cell[Key.matrix_details.ordinal()] = new StringCell(Strings.nullToEmpty(template.matrixDetails));
+
 		cell[Key.creator.ordinal()] = new StringCell(Strings.nullToEmpty(template.creator));
 		cell[Key.family_name.ordinal()] = new StringCell(Strings.nullToEmpty(template.creator));
 		cell[Key.contact.ordinal()] = new StringCell(Strings.nullToEmpty(template.contact));
@@ -72,9 +75,9 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.reference_description_link.ordinal()] = new StringCell(
 				template.referenceDescriptionLink == null ? "" : template.referenceDescriptionLink.toString());
 		cell[Key.created_date.ordinal()] = new StringCell(
-				template.createdDate == null ? "" : template.createdDate.toString());
+				template.createdDate == null ? "" : FskMetaData.dateFormat.format(template.createdDate));
 		cell[Key.modified_date.ordinal()] = new StringCell(
-				template.modifiedDate == null ? "" : template.modifiedDate.toString());
+				template.modifiedDate == null ? "" : FskMetaData.dateFormat.format(template.modifiedDate));
 		cell[Key.rights.ordinal()] = new StringCell(Strings.nullToEmpty(template.rights));
 		cell[Key.notes.ordinal()] = new StringCell(Strings.nullToEmpty(template.notes));
 		cell[Key.curation_status.ordinal()] = new StringCell(Boolean.toString(template.curated));
@@ -82,12 +85,14 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.subject.ordinal()] = new StringCell(
 				template.subject == null ? ModelClass.UNKNOWN.fullName() : template.subject.fullName());
 		cell[Key.food_process.ordinal()] = new StringCell(Strings.nullToEmpty(template.foodProcess));
+
 		cell[Key.depvar.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable));
 		cell[Key.depvar_unit.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariableUnit));
 		cell[Key.depvar_min.ordinal()] = new StringCell(
 				Double.isNaN(template.dependentVariableMin) ? "" : Double.toString(template.dependentVariableMin));
 		cell[Key.depvar_max.ordinal()] = new StringCell(
 				Double.isNaN(template.dependentVariableMax) ? "" : Double.toString(template.dependentVariableMax));
+
 		cell[Key.indepvars.ordinal()] = new StringCell(
 				template.independentVariables == null || template.independentVariables.length == 0 ? ""
 						: String.join("||", template.independentVariables));
@@ -106,6 +111,7 @@ public class FskMetaDataTuple implements DataRow {
 				template.independentVariableValues == null || template.independentVariableValues.length == 0 ? ""
 						: Arrays.stream(template.independentVariableValues).mapToObj(d -> Double.toString(d))
 								.collect(Collectors.joining("||")));
+
 		cell[Key.has_data.ordinal()] = new StringCell(Boolean.toString(template.hasData));
 
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));

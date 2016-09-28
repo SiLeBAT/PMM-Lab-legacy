@@ -136,18 +136,12 @@ public class FskMetaDataTuple implements DataRow {
 
 	@Override
 	public Iterator<DataCell> iterator() {
-		return new MetaDataTupleIterator(cell);
+		return new MetaDataTupleIterator();
 	}
 
 	class MetaDataTupleIterator implements Iterator<DataCell> {
 
-		private int i;
-		private DataCell[] cell;
-
-		public MetaDataTupleIterator(final DataCell[] cell) {
-			i = 0;
-			this.cell = cell;
-		}
+		private int i = 0;
 
 		@Override
 		public boolean hasNext() {

@@ -117,7 +117,7 @@ class FskxReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws CombineArchiveException, FileAccessException, MissingValueError, REXPMismatchException, RException,
+			throws CombineArchiveException, MissingValueError, REXPMismatchException, RException,
 			InvalidPathException, MalformedURLException {
 
 		FskPortObject portObj = new FskPortObject();
@@ -192,9 +192,7 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// Meta data port
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(metadataSpec);
-		if (portObj.template != null) {
-			fsmrContainer.addRowToTable(new FskMetaDataTuple(portObj.template));
-		}
+		fsmrContainer.addRowToTable(new FskMetaDataTuple(portObj.template));
 		fsmrContainer.close();
 
 		RPortObject rObj = new RPortObject(portObj.workspace);
@@ -262,11 +260,6 @@ class FskxReaderNodeModel extends NodeModel {
 	}
 
 	// --- utility ---
-
-	private class FileAccessException extends Exception {
-
-		private static final long serialVersionUID = 1L;
-	}
 
 	// TODO: take functionality out of FSMRUtils processPrevalenceModel
 	private FskMetaData processMetadata(final SBMLDocument doc) {

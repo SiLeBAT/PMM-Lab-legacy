@@ -512,9 +512,8 @@ public class RConnectionFactory {
 			if (m_available) {
 				doAcquire();
 				return true;
-			} else {
-				return false;
 			}
+			return false;
 		}
 
 		/**

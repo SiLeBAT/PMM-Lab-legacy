@@ -172,7 +172,7 @@ class FskxWriterNodeModel extends NodeModel {
 		return new PortObject[] {};
 	}
 
-	private File createScriptFile(String script) throws IOException {
+	private static File createScriptFile(String script) throws IOException {
 		File f = FileUtil.createTempFile("script", ".r");
 		try (FileWriter fw = new FileWriter(f)) {
 			fw.write(script);

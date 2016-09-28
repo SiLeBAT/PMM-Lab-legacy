@@ -41,6 +41,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -85,6 +86,8 @@ import de.unirostock.sems.cbarchive.CombineArchiveException;
 
 class FskxReaderNodeModel extends NodeModel {
 
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(FskxReaderNodeModel.class);
+
 	// configuration keys
 	static final String CFGKEY_FILE = "filename";
 
@@ -117,8 +120,8 @@ class FskxReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws CombineArchiveException, MissingValueError, REXPMismatchException, RException,
-			InvalidPathException, MalformedURLException {
+			throws CombineArchiveException, MissingValueError, REXPMismatchException, RException, InvalidPathException,
+			MalformedURLException {
 
 		FskPortObject portObj = new FskPortObject();
 
@@ -156,11 +159,15 @@ class FskxReaderNodeModel extends NodeModel {
 			URI pmfUri = UriFactory.createPMFURI();
 			if (archive.getNumEntriesWithFormat(pmfUri) == 1) {
 				ArchiveEntry entry = archive.getEntriesWithFormat(pmfUri).get(0);
-				File f = FileUtil.createTempFile("metaData", ".pmf");
-				entry.extractFile(f);
+				try {
+					File f = FileUtil.createTempFile("metaData", ".pmf");
+					entry.extractFile(f);
 
-				SBMLDocument doc = new SBMLReader().readSBML(f);
-				portObj.template = processMetadata(doc);
+					SBMLDocument doc = new SBMLReader().readSBML(f);
+					portObj.template = processMetadata(doc);
+				} catch (IOException | XMLStreamException e) {
+					LOGGER.error("Metadata document could not be read: " + entry.getFileName());
+				}
 			}
 
 			// Gets R libraries
@@ -186,7 +193,7 @@ class FskxReaderNodeModel extends NodeModel {
 				portObj.libs.addAll(libs);
 			}
 
-		} catch (IOException | JDOMException | ParseException | XMLStreamException e) {
+		} catch (IOException | JDOMException | ParseException e) {
 			e.printStackTrace();
 		}
 

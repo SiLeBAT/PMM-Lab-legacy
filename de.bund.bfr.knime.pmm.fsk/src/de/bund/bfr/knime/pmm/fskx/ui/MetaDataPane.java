@@ -13,7 +13,6 @@ import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumnModel;
 
 import org.knime.core.node.NodeLogger;
 
@@ -88,8 +87,6 @@ public class MetaDataPane extends JScrollPane {
 
 		public Table(FskMetaData template, boolean editable) {
 			super(new TableModel(template, editable));
-
-			TableColumnModel columnModel = getColumnModel();
 
 			// Set columns witdth
 			for (int ncol = 0; ncol < getColumnCount(); ncol++) {

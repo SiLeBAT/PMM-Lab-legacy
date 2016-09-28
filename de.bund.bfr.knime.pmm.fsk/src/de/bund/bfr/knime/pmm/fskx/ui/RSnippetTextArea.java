@@ -87,8 +87,9 @@ public class RSnippetTextArea extends RSyntaxTextArea {
     Package pack = RSnippetTextArea.class.getPackage();
     String base = pack.getName().replace(".", "/") + "/";
     URL url = getClass().getClassLoader().getResource(base + "r_syntax_style.xml");
-    InputStream in = url.openStream();
-    Theme theme = Theme.load(in);
-    theme.apply(this);
+    try (InputStream in = url.openStream()) {
+    	Theme theme = Theme.load(in);
+    	theme.apply(this);
+    }
   }
 }

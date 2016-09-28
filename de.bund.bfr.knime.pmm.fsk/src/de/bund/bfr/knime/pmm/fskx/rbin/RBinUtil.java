@@ -197,8 +197,8 @@ public class RBinUtil {
 
 		// load properties from propsFile
 		Properties props = new Properties();
-		try {
-			props.load(new FileInputStream(propsFile));
+		try (FileInputStream fis = new FileInputStream(propsFile)) {
+			props.load(fis);
 		} catch (IOException e) {
 			LOGGER.warn("Could not retrieve properties from R.", e);
 		}
@@ -217,9 +217,9 @@ public class RBinUtil {
 	 */
 	private static File writeRCommandFile(final String cmd) throws IOException {
 		File tempCommandFile = FileUtil.createTempFile("R-readPropsTempFile-", ".r", new File(TEMP_PATH), true);
-		FileWriter fw = new FileWriter(tempCommandFile);
-		fw.write(cmd);
-		fw.close();
+		try (FileWriter fw = new FileWriter(tempCommandFile)) {
+			fw.write(cmd);
+		}
 
 		return tempCommandFile;
 	}

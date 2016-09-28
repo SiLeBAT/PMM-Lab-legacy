@@ -12,9 +12,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.knime.core.data.DataRow;
+import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
@@ -75,14 +75,14 @@ class FskRunnerNodeModel extends NodeModel {
 	@Override
 	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
-		internalSettings.loadInternals(nodeInternDir, exec);
+		internalSettings.loadInternals(nodeInternDir);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
-		internalSettings.saveInternals(nodeInternDir, exec);
+		internalSettings.saveInternals(nodeInternDir);
 	}
 
 	/** {@inheritDoc} */
@@ -123,26 +123,29 @@ class FskRunnerNodeModel extends NodeModel {
 		if (inObjects.length == 2 && inObjects[1] != null) {
 			BufferedDataTable metadataTable = (BufferedDataTable) inObjects[1];
 			if (metadataTable.size() == 1) {
-				Iterator<DataRow> iterator = metadataTable.iterator();
-				DataRow dataRow = iterator.next();
-				fskObj.template = tuple2Template(dataRow);
+				try (CloseableRowIterator iterator = metadataTable.iterator()) {
+					DataRow dataRow = iterator.next();
+					iterator.close();
+					fskObj.template = tuple2Template(dataRow);
 
-				// Replace with the default values with the new metadata
-				if (fskObj.template.independentVariables != null && fskObj.template.independentVariables.length > 0 &&
-						fskObj.template.independentVariableValues != null && fskObj.template.independentVariableValues.length > 0) {
-					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < fskObj.template.independentVariables.length; i++) {
-						String var = fskObj.template.independentVariables[i];
-						String value = fskObj.template.independentVariableUnits[i];
-						sb.append(var + " <- " + value + "\n");
+					// Replace with the default values with the new metadata
+					if (fskObj.template.independentVariables != null && fskObj.template.independentVariables.length > 0
+							&& fskObj.template.independentVariableValues != null
+							&& fskObj.template.independentVariableValues.length > 0) {
+						StringBuilder sb = new StringBuilder();
+						for (int i = 0; i < fskObj.template.independentVariables.length; i++) {
+							String var = fskObj.template.independentVariables[i];
+							String value = fskObj.template.independentVariableUnits[i];
+							sb.append(var + " <- " + value + "\n");
+						}
+						fskObj.param = sb.toString();
 					}
-					fskObj.param = sb.toString();
 				}
 			}
 		}
 
 		try (RController controller = new RController()) {
-			fskObj = runSnippet(controller, (FskPortObject) inObjects[0], exec);
+			fskObj = runSnippet(controller, (FskPortObject) inObjects[0]);
 		}
 		RPortObject rObj = new RPortObject(fskObj.workspace);
 
@@ -157,9 +160,8 @@ class FskRunnerNodeModel extends NodeModel {
 		}
 	}
 
-	private FskPortObject runSnippet(final RController controller, final FskPortObject fskObj,
-			final ExecutionContext exec)
-			throws IOException, RException, CanceledExecutionException, REXPMismatchException {
+	private FskPortObject runSnippet(final RController controller, final FskPortObject fskObj)
+			throws IOException, RException, REXPMismatchException {
 
 		// Add path
 		LibRegistry libRegistry = LibRegistry.instance();
@@ -171,7 +173,7 @@ class FskRunnerNodeModel extends NodeModel {
 		controller.eval(fskObj.param + "\n" + fskObj.model);
 
 		// Save workspace
-		if (fskObj.workspace == null ) {
+		if (fskObj.workspace == null) {
 			fskObj.workspace = FileUtil.createTempFile("workspace", ".R");
 		}
 		controller.eval("save.image('" + fskObj.workspace.getAbsolutePath().replace("\\", "/") + "')");
@@ -220,7 +222,7 @@ class FskRunnerNodeModel extends NodeModel {
 		}
 
 		/** Loads the saved image. */
-		void loadInternals(File nodeInternDir, ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+		void loadInternals(File nodeInternDir) throws IOException {
 			final File file = new File(nodeInternDir, FILE_NAME + ".png");
 
 			if (file.exists() && file.canRead()) {
@@ -232,8 +234,7 @@ class FskRunnerNodeModel extends NodeModel {
 		}
 
 		/** Saves the saved image. */
-		protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-				throws IOException, CanceledExecutionException {
+		protected void saveInternals(File nodeInternDir) throws IOException {
 			if (plot != null) {
 				final File file = new File(nodeInternDir, FILE_NAME + ".png");
 				FileUtil.copy(imageFile, file);
@@ -256,7 +257,7 @@ class FskRunnerNodeModel extends NodeModel {
 		}
 	}
 
-	private FskMetaData tuple2Template(final DataRow row) {
+	private static FskMetaData tuple2Template(final DataRow row) {
 
 		FskMetaData template = new FskMetaData();
 

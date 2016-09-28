@@ -22,14 +22,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
-import org.jdom2.JDOMException;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -56,9 +53,9 @@ import org.sbml.jsbml.xml.stax.SBMLWriter;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
@@ -75,7 +72,6 @@ import de.bund.bfr.pmfml.sbml.Reference;
 import de.bund.bfr.pmfml.sbml.ReferenceSBMLNode;
 import de.bund.bfr.pmfml.sbml.SBMLFactory;
 import de.unirostock.sems.cbarchive.CombineArchive;
-import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.DefaultMetaDataObject;
 
 /**
@@ -97,13 +93,10 @@ class FskxWriterNodeModel extends NodeModel {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * @throws FileCreationException
-	 *             If a critical file could not be created. E.g. model script.
-	 * @throws IOException
+	 * @throws Exception
 	 */
 	@Override
-	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws CombineArchiveException {
+	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec) throws Exception {
 
 		FskPortObject portObject = (FskPortObject) inData[0];
 
@@ -111,6 +104,7 @@ class FskxWriterNodeModel extends NodeModel {
 			Files.deleteIfExists(Paths.get(filePath.getStringValue()));
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new Exception("Previous file with same name could not be overwritten");
 		}
 
 		// try to create CombineArchive
@@ -164,9 +158,14 @@ class FskxWriterNodeModel extends NodeModel {
 
 			archive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));
 			archive.pack();
-
-		} catch (IOException | JDOMException | ParseException | TransformerException e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			try {
+				Files.delete(Paths.get(filePath.getStringValue()));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+			throw new Exception("File could not created");
 		}
 
 		return new PortObject[] {};

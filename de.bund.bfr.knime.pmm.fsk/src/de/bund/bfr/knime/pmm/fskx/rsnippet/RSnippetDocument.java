@@ -61,47 +61,38 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
  */
 public class RSnippetDocument extends RSyntaxDocument {
 
-  /** Generated serialVersionUUID. */
-  private static final long serialVersionUID = 2981438495287280740L;
+	/** Generated serialVersionUUID. */
+	private static final long serialVersionUID = 2981438495287280740L;
 
-  /** Style meaning don't syntax highlight anything. */
-  private static final String SYNTAX_STYLE_NONE = "text/plain";
+	/** Style for highlighting R. */
+	public static final String SYNTAX_STYLE_R = "text/r";
 
-  /** Style for highlighting R. */
-  public static final String SYNTAX_STYLE_R = "text/r";
+	/** Create a new instance. */
+	public RSnippetDocument() {
+		super(new RSnippetTokenMakerFactory(), SYNTAX_STYLE_NONE);
+	}
 
-  /** Create a new instance. */
-  public RSnippetDocument() {
-    super(new RSnippetTokenMakerFactory(), SYNTAX_STYLE_NONE);
-  }
+	private static class RSnippetTokenMakerFactory extends TokenMakerFactory {
 
-  private static class RSnippetTokenMakerFactory extends TokenMakerFactory {
+		private final Set<String> m_syntaxStyles;
 
-    private final Set<String> m_syntaxStyles;
+		RSnippetTokenMakerFactory() {
+			m_syntaxStyles = new HashSet<>();
+			m_syntaxStyles.add(SYNTAX_STYLE_NONE);
+			m_syntaxStyles.add(SYNTAX_STYLE_R);
+		}
 
-    RSnippetTokenMakerFactory() {
-      m_syntaxStyles = new HashSet<>();
-      m_syntaxStyles.add(SYNTAX_STYLE_NONE);
-      m_syntaxStyles.add(SYNTAX_STYLE_R);
-    }
+		@Override
+		protected TokenMaker getTokenMakerImpl(final String key) {
+			if (m_syntaxStyles.contains(key) && key.equals(SYNTAX_STYLE_R)) {
+				return new RTokenMaker();
+			}
+			return null;
+		}
 
-    @Override
-    protected TokenMaker getTokenMakerImpl(final String key) {
-      if (m_syntaxStyles.contains(key)) {
-        if (key.equals(SYNTAX_STYLE_R)) {
-          return new RTokenMaker();
-        } else {
-          // In case of null return a PlainTextTokenMaker will be used
-          return null;
-        }
-      }
-
-      return null;
-    }
-
-    @Override
-    public Set<String> keySet() {
-      return m_syntaxStyles;
-    }
-  }
+		@Override
+		public Set<String> keySet() {
+			return m_syntaxStyles;
+		}
+	}
 }

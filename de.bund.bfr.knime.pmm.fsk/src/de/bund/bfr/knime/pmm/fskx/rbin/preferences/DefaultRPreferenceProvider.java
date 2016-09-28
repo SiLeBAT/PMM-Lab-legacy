@@ -57,80 +57,75 @@ import com.sun.jna.Platform;
 import de.bund.bfr.knime.pmm.fskx.rbin.RBinUtil;
 
 /**
- * Default provider for R preferences. It determines the R binary path based on the R home given in
- * the constructor.
+ * Default provider for R preferences. It determines the R binary path based on
+ * the R home given in the constructor.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  * @author Jonathan Hale
  */
 public class DefaultRPreferenceProvider implements RPreferenceProvider {
 
-  private final String m_rHome;
+	private final String m_rHome;
 
-  private Properties m_properties = null;
+	private Properties m_properties = null;
 
-  /**
-   * Creates a new preference provider based on the given R home directory.
-   *
-   * @param rHome R's home directory
-   */
-  public DefaultRPreferenceProvider(final String rHome) {
-    m_rHome = rHome;
-  }
+	/**
+	 * Creates a new preference provider based on the given R home directory.
+	 *
+	 * @param rHome
+	 *            R's home directory
+	 */
+	public DefaultRPreferenceProvider(final String rHome) {
+		m_rHome = rHome;
+	}
 
-  @Override
-  public String getRHome() {
-    return m_rHome;
-  }
+	@Override
+	public String getRHome() {
+		return m_rHome;
+	}
 
-  @Override
-  public String getRBinPath(final String command) {
-    Path binPath = Paths.get(getRHome(), "bin");
-    if (Platform.isWindows()) {
-      if (Platform.is64Bit()) {
-        return binPath.resolve("x64").toString() + File.separator + command + ".exe";
-      } else {
-        return binPath.resolve("i386").toString() + File.separator + command + ".exe";
-      }
-    } else {
-      return binPath + File.separator + command;
-    }
-  }
+	@Override
+	public String getRBinPath(final String command) {
+		Path binPath = Paths.get(getRHome(), "bin");
+		if (Platform.isWindows()) {
+			if (Platform.is64Bit()) {
+				return binPath.resolve("x64").toString() + File.separator + command + ".exe";
+			}
+			return binPath.resolve("i386").toString() + File.separator + command + ".exe";
+		}
+		return binPath + File.separator + command;
+	}
 
-  @Override
-  public String getRServeBinPath() {
-    if (m_properties == null) {
-      m_properties = RBinUtil.retrieveRProperties(this);
-    }
+	@Override
+	public String getRServeBinPath() {
+		if (m_properties == null) {
+			m_properties = RBinUtil.retrieveRProperties(this);
+		}
 
-    final Path rservePath = Paths.get(m_properties.getProperty("Rserve.path"));
-    final Path rserveLibs = rservePath.resolve("libs");
+		final Path rservePath = Paths.get(m_properties.getProperty("Rserve.path"));
+		final Path rserveLibs = rservePath.resolve("libs");
 
-    if (Platform.isWindows()) {
-      if (Platform.is64Bit()) {
-        return rserveLibs.resolve("x64/Rserve.exe").toString();
-      } else {
-        return rserveLibs.resolve("i386/Rserve.exe").toString();
-      }
-    }
+		if (Platform.isWindows()) {
+			if (Platform.is64Bit()) {
+				return rserveLibs.resolve("x64/Rserve.exe").toString();
+			}
+			return rserveLibs.resolve("i386/Rserve.exe").toString();
+		}
+		return rserveLibs.resolve("Rserve.dbg").toString();
+	}
 
-    else {
-      return rserveLibs.resolve("Rserve.dbg").toString();
-    }
-  }
+	/**
+	 * Get the properties for this provider. Use this method to avoid calling
+	 * {@link RBinUtil#retrieveRProperties()}, which launches an external R
+	 * process to retrieve R properties.
+	 *
+	 * @return The properties for this provider
+	 */
+	Properties getProperties() {
+		if (m_properties == null) {
+			m_properties = RBinUtil.retrieveRProperties(this);
+		}
 
-  /**
-   * Get the properties for this provider. Use this method to avoid calling
-   * {@link RBinUtil#retrieveRProperties()}, which launches an external R process to retrieve R
-   * properties.
-   *
-   * @return The properties for this provider
-   */
-  Properties getProperties() {
-    if (m_properties == null) {
-      m_properties = RBinUtil.retrieveRProperties(this);
-    }
-
-    return m_properties;
-  }
+		return m_properties;
+	}
 }

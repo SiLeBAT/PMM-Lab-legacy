@@ -73,7 +73,7 @@ public class MetaDataPane extends JScrollPane {
 		Independent_Variable_Maxs,
 		Independent_Variable_Values,
 		Has_Data
-	};
+	}
 
 	public final FskMetaData template;
 

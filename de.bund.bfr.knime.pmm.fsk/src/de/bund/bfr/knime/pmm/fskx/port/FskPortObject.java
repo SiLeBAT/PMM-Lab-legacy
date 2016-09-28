@@ -211,9 +211,9 @@ public class FskPortObject implements PortObject {
 					}
 				} else if (entryName.equals(WORKSPACE)) {
 					portObj.workspace = FileUtil.createTempFile("workspace", ".r");
-					FileOutputStream fos = new FileOutputStream(portObj.workspace);
-					FileUtil.copy(in, fos);
-					fos.close();
+					try (FileOutputStream fos = new FileOutputStream(portObj.workspace)) {
+						FileUtil.copy(in, fos);
+					}
 				} else if (entryName.equals("library.list")) {
 					List<String> libNames = IOUtils.readLines(in, "UTF-8");
 

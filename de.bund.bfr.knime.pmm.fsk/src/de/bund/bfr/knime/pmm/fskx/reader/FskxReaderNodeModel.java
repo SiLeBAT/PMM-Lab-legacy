@@ -151,8 +151,12 @@ class FskxReaderNodeModel extends NodeModel {
 			// Gets workspace file
 			if (node.getWorkspaceFile() != null) {
 				ArchiveEntry entry = archive.getEntry(node.getWorkspaceFile());
-				portObj.workspace = FileUtil.createTempFile("workspace", ".r");
-				entry.extractFile(portObj.workspace);
+				try {
+					portObj.workspace = FileUtil.createTempFile("workspace", ".r");
+					entry.extractFile(portObj.workspace);
+				} catch (IOException e) {
+					LOGGER.warn("Workspace could not be restored. Please rerun model to obtain results.");
+				}
 			}
 
 			// Gets model meta data

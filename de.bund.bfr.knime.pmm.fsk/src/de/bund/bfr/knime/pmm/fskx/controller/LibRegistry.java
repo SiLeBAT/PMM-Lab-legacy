@@ -59,9 +59,9 @@ public class LibRegistry {
 		}
 
 		controller = new RController();
-		rWrapper = new RWrapper(controller);
+		rWrapper = new RWrapper();
 		rWrapper.library("miniCRAN");
-		rWrapper.makeRepo(repoPath, "http://cran.us.r-project.org", type);
+		rWrapper.makeRepo(repoPath, "http://cran.us.r-project.org");
 	}
 
 	public static LibRegistry instance() throws IOException, RException {
@@ -93,16 +93,16 @@ public class LibRegistry {
 	public void installLibs(final List<String> libs) throws RException, REXPMismatchException {
 
 		// Gets list of R dependencies of libs
-		List<String> deps = rWrapper.pkgDep(libs, type);
+		List<String> deps = rWrapper.pkgDep(libs);
 
 		// Adds the dependencies to the miniCRAN repository
-		rWrapper.addPackage(deps, repoPath, "http://cran.us.r-project.org", type);
+		rWrapper.addPackage(deps, repoPath, "http://cran.us.r-project.org");
 
 		// Gets the paths to the binaries of these dependencies
-		List<Path> paths = rWrapper.checkVersions(deps, repoPath, type);
+		List<Path> paths = rWrapper.checkVersions(deps, repoPath);
 
 		// Install binaries
-		rWrapper.installPackages(paths, installPath, type);
+		rWrapper.installPackages(paths, installPath);
 
 		// Adds names of installed libraries to utility set
 		installedLibs.addAll(deps);
@@ -118,10 +118,10 @@ public class LibRegistry {
 	 */
 	public Set<Path> getPaths(List<String> libs) throws RException, REXPMismatchException {
 		// Gets list of R dependencies of libs
-		List<String> deps = rWrapper.pkgDep(libs, type);
+		List<String> deps = rWrapper.pkgDep(libs);
 
 		// Gets the paths to the binaries of these dependencies
-		List<Path> paths = rWrapper.checkVersions(deps, repoPath, type);
+		List<Path> paths = rWrapper.checkVersions(deps, repoPath);
 		return new HashSet<>(paths);
 	}
 
@@ -168,12 +168,6 @@ public class LibRegistry {
 
 	private class RWrapper {
 
-		final RController controller;
-
-		RWrapper(RController controller) {
-			this.controller = controller;
-		}
-
 		// R commands
 		/**
 		 * Load and attach add-on packages.
@@ -200,21 +194,18 @@ public class LibRegistry {
 		 *            Windows and .tgz for Mac).
 		 * @param lib
 		 *            Directory where packages are installed.
-		 * @param type
-		 *            Type of package. Possible values are "win.binary",
-		 *            "mac.binary" and "source".
 		 * @throws RException
 		 * 
 		 * @see <a href=
 		 *      "https://stat.ethz.ch/R-manual/R-devel/library/utils/html/install.packages.html">
 		 *      R documentation</a>
 		 */
-		void installPackages(final List<Path> pkgs, final Path lib, final String type) throws RException {
+		void installPackages(final List<Path> pkgs, final Path lib) throws RException {
 			String pkgsAsString = pkgs.stream().map(pkg -> "'" + pkg.toString().replace("\\", "/") + "'")
 					.collect(Collectors.joining(", "));
 			String pkgList = "c(" + pkgsAsString + ")";
-			String cmd = "install.packages(" + pkgList + ", repos = NULL, lib = '" + _path2String(lib)
-					+ "', type = '" + type + "')";
+			String cmd = "install.packages(" + pkgList + ", repos = NULL, lib = '" + _path2String(lib) + "', type = '"
+					+ type + "')";
 			controller.eval(cmd);
 		}
 
@@ -230,17 +221,13 @@ public class LibRegistry {
 		 * @param repos
 		 *            URL of the 'contrib' sections of the repository, e.g.
 		 *            "http://cran.us.r-project.org".
-		 * @param type
-		 *            Type of package. Possible values are "win.binary",
-		 *            "mac.binary" and "source".
 		 * @throws RException
 		 * 
 		 * @see <a href=
 		 *      "https://cran.r-project.org/web/packages/miniCRAN/miniCRAN.pdf">
 		 *      miniCRAN documentation</a>
 		 */
-		void addPackage(final List<String> pkgs, final Path path, final String repos, final String type)
-				throws RException {
+		void addPackage(final List<String> pkgs, final Path path, final String repos) throws RException {
 			String cmd = "addPackage(" + _pkgList(pkgs) + ", '" + _path2String(path) + "', repos = '" + repos
 					+ "', type = '" + type + "')";
 			controller.eval(cmd);
@@ -254,9 +241,6 @@ public class LibRegistry {
 		 * @param path
 		 *            The local path to the directory where the miniCRAN repo
 		 *            resides.
-		 * @param type
-		 *            Type of package. Possible values are "win.binary",
-		 *            "mac.binary" and "source"
 		 * @return the file paths for the specified packages
 		 * @throws REXPMismatchException
 		 * @throws RException
@@ -265,8 +249,7 @@ public class LibRegistry {
 		 *      "https://cran.r-project.org/web/packages/miniCRAN/miniCRAN.pdf">
 		 *      miniCRAN documentation</a>
 		 */
-		List<Path> checkVersions(final List<String> pkgs, final Path path, final String type)
-				throws REXPMismatchException, RException {
+		List<Path> checkVersions(final List<String> pkgs, final Path path) throws REXPMismatchException, RException {
 			String cmd = "checkVersions(" + _pkgList(pkgs) + ", '" + _path2String(path) + "', type = '" + type + "')";
 			String[] pathsArray = controller.eval(cmd).asStrings();
 			return Arrays.stream(pathsArray).map(Paths::get).collect(Collectors.toList());
@@ -286,16 +269,13 @@ public class LibRegistry {
 		 * @param repos
 		 *            URL of the 'contrib' sections of the repository, e.g.
 		 *            "http://cran.us.r-project.org".
-		 * @param type
-		 *            Type of package. Possible values are "win.binary",
-		 *            "mac.binary" and "source".
 		 * @throws RException
 		 * 
 		 * @see <a href=
 		 *      "https://cran.r-project.org/web/packages/miniCRAN/miniCRAN.pdf">
 		 *      miniCRAN documentation</a>
 		 */
-		void makeRepo(final Path path, final String repos, final String type) throws RException {
+		void makeRepo(final Path path, final String repos) throws RException {
 			String cmd = "makeRepo(c(), '" + _path2String(path) + "', repos = '" + repos + "', type = '" + type + "')";
 			controller.eval(cmd);
 		}
@@ -308,9 +288,6 @@ public class LibRegistry {
 		 * 
 		 * @param pkgs
 		 *            List of names of packages.
-		 * @param type
-		 *            Type of package. Possible values are "win.binary",
-		 *            "mac.binary" and "source".
 		 * @return the dependencies of the specified packages
 		 * @throws RException
 		 * @throws REXPMismatchException
@@ -319,7 +296,7 @@ public class LibRegistry {
 		 *      "https://cran.r-project.org/web/packages/miniCRAN/miniCRAN.pdf">
 		 *      miniCRAN documentation</a>
 		 */
-		List<String> pkgDep(final List<String> pkgs, final String type) throws RException, REXPMismatchException {
+		List<String> pkgDep(final List<String> pkgs) throws RException, REXPMismatchException {
 			String cmd = "pkgDep(" + _pkgList(pkgs) + ", availPkgs = cranJuly2014, type = " + type + ")";
 			REXP rexp = controller.eval(cmd);
 			return Arrays.asList(rexp.asStrings());

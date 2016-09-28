@@ -209,7 +209,7 @@ class FskxReaderNodeModel extends NodeModel {
 		return new PortObject[] { portObj, rObj, fsmrContainer.getTable() };
 	}
 
-	private String loadScriptFromEntry(final ArchiveEntry entry) throws IOException {
+	private static String loadScriptFromEntry(final ArchiveEntry entry) throws IOException {
 		// Create temporary file with a random name. The name does not matter,
 		// since the file will be
 		// deleted by KNIME itself.
@@ -217,11 +217,9 @@ class FskxReaderNodeModel extends NodeModel {
 		entry.extractFile(f);
 
 		// Read script from f and return script
-		FileInputStream fis = new FileInputStream(f);
-		String script = IOUtils.toString(fis, "UTF-8");
-		fis.close();
-
-		return script;
+		try (FileInputStream fis = new FileInputStream(f)) {
+			return IOUtils.toString(fis, "UTF-8");
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -271,7 +269,7 @@ class FskxReaderNodeModel extends NodeModel {
 	// --- utility ---
 
 	// TODO: take functionality out of FSMRUtils processPrevalenceModel
-	private FskMetaData processMetadata(final SBMLDocument doc) {
+	private static FskMetaData processMetadata(final SBMLDocument doc) {
 
 		FskMetaData template = new FskMetaData();
 

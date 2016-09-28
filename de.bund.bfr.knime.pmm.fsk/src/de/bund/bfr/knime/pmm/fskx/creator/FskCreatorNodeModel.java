@@ -50,7 +50,6 @@ import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
-import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
@@ -159,7 +158,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws InvalidSettingsException, IOException, MissingValueError {
+			throws InvalidSettingsException, IOException {
 
 		FskPortObject portObj = new FskPortObject();
 

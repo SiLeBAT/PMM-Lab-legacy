@@ -64,7 +64,6 @@ import org.sbml.jsbml.xml.stax.SBMLReader;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
-import de.bund.bfr.knime.pmm.fskx.MissingValueError;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
@@ -112,7 +111,6 @@ class FskxReaderNodeModel extends NodeModel {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @throws MissingValueError
 	 * @throws RException
 	 * @throws REXPMismatchException
 	 * @throws MalformedURLException
@@ -120,7 +118,7 @@ class FskxReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inData, final ExecutionContext exec)
-			throws CombineArchiveException, MissingValueError, REXPMismatchException, RException, InvalidPathException,
+			throws CombineArchiveException, REXPMismatchException, RException, InvalidPathException,
 			MalformedURLException {
 
 		FskPortObject portObj = new FskPortObject();

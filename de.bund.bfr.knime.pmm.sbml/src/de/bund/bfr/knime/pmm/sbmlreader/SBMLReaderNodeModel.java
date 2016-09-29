@@ -201,33 +201,33 @@ public class SBMLReaderNodeModel extends NodeModel {
       throws IOException, CanceledExecutionException {}
 
   // --- utility methods ---
-  private KnimeTuple readPrimaryModel(final SBMLDocument doc) {
-    return mergeTuples(new DataTuple(doc).getTuple(), new Model1Tuple(doc).getTuple());
+  private static KnimeTuple readPrimaryModel(final SBMLDocument doc) {
+    return mergeTuples(new DataTuple(doc).knimeTuple, new Model1Tuple(doc).knimeTuple);
   }
 
-  private KnimeTuple readTwoStepSecondaryModel(final SBMLDocument doc) {
-    return new Model2Tuple(doc.getModel()).getTuple();
+  private static KnimeTuple readTwoStepSecondaryModel(final SBMLDocument doc) {
+    return new Model2Tuple(doc.getModel()).knimeTuple;
   }
 
-  private KnimeTuple readOneStepSecondaryModel(final SBMLDocument doc) {
+  private static KnimeTuple readOneStepSecondaryModel(final SBMLDocument doc) {
     // Parses data columns
-    final KnimeTuple dataTuple = new DataTuple(doc).getTuple();
+    final KnimeTuple dataTuple = new DataTuple(doc).knimeTuple;
 
     // Parses primary model
-    final KnimeTuple m1Tuple = new Model1Tuple(doc).getTuple();
+    final KnimeTuple m1Tuple = new Model1Tuple(doc).knimeTuple;
 
     // Parses secondary model
     CompSBMLDocumentPlugin secCompPlugin =
         (CompSBMLDocumentPlugin) doc.getPlugin(CompConstants.shortLabel);
     ModelDefinition secModel = secCompPlugin.getModelDefinition(0);
-    final KnimeTuple m2Tuple = new Model2Tuple(secModel).getTuple();
+    final KnimeTuple m2Tuple = new Model2Tuple(secModel).knimeTuple;
 
     final KnimeTuple row = mergeTuples(dataTuple, m1Tuple, m2Tuple);
     return row;
   }
 
-  private KnimeTuple readManualSecondaryModel(final SBMLDocument doc) {
-    return new Model2Tuple(doc.getModel()).getTuple();
+  private static KnimeTuple readManualSecondaryModel(final SBMLDocument doc) {
+    return new Model2Tuple(doc.getModel()).knimeTuple;
   }
   
   // --- other utility methods ---

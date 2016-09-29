@@ -42,7 +42,7 @@ import de.bund.bfr.pmfml.sbml.SecIndep;
 
 public class Model2Tuple {
 
-  private KnimeTuple tuple;
+  public KnimeTuple knimeTuple;
   private static KnimeSchema schema = SchemaFactory.createM2Schema();
 
   public Model2Tuple(Model model) {
@@ -168,18 +168,18 @@ public class Model2Tuple {
       metadata.addLiteratureItem(emLiteratureItem);
     }
 
-    tuple = new KnimeTuple(schema);
-    tuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-    tuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-    tuple.setValue(Model2Schema.ATT_INDEPENDENT, indeps);
-    tuple.setValue(Model2Schema.ATT_PARAMETER, consts);
-    tuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-    tuple.setValue(Model2Schema.ATT_MLIT, mLits);
-    tuple.setValue(Model2Schema.ATT_EMLIT, emLits);
-    tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
-    tuple.setValue(Model2Schema.ATT_DBUUID, "?");
-    tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
-    tuple.setValue(Model2Schema.ATT_METADATA, metadata);
+    knimeTuple = new KnimeTuple(schema);
+    knimeTuple.setValue(Model2Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+    knimeTuple.setValue(Model2Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+    knimeTuple.setValue(Model2Schema.ATT_INDEPENDENT, indeps);
+    knimeTuple.setValue(Model2Schema.ATT_PARAMETER, consts);
+    knimeTuple.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+    knimeTuple.setValue(Model2Schema.ATT_MLIT, mLits);
+    knimeTuple.setValue(Model2Schema.ATT_EMLIT, emLits);
+    knimeTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
+    knimeTuple.setValue(Model2Schema.ATT_DBUUID, "?");
+    knimeTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, m2Annot.getGlobalModelID());
+    knimeTuple.setValue(Model2Schema.ATT_METADATA, metadata);
   }
 
   private ParamXml processCoefficient(Parameter param, ListOf<UnitDefinition> unitDefs,
@@ -251,13 +251,5 @@ public class Model2Tuple {
     }
 
     return indepXml;
-  }
-
-  public KnimeTuple getTuple() {
-    return tuple;
-  }
-
-  public void setTuple(KnimeTuple tuple) {
-    this.tuple = tuple;
   }
 }

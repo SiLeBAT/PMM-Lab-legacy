@@ -301,7 +301,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (ExperimentalData ed : eds) {
-        KnimeTuple tuple = new DataTuple(ed.getDoc()).getTuple();
+        KnimeTuple tuple = new DataTuple(ed.getDoc()).knimeTuple;
         dataContainer.addRowToTable(tuple);
         exec.setProgress((float) dataContainer.size() / eds.size());
       }
@@ -362,12 +362,12 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private KnimeTuple parse(PrimaryModelWData pm) {
+    private static KnimeTuple parse(PrimaryModelWData pm) {
       // Add cells to the row
       KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
       // time series cells
-      KnimeTuple dataTuple = new DataTuple(pm.getDataDoc()).getTuple();
+      KnimeTuple dataTuple = new DataTuple(pm.getDataDoc()).knimeTuple;
       row.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.getInt(TimeSeriesSchema.ATT_CONDID));
       row.setValue(TimeSeriesSchema.ATT_COMBASEID,
           dataTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
@@ -383,7 +383,7 @@ public class ReaderUtils {
           dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
       // primary model cells
-      KnimeTuple m1Tuple = new Model1Tuple(pm.getModelDoc()).getTuple();
+      KnimeTuple m1Tuple = new Model1Tuple(pm.getModelDoc()).knimeTuple;
       row.setValue(Model1Schema.ATT_MODELCATALOG, m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
       row.setValue(Model1Schema.ATT_DEPENDENT, m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
       row.setValue(Model1Schema.ATT_INDEPENDENT, m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
@@ -438,12 +438,12 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private KnimeTuple parse(PrimaryModelWOData pm) {
+    private static KnimeTuple parse(PrimaryModelWOData pm) {
       // Add cells to the row
       KnimeTuple row = new KnimeTuple(SchemaFactory.createM1DataSchema());
 
       // time series cells
-      KnimeTuple dataTuple = new DataTuple(pm.getDoc()).getTuple();
+      KnimeTuple dataTuple = new DataTuple(pm.getDoc()).knimeTuple;
       row.setValue(TimeSeriesSchema.ATT_CONDID, dataTuple.getInt(TimeSeriesSchema.ATT_CONDID));
       row.setValue(TimeSeriesSchema.ATT_COMBASEID,
           dataTuple.getString(TimeSeriesSchema.ATT_COMBASEID));
@@ -459,7 +459,7 @@ public class ReaderUtils {
           dataTuple.getPmmXml(TimeSeriesSchema.ATT_METADATA));
 
       // primary model cells
-      KnimeTuple m1Tuple = new Model1Tuple(pm.getDoc()).getTuple();
+      KnimeTuple m1Tuple = new Model1Tuple(pm.getDoc()).knimeTuple;
       row.setValue(Model1Schema.ATT_MODELCATALOG, m1Tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG));
       row.setValue(Model1Schema.ATT_DEPENDENT, m1Tuple.getPmmXml(Model1Schema.ATT_DEPENDENT));
       row.setValue(Model1Schema.ATT_INDEPENDENT, m1Tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT));
@@ -514,20 +514,20 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private List<KnimeTuple> parse(TwoStepSecondaryModel tssm) {
+    private static List<KnimeTuple> parse(TwoStepSecondaryModel tssm) {
       // create n rows for n secondary models
       List<KnimeTuple> rows = new LinkedList<>();
 
-      KnimeTuple m2Tuple = new Model2Tuple(tssm.getSecDoc().getModel()).getTuple();
+      KnimeTuple m2Tuple = new Model2Tuple(tssm.getSecDoc().getModel()).knimeTuple;
 
       for (PrimaryModelWData pmwd : tssm.getPrimModels()) {
         KnimeTuple dataTuple;
         if (pmwd.getDataDoc() != null) {
-          dataTuple = new DataTuple(pmwd.getDataDoc()).getTuple();
+          dataTuple = new DataTuple(pmwd.getDataDoc()).knimeTuple;
         } else {
-          dataTuple = new DataTuple(pmwd.getModelDoc()).getTuple();
+          dataTuple = new DataTuple(pmwd.getModelDoc()).knimeTuple;
         }
-        KnimeTuple m1Tuple = new Model1Tuple(pmwd.getModelDoc()).getTuple();
+        KnimeTuple m1Tuple = new Model1Tuple(pmwd.getModelDoc()).knimeTuple;
 
         KnimeTuple row = ReaderUtils.mergeTuples(dataTuple, m1Tuple, m2Tuple);
         rows.add(row);
@@ -575,21 +575,21 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private List<KnimeTuple> parse(OneStepSecondaryModel ossm) {
+    private static List<KnimeTuple> parse(OneStepSecondaryModel ossm) {
       List<KnimeTuple> rows = new LinkedList<>();
 
       // Parses primary model
-      KnimeTuple primTuple = new Model1Tuple(ossm.getModelDoc()).getTuple();
+      KnimeTuple primTuple = new Model1Tuple(ossm.getModelDoc()).knimeTuple;
 
       // Parses secondary model
       CompSBMLDocumentPlugin secCompPlugin =
           (CompSBMLDocumentPlugin) ossm.getModelDoc().getPlugin(CompConstants.shortLabel);
       ModelDefinition secModel = secCompPlugin.getModelDefinition(0);
-      KnimeTuple secTuple = new Model2Tuple(secModel).getTuple();
+      KnimeTuple secTuple = new Model2Tuple(secModel).knimeTuple;
 
       // Parses data files
       for (NuMLDocument numlDoc : ossm.getDataDocs()) {
-        KnimeTuple dataTuple = new DataTuple(numlDoc).getTuple();
+        KnimeTuple dataTuple = new DataTuple(numlDoc).knimeTuple;
         rows.add(ReaderUtils.mergeTuples(dataTuple, primTuple, secTuple));
       }
 
@@ -615,7 +615,7 @@ public class ReaderUtils {
 
       // Creates tuples and adds them to the container
       for (ManualSecondaryModel model : models) {
-        KnimeTuple tuple = new Model2Tuple(model.getDoc().getModel()).getTuple();
+        KnimeTuple tuple = new Model2Tuple(model.getDoc().getModel()).knimeTuple;
         modelContainer.addRowToTable(tuple);
         exec.setProgress((float) modelContainer.size() / models.size());
       }
@@ -674,17 +674,17 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private List<KnimeTuple> parse(TwoStepTertiaryModel tstm) {
+    private static List<KnimeTuple> parse(TwoStepTertiaryModel tstm) {
 
       List<KnimeTuple> secTuples = new LinkedList<>();
       for (SBMLDocument secDoc : tstm.getSecDocs()) {
-        secTuples.add(new Model2Tuple(secDoc.getModel()).getTuple());
+        secTuples.add(new Model2Tuple(secDoc.getModel()).knimeTuple);
       }
 
       List<KnimeTuple> tuples = new LinkedList<>();
       for (PrimaryModelWData pm : tstm.getPrimModels()) {
-        KnimeTuple dataTuple = new DataTuple(pm.getDataDoc()).getTuple();
-        KnimeTuple m1Tuple = new Model1Tuple(pm.getModelDoc()).getTuple();
+        KnimeTuple dataTuple = new DataTuple(pm.getDataDoc()).knimeTuple;
+        KnimeTuple m1Tuple = new Model1Tuple(pm.getModelDoc()).knimeTuple;
         for (KnimeTuple m2Tuple : secTuples) {
           tuples.add(ReaderUtils.mergeTuples(dataTuple, m1Tuple, m2Tuple));
         }
@@ -732,12 +732,12 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
+    private static List<KnimeTuple> parse(OneStepTertiaryModel ostm) {
 
-      KnimeTuple primTuple = new Model1Tuple(ostm.getTertiaryDoc()).getTuple();
+      KnimeTuple primTuple = new Model1Tuple(ostm.getTertiaryDoc()).knimeTuple;
       List<KnimeTuple> secTuples = new LinkedList<>();
       for (SBMLDocument secDoc : ostm.getSecDocs()) {
-        secTuples.add(new Model2Tuple(secDoc.getModel()).getTuple());
+        secTuples.add(new Model2Tuple(secDoc.getModel()).knimeTuple);
       }
 
       List<KnimeTuple> tuples = new LinkedList<>();
@@ -745,7 +745,7 @@ public class ReaderUtils {
       int instanceCounter = 1;
 
       for (NuMLDocument numlDoc : ostm.getDataDocs()) {
-        KnimeTuple dataTuple = new DataTuple(numlDoc).getTuple();
+        KnimeTuple dataTuple = new DataTuple(numlDoc).knimeTuple;
         for (KnimeTuple secTuple : secTuples) {
           KnimeTuple tuple = ReaderUtils.mergeTuples(dataTuple, primTuple, secTuple);
           tuple.setValue(TimeSeriesSchema.ATT_CONDID, instanceCounter);
@@ -796,14 +796,14 @@ public class ReaderUtils {
       return new BufferedDataContainer[] {modelContainer, fsmrContainer};
     }
 
-    private List<KnimeTuple> parse(ManualTertiaryModel mtm) {
+    private static List<KnimeTuple> parse(ManualTertiaryModel mtm) {
 
-      KnimeTuple dataTuple = new DataTuple(mtm.getTertiaryDoc()).getTuple();
-      KnimeTuple m1Tuple = new Model1Tuple(mtm.getTertiaryDoc()).getTuple();
+      KnimeTuple dataTuple = new DataTuple(mtm.getTertiaryDoc()).knimeTuple;
+      KnimeTuple m1Tuple = new Model1Tuple(mtm.getTertiaryDoc()).knimeTuple;
 
       List<KnimeTuple> rows = new LinkedList<>();
       for (SBMLDocument secDoc : mtm.getSecDocs()) {
-        KnimeTuple m2Tuple = new Model2Tuple(secDoc.getModel()).getTuple();
+        KnimeTuple m2Tuple = new Model2Tuple(secDoc.getModel()).knimeTuple;
         rows.add(ReaderUtils.mergeTuples(dataTuple, m1Tuple, m2Tuple));
       }
 

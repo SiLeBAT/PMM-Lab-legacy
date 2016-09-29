@@ -33,7 +33,8 @@ import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class DataTuple {
 
-	private KnimeTuple tuple;
+	public KnimeTuple knimeTuple;
+	
 	// time series schema
 	private static KnimeSchema schema = SchemaFactory.createDataSchema();
 
@@ -129,17 +130,17 @@ public class DataTuple {
 		}
 
 		// Creates and fills tuple
-		tuple = new KnimeTuple(schema);
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
-		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
-		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
-		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-		tuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
+		knimeTuple = new KnimeTuple(schema);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_COMBASEID, combaseID);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
+		knimeTuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
+		knimeTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, mdData);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
+		knimeTuple.setValue(TimeSeriesSchema.ATT_LITMD, litDoc);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		knimeTuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
 	}
 
 	public DataTuple(SBMLDocument sbmlDoc) {
@@ -167,7 +168,7 @@ public class DataTuple {
 
 		PmmXmlDoc miscCell = new PmmXmlDoc();
 		if (compartment.isSetModelVariables()) {
-			Map<String, Double> miscs = new HashMap<String, Double>(compartment.getModelVariables().length);
+			Map<String, Double> miscs = new HashMap<>(compartment.getModelVariables().length);
 			for (ModelVariable modelVariable : compartment.getModelVariables()) {
 				miscs.put(modelVariable.getName(), modelVariable.getValue());
 			}
@@ -176,24 +177,16 @@ public class DataTuple {
 
 		MdInfoXml mdInfo = new MdInfoXml(null, null, null, null, null);
 
-		tuple = new KnimeTuple(schema);
-		tuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
-		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
-		tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
-		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
-		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
-		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
-		tuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
-		tuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
-		tuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
-	}
-
-	public KnimeTuple getTuple() {
-		return tuple;
-	}
-
-	public void setTuple(KnimeTuple tuple) {
-		this.tuple = tuple;
+		knimeTuple = new KnimeTuple(schema);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_CONDID, m1Annot.getCondID());
+		knimeTuple.setValue(TimeSeriesSchema.ATT_COMBASEID, "?");
+		knimeTuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(originalAgentXml));
+		knimeTuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(originalMatrixXml));
+		knimeTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, new PmmXmlDoc());
+		knimeTuple.setValue(TimeSeriesSchema.ATT_MISC, miscCell);
+		knimeTuple.setValue(TimeSeriesSchema.ATT_MDINFO, new PmmXmlDoc(mdInfo));
+		knimeTuple.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
+		knimeTuple.setValue(TimeSeriesSchema.ATT_DBUUID, "?");
+		knimeTuple.setValue(TimeSeriesSchema.ATT_METADATA, metadata);
 	}
 }

@@ -70,7 +70,7 @@ public class NuMLReaderNodeModel extends NodeModel {
 
 		File file = new File(filename.getStringValue());
 		NuMLDocument doc = NuMLReader.read(file);
-		KnimeTuple tuple = new DataTuple(doc).getTuple();
+		KnimeTuple tuple = new DataTuple(doc).knimeTuple;
 
 		BufferedDataContainer dataContainer = exec.createDataContainer(TABLE_SPEC);
 		dataContainer.addRowToTable(tuple);

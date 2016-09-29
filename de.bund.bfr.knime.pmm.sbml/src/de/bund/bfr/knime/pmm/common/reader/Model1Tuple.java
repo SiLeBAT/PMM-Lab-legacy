@@ -39,7 +39,7 @@ import de.bund.bfr.pmfml.sbml.SBMLFactory;
 
 public class Model1Tuple {
 
-	private KnimeTuple tuple;
+  public KnimeTuple knimeTuple;
   private static KnimeSchema schema = SchemaFactory.createM1Schema(); // model1
                                                                       // schema
 
@@ -215,24 +215,16 @@ public class Model1Tuple {
       emLit.add(lit);
     }
 
-    tuple = new KnimeTuple(schema);
-    tuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
-    tuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
-    tuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
-    tuple.setValue(Model1Schema.ATT_PARAMETER, paramCell);
-    tuple.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
-    tuple.setValue(Model1Schema.ATT_MLIT, mLit);
-    tuple.setValue(Model1Schema.ATT_EMLIT, emLit);
-    tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
-    tuple.setValue(Model1Schema.ATT_DBUUID, "?");
-    tuple.setValue(Model1Schema.ATT_METADATA, metadata);
-  }
-
-  public KnimeTuple getTuple() {
-    return tuple;
-  }
-
-  public void setTuple(KnimeTuple tuple) {
-    this.tuple = tuple;
+    knimeTuple = new KnimeTuple(schema);
+    knimeTuple.setValue(Model1Schema.ATT_MODELCATALOG, new PmmXmlDoc(catModel));
+    knimeTuple.setValue(Model1Schema.ATT_DEPENDENT, new PmmXmlDoc(depXml));
+    knimeTuple.setValue(Model1Schema.ATT_INDEPENDENT, new PmmXmlDoc(indepXml));
+    knimeTuple.setValue(Model1Schema.ATT_PARAMETER, paramCell);
+    knimeTuple.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(estModel));
+    knimeTuple.setValue(Model1Schema.ATT_MLIT, mLit);
+    knimeTuple.setValue(Model1Schema.ATT_EMLIT, emLit);
+    knimeTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
+    knimeTuple.setValue(Model1Schema.ATT_DBUUID, "?");
+    knimeTuple.setValue(Model1Schema.ATT_METADATA, metadata);
   }
 }

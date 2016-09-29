@@ -18,12 +18,16 @@ package de.bund.bfr.knime.pmm.openfsmr;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -62,6 +66,7 @@ import de.bund.bfr.pmfml.model.PrimaryModelWOData;
 import de.bund.bfr.pmfml.model.TwoStepSecondaryModel;
 import de.bund.bfr.pmfml.model.TwoStepTertiaryModel;
 import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
 /**
@@ -81,8 +86,8 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 
   // persistent state
   private SettingsModelString selectedDirectory = new SettingsModelString(CFGKEY_DIR, DEFAULT_DIR);
-  private SettingsModelStringArray selectedFiles = new SettingsModelStringArray(CFGKEY_FILES,
-      DEFAULT_FILES);
+  private SettingsModelStringArray selectedFiles =
+      new SettingsModelStringArray(CFGKEY_FILES, DEFAULT_FILES);
 
   private static final Map<ModelType, Converter> CONVERTERS = new HashMap<>();
   static {
@@ -96,7 +101,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
     CONVERTERS.put(ModelType.ONE_STEP_TERTIARY_MODEL, new OneStepTertiaryModelConverter());
     CONVERTERS.put(ModelType.MANUAL_TERTIARY_MODEL, new ManualTertiaryModelConverter());
   }
-  
+
   private static final DataTableSpec TABLE_SPEC = new OpenFSMRSchema().createSpec();
 
   /** Constructor for the node model. */
@@ -106,29 +111,53 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
   }
 
   /** {@inheritDoc} */
-  @Override
   protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-      final ExecutionContext exec) throws Exception {
+      final ExecutionContext exec) {
+
     BufferedDataContainer container = exec.createDataContainer(TABLE_SPEC);
+
     for (String selectedFile : selectedFiles.getStringArrayValue()) {
       // Builds full path
       String fullpath = selectedDirectory.getStringValue() + "/" + selectedFile;
 
+      File file;
       try {
-        List<FSMRTemplate> templates = createTemplatesFromPMF(fullpath);
+        file = KnimeUtils.getFile(fullpath);
+      } catch (InvalidPathException | MalformedURLException e) {
+        setWarningMessage(fullpath + " could not be accessed. Skipping file.");
+        e.printStackTrace();
+        continue;
+      }
 
-        for (FSMRTemplate template : templates) {
+      ModelType modelType;
+
+      try (CombineArchive ca = new CombineArchive(file)) {
+        MetaDataObject mdo = ca.getDescriptions().get(0);
+        Element metaParent = mdo.getXmlDescription();
+        PMFMetadataNode pmfMetadataNode = new PMFMetadataNode(metaParent);
+        modelType = pmfMetadataNode.getModelType();
+      } catch (IOException | JDOMException | ParseException | CombineArchiveException e) {
+        setWarningMessage(fullpath + " CombineArchive cannot be opened. Skipping file.");
+        e.printStackTrace();
+        continue;
+      }
+
+      // Gets metadata templates from file and add them to the KNIME table
+      try {
+        for (FSMRTemplate template : CONVERTERS.get(modelType).convert(file)) {
           KnimeTuple tuple = FSMRUtils.createTupleFromTemplate(template);
           container.addRowToTable(tuple);
         }
+
       } catch (Exception e) {
-        System.err.println("Could not process file: " + selectedFile);
+        setWarningMessage(fullpath + " metadata could not be retrieved. Skipping file.");
         e.printStackTrace();
+        continue;
       }
     }
+
     container.close();
-    BufferedDataTable[] tables = {container.getTable()};
-    return tables;
+    return new BufferedDataTable[] {container.getTable()};
   }
 
   /** {@inheritDoc} */
@@ -173,26 +202,6 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
   @Override
   protected void saveInternals(final File internDir, final ExecutionMonitor exec)
       throws IOException, CanceledExecutionException {}
-
-  private static List<FSMRTemplate> createTemplatesFromPMF(String filepath) throws Exception {
-
-    // Get model type from annotation in the metadata file
-    // a) Open archive
-    File file = KnimeUtils.getFile(filepath);
-    CombineArchive ca = new CombineArchive(file);
-
-    // b) Get annotation
-    MetaDataObject mdo = ca.getDescriptions().get(0);
-    Element metaParent = mdo.getXmlDescription();
-    PMFMetadataNode pmfMetadataNode = new PMFMetadataNode(metaParent);
-
-    // c) Close archive
-    ca.close();
-
-    Converter converter = CONVERTERS.get(pmfMetadataNode.getModelType());
-
-    return converter.convert(file);
-  }
 }
 
 
@@ -213,9 +222,8 @@ class ExperimentalDataConverter implements Converter {
 
   /** Obtain an OpenFSMR template per data file. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<ExperimentalData> eds =
-        file.getName().endsWith(".pmfx") ? ExperimentalDataFile.readPMFX(file)
-            : ExperimentalDataFile.readPMF(file);
+    List<ExperimentalData> eds = file.getName().endsWith(".pmfx")
+        ? ExperimentalDataFile.readPMFX(file) : ExperimentalDataFile.readPMF(file);
 
     return eds.stream().map(ExperimentalData::getDoc).map(FSMRUtils::processData)
         .collect(Collectors.toList());
@@ -227,9 +235,8 @@ class PrimaryModelWithDataConverter implements Converter {
 
   /** Obtain an OpenFSMR template per primary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<PrimaryModelWData> pms =
-        file.getName().endsWith(".pmfx") ? PrimaryModelWDataFile.readPMFX(file)
-            : PrimaryModelWDataFile.readPMF(file);
+    List<PrimaryModelWData> pms = file.getName().endsWith(".pmfx")
+        ? PrimaryModelWDataFile.readPMFX(file) : PrimaryModelWDataFile.readPMF(file);
 
     return pms.stream().map(PrimaryModelWData::getModelDoc)
         .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
@@ -241,9 +248,8 @@ class PrimaryModelWithoutDataConverter implements Converter {
 
   /** Obtain an OpenFSMR template per primary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<PrimaryModelWOData> pms =
-        file.getName().endsWith(".pmfx") ? PrimaryModelWODataFile.readPMFX(file)
-            : PrimaryModelWODataFile.readPMF(file);
+    List<PrimaryModelWOData> pms = file.getName().endsWith(".pmfx")
+        ? PrimaryModelWODataFile.readPMFX(file) : PrimaryModelWODataFile.readPMF(file);
 
     return pms.stream().map(PrimaryModelWOData::getDoc)
         .map(FSMRUtils::processModelWithMicrobialData).collect(Collectors.toList());
@@ -255,9 +261,8 @@ class TwoStepSecondaryModelConverter implements Converter {
 
   /** Obtain an OpenFSMR template per secondary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<TwoStepSecondaryModel> sms =
-        file.getName().endsWith(".pmfx") ? TwoStepSecondaryModelFile.readPMFX(file)
-            : TwoStepSecondaryModelFile.readPMF(file);
+    List<TwoStepSecondaryModel> sms = file.getName().endsWith(".pmfx")
+        ? TwoStepSecondaryModelFile.readPMFX(file) : TwoStepSecondaryModelFile.readPMF(file);
 
     return sms.stream().map(FSMRUtils::processTwoStepSecondaryModel).collect(Collectors.toList());
   }
@@ -268,9 +273,8 @@ class OneStepSecondaryModelConverter implements Converter {
 
   /** Obtain an OpenFSMR template per secondary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<OneStepSecondaryModel> sms =
-        file.getName().endsWith(".pmfx") ? OneStepSecondaryModelFile.readPMFX(file)
-            : OneStepSecondaryModelFile.readPMF(file);
+    List<OneStepSecondaryModel> sms = file.getName().endsWith(".pmfx")
+        ? OneStepSecondaryModelFile.readPMFX(file) : OneStepSecondaryModelFile.readPMF(file);
 
     return sms.stream().map(FSMRUtils::processOneStepSecondaryModel).collect(Collectors.toList());
   }
@@ -281,9 +285,8 @@ class ManualSecondaryModelConverter implements Converter {
 
   /** Obtain an OpenFSMR template per secondary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<ManualSecondaryModel> sms =
-        file.getName().endsWith(".pmfx") ? ManualSecondaryModelFile.readPMFX(file)
-            : ManualSecondaryModelFile.readPMF(file);
+    List<ManualSecondaryModel> sms = file.getName().endsWith(".pmfx")
+        ? ManualSecondaryModelFile.readPMFX(file) : ManualSecondaryModelFile.readPMF(file);
 
     return sms.stream().map(FSMRUtils::processManualSecondaryModel).collect(Collectors.toList());
   }
@@ -294,9 +297,8 @@ class TwoStepTertiaryModelConverter implements Converter {
 
   /** Obtain an OpenFSMR template per tertiary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<TwoStepTertiaryModel> tms =
-        file.getName().endsWith(".pmfx") ? TwoStepTertiaryModelFile.readPMFX(file)
-            : TwoStepTertiaryModelFile.readPMF(file);
+    List<TwoStepTertiaryModel> tms = file.getName().endsWith(".pmfx")
+        ? TwoStepTertiaryModelFile.readPMFX(file) : TwoStepTertiaryModelFile.readPMF(file);
 
     return tms.stream().map(FSMRUtils::processTwoStepTertiaryModel).collect(Collectors.toList());
   }
@@ -307,9 +309,8 @@ class OneStepTertiaryModelConverter implements Converter {
 
   /** Obtain an OpenFSMR template per tertiary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<OneStepTertiaryModel> tms =
-        file.getName().endsWith(".pmfx") ? OneStepTertiaryModelFile.readPMFX(file)
-            : OneStepTertiaryModelFile.readPMF(file);
+    List<OneStepTertiaryModel> tms = file.getName().endsWith(".pmfx")
+        ? OneStepTertiaryModelFile.readPMFX(file) : OneStepTertiaryModelFile.readPMF(file);
 
     return tms.stream().map(FSMRUtils::processOneStepTertiaryModel).collect(Collectors.toList());
   }
@@ -320,9 +321,8 @@ class ManualTertiaryModelConverter implements Converter {
 
   /** Obtain an OpenFSMR template per tertiary model. */
   public List<FSMRTemplate> convert(final File file) throws Exception {
-    List<ManualTertiaryModel> tms =
-        file.getName().endsWith(".pmfx") ? ManualTertiaryModelFile.readPMFX(file)
-            : ManualTertiaryModelFile.readPMF(file);
+    List<ManualTertiaryModel> tms = file.getName().endsWith(".pmfx")
+        ? ManualTertiaryModelFile.readPMFX(file) : ManualTertiaryModelFile.readPMF(file);
 
     return tms.stream().map(FSMRUtils::processManualTertiaryModel).collect(Collectors.toList());
   }

@@ -124,7 +124,7 @@ class FskxReaderNodeModel extends NodeModel {
 		FskPortObject portObj = new FskPortObject();
 
 		File archiveFile = KnimeUtils.getFile(filename.getStringValue());
-		try (CombineArchive archive = new CombineArchive(archiveFile)) {
+		try (CombineArchive archive = new CombineArchive(archiveFile, true)) {
 			// Gets annotation
 			RMetaDataNode node = new RMetaDataNode(archive.getDescriptions().get(0).getXmlDescription());
 

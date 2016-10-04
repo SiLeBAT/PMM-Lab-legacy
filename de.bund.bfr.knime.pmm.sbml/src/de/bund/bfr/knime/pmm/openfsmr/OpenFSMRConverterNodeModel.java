@@ -131,7 +131,7 @@ public class OpenFSMRConverterNodeModel extends NodeModel {
 
       ModelType modelType;
 
-      try (CombineArchive ca = new CombineArchive(file)) {
+      try (CombineArchive ca = new CombineArchive(file, true)) {
         MetaDataObject mdo = ca.getDescriptions().get(0);
         Element metaParent = mdo.getXmlDescription();
         PMFMetadataNode pmfMetadataNode = new PMFMetadataNode(metaParent);

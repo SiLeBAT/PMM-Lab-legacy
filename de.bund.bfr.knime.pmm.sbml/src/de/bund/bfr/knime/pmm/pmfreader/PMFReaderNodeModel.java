@@ -135,7 +135,7 @@ public class PMFReaderNodeModel extends NodeModel {
 
     // a) Open archive
     File file = KnimeUtils.getFile(filename.getStringValue());
-    CombineArchive ca = new CombineArchive(file);
+    CombineArchive ca = new CombineArchive(file, true);
 
     // b) Get annotation
     MetaDataObject mdo = ca.getDescriptions().get(0);

@@ -108,7 +108,7 @@ class FskxWriterNodeModel extends NodeModel {
 		}
 
 		// try to create CombineArchive
-		try (CombineArchive archive = new CombineArchive(new File(filePath.getStringValue()))) {
+		try (CombineArchive archive = new CombineArchive(new File(filePath.getStringValue()), true)) {
 
 			RMetaDataNode metaDataNode = new RMetaDataNode();
 			URI rUri = RUri.createURI();

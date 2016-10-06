@@ -25,9 +25,8 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -210,19 +209,17 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// Add independent variables values from parameters script
 		if (!Strings.isNullOrEmpty(portObj.param)) {
-			String values = "";
+			List<String> varList = new ArrayList<>(0);
 			for (String line : portObj.param.split("\\r?\\n")) {
 				line = line.trim();
 				if (line.startsWith("#"))
 					continue;
-				if (line.indexOf("<-") != -1) {
-//					String[] tokens = line.split("<-");
-//					String variableName = tokens[0].trim();
-//					String variableValue = tokens[1].trim();
-					values += line + "\n";
+				if (line.indexOf("<-") != -1 || line.indexOf("=") !=  -1) {
+					varList.add(line);
 				}
 			}
-//			String values = indepValues.values().stream().collect(Collectors.joining("||"));
+			String values = varList.stream().collect(Collectors.joining("||"));
+			
 			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
 		}
 

@@ -209,17 +209,19 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// Add independent variables values from parameters script
 		if (!Strings.isNullOrEmpty(portObj.param)) {
-			List<String> varList = new ArrayList<>(0);
+			List<String> varList = new ArrayList<>();
 			for (String line : portObj.param.split("\\r?\\n")) {
 				line = line.trim();
 				if (line.startsWith("#"))
 					continue;
-				if (line.indexOf("<-") != -1 || line.indexOf("=") !=  -1) {
-					varList.add(line);
+				if (line.indexOf("<-") != -1) {
+					String[] tokens = line.split("<-");
+					String varValue = tokens[1].trim();
+					varList.add(varValue);
 				}
 			}
 			String values = varList.stream().collect(Collectors.joining("||"));
-			
+
 			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
 		}
 

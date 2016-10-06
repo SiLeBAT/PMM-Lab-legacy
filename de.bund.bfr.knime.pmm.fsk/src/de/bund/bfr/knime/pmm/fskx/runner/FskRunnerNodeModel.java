@@ -127,8 +127,20 @@ class FskRunnerNodeModel extends NodeModel {
 					DataRow dataRow = iterator.next();
 					iterator.close();
 					
+					// Gets independent variables and their values
+					StringCell varCell = (StringCell) dataRow.getCell(FskMetaDataTuple.Key.indepvars.ordinal());
+					String[] vars = varCell.getStringValue().split("\\|\\|");
+					
 					StringCell valuesCell = (StringCell) dataRow.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal());
-					fskObj.param = valuesCell.getStringValue().replaceAll("\\|\\|", "\n");
+					String[] values = valuesCell.getStringValue().split("\\|\\|");
+					
+					if (vars != null && values != null && vars.length == values.length) {
+						StringBuilder sb = new StringBuilder();
+						for (int i = 0; i < vars.length; i++) {
+							sb.append(vars[i] + " <- " + values[i] + "\n");
+						}
+						fskObj.param = sb.toString();
+					}
 				}
 			}
 		}

@@ -25,7 +25,9 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,6 +62,8 @@ import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.util.filters.Filter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
+
+import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
@@ -167,6 +171,7 @@ class FskxReaderNodeModel extends NodeModel {
 
 					SBMLDocument doc = new SBMLReader().readSBML(f);
 					portObj.template = processMetadata(doc);
+
 				} catch (IOException | XMLStreamException e) {
 					LOGGER.error("Metadata document could not be read: " + entry.getFileName());
 				}
@@ -201,7 +206,27 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// Meta data port
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(metadataSpec);
-		fsmrContainer.addRowToTable(new FskMetaDataTuple(portObj.template));
+		FskMetaDataTuple metaDataTuple = new FskMetaDataTuple(portObj.template);
+
+		// Add independent variables values from parameters script
+		if (!Strings.isNullOrEmpty(portObj.param)) {
+			String values = "";
+			for (String line : portObj.param.split("\\r?\\n")) {
+				line = line.trim();
+				if (line.startsWith("#"))
+					continue;
+				if (line.indexOf("<-") != -1) {
+//					String[] tokens = line.split("<-");
+//					String variableName = tokens[0].trim();
+//					String variableValue = tokens[1].trim();
+					values += line + "\n";
+				}
+			}
+//			String values = indepValues.values().stream().collect(Collectors.joining("||"));
+			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
+		}
+
+		fsmrContainer.addRowToTable(metaDataTuple);
 		fsmrContainer.close();
 
 		RPortObject rObj = new RPortObject(portObj.workspace);

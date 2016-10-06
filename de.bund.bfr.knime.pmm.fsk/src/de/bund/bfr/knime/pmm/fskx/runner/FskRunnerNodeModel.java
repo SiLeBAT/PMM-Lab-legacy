@@ -126,20 +126,24 @@ class FskRunnerNodeModel extends NodeModel {
 				try (CloseableRowIterator iterator = metadataTable.iterator()) {
 					DataRow dataRow = iterator.next();
 					iterator.close();
-					fskObj.template = tuple2Template(dataRow);
-
-					// Replace with the default values with the new metadata
-					if (fskObj.template.independentVariables != null && fskObj.template.independentVariables.length > 0
-							&& fskObj.template.independentVariableValues != null
-							&& fskObj.template.independentVariableValues.length > 0) {
-						StringBuilder sb = new StringBuilder();
-						for (int i = 0; i < fskObj.template.independentVariables.length; i++) {
-							String var = fskObj.template.independentVariables[i];
-							String value = fskObj.template.independentVariableUnits[i];
-							sb.append(var + " <- " + value + "\n");
-						}
-						fskObj.param = sb.toString();
-					}
+					
+					
+					fskObj.param  = ((StringCell)dataRow.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal())).getStringValue();
+					
+//					fskObj.template = tuple2Template(dataRow);
+//
+//					// Replace with the default values with the new metadata
+//					if (fskObj.template.independentVariables != null && fskObj.template.independentVariables.length > 0
+//							&& fskObj.template.independentVariableValues != null
+//							&& fskObj.template.independentVariableValues.length > 0) {
+//						StringBuilder sb = new StringBuilder();
+//						for (int i = 0; i < fskObj.template.independentVariables.length; i++) {
+//							String var = fskObj.template.independentVariables[i];
+//							String value = fskObj.template.independentVariableUnits[i];
+//							sb.append(var + " <- " + value + "\n");
+//						}
+//						fskObj.param = sb.toString();
+//					}
 				}
 			}
 		}

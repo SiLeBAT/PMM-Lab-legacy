@@ -116,6 +116,10 @@ public class FskMetaDataTuple implements DataRow {
 
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
+	
+	public void setCell(int key, String value) {
+		cell[key] = new StringCell(value);
+	}
 
 	// --- DataRow methods ---
 

@@ -25,8 +25,10 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -208,21 +210,44 @@ class FskxReaderNodeModel extends NodeModel {
 		FskMetaDataTuple metaDataTuple = new FskMetaDataTuple(portObj.template);
 
 		// Add independent variables values from parameters script
+		// if (!Strings.isNullOrEmpty(portObj.param)) {
+		// List<String> varList = new ArrayList<>();
+		// for (String line : portObj.param.split("\\r?\\n")) {
+		// line = line.trim();
+		// if (line.startsWith("#"))
+		// continue;
+		// if (line.indexOf("<-") != -1) {
+		// String[] tokens = line.split("<-");
+		// String varValue = tokens[1].trim();
+		// varList.add(varValue);
+		// }
+		// }
+		// String values = varList.stream().collect(Collectors.joining("||"));
+		//
+		// metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(),
+		// values);
+		// }
+
 		if (!Strings.isNullOrEmpty(portObj.param)) {
-			List<String> varList = new ArrayList<>();
+			Map<String, String> vars = new HashMap<>();
 			for (String line : portObj.param.split("\\r?\\n")) {
 				line = line.trim();
+
+				// Skips comments
 				if (line.startsWith("#"))
 					continue;
-				if (line.indexOf("<-") != -1) {
+
+				if (line.contains("<-")) {
 					String[] tokens = line.split("<-");
+					String varName = tokens[0].trim();
 					String varValue = tokens[1].trim();
-					varList.add(varValue);
+					vars.put(varName, varValue);
 				}
 			}
-			String values = varList.stream().collect(Collectors.joining("||"));
 
-			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
+			String sortedValues = Arrays.stream(portObj.template.independentVariables).map(String::trim)
+					.map(vars::get).collect(Collectors.joining("||"));
+			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), sortedValues);
 		}
 
 		fsmrContainer.addRowToTable(metaDataTuple);

@@ -71,6 +71,7 @@ import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
+import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
 import de.bund.bfr.pmfml.file.uri.UriFactory;
@@ -223,6 +224,14 @@ class FskxReaderNodeModel extends NodeModel {
 			String values = varList.stream().collect(Collectors.joining("||"));
 
 			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
+		}
+		
+		// Validate model
+		try (RController controller = new RController()) {
+			String fullScript = portObj.param + "\n" + portObj.model;
+			controller.eval(fullScript);
+		} catch (RException e) {
+			throw new RException("Input model is not valid", e);
 		}
 
 		fsmrContainer.addRowToTable(metaDataTuple);

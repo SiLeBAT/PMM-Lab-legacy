@@ -2,7 +2,6 @@ package de.bund.bfr.knime.pmm.fskx.editor;
 
 import java.util.Objects;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.js.core.JSONViewContent;
@@ -10,40 +9,11 @@ import org.knime.js.core.JSONViewContent;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple.Key;
+
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class FskMetadataEditorViewValue extends JSONViewContent {
-
-	private enum Key {
-		model_name,
-		model_id,
-		model_link,
-		organism,
-		organism_details,
-		matrix,
-		matrix_details,
-		contact,
-		reference_desc,
-		reference_desc_link,
-		created_date,
-		modified_date,
-		rights,
-		notes,
-		curated,
-		model_type,
-		model_subject,
-		food_process,
-		dep_var,
-		dep_var_unit,
-		dep_var_min,
-		dep_var_max,
-		indep_vars,
-		indep_var_units,
-		indep_var_mins,
-		indep_var_maxs,
-		indep_var_values,
-		has_data
-	}
 
 	String modelName;
 	String modelId;
@@ -79,72 +49,72 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
-		settings.addString(Key.model_name.name(), modelName);
-		settings.addString(Key.model_id.name(), modelId);
+		settings.addString(Key.name.name(), modelName);
+		settings.addString(Key.id.name(), modelId);
 		settings.addString(Key.model_link.name(), modelLink);
-		settings.addString(Key.organism.name(), organism);
-		settings.addString(Key.organism_details.name(), organismDetails);
+		settings.addString(Key.species.name(), organism);
+		settings.addString(Key.species_details.name(), organismDetails);
 		settings.addString(Key.matrix.name(), matrix);
 		settings.addString(Key.matrix_details.name(), matrixDetails);
 		settings.addString(Key.contact.name(), contact);
-		settings.addString(Key.reference_desc.name(), referenceDescription);
-		settings.addString(Key.reference_desc_link.name(), referenceDescriptionLink);
+		settings.addString(Key.reference_description.name(), referenceDescription);
+		settings.addString(Key.reference_description_link.name(), referenceDescriptionLink);
 		settings.addString(Key.created_date.name(), createdDate);
 		settings.addString(Key.modified_date.name(), modifiedDate);
 		settings.addString(Key.rights.name(), rights);
 		settings.addString(Key.notes.name(), notes);
-		settings.addBoolean(Key.curated.name(), curated);
+		settings.addBoolean(Key.curation_status.name(), curated);
 		settings.addString(Key.model_type.name(), modelType);
-		settings.addString(Key.model_subject.name(), modelSubject);
+		settings.addString(Key.subject.name(), modelSubject);
 		settings.addString(Key.food_process.name(), foodProcess);
 
-		settings.addString(Key.dep_var.name(), dependentVariable);
-		settings.addString(Key.dep_var_unit.name(), dependentVariableUnit);
-		settings.addDouble(Key.dep_var_min.name(), dependentVariableMin);
-		settings.addDouble(Key.dep_var_max.name(), dependentVariableMax);
+		settings.addString(Key.depvar.name(), dependentVariable);
+		settings.addString(Key.depvar_unit.name(), dependentVariableUnit);
+		settings.addDouble(Key.depvar_min.name(), dependentVariableMin);
+		settings.addDouble(Key.depvar_max.name(), dependentVariableMax);
 
-		settings.addStringArray(Key.indep_vars.name(), independentVariables);
-		settings.addStringArray(Key.indep_var_units.name(), independentVariableUnits);
-		settings.addDoubleArray(Key.indep_var_mins.name(), independentVariableMins);
-		settings.addDoubleArray(Key.indep_var_maxs.name(), independentVariableMaxs);
-		settings.addDoubleArray(Key.indep_var_values.name(), independentVariableValues);
+		settings.addStringArray(Key.indepvars.name(), independentVariables);
+		settings.addStringArray(Key.indepvars_units.name(), independentVariableUnits);
+		settings.addDoubleArray(Key.indepvars_mins.name(), independentVariableMins);
+		settings.addDoubleArray(Key.indepvars_maxs.name(), independentVariableMaxs);
+		settings.addDoubleArray(Key.indepvars_values.name(), independentVariableValues);
 
 		settings.addBoolean(Key.has_data.name(), hasData);
 	}
 
 	@Override
-	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		modelName = settings.getString(Key.model_name.name());
-		modelId = settings.getString(Key.model_id.name());
-		modelLink = settings.getString(Key.model_link.name());
-		organism = settings.getString(Key.organism.name());
-		organismDetails = settings.getString(Key.organism_details.name());
-		matrix = settings.getString(Key.matrix.name());
-		matrixDetails = settings.getString(Key.matrix_details.name());
-		contact = settings.getString(Key.contact.name());
-		referenceDescription = settings.getString(Key.reference_desc.name());
-		referenceDescriptionLink = settings.getString(Key.reference_desc_link.name());
-		createdDate = settings.getString(Key.created_date.name());
-		modifiedDate = settings.getString(Key.modified_date.name());
-		rights = settings.getString(Key.rights.name());
-		notes = settings.getString(Key.notes.name());
-		curated = settings.getBoolean(Key.curated.name());
-		modelType = settings.getString(Key.model_type.name());
-		modelSubject = settings.getString(Key.model_subject.name());
-		foodProcess = settings.getString(Key.food_process.name());
+	public void loadFromNodeSettings(NodeSettingsRO settings) {
+		modelName = settings.getString(Key.name.name(), "");
+		modelId = settings.getString(Key.id.name(), "");
+		modelLink = settings.getString(Key.model_link.name(), "");
+		organism = settings.getString(Key.species.name(), "");
+		organismDetails = settings.getString(Key.species_details.name(), "");
+		matrix = settings.getString(Key.matrix.name(), "");
+		matrixDetails = settings.getString(Key.matrix_details.name(), "");
+		contact = settings.getString(Key.contact.name(), "");
+		referenceDescription = settings.getString(Key.reference_description.name(), "");
+		referenceDescriptionLink = settings.getString(Key.reference_description_link.name(), "");
+		createdDate = settings.getString(Key.created_date.name(), "");
+		modifiedDate = settings.getString(Key.modified_date.name(), "");
+		rights = settings.getString(Key.rights.name(), "");
+		notes = settings.getString(Key.notes.name(), "");
+		curated = settings.getBoolean(Key.curation_status.name(), false);
+		modelType = settings.getString(Key.model_type.name(), "");
+		modelSubject = settings.getString(Key.subject.name(), "");
+		foodProcess = settings.getString(Key.food_process.name(), "");
 
-		dependentVariable = settings.getString(Key.dep_var.name());
-		dependentVariableUnit = settings.getString(Key.dep_var_unit.name());
-		dependentVariableMin = settings.getDouble(Key.dep_var_min.name());
-		dependentVariableMax = settings.getDouble(Key.dep_var_max.name());
+		dependentVariable = settings.getString(Key.depvar.name(), "");
+		dependentVariableUnit = settings.getString(Key.depvar_unit.name(), "");
+		dependentVariableMin = settings.getDouble(Key.depvar_min.name(), Double.NaN);
+		dependentVariableMax = settings.getDouble(Key.depvar_max.name(), Double.NaN);
 
-		independentVariables = settings.getStringArray(Key.indep_vars.name());
-		independentVariableUnits = settings.getStringArray(Key.indep_var_units.name());
-		independentVariableMins = settings.getDoubleArray(Key.indep_var_mins.name());
-		independentVariableMaxs = settings.getDoubleArray(Key.indep_var_maxs.name());
-		independentVariableValues = settings.getDoubleArray(Key.indep_var_values.name());
+		independentVariables = settings.getStringArray(Key.indepvars.name(), "");
+		independentVariableUnits = settings.getStringArray(Key.indepvars_units.name(), "");
+		independentVariableMins = settings.getDoubleArray(Key.indepvars_mins.name(), null);
+		independentVariableMaxs = settings.getDoubleArray(Key.indepvars_maxs.name(), null);
+		independentVariableValues = settings.getDoubleArray(Key.indepvars_values.name(), null);
 
-		hasData = settings.getBoolean(Key.has_data.name());
+		hasData = settings.getBoolean(Key.has_data.name(), false);
 	}
 
 	@Override

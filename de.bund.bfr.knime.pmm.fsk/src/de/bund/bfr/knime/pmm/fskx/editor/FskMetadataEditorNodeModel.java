@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.fskx.editor;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.net.URL;
 
 import org.knime.core.node.ExecutionContext;
@@ -11,6 +13,8 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.node.AbstractSVGWizardNodeModel;
+
+import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
@@ -110,38 +114,8 @@ public final class FskMetadataEditorNodeModel
 		}
 
 		if (originalMetaData == null) {
-			viewValue.modelName = inObj.template.modelName;
-			viewValue.modelId = inObj.template.modelId;
-			viewValue.modelLink = inObj.template.modelLink.toString();
-			viewValue.organism = inObj.template.organism;
-			viewValue.organismDetails = inObj.template.organismDetails;
-			viewValue.matrix = inObj.template.matrix;
-			viewValue.matrixDetails = inObj.template.matrixDetails;
-			viewValue.contact = inObj.template.contact;
-			viewValue.referenceDescription = inObj.template.referenceDescription;
-			viewValue.referenceDescriptionLink = inObj.template.referenceDescriptionLink.toString();
-			viewValue.createdDate = inObj.template.createdDate == null ? ""
-					: FskMetaData.dateFormat.format(inObj.template.createdDate);
-			viewValue.modifiedDate = inObj.template.modifiedDate == null ? ""
-					: FskMetaData.dateFormat.format(inObj.template.modifiedDate);
-			viewValue.rights = inObj.template.rights;
-			viewValue.notes = inObj.template.notes;
-			viewValue.curated = inObj.template.curated;
-			viewValue.modelType = inObj.template.type.toString();
-			viewValue.modelSubject = inObj.template.subject.toString();
-			viewValue.foodProcess = inObj.template.foodProcess;
-			viewValue.dependentVariable = inObj.template.dependentVariable;
-			viewValue.dependentVariableUnit = inObj.template.dependentVariableUnit;
-			viewValue.dependentVariableMin = inObj.template.dependentVariableMin;
-			viewValue.dependentVariableMax = inObj.template.dependentVariableMax;
-			viewValue.independentVariables = inObj.template.independentVariables;
-			viewValue.independentVariableUnits = inObj.template.independentVariableUnits;
-			viewValue.independentVariableMins = inObj.template.independentVariableMins;
-			viewValue.independentVariableMaxs = inObj.template.independentVariableMaxs;
-			viewValue.independentVariableValues = inObj.template.independentVariableValues;
-			setViewValue(viewValue);
-			
 			originalMetaData = inObj.template;
+			performReset();
 		}
 
 		// Create new FskMetaData with changes
@@ -149,21 +123,22 @@ public final class FskMetadataEditorNodeModel
 		FskMetaData metadata = new FskMetaData();
 		metadata.modelName = viewValue.modelName;
 		metadata.modelId = viewValue.modelId;
-		metadata.modelLink = new URL(viewValue.modelLink);
+		metadata.modelLink = Strings.isNullOrEmpty(viewValue.modelLink) ? null : new URL(viewValue.modelLink);
 		metadata.organism = viewValue.organism;
 		metadata.organismDetails = viewValue.organismDetails;
 		metadata.matrix = viewValue.matrix;
 		metadata.matrixDetails = viewValue.matrixDetails;
 		metadata.contact = viewValue.contact;
 		metadata.referenceDescription = viewValue.referenceDescription;
-		metadata.referenceDescriptionLink = new URL(viewValue.referenceDescriptionLink);
+		metadata.referenceDescriptionLink = Strings.isNullOrEmpty(viewValue.referenceDescriptionLink) ? null
+				: new URL(viewValue.referenceDescriptionLink);
 		metadata.createdDate = FskMetaData.dateFormat.parse(viewValue.createdDate);
 		metadata.modifiedDate = FskMetaData.dateFormat.parse(viewValue.modifiedDate);
 		metadata.rights = viewValue.rights;
 		metadata.notes = viewValue.notes;
 		metadata.curated = viewValue.curated;
-		metadata.type = ModelType.valueOf(viewValue.modelType);
-		metadata.subject = ModelClass.valueOf(viewValue.modelSubject);
+		metadata.type = Strings.isNullOrEmpty(viewValue.modelType) ? null : ModelType.valueOf(viewValue.modelType);
+		metadata.subject = Strings.isNullOrEmpty(viewValue.modelSubject) ? null : ModelClass.valueOf(viewValue.modelSubject);
 		metadata.foodProcess = viewValue.foodProcess;
 		metadata.dependentVariable = viewValue.dependentVariable;
 		metadata.dependentVariableUnit = viewValue.dependentVariableUnit;
@@ -190,17 +165,18 @@ public final class FskMetadataEditorNodeModel
 	protected void performReset() {
 		if (originalMetaData != null) {
 			FskMetadataEditorViewValue viewValue = getViewValue();
-			
+
 			viewValue.modelName = originalMetaData.modelName;
 			viewValue.modelId = originalMetaData.modelId;
-			viewValue.modelLink = originalMetaData.modelLink.toString();
+			viewValue.modelLink = originalMetaData.modelLink == null ? "" : originalMetaData.modelLink.toString();
 			viewValue.organism = originalMetaData.organism;
 			viewValue.organismDetails = originalMetaData.organismDetails;
 			viewValue.matrix = originalMetaData.matrix;
 			viewValue.matrixDetails = originalMetaData.matrixDetails;
 			viewValue.contact = originalMetaData.contact;
 			viewValue.referenceDescription = originalMetaData.referenceDescription;
-			viewValue.referenceDescriptionLink = originalMetaData.referenceDescriptionLink.toString();
+			viewValue.referenceDescriptionLink = originalMetaData.referenceDescriptionLink == null ? ""
+					: originalMetaData.referenceDescriptionLink.toString();
 			viewValue.createdDate = originalMetaData.createdDate == null ? ""
 					: FskMetaData.dateFormat.format(originalMetaData.createdDate);
 			viewValue.modifiedDate = originalMetaData.modifiedDate == null ? ""
@@ -208,7 +184,7 @@ public final class FskMetadataEditorNodeModel
 			viewValue.rights = originalMetaData.rights;
 			viewValue.notes = originalMetaData.notes;
 			viewValue.curated = originalMetaData.curated;
-			viewValue.modelType = originalMetaData.type.toString();
+			viewValue.modelType = originalMetaData.type == null ? "" : originalMetaData.type.toString();
 			viewValue.modelSubject = originalMetaData.subject.toString();
 			viewValue.foodProcess = originalMetaData.foodProcess;
 			viewValue.dependentVariable = originalMetaData.dependentVariable;
@@ -220,7 +196,7 @@ public final class FskMetadataEditorNodeModel
 			viewValue.independentVariableMins = originalMetaData.independentVariableMins;
 			viewValue.independentVariableMaxs = originalMetaData.independentVariableMaxs;
 			viewValue.independentVariableValues = originalMetaData.independentVariableValues;
-			
+
 			setViewValue(viewValue);
 		}
 	}

@@ -16,7 +16,11 @@ Require-Bundle: org.knime.base,
  de.bund.bfr.formats,
  de.bund.bfr.knime.pmm.common,
  de.bund.bfr.knime.pmm.sbml,
- org.knime.r
+ org.knime.r,
+ org.knime.js.core,
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR

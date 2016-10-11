@@ -22,13 +22,18 @@
 		deprecated="false"
 		factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"
 		id="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"/>
- <node
+	<node
        category-path="/pmmlab/editors"
        deprecated="false"
        factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory"
        id="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory">
- </node>
-	<!-- Extended KNIME R nodes -->
+	</node>
+	<node
+	   category-path="/pmmlab/editors"
+	   deprecated="false"
+	   factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorNodeFactory"
+	   id="de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorNodeFactory">
+	</node>
 </extension>
 
 <extension point="org.knime.workbench.repository.metanode">
@@ -52,14 +57,72 @@
 		name="BfR R settings"/>
 </extension>
 
-   <extension point="org.knime.core.PortType">
-      <portType
-            color="588C7E"
-            hidden="false"
-            name="FSK object"
-            objectClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObject"
-            objectSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObject$Serializer"
-            specClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec"
-            specSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec$Serializer"/>
-   </extension>
+<extension point="org.knime.core.PortType">
+  <portType
+		color="588C7E"
+		hidden="false"
+		name="FSK object"
+		objectClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObject"
+		objectSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObject$Serializer"
+		specClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec"
+		specSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec$Serializer"/>
+</extension>
+<extension
+      point="org.knime.js.core.javascriptComponents">
+   <javascriptComponent
+         getComponentValue-method-name="getComponentValue"
+         implementationBundleID="de.bund.bfr.knime.pmm.js.fsk.editor.metadata.bundle"
+         init-method-name="init"
+         javascriptComponentID="de.bund.bfr.knime.pmm.js.fsk.editor.metadata"
+         name="Fsk Metadata Editor"
+         namespace="fsk_metadata_editor"
+         setValidationError-method-name="setValidationError"
+         validate-method-name="validate">
+   </javascriptComponent>
+</extension>
+<extension
+      point="org.knime.js.core.webResources">
+   <webResourceBundle
+         debug="true"
+         name="jQuery"
+         usesDefine="false"
+         version="1.0.0"
+         webResourceBundleID="de.bund.bfr.knime.pmm.fsk.js.jquery">
+      <webResource
+            relativePathSource="js-src/jquery.js"
+            relativePathTarget="de/bund/bfr/knime/pmm/fsk/js/jquery.js">
+      </webResource>
+      <importResource
+            relativePath="de/bund/bfr/knime/pmm/fsk/js/jquery.js"
+            type="JAVASCRIPT">
+      </importResource>
+   </webResourceBundle>
+   <webResourceBundle
+         debug="true"
+         name="jQuery UI"
+         usesDefine="false"
+         version="1.0.0"
+         webResourceBundleID="de.bund.bfr.knime.pmm.fsk.js.jquery-ui">
+      <webResource
+            relativePathSource="js-src/jquery-ui.js"
+            relativePathTarget="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.js">
+      </webResource>
+      <importResource
+            relativePath="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.js"
+            type="JAVASCRIPT">
+      </importResource>
+      <webResource
+            relativePathSource="js-src/jquery-ui.css"
+            relativePathTarget="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.css">
+      </webResource>
+      <importResource
+            relativePath="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.css"
+            type="CSS">
+      </importResource>
+      <webDependency
+            webResourceBundleID="de.bund.bfr.knime.pmm.fsk.js.jquery">
+      </webDependency>
+   </webResourceBundle>
+</extension>
+
 </plugin>

@@ -210,17 +210,7 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// Add independent variables values from parameters script
 		if (!Strings.isNullOrEmpty(portObj.param)) {
-			List<String> varList = new ArrayList<>();
-			for (String line : portObj.param.split("\\r?\\n")) {
-				line = line.trim();
-				if (line.startsWith("#"))
-					continue;
-				if (line.indexOf("<-") != -1) {
-					String[] tokens = line.split("<-");
-					String varValue = tokens[1].trim();
-					varList.add(varValue);
-				}
-			}
+			List<String> varList = getValuesFromAssignments(portObj.param);
 			String values = varList.stream().collect(Collectors.joining("||"));
 
 			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
@@ -477,5 +467,84 @@ class FskxReaderNodeModel extends NodeModel {
 		template.hasData = false;
 
 		return template;
+	}
+	
+	private static List<String> getValuesFromAssignments(String paramScript) {
+		
+		/**
+		 * Parses an R command with the = assignment operator. E.g. x = value.
+		 */
+		class EqualsAssignment {
+			String value;
+			
+			public EqualsAssignment(String line) {
+				value = line.split("=")[1].trim();
+			}
+		}
+		
+		/**
+		 * Parses an R command with the <- assignment operator. E.g. x <- value
+		 */
+		class LeftAssignment {
+			String value;
+			
+			public LeftAssignment(String line) {
+				value = line.split("<-")[1].trim();
+			}
+		}
+		
+		/**
+		 * Parses an R command with the <<- scoping assignment operator. E.g. x <<- value
+		 */
+		class SuperLeftAssignment {
+			String value;
+			
+			public SuperLeftAssignment(String line) {
+				value = line.split("<<-")[1].trim();
+			}
+		}
+		
+		/**
+		 * Parses an R command with the -> assignment operator. E.g. value -> x
+		 */
+		class RightAssignment {
+			String value;
+			
+			public RightAssignment(String line) {
+				value = line.split("->")[0].trim();
+			}
+		}
+		
+		/**
+		 * Parses an R command with the ->> assignment operator. E.g. value ->> x
+		 */
+		class SuperRightAssignment {
+			String value;
+			
+			public SuperRightAssignment(String line) {
+				value = line.split("->>")[0].trim();
+			}
+		}
+		
+		List<String> varList = new ArrayList<>();
+		for (String line : paramScript.split("\\r?\\n")) {
+			line = line.trim();
+			if (line.startsWith("#"))
+				continue;
+			
+			if (line.indexOf("=") != -1) {
+				varList.add(new EqualsAssignment(line).value);
+			} else if (line.indexOf("<<-") != -1) {
+				varList.add(new SuperLeftAssignment(line).value);
+			} else if (line.indexOf("<-") != -1) {
+				varList.add(new LeftAssignment(line).value);
+			} else if (line.indexOf("->>") != -1) {
+				varList.add(new SuperRightAssignment(line).value);
+			} else if (line.indexOf("->") != -1) {
+				varList.add(new RightAssignment(line).value);
+			}
+		}
+		
+		return varList;
 	}
 }

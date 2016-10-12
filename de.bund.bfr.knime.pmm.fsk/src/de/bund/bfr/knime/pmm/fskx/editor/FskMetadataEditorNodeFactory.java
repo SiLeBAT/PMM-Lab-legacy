@@ -5,10 +5,8 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.wizard.WizardNodeFactoryExtension;
 
-public class FskMetadataEditorNodeFactory
-	extends NodeFactory<FskMetadataEditorNodeModel>
-	implements WizardNodeFactoryExtension<FskMetadataEditorNodeModel, FskMetadataEditorViewRepresentation,
-		FskMetadataEditorViewValue> {
+public class FskMetadataEditorNodeFactory extends NodeFactory<FskMetadataEditorNodeModel> implements
+		WizardNodeFactoryExtension<FskMetadataEditorNodeModel, FskMetadataEditorViewRepresentation, FskMetadataEditorViewValue> {
 
 	@Override
 	public FskMetadataEditorNodeModel createNodeModel() {
@@ -29,7 +27,7 @@ public class FskMetadataEditorNodeFactory
 	protected NodeDialogPane createNodeDialogPane() {
 		return null;
 	}
-	
+
 	@Override
 	protected boolean hasDialog() {
 		return false;

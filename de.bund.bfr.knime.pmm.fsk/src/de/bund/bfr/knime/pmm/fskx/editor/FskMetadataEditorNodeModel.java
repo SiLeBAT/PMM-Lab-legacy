@@ -1,7 +1,5 @@
 package de.bund.bfr.knime.pmm.fskx.editor;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.net.URL;
 
 import org.knime.core.node.ExecutionContext;
@@ -69,7 +67,7 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	public String getJavascriptObjectID() {
-		return "de.bund.bfr.knime.pmm.js.fsk.editor.metadata";
+		return "de.bund.bfr.knime.pmm.fskx.editor";
 	}
 
 	@Override

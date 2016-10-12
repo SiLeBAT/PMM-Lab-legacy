@@ -67,60 +67,48 @@
 		specClass="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec"
 		specSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec$Serializer"/>
 </extension>
+
 <extension
       point="org.knime.js.core.javascriptComponents">
    <javascriptComponent
          getComponentValue-method-name="getComponentValue"
-         implementationBundleID="de.bund.bfr.knime.pmm.js.fsk.editor.metadata.bundle"
+         implementationBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle"
          init-method-name="init"
-         javascriptComponentID="de.bund.bfr.knime.pmm.js.fsk.editor.metadata"
-         name="Fsk Metadata Editor"
-         namespace="fsk_metadata_editor"
-         setValidationError-method-name="setValidationError"
-         validate-method-name="validate">
+         javascriptComponentID="de.bund.bfr.knime.pmm.fskx.editor"
+         name="FSK Metadata Editor"
+         namespace="metadata_editor">
    </javascriptComponent>
 </extension>
+
 <extension
       point="org.knime.js.core.webResources">
    <webResourceBundle
          debug="true"
-         name="jQuery"
+         name="FSK Metadata Editor"
          usesDefine="false"
-         version="1.0.0"
-         webResourceBundleID="de.bund.bfr.knime.pmm.fsk.js.jquery">
+         version="0.0.1"
+         webResourceBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle">
       <webResource
-            relativePathSource="js-src/jquery.js"
-            relativePathTarget="de/bund/bfr/knime/pmm/fsk/js/jquery.js">
+            relativePathSource="js-src/de/bund/bfr/knime/pmm/fskx/editor/editor.js"
+            relativePathTarget="de/bund/bfr/knime/pmm/fskx/editor/editor.js">
       </webResource>
       <importResource
-            relativePath="de/bund/bfr/knime/pmm/fsk/js/jquery.js"
-            type="JAVASCRIPT">
-      </importResource>
-   </webResourceBundle>
-   <webResourceBundle
-         debug="true"
-         name="jQuery UI"
-         usesDefine="false"
-         version="1.0.0"
-         webResourceBundleID="de.bund.bfr.knime.pmm.fsk.js.jquery-ui">
-      <webResource
-            relativePathSource="js-src/jquery-ui.js"
-            relativePathTarget="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.js">
-      </webResource>
-      <importResource
-            relativePath="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.js"
+            relativePath="de/bund/bfr/knime/pmm/fskx/editor/editor.js"
             type="JAVASCRIPT">
       </importResource>
       <webResource
-            relativePathSource="js-src/jquery-ui.css"
-            relativePathTarget="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.css">
+      	relativePathSource="js-src/de/bund/bfr/knime/pmm/fskx/editor/editor.css"
+      	relativePathTarget="de/bund/bfr/knime/pmm/fskx/editor/editor.css">
       </webResource>
       <importResource
-            relativePath="de/bund/bfr/knime/pmm/fsk/js/jquery-ui.css"
-            type="CSS">
+      	relativePath="de/bund/bfr/knime/pmm/fskx/editor/editor.css"
+      	type="CSS">
       </importResource>
       <webDependency
-            webResourceBundleID="de.bund.bfr.knime.pmm.fsk.js.jquery">
+            webResourceBundleID="boostrap">
+      </webDependency>
+      <webDependency
+            webResourceBundleID="jquery">
       </webDependency>
    </webResourceBundle>
 </extension>

@@ -1,7 +1,11 @@
 package de.bund.bfr.knime.pmm.fskx.editor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.js.core.JSONViewContent;
@@ -31,18 +35,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 	String modelType;
 	String modelSubject;
 	String foodProcess;
-
-	String dependentVariable;
-	String dependentVariableUnit;
-	double dependentVariableMin = Double.NaN;
-	double dependentVariableMax = Double.NaN;
-
-	String[] independentVariables;
-	String[] independentVariableUnits;
-	double[] independentVariableMins;
-	double[] independentVariableMaxs;
-	double[] independentVariableValues;
-
+	List<Variable> variables;
 	boolean hasData;
 
 	@Override
@@ -66,22 +59,39 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		settings.addString(Key.subject.name(), modelSubject);
 		settings.addString(Key.food_process.name(), foodProcess);
 
-		settings.addString(Key.depvar.name(), dependentVariable);
-		settings.addString(Key.depvar_unit.name(), dependentVariableUnit);
-		settings.addDouble(Key.depvar_min.name(), dependentVariableMin);
-		settings.addDouble(Key.depvar_max.name(), dependentVariableMax);
+		Variable depVar = variables.stream().filter(v -> v.isDependent == true).findAny().get();
+		List<Variable> indepVars = variables.stream().filter(v -> v.isDependent == false).collect(Collectors.toList());
 
-		settings.addStringArray(Key.indepvars.name(), independentVariables);
-		settings.addStringArray(Key.indepvars_units.name(), independentVariableUnits);
-		settings.addDoubleArray(Key.indepvars_mins.name(), independentVariableMins);
-		settings.addDoubleArray(Key.indepvars_maxs.name(), independentVariableMaxs);
-		settings.addDoubleArray(Key.indepvars_values.name(), independentVariableValues);
+		settings.addString(Key.depvar.name(), depVar.name);
+		settings.addString(Key.depvar_unit.name(), depVar.unit);
+		settings.addDouble(Key.depvar_min.name(), depVar.min);
+		settings.addDouble(Key.depvar_max.name(), depVar.max);
+
+		String[] indepVarNames = new String[indepVars.size()];
+		String[] indepVarUnits = new String[indepVars.size()];
+		double[] indepVarMins = new double[indepVars.size()];
+		double[] indepVarMaxs = new double[indepVars.size()];
+		double[] indepVarValues = new double[indepVars.size()];
+
+		for (int i = 0; i < indepVars.size(); i++) {
+			indepVarNames[i] = indepVars.get(i).name;
+			indepVarUnits[i] = indepVars.get(i).unit;
+			indepVarMins[i] = indepVars.get(i).min;
+			indepVarMaxs[i] = indepVars.get(i).max;
+			indepVarValues[i] = indepVars.get(i).value;
+		}
+
+		settings.addStringArray(Key.indepvars.name(), indepVarNames);
+		settings.addStringArray(Key.indepvars_units.name(), indepVarUnits);
+		settings.addDoubleArray(Key.indepvars_mins.name(), indepVarMins);
+		settings.addDoubleArray(Key.indepvars_maxs.name(), indepVarMaxs);
+		settings.addDoubleArray(Key.indepvars_values.name(), indepVarValues);
 
 		settings.addBoolean(Key.has_data.name(), hasData);
 	}
 
 	@Override
-	public void loadFromNodeSettings(NodeSettingsRO settings) {
+	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
 		modelName = settings.getString(Key.name.name(), "");
 		modelId = settings.getString(Key.id.name(), "");
 		modelLink = settings.getString(Key.model_link.name(), "");
@@ -101,16 +111,35 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		modelSubject = settings.getString(Key.subject.name(), "");
 		foodProcess = settings.getString(Key.food_process.name(), "");
 
-		dependentVariable = settings.getString(Key.depvar.name(), "");
-		dependentVariableUnit = settings.getString(Key.depvar_unit.name(), "");
-		dependentVariableMin = settings.getDouble(Key.depvar_min.name(), Double.NaN);
-		dependentVariableMax = settings.getDouble(Key.depvar_max.name(), Double.NaN);
+		variables = new ArrayList<>();
 
-		independentVariables = settings.getStringArray(Key.indepvars.name(), "");
-		independentVariableUnits = settings.getStringArray(Key.indepvars_units.name(), "");
-		independentVariableMins = settings.getDoubleArray(Key.indepvars_mins.name(), null);
-		independentVariableMaxs = settings.getDoubleArray(Key.indepvars_maxs.name(), null);
-		independentVariableValues = settings.getDoubleArray(Key.indepvars_values.name(), null);
+		Variable depVar = new Variable();
+		depVar.name = settings.getString(Key.depvar.name(), "");
+		depVar.unit = settings.getString(Key.depvar_unit.name(), "");
+		depVar.min = settings.getDouble(Key.depvar_min.name(), Double.NaN);
+		depVar.max = settings.getDouble(Key.depvar_max.name(), Double.NaN);
+		depVar.isDependent = true;
+		variables.add(depVar);
+
+		String[] indepVarNames = settings.getStringArray(Key.indepvars.name());
+		String[] indepVarUnits = settings.getStringArray(Key.indepvars_units.name());
+		double[] indepVarMins = settings.getDoubleArray(Key.indepvars_mins.name());
+		double[] indepVarMaxs = settings.getDoubleArray(Key.indepvars_maxs.name());
+		double[] indepVarValues = settings.getDoubleArray(Key.indepvars_values.name());
+
+		for (int i = 0; i < indepVarNames.length; i++) {
+			Variable indepVar = new Variable();
+			indepVar.name = indepVarNames[i];
+			if (indepVarUnits != null)
+				indepVar.unit = indepVarUnits[i];
+			if (indepVarMins != null)
+				indepVar.min = indepVarMins[i];
+			if (indepVarMaxs != null)
+				indepVar.max = indepVarMaxs[i];
+			if (indepVarValues != null)
+				indepVar.value = indepVarValues[i];
+			variables.add(indepVar);
+		}
 
 		hasData = settings.getBoolean(Key.has_data.name(), false);
 	}
@@ -135,24 +164,28 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 				&& Objects.equals(rights, other.rights) && Objects.equals(notes, other.notes)
 				&& Objects.equals(curated, other.curated) && Objects.equals(modelType, other.modelType)
 				&& Objects.equals(modelSubject, other.modelSubject) && Objects.equals(foodProcess, other.foodProcess)
-				&& Objects.equals(dependentVariable, other.dependentVariable)
-				&& Objects.equals(dependentVariableUnit, other.dependentVariableUnit)
-				&& Objects.equals(dependentVariableMin, other.dependentVariableMin)
-				&& Objects.equals(dependentVariableMax, other.dependentVariableMax)
-				&& Objects.deepEquals(independentVariables, other.independentVariables)
-				&& Objects.deepEquals(independentVariableUnits, other.independentVariableUnits)
-				&& Objects.deepEquals(independentVariableMins, other.independentVariableMins)
-				&& Objects.deepEquals(independentVariableMaxs, other.independentVariableMaxs)
-				&& Objects.deepEquals(independentVariableValues, other.independentVariableValues)
-				&& Objects.equals(hasData, other.hasData);
+				&& Objects.equals(variables, other.variables) && Objects.equals(hasData, other.hasData);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(modelName, modelId, modelLink, organism, organismDetails, matrix, matrixDetails, contact,
 				referenceDescription, referenceDescriptionLink, createdDate, modifiedDate, rights, notes, curated,
-				modelType, modelSubject, foodProcess, dependentVariable, dependentVariableUnit, dependentVariableMin,
-				dependentVariableMax, independentVariables, independentVariableUnits, independentVariableMins,
-				independentVariableMaxs, independentVariableValues, hasData);
+				modelType, modelSubject, foodProcess, variables, hasData);
+	}
+
+	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+	static class Variable {
+		String name;
+		String unit;
+		double value;
+		double min;
+		double max;
+		boolean isDependent;
+
+		@Override
+		public String toString() {
+			return "Variable [" + name + "]";
+		}
 	}
 }

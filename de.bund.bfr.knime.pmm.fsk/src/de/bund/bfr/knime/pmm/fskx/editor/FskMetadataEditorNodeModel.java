@@ -1,6 +1,9 @@
 package de.bund.bfr.knime.pmm.fskx.editor;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -15,6 +18,7 @@ import org.knime.js.core.node.AbstractSVGWizardNodeModel;
 import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorViewValue.Variable;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
@@ -85,7 +89,7 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	public void saveCurrentValue(NodeSettingsWO content) {
-		// Nothing to do.
+		getViewValue().saveToNodeSettings(content);
 	}
 
 	@Override
@@ -136,17 +140,32 @@ public final class FskMetadataEditorNodeModel
 		metadata.notes = viewValue.notes;
 		metadata.curated = viewValue.curated;
 		metadata.type = Strings.isNullOrEmpty(viewValue.modelType) ? null : ModelType.valueOf(viewValue.modelType);
-		metadata.subject = Strings.isNullOrEmpty(viewValue.modelSubject) ? null : ModelClass.valueOf(viewValue.modelSubject);
+		metadata.subject = Strings.isNullOrEmpty(viewValue.modelSubject) ? null
+				: ModelClass.valueOf(viewValue.modelSubject);
 		metadata.foodProcess = viewValue.foodProcess;
-		metadata.dependentVariable = viewValue.dependentVariable;
-		metadata.dependentVariableUnit = viewValue.dependentVariableUnit;
-		metadata.dependentVariableMin = viewValue.dependentVariableMin;
-		metadata.dependentVariableMax = viewValue.dependentVariableMax;
-		metadata.independentVariables = viewValue.independentVariables;
-		metadata.independentVariableUnits = viewValue.independentVariableUnits;
-		metadata.independentVariableMins = viewValue.independentVariableMins;
-		metadata.independentVariableMaxs = viewValue.independentVariableMaxs;
-		metadata.independentVariableValues = viewValue.independentVariableValues;
+
+		Variable depVar = viewValue.variables.stream().filter(v -> v.isDependent == true).findAny().get();
+		List<Variable> indepVars = viewValue.variables.stream().filter(v -> !v.isDependent)
+				.collect(Collectors.toList());
+
+		metadata.dependentVariable = depVar.name;
+		metadata.dependentVariableUnit = depVar.unit;
+		metadata.dependentVariableMin = depVar.min;
+		metadata.dependentVariableMax = depVar.max;
+
+		metadata.independentVariables = new String[indepVars.size()];
+		metadata.independentVariableUnits = new String[indepVars.size()];
+		metadata.independentVariableMins = new double[indepVars.size()];
+		metadata.independentVariableMaxs = new double[indepVars.size()];
+		metadata.independentVariableValues = new double[indepVars.size()];
+
+		for (int i = 0; i < indepVars.size(); i++) {
+			metadata.independentVariables[i] = indepVars.get(i).name;
+			metadata.independentVariableUnits[i] = indepVars.get(i).unit;
+			metadata.independentVariableMins[i] = indepVars.get(i).min;
+			metadata.independentVariableMaxs[i] = indepVars.get(i).max;
+			metadata.independentVariableValues[i] = indepVars.get(i).value;
+		}
 		metadata.hasData = viewValue.hasData;
 
 		inObj.template = metadata;
@@ -185,15 +204,31 @@ public final class FskMetadataEditorNodeModel
 			viewValue.modelType = originalMetaData.type == null ? "" : originalMetaData.type.toString();
 			viewValue.modelSubject = originalMetaData.subject.toString();
 			viewValue.foodProcess = originalMetaData.foodProcess;
-			viewValue.dependentVariable = originalMetaData.dependentVariable;
-			viewValue.dependentVariableUnit = originalMetaData.dependentVariableUnit;
-			viewValue.dependentVariableMin = originalMetaData.dependentVariableMin;
-			viewValue.dependentVariableMax = originalMetaData.dependentVariableMax;
-			viewValue.independentVariables = originalMetaData.independentVariables;
-			viewValue.independentVariableUnits = originalMetaData.independentVariableUnits;
-			viewValue.independentVariableMins = originalMetaData.independentVariableMins;
-			viewValue.independentVariableMaxs = originalMetaData.independentVariableMaxs;
-			viewValue.independentVariableValues = originalMetaData.independentVariableValues;
+
+			viewValue.variables = new ArrayList<>();
+
+			Variable depVar = new Variable();
+			depVar.isDependent = true;
+			depVar.name = originalMetaData.dependentVariable;
+			depVar.unit = originalMetaData.dependentVariableUnit;
+			depVar.min = originalMetaData.dependentVariableMin;
+			depVar.max = originalMetaData.dependentVariableMax;
+			viewValue.variables.add(depVar);
+
+			for (int i = 0; i < originalMetaData.independentVariables.length; i++) {
+				Variable indepVar = new Variable();
+				if (originalMetaData.independentVariables != null)
+					indepVar.name = originalMetaData.independentVariables[i];
+				if (originalMetaData.independentVariableUnits != null)
+					indepVar.unit = originalMetaData.independentVariableUnits[i];
+				if (originalMetaData.independentVariableMins != null)
+					indepVar.min = originalMetaData.independentVariableMins[i];
+				if (originalMetaData.independentVariableMaxs != null)
+					indepVar.max = originalMetaData.independentVariableMaxs[i];
+				if (originalMetaData.independentVariableValues != null)
+					indepVar.value = originalMetaData.independentVariableValues[i];
+				viewValue.variables.add(indepVar);
+			}
 
 			setViewValue(viewValue);
 		}
@@ -215,7 +250,7 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		// TODO Auto-generated method stub
+		new FskMetadataEditorViewValue().loadFromNodeSettings(settings);
 	}
 
 	@Override

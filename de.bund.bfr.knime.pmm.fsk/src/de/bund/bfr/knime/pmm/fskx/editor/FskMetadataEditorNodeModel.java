@@ -100,7 +100,7 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	protected void performExecuteCreateView(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		// TODO Auto-generated method stub
+		// Unused
 	}
 
 	@Override
@@ -122,59 +122,59 @@ public final class FskMetadataEditorNodeModel
 
 		// Create new FskMetaData with changes
 		viewValue = getViewValue();
-		FskMetaData metadata = new FskMetaData();
-		metadata.modelName = viewValue.modelName;
-		metadata.modelId = viewValue.modelId;
-		metadata.modelLink = Strings.isNullOrEmpty(viewValue.modelLink) ? null : new URL(viewValue.modelLink);
-		metadata.organism = viewValue.organism;
-		metadata.organismDetails = viewValue.organismDetails;
-		metadata.matrix = viewValue.matrix;
-		metadata.matrixDetails = viewValue.matrixDetails;
-		metadata.contact = viewValue.contact;
-		metadata.referenceDescription = viewValue.referenceDescription;
-		metadata.referenceDescriptionLink = Strings.isNullOrEmpty(viewValue.referenceDescriptionLink) ? null
+		inObj.template.modelName = viewValue.modelName;
+		inObj.template.modelId = viewValue.modelId;
+		inObj.template.modelLink = Strings.isNullOrEmpty(viewValue.modelLink) ? null : new URL(viewValue.modelLink);
+		inObj.template.organism = viewValue.organism;
+		inObj.template.organismDetails = viewValue.organismDetails;
+		inObj.template.matrix = viewValue.matrix;
+		inObj.template.matrixDetails = viewValue.matrixDetails;
+		inObj.template.contact = viewValue.contact;
+		inObj.template.software = Strings.isNullOrEmpty(viewValue.software) ? null
+				: FskMetaData.Software.valueOf(viewValue.software);
+		inObj.template.referenceDescription = viewValue.referenceDescription;
+		inObj.template.referenceDescriptionLink = Strings.isNullOrEmpty(viewValue.referenceDescriptionLink) ? null
 				: new URL(viewValue.referenceDescriptionLink);
-		metadata.createdDate = FskMetaData.dateFormat.parse(viewValue.createdDate);
-		metadata.modifiedDate = FskMetaData.dateFormat.parse(viewValue.modifiedDate);
-		metadata.rights = viewValue.rights;
-		metadata.notes = viewValue.notes;
-		metadata.curated = viewValue.curated;
-		metadata.type = Strings.isNullOrEmpty(viewValue.modelType) ? null : ModelType.valueOf(viewValue.modelType);
-		metadata.subject = Strings.isNullOrEmpty(viewValue.modelSubject) ? null
+		inObj.template.createdDate = FskMetaData.dateFormat.parse(viewValue.createdDate);
+		inObj.template.modifiedDate = FskMetaData.dateFormat.parse(viewValue.modifiedDate);
+		inObj.template.rights = viewValue.rights;
+		inObj.template.notes = viewValue.notes;
+		inObj.template.curated = viewValue.curated;
+		inObj.template.type = Strings.isNullOrEmpty(viewValue.modelType) ? null
+				: ModelType.valueOf(viewValue.modelType);
+		inObj.template.subject = Strings.isNullOrEmpty(viewValue.modelSubject) ? null
 				: ModelClass.valueOf(viewValue.modelSubject);
-		metadata.foodProcess = viewValue.foodProcess;
+		inObj.template.foodProcess = viewValue.foodProcess;
 
 		Variable depVar = viewValue.variables.stream().filter(v -> v.isDependent == true).findAny().get();
 		List<Variable> indepVars = viewValue.variables.stream().filter(v -> !v.isDependent)
 				.collect(Collectors.toList());
 
-		metadata.dependentVariable = depVar.name;
-		metadata.dependentVariableUnit = depVar.unit;
-		metadata.dependentVariableMin = depVar.min;
-		metadata.dependentVariableMax = depVar.max;
+		inObj.template.dependentVariable = depVar.name;
+		inObj.template.dependentVariableUnit = depVar.unit;
+		inObj.template.dependentVariableMin = depVar.min;
+		inObj.template.dependentVariableMax = depVar.max;
 
-		metadata.independentVariables = new String[indepVars.size()];
-		metadata.independentVariableUnits = new String[indepVars.size()];
-		metadata.independentVariableMins = new double[indepVars.size()];
-		metadata.independentVariableMaxs = new double[indepVars.size()];
-		metadata.independentVariableValues = new double[indepVars.size()];
+		inObj.template.independentVariables = new String[indepVars.size()];
+		inObj.template.independentVariableUnits = new String[indepVars.size()];
+		inObj.template.independentVariableMins = new double[indepVars.size()];
+		inObj.template.independentVariableMaxs = new double[indepVars.size()];
+		inObj.template.independentVariableValues = new double[indepVars.size()];
 
 		for (int i = 0; i < indepVars.size(); i++) {
-			metadata.independentVariables[i] = indepVars.get(i).name;
-			metadata.independentVariableUnits[i] = indepVars.get(i).unit;
-			metadata.independentVariableMins[i] = indepVars.get(i).min;
-			metadata.independentVariableMaxs[i] = indepVars.get(i).max;
-			metadata.independentVariableValues[i] = indepVars.get(i).value;
+			inObj.template.independentVariables[i] = indepVars.get(i).name;
+			inObj.template.independentVariableUnits[i] = indepVars.get(i).unit;
+			inObj.template.independentVariableMins[i] = indepVars.get(i).min;
+			inObj.template.independentVariableMaxs[i] = indepVars.get(i).max;
+			inObj.template.independentVariableValues[i] = indepVars.get(i).value;
 		}
-		metadata.hasData = viewValue.hasData;
+		inObj.template.hasData = viewValue.hasData;
 
-		inObj.template = metadata;
 		return new PortObject[] { inObj };
 	}
 
 	@Override
 	protected boolean generateImage() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -236,7 +236,7 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	protected void useCurrentValueAsDefault() {
-		// TODO Auto-generated method stub
+		// Unused
 	}
 
 	@Override
@@ -250,7 +250,6 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-//		new FskMetadataEditorViewValue().loadFromNodeSettings(settings);
 	}
 
 	@Override

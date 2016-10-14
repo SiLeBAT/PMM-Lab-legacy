@@ -47,6 +47,9 @@ public class FskMetaData implements Serializable {
 	/** Null or empty string if not set. */
 	public String contact;
 	
+	/** Null if not set. */
+	public Software software;
+	
 	/** Null or empty string if not set. */
 	public String referenceDescription;
 	
@@ -106,4 +109,9 @@ public class FskMetaData implements Serializable {
 	
 	/** <code>false</code> if not set */
 	public boolean hasData;
+	
+	public enum Software {
+		R,
+		Matlab
+	}
 }

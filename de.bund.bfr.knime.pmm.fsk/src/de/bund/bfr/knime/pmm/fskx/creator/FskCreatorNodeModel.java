@@ -48,6 +48,7 @@ import org.rosuda.REngine.REXPMismatchException;
 //
 import com.google.common.base.Strings;
 
+import de.bund.bfr.fskml.MissingValueError;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RScript;
@@ -191,6 +192,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 			portObj.template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
+		portObj.template.software = FskMetaData.Software.R;
 
 		// Reads R libraries
 		if (m_selectedLibs.getStringArrayValue() != null && m_selectedLibs.getStringArrayValue().length > 0) {

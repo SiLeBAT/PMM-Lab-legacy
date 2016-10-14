@@ -69,162 +69,173 @@ metadata_editor = function () {
         varTable += '</table>';
 
         var form = 
-            '  <form class="form-horizontal">' +
+            '<form class="form-horizontal">' +
 
             // Model name form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="modelName" class="col-sm-3 control-label">Model name</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="modelNameInput" value="' + modelName + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="modelName" class="col-sm-3 control-label">Model name</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="modelNameInput" value="' + modelName + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Model id form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="modelId" class="col-sm-3 control-label">Model id</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="modelIdInput" value="' + modelId + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="modelId" class="col-sm-3 control-label">Model id</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="modelIdInput" value="' + modelId + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Model link form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="modelLink" class="col-sm-3 control-label">Model link</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="url" class="form-control" id="modelLinkInput" value="' + modelLink + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="modelLink" class="col-sm-3 control-label">Model link</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="url" class="form-control" id="modelLinkInput" value="' + modelLink + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Organism form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="organism" class="col-sm-3 control-label">Organism</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="organismInput" value="' + organism + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="organism" class="col-sm-3 control-label">Organism</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="organismInput" value="' + organism + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Organism details form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="organismDetails" class="col-sm-3 control-label">Organism details</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="organismDetailsInput" value="' + organismDetails + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="organismDetails" class="col-sm-3 control-label">Organism details</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="organismDetailsInput" value="' + organismDetails + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Matrix form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="matrix" class="col-sm-3 control-label">Matrix</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="matrixInput" value="' + matrix + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="matrix" class="col-sm-3 control-label">Matrix</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="matrixInput" value="' + matrix + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Matrix details form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="matrixDetails" class="col-sm-3 control-label">Matrix details</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="matrixDetailsInput" value="' + matrixDetails + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="matrixDetailsInput" value="' + matrixDetails + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Contact form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="contact" class="col-sm-3 control-label">Contact</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="contactInput" value="' + contact + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="contact" class="col-sm-3 control-label">Contact</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="contactInput" value="' + contact + '">' +
             '    </div>' +
+            '  </div>' +
+
+            // Software form
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="software" class="col-sm-3 control-label">Software</label>' +
+            '    <div class="col-sm-9">' +
+            '      <select class="form-control" id="softwareInput">' +
+            '        <option>R</option>' +
+            '        <option>Matlab</option>' +
+            '      </select>' +
+            '    </div>' +
+            '  </div>' +
 
             // Reference description form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="referenceDescription" class="col-sm-3 control-label">Referece description</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="referenceDescriptionInput" value="' + referenceDescription + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="referenceDescription" class="col-sm-3 control-label">Referece description</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="referenceDescriptionInput" value="' + referenceDescription + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Reference description link form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="referenceDescriptionLink" class="col-sm-3 control-label">Referece description link</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="url" class="form-control" id="referenceDescriptionLinkInput" value="' + referenceDescriptionLink + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Referece description link</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="url" class="form-control" id="referenceDescriptionLinkInput" value="' + referenceDescriptionLink + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Created date form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="createdDate" class="col-sm-3 control-label">Created date</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="date" class="form-control" id="createdDateInput" value="' + createdDate + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="createdDate" class="col-sm-3 control-label">Created date</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="date" class="form-control" id="createdDateInput" value="' + createdDate + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Modified date form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="modifiedDate" class="col-sm-3 control-label">Modified date</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="date" class="form-control" id="modifiedDateInput" value="' + modifiedDate + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="date" class="form-control" id="modifiedDateInput" value="' + modifiedDate + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Rights form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="rights" class="col-sm-3 control-label">Rights</label>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="rights" class="col-sm-3 control-label">Rights</label>' +
             '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="rightsInput" value="' + rights + '">' +
-            '      </div>' +
+            '      <input type="text" class="form-control" id="rightsInput" value="' + rights + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Notes form
-            '    <div class="form-group">' +
-            '      <label for="notes" class="col-sm-3 control-label">Notes</label>' +
-            '      <div class="col-sm-9">' +
-            // '        <input type="text" class="form-control" id="notesInput" value="' + notes + '">' +
-            '        <textarea class="form-control" rows="3">' + notes + '</textArea>' +
-            '      </div>' +
+            '  <div class="form-group">' +
+            '    <label for="notes" class="col-sm-3 control-label">Notes</label>' +
+            '    <div class="col-sm-9">' +
+            // '      <input type="text" class="form-control" id="notesInput" value="' + notes + '">' +
+            '      <textarea class="form-control" rows="3">' + notes + '</textArea>' +
             '    </div>' +
+            '  </div>' +
 
             // Curated form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="curated" class="col-sm-3 control-label">Curated</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input id="curatedInput" type="checkbox"' + (_value.curated ? " checked" : "") + '>' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="curated" class="col-sm-3 control-label">Curated</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input id="curatedInput" type="checkbox"' + (_value.curated ? " checked" : "") + '>' +
             '    </div>' +
+            '  </div>' +
 
             // Model type form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="modelType" class="col-sm-3 control-label">Model type</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="modelTypeInput" value="' + modelType + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="modelType" class="col-sm-3 control-label">Model type</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="modelTypeInput" value="' + modelType + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Model subject form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="modelSubject" class="col-sm-3 control-label">Model subject</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="modelSubjectInput" value="' + modelSubject + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="modelSubject" class="col-sm-3 control-label">Model subject</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="modelSubjectInput" value="' + modelSubject + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Food process form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="foodProcess" class="col-sm-3 control-label">Food process</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="foodProcessInput" value="' + foodProcess + '">' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="foodProcess" class="col-sm-3 control-label">Food process</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="foodProcessInput" value="' + foodProcess + '">' +
             '    </div>' +
+            '  </div>' +
 
             // Has data form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="hasData" class="col-sm-3 control-label">Has data?</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input id="hasDataInput" type="checkbox"' + (_value.hasData ? " checked" : "") + '>' +
-            '      </div>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="hasData" class="col-sm-3 control-label">Has data?</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input id="hasDataInput" type="checkbox"' + (_value.hasData ? " checked" : "") + '>' +
             '    </div>' +
+            '  </div>' +
 
-            '  </form>';
+            '</form>';
 
         var buttonDiv = 
             '<div class="col-sm-offset-3">' +
@@ -249,6 +260,7 @@ metadata_editor = function () {
         $("#matrixInput").val(_value.matrix === null ? "" : _value.matrix);
         $("#matrixDetailsInput").val(_value.matrixDetails === null ? "" : _value.matrixDetails);
         $("#contactInput").val(_value.contact === null ? "" : _value.contact);
+        $("#softwareInput").val(_value.software === null ? "" : _value.software);
         $("#referenceDescriptionInput").val(_value.referenceDescription === null ? "" : _value.referenceDescription);
         $("#referenceDescriptionLinkInput").val(_value.referenceDescriptionLink === null ? "" : _value.referenceDescriptionLink);
         $("#createdDateInput").val(_value.createdDate === null ? "" : _value.createdDate);
@@ -351,6 +363,7 @@ metadata_editor = function () {
         _value.matrix = $("#matrixInput").val();
         _value.matrixDetails = $("#matrixDetailsInput").val();
         _value.contact = $("#contactInput").val();
+        _value.software = $("#softwareInput").val();
         _value.referenceDescription = $("#referenceDescriptionInput").val();
         _value.referenceDescriptionLink = $("#referenceDescriptionLinkInput").val();
         _value.createdDate = $("#createdDateInput").val();

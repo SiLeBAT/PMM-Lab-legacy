@@ -29,6 +29,7 @@ public class FskMetaDataTuple implements DataRow {
 		creator,
 		family_name,
 		contact,
+		software,
 		reference_description,
 		reference_description_link,
 		created_date,
@@ -71,6 +72,7 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.creator.ordinal()] = new StringCell(Strings.nullToEmpty(template.creator));
 		cell[Key.family_name.ordinal()] = new StringCell(Strings.nullToEmpty(template.creator));
 		cell[Key.contact.ordinal()] = new StringCell(Strings.nullToEmpty(template.contact));
+		cell[Key.software.ordinal()] = new StringCell(template.software == null ? "" : template.software.name());
 		cell[Key.reference_description.ordinal()] = new StringCell(Strings.nullToEmpty(template.referenceDescription));
 		cell[Key.reference_description_link.ordinal()] = new StringCell(
 				template.referenceDescriptionLink == null ? "" : template.referenceDescriptionLink.toString());
@@ -174,6 +176,7 @@ public class FskMetaDataTuple implements DataRow {
 		names[Key.creator.ordinal()] = "Model creator";
 		names[Key.family_name.ordinal()] = "Model family name";
 		names[Key.contact.ordinal()] = "Model contact";
+		names[Key.software.ordinal()] = "Software";
 		names[Key.reference_description.ordinal()] = "Model reference description";
 		names[Key.reference_description_link.ordinal()] = "Model reference description link";
 		names[Key.created_date.ordinal()] = "Created date";

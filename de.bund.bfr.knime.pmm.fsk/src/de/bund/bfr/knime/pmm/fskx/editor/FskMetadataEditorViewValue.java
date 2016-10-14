@@ -25,6 +25,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 	String matrix;
 	String matrixDetails;
 	String contact;
+	String software;
 	String referenceDescription;
 	String referenceDescriptionLink;
 	String createdDate;
@@ -48,6 +49,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		settings.addString(Key.matrix.name(), matrix);
 		settings.addString(Key.matrix_details.name(), matrixDetails);
 		settings.addString(Key.contact.name(), contact);
+		settings.addString(Key.software.name(), software);
 		settings.addString(Key.reference_description.name(), referenceDescription);
 		settings.addString(Key.reference_description_link.name(), referenceDescriptionLink);
 		settings.addString(Key.created_date.name(), createdDate);
@@ -100,6 +102,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		matrix = settings.getString(Key.matrix.name(), "");
 		matrixDetails = settings.getString(Key.matrix_details.name(), "");
 		contact = settings.getString(Key.contact.name(), "");
+		software = settings.getString(Key.software.name(), "");
 		referenceDescription = settings.getString(Key.reference_description.name(), "");
 		referenceDescriptionLink = settings.getString(Key.reference_description_link.name(), "");
 		createdDate = settings.getString(Key.created_date.name(), "");
@@ -158,6 +161,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 				&& Objects.equals(modelLink, other.modelLink) && Objects.equals(organism, other.organism)
 				&& Objects.equals(organismDetails, other.organismDetails) && Objects.equals(matrix, other.matrix)
 				&& Objects.equals(matrixDetails, other.matrixDetails) && Objects.equals(contact, other.contact)
+				&& Objects.equals(software, other.software)
 				&& Objects.equals(referenceDescription, other.referenceDescription)
 				&& Objects.equals(referenceDescriptionLink, other.referenceDescriptionLink)
 				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(modifiedDate, other.modifiedDate)
@@ -170,8 +174,8 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 	@Override
 	public int hashCode() {
 		return Objects.hash(modelName, modelId, modelLink, organism, organismDetails, matrix, matrixDetails, contact,
-				referenceDescription, referenceDescriptionLink, createdDate, modifiedDate, rights, notes, curated,
-				modelType, modelSubject, foodProcess, variables, hasData);
+				software, referenceDescription, referenceDescriptionLink, createdDate, modifiedDate, rights, notes,
+				curated, modelType, modelSubject, foodProcess, variables, hasData);
 	}
 
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

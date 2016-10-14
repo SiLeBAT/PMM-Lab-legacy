@@ -17,6 +17,7 @@ import javax.swing.table.AbstractTableModel;
 import org.knime.core.node.NodeLogger;
 
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.Software;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
@@ -53,6 +54,7 @@ public class MetaDataPane extends JScrollPane {
 		Model_Creator,
 		Model_Family_Name,
 		Model_Contact,
+		Software,
 		Model_Reference_Description,
 		Model_Reference_Description_Link,
 		Model_Created_Date,
@@ -150,6 +152,7 @@ public class MetaDataPane extends JScrollPane {
 			names[Col.Model_Creator.ordinal()] = "Model creator";
 			names[Col.Model_Family_Name.ordinal()] = "Model family name";
 			names[Col.Model_Contact.ordinal()] = "Model contact";
+			names[Col.Software.ordinal()] = "Software";
 			names[Col.Model_Reference_Description.ordinal()] = "Reference description";
 			names[Col.Model_Reference_Description_Link.ordinal()] = "Reference description link";
 			names[Col.Model_Created_Date.ordinal()] = "Created date";
@@ -218,6 +221,8 @@ public class MetaDataPane extends JScrollPane {
 				return template.familyName;
 			case Model_Contact:
 				return template.contact;
+			case Software:
+				return template.software == null ? "" : template.software.name();
 			case Model_Reference_Description:
 				return template.referenceDescription;
 			case Model_Reference_Description_Link:
@@ -311,6 +316,9 @@ public class MetaDataPane extends JScrollPane {
 				break;
 			case Model_Contact:
 				template.contact = stringValue;
+				break;
+			case Software:
+				template.software = Software.valueOf(stringValue);
 				break;
 			case Model_Reference_Description:
 				template.referenceDescription = stringValue;

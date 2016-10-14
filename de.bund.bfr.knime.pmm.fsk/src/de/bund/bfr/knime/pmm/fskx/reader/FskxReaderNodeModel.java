@@ -176,6 +176,7 @@ class FskxReaderNodeModel extends NodeModel {
 					LOGGER.error("Metadata document could not be read: " + entry.getFileName());
 				}
 			}
+			portObj.template.software = FskMetaData.Software.R;
 
 			// Gets R libraries
 			URI zipUri = ZipUri.createURI();

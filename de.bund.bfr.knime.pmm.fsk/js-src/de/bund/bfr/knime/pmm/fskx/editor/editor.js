@@ -9,7 +9,6 @@ metadata_editor = function () {
 
     editor.init = function (representation, value)
     {
-        alert(JSON.stringify(value));
         _value = value;
         create_body ();
     };

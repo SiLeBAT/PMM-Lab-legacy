@@ -250,7 +250,7 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		new FskMetadataEditorViewValue().loadFromNodeSettings(settings);
+//		new FskMetadataEditorViewValue().loadFromNodeSettings(settings);
 	}
 
 	@Override

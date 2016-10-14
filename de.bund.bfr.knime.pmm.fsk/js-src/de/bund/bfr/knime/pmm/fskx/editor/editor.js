@@ -44,15 +44,6 @@ metadata_editor = function () {
         var modelType = _value.modelType === null ? "" : _value.modelType;
         var modelSubject = _value.modelSubject === null ? "" : _value.modelSubject;
         var foodProcess = _value.foodProcess === null ? "" : _value.foodProcess;
-        // var depvar = _value.dependentVariable === null ? "" : _value.dependentVariable;
-        // var depvar_unit = _value.dependentVariableUnit === null ? "" : _value.dependentVariableUnit;
-        // var depvar_min = isNaN(_value.dependentVariableMin) ? "" : _value.dependentVariableMin;
-        // var depvar_max = isNaN(_value.dependentVariableMax) ? "" : _value.dependentVariableMax;
-        // var indepvars = _value.independentVariables === null ? "" : _value.independentVariables;
-        // var indepvar_units = _value.independentVariableUnits === null ? "" : _value.independentVariableUnits;
-        // var indepvar_mins = _value.independentVariableMins === null ? "" : _value.independentVariableMins;
-        // var indepvar_maxs = _value.independentVariableMaxs === null ? "" : _value.independentVariableMaxs;
-        // var indepvar_values = _value.independentVariableValues === null ? "" : _value.independentVariableValues;
 
         var varTable =
             '<table class="table table-condensed">' +
@@ -70,18 +61,15 @@ metadata_editor = function () {
                 '<tr>' +
                 '  <td>' + variable.name + '</td>' +
                 '  <td>' + variable.unit + '</td>' +
-                '  <td>' + variable.value + '</td>' +
-                '  <td>' + variable.min + '</td>' +
-                '  <td>' + variable.max + '</td>' +
-                // '  <td>' + variable.isDependent + '</td>' +
-                '  <td><input type="checkbox"' + (variable.isDependent ? "checked" : "") + '></td>' +
+                '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
+                '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
+                '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
+                '  <td><input type="checkbox" class="form-control" ' + (variable.isDependent ? "checked" : "") + ' disabled></td>' +
                 '</tr>';
         }
         varTable += '</table>';
 
         var form = 
-            '<div class="container">' +
-
             '  <form class="form-horizontal">' +
 
             // Model name form
@@ -229,78 +217,6 @@ metadata_editor = function () {
             '      </div>' +
             '    </div>' +
 
-/*            // Dependent variable form
-            '    <div class="form-group form-group-sm">' +
-            '      <label for="depvar" class="col-sm-3 control-label">Dependent variable</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="depvarInput" value="' + depvar + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Dependent variable unit form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form=depvar_unit" class="col-sm-3 control-label">Dependent variable unit</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="depvar_unitInput" value="' + depvar_unit + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Dependent variable min form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form=depvar_min" class="col-sm-3 control-label">Dependent variable minimum value</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="depvar_minInput" value="' + depvar_min + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Dependent variable max form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form=depvar_max" class="col-sm-3 control-label">Dependent variable maximum value</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="depvar_maxInput" value="' + depvar_max + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Independent variables form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form"indepvar" class="col-sm-3 control-label">Independent variables</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="indepvarInput" value="' + indepvars + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Independent variable units form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form"indepvar_unit" class="col-sm-3 control-label">Independent variable units</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="indepvar_unitInput" value="' + indepvar_units + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Independent variable mins form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form"indepvar_mins" class="col-sm-3 control-label">Independent variable mins</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="indepvar_minsInput" value="' + indepvar_mins + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Independent variable max form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form"indepvar_maxs" class="col-sm-3 control-label">Independent variable maxs</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="indepvar_maxsInput" value="' + indepvar_maxs + '">' +
-            '      </div>' +
-            '    </div>' +
-
-            // Independent variable values form
-            '    <div class="form-group form-group-sm">' +
-            '      <label form"indepvar_values" class="col-sm-3 control-label">Independent variable values</label>' +
-            '      <div class="col-sm-9">' +
-            '        <input type="text" class="form-control" id="indepvar_valuesInput" value="' + indepvar_values + '">' +
-            '      </div>' +
-            '    </div>' +
-*/
             // Has data form
             '    <div class="form-group form-group-sm">' +
             '      <label for="hasData" class="col-sm-3 control-label">Has data?</label>' +
@@ -309,22 +225,16 @@ metadata_editor = function () {
             '      </div>' +
             '    </div>' +
 
-            // Reset and save buttons
-            '    <div class="form-group">' +
-            '      <div class="col-sm-offset-3 col-sm-9">' +
-            '        <button id="resetButton" type="button" class="btn btn-warning">Reset</button>' +
-            '        <button id="saveButton" type="button" class="btn btn-success">Save</button>' +
-            // '        <input id="resetButton" class="btn btn-default" type="button" value="Reset">' +
-            // '        <input id="saveButton" class="btn btn-default" type="button" value="Save">' +
-            '      </div>' +
-            '    </div>' +
+            '  </form>';
 
-            '  </form>' +
+        var buttonDiv = 
+            '<div class="col-sm-offset-3">' +
+            '  <button id="resetButton" type="button" class="btn btn-warning">Reset</button>' +
+            '  <button id="saveButton" type="button" class="btn btn-success">Save</button>' +
             '</div>';
 
         document.createElement("body");
-        $("body").html(form);
-        $("body").append(varTable);
+        $("body").html('<div class="container">' + form + varTable + buttonDiv + '</div');
 
         $("#resetButton").click(reset);
         $("#saveButton").click(save);
@@ -350,21 +260,90 @@ metadata_editor = function () {
         $("#modelTypeInput").val(_value.modelType === null ? "" : _value.modelType);
         $("#modelSubjectInput").val(_value.modelSubject === null ? "" : _value.modelSubject);
         $("#foodProcessInput").val(_value.foodProcess === null ? "" : _value.foodProcess);
-        $("#depvarInput").val(_value.dependentVariable === null ? "" : _value.dependentVariable);
-        $("#depvar_unitInput").val(_value.dependentVariableUnit === null ? "" : _value.dependentVariableUnit);
-        $("#depvar_minInput").val(_value.dependentVariableMin === null ? "" : _value.dependentVariableMin);
-        $("#depvar_maxInput").val(_value.dependentVariableMax === null ? "" : _value.dependentVariableMax);
-        $("#indepvarInput").val(_value.independentVariables === null ? "" : _value.independentVariables);
-        $("#indepvar_unitInput").val(_value.independentVariableUnits === null ? "" : _value.independentVariableUnits);
-        $("#indepvar_minsInput").val(_value.independentVariableMins === null ? "" : _value.independentVariableMins);
-        $("#indepvar_maxsInput").val(_value.independentVariableMaxs === null ? "" : _value.independentVariableMaxs);
-        $("#indepvar_valuesInput").val(_value.independentVariableValues === null ? "" : _value.independentVariableValues);
+
+        var table = $("body div table");
+        table.find("tr:gt(0)").remove();
+        for (var i = 0; i < _value.variables.length; i++) {
+            var variable = _value.variables[i];
+            var row =
+                '<tr>' +
+                '  <td>' + variable.name + '</td>' +
+                '  <td>' + variable.unit + '</td>' +
+                '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
+                '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
+                '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
+                '  <td><input type="checkbox" class="form-control" ' + (variable.isDependent ? "checked" : "") + ' disabled></td>' +
+                '</tr>';
+            table.append(row);
+        }
+
         $("#hasDataInput").prop("checked", _value.hasData);
     }
 
 
     function save ()
     {
+        // var hasErrors = false;
+
+        // // Validate table
+        // $("body div table tr:not(:first)").each(function() {
+
+        //     alert("Validate table");
+
+        //     var valueInput = $("td:eq(2) input", this);
+        //     var minInput = $("td:eq(3) input", this);
+        //     var maxInput = $("td:eq(4) input", this);
+
+        //     // Check NaNs
+        //     if (!$.isNumeric(valueInput.val())) {
+        //        valueInput.addClass("has-error");
+        //        hasErrors = true;
+        //        return; 
+        //     }
+
+        //     if (!$.isNumeric(minInput.val())) {
+        //         minInput.addClass("has-error");
+        //         hasErrors = true;
+        //         return;
+        //     }
+
+        //     if (!$.isNumeric(maxInput.val())) {
+        //         maxInput.addClass("has-error");
+        //         hasErrors = true;
+        //         return;
+        //     }
+
+        //     var value = parseFloat(valueInput.val());
+        //     var min = parseFloat(minInput.val());
+        //     var max = parseFloat(maxInput.val());
+
+        //     alert(value + " " + min + " " + max);
+
+        //     // Validate min and max
+        //     if (!(min < max)) {
+        //         $("td:eq(3) input", this).addClass("has-error");
+        //         hasErrors = true;
+        //         return;
+        //     }
+
+        //     if (!(max > min)) {
+        //         $("td:eq(4) input", this).addClass("has-error");
+        //         hasErrors = true;
+        //         return;
+        //     }
+
+        //     // Validate value
+        //     if (isNaN(value) || value > min || value < max) {
+        //         $("td:eq(2) input", this).text();
+        //         hasErrors = true;
+        //         return;
+        //     }
+        // });
+
+        // if (hasErrors) {
+        //     return;
+        // }
+
         _value.modelName = $("#modelNameInput").val();
         _value.modelId = $("#modelIdInput").val();
         _value.modelLink = $("#modelLinkInput").val();
@@ -383,16 +362,19 @@ metadata_editor = function () {
         _value.modelType = $("#modelTypeInput").val();
         _value.modelSubject = $("#modelSubjectInput").val();
         _value.foodProcess = $("#foodProcessInput").val();
-        // _value.dependentVariable = $("#depvarInput").val();
-        // _value.dependentVariableUnit = $("#depvar_unitInput").val();
-        // _value.dependentVariableMin = $("#depvar_minInput").val();
-        // _value.dependentVariableMax = $("#depvar_maxInput").val();
-        // _value.independentVariables = $("#indepvarInput").val() ? $("indepvarInput") : [];
-        // _value.independentVariables = $("#indepvarInput").val();
-        // _value.independentVariableUnits = $("#indepvar_unitInput").val();
-        // _value.independentVariableMins = $("#indepvar_minsInput").val();
-        // _value.independentVariableMaxs = $("#indepvar_maxsInput").val();
-        // _value.independentVariableValues = $("#indepvar_valuesInput").val();
+
+        _value.variables = []
+        $("body div table tr:not(:first)").each(function() {
+            var variable = {};
+            variable.name = $("td:eq(0)", this).text();
+            variable.unit = $("td:eq(1)", this).text();
+            variable.value = $("td:eq(2) input", this).val();
+            variable.min = $("td:eq(3) input", this).val();
+            variable.max = $("td:eq(4) input", this).val();
+            variable.isDependent = $("td:eq(5) input", this).is(":checked");
+            _value.variables.push(variable);
+        })
+
         _value.hasData = $("#hasDataInput").is(':checked');
     }
 }();

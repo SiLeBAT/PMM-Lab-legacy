@@ -1,0 +1,4 @@
+/* Align labels in form-horizonal to the left. */
+.form-horizontal .control-label{
+	text-align:left;
+}

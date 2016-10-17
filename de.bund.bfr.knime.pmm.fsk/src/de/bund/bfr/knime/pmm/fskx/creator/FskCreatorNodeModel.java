@@ -52,6 +52,7 @@ import de.bund.bfr.fskml.MissingValueError;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RScript;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
@@ -193,6 +194,25 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			portObj.template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
 		portObj.template.software = FskMetaData.Software.R;
+		
+		// Set types of variables
+		{
+			// TODO: usually the type of the depvar is numeric although it
+			// should be checked
+			portObj.template.dependentVariableType = DataType.numeric;
+
+			/*
+			 * TODO: FskMetaData is keeping only numeric types for
+			 * independent variables so it does not make sense to try to
+			 * obtain the type here since it will always be numeric. Once
+			 * the rest of types are supported in FskMetaData the following
+			 * code should be update to retrieve the types.
+			 */
+			portObj.template.independentVariableTypes = new DataType[portObj.template.independentVariables.length];
+			for (int i = 0; i < portObj.template.independentVariables.length; i++) {
+				portObj.template.independentVariableTypes[i] = DataType.numeric;
+			}
+		}
 
 		// Reads R libraries
 		if (m_selectedLibs.getStringArrayValue() != null && m_selectedLibs.getStringArrayValue().length > 0) {

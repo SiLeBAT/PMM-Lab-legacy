@@ -12,6 +12,7 @@ import org.knime.js.core.JSONViewContent;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple.Key;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -68,9 +69,11 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		settings.addString(Key.depvar_unit.name(), depVar.unit);
 		settings.addDouble(Key.depvar_min.name(), depVar.min);
 		settings.addDouble(Key.depvar_max.name(), depVar.max);
+		settings.addString(Key.depvar_type.name(), depVar.type.name());
 
 		String[] indepVarNames = new String[indepVars.size()];
 		String[] indepVarUnits = new String[indepVars.size()];
+		String[] indepVarTypes = new String[indepVars.size()];
 		double[] indepVarMins = new double[indepVars.size()];
 		double[] indepVarMaxs = new double[indepVars.size()];
 		double[] indepVarValues = new double[indepVars.size()];
@@ -78,6 +81,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		for (int i = 0; i < indepVars.size(); i++) {
 			indepVarNames[i] = indepVars.get(i).name;
 			indepVarUnits[i] = indepVars.get(i).unit;
+			indepVarTypes[i] = indepVars.get(i).type.name();
 			indepVarMins[i] = indepVars.get(i).min;
 			indepVarMaxs[i] = indepVars.get(i).max;
 			indepVarValues[i] = indepVars.get(i).value;
@@ -85,6 +89,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 
 		settings.addStringArray(Key.indepvars.name(), indepVarNames);
 		settings.addStringArray(Key.indepvars_units.name(), indepVarUnits);
+		settings.addStringArray(Key.indepvars_types.name(), indepVarTypes);
 		settings.addDoubleArray(Key.indepvars_mins.name(), indepVarMins);
 		settings.addDoubleArray(Key.indepvars_maxs.name(), indepVarMaxs);
 		settings.addDoubleArray(Key.indepvars_values.name(), indepVarValues);
@@ -119,6 +124,8 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		Variable depVar = new Variable();
 		depVar.name = settings.getString(Key.depvar.name(), "");
 		depVar.unit = settings.getString(Key.depvar_unit.name(), "");
+		String typeAsString = settings.getString(Key.depvar_type.name(), "");
+		depVar.type = typeAsString.isEmpty() ? null : DataType.valueOf(typeAsString);
 		depVar.min = settings.getDouble(Key.depvar_min.name(), Double.NaN);
 		depVar.max = settings.getDouble(Key.depvar_max.name(), Double.NaN);
 		depVar.isDependent = true;
@@ -126,6 +133,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 
 		String[] indepVarNames = settings.getStringArray(Key.indepvars.name());
 		String[] indepVarUnits = settings.getStringArray(Key.indepvars_units.name());
+		String[] indepVarTypesString = settings.getStringArray(Key.indepvars_types.name());
 		double[] indepVarMins = settings.getDoubleArray(Key.indepvars_mins.name());
 		double[] indepVarMaxs = settings.getDoubleArray(Key.indepvars_maxs.name());
 		double[] indepVarValues = settings.getDoubleArray(Key.indepvars_values.name());
@@ -135,6 +143,8 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 			indepVar.name = indepVarNames[i];
 			if (indepVarUnits != null)
 				indepVar.unit = indepVarUnits[i];
+			if (indepVarTypesString != null)
+				indepVar.type = DataType.valueOf(indepVarTypesString[i]);
 			if (indepVarMins != null)
 				indepVar.min = indepVarMins[i];
 			if (indepVarMaxs != null)
@@ -186,6 +196,7 @@ public class FskMetadataEditorViewValue extends JSONViewContent {
 		double min;
 		double max;
 		boolean isDependent;
+		DataType type;
 
 		@Override
 		public String toString() {

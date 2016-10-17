@@ -42,10 +42,12 @@ public class FskMetaDataTuple implements DataRow {
 		food_process,
 		depvar,
 		depvar_unit,
+		depvar_type,
 		depvar_min,
 		depvar_max,
 		indepvars,
 		indepvars_units,
+		indepvars_types,
 		indepvars_mins,
 		indepvars_maxs,
 		indepvars_values,
@@ -88,19 +90,27 @@ public class FskMetaDataTuple implements DataRow {
 				template.subject == null ? ModelClass.UNKNOWN.fullName() : template.subject.fullName());
 		cell[Key.food_process.ordinal()] = new StringCell(Strings.nullToEmpty(template.foodProcess));
 
+		// Dependent variable
 		cell[Key.depvar.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable));
 		cell[Key.depvar_unit.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariableUnit));
+		cell[Key.depvar_type.ordinal()] = new StringCell(
+				template.dependentVariableType == null ? "" : template.dependentVariableType.name());
 		cell[Key.depvar_min.ordinal()] = new StringCell(
 				Double.isNaN(template.dependentVariableMin) ? "" : Double.toString(template.dependentVariableMin));
 		cell[Key.depvar_max.ordinal()] = new StringCell(
 				Double.isNaN(template.dependentVariableMax) ? "" : Double.toString(template.dependentVariableMax));
 
+		// Independent variables
 		cell[Key.indepvars.ordinal()] = new StringCell(
 				template.independentVariables == null || template.independentVariables.length == 0 ? ""
 						: String.join("||", template.independentVariables));
 		cell[Key.indepvars_units.ordinal()] = new StringCell(
 				template.independentVariableUnits == null || template.independentVariableUnits.length == 0 ? ""
 						: String.join("||", template.independentVariableUnits));
+		cell[Key.indepvars_types.ordinal()] = new StringCell(
+				template.independentVariableTypes == null || template.independentVariableTypes.length == 0 ? ""
+						: Arrays.stream(template.independentVariableTypes).map(FskMetaData.DataType::name)
+								.collect(Collectors.joining("||")));
 		cell[Key.indepvars_mins.ordinal()] = new StringCell(
 				template.independentVariableMins == null || template.independentVariableMins.length == 0 ? ""
 						: Arrays.stream(template.independentVariableMins).mapToObj(d -> Double.toString(d))
@@ -118,7 +128,7 @@ public class FskMetaDataTuple implements DataRow {
 
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
-	
+
 	public void setCell(int key, String value) {
 		cell[key] = new StringCell(value);
 	}
@@ -189,10 +199,12 @@ public class FskMetaDataTuple implements DataRow {
 		names[Key.food_process.ordinal()] = "Food process";
 		names[Key.depvar.ordinal()] = "Dependent variable";
 		names[Key.depvar_unit.ordinal()] = "Dependent variable unit";
+		names[Key.depvar_type.ordinal()] = "Dependent variable type";
 		names[Key.depvar_min.ordinal()] = "Dependent variable min";
 		names[Key.depvar_max.ordinal()] = "Dependent variable max";
 		names[Key.indepvars.ordinal()] = "Independent variables";
 		names[Key.indepvars_units.ordinal()] = "Independent variable units";
+		names[Key.indepvars_types.ordinal()] = "Independent variable types";
 		names[Key.indepvars_mins.ordinal()] = "Independent variable mins";
 		names[Key.indepvars_maxs.ordinal()] = "Independent variable maxs";
 		names[Key.indepvars_values.ordinal()] = "Independent variable values";

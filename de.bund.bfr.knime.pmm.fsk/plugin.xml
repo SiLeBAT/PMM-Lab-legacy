@@ -89,19 +89,19 @@
          version="0.0.1"
          webResourceBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle">
       <webResource
-            relativePathSource="js-src/de/bund/bfr/knime/pmm/fskx/editor/editor.js"
-            relativePathTarget="de/bund/bfr/knime/pmm/fskx/editor/editor.js">
+            relativePathSource="js-src/editor.js"
+            relativePathTarget="editor.js">
       </webResource>
       <importResource
-            relativePath="de/bund/bfr/knime/pmm/fskx/editor/editor.js"
+            relativePath="editor.js"
             type="JAVASCRIPT">
       </importResource>
       <webResource
-      	relativePathSource="js-src/de/bund/bfr/knime/pmm/fskx/editor/editor.css"
-      	relativePathTarget="de/bund/bfr/knime/pmm/fskx/editor/editor.css">
+      	relativePathSource="js-src/editor.css"
+      	relativePathTarget="editor.css">
       </webResource>
       <importResource
-      	relativePath="de/bund/bfr/knime/pmm/fskx/editor/editor.css"
+      	relativePath="editor.css"
       	type="CSS">
       </importResource>
       <webDependency

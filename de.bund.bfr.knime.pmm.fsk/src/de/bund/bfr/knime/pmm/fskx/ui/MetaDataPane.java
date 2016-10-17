@@ -16,7 +16,10 @@ import javax.swing.table.AbstractTableModel;
 
 import org.knime.core.node.NodeLogger;
 
+import com.google.common.base.Strings;
+
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData.Software;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
@@ -67,10 +70,12 @@ public class MetaDataPane extends JScrollPane {
 		Model_Food_Process,
 		Dependent_Variable,
 		Dependent_Variable_Unit,
+		Dependent_Variable_Type,
 		Dependent_Variable_Min,
 		Dependent_Variable_Max,
 		Independent_Variable,
 		Independent_Variable_Units,
+		Independent_Variable_Types,
 		Independent_Variable_Mins,
 		Independent_Variable_Maxs,
 		Independent_Variable_Values,
@@ -164,11 +169,13 @@ public class MetaDataPane extends JScrollPane {
 			names[Col.Model_Subject.ordinal()] = "Model subject";
 			names[Col.Model_Food_Process.ordinal()] = "Food process";
 			names[Col.Dependent_Variable.ordinal()] = "Dependent variable";
-			names[Col.Dependent_Variable_Unit.ordinal()] = "Dependet variable unit";
+			names[Col.Dependent_Variable_Unit.ordinal()] = "Dependent variable unit";
+			names[Col.Dependent_Variable_Type.ordinal()] = "Dependent variable type";
 			names[Col.Dependent_Variable_Min.ordinal()] = "Dependent variable minimum value";
 			names[Col.Dependent_Variable_Max.ordinal()] = "Dependent variable maximum value";
 			names[Col.Independent_Variable.ordinal()] = "Independent variables";
 			names[Col.Independent_Variable_Units.ordinal()] = "Independent variable units";
+			names[Col.Independent_Variable_Types.ordinal()] = "Independent variable types";
 			names[Col.Independent_Variable_Mins.ordinal()] = "Independent variable minimum values";
 			names[Col.Independent_Variable_Maxs.ordinal()] = "Independent variable maximum values";
 			names[Col.Independent_Variable_Values.ordinal()] = "Independent variable values";
@@ -247,6 +254,8 @@ public class MetaDataPane extends JScrollPane {
 				return template.dependentVariable;
 			case Dependent_Variable_Unit:
 				return template.dependentVariableUnit;
+			case Dependent_Variable_Type:
+				return template.dependentVariableType == null ? "" : template.dependentVariableType.name();
 			case Dependent_Variable_Min:
 				return Double.isNaN(template.dependentVariableMin) ? ""
 						: Double.toString(template.dependentVariableMin);
@@ -259,6 +268,10 @@ public class MetaDataPane extends JScrollPane {
 			case Independent_Variable_Units:
 				return template.independentVariableUnits == null || template.independentVariableUnits.length == 0 ? ""
 						: String.join("||", template.independentVariableUnits);
+			case Independent_Variable_Types:
+				return template.independentVariableTypes == null || template.independentVariableTypes.length == 0 ? ""
+						: Arrays.stream(template.independentVariableTypes).map(DataType::name)
+								.collect(Collectors.joining("||"));
 			case Independent_Variable_Mins:
 				return template.independentVariableMins == null || template.independentVariableMins.length == 0 ? ""
 						: Arrays.stream(template.independentVariableMins).mapToObj(min -> Double.toString(min))
@@ -377,6 +390,10 @@ public class MetaDataPane extends JScrollPane {
 			case Dependent_Variable_Unit:
 				template.dependentVariableUnit = stringValue;
 				break;
+			case Dependent_Variable_Type:
+				template.dependentVariableType = Strings.isNullOrEmpty(stringValue) ? null
+						: DataType.valueOf(stringValue);
+				break;
 			case Dependent_Variable_Min:
 				template.dependentVariableMin = Double.parseDouble(stringValue);
 				break;
@@ -388,6 +405,10 @@ public class MetaDataPane extends JScrollPane {
 				break;
 			case Independent_Variable_Units:
 				template.independentVariableUnits = stringValue.split("||");
+				break;
+			case Independent_Variable_Types:
+				template.independentVariableTypes = (DataType[]) Arrays.stream(stringValue.split("||"))
+						.map(DataType::valueOf).toArray();
 				break;
 			case Independent_Variable_Mins:
 				template.independentVariableMins = Arrays.stream(stringValue.split("||"))

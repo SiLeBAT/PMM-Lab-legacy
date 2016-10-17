@@ -265,61 +265,69 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 	private static class SpreadsheetHandler {
 
-		private static final byte id_row = 2;
-		private static final byte name_row = 1;
-		private static final byte organism_row = 3;
-		private static final byte organism_detail_row = 4;
-		private static final byte matrix_row = 5;
-		private static final byte matrix_detail_row = 6;
-		private static final byte creator_row = 7;
-		private static final byte reference_description_row = 8;
-		private static final byte created_date_row = 9;
-		private static final byte modified_date_row = 10;
-		private static final byte rights_row = 11;
-		private static final byte type_row = 13;
-		private static final byte subject_row = 14;
-		private static final byte notes_row = 12;
-		private static final byte depvar_row = 21;
-		private static final byte depvar_unit_row = 22;
-		private static final byte depvar_min_row = 23;
-		private static final byte depvar_max_row = 24;
-		private static final byte indepvar_row = 25;
-		private static final byte indepvar_unit_row = 26;
-		private static final byte indepvar_min_row = 27;
-		private static final byte indepvar_max_row = 28;
-		// values??
+		private enum Rows {
+			id((byte) 2),
+			name((byte) 1),
+			organism((byte) 3),
+			organism_detail((byte) 4),
+			matrix((byte) 5),
+			matrix_detail((byte) 6),
+			creator((byte) 7),
+			reference_description((byte) 8),
+			created_date((byte) 9),
+			modified_date((byte) 10),
+			rights((byte) 11),
+			type((byte) 13),
+			subject((byte) 14),
+			notes((byte) 12),
+			depvar((byte) 21),
+			depvar_unit((byte) 22),
+			depvar_min((byte) 23),
+			depvar_max((byte) 24),
+			indepvar((byte) 25),
+			indepvar_unit((byte) 26),
+			indepvar_min((byte) 27),
+			indepvar_max((byte) 28);
+			// values??
+
+			private final byte row;
+
+			Rows(byte row) {
+				this.row = row;
+			}
+		}
 
 		static FskMetaData processSpreadsheet(final XSSFSheet sheet) {
 
 			FskMetaData template = new FskMetaData();
 
-			template.modelId = getStringVal(sheet, id_row);
-			template.modelName = getStringVal(sheet, name_row);
+			template.modelId = getStringVal(sheet, Rows.id.row);
+			template.modelName = getStringVal(sheet, Rows.name.row);
 
 			// organism data
-			template.organism = getStringVal(sheet, organism_row);
-			template.organismDetails = getStringVal(sheet, organism_detail_row);
+			template.organism = getStringVal(sheet, Rows.organism.row);
+			template.organismDetails = getStringVal(sheet, Rows.organism_detail.row);
 
 			// matrix data
-			template.matrix = getStringVal(sheet, matrix_row);
-			template.matrixDetails = getStringVal(sheet, matrix_detail_row);
+			template.matrix = getStringVal(sheet, Rows.matrix.row);
+			template.matrixDetails = getStringVal(sheet, Rows.matrix_detail.row);
 
-			template.creator = getStringVal(sheet, creator_row);
+			template.creator = getStringVal(sheet, Rows.creator.row);
 
 			// no family name in the spreadsheet
 			// no contact in the spreadsheet
 
-			template.referenceDescription = getStringVal(sheet, reference_description_row);
+			template.referenceDescription = getStringVal(sheet, Rows.reference_description.row);
 
-			template.createdDate = sheet.getRow(created_date_row).getCell(5).getDateCellValue();
-			template.modifiedDate = sheet.getRow(modified_date_row).getCell(5).getDateCellValue();
+			template.createdDate = sheet.getRow(Rows.created_date.row).getCell(5).getDateCellValue();
+			template.modifiedDate = sheet.getRow(Rows.modified_date.row).getCell(5).getDateCellValue();
 
-			template.rights = getStringVal(sheet, rights_row);
+			template.rights = getStringVal(sheet, Rows.rights.row);
 
 			// model type
 			{
 				try {
-					String modelType = getStringVal(sheet, type_row);
+					String modelType = getStringVal(sheet, Rows.type.row);
 					template.type = ModelType.valueOf(modelType);
 				}
 				// if modelTypeAsString is not a valid ModelType
@@ -330,7 +338,7 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 			// model subject
 			{
-				String subject = getStringVal(sheet, subject_row);
+				String subject = getStringVal(sheet, Rows.subject.row);
 				try {
 					template.subject = ModelClass.valueOf(subject);
 				} catch (IllegalArgumentException e) {
@@ -340,21 +348,22 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			}
 
 			// model notes
-			template.notes = getStringVal(sheet, notes_row);
+			template.notes = getStringVal(sheet, Rows.notes.row);
 
 			// dep var
-			template.dependentVariable = getStringVal(sheet, depvar_row);
-			template.dependentVariableUnit = getStringVal(sheet, depvar_unit_row);
-			template.dependentVariableMin = getNumericalVal(sheet, depvar_min_row);
-			template.dependentVariableMax = getNumericalVal(sheet, depvar_max_row);
+			template.dependentVariable = getStringVal(sheet, Rows.depvar.row);
+			template.dependentVariableUnit = getStringVal(sheet, Rows.depvar_unit.row);
+			template.dependentVariableMin = getNumericalVal(sheet, Rows.depvar_min.row);
+			template.dependentVariableMax = getNumericalVal(sheet, Rows.depvar_max.row);
 
 			// indep vars
 			{
-				template.independentVariables = getStringVal(sheet, indepvar_row).split("\\|\\|");
-				template.independentVariableUnits = getStringVal(sheet, indepvar_unit_row).split("\\|\\|");
-				template.independentVariableMins = Arrays.stream(getStringVal(sheet, indepvar_min_row).split("\\|\\|"))
+				template.independentVariables = getStringVal(sheet, Rows.indepvar.row).split("\\|\\|");
+				template.independentVariableUnits = getStringVal(sheet, Rows.indepvar_unit.row).split("\\|\\|");
+				template.independentVariableMins = Arrays
+						.stream(getStringVal(sheet, Rows.indepvar_min.row).split("\\|\\|"))
 						.mapToDouble(Double::parseDouble).toArray();
-				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, indepvar_max_row).split("\\|\\|"))
+				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, Rows.indepvar_max.row).split("\\|\\|"))
 						.mapToDouble(Double::parseDouble).toArray();
 				// no values in the spreadsheet
 			}

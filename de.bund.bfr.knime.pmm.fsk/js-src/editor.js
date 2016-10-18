@@ -5,12 +5,13 @@ metadata_editor = function () {
     };
     editor.name = "FSK Metadata Editor";
 
-    var _value;
+    var _value;  // Raw FskMetadataEditorViewValue
+    var _data;  // Only FskMetaData
 
     editor.init = function (representation, value)
     {
-        alert(JSON.stringify(value));
         _value = value;
+        _data = value.metadata;
         create_body ();
     };
 
@@ -26,24 +27,24 @@ metadata_editor = function () {
     {
         // Utility variables.
         // - Replace null strings with empty strings
-        var modelName = _value.modelName === null ? "" : _value.modelName;
-        var modelId = _value.modelId === null ? "" : _value.modelId;
-        var modelLink = _value.modelLink === null ? "" : _value.modelLink;
-        var organism = _value.organism === null ? "" : _value.organism;
-        var organismDetails = _value.organismDetails === null ? "" : _value.organismDetails;
-        var matrix = _value.matrix === null ? "" : _value.matrix;
-        var matrixDetails = _value.matrixDetails === null ? "" : _value.matrixDetails;
-        var contact = _value.contact = _value.contact === null ? "" : _value.contact;
-        var referenceDescription = _value.referenceDescription === null ? "" : _value.referenceDescription;
-        var referenceDescriptionLink = _value.referenceDescriptionLink === null ? "" : _value.referenceDescriptionLink;
-        var createdDate = _value.createdDate === null ? "" : _value.createdDate;
-        var modifiedDate = _value.modifiedDate === null ? "" : _value.modifiedDate;
-        var rights = _value.rights === null ? "" : _value.rights;
-        var notes = _value.notes === null ? "" : _value.notes;
+        var modelName = _data.modelName === null ? "" : _data.modelName;
+        var modelId = _data.modelId === null ? "" : _data.modelId;
+        var modelLink = _data.modelLink === null ? "" : _data.modelLink;
+        var organism = _data.organism === null ? "" : _data.organism;
+        var organismDetails = _data.organismDetails === null ? "" : _data.organismDetails;
+        var matrix = _data.matrix === null ? "" : _data.matrix;
+        var matrixDetails = _data.matrixDetails === null ? "" : _data.matrixDetails;
+        var contact = _data.contact = _data.contact === null ? "" : _data.contact;
+        var referenceDescription = _data.referenceDescription === null ? "" : _data.referenceDescription;
+        var referenceDescriptionLink = _data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink;
+        var createdDate = _data.createdDate === null ? "" : _data.createdDate;
+        var modifiedDate = _data.modifiedDate === null ? "" : _data.modifiedDate;
+        var rights = _data.rights === null ? "" : _data.rights;
+        var notes = _data.notes === null ? "" : _data.notes;
         // curated is boolean: no need to assign it a default value
-        var modelType = _value.modelType === null ? "" : _value.modelType;
-        var modelSubject = _value.modelSubject === null ? "" : _value.modelSubject;
-        var foodProcess = _value.foodProcess === null ? "" : _value.foodProcess;
+        var modelType = _data.type === null ? "" : _data.type;
+        var modelSubject = _data.subject === null ? "" : _data.subject;
+        var foodProcess = _data.foodProcess === null ? "" : _data.foodProcess;
 
         var varTable =
             '<table class="table table-condensed">' +
@@ -56,8 +57,20 @@ metadata_editor = function () {
             '    <th>Max</th>' +
             '    <th>Dependent</th>'
             '  </tr>';
-        for (var i = 0; i < _value.variables.length; i++) {
-            var variable = _value.variables[i];
+        // Row with dependent variable
+        varTable +=
+            '<tr>' +
+            '  <td>' + _data.dependentVariable.name + '</td>' +
+            '  <td>' + _data.dependentVariable.unit + '</td>' +
+            '  <td>' + _data.dependentVariable.type + '</td>' +
+            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.value + '"></td>' +
+            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.min + '"></td>' +
+            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.max + '"></td>' +
+            '  <td><input type="checkbox" class="form-control" checked disabled></td>' +
+            '</tr>';
+        // Row with independent variables
+        for (var i = 0; i < _data.independentVariables.length; i++) {
+            var variable = _data.independentVariables[i];
             varTable +=
                 '<tr>' +
                 '  <td>' + variable.name + '</td>' +
@@ -66,7 +79,7 @@ metadata_editor = function () {
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
-                '  <td><input type="checkbox" class="form-control" ' + (variable.isDependent ? "checked" : "") + ' disabled></td>' +
+                '  <td><input type="checkbox" class="form-control" disabled></td>' +
                 '</tr>';
         }
         varTable += '</table>';
@@ -202,7 +215,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="curated" class="col-sm-3 control-label">Curated</label>' +
             '    <div class="col-sm-9">' +
-            '      <input id="curatedInput" type="checkbox"' + (_value.curated ? " checked" : "") + '>' +
+            '      <input id="curatedInput" type="checkbox"' + (_data.curated ? " checked" : "") + '>' +
             '    </div>' +
             '  </div>' +
 
@@ -234,7 +247,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="hasData" class="col-sm-3 control-label">Has data?</label>' +
             '    <div class="col-sm-9">' +
-            '      <input id="hasDataInput" type="checkbox"' + (_value.hasData ? " checked" : "") + '>' +
+            '      <input id="hasDataInput" type="checkbox"' + (_data.hasData ? " checked" : "") + '>' +
             '    </div>' +
             '  </div>' +
 
@@ -255,31 +268,46 @@ metadata_editor = function () {
 
     function reset ()
     {
-        $("#modelNameInput").val(_value.modelName === null ? "" : _value.modelName);
-        $("#modelIdInput").val(_value.modelId === null ? "" : _value.modelId);
-        $("#modelLinkInput").val(_value.modelLink === null ? "" : _value.modelLink);
-        $("#organismInput").val(_value.organism === null ? "" : _value.organism);
-        $("#organismDetailsInput").val(_value.organismDetails === null ? "" : _value.organismDetails);
-        $("#matrixInput").val(_value.matrix === null ? "" : _value.matrix);
-        $("#matrixDetailsInput").val(_value.matrixDetails === null ? "" : _value.matrixDetails);
-        $("#contactInput").val(_value.contact === null ? "" : _value.contact);
-        $("#softwareInput").val(_value.software === null ? "" : _value.software);
-        $("#referenceDescriptionInput").val(_value.referenceDescription === null ? "" : _value.referenceDescription);
-        $("#referenceDescriptionLinkInput").val(_value.referenceDescriptionLink === null ? "" : _value.referenceDescriptionLink);
-        $("#createdDateInput").val(_value.createdDate === null ? "" : _value.createdDate);
-        $("#modifiedDateInput").val(_value.modifiedDate === null ? "" : _value.modifiedDate);
-        $("#rightsInput").val(_value.rights === null ? "" : _value.rights);
-        $("#notesInput").val(_value.notes === null ? "" : _value.notes);
-        $("#curatedInput").prop("checked", _value.curated);
-        $("#modelTypeInput").val(_value.modelType === null ? "" : _value.modelType);
-        $("#modelSubjectInput").val(_value.modelSubject === null ? "" : _value.modelSubject);
-        $("#foodProcessInput").val(_value.foodProcess === null ? "" : _value.foodProcess);
+        $("#modelNameInput").val(_data.modelName === null ? "" : _data.modelName);
+        $("#modelIdInput").val(_data.modelId === null ? "" : _data.modelId);
+        $("#modelLinkInput").val(_data.modelLink === null ? "" : _data.modelLink);
+        $("#organismInput").val(_data.organism === null ? "" : _data.organism);
+        $("#organismDetailsInput").val(_data.organismDetails === null ? "" : _data.organismDetails);
+        $("#matrixInput").val(_data.matrix === null ? "" : _data.matrix);
+        $("#matrixDetailsInput").val(_data.matrixDetails === null ? "" : _data.matrixDetails);
+        $("#contactInput").val(_data.contact === null ? "" : _data.contact);
+        $("#softwareInput").val(_data.software === null ? "" : _data.software);
+        $("#referenceDescriptionInput").val(_data.referenceDescription === null ? "" : _data.referenceDescription);
+        $("#referenceDescriptionLinkInput").val(_data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink);
+        $("#createdDateInput").val(_data.createdDate === null ? "" : _data.createdDate);
+        $("#modifiedDateInput").val(_data.modifiedDate === null ? "" : _data.modifiedDate);
+        $("#rightsInput").val(_data.rights === null ? "" : _data.rights);
+        $("#notesInput").val(_data.notes === null ? "" : _data.notes);
+        $("#curatedInput").prop("checked", _data.curated);
+        $("#modelTypeInput").val(_data.modelType === null ? "" : _data.modelType);
+        $("#modelSubjectInput").val(_data.modelSubject === null ? "" : _data.modelSubject);
+        $("#foodProcessInput").val(_data.foodProcess === null ? "" : _data.foodProcess);
 
         var table = $("body div table");
         table.find("tr:gt(0)").remove();
-        for (var i = 0; i < _value.variables.length; i++) {
-            var variable = _value.variables[i];
-            var row =
+
+        // Row with dependent variable
+        var depRow = 
+            '<tr>' +
+            '  <td>' + _data.dependentVariable.name + '</td>' +
+            '  <td>' + _data.dependentVariable.unit + '</td>' +
+            '  <td>' + _data.dependentVariable.type + '</td>' +
+            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.value + '"></td>' +
+            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.min + '"></td>' +
+            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.max + '"></td>' +
+            '  <td><input type="checkbox" class="form-control" checked disabled></td>' +
+            '</tr>';
+        table.append(depRow);
+
+        // Rows with independent variables
+        for (var i = 0; i < _data.independentVariables.length; i++) {
+            var variable = _data.independentVariables[i];
+            var indepRow =
                 '<tr>' +
                 '  <td>' + variable.name + '</td>' +
                 '  <td>' + variable.unit + '</td>' +
@@ -289,10 +317,10 @@ metadata_editor = function () {
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
                 '  <td><input type="checkbox" class="form-control" ' + (variable.isDependent ? "checked" : "") + ' disabled></td>' +
                 '</tr>';
-            table.append(row);
+            table.append(indepRow);
         }
 
-        $("#hasDataInput").prop("checked", _value.hasData);
+        $("#hasDataInput").prop("checked", _data.hasData);
     }
 
 
@@ -359,27 +387,36 @@ metadata_editor = function () {
         //     return;
         // }
 
-        _value.modelName = $("#modelNameInput").val();
-        _value.modelId = $("#modelIdInput").val();
-        _value.modelLink = $("#modelLinkInput").val();
-        _value.organism = $("#organismInput").val();
-        _value.organismDetails = $("#organismDetailsInput").val();
-        _value.matrix = $("#matrixInput").val();
-        _value.matrixDetails = $("#matrixDetailsInput").val();
-        _value.contact = $("#contactInput").val();
-        _value.software = $("#softwareInput").val();
-        _value.referenceDescription = $("#referenceDescriptionInput").val();
-        _value.referenceDescriptionLink = $("#referenceDescriptionLinkInput").val();
-        _value.createdDate = $("#createdDateInput").val();
-        _value.modifiedDate = $("#modifiedDateInput").val();
-        _value.rights = $("#rightsInput").val();
-        _value.notes = $("#notesInput").val();
-        _value.curated = $("#curatedInput").is(':checked');
-        _value.modelType = $("#modelTypeInput").val();
-        _value.modelSubject = $("#modelSubjectInput").val();
-        _value.foodProcess = $("#foodProcessInput").val();
+        _data.modelName = $("#modelNameInput").val();
+        _data.modelId = $("#modelIdInput").val();
+        _data.modelLink = $("#modelLinkInput").val();
+        _data.organism = $("#organismInput").val();
+        _data.organismDetails = $("#organismDetailsInput").val();
+        _data.matrix = $("#matrixInput").val();
+        _data.matrixDetails = $("#matrixDetailsInput").val();
+        _data.contact = $("#contactInput").val();
+        _data.software = $("#softwareInput").val();
+        _data.referenceDescription = $("#referenceDescriptionInput").val();
+        _data.referenceDescriptionLink = $("#referenceDescriptionLinkInput").val();
+        _data.createdDate = $("#createdDateInput").val();
+        _data.modifiedDate = $("#modifiedDateInput").val();
+        _data.rights = $("#rightsInput").val();
+        _data.notes = $("#notesInput").val();
+        _data.curated = $("#curatedInput").is(':checked');
+        _data.modelType = $("#modelTypeInput").val();
+        _data.modelSubject = $("#modelSubjectInput").val();
+        _data.foodProcess = $("#foodProcessInput").val();
 
-        _value.variables = []
+        // Dependent variable
+        var depRow = $("body div table tr:eq(1)");
+        _data.dependentVariable.name = $("td:eq(0)", depRow).text();
+        _data.dependentVariable.unit = $("td:eq(1)", depRow).text();
+        _data.dependentVariable.type = $("td:eq(2)", depRow).text();
+        _data.dependentVariable.value = $("td:eq(3) input", depRow).val();
+        _data.dependentVariable.min = $("td:eq(4) input", depRow).val();
+        _data.dependentVariable.max = $("td:eq(5) input", depRow).val();
+
+        _data.independentVariables = []
         $("body div table tr:not(:first)").each(function() {
             var variable = {};
             variable.name = $("td:eq(0)", this).text();
@@ -388,10 +425,11 @@ metadata_editor = function () {
             variable.value = $("td:eq(3) input", this).val();
             variable.min = $("td:eq(4) input", this).val();
             variable.max = $("td:eq(5) input", this).val();
-            variable.isDependent = $("td:eq(6) input", this).is(":checked");
-            _value.variables.push(variable);
+            _data.independentVariables.push(variable);
         })
 
-        _value.hasData = $("#hasDataInput").is(':checked');
+        _data.hasData = $("#hasDataInput").is(':checked');
+
+        _value.metadata = _data;  // Update metadata in ViewValue
     }
 }();

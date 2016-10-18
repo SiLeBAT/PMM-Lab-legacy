@@ -36,14 +36,6 @@
 	</node>
 </extension>
 
-<extension point="org.knime.workbench.repository.metanode">
-	<PersistedMetaNode
-		category-path="/pmmlab"
-		expert-flag="false"
-		id="de.bund.bfr.knime.pmm.fsk.testrmodel"
-		name="Test R model"
-		workflowDir="metanodes_templates/Test R model/" />
-</extension>
 
 <extension id="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferenceInitializer" point="org.eclipse.core.runtime.preferences">
 	<initializer class="de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer"/>

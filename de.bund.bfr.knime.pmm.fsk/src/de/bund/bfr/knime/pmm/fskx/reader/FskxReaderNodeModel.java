@@ -71,6 +71,7 @@ import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.Variable;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
@@ -185,7 +186,7 @@ class FskxReaderNodeModel extends NodeModel {
 			{
 				// TODO: usually the type of the depvar is numeric although it
 				// should be checked
-				portObj.template.dependentVariableType = DataType.numeric;
+				portObj.template.dependentVariable.type = DataType.numeric;
 
 				/*
 				 * TODO: FskMetaData is keeping only numeric types for
@@ -194,9 +195,8 @@ class FskxReaderNodeModel extends NodeModel {
 				 * the rest of types are supported in FskMetaData the following
 				 * code should be update to retrieve the types.
 				 */
-				portObj.template.independentVariableTypes = new DataType[portObj.template.independentVariables.length];
-				for (int i = 0; i < portObj.template.independentVariables.length; i++) {
-					portObj.template.independentVariableTypes[i] = DataType.numeric;
+				for (Variable v : portObj.template.independentVariables) {
+					v.type = DataType.numeric;
 				}
 			}
 
@@ -424,14 +424,14 @@ class FskxReaderNodeModel extends NodeModel {
 
 			// Gets parameter for the dependent variable and sets it
 			Parameter param = model.getParameter(depId);
-			template.dependentVariable = param.getName();
+			template.dependentVariable.name = param.getName();
 
 			// Gets and sets dependent variable unit
 			String unitId = param.getUnits();
 			if (!unitId.equals("dimensionless")) {
 				UnitDefinition unitDef = model.getUnitDefinition(unitId);
 				if (unitDef != null) {
-					template.dependentVariableUnit = unitDef.getName();
+					template.dependentVariable.unit = unitDef.getName();
 				}
 			}
 
@@ -439,9 +439,9 @@ class FskxReaderNodeModel extends NodeModel {
 			for (Limits lim : limits) {
 				if (lim.getVar().equals(depId)) {
 					if (lim.getMin() != null)
-						template.dependentVariableMin = lim.getMin();
+						template.dependentVariable.min = lim.getMin().toString();
 					if (lim.getMax() != null)
-						template.dependentVariableMax = lim.getMax();
+						template.dependentVariable.max = lim.getMax().toString();
 					break;
 				}
 			}
@@ -460,30 +460,30 @@ class FskxReaderNodeModel extends NodeModel {
 
 			final int numParams = indepParams.size();
 
-			template.independentVariables = new String[numParams];
-			template.independentVariableUnits = new String[numParams];
-			template.independentVariableMins = new double[numParams];
-			template.independentVariableMaxs = new double[numParams];
-
 			for (int p = 0; p < numParams; p++) {
 				Parameter param = indepParams.get(p);
+				Variable variable = new Variable();
 
-				template.independentVariables[p] = param.getName();
+				variable.name = param.getName();
 
 				// unit
 				String unitId = param.getUnits();
-				template.independentVariableUnits[p] = "";
+				variable.unit = "";
 				if (!unitId.equals("dimensionless")) {
 					UnitDefinition unitDef = model.getUnitDefinition(unitId);
 					if (unitDef != null) {
-						template.independentVariableUnits[p] = unitDef.getName();
+						variable.unit = unitDef.getName();
 					}
 				}
 
 				Limits paramLimits = limits.stream().filter(lim -> lim.getVar().equals(param.getId())).findFirst()
 						.get();
-				template.independentVariableMins[p] = paramLimits.getMin();
-				template.independentVariableMaxs[p] = paramLimits.getMax();
+				variable.min = paramLimits.getMin().toString();
+				variable.max = paramLimits.getMax().toString();
+				
+				variable.value = "";
+				
+				template.independentVariables.add(variable);
 			}
 		}
 

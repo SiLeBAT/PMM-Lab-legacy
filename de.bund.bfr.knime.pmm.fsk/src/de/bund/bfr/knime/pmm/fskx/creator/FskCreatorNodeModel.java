@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.knime.base.node.util.exttool.ExtToolOutputNodeModel;
@@ -51,8 +53,9 @@ import com.google.common.base.Strings;
 import de.bund.bfr.fskml.MissingValueError;
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
-import de.bund.bfr.knime.pmm.fskx.RScript;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
+import de.bund.bfr.knime.pmm.fskx.RScript;
+import de.bund.bfr.knime.pmm.fskx.Variable;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
@@ -194,23 +197,22 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			portObj.template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
 		portObj.template.software = FskMetaData.Software.R;
-		
+
 		// Set types of variables
 		{
 			// TODO: usually the type of the depvar is numeric although it
 			// should be checked
-			portObj.template.dependentVariableType = DataType.numeric;
+			portObj.template.dependentVariable.type = DataType.numeric;
 
 			/*
-			 * TODO: FskMetaData is keeping only numeric types for
-			 * independent variables so it does not make sense to try to
-			 * obtain the type here since it will always be numeric. Once
-			 * the rest of types are supported in FskMetaData the following
-			 * code should be update to retrieve the types.
+			 * TODO: FskMetaData is keeping only numeric types for independent
+			 * variables so it does not make sense to try to obtain the type
+			 * here since it will always be numeric. Once the rest of types are
+			 * supported in FskMetaData the following code should be update to
+			 * retrieve the types.
 			 */
-			portObj.template.independentVariableTypes = new DataType[portObj.template.independentVariables.length];
-			for (int i = 0; i < portObj.template.independentVariables.length; i++) {
-				portObj.template.independentVariableTypes[i] = DataType.numeric;
+			for (Variable v : portObj.template.independentVariables) {
+				v.type = DataType.numeric;
 			}
 		}
 
@@ -370,22 +372,29 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			// model notes
 			template.notes = getStringVal(sheet, Rows.notes.row);
 
-			// dep var
-			template.dependentVariable = getStringVal(sheet, Rows.depvar.row);
-			template.dependentVariableUnit = getStringVal(sheet, Rows.depvar_unit.row);
-			template.dependentVariableMin = getNumericalVal(sheet, Rows.depvar_min.row);
-			template.dependentVariableMax = getNumericalVal(sheet, Rows.depvar_max.row);
+			// dep var. Type is not in the spreadsheet.
+			template.dependentVariable.name = getStringVal(sheet, Rows.depvar.row);
+			template.dependentVariable.unit = getStringVal(sheet, Rows.depvar_unit.row);
+			template.dependentVariable.min = getStringVal(sheet, Rows.depvar_min.row);
+			template.dependentVariable.max = getStringVal(sheet, Rows.depvar_max.row);
 
 			// indep vars
 			{
-				template.independentVariables = getStringVal(sheet, Rows.indepvar.row).split("\\|\\|");
-				template.independentVariableUnits = getStringVal(sheet, Rows.indepvar_unit.row).split("\\|\\|");
-				template.independentVariableMins = Arrays
-						.stream(getStringVal(sheet, Rows.indepvar_min.row).split("\\|\\|"))
-						.mapToDouble(Double::parseDouble).toArray();
-				template.independentVariableMaxs = Arrays.stream(getStringVal(sheet, Rows.indepvar_max.row).split("\\|\\|"))
-						.mapToDouble(Double::parseDouble).toArray();
-				// no values in the spreadsheet
+				String[] names = getStringVal(sheet, Rows.indepvar.row).split("\\|\\|");
+				String[] units = getStringVal(sheet, Rows.indepvar_unit.row).split("\\|\\|");
+				String[] mins = getStringVal(sheet, Rows.indepvar_min.row).split("\\|\\|");
+				String[] maxs = getStringVal(sheet, Rows.indepvar_max.row).split("\\|\\|");
+
+				for (int i = 0; i < names.length; i++) {
+					Variable v = new Variable();
+					v.name = names[i];
+					v.unit = units[i];
+					v.min = mins[i];
+					v.max = maxs[i];
+					// no values or types in the spreadsheet
+					v.value = "";
+					template.independentVariables.add(v);
+				}
 			}
 
 			template.hasData = false;
@@ -398,15 +407,11 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 		 * that row.
 		 */
 		private static String getStringVal(final XSSFSheet sheet, final byte rownum) {
-			return sheet.getRow(rownum).getCell(5).getStringCellValue();
-		}
+			XSSFCell cell = sheet.getRow(rownum).getCell(5);
 
-		/**
-		 * Gets the numerical value for the fifth column which holds the value
-		 * for that row.
-		 */
-		private static double getNumericalVal(final XSSFSheet sheet, final byte rownum) {
-			return sheet.getRow(rownum).getCell(5).getNumericCellValue();
+			if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC)
+				return Double.toString(cell.getNumericCellValue());
+			return cell.getStringCellValue();
 		}
 	}
 }

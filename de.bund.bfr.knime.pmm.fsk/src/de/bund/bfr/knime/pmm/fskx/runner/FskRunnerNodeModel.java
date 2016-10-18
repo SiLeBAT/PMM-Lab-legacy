@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Arrays;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.container.CloseableRowIterator;
@@ -38,6 +37,7 @@ import org.rosuda.REngine.REXPMismatchException;
 
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
+import de.bund.bfr.knime.pmm.fskx.Variable;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
@@ -126,14 +126,15 @@ class FskRunnerNodeModel extends NodeModel {
 				try (CloseableRowIterator iterator = metadataTable.iterator()) {
 					DataRow dataRow = iterator.next();
 					iterator.close();
-					
+
 					// Gets independent variables and their values
 					StringCell varCell = (StringCell) dataRow.getCell(FskMetaDataTuple.Key.indepvars.ordinal());
 					String[] vars = varCell.getStringValue().split("\\|\\|");
-					
-					StringCell valuesCell = (StringCell) dataRow.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal());
+
+					StringCell valuesCell = (StringCell) dataRow
+							.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal());
 					String[] values = valuesCell.getStringValue().split("\\|\\|");
-					
+
 					if (vars != null && values != null && vars.length == values.length) {
 						StringBuilder sb = new StringBuilder();
 						for (int i = 0; i < vars.length; i++) {
@@ -331,66 +332,39 @@ class FskRunnerNodeModel extends NodeModel {
 		}
 
 		template.foodProcess = ((StringCell) row.getCell(FskMetaDataTuple.Key.food_process.ordinal())).getStringValue();
-		template.dependentVariable = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar.ordinal())).getStringValue();
-		template.dependentVariableUnit = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_min.ordinal()))
-				.getStringValue();
 
-		// dependent variable min
+		// Dependent variable
 		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.depvar_min.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				template.dependentVariableMin = Double.parseDouble(cell.getStringValue());
-			}
-		}
-
-		// dependent variable max
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.depvar_max.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				template.dependentVariableMax = Double.parseDouble(cell.getStringValue());
-			}
+			template.dependentVariable.name = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar.ordinal()))
+					.getStringValue();
+			template.dependentVariable.unit = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_unit.ordinal()))
+					.getStringValue();
+			template.dependentVariable.min = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_min.ordinal()))
+					.getStringValue();
+			template.dependentVariable.max = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_max.ordinal()))
+					.getStringValue();
 		}
 
 		// independent variables
 		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				template.independentVariables = cell.getStringValue().split("\\|\\|");
-			}
-		}
-
-		// independent variable units
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_units.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				template.independentVariableUnits = cell.getStringValue().split("\\|\\|");
-			}
-		}
-
-		// independent variable minimum values
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_mins.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				String[] tokens = cell.getStringValue().split("\\|\\|");
-				template.independentVariableMins = Arrays.stream(tokens).mapToDouble(Double::parseDouble).toArray();
-			}
-		}
-
-		// independent variable maximum values
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_maxs.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				String[] tokens = cell.getStringValue().split("\\|\\|");
-				template.independentVariableMaxs = Arrays.stream(tokens).mapToDouble(Double::parseDouble).toArray();
-			}
-		}
-
-		// independent variable values
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				String[] tokens = cell.getStringValue().split("\\|\\|");
-				template.independentVariableValues = Arrays.stream(tokens).mapToDouble(Double::parseDouble).toArray();
+			String[] names = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars.ordinal())).getStringValue()
+					.split("\\|\\|");
+			String[] units = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_units.ordinal())).getStringValue()
+					.split("\\|\\|");
+			String[] mins = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_mins.ordinal())).getStringValue()
+					.split("\\|\\|");
+			String[] maxs = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_maxs.ordinal())).getStringValue()
+					.split("\\|\\|");
+			String[] values = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal())).getStringValue()
+					.split("\\|\\|");
+			
+			for (int i = 0; i < names.length; i++) {
+				Variable v = new Variable();
+				v.name = names[i];
+				v.unit = units[i];
+				v.min = mins[i];
+				v.max = maxs[i];
+				v.value = values[i];
 			}
 		}
 

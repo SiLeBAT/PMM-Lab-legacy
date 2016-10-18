@@ -5,48 +5,18 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.Software;
+import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple.Key;
 import de.bund.bfr.openfsmr.FSMRTemplate;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
 public class FskTemplateSettings {
-
-	// configuration keys
-	private static enum Key {
-		modelName,
-		modelId,
-		modelLink,
-		organismName,
-		organismDetails,
-		matrixName,
-		matrixDetails,
-		creator,
-		familyName,
-		contact,
-		referenceDescription,
-		referenceDescriptionLink,
-		createdDate,
-		modifiedDate,
-		rights,
-		notes,
-		curationStatus,
-		modelType,
-		modelSubject,
-		foodProcess,
-		dependentVariable,
-		dependentVariableUnit,
-		dependentVariableMin,
-		dependentVariableMax,
-		independentVariables,
-		independentVariableUnits,
-		independentVariableMins,
-		independentVariableMaxs,
-		independentVariableValues,
-		hasData
-	}
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd.yyyy");
 
@@ -56,68 +26,92 @@ public class FskTemplateSettings {
 	 * Loads {@link FSMRTemplate} from a {@link NodeSettingsRO}.
 	 * 
 	 * @param settings
+	 * @throws InvalidSettingsException
 	 */
-	public void loadFromNodeSettings(final NodeSettingsRO settings) {
+	public void loadFromNodeSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 
 		try {
-			template.modelName = settings.getString(Key.modelName.name(), null);
-			template.modelId = settings.getString(Key.modelId.name(), null);
+			template.modelName = settings.getString(Key.name.name(), null);
+			template.modelId = settings.getString(Key.id.name(), null);
 
-			String modelLink = settings.getString(Key.modelLink.name(), null);
+			String modelLink = settings.getString(Key.model_link.name(), null);
 			if (modelLink != null)
 				template.modelLink = new URL(modelLink);
 
-			template.organism = settings.getString(Key.organismName.name(), null);
-			template.organismDetails = settings.getString(Key.organismDetails.name(), null);
-			template.matrix = settings.getString(Key.matrixName.name(), null);
-			template.matrixDetails = settings.getString(Key.matrixDetails.name(), null);
-			template.creator = settings.getString(Key.creator.name(), null);
-			template.familyName = settings.getString(Key.familyName.name(), null);
-			template.contact = settings.getString(Key.contact.name(), null);
-			template.referenceDescription = settings.getString(Key.referenceDescription.name(), null);
+			template.organism = settings.getString(Key.species.name(), null);
+			template.organismDetails = settings.getString(Key.species_details.name(), null);
 
-			String referenceDescriptionLink = settings.getString(Key.referenceDescriptionLink.name(), null);
+			template.matrix = settings.getString(Key.matrix.name(), null);
+			template.matrixDetails = settings.getString(Key.matrix_details.name(), null);
+
+			template.creator = settings.getString(Key.creator.name(), null);
+			template.familyName = settings.getString(Key.family_name.name(), null);
+			template.contact = settings.getString(Key.contact.name(), null);
+
+			String softwareAsString = settings.getString(settings.getString(Key.software.name(), null));
+			template.software = softwareAsString == null ? null : Software.valueOf(softwareAsString);
+
+			template.referenceDescription = settings.getString(Key.reference_description.name(), null);
+
+			String referenceDescriptionLink = settings.getString(Key.reference_description_link.name(), null);
 			if (referenceDescriptionLink != null)
 				template.referenceDescriptionLink = new URL(referenceDescriptionLink);
 
-			String createdDate = settings.getString(Key.createdDate.name(), null);
+			String createdDate = settings.getString(Key.created_date.name(), null);
 			if (createdDate != null)
 				template.createdDate = dateFormat.parse(createdDate);
 
-			String modifiedDate = settings.getString(Key.modifiedDate.name(), null);
+			String modifiedDate = settings.getString(Key.modified_date.name(), null);
 			if (modifiedDate != null)
 				template.modifiedDate = dateFormat.parse(modifiedDate);
 
 			template.rights = settings.getString(Key.rights.name(), null);
 			template.notes = settings.getString(Key.notes.name(), null);
-			template.curated = settings.getBoolean(Key.curationStatus.name(), false);
+			template.curated = settings.getBoolean(Key.curation_status.name(), false);
 
-			String modelType = settings.getString(Key.modelType.name(), null);
+			String modelType = settings.getString(Key.model_type.name(), null);
 			if (modelType != null) {
 				template.type = ModelType.valueOf(modelType);
 			}
 
-			String modelSubject = settings.getString(Key.modelSubject.name(), null);
+			String modelSubject = settings.getString(Key.subject.name(), null);
 			if (modelSubject != null)
 				template.subject = ModelClass.fromName(modelSubject);
 
-			template.foodProcess = settings.getString(Key.foodProcess.name(), null);
-			template.dependentVariable = settings.getString(Key.dependentVariable.name(), null);
-			template.dependentVariableUnit = settings.getString(Key.dependentVariableUnit.name(), null);
-			template.dependentVariableMin = settings.getDouble(Key.dependentVariableMin.name(), Double.NaN);
-			template.dependentVariableMax = settings.getDouble(Key.dependentVariableMax.name(), Double.NaN);
+			template.foodProcess = settings.getString(Key.food_process.name(), null);
 
-			template.independentVariables = settings.getStringArray(Key.independentVariables.name(), (String[]) null);
-			template.independentVariableUnits = settings.getStringArray(Key.independentVariableUnits.name(),
-					(String[]) null);
-			template.independentVariableMins = settings.getDoubleArray(Key.independentVariableMins.name(),
-					(double[]) null);
-			template.independentVariableMaxs = settings.getDoubleArray(Key.independentVariableMaxs.name(),
-					(double[]) null);
-			template.independentVariableValues = settings.getDoubleArray(Key.independentVariableValues.name(),
-					(double[]) null);
+			// Dependent variable
+			template.dependentVariable.name = settings.getString(Key.depvar.name(), null);
+			template.dependentVariable.unit = settings.getString(Key.depvar_unit.name(), null);
+			template.dependentVariable.type = DataType.valueOf(settings.getString(Key.depvar_type.name(), null));
+			template.dependentVariable.min = settings.getString(Key.depvar_min.name(), null);
+			template.dependentVariable.max = settings.getString(Key.depvar_max.name(), null);
 
-			template.hasData = settings.getBoolean(Key.hasData.name(), false);
+			// Independent variables
+			{
+				String[] names = settings.getStringArray(Key.indepvars.name());
+				String[] units = settings.getStringArray(Key.indepvars_types.name());
+				String[] types = settings.getStringArray(Key.indepvars_types.name());
+				String[] mins = settings.getStringArray(Key.indepvars_mins.name());
+				String[] maxs = settings.getStringArray(Key.indepvars_maxs.name());
+
+				if (names.length == units.length && names.length == types.length && names.length == mins.length
+						&& names.length == maxs.length) {
+
+					for (int i = 0; i < names.length; i++) {
+						Variable v = new Variable();
+						v.name = names[i];
+						v.unit = units[i];
+						v.type = DataType.valueOf(types[i]);
+						v.min = mins[i];
+						v.max = maxs[i];
+
+						template.independentVariables.add(v);
+					}
+				}
+			}
+
+			template.hasData = settings.getBoolean(Key.has_data.name(), false);
 		} catch (MalformedURLException e) {
 			// does not happen -> internal links are checked before
 			// being saved
@@ -141,41 +135,61 @@ public class FskTemplateSettings {
 	 * @param settings
 	 */
 	public void saveToNodeSettings(final NodeSettingsWO settings) {
-		settings.addString(Key.modelName.name(), template.modelName);
-		settings.addString(Key.modelId.name(), template.modelId);
-		settings.addString(Key.modelLink.name(), template.modelLink == null ? null : template.modelLink.toString());
-		settings.addString(Key.organismName.name(), template.organism);
-		settings.addString(Key.organismDetails.name(), template.organismDetails);
-		settings.addString(Key.matrixName.name(), template.matrix);
-		settings.addString(Key.matrixDetails.name(), template.matrixDetails);
+
+		settings.addString(Key.name.name(), template.modelName);
+		settings.addString(Key.id.name(), template.modelId);
+		settings.addString(Key.model_link.name(), template.modelLink == null ? null : template.modelLink.toString());
+
+		settings.addString(Key.species.name(), template.organism);
+		settings.addString(Key.species_details.name(), template.organismDetails);
+
+		settings.addString(Key.matrix.name(), template.matrix);
+		settings.addString(Key.matrix_details.name(), template.matrixDetails);
+
 		settings.addString(Key.creator.name(), template.creator);
-		settings.addString(Key.familyName.name(), template.familyName);
+		settings.addString(Key.family_name.name(), template.familyName);
 		settings.addString(Key.contact.name(), template.contact);
-		settings.addString(Key.referenceDescription.name(), template.referenceDescription);
-		settings.addString(Key.referenceDescriptionLink.name(),
+		settings.addString(Key.software.name(), template.software.name());
+		settings.addString(Key.reference_description.name(), template.referenceDescription);
+		settings.addString(Key.reference_description_link.name(),
 				template.referenceDescriptionLink == null ? null : template.referenceDescriptionLink.toString());
-		settings.addString(Key.createdDate.name(),
+
+		settings.addString(Key.created_date.name(),
 				template.createdDate == null ? null : FskMetaData.dateFormat.format(template.createdDate));
-		settings.addString(Key.modifiedDate.name(),
+		settings.addString(Key.modified_date.name(),
 				template.modifiedDate == null ? null : FskMetaData.dateFormat.format(template.modifiedDate));
+
 		settings.addString(Key.rights.name(), template.rights);
 		settings.addString(Key.notes.name(), template.notes);
-		settings.addBoolean(Key.curationStatus.name(), template.curated);
-		settings.addString(Key.modelType.name(), template.type == null ? null : template.type.name());
-		settings.addString(Key.modelSubject.name(), template.subject == null ? "" : template.subject.fullName());
-		settings.addString(Key.foodProcess.name(), template.foodProcess);
+		settings.addBoolean(Key.curation_status.name(), template.curated);
+		settings.addString(Key.model_type.name(), template.type == null ? null : template.type.name());
+		settings.addString(Key.subject.name(), template.subject == null ? "" : template.subject.fullName());
+		settings.addString(Key.food_process.name(), template.foodProcess);
 
-		settings.addString(Key.dependentVariable.name(), template.dependentVariable);
-		settings.addString(Key.dependentVariableUnit.name(), template.dependentVariableUnit);
-		settings.addDouble(Key.dependentVariableMin.name(), template.dependentVariableMin);
-		settings.addDouble(Key.dependentVariableMax.name(), template.dependentVariableMax);
+		// Dependent variable
+		settings.addString(Key.depvar.name(), template.dependentVariable.name);
+		settings.addString(Key.depvar_unit.name(), template.dependentVariable.unit);
+		settings.addString(Key.depvar_type.name(), template.dependentVariable.type.name());
+		settings.addString(Key.depvar_min.name(), template.dependentVariable.min);
+		settings.addString(Key.depvar_max.name(), template.dependentVariable.max);
 
-		settings.addStringArray(Key.independentVariables.name(), template.independentVariables);
-		settings.addStringArray(Key.independentVariableUnits.name(), template.independentVariableUnits);
-		settings.addDoubleArray(Key.independentVariableMins.name(), template.independentVariableMins);
-		settings.addDoubleArray(Key.independentVariableMaxs.name(), template.independentVariableMaxs);
-		settings.addDoubleArray(Key.independentVariableValues.name(), template.independentVariableValues);
+		// Independent variables
+		{
+			String[] names = template.independentVariables.stream().map(v -> v.name).toArray(String[]::new);
+			String[] units = template.independentVariables.stream().map(v -> v.unit).toArray(String[]::new);
+			String[] types = template.independentVariables.stream().map(v -> v.type.name()).toArray(String[]::new);
+			String[] mins = template.independentVariables.stream().map(v -> v.min).toArray(String[]::new);
+			String[] maxs = template.independentVariables.stream().map(v -> v.max).toArray(String[]::new);
+			String[] values = template.independentVariables.stream().map(v -> v.value).toArray(String[]::new);
+			
+			settings.addStringArray(Key.indepvars.name(), names);
+			settings.addStringArray(Key.indepvars_units.name(), units);
+			settings.addStringArray(Key.indepvars_types.name(), types);
+			settings.addStringArray(Key.indepvars_mins.name(), mins);
+			settings.addStringArray(Key.indepvars_maxs.name(), maxs);
+			settings.addStringArray(Key.indepvars_values.name(), values);
+		}
 
-		settings.addBoolean(Key.hasData.name(), template.hasData);
+		settings.addBoolean(Key.has_data.name(), template.hasData);
 	}
 }

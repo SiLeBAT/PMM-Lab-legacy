@@ -56,6 +56,7 @@ import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
 import de.bund.bfr.knime.pmm.fskx.RUri;
+import de.bund.bfr.knime.pmm.fskx.Variable;
 import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
@@ -286,15 +287,14 @@ class FskxWriterNodeModel extends NodeModel {
 		// Creates and adds species to the model
 		String speciesId = PMFUtil.createId(template.organism);
 		String speciesName = template.organism;
-		String speciesUnit = PMFUtil.createId(template.dependentVariableUnit);
+		String speciesUnit = PMFUtil.createId(template.dependentVariable.unit);
 		PMFSpecies species = SBMLFactory.createPMFSpecies(compartment.getId(), speciesId, speciesName, speciesUnit);
 		model.addSpecies(species.getSpecies());
 
 		// Add unit definitions here (before parameters)
 		Set<String> unitsSet = new LinkedHashSet<>();
-		unitsSet.add(template.dependentVariableUnit.trim());
-		for (String unit : template.independentVariableUnits)
-			unitsSet.add(unit.trim());
+		unitsSet.add(template.dependentVariable.unit.trim());
+		template.independentVariables.forEach(v -> unitsSet.add(v.unit.trim()));
 		for (String unit : unitsSet) {
 			try {
 				PMFUnitDefinition unitDef = WriterUtils.createUnitFromDB(unit);
@@ -312,40 +312,44 @@ class FskxWriterNodeModel extends NodeModel {
 		}
 
 		// Adds dep parameter
-		Parameter depParam = new Parameter(PMFUtil.createId(template.dependentVariable));
-		depParam.setName(template.dependentVariable);
-		depParam.setUnits(PMFUtil.createId(template.dependentVariableUnit));
+		Parameter depParam = new Parameter(PMFUtil.createId(template.dependentVariable.name));
+		depParam.setName(template.dependentVariable.name);
+		depParam.setUnits(PMFUtil.createId(template.dependentVariable.unit));
 		model.addParameter(depParam);
 
 		// Adds dep constraint
-		if (!Double.isNaN(template.dependentVariableMin)) {
-			LimitsConstraint lc = new LimitsConstraint(template.dependentVariable, template.dependentVariableMin,
-					template.dependentVariableMax);
+		try {
+			double min = Double.parseDouble(template.dependentVariable.min);
+			double max = Double.parseDouble(template.dependentVariable.max);
+			LimitsConstraint lc = new LimitsConstraint(template.dependentVariable.name, min, max);
 			if (lc.getConstraint() != null) {
 				model.addConstraint(lc.getConstraint());
 			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
 		}
-
+		
 		// Adds independent parameters
-		for (int i = 0; i < template.independentVariables.length; i++) {
-			String var = template.independentVariables[i];
+		for (Variable v : template.independentVariables) {
+			String var = v.name;
 			Parameter param = model.createParameter(PMFUtil.createId(var));
 			param.setName(var);
-
+			
 			try {
-				param.setUnits(PMFUtil.createId(template.independentVariableUnits[i]));
+				param.setUnits(PMFUtil.createId(v.unit));
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			}
-
-			Double min = template.independentVariableMins == null || template.independentVariableMins.length == 0 ? null
-					: template.independentVariableMins[i];
-			Double max = template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0 ? null
-					: template.independentVariableMaxs[i];
-
-			LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
-			if (lc.getConstraint() != null) {
-				model.addConstraint(lc.getConstraint());
+			
+			try {
+				double min = Double.parseDouble(v.min);
+				double max = Double.parseDouble(v.max);
+				LimitsConstraint lc = new LimitsConstraint(param.getId(), min, max);
+				if (lc.getConstraint() != null) {
+					model.addConstraint(lc.getConstraint());
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
 			}
 		}
 

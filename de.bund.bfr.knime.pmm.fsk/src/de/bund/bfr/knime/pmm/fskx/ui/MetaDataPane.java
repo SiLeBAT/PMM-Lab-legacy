@@ -251,39 +251,27 @@ public class MetaDataPane extends JScrollPane {
 			case Model_Food_Process:
 				return template.foodProcess;
 			case Dependent_Variable:
-				return template.dependentVariable;
+				return template.dependentVariable.name;
 			case Dependent_Variable_Unit:
-				return template.dependentVariableUnit;
+				return template.dependentVariable.unit;
 			case Dependent_Variable_Type:
-				return template.dependentVariableType == null ? "" : template.dependentVariableType.name();
+				return template.dependentVariable.type == null ? "" : template.dependentVariable.type.name();
 			case Dependent_Variable_Min:
-				return Double.isNaN(template.dependentVariableMin) ? ""
-						: Double.toString(template.dependentVariableMin);
+				return template.dependentVariable.min;
 			case Dependent_Variable_Max:
-				return Double.isNaN(template.dependentVariableMax) ? ""
-						: Double.toString(template.dependentVariableMax);
+				return template.dependentVariable.max;
 			case Independent_Variable:
-				return template.independentVariables == null || template.independentVariables.length == 0 ? ""
-						: String.join("||", template.independentVariables);
+				return template.independentVariables.stream().map(v -> v.name).collect(Collectors.joining("||"));
 			case Independent_Variable_Units:
-				return template.independentVariableUnits == null || template.independentVariableUnits.length == 0 ? ""
-						: String.join("||", template.independentVariableUnits);
+				return template.independentVariables.stream().map(v -> v.unit).collect(Collectors.joining("||"));
 			case Independent_Variable_Types:
-				return template.independentVariableTypes == null || template.independentVariableTypes.length == 0 ? ""
-						: Arrays.stream(template.independentVariableTypes).map(DataType::name)
-								.collect(Collectors.joining("||"));
+				return template.independentVariables.stream().map(v -> v.type.name()).collect(Collectors.joining("||"));
 			case Independent_Variable_Mins:
-				return template.independentVariableMins == null || template.independentVariableMins.length == 0 ? ""
-						: Arrays.stream(template.independentVariableMins).mapToObj(min -> Double.toString(min))
-								.collect(Collectors.joining("||"));
+				return template.independentVariables.stream().map(v -> v.min).collect(Collectors.joining("||"));
 			case Independent_Variable_Maxs:
-				return template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0 ? ""
-						: Arrays.stream(template.independentVariableMins).mapToObj(max -> Double.toString(max))
-								.collect(Collectors.joining("||"));
+				return template.independentVariables.stream().map(v -> v.max).collect(Collectors.joining("||"));
 			case Independent_Variable_Values:
-				return template.independentVariableValues == null || template.independentVariableValues.length == 0 ? ""
-						: Arrays.stream(template.independentVariableValues).mapToObj(val -> Double.toString(val))
-								.collect(Collectors.joining("||"));
+				return template.independentVariables.stream().map(v -> v.value).collect(Collectors.joining("||"));
 			case Has_Data:
 				return Boolean.toString(template.hasData);
 			}
@@ -385,42 +373,80 @@ public class MetaDataPane extends JScrollPane {
 				template.foodProcess = stringValue;
 				break;
 			case Dependent_Variable:
-				template.dependentVariable = stringValue;
+				template.dependentVariable.name = stringValue;
 				break;
 			case Dependent_Variable_Unit:
-				template.dependentVariableUnit = stringValue;
+				template.dependentVariable.unit = stringValue;
 				break;
 			case Dependent_Variable_Type:
-				template.dependentVariableType = Strings.isNullOrEmpty(stringValue) ? null
-						: DataType.valueOf(stringValue);
+				template.dependentVariable.type = Strings.isNullOrEmpty(stringValue) ? null : DataType.valueOf(stringValue);
 				break;
 			case Dependent_Variable_Min:
-				template.dependentVariableMin = Double.parseDouble(stringValue);
+				template.dependentVariable.min = stringValue;
 				break;
 			case Dependent_Variable_Max:
-				template.dependentVariableMax = Double.parseDouble(stringValue);
+				template.dependentVariable.max = stringValue;
 				break;
 			case Independent_Variable:
-				template.independentVariables = stringValue.split("||");
+				{
+					String[] tokens = stringValue.split("||");
+					if (tokens.length == template.independentVariables.size()) {
+						for (int i = 0; i < tokens.length; i++) {
+							template.independentVariables.get(i).name = tokens[i];
+						}
+					}
+				}
 				break;
 			case Independent_Variable_Units:
-				template.independentVariableUnits = stringValue.split("||");
+				{
+					String[] tokens = stringValue.split("||");
+					if (tokens.length == template.independentVariables.size()) {
+						for (int i = 0; i < tokens.length; i++) {
+							template.independentVariables.get(i).unit = tokens[i];
+						}
+					}
+				}
 				break;
 			case Independent_Variable_Types:
-				template.independentVariableTypes = (DataType[]) Arrays.stream(stringValue.split("||"))
-						.map(DataType::valueOf).toArray();
+				{
+					String[] tokens = stringValue.split("||");
+					if (tokens.length == template.independentVariables.size()) {
+						for (int i = 0; i < tokens.length; i++) {
+							DataType dt = DataType.valueOf(tokens[i]);
+							template.independentVariables.get(i).type = dt;
+						}
+					}
+				}
 				break;
 			case Independent_Variable_Mins:
-				template.independentVariableMins = Arrays.stream(stringValue.split("||"))
-						.mapToDouble(Double::parseDouble).toArray();
+				{
+					String[] tokens = stringValue.split("||");
+					if (tokens.length == template.independentVariables.size()) {
+						for (int i = 0; i < tokens.length; i++) {
+							template.independentVariables.get(i).min = tokens[i];
+						}
+					}
+				}
 				break;
 			case Independent_Variable_Maxs:
-				template.independentVariableMaxs = Arrays.stream(stringValue.split("||"))
-						.mapToDouble(Double::parseDouble).toArray();
+				{
+					String[] tokens = stringValue.split("||");
+					if (tokens.length == template.independentVariables.size()) {
+						for (int i = 0; i < tokens.length; i++) {
+							template.independentVariables.get(i).max = tokens[i];
+						}
+					}
+				}
 				break;
 			case Independent_Variable_Values:
-				template.independentVariableValues = Arrays.stream(stringValue.split("||"))
-						.mapToDouble(Double::parseDouble).toArray();
+				{
+					String[] tokens = stringValue.split("||");
+					if (tokens.length == template.independentVariables.size()) {
+						for (int i = 0; i < tokens.length; i++) {
+							template.independentVariables.get(i).value = tokens[i];
+						}
+					}
+				}
 				break;
 			case Has_Data:
 				template.hasData = Boolean.parseBoolean(stringValue);

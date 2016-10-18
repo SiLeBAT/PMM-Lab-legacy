@@ -9,6 +9,7 @@ metadata_editor = function () {
 
     editor.init = function (representation, value)
     {
+        alert(JSON.stringify(value));
         _value = value;
         create_body ();
     };
@@ -49,6 +50,7 @@ metadata_editor = function () {
             '  <tr>' +
             '    <th>Name</th>' +
             '    <th>Unit</th>' +
+            '    <th>Type</th>' +
             '    <th>Value</th>' +
             '    <th>Min</th>' +
             '    <th>Max</th>' +
@@ -60,6 +62,7 @@ metadata_editor = function () {
                 '<tr>' +
                 '  <td>' + variable.name + '</td>' +
                 '  <td>' + variable.unit + '</td>' +
+                '  <td>' + variable.type + '</td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
@@ -280,6 +283,7 @@ metadata_editor = function () {
                 '<tr>' +
                 '  <td>' + variable.name + '</td>' +
                 '  <td>' + variable.unit + '</td>' +
+                '  <td>' + variable.type + '</td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
                 '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
@@ -380,10 +384,11 @@ metadata_editor = function () {
             var variable = {};
             variable.name = $("td:eq(0)", this).text();
             variable.unit = $("td:eq(1)", this).text();
-            variable.value = $("td:eq(2) input", this).val();
-            variable.min = $("td:eq(3) input", this).val();
-            variable.max = $("td:eq(4) input", this).val();
-            variable.isDependent = $("td:eq(5) input", this).is(":checked");
+            variable.type = $("td:eq(2)", this).text();
+            variable.value = $("td:eq(3) input", this).val();
+            variable.min = $("td:eq(4) input", this).val();
+            variable.max = $("td:eq(5) input", this).val();
+            variable.isDependent = $("td:eq(6) input", this).is(":checked");
             _value.variables.push(variable);
         })
 

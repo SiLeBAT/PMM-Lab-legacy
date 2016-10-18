@@ -21,6 +21,7 @@ import org.knime.core.node.NodeSettings;
 
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
@@ -56,14 +57,33 @@ public class FskTemplateSettingsTest {
       template.type = ModelType.TWO_STEP_TERTIARY_MODEL;
       template.subject = ModelClass.GROWTH;
       template.foodProcess = "cooking";
-      template.dependentVariable = "Concentration";
-      template.dependentVariableUnit = "ln";
-      template.dependentVariableMin = 0.0;
-      template.dependentVariableMax = 10.0;
-      template.independentVariables = new String[] {"time", "temperature"};
-      template.independentVariableUnits = new String[] {"s", "°C"};
-      template.independentVariableMins = new double[] {0.0, 1.0};
-      template.independentVariableMaxs = new double[] {0.0, 1.0};
+      
+      template.dependentVariable.name = "Concentration";
+      template.dependentVariable.unit = "ln";
+      template.dependentVariable.type = DataType.numeric;
+      template.dependentVariable.min = "0.0";
+      template.dependentVariable.max = "10.0";
+      
+      {
+        Variable timeVar = new Variable();
+        timeVar.name = "time";
+        timeVar.unit = "s";
+        timeVar.type = DataType.numeric;
+        timeVar.min = "0.0";
+        timeVar.max = "1.0";
+        template.independentVariables.add(timeVar);
+      }
+      
+      {
+        Variable tempVar = new Variable();
+        tempVar.name = "temperature";
+        tempVar.unit = "°C";
+        tempVar.type = DataType.numeric;
+        tempVar.min = "0.0";
+        tempVar.max = "1.0";
+        template.independentVariables.add(tempVar);
+      }
+      
       template.hasData = false;
     } catch (MalformedURLException e) {
       // passed url here are correct

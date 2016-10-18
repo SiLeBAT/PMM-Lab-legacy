@@ -91,38 +91,30 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.food_process.ordinal()] = new StringCell(Strings.nullToEmpty(template.foodProcess));
 
 		// Dependent variable
-		cell[Key.depvar.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable));
-		cell[Key.depvar_unit.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariableUnit));
+		cell[Key.depvar.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable.name));
+		cell[Key.depvar_unit.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable.unit));
 		cell[Key.depvar_type.ordinal()] = new StringCell(
-				template.dependentVariableType == null ? "" : template.dependentVariableType.name());
-		cell[Key.depvar_min.ordinal()] = new StringCell(
-				Double.isNaN(template.dependentVariableMin) ? "" : Double.toString(template.dependentVariableMin));
-		cell[Key.depvar_max.ordinal()] = new StringCell(
-				Double.isNaN(template.dependentVariableMax) ? "" : Double.toString(template.dependentVariableMax));
+				template.dependentVariable.type == null ? "" : template.dependentVariable.type.name());
+		cell[Key.depvar_min.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable.min));
+		cell[Key.depvar_max.ordinal()] = new StringCell(Strings.nullToEmpty(template.dependentVariable.max));
 
 		// Independent variables
-		cell[Key.indepvars.ordinal()] = new StringCell(
-				template.independentVariables == null || template.independentVariables.length == 0 ? ""
-						: String.join("||", template.independentVariables));
-		cell[Key.indepvars_units.ordinal()] = new StringCell(
-				template.independentVariableUnits == null || template.independentVariableUnits.length == 0 ? ""
-						: String.join("||", template.independentVariableUnits));
-		cell[Key.indepvars_types.ordinal()] = new StringCell(
-				template.independentVariableTypes == null || template.independentVariableTypes.length == 0 ? ""
-						: Arrays.stream(template.independentVariableTypes).map(FskMetaData.DataType::name)
-								.collect(Collectors.joining("||")));
-		cell[Key.indepvars_mins.ordinal()] = new StringCell(
-				template.independentVariableMins == null || template.independentVariableMins.length == 0 ? ""
-						: Arrays.stream(template.independentVariableMins).mapToObj(d -> Double.toString(d))
-								.collect(Collectors.joining("||")));
-		cell[Key.indepvars_maxs.ordinal()] = new StringCell(
-				template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0 ? ""
-						: Arrays.stream(template.independentVariableMaxs).mapToObj(d -> Double.toString(d))
-								.collect(Collectors.joining("||")));
-		cell[Key.indepvars_values.ordinal()] = new StringCell(
-				template.independentVariableValues == null || template.independentVariableValues.length == 0 ? ""
-						: Arrays.stream(template.independentVariableValues).mapToObj(d -> Double.toString(d))
-								.collect(Collectors.joining("||")));
+		{
+			String names = template.independentVariables.stream().map(v -> v.name).collect(Collectors.joining("||"));
+			String units = template.independentVariables.stream().map(v -> v.unit).collect(Collectors.joining("||"));
+			String types = template.independentVariables.stream().map(v -> v.type == null ? "" : v.type.name())
+					.collect(Collectors.joining("||"));
+			String mins = template.independentVariables.stream().map(v -> v.min).collect(Collectors.joining("||"));
+			String maxs = template.independentVariables.stream().map(v -> v.max).collect(Collectors.joining("||"));
+			String values = template.independentVariables.stream().map(v -> v.value).collect(Collectors.joining("||"));
+			
+			cell[Key.indepvars.ordinal()] = new StringCell(names);
+			cell[Key.indepvars_units.ordinal()] = new StringCell(units);
+			cell[Key.indepvars_types.ordinal()] = new StringCell(types);
+			cell[Key.indepvars_mins.ordinal()] = new StringCell(mins);
+			cell[Key.indepvars_maxs.ordinal()] = new StringCell(maxs);
+			cell[Key.indepvars_values.ordinal()] = new StringCell(values);
+		}
 
 		cell[Key.has_data.ordinal()] = new StringCell(Boolean.toString(template.hasData));
 
@@ -179,35 +171,43 @@ public class FskMetaDataTuple implements DataRow {
 		names[Key.name.ordinal()] = "Model name";
 		names[Key.id.ordinal()] = "Model id";
 		names[Key.model_link.ordinal()] = "Model link";
+		
 		names[Key.species.ordinal()] = "Organism";
 		names[Key.species_details.ordinal()] = "Organism details";
+		
 		names[Key.matrix.ordinal()] = "Environment";
 		names[Key.matrix_details.ordinal()] = "Environment details";
+		
 		names[Key.creator.ordinal()] = "Model creator";
 		names[Key.family_name.ordinal()] = "Model family name";
 		names[Key.contact.ordinal()] = "Model contact";
 		names[Key.software.ordinal()] = "Software";
 		names[Key.reference_description.ordinal()] = "Model reference description";
 		names[Key.reference_description_link.ordinal()] = "Model reference description link";
+		
 		names[Key.created_date.ordinal()] = "Created date";
 		names[Key.modified_date.ordinal()] = "Modified date";
+		
 		names[Key.rights.ordinal()] = "Rights";
 		names[Key.notes.ordinal()] = "Notes";
 		names[Key.curation_status.ordinal()] = "Curation status";
 		names[Key.model_type.ordinal()] = "Model type";
 		names[Key.subject.ordinal()] = "Subject";
 		names[Key.food_process.ordinal()] = "Food process";
+		
 		names[Key.depvar.ordinal()] = "Dependent variable";
 		names[Key.depvar_unit.ordinal()] = "Dependent variable unit";
 		names[Key.depvar_type.ordinal()] = "Dependent variable type";
 		names[Key.depvar_min.ordinal()] = "Dependent variable min";
 		names[Key.depvar_max.ordinal()] = "Dependent variable max";
+		
 		names[Key.indepvars.ordinal()] = "Independent variables";
 		names[Key.indepvars_units.ordinal()] = "Independent variable units";
 		names[Key.indepvars_types.ordinal()] = "Independent variable types";
 		names[Key.indepvars_mins.ordinal()] = "Independent variable mins";
 		names[Key.indepvars_maxs.ordinal()] = "Independent variable maxs";
 		names[Key.indepvars_values.ordinal()] = "Independent variable values";
+		
 		names[Key.has_data.ordinal()] = "Has data?";
 
 		DataType[] types = new DataType[numKeys];

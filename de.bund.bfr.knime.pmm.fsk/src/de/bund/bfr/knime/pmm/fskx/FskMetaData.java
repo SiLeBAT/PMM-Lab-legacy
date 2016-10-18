@@ -3,11 +3,17 @@ package de.bund.bfr.knime.pmm.fskx;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FskMetaData implements Serializable {
 
 	private static final long serialVersionUID = -625136501840140815L;
@@ -80,38 +86,11 @@ public class FskMetaData implements Serializable {
 	/** Null or empty string if not set. */
 	public String foodProcess;
 
-	/** Null or empty string if not set. */
-	public String dependentVariable;
-
-	/** Null or empty string if not set. */
-	public String dependentVariableUnit;
-	
 	/** Null if not set. */
-	public DataType dependentVariableType;
-
-	/** Double.NaN if not set. */
-	public double dependentVariableMin = Double.NaN;
-
-	/** Double.NaN if not set. */
-	public double dependentVariableMax = Double.NaN;
+	public Variable dependentVariable = new Variable();
 
 	/** Null if not set. */
-	public String[] independentVariables;
-
-	/** Null if not set. */
-	public String[] independentVariableUnits;
-	
-	/** Null if not set. */
-	public DataType[] independentVariableTypes;
-
-	/** Null if not set. */
-	public double[] independentVariableMins;
-
-	/** Null if not set. */
-	public double[] independentVariableMaxs;
-
-	/** Null if not set. */
-	public double[] independentVariableValues;
+	public List<Variable> independentVariables = new ArrayList<>();
 
 	/** <code>false</code> if not set */
 	public boolean hasData;
@@ -129,5 +108,39 @@ public class FskMetaData implements Serializable {
 		numeric,
 		/** Arrays. */
 		array
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(modelName, modelId, modelLink, organism, organismDetails, matrix, matrixDetails, creator,
+				familyName, contact, software, referenceDescription, referenceDescriptionLink, createdDate,
+				modifiedDate, rights, notes, curated, type, subject, foodProcess, dependentVariable,
+				independentVariables, hasData);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FskMetaData other = (FskMetaData) obj;
+
+		return Objects.equals(modelName, other.modelName) && Objects.equals(modelId, other.modelId)
+				&& Objects.equals(modelLink, other.modelLink) && Objects.equals(organism, other.organism)
+				&& Objects.equals(organismDetails, other.organismDetails) && Objects.equals(matrix, other.matrix)
+				&& Objects.equals(matrixDetails, other.matrixDetails) && Objects.equals(creator, other.creator)
+				&& Objects.equals(familyName, other.familyName) && Objects.equals(contact, other.contact)
+				&& Objects.equals(software, other.software)
+				&& Objects.equals(referenceDescription, other.referenceDescription)
+				&& Objects.equals(referenceDescriptionLink, other.referenceDescriptionLink)
+				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(modifiedDate, other.modifiedDate)
+				&& Objects.equals(rights, other.rights) && Objects.equals(notes, other.notes)
+				&& Objects.equals(curated, other.curated) && Objects.equals(type, other.type)
+				&& Objects.equals(subject, other.subject) && Objects.equals(foodProcess, other.foodProcess)
+				&& Objects.equals(dependentVariable, other.dependentVariable)
+				&& Objects.equals(independentVariables, other.independentVariables) && hasData == other.hasData;
 	}
 }

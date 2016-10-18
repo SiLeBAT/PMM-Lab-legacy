@@ -19,9 +19,8 @@ import org.junit.Test;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 
-import com.google.common.base.Strings;
-
 import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
+import de.bund.bfr.knime.pmm.fskx.FskMetaData.Software;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
 
@@ -36,34 +35,41 @@ public class FskTemplateSettingsTest {
       template.modelName = "Salmonellaspp_GroundBeef_Temp_GrowthModel...";
       template.modelId = "PMM-Lab_342586849";
       template.modelLink = new URL("https://drive.google.com/open?id=0B06JrEEq34hSaEt5UFVIMFM3M0k");
+
       template.organism = "Salmonella spp.";
       template.organismDetails = "broth";
+
       template.matrix = "Beef";
       template.matrixDetails = "(in: ground beef)";
+
       template.creator = "Plaza Rodriguez et al.";
       template.familyName = "Baranyi models";
       template.contact = "some contact data";
+      template.software = Software.R;
+
       template.referenceDescription = "Juneja, Vijay K. et al., 2009. "
           + "Mathematical modeling of growth of Salmonella in raw "
           + "ground beef under isothermal conditions from 10 to 45°C. "
           + "International Journal of Food Microbiology ():  ff.";
       template.referenceDescriptionLink =
           new URL("http://smas.chemeng.ntua.gr/miram/files/publ_237_10_2_2005.pdf");
+
       template.createdDate = new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime();
       template.modifiedDate = new GregorianCalendar(2015, Calendar.DECEMBER, 1).getTime();
+
       template.rights = "CC-BY-NC-SA";
       template.notes = "not curated";
       template.curated = true;
       template.type = ModelType.TWO_STEP_TERTIARY_MODEL;
       template.subject = ModelClass.GROWTH;
       template.foodProcess = "cooking";
-      
+
       template.dependentVariable.name = "Concentration";
       template.dependentVariable.unit = "ln";
       template.dependentVariable.type = DataType.numeric;
       template.dependentVariable.min = "0.0";
       template.dependentVariable.max = "10.0";
-      
+
       {
         Variable timeVar = new Variable();
         timeVar.name = "time";
@@ -73,7 +79,7 @@ public class FskTemplateSettingsTest {
         timeVar.max = "1.0";
         template.independentVariables.add(timeVar);
       }
-      
+
       {
         Variable tempVar = new Variable();
         tempVar.name = "temperature";
@@ -83,7 +89,7 @@ public class FskTemplateSettingsTest {
         tempVar.max = "1.0";
         template.independentVariables.add(tempVar);
       }
-      
+
       template.hasData = false;
     } catch (MalformedURLException e) {
       // passed url here are correct
@@ -101,37 +107,48 @@ public class FskTemplateSettingsTest {
   }
 
   @Test
-  public void testLoadFromNodeSettings() {
+  public void testLoadFromNodeSettings() throws InvalidSettingsException {
     // test empty settings
     NodeSettings emptySettings = new NodeSettings("emptySettings");
-    emptySettings.addString("Model name", null);
-    emptySettings.addString("Model id", null);
-    emptySettings.addString("Model link", null);
-    emptySettings.addString("Organism name", null);
-    emptySettings.addString("Organism detail", null);
-    emptySettings.addString("Matrix name", null);
-    emptySettings.addString("Matrix details", null);
-    emptySettings.addString("Creator", null);
-    emptySettings.addString("Family name", null);
-    emptySettings.addString("Contact", null);
-    emptySettings.addString("Reference description", null);
-    emptySettings.addString("Reference description link", null);
-    emptySettings.addString("Created date", null);
-    emptySettings.addString("Modified date", null);
-    emptySettings.addString("Rights", null);
-    emptySettings.addString("Notes", null);
-    emptySettings.addString("Curation status", null);
-    emptySettings.addString("Model type", null);
-    emptySettings.addString("Model subject", null);
-    emptySettings.addString("Food process", null);
-    emptySettings.addString("Dependent variable", null);
-    emptySettings.addString("Dependent variable unit", null);
-    emptySettings.addDouble("Dependent variable minimum value", Double.NaN);
-    emptySettings.addDouble("Dependent variable maximum value", Double.NaN);
-    emptySettings.addStringArray("Independent variables", (String[]) null);
-    emptySettings.addStringArray("Independent variables units", (String[]) null);
-    emptySettings.addDoubleArray("Independent variables minimum values", (double[]) null);
-    emptySettings.addDoubleArray("Independent varaibles maximum values", (double[]) null);
+    emptySettings.addString("name", null);
+    emptySettings.addString("id", null);
+    emptySettings.addString("model_link", null);
+
+    emptySettings.addString("species", null);
+    emptySettings.addString("species_details", null);
+
+    emptySettings.addString("matrix", null);
+    emptySettings.addString("matrix_details", null);
+
+    emptySettings.addString("creator", null);
+    emptySettings.addString("family_name", null);
+    emptySettings.addString("contact", null);
+    emptySettings.addString("software", null);
+
+    emptySettings.addString("reference_description", null);
+    emptySettings.addString("reference_description_link", null);
+
+    emptySettings.addString("created_date", null);
+    emptySettings.addString("modified_date", null);
+
+    emptySettings.addString("rights", null);
+    emptySettings.addString("notes", null);
+    emptySettings.addString("curation_status", null);
+    emptySettings.addString("model_type", null);
+    emptySettings.addString("subject", null);
+    emptySettings.addString("food_process", null);
+
+    emptySettings.addString("depvar", null);
+    emptySettings.addString("depvar_unit", null);
+    emptySettings.addString("depvar_type", null);
+    emptySettings.addString("depvar_min", null);
+    emptySettings.addString("depvar_max", null);
+
+    emptySettings.addStringArray("indepvars", (String[]) null);
+    emptySettings.addStringArray("indepvars_units", (String[]) null);
+    emptySettings.addStringArray("indepvars_types", (String[]) null);
+    emptySettings.addStringArray("indepvars_mins", (String[]) null);
+    emptySettings.addStringArray("indepvars_maxs", (String[]) null);
 
     FskTemplateSettings templateSettings = new FskTemplateSettings();
     templateSettings.loadFromNodeSettings(emptySettings);
@@ -139,76 +156,65 @@ public class FskTemplateSettingsTest {
 
     // test filled settings
     NodeSettings filledSettings = new NodeSettings("filled settings");
-    filledSettings.addString("Model name", template.modelName);
-    filledSettings.addString("Model id", template.modelId);
-    filledSettings.addString("Model link", template.modelLink.toString());
-    filledSettings.addString("Organism name", template.organism);
-    filledSettings.addString("Organism details", template.organismDetails);
-    filledSettings.addString("Matrix name", template.matrix);
-    filledSettings.addString("Matrix details", template.matrixDetails);
-    filledSettings.addString("Creator", template.creator);
-    filledSettings.addString("Family name", template.familyName);
-    filledSettings.addString("Contact", template.contact);
-    filledSettings.addString("Reference description", template.referenceDescription);
-    filledSettings.addString("Reference description link",
+
+    filledSettings.addString("name", template.modelName);
+    filledSettings.addString("id", template.modelId);
+    filledSettings.addString("model_link", template.modelLink.toString());
+
+    filledSettings.addString("species", template.organism);
+    filledSettings.addString("species_details", template.organismDetails);
+
+    filledSettings.addString("matrix", template.matrix);
+    filledSettings.addString("matrix_details", template.matrixDetails);
+
+    filledSettings.addString("creator", template.creator);
+    filledSettings.addString("family_name", template.familyName);
+    filledSettings.addString("contact", template.contact);
+    filledSettings.addString("software", template.software.name());
+
+    filledSettings.addString("reference_description", template.referenceDescription);
+    filledSettings.addString("reference_description_link",
         template.referenceDescriptionLink.toString());
-    filledSettings.addString("Created date", dateFormat.format(template.createdDate));
-    filledSettings.addString("Modified date", dateFormat.format(template.modifiedDate));
-    filledSettings.addString("Rights", template.rights);
-    filledSettings.addString("Notes", template.notes);
-    filledSettings.addBoolean("Curation status", template.curated);
-    filledSettings.addString("Model type", template.type.name());
-    filledSettings.addString("Model subject", template.subject.fullName());
-    filledSettings.addString("Food process", template.foodProcess);
-    filledSettings.addString("Dependent variable", template.dependentVariable);
-    filledSettings.addString("Dependent variable unit", template.dependentVariableUnit);
-    filledSettings.addDouble("Dependent variable minimum value", template.dependentVariableMin);
-    filledSettings.addDouble("Dependent variable maximum value", template.dependentVariableMax);
-    filledSettings.addStringArray("Independent variables", template.independentVariables);
-    filledSettings.addStringArray("Independent variables units", template.independentVariableUnits);
-    filledSettings.addDoubleArray("Independent variables minimum values",
-        template.independentVariableMins);
-    filledSettings.addDoubleArray("Independent variables maximum values",
-        template.independentVariableMaxs);
+
+    filledSettings.addString("created_date", dateFormat.format(template.createdDate));
+    filledSettings.addString("modified_date", dateFormat.format(template.modifiedDate));
+
+    filledSettings.addString("rights", template.rights);
+    filledSettings.addString("notes", template.notes);
+    filledSettings.addBoolean("curation_status", template.curated);
+    filledSettings.addString("model_type", template.type.name());
+    filledSettings.addString("subject", template.subject.fullName());
+    filledSettings.addString("food_process", template.foodProcess);
+
+    filledSettings.addString("depvar", template.dependentVariable.name);
+    filledSettings.addString("depvar_unit", template.dependentVariable.unit);
+    filledSettings.addString("depvar_type", template.dependentVariable.type.name());
+    filledSettings.addString("depvar_min", template.dependentVariable.min);
+    filledSettings.addString("depvar_max", template.dependentVariable.max);
+
+    filledSettings.addStringArray("indepvars",
+        template.independentVariables.stream().map(v -> v.name).toArray(String[]::new));
+    filledSettings.addStringArray("indepvars_units",
+        template.independentVariables.stream().map(v -> v.unit).toArray(String[]::new));
+    filledSettings.addStringArray("indepvars_types",
+        template.independentVariables.stream().map(v -> v.type.name()).toArray(String[]::new));
+    filledSettings.addStringArray("indepvars_mins",
+        template.independentVariables.stream().map(v -> v.min).toArray(String[]::new));
+    filledSettings.addStringArray("indepvars_maxs",
+        template.independentVariables.stream().map(v -> v.max).toArray(String[]::new));
+
     filledSettings.addBoolean("Has data?", template.hasData);
 
     testLoadingFilledSettings(filledSettings);
   }
 
-  private void testLoadingFilledSettings(final NodeSettings settings) {
+  private void testLoadingFilledSettings(final NodeSettings settings)
+      throws InvalidSettingsException {
     FskTemplateSettings templateSettings = new FskTemplateSettings();
     templateSettings.loadFromNodeSettings(settings);
     FskMetaData templateFromSettings = templateSettings.template;
 
-    assertEquals(template.modelName, templateFromSettings.modelName);
-    assertEquals(template.modelId, templateFromSettings.modelId);
-    assertEquals(template.modelLink, templateFromSettings.modelLink);
-    assertEquals(template.organism, templateFromSettings.organism);
-    assertEquals(template.organismDetails, templateFromSettings.organismDetails);
-    assertEquals(template.matrix, templateFromSettings.matrix);
-    assertEquals(template.matrixDetails, templateFromSettings.matrixDetails);
-    assertEquals(template.creator, templateFromSettings.creator);
-    assertEquals(template.familyName, templateFromSettings.familyName);
-    assertEquals(template.referenceDescription, templateFromSettings.referenceDescription);
-    assertEquals(template.referenceDescriptionLink, templateFromSettings.referenceDescriptionLink);
-    assertEquals(template.createdDate, templateFromSettings.createdDate);
-    assertEquals(template.modifiedDate, templateFromSettings.modifiedDate);
-    assertEquals(template.rights, templateFromSettings.rights);
-    assertEquals(template.notes, templateFromSettings.notes);
-    assertEquals(template.curated, templateFromSettings.curated);
-    assertEquals(template.type, templateFromSettings.type);
-    assertEquals(template.subject, templateFromSettings.subject);
-    assertEquals(template.foodProcess, templateFromSettings.foodProcess);
-    assertEquals(template.dependentVariable, templateFromSettings.dependentVariable);
-    assertEquals(template.dependentVariableUnit, templateFromSettings.dependentVariableUnit);
-    assertEquals(template.dependentVariableMin, templateFromSettings.dependentVariableMin, .0);
-    assertEquals(template.dependentVariableMax, templateFromSettings.dependentVariableMax, .0);
-    assertArrayEquals(template.independentVariables, templateFromSettings.independentVariables);
-    assertArrayEquals(template.independentVariableUnits,
-        templateFromSettings.independentVariableUnits);
-    assertArrayEquals(template.independentVariableMins, templateFromSettings.independentVariableMins, 0.0);
-    assertArrayEquals(template.independentVariableMaxs, templateFromSettings.independentVariableMaxs, 0.0);
-    assertEquals(template.hasData, templateFromSettings.hasData);
+    assertEquals(template, templateFromSettings);
   }
 
   @Test
@@ -232,143 +238,191 @@ public class FskTemplateSettingsTest {
   }
 
   private void testInexistenceInTemplate(final FskMetaData template) {
-    assertTrue(Strings.isNullOrEmpty(template.modelName));
-    assertTrue(Strings.isNullOrEmpty(template.modelId));
+    assertNull(template.modelName);
+    assertNull(template.modelId);
     assertNull(template.modelLink);
-    assertTrue(Strings.isNullOrEmpty(template.organism));
-    assertTrue(Strings.isNullOrEmpty(template.organismDetails));
-    assertTrue(Strings.isNullOrEmpty(template.matrix));
-    assertTrue(Strings.isNullOrEmpty(template.matrixDetails));
-    assertTrue(Strings.isNullOrEmpty(template.creator));
-    assertTrue(Strings.isNullOrEmpty(template.familyName));
-    assertTrue(Strings.isNullOrEmpty(template.contact));
-    assertTrue(Strings.isNullOrEmpty(template.referenceDescription));
+
+    assertNull(template.organism);
+    assertNull(template.organismDetails);
+
+    assertNull(template.matrix);
+    assertNull(template.matrixDetails);
+
+    assertNull(template.creator);
+    assertNull(template.familyName);
+    assertNull(template.contact);
+
+    assertNull(template.referenceDescription);
     assertNull(template.referenceDescriptionLink);
+
     assertNull(template.createdDate);
     assertNull(template.modifiedDate);
-    assertTrue(Strings.isNullOrEmpty(template.rights));
-    assertTrue(Strings.isNullOrEmpty(template.notes));
+
+    assertNull(template.rights);
+    assertNull(template.notes);
     assertFalse(template.curated);
     assertNull(template.type);
-    assertEquals(template.subject, ModelClass.UNKNOWN);
-    assertTrue(Strings.isNullOrEmpty(template.foodProcess));
-    assertTrue(Strings.isNullOrEmpty(template.dependentVariable));
-    assertTrue(Strings.isNullOrEmpty(template.dependentVariableUnit));
-    assertTrue(Double.isNaN(template.dependentVariableMin));
-    assertTrue(Double.isNaN(template.dependentVariableMax));
-    assertTrue(template.independentVariables == null || template.independentVariables.length == 0);
-    assertTrue(
-        template.independentVariableUnits == null || template.independentVariableUnits.length == 0);
-    assertTrue(
-        template.independentVariableMins == null || template.independentVariableMins.length == 0);
-    assertTrue(
-        template.independentVariableMaxs == null || template.independentVariableMaxs.length == 0);
+    assertEquals(ModelClass.UNKNOWN, template.subject);
+    assertNull(template.foodProcess);
+
+    // Check dependent variable
+    assertNotNull(template.dependentVariable);
+    assertNull(template.dependentVariable.name);
+    assertNull(template.dependentVariable.unit);
+    assertNull(template.dependentVariable.type);
+    assertNull(template.dependentVariable.min);
+    assertNull(template.dependentVariable.max);
+    assertNull(template.dependentVariable.value);
+
+    // Check independent variable
+    assertNotNull(template.independentVariables);
+    assertTrue(template.independentVariables.isEmpty());
   }
 
   private void testExistenceInTemplate(final FskMetaData template) {
-    assertFalse(Strings.isNullOrEmpty(template.modelName));
-    assertFalse(Strings.isNullOrEmpty(template.modelId));
+
+    assertNotNull(template.modelName);
+    assertNotNull(template.modelId);
     assertNotNull(template.modelLink);
-    assertFalse(Strings.isNullOrEmpty(template.organism));
-    assertFalse(Strings.isNullOrEmpty(template.organismDetails));
-    assertFalse(Strings.isNullOrEmpty(template.matrix));
-    assertFalse(Strings.isNullOrEmpty(template.matrixDetails));
-    assertFalse(Strings.isNullOrEmpty(template.creator));
-    assertFalse(Strings.isNullOrEmpty(template.familyName));
-    assertFalse(Strings.isNullOrEmpty(template.contact));
-    assertFalse(Strings.isNullOrEmpty(template.referenceDescription));
+
+    assertNotNull(template.organism);
+    assertNotNull(template.organismDetails);
+
+    assertNotNull(template.matrix);
+    assertNotNull(template.matrixDetails);
+
+    assertNotNull(template.creator);
+    assertNotNull(template.familyName);
+    assertNotNull(template.contact);
+    assertNotNull(template.software);
+
+    assertNotNull(template.referenceDescription);
     assertNotNull(template.referenceDescriptionLink);
+
     assertNotNull(template.createdDate);
     assertNotNull(template.modifiedDate);
-    assertFalse(Strings.isNullOrEmpty(template.rights));
-    assertFalse(Strings.isNullOrEmpty(template.notes));
+
+    assertNotNull(template.rights);
+    assertNotNull(template.notes);
     assertTrue(template.curated);
     assertNotNull(template.type);
     assertNotNull(template.subject);
-    assertFalse(Strings.isNullOrEmpty(template.foodProcess));
-    assertFalse(Strings.isNullOrEmpty(template.dependentVariable));
-    assertFalse(Strings.isNullOrEmpty(template.dependentVariableUnit));
-    assertFalse(Double.isNaN(template.dependentVariableMin));
-    assertFalse(Double.isNaN(template.dependentVariableMax));
-    assertTrue(template.independentVariables != null && template.independentVariables.length > 0);
-    assertTrue(
-        template.independentVariableUnits != null && template.independentVariableUnits.length > 0);
-    assertTrue(
-        template.independentVariableMins != null && template.independentVariableMins.length > 0);
-    assertTrue(
-        template.independentVariableMaxs != null && template.independentVariableMaxs.length > 0);
+    assertNotNull(template.foodProcess);
+
+    // Dependent variables
+    assertNotNull(template.dependentVariable);
+    assertNotNull(template.dependentVariable.name);
+    assertNotNull(template.dependentVariable.unit);
+    assertNotNull(template.dependentVariable.type);
+    assertNotNull(template.dependentVariable.min);
+    assertNotNull(template.dependentVariable.max);
+
+    // Independent variables
+    assertNotNull(template.independentVariables);
+    assertFalse(template.independentVariables.isEmpty());
+
+    assertFalse(template.hasData);
   }
 
   private void testSavingEmptySettings(final NodeSettings settings)
       throws InvalidSettingsException {
-    assertNull(settings.getString("Model name"));
-    assertNull(settings.getString("Model id"));
-    assertNull(settings.getString("Model link"));
-    assertNull(settings.getString("Organism name"));
-    assertNull(settings.getString("Organism details"));
-    assertNull(settings.getString("Matrix name"));
-    assertNull(settings.getString("Matrix details"));
-    assertNull(settings.getString("Creator"));
-    assertNull(settings.getString("Family name"));
-    assertNull(settings.getString("Contact"));
-    assertNull(settings.getString("Reference description"));
-    assertNull(settings.getString("Reference description link"));
-    assertNull(settings.getString("Created date"));
-    assertNull(settings.getString("Modified date"));
-    assertNull(settings.getString("Rights"));
-    assertNull(settings.getString("Notes"));
-    assertFalse(settings.getBoolean("Curation status"));
-    assertNull(settings.getString("Model type"));
-    assertEquals(settings.getString("Model subject"), ModelClass.UNKNOWN.fullName());
-    assertNull(settings.getString("Food process"));
-    assertNull(settings.getString("Dependent variable"));
-    assertNull(settings.getString("Dependent variable unit"));
-    assertTrue(Double.isNaN(settings.getDouble("Dependent variable minimum value")));
-    assertTrue(Double.isNaN(settings.getDouble("Dependent variable maximum value")));
-    assertNull(settings.getStringArray("Independent variables"));
-    assertNull(settings.getStringArray("Independent variables units"));
-    assertNull(settings.getDoubleArray("Independent variables minimum values"));
-    assertNull(settings.getDoubleArray("Independent variables maximum values"));
+    assertNull(settings.getString("name"));
+    assertNull(settings.getString("id"));
+    assertNull(settings.getString("model_link"));
+
+    assertNull(settings.getString("species"));
+    assertNull(settings.getString("species_details"));
+
+    assertNull(settings.getString("matrix"));
+    assertNull(settings.getString("matrix_details"));
+
+    assertNull(settings.getString("creator"));
+    assertNull(settings.getString("family_name"));
+    assertNull(settings.getString("contact"));
+    assertNull(settings.getString("software"));
+
+    assertNull(settings.getString("reference_description"));
+    assertNull(settings.getString("reference_description_link"));
+
+    assertNull(settings.getString("created_date"));
+    assertNull(settings.getString("modified_date"));
+
+    assertNull(settings.getString("rights"));
+    assertNull(settings.getString("notes"));
+    assertFalse(settings.getBoolean("curation_status"));
+    assertNull(settings.getString("model_type"));
+    assertEquals(settings.getString("subject"), ModelClass.UNKNOWN.fullName());
+    assertNull(settings.getString("food_process"));
+
+    assertNull(settings.getString("depvar"));
+    assertNull(settings.getString("depvar_unit"));
+    assertNull(settings.getString("depvar_type"));
+    assertNull(settings.getString("depvar_min"));
+    assertNull(settings.getString("depvar_max"));
+
+    assertTrue(settings.getStringArray("indepvars").length == 0);
+    assertTrue(settings.getStringArray("indepvars_units").length == 0);
+    assertTrue(settings.getStringArray("indepvars_types").length == 0);
+    assertTrue(settings.getStringArray("indepvars_mins").length == 0);
+    assertTrue(settings.getStringArray("indepvars_maxs").length == 0);
   }
 
   private void testSavingFilledSettings(final NodeSettings settings)
       throws InvalidSettingsException, MalformedURLException, ParseException {
-    assertEquals(template.modelName, settings.getString("Model name"));
-    assertEquals(template.modelId, settings.getString("Model id"));
-    assertEquals(template.modelLink, new URL(settings.getString("Model link")));
-    assertEquals(template.organism, settings.getString("Organism name"));
-    assertEquals(template.organismDetails, settings.getString("Organism details"));
-    assertEquals(template.matrix, settings.getString("Matrix name"));
-    assertEquals(template.matrixDetails, settings.getString("Matrix details"));
-    assertEquals(template.creator, settings.getString("Creator"));
-    assertEquals(template.familyName, settings.getString("Family name"));
-    assertEquals(template.contact, settings.getString("Contact"));
-    assertEquals(template.referenceDescription, settings.getString("Reference description"));
+
+    assertEquals(template.modelName, settings.getString("name"));
+    assertEquals(template.modelId, settings.getString("id"));
+    assertEquals(template.modelLink, new URL(settings.getString("model_link")));
+
+    assertEquals(template.organism, settings.getString("species"));
+    assertEquals(template.organismDetails, settings.getString("species_details"));
+
+    assertEquals(template.matrix, settings.getString("matrix"));
+    assertEquals(template.matrixDetails, settings.getString("matrix_details"));
+
+    assertEquals(template.creator, settings.getString("creator"));
+    assertEquals(template.familyName, settings.getString("family_name"));
+    assertEquals(template.contact, settings.getString("contact"));
+    assertEquals(template.software, Software.valueOf(settings.getString("software")));
+
+    assertEquals(template.referenceDescription, settings.getString("reference_description"));
     assertEquals(template.referenceDescriptionLink,
-        new URL(settings.getString("Reference description link")));
-    assertEquals(template.createdDate, dateFormat.parse(settings.getString("Created date")));
-    assertEquals(template.modifiedDate, dateFormat.parse(settings.getString("Modified date")));
-    assertEquals(template.rights, settings.getString("Rights"));
-    assertEquals(template.notes, settings.getString("Notes"));
-    assertEquals(template.curated, settings.getBoolean("Curation status"));
-    assertEquals(template.type, ModelType.valueOf(settings.getString("Model type")));
-    assertEquals(template.subject, ModelClass.fromName(settings.getString("Model subject")));
-    assertEquals(template.foodProcess, settings.getString("Food process"));
+        new URL(settings.getString("reference_description_link")));
 
-    assertEquals(template.dependentVariable, settings.getString("Dependent variable"));
-    assertEquals(template.dependentVariableUnit, settings.getString("Dependent variable unit"));
-    assertEquals(template.dependentVariableMin,
-        settings.getDouble("Dependent variable minimum value"), .0);
-    assertEquals(template.dependentVariableMax,
-        settings.getDouble("Dependent variable maximum value"), .0);
+    assertEquals(template.createdDate, dateFormat.parse(settings.getString("created_date")));
+    assertEquals(template.modifiedDate, dateFormat.parse(settings.getString("modified_date")));
 
-    assertArrayEquals(template.independentVariables,
-        settings.getStringArray("Independent variables"));
-    assertArrayEquals(template.independentVariableUnits,
-        settings.getStringArray("Independent variables units"));
-    assertArrayEquals(template.independentVariableMins,
-        settings.getDoubleArray("Independent variables minimum values"), 0.0);
-    assertArrayEquals(template.independentVariableMaxs,
-        settings.getDoubleArray("Independent variables maximum values"), 0.0);
+    assertEquals(template.rights, settings.getString("rights"));
+    assertEquals(template.notes, settings.getString("notes"));
+    assertEquals(template.curated, settings.getBoolean("curation_status"));
+    assertEquals(template.type, ModelType.valueOf(settings.getString("model_type")));
+    assertEquals(template.subject, ModelClass.fromName(settings.getString("subject")));
+    assertEquals(template.foodProcess, settings.getString("food_process"));
+
+    assertEquals(template.dependentVariable.name, settings.getString("depvar"));
+    assertEquals(template.dependentVariable.unit, settings.getString("depvar_unit"));
+    assertEquals(template.dependentVariable.type,
+        DataType.valueOf(settings.getString("depvar_type")));
+    assertEquals(template.dependentVariable.min, settings.getString("depvar_min"));
+    assertEquals(template.dependentVariable.max, settings.getString("depvar_max"));
+
+    {
+      String[] expectedNames =
+          template.independentVariables.stream().map(v -> v.name).toArray(String[]::new);
+      String[] expectedUnits =
+          template.independentVariables.stream().map(v -> v.unit).toArray(String[]::new);
+      String[] expectedTypes =
+          template.independentVariables.stream().map(v -> v.type.name()).toArray(String[]::new);
+      String[] expectedMins =
+          template.independentVariables.stream().map(v -> v.min).toArray(String[]::new);
+      String[] expectedMaxs =
+          template.independentVariables.stream().map(v -> v.max).toArray(String[]::new);
+
+      assertArrayEquals(expectedNames, settings.getStringArray("indepvars"));
+      assertArrayEquals(expectedUnits, settings.getStringArray("indepvars_units"));
+      assertArrayEquals(expectedTypes, settings.getStringArray("indepvars_types"));
+      assertArrayEquals(expectedMins, settings.getStringArray("indepvars_mins"));
+      assertArrayEquals(expectedMaxs, settings.getStringArray("indepvars_maxs"));
+    }
   }
 }

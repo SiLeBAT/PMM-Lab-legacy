@@ -1,9 +1,10 @@
 package de.bund.bfr.knime.pmm.fskx;
 
-import de.bund.bfr.pmfml.ModelClass;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class SimpleFskMetaDataTest extends TestCase {
+import de.bund.bfr.pmfml.ModelClass;
+
+public class SimpleFskMetaDataTest {
 
   public void testDefaultValues() {
     FskMetaData metadata = new FskMetaData();
@@ -27,15 +28,20 @@ public class SimpleFskMetaDataTest extends TestCase {
     assertNull(metadata.type);
     assertEquals(ModelClass.UNKNOWN, metadata.subject);
     assertNull(metadata.foodProcess);
-    assertNull(metadata.dependentVariable);
-    assertNull(metadata.dependentVariableUnit);
-    assertTrue(Double.isNaN(metadata.dependentVariableMin));
-    assertTrue(Double.isNaN(metadata.dependentVariableMax));
-    assertNull(metadata.independentVariables);
-    assertNull(metadata.independentVariableUnits);
-    assertNull(metadata.independentVariableMins);
-    assertNull(metadata.independentVariableMaxs);
-    assertNull(metadata.independentVariableValues);
+
+    // Check dependent variable
+    assertNotNull(metadata.dependentVariable);
+    assertNull(metadata.dependentVariable.name);
+    assertNull(metadata.dependentVariable.unit);
+    assertNull(metadata.dependentVariable.type);
+    assertNull(metadata.dependentVariable.min);
+    assertNull(metadata.dependentVariable.max);
+    assertNull(metadata.dependentVariable.value);
+
+    // Check independent variables
+    assertNotNull(metadata.independentVariables);
+    assertTrue(metadata.independentVariables.isEmpty());
+
     assertFalse(metadata.hasData);
   }
 }

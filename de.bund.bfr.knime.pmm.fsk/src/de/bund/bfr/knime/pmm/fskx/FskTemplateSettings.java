@@ -48,7 +48,7 @@ public class FskTemplateSettings {
 			template.familyName = settings.getString(Key.family_name.name(), null);
 			template.contact = settings.getString(Key.contact.name(), null);
 
-			String softwareAsString = settings.getString(settings.getString(Key.software.name(), null));
+			String softwareAsString = settings.getString(Key.software.name(), null);
 			template.software = softwareAsString == null ? null : Software.valueOf(softwareAsString);
 
 			template.referenceDescription = settings.getString(Key.reference_description.name(), null);
@@ -83,19 +83,21 @@ public class FskTemplateSettings {
 			// Dependent variable
 			template.dependentVariable.name = settings.getString(Key.depvar.name(), null);
 			template.dependentVariable.unit = settings.getString(Key.depvar_unit.name(), null);
-			template.dependentVariable.type = DataType.valueOf(settings.getString(Key.depvar_type.name(), null));
+			String typeAsString = settings.getString(Key.depvar_type.name(), null);
+			template.dependentVariable.type = typeAsString == null ? null : DataType.valueOf(typeAsString);
 			template.dependentVariable.min = settings.getString(Key.depvar_min.name(), null);
 			template.dependentVariable.max = settings.getString(Key.depvar_max.name(), null);
 
 			// Independent variables
 			{
 				String[] names = settings.getStringArray(Key.indepvars.name());
-				String[] units = settings.getStringArray(Key.indepvars_types.name());
+				String[] units = settings.getStringArray(Key.indepvars_units.name());
 				String[] types = settings.getStringArray(Key.indepvars_types.name());
 				String[] mins = settings.getStringArray(Key.indepvars_mins.name());
 				String[] maxs = settings.getStringArray(Key.indepvars_maxs.name());
 
-				if (names.length == units.length && names.length == types.length && names.length == mins.length
+				if (names != null && units != null && types != null && mins != null && maxs != null
+						&& names.length == units.length && names.length == types.length && names.length == mins.length
 						&& names.length == maxs.length) {
 
 					for (int i = 0; i < names.length; i++) {
@@ -149,7 +151,7 @@ public class FskTemplateSettings {
 		settings.addString(Key.creator.name(), template.creator);
 		settings.addString(Key.family_name.name(), template.familyName);
 		settings.addString(Key.contact.name(), template.contact);
-		settings.addString(Key.software.name(), template.software.name());
+		settings.addString(Key.software.name(), template.software == null ? null : template.software.name());
 		settings.addString(Key.reference_description.name(), template.referenceDescription);
 		settings.addString(Key.reference_description_link.name(),
 				template.referenceDescriptionLink == null ? null : template.referenceDescriptionLink.toString());
@@ -169,7 +171,8 @@ public class FskTemplateSettings {
 		// Dependent variable
 		settings.addString(Key.depvar.name(), template.dependentVariable.name);
 		settings.addString(Key.depvar_unit.name(), template.dependentVariable.unit);
-		settings.addString(Key.depvar_type.name(), template.dependentVariable.type.name());
+		settings.addString(Key.depvar_type.name(),
+				template.dependentVariable.type == null ? null : template.dependentVariable.type.name());
 		settings.addString(Key.depvar_min.name(), template.dependentVariable.min);
 		settings.addString(Key.depvar_max.name(), template.dependentVariable.max);
 
@@ -181,7 +184,7 @@ public class FskTemplateSettings {
 			String[] mins = template.independentVariables.stream().map(v -> v.min).toArray(String[]::new);
 			String[] maxs = template.independentVariables.stream().map(v -> v.max).toArray(String[]::new);
 			String[] values = template.independentVariables.stream().map(v -> v.value).toArray(String[]::new);
-			
+
 			settings.addStringArray(Key.indepvars.name(), names);
 			settings.addStringArray(Key.indepvars_units.name(), units);
 			settings.addStringArray(Key.indepvars_types.name(), types);

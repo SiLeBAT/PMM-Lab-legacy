@@ -19,7 +19,7 @@ import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FskMetadataEditorViewValue extends JSONViewContent {
 	
-	FskMetaData metadata;
+	FskMetaData metadata = new FskMetaData();
 	
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings){

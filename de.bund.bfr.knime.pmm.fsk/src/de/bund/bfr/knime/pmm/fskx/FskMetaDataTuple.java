@@ -72,7 +72,7 @@ public class FskMetaDataTuple implements DataRow {
 		cell[Key.matrix_details.ordinal()] = new StringCell(Strings.nullToEmpty(template.matrixDetails));
 
 		cell[Key.creator.ordinal()] = new StringCell(Strings.nullToEmpty(template.creator));
-		cell[Key.family_name.ordinal()] = new StringCell(Strings.nullToEmpty(template.creator));
+		cell[Key.family_name.ordinal()] = new StringCell(Strings.nullToEmpty(template.familyName));
 		cell[Key.contact.ordinal()] = new StringCell(Strings.nullToEmpty(template.contact));
 		cell[Key.software.ordinal()] = new StringCell(template.software == null ? "" : template.software.name());
 		cell[Key.reference_description.ordinal()] = new StringCell(Strings.nullToEmpty(template.referenceDescription));

@@ -34,6 +34,7 @@ metadata_editor = function () {
         var organismDetails = _data.organismDetails === null ? "" : _data.organismDetails;
         var matrix = _data.matrix === null ? "" : _data.matrix;
         var matrixDetails = _data.matrixDetails === null ? "" : _data.matrixDetails;
+        var creator = _data.creator === null ? "" : _data.creator;
         var contact = _data.contact = _data.contact === null ? "" : _data.contact;
         var referenceDescription = _data.referenceDescription === null ? "" : _data.referenceDescription;
         var referenceDescriptionLink = _data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink;
@@ -140,6 +141,14 @@ metadata_editor = function () {
             '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control" id="matrixDetailsInput" value="' + matrixDetails + '">' +
+            '    </div>' +
+            '  </div>' +
+
+            // Creator form
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="creator" class="col-sm-3 control-label">Creator</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="creatorInput" value="' + creator + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -275,6 +284,7 @@ metadata_editor = function () {
         $("#organismDetailsInput").val(_data.organismDetails === null ? "" : _data.organismDetails);
         $("#matrixInput").val(_data.matrix === null ? "" : _data.matrix);
         $("#matrixDetailsInput").val(_data.matrixDetails === null ? "" : _data.matrixDetails);
+        $("#creatorInput").val(_data.creator === null ? "" : _data.creator);
         $("#contactInput").val(_data.contact === null ? "" : _data.contact);
         $("#softwareInput").val(_data.software === null ? "" : _data.software);
         $("#referenceDescriptionInput").val(_data.referenceDescription === null ? "" : _data.referenceDescription);
@@ -394,6 +404,7 @@ metadata_editor = function () {
         _data.organismDetails = $("#organismDetailsInput").val();
         _data.matrix = $("#matrixInput").val();
         _data.matrixDetails = $("#matrixDetailsInput").val();
+        _data.creator = $("#creator");
         _data.contact = $("#contactInput").val();
         _data.software = $("#softwareInput").val();
         _data.referenceDescription = $("#referenceDescriptionInput").val();

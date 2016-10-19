@@ -203,17 +203,17 @@ metadata_editor = function () {
 
             // Created date form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="createdDate" class="col-sm-3 control-label">Created date</label>' +
+            '    <label for="createdDate" class="col-sm-3 control-label">Created date (MM.dd.yyyy)</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control" id="createdDateInput" value="' + createdDate + '">' +
+            '      <input type="date" class="form-control" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + createdDate + '">' +
             '    </div>' +
             '  </div>' +
 
             // Modified date form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date</label>' +
+            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date (MM.dd.yyyy)</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control" id="modifiedDateInput" value="' + modifiedDate + '">' +
+            '      <input type="date" class="form-control" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + modifiedDate + '">' +
             '    </div>' +
             '  </div>' +
 

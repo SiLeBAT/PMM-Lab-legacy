@@ -265,6 +265,24 @@ metadata_editor = function () {
 
         $("#resetButton").click(reset);
         $("#saveButton").click(save);
+
+        $("body div table tr:not(:first)").each(function(i, row) {
+            $("td:eq(3) input", this).change(validateValueCell(i));
+            $("td:eq(4) input", this).change(validateMinCell(i));
+            $("td:eq(5) input", this).change(validateMaxCell(i));
+        });
+    }
+
+    function validateValueCell(i) {
+        alert("validateValueCell");
+    }
+
+    function validateMinCell(i) {
+        alert("validateMinCell");
+    }
+
+    function validateMaxCell(i) {
+        alert("validateMaxCell");
     }
 
     function reset ()
@@ -401,7 +419,7 @@ metadata_editor = function () {
             variable.min = $("td:eq(4) input", this).val();
             variable.max = $("td:eq(5) input", this).val();
             _data.independentVariables.push(variable);
-        })
+        });
 
         _data.hasData = $("#hasDataInput").is(':checked');
 

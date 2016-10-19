@@ -27,26 +27,11 @@ metadata_editor = function () {
     {
         // Utility variables.
         // - Replace null strings with empty strings
-        var modelName = _data.modelName === null ? "" : _data.modelName;
-        var modelId = _data.modelId === null ? "" : _data.modelId;
-        var modelLink = _data.modelLink === null ? "" : _data.modelLink;
-        var organism = _data.organism === null ? "" : _data.organism;
-        var organismDetails = _data.organismDetails === null ? "" : _data.organismDetails;
-        var matrix = _data.matrix === null ? "" : _data.matrix;
-        var matrixDetails = _data.matrixDetails === null ? "" : _data.matrixDetails;
-        var creator = _data.creator === null ? "" : _data.creator;
-        var familyName = _data.familyName === null ? "" : _data.familyName;
-        var contact = _data.contact = _data.contact === null ? "" : _data.contact;
-        var referenceDescription = _data.referenceDescription === null ? "" : _data.referenceDescription;
-        var referenceDescriptionLink = _data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink;
         var createdDate = _data.createdDate === null ? "" : _data.createdDate;
         var modifiedDate = _data.modifiedDate === null ? "" : _data.modifiedDate;
         var rights = _data.rights === null ? "" : _data.rights;
         var notes = _data.notes === null ? "" : _data.notes;
         // curated is boolean: no need to assign it a default value
-        var modelType = _data.type === null ? "" : _data.type;
-        var modelSubject = _data.subject === null ? "" : _data.subject;
-        var foodProcess = _data.foodProcess === null ? "" : _data.foodProcess;
 
         var varTable =
             '<table class="table table-condensed">' +
@@ -93,7 +78,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelName" class="col-sm-3 control-label">Model name</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="modelNameInput" value="' + modelName + '">' +
+            '      <p class="form-control-static">' + (_data.modelName === null ? "" : _data.modelName) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -101,7 +86,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelId" class="col-sm-3 control-label">Model id</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="modelIdInput" value="' + modelId + '">' +
+            '      <p class="form-control-static">' + (_data.modelId === null ? "" : _data.modelId) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -109,7 +94,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelLink" class="col-sm-3 control-label">Model link</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="url" class="form-control" id="modelLinkInput" value="' + modelLink + '">' +
+            '      <p class="form-control-static">' + (_data.modeLink === null ? "" : _data.modelLink) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -117,7 +102,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="organism" class="col-sm-3 control-label">Organism</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="organismInput" value="' + organism + '">' +
+            '      <p class="form-control-static">' + (_data.organism === null ? "" : _data.organism) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -125,7 +110,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="organismDetails" class="col-sm-3 control-label">Organism details</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="organismDetailsInput" value="' + organismDetails + '">' +
+            '      <p class="form-control-static">' + (_data.organismDetails === null ? "" : _data.organismDetails) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -133,7 +118,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="matrix" class="col-sm-3 control-label">Matrix</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="matrixInput" value="' + matrix + '">' +
+            '      <p class="form-control-static">' + (_data.matrix === null ? "" : _data.matrix) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -141,7 +126,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="matrixDetailsInput" value="' + matrixDetails + '">' +
+            '      <p class="form-control-static">' + (_data.matrixDetails === null ? "" : _data.matrixDetails) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -149,7 +134,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="creator" class="col-sm-3 control-label">Creator</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="creatorInput" value="' + creator + '">' +
+            '      <p class="form-control-static">' + (_data.creator === null ? "" : _data.creator) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -157,7 +142,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="familyName" class="col-sm-3 control-label">Family name</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="familyNameInput" value="' + familyName + '">' +
+            '      <p class="form-control-static">' + (_data.familyName === null ? "" : _data.familyName) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -165,7 +150,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="contact" class="col-sm-3 control-label">Contact</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="contactInput" value="' + contact + '">' +
+            '      <p class="form-control-static">' + (_data.contact === null ? "" : _data.contact) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -173,10 +158,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="software" class="col-sm-3 control-label">Software</label>' +
             '    <div class="col-sm-9">' +
-            '      <select class="form-control" id="softwareInput">' +
-            '        <option>R</option>' +
-            '        <option>Matlab</option>' +
-            '      </select>' +
+            '      <p class="form-control-static">' + (_data.software === null ? "" : _data.software) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -184,7 +166,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="referenceDescription" class="col-sm-3 control-label">Referece description</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="referenceDescriptionInput" value="' + referenceDescription + '">' +
+            '      <p class="form-control-static">' + (_data.referenceDescription === null ? "" : _data.referenceDescription) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -192,7 +174,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Referece description link</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="url" class="form-control" id="referenceDescriptionLinkInput" value="' + referenceDescriptionLink + '">' +
+            '      <p class="form-control-static">' + (_data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -242,7 +224,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelType" class="col-sm-3 control-label">Model type</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="modelTypeInput" value="' + modelType + '">' +
+            '      <p class="form-control-static">' + (_data.type === null ? "" : _data.type) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -250,7 +232,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelSubject" class="col-sm-3 control-label">Model subject</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="modelSubjectInput" value="' + modelSubject + '">' +
+            '      <p class="form-control-static">' + (_data.subject === null ? "" : _data.subject) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -258,7 +240,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="foodProcess" class="col-sm-3 control-label">Food process</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="foodProcessInput" value="' + foodProcess + '">' +
+            '      <p class="form-control-static">' + (_data.foodProcess === null ? "" : _data.foodProcess) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -287,26 +269,11 @@ metadata_editor = function () {
 
     function reset ()
     {
-        $("#modelNameInput").val(_data.modelName === null ? "" : _data.modelName);
-        $("#modelIdInput").val(_data.modelId === null ? "" : _data.modelId);
-        $("#modelLinkInput").val(_data.modelLink === null ? "" : _data.modelLink);
-        $("#organismInput").val(_data.organism === null ? "" : _data.organism);
-        $("#organismDetailsInput").val(_data.organismDetails === null ? "" : _data.organismDetails);
-        $("#matrixInput").val(_data.matrix === null ? "" : _data.matrix);
-        $("#matrixDetailsInput").val(_data.matrixDetails === null ? "" : _data.matrixDetails);
-        $("#creatorInput").val(_data.creator === null ? "" : _data.creator);
-        $("#contactInput").val(_data.contact === null ? "" : _data.contact);
-        $("#familyNameInput").val(_data.familyName === null ? "" : _data.familyName);
-        $("#softwareInput").val(_data.software === null ? "" : _data.software);
-        $("#referenceDescriptionInput").val(_data.referenceDescription === null ? "" : _data.referenceDescription);
-        $("#referenceDescriptionLinkInput").val(_data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink);
         $("#createdDateInput").val(_data.createdDate === null ? "" : _data.createdDate);
         $("#modifiedDateInput").val(_data.modifiedDate === null ? "" : _data.modifiedDate);
         $("#rightsInput").val(_data.rights === null ? "" : _data.rights);
         $("#notesInput").val(_data.notes === null ? "" : _data.notes);
         $("#curatedInput").prop("checked", _data.curated);
-        $("#modelTypeInput").val(_data.modelType === null ? "" : _data.modelType);
-        $("#modelSubjectInput").val(_data.modelSubject === null ? "" : _data.modelSubject);
         $("#foodProcessInput").val(_data.foodProcess === null ? "" : _data.foodProcess);
 
         var table = $("body div table");
@@ -408,26 +375,11 @@ metadata_editor = function () {
         //     return;
         // }
 
-        _data.modelName = $("#modelNameInput").val();
-        _data.modelId = $("#modelIdInput").val();
-        _data.modelLink = $("#modelLinkInput").val();
-        _data.organism = $("#organismInput").val();
-        _data.organismDetails = $("#organismDetailsInput").val();
-        _data.matrix = $("#matrixInput").val();
-        _data.matrixDetails = $("#matrixDetailsInput").val();
-        _data.creator = $("#creatorInput").val();
-        _data.familyName = $("#familyNameInput").val();
-        _data.contact = $("#contactInput").val();
-        _data.software = $("#softwareInput").val();
-        _data.referenceDescription = $("#referenceDescriptionInput").val();
-        _data.referenceDescriptionLink = $("#referenceDescriptionLinkInput").val();
         _data.createdDate = $("#createdDateInput").val();
         _data.modifiedDate = $("#modifiedDateInput").val();
         _data.rights = $("#rightsInput").val();
         _data.notes = $("#notesInput").val();
         _data.curated = $("#curatedInput").is(':checked');
-        _data.modelType = $("#modelTypeInput").val();
-        _data.modelSubject = $("#modelSubjectInput").val();
         _data.foodProcess = $("#foodProcessInput").val();
 
         // Dependent variable

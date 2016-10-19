@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.ModelType;
@@ -63,9 +64,11 @@ public class FskMetaData implements Serializable {
 	public URL referenceDescriptionLink;
 
 	/** Creation date. Null if not set. */
+	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM.dd.yyyy")
 	public Date createdDate;
 
 	/** Last modification date. Null if not set. */
+	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM.dd.yyyy")
 	public Date modifiedDate;
 
 	/** Null or empty string if not set. */

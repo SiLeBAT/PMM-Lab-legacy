@@ -48,11 +48,6 @@ metadata_editor = function () {
         var modelSubject = _data.subject === null ? "" : _data.subject;
         var foodProcess = _data.foodProcess === null ? "" : _data.foodProcess;
 
-        //
-        alert(JSON.stringify(_data));
-        alert(JSON.stringify(familyName));
-        //
-
         var varTable =
             '<table class="table table-condensed">' +
             '  <tr>' +
@@ -203,17 +198,19 @@ metadata_editor = function () {
 
             // Created date form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="createdDate" class="col-sm-3 control-label">Created date (MM.dd.yyyy)</label>' +
+            '    <label for="createdDate" class="col-sm-3 control-label">Created date</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="date" class="form-control" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + createdDate + '">' +
+            '      <span class="help-block">MM.dd.yyyy</span>' +
             '    </div>' +
             '  </div>' +
 
             // Modified date form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date (MM.dd.yyyy)</label>' +
+            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="date" class="form-control" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + modifiedDate + '">' +
+            '      <span class="help-block">MM.dd.yyyy</span>' +
             '    </div>' +
             '  </div>' +
 

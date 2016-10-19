@@ -35,6 +35,7 @@ metadata_editor = function () {
         var matrix = _data.matrix === null ? "" : _data.matrix;
         var matrixDetails = _data.matrixDetails === null ? "" : _data.matrixDetails;
         var creator = _data.creator === null ? "" : _data.creator;
+        var familyName = _data.familyName === null ? "" : _data.familyName;
         var contact = _data.contact = _data.contact === null ? "" : _data.contact;
         var referenceDescription = _data.referenceDescription === null ? "" : _data.referenceDescription;
         var referenceDescriptionLink = _data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink;
@@ -46,6 +47,11 @@ metadata_editor = function () {
         var modelType = _data.type === null ? "" : _data.type;
         var modelSubject = _data.subject === null ? "" : _data.subject;
         var foodProcess = _data.foodProcess === null ? "" : _data.foodProcess;
+
+        //
+        alert(JSON.stringify(_data));
+        alert(JSON.stringify(familyName));
+        //
 
         var varTable =
             '<table class="table table-condensed">' +
@@ -152,6 +158,14 @@ metadata_editor = function () {
             '    </div>' +
             '  </div>' +
 
+            // Family name form
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="familyName" class="col-sm-3 control-label">Family name</label>' +
+            '    <div class="col-sm-9">' +
+            '      <input type="text" class="form-control" id="familyNameInput" value="' + familyName + '">' +
+            '    </div>' +
+            '  </div>' +
+
             // Contact form
             '  <div class="form-group form-group-sm">' +
             '    <label for="contact" class="col-sm-3 control-label">Contact</label>' +
@@ -215,7 +229,6 @@ metadata_editor = function () {
             '  <div class="form-group">' +
             '    <label for="notes" class="col-sm-3 control-label">Notes</label>' +
             '    <div class="col-sm-9">' +
-            // '      <input type="text" class="form-control" id="notesInput" value="' + notes + '">' +
             '      <textarea class="form-control" rows="3">' + notes + '</textArea>' +
             '    </div>' +
             '  </div>' +
@@ -286,6 +299,7 @@ metadata_editor = function () {
         $("#matrixDetailsInput").val(_data.matrixDetails === null ? "" : _data.matrixDetails);
         $("#creatorInput").val(_data.creator === null ? "" : _data.creator);
         $("#contactInput").val(_data.contact === null ? "" : _data.contact);
+        $("#familyNameInput").val(_data.familyName === null ? "" : _data.familyName);
         $("#softwareInput").val(_data.software === null ? "" : _data.software);
         $("#referenceDescriptionInput").val(_data.referenceDescription === null ? "" : _data.referenceDescription);
         $("#referenceDescriptionLinkInput").val(_data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink);
@@ -404,7 +418,8 @@ metadata_editor = function () {
         _data.organismDetails = $("#organismDetailsInput").val();
         _data.matrix = $("#matrixInput").val();
         _data.matrixDetails = $("#matrixDetailsInput").val();
-        _data.creator = $("#creator");
+        _data.creator = $("#creatorInput").val();
+        _data.familyName = $("#familyNameInput").val();
         _data.contact = $("#contactInput").val();
         _data.software = $("#softwareInput").val();
         _data.referenceDescription = $("#referenceDescriptionInput").val();

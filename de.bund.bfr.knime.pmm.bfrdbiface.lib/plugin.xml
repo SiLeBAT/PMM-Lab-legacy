@@ -95,6 +95,12 @@
             name="Converters"
             path="/pmmlab">
       </category>
+      <category
+      		icon="icons/Utilities.png"
+      		level-id="util"
+      		name="Utilities"
+      		path="/pmmlab">
+      </category>
    </extension>
 
 </plugin>

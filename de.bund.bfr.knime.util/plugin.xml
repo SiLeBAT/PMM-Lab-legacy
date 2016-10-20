@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+
+<extension point="org.knime.workbench.repository.nodes">
+  <node
+    category-path="/pmmlab/util"
+    factory-class="de.bund.bfr.knime.node.editableTable.PagedTableViewNodeFactory">
+  </node>
+</extension>
+
+<extension point="org.knime.js.core.webResources">
+  <webResourceBundle
+    debug="true"
+    name="Editable Paged Table"
+    usesDefine="false"
+    version="1.0"
+    webResourceBundleID="de.bund.bfr.util.js.editablePagedTable.bundle">
+    
+    <webResource relativePathSource="js-src/" relativePathTarget="js-src/"></webResource>
+    <importResource relativePath="js-src/editablePagedTable.js" type="JAVASCRIPT"></importResource>
+    <importResource relativePath="js-src/editablePagedTable.css" type="CSS"></importResource>
+    <webDependency webResourceBundleID="KnimeTable_1.0.0"></webDependency>
+    <webDependency webResourceBundleID="dataTables_1_10_11_bootstrap"></webDependency>
+    <webDependency webResourceBundleID="moment_2_13"></webDependency>
+  </webResourceBundle>
+</extension>
+
+<extension point="org.knime.js.core.javascriptComponents">
+  <javascriptComponent
+    getComponentValue-method-name="getComponentValue"
+    implementationBundleID="de.bund.bfr.util.js.editablePagedTable.bundle"
+    init-method-name="init"
+    javascriptComponentID="de.bund.bfr.util.js.editablePagedTable"
+    name="Editable Paged Table"
+    namespace="editable_paged_table"
+    setValidationError-method-name="setValidationError"
+    validate-method-name="validate">
+  </javascriptComponent>
+</extension>
+</plugin>

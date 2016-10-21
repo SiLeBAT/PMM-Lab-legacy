@@ -47,19 +47,6 @@
  */
 package de.bund.bfr.knime.node.editableTable;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
-import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
-import org.knime.core.data.container.CellFactory;
-import org.knime.core.data.container.ColumnRearranger;
-import org.knime.core.data.container.SingleCellFactory;
-import org.knime.core.data.def.BooleanCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.CanceledExecutionException;
@@ -71,7 +58,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
-import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 import org.knime.core.node.web.ValidationError;
 import org.knime.js.core.JSONDataTable;
 import org.knime.js.core.node.AbstractWizardNodeModel;
@@ -84,7 +70,6 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(PagedTableViewNodeModel.class);
 
-    private final PagedTableViewConfig m_config;
     private BufferedDataTable m_table;
 
     /**
@@ -92,7 +77,6 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     protected PagedTableViewNodeModel(final String viewName) {
         super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE}, viewName);
-        m_config = new PagedTableViewConfig();
     }
 
     /**
@@ -100,7 +84,7 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     @Override
     public String getJavascriptObjectID() {
-        return "org.knime.js.base.node.viz.pagedTable";
+        return "de.bund.bfr.util.js.editablePagedTable";
     }
 
     /**
@@ -108,42 +92,7 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     @Override
     protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-        DataTableSpec tableSpec = (DataTableSpec)inSpecs[0];
-        if (m_config.getEnableSelection()) {
-            ColumnRearranger rearranger = createColumnAppender(tableSpec, null, false);
-            tableSpec = rearranger.createSpec();
-        }
-        return new PortObjectSpec[]{tableSpec};
-    }
-
-    private ColumnRearranger createColumnAppender(final DataTableSpec spec, final List<String> selectionList, final boolean selectAll) {
-        String newColName = m_config.getSelectionColumnName();
-        if (newColName == null || newColName.trim().isEmpty()) {
-            newColName = PagedTableViewConfig.DEFAULT_SELECTION_COLUMN_NAME;
-        }
-        newColName = DataTableSpec.getUniqueColumnName(spec, newColName);
-        DataColumnSpec outColumnSpec =
-                new DataColumnSpecCreator(newColName, DataType.getType(BooleanCell.class)).createSpec();
-        ColumnRearranger rearranger = new ColumnRearranger(spec);
-        CellFactory fac = new SingleCellFactory(outColumnSpec) {
-
-            private int m_rowIndex = 0;
-
-            @Override
-            public DataCell getCell(final DataRow row) {
-                if (++m_rowIndex > m_config.getMaxRows()) {
-                    return DataType.getMissingCell();
-                }
-                if (selectionList != null) {
-                    if (selectionList.contains(row.getKey().toString())) {
-                            return selectAll ? BooleanCell.FALSE : BooleanCell.TRUE;
-                    }
-                }
-                return selectAll ? BooleanCell.TRUE : BooleanCell.FALSE;
-            }
-        };
-        rearranger.append(fac);
-        return rearranger;
+    	return inSpecs;
     }
 
     /**
@@ -196,7 +145,7 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     @Override
     public boolean isHideInWizard() {
-        return m_config.getHideInWizard();
+    	return false;
     }
 
     /**
@@ -238,63 +187,18 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
                 viewRepresentation.setTable(jsonTable);
                 copyConfigToRepresentation();
             }
-
-            if (m_config.getEnableSelection()) {
-                PagedTableViewValue viewValue = getViewValue();
-                List<String> selectionList = null;
-                boolean selectAll = false;
-                if (viewValue != null) {
-                    selectAll = viewValue.getSelectAll();
-                    if (viewValue.getSelection() != null) {
-                        selectionList = Arrays.asList(viewValue.getSelection());
-                    }
-                }
-                ColumnRearranger rearranger = createColumnAppender(m_table.getDataTableSpec(), selectionList, selectAll);
-                out = exec.createColumnRearrangeTable(m_table, rearranger, exec.createSubExecutionContext(0.5));
-            }
         }
         exec.setProgress(1);
         return new PortObject[]{out};
     }
 
     private JSONDataTable createJSONTableFromBufferedDataTable(final BufferedDataTable table, final ExecutionContext exec) throws CanceledExecutionException {
-        FilterResult filter = m_config.getColumnFilterConfig().applyTo(table.getDataTableSpec());
-        //ColumnRearranger rearranger = new ColumnRearranger(table.getDataTableSpec());
-        //rearranger.keepOnly(filter.getIncludes());
-        //BufferedDataTable filteredTable = exec.createColumnRearrangeTable(table, rearranger, exec.createSubExecutionContext(0.5));
-        //TODO: feed filter result directly in JSONDataTable, as columnRearranger might not keep color information after filtering.
-        JSONDataTable jsonTable = new JSONDataTable(table, 1, m_config.getMaxRows(), filter.getExcludes(), exec);
-        if (m_config.getMaxRows() < table.size()) {
-            setWarningMessage("Only the first "
-                    + m_config.getMaxRows() + " rows are displayed.");
-        }
+        JSONDataTable jsonTable = new JSONDataTable(table, 1, (int) table.size(), exec);
         return jsonTable;
     }
 
     private void copyConfigToRepresentation() {
         synchronized(getLock()) {
-            PagedTableViewRepresentation viewRepresentation = getViewRepresentation();
-            viewRepresentation.setEnablePaging(m_config.getEnablePaging());
-            viewRepresentation.setInitialPageSize(m_config.getIntialPageSize());
-            viewRepresentation.setEnablePageSizeChange(m_config.getEnablePageSizeChange());
-            viewRepresentation.setAllowedPageSizes(m_config.getAllowedPageSizes());
-            viewRepresentation.setPageSizeShowAll(m_config.getPageSizeShowAll());
-            viewRepresentation.setEnableJumpToPage(m_config.getEnableJumpToPage());
-            viewRepresentation.setDisplayRowColors(m_config.getDisplayRowColors());
-            viewRepresentation.setDisplayRowIds(m_config.getDisplayRowIds());
-            viewRepresentation.setDisplayColumnHeaders(m_config.getDisplayColumnHeaders());
-            viewRepresentation.setDisplayRowIndex(m_config.getDisplayRowIndex());
-            viewRepresentation.setFixedHeaders(m_config.getFixedHeaders());
-            viewRepresentation.setTitle(m_config.getTitle());
-            viewRepresentation.setSubtitle(m_config.getSubtitle());
-            viewRepresentation.setEnableSelection(m_config.getEnableSelection());
-            viewRepresentation.setEnableSearching(m_config.getEnableSearching());
-            viewRepresentation.setEnableColumnSearching(m_config.getEnableColumnSearching());
-            viewRepresentation.setEnableSorting(m_config.getEnableSorting());
-            viewRepresentation.setEnableClearSortButton(m_config.getEnableClearSortButton());
-            viewRepresentation.setGlobalDateFormat(m_config.getGlobalDateFormat());
-            viewRepresentation.setEnableGlobalNumberFormat(m_config.getEnableGlobalNumberFormat());
-            viewRepresentation.setGlobalNumberFormatDecimals(m_config.getGlobalNumberFormatDecimals());
         }
     }
 
@@ -320,7 +224,6 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-        m_config.saveSettings(settings);
     }
 
     /**
@@ -328,7 +231,7 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-        (new PagedTableViewConfig()).loadSettings(settings);
+//        (new PagedTableViewConfig()).loadSettings(settings);
     }
 
     /**
@@ -336,7 +239,6 @@ public class PagedTableViewNodeModel extends AbstractWizardNodeModel<PagedTableV
      */
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-        m_config.loadSettings(settings);
     }
 
 }

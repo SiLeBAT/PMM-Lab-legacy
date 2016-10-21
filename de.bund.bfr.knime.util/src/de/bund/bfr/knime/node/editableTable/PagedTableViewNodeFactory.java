@@ -88,7 +88,7 @@ public class PagedTableViewNodeFactory extends NodeFactory<PagedTableViewNodeMod
      */
     @Override
     protected boolean hasDialog() {
-        return true;
+        return false;
     }
 
     /**
@@ -96,7 +96,7 @@ public class PagedTableViewNodeFactory extends NodeFactory<PagedTableViewNodeMod
      */
     @Override
     protected NodeDialogPane createNodeDialogPane() {
-        return new PagedTableViewNodeDialogPane();
+        return null;
     }
 
 }

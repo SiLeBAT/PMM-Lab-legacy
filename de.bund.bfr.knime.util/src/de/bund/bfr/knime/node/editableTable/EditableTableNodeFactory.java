@@ -43,103 +43,50 @@
  * ------------------------------------------------------------------------
  *
  * History
- *   14.04.2014 (Christian Albrecht, KNIME.com AG, Zurich, Switzerland): created
+ *   23.04.2014 (Christian Albrecht, KNIME.com AG, Zurich, Switzerland): created
  */
 package de.bund.bfr.knime.node.editableTable;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
-import org.knime.js.core.JSONDataTable;
-import org.knime.js.core.JSONViewContent;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
+import org.knime.core.node.wizard.WizardNodeFactoryExtension;
 
 /**
  *
  * @author Christian Albrecht, KNIME.com GmbH, Konstanz, Germany
  */
-@JsonAutoDetect
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class PagedTableViewRepresentation extends JSONViewContent {
+public class EditableTableNodeFactory extends NodeFactory<PagedTableViewNodeModel> implements
+    WizardNodeFactoryExtension<PagedTableViewNodeModel, PagedTableViewRepresentation, PagedTableViewValue> {
 
-	private JSONDataTable m_table;
+    /** {@inheritDoc} */
+    @Override
+    public PagedTableViewNodeModel createNodeModel() {
+        return new PagedTableViewNodeModel(getInteractiveViewName());
+    }
 
-	/** Serialization constructor. Don't use. */
-	public PagedTableViewRepresentation() {
-	}
+    /** {@inheritDoc} */
+    @Override
+    protected int getNrNodeViews() {
+        return 0;
+    }
 
-	/**
-	 * @param table
-	 */
-	public PagedTableViewRepresentation(final JSONDataTable table) {
-		setTable(table);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public NodeView<PagedTableViewNodeModel> createNodeView(final int viewIndex, final PagedTableViewNodeModel nodeModel) {
+        return null;
+    }
 
-	/**
-	 * @return The JSON data table.
-	 */
-	@JsonProperty("table")
-	public JSONDataTable getTable() {
-		return m_table;
-	}
+    /** {@inheritDoc} */
+    @Override
+    protected boolean hasDialog() {
+        return false;
+    }
 
-	/**
-	 * @param table
-	 *            The table to set.
-	 */
-	@JsonProperty("table")
-	public void setTable(final JSONDataTable table) {
-		m_table = table;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@JsonIgnore
-	public void saveToNodeSettings(final NodeSettingsWO settings) {
-		// save everything but table
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@JsonIgnore
-	public void loadFromNodeSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		// load everything but table
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(final Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (obj == this) {
-			return true;
-		}
-		if (obj.getClass() != getClass()) {
-			return false;
-		}
-		PagedTableViewRepresentation other = (PagedTableViewRepresentation) obj;
-		return new EqualsBuilder().append(m_table, other.m_table).isEquals();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder().append(m_table).toHashCode();
-	}
+    /** {@inheritDoc} */
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return null;
+    }
 
 }

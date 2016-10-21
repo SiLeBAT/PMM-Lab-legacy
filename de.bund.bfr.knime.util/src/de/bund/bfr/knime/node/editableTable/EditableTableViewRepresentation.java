@@ -57,10 +57,6 @@ import org.knime.js.core.JSONViewContent;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-/**
- *
- * @author Christian Albrecht, KNIME.com GmbH, Konstanz, Germany
- */
 @JsonAutoDetect
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class EditableTableViewRepresentation extends JSONViewContent {

@@ -49,7 +49,6 @@ package de.bund.bfr.knime.node.editableTable;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTableHolder;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -65,7 +64,7 @@ import org.knime.js.core.node.AbstractSVGWizardNodeModel;
  *
  * @author Christian Albrecht, KNIME.com GmbH, Konstanz, Germany
  */
-public class EditableTableViewNodeModel
+public class EditableTableNodeModel
 		extends AbstractSVGWizardNodeModel<EditableTableViewRepresentation, EditableTableViewValue>
 		implements BufferedDataTableHolder {
 
@@ -75,7 +74,7 @@ public class EditableTableViewNodeModel
 	 * @param viewName
 	 *            The name of the interactive view
 	 */
-	protected EditableTableViewNodeModel(final String viewName) {
+	protected EditableTableNodeModel(final String viewName) {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] { BufferedDataTable.TYPE }, viewName);
 	}
 
@@ -150,27 +149,7 @@ public class EditableTableViewNodeModel
 	public void setInternalTables(final BufferedDataTable[] tables) {
 		m_table = tables[0];
 	}
-
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	@Override
-//	protected PortObject[] performExecute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
-//		BufferedDataTable out = (BufferedDataTable) inObjects[0];
-//		synchronized (getLock()) {
-//			PagedTableViewRepresentation viewRepresentation = getViewRepresentation();
-//			if (viewRepresentation.getTable() == null) {
-//				m_table = (BufferedDataTable) inObjects[0];
-//				JSONDataTable jsonTable = createJSONTableFromBufferedDataTable(m_table,
-//						exec.createSubExecutionContext(0.5));
-//				viewRepresentation.setTable(jsonTable);
-//				copyConfigToRepresentation();
-//			}
-//		}
-//		exec.setProgress(1);
-//		return new PortObject[] { out };
-//	}
-
+	
 	@Override
 	protected void performExecuteCreateView(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		// unused
@@ -185,25 +164,20 @@ public class EditableTableViewNodeModel
 		EditableTableViewValue viewValue = getViewValue();
 		if (viewValue == null) {
 			viewValue = createEmptyViewValue();
-			viewValue.table = createJSONTableFromBufferedDataTable(table, exec);
-			setViewValue(viewValue);
 		}
+		viewValue.table = new JSONDataTable(table, 1, (int) table.size(), exec);
+		setViewValue(viewValue);
 
-		return new PortObject[] { viewValue.table.createBufferedDataTable(exec) };
-	}
-
-	private JSONDataTable createJSONTableFromBufferedDataTable(final BufferedDataTable table,
-			final ExecutionContext exec) throws CanceledExecutionException {
-		JSONDataTable jsonTable = new JSONDataTable(table, 1, (int) table.size(), exec);
-		return jsonTable;
+		// TODO: createBufferedDataTable is buggy. Uncomment once fixed
+//		return new PortObject[] { viewValue.table.createBufferedDataTable(exec) };
+		return inObjects;
 	}
 
 	@Override
 	protected boolean generateImage() {
 		return false;
 	}
-	
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -238,12 +212,12 @@ public class EditableTableViewNodeModel
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		EditableTableViewValue viewValue = getViewValue();
-		if (viewValue == null) {
-			viewValue = createEmptyViewValue();
-		}
-		viewValue.loadFromNodeSettings(settings);
-		setViewValue(viewValue);
+		// EditableTableViewValue viewValue = getViewValue();
+		// if (viewValue == null) {
+		// viewValue = createEmptyViewValue();
+		// }
+		// viewValue.loadFromNodeSettings(settings);
+		// setViewValue(viewValue);
 	}
 
 	/**
@@ -251,6 +225,12 @@ public class EditableTableViewNodeModel
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		EditableTableViewValue viewValue = getViewValue();
+		if (viewValue == null) {
+			viewValue = createEmptyViewValue();
+		}
+		viewValue.loadFromNodeSettings(settings);
+		setViewValue(viewValue);
 	}
 
 }

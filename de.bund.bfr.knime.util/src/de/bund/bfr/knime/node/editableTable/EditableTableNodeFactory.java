@@ -56,37 +56,38 @@ import org.knime.core.node.wizard.WizardNodeFactoryExtension;
  *
  * @author Christian Albrecht, KNIME.com GmbH, Konstanz, Germany
  */
-public class EditableTableNodeFactory extends NodeFactory<PagedTableViewNodeModel> implements
-    WizardNodeFactoryExtension<PagedTableViewNodeModel, PagedTableViewRepresentation, PagedTableViewValue> {
+public class EditableTableNodeFactory extends NodeFactory<EditableTableNodeModel> implements
+		WizardNodeFactoryExtension<EditableTableNodeModel, EditableTableViewRepresentation, EditableTableViewValue> {
 
-    /** {@inheritDoc} */
-    @Override
-    public PagedTableViewNodeModel createNodeModel() {
-        return new PagedTableViewNodeModel(getInteractiveViewName());
-    }
+	/** {@inheritDoc} */
+	@Override
+	public EditableTableNodeModel createNodeModel() {
+		return new EditableTableNodeModel(getInteractiveViewName());
+	}
 
-    /** {@inheritDoc} */
-    @Override
-    protected int getNrNodeViews() {
-        return 0;
-    }
+	/** {@inheritDoc} */
+	@Override
+	protected int getNrNodeViews() {
+		return 0;
+	}
 
-    /** {@inheritDoc} */
-    @Override
-    public NodeView<PagedTableViewNodeModel> createNodeView(final int viewIndex, final PagedTableViewNodeModel nodeModel) {
-        return null;
-    }
+	/** {@inheritDoc} */
+	@Override
+	public NodeView<EditableTableNodeModel> createNodeView(final int viewIndex,
+			final EditableTableNodeModel nodeModel) {
+		return null;
+	}
 
-    /** {@inheritDoc} */
-    @Override
-    protected boolean hasDialog() {
-        return false;
-    }
+	/** {@inheritDoc} */
+	@Override
+	protected boolean hasDialog() {
+		return false;
+	}
 
-    /** {@inheritDoc} */
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        return null;
-    }
+	/** {@inheritDoc} */
+	@Override
+	protected NodeDialogPane createNodeDialogPane() {
+		return null;
+	}
 
 }

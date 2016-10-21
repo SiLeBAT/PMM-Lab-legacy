@@ -16,9 +16,8 @@
 		<inPort index="0" name="Input to display">
 			Input table to display.
 		</inPort>
-		<outPort index="0" name="Input data and view selection">
-			Data table containing the input data appended with a column, that
-			represents the selection made in the table view.
+		<outPort index="0" name="Output to display">
+			Modified table
 		</outPort>
 	</ports>
 </knimeNode>

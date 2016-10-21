@@ -61,11 +61,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
  * @author Miguel de Alba, BfR, Berlin, Germany
  */
-@JsonAutoDetect
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class EditableTableViewValue extends JSONViewContent {
 	
-	JSONDataTable table;
+	JSONDataTable table = new JSONDataTable();
 	
 	@Override
 	public void saveToNodeSettings(NodeSettingsWO settings) {
@@ -74,7 +74,7 @@ public class EditableTableViewValue extends JSONViewContent {
 	
 	@Override
 	public void loadFromNodeSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-		table.loadFromNodeSettings(settings);	
+		table = JSONDataTable.loadFromNodeSettings(settings);
 	}
 
 	@Override

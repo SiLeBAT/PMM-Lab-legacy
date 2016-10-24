@@ -57,7 +57,6 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
-import org.knime.js.core.JSONDataTable;
 import org.knime.js.core.node.AbstractSVGWizardNodeModel;
 
 /**
@@ -69,6 +68,7 @@ public class EditableTableNodeModel
 		implements BufferedDataTableHolder {
 
 	private BufferedDataTable m_table;
+	private boolean executed;
 
 	/**
 	 * @param viewName
@@ -91,7 +91,7 @@ public class EditableTableNodeModel
 	 */
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		return inSpecs;
+		return null;
 	}
 
 	/**
@@ -165,12 +165,20 @@ public class EditableTableNodeModel
 		if (viewValue == null) {
 			viewValue = createEmptyViewValue();
 		}
-		viewValue.table = new JSONDataTable(table, 1, (int) table.size(), exec);
-		setViewValue(viewValue);
+		
+		if (!executed) {
+			viewValue.table = new JSONDataTable(table, 1, (int) table.size(), exec);
+			setViewValue(viewValue);
+			executed = true;
+		}
 
 		// TODO: createBufferedDataTable is buggy. Uncomment once fixed
+		viewValue = getViewValue();
+		BufferedDataTable outTable = viewValue.table.createBufferedDataTable(exec);
+		return new PortObject[] { outTable };
+		
 //		return new PortObject[] { viewValue.table.createBufferedDataTable(exec) };
-		return inObjects;
+//		return inObjects;
 	}
 
 	@Override
@@ -184,6 +192,7 @@ public class EditableTableNodeModel
 	@Override
 	protected void performReset() {
 		m_table = null;
+		executed = false;
 	}
 
 	/**
@@ -192,7 +201,6 @@ public class EditableTableNodeModel
 	@Override
 	protected void useCurrentValueAsDefault() {
 		// TODO Auto-generated method stub
-
 	}
 
 	/**

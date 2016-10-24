@@ -23,6 +23,7 @@ editable_table = function() {
 	}
 
 	table.getComponentValue = function() {
+		alert(JSON.stringify(_value));
 		return _value;
 	}
 
@@ -53,13 +54,16 @@ editable_table = function() {
             var dataFields = rows[i].data;
 
             for (var j = 0; j < dataFields.length; j++) {
-                if (_knimeTable.getColumnTypes()[j] == 'number') {
+                if (_knimeTable.getColumnTypes()[j] == 'NUMBER') {
                     tr.append('<td><input type="number"' + (i % 2 === 0 ? bandedRows: '') + 'value="' + dataFields[j] + '"></input></td>');
                     $('input', tr).spinner({
                     	change: function (event, ui) {
                     		var td = $(this).parent().parent();
   							var col = td.index();
 							var row = td.parent().index();
+							alert("[" + row + "][" + col + "]\n" +
+								  "Before: " + _value.table.rows[row].data[col] + "\n" +
+								  "After: " + $(this).spinner('value'));
                     		_value.table.rows[row].data[col] = $(this).spinner('value');
                     	}
                 	});

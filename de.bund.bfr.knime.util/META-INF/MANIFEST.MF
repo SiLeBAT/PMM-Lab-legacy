@@ -15,7 +15,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
  org.apache.commons.lang,
- de.bund.bfr.knime.pmm.common
+ de.bund.bfr.knime.pmm.common,
+ org.knime.ext.svg,
+ org.apache.commons.codec
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.node.editableTable
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

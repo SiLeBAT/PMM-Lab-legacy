@@ -172,13 +172,9 @@ public class EditableTableNodeModel
 			executed = true;
 		}
 
-		// TODO: createBufferedDataTable is buggy. Uncomment once fixed
 		viewValue = getViewValue();
 		BufferedDataTable outTable = viewValue.table.createBufferedDataTable(exec);
 		return new PortObject[] { outTable };
-		
-//		return new PortObject[] { viewValue.table.createBufferedDataTable(exec) };
-//		return inObjects;
 	}
 
 	@Override

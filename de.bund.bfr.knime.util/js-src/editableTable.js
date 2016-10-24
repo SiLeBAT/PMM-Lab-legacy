@@ -23,7 +23,6 @@ editable_table = function() {
 	}
 
 	table.getComponentValue = function() {
-		alert(JSON.stringify(_value));
 		return _value;
 	}
 
@@ -61,9 +60,6 @@ editable_table = function() {
                     		var td = $(this).parent().parent();
   							var col = td.index();
 							var row = td.parent().index();
-							alert("[" + row + "][" + col + "]\n" +
-								  "Before: " + _value.table.rows[row].data[col] + "\n" +
-								  "After: " + $(this).spinner('value'));
                     		_value.table.rows[row].data[col] = $(this).spinner('value');
                     	}
                 	});

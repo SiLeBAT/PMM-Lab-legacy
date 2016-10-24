@@ -356,32 +356,8 @@ public class JSONDataTable {
         return container.getTable();
     }
     
-    /*
-     * Copied from JSONDataTableSpec since it has package access.
-     */
-    static JSTypes getJSONType(final DataType colType) {
-        JSTypes type;
-        if (colType.isCompatible(SvgValue.class)) {
-            type = JSTypes.SVG;
-        } else if (colType.isCompatible(PNGImageValue.class)) {
-            type = JSTypes.PNG;
-        } else if (colType.isCompatible(BooleanValue.class)) {
-            type = JSTypes.BOOLEAN;
-        } else if (colType.isCompatible(DateAndTimeValue.class)) {
-            type = JSTypes.DATE_TIME;
-        } else if (colType.isCompatible(DoubleValue.class)) {
-            type = JSTypes.NUMBER;
-        } else if (colType.isCompatible(StringValue.class)) {
-            type = JSTypes.STRING;
-        } else {
-            type = JSTypes.UNDEFINED;
-        }
-
-        return type;
-    }
-
     private Object getJSONCellValue(final DataCell cell) {
-        JSTypes jsType = getJSONType(cell.getType());
+        JSTypes jsType = JSONDataTableSpec.getJSONType(cell.getType());
         switch (jsType) {
             case BOOLEAN:
                 return ((BooleanValue)cell).getBooleanValue();

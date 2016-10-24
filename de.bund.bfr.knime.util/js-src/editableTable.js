@@ -20,11 +20,11 @@ editable_table = function() {
         _knimeTable.setDataTable(_value.table);
 
 		drawTable();
-	}
+	};
 
 	table.getComponentValue = function() {
 		return _value;
-	}
+	};
 
 	drawTable = function() {
 

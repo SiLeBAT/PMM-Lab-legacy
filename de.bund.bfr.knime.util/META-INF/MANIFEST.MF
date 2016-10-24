@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Utility nodes
 Bundle-SymbolicName: de.bund.bfr.knime.util;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: combasereader.jar
 Bundle-Activator: de.bund.bfr.knime.util.UtilNodePlugin
 Bundle-Vendor: BfR
 Require-Bundle: org.eclipse.core.runtime,
@@ -21,4 +20,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.node.editableTable
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: library.jar
 

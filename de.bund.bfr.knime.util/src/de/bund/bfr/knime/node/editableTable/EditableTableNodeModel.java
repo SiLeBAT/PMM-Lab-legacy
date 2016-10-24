@@ -49,6 +49,7 @@ package de.bund.bfr.knime.node.editableTable;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTableHolder;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -57,14 +58,13 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
-import org.knime.js.core.node.AbstractSVGWizardNodeModel;
+import org.knime.js.core.node.AbstractWizardNodeModel;
 
 /**
- *
- * @author Christian Albrecht, KNIME.com GmbH, Konstanz, Germany
+ * @author Miguel de Alba, BfR, Berlin, Germany
  */
 public class EditableTableNodeModel
-		extends AbstractSVGWizardNodeModel<EditableTableViewRepresentation, EditableTableViewValue>
+		extends AbstractWizardNodeModel<EditableTableViewRepresentation, EditableTableViewValue>
 		implements BufferedDataTableHolder {
 
 	private BufferedDataTable m_table;
@@ -76,6 +76,11 @@ public class EditableTableNodeModel
 	 */
 	protected EditableTableNodeModel(final String viewName) {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] { BufferedDataTable.TYPE }, viewName);
+		
+		// Creates view value if not set
+		if (getViewValue() == null) {
+			setViewValue(new EditableTableViewValue());
+		}
 	}
 
 	/**
@@ -149,23 +154,18 @@ public class EditableTableNodeModel
 	public void setInternalTables(final BufferedDataTable[] tables) {
 		m_table = tables[0];
 	}
-	
-	@Override
-	protected void performExecuteCreateView(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		// unused
-	}
 
 	@Override
-	protected PortObject[] performExecuteCreatePortObjects(PortObject svgImageFromView, PortObject[] inObjects,
-			ExecutionContext exec) throws Exception {
+	protected PortObject[] performExecute(PortObject[] inObjects, ExecutionContext exec) throws CanceledExecutionException {
 
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
 
 		EditableTableViewValue viewValue = getViewValue();
 		if (viewValue == null) {
 			viewValue = createEmptyViewValue();
+			setViewValue(viewValue);
 		}
-		
+
 		if (!executed) {
 			viewValue.table = new JSONDataTable(table, 1, (int) table.size(), exec);
 			setViewValue(viewValue);
@@ -175,11 +175,6 @@ public class EditableTableNodeModel
 		viewValue = getViewValue();
 		BufferedDataTable outTable = viewValue.table.createBufferedDataTable(exec);
 		return new PortObject[] { outTable };
-	}
-
-	@Override
-	protected boolean generateImage() {
-		return false;
 	}
 
 	/**
@@ -204,11 +199,7 @@ public class EditableTableNodeModel
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		EditableTableViewValue viewValue = getViewValue();
-		if (viewValue == null) {
-			viewValue = createEmptyViewValue();
-		}
-		viewValue.saveToNodeSettings(settings);
+		getViewValue().saveToNodeSettings(settings);
 	}
 
 	/**
@@ -216,12 +207,7 @@ public class EditableTableNodeModel
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		// EditableTableViewValue viewValue = getViewValue();
-		// if (viewValue == null) {
-		// viewValue = createEmptyViewValue();
-		// }
-		// viewValue.loadFromNodeSettings(settings);
-		// setViewValue(viewValue);
+		(new EditableTableViewValue()).loadFromNodeSettings(settings);
 	}
 
 	/**
@@ -229,12 +215,7 @@ public class EditableTableNodeModel
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		EditableTableViewValue viewValue = getViewValue();
-		if (viewValue == null) {
-			viewValue = createEmptyViewValue();
-		}
-		viewValue.loadFromNodeSettings(settings);
-		setViewValue(viewValue);
+		getViewValue().loadFromNodeSettings(settings);
 	}
 
 }

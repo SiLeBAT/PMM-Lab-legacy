@@ -12,7 +12,6 @@ Bundle-ClassPath: .,
  lib/pmfml-0.0.8.jar
 Require-Bundle: org.jdom2;visibility:=reexport
 Export-Package: de.bund.bfr.fskml,
- de.bund.bfr.openfsmr,
  de.bund.bfr.pmfml,
  de.bund.bfr.pmfml.file,
  de.bund.bfr.pmfml.file.uri,

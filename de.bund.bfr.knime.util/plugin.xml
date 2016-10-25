@@ -6,7 +6,7 @@
 <extension point="org.knime.workbench.repository.nodes">
   
   <node
-    category-path="/pmmlab/util"
+    category-path="/bfrutil"
     factory-class="de.bund.bfr.knime.node.editableTable.EditableTableNodeFactory">
   </node>
 </extension>
@@ -44,5 +44,15 @@
     name="Editable table"
     namespace="editable_table">
   </javascriptComponent>
+</extension>
+<extension
+      point="org.knime.workbench.repository.categories">
+   <category
+         icon="icons/Utilities.png"
+         level-id="bfrutil"
+         locked="true"
+         name="BfR Internal Utilities"
+         path="/">
+   </category>
 </extension>
 </plugin>

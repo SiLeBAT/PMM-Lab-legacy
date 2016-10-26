@@ -19,7 +19,6 @@ package de.bund.bfr.knime.pmm.fskx.writer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
@@ -55,9 +54,8 @@ import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
-import de.bund.bfr.knime.pmm.fskx.RUri;
+import de.bund.bfr.knime.pmm.fskx.URIS;
 import de.bund.bfr.knime.pmm.fskx.Variable;
-import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.PMFUtil;
@@ -112,29 +110,28 @@ class FskxWriterNodeModel extends NodeModel {
 		try (CombineArchive archive = new CombineArchive(new File(filePath.getStringValue()))) {
 
 			RMetaDataNode metaDataNode = new RMetaDataNode();
-			URI rUri = RUri.createURI();
 
 			// Adds model script
 			if (portObject.model != null) {
-				archive.addEntry(createScriptFile(portObject.model), "model.r", rUri);
+				archive.addEntry(createScriptFile(portObject.model), "model.r", URIS.r);
 				metaDataNode.setMainScript("model.r");
 			}
 
 			// Adds parameters script
 			if (portObject.param != null) {
-				archive.addEntry(createScriptFile(portObject.param), "param.r", rUri);
+				archive.addEntry(createScriptFile(portObject.param), "param.r", URIS.r);
 				metaDataNode.setParamScript("param.r");
 			}
 
 			// Adds visualization script
 			if (portObject.viz != null) {
-				archive.addEntry(createScriptFile(portObject.viz), "visualization.r", rUri);
+				archive.addEntry(createScriptFile(portObject.viz), "visualization.r", URIS.r);
 				metaDataNode.setVisualizationScript("visualization.r");
 			}
 
 			// Adds R workspace file
 			if (portObject.workspace != null) {
-				archive.addEntry(portObject.workspace, "workspace.r", rUri);
+				archive.addEntry(portObject.workspace, "workspace.r", URIS.r);
 				metaDataNode.setWorkspaceFile("workspace.r");
 			}
 
@@ -152,9 +149,8 @@ class FskxWriterNodeModel extends NodeModel {
 			}
 
 			// Adds R libraries
-			URI zipUri = ZipUri.createURI();
 			for (File lib : portObject.libs) {
-				archive.addEntry(lib, lib.getName(), zipUri);
+				archive.addEntry(lib, lib.getName(), URIS.zip);
 			}
 
 			archive.addDescription(new DefaultMetaDataObject(metaDataNode.getNode()));

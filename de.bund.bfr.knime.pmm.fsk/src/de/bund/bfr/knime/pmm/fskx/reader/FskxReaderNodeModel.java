@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -71,14 +70,13 @@ import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
 import de.bund.bfr.knime.pmm.fskx.RMetaDataNode;
+import de.bund.bfr.knime.pmm.fskx.URIS;
 import de.bund.bfr.knime.pmm.fskx.Variable;
-import de.bund.bfr.knime.pmm.fskx.ZipUri;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.pmfml.file.uri.UriFactory;
 import de.bund.bfr.pmfml.sbml.Limits;
 import de.bund.bfr.pmfml.sbml.LimitsConstraint;
 import de.bund.bfr.pmfml.sbml.Metadata;
@@ -166,9 +164,8 @@ class FskxReaderNodeModel extends NodeModel {
 			}
 
 			// Gets model meta data
-			URI pmfUri = UriFactory.createPMFURI();
-			if (archive.getNumEntriesWithFormat(pmfUri) == 1) {
-				ArchiveEntry entry = archive.getEntriesWithFormat(pmfUri).get(0);
+			if (archive.getNumEntriesWithFormat(URIS.pmf) == 1) {
+				ArchiveEntry entry = archive.getEntriesWithFormat(URIS.pmf).get(0);
 				try {
 					File f = FileUtil.createTempFile("metaData", ".pmf");
 					entry.extractFile(f);
@@ -201,10 +198,8 @@ class FskxReaderNodeModel extends NodeModel {
 			}
 
 			// Gets R libraries
-			URI zipUri = ZipUri.createURI();
-
 			// Gets library names from the zip entries in the CombineArchive
-			List<String> libNames = archive.getEntriesWithFormat(zipUri).stream()
+			List<String> libNames = archive.getEntriesWithFormat(URIS.zip).stream()
 					.map(entry -> entry.getFileName().split("\\_")[0]).collect(Collectors.toList());
 
 			if (!libNames.isEmpty()) {

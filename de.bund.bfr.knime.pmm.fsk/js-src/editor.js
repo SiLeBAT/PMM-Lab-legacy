@@ -10,6 +10,8 @@ metadata_editor = function () {
 
     editor.init = function (representation, value)
     {
+        // alert(JSON.stringify(value));
+
         _value = value;
         _data = value.metadata;
         create_body ();
@@ -274,15 +276,15 @@ metadata_editor = function () {
     }
 
     function validateValueCell(i) {
-        alert("validateValueCell");
+        // alert("validateValueCell");
     }
 
     function validateMinCell(i) {
-        alert("validateMinCell");
+        // alert("validateMinCell");
     }
 
     function validateMaxCell(i) {
-        alert("validateMaxCell");
+        // alert("validateMaxCell");
     }
 
     function reset ()

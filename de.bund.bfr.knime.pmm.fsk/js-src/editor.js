@@ -71,7 +71,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelName" class="col-sm-3 control-label">Model name:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + nullToEmpty(_data.modelName) + '</p>' +
+            '      <p id="modelNameInput" class="form-control-static">' + nullToEmpty(_data.modelName) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -79,13 +79,13 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelId" class="col-sm-3 control-label">Model id:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + nullToEmpty(_data.modelId) + '</p>' +
+            '      <p id="modelIdInput" class="form-control-static">' + nullToEmpty(_data.modelId) + '</p>' +
             '    </div>' +
             '  </div>' +
 
             // Model link form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modelLink" class="col-sm-3 control-label">Model link:</label>' +
+            '    <label for="modelLinkInput" class="col-sm-3 control-label">Model link:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + nullToEmpty(_data.modelLink) + '</p>' +
             '    </div>' +
@@ -282,12 +282,25 @@ metadata_editor = function () {
 
     function reset ()
     {
-        $("#createdDateInput").val(_data.createdDate === null ? "" : _data.createdDate);
-        $("#modifiedDateInput").val(_data.modifiedDate === null ? "" : _data.modifiedDate);
-        $("#rightsInput").val(_data.rights === null ? "" : _data.rights);
-        $("#notesInput").val(_data.notes === null ? "" : _data.notes);
+        $("#modelNameInput").val(nullToEmpty(_data.modelName));
+        $("#modelIdInput").val(nullToEmpty(_data.modelId));
+        $("#modelLinkInput").val(nullToEmpty(_data.modelLinkInput));
+        $("#organismInput").val(nullToEmpty(_data.organismInput));
+        $("#organismDetailsInput").val(nullToEmpty(_data.organismDetailsInput));
+        $("#matrixInput").val(nullToEmpty(_data.matrixInput));
+        $("#matrixDetailsInput").val(nullToEmpty(_data.matrixDetailsInput));
+        $("#contactInput").val(nullToEmpty(_data.contact));
+        $("#softwareInput").val(nullToEmpty(_data.softwareInput));
+        $("#referenceDescriptionInput").val(nullToEmpty(_data.referenceDescriptionInput));
+        $("#referenceDescriptionLinkInput").val(nullToEmpty(_data.referenceDescriptionLinkInput));
+        $("#createdDateInput").val(nullToEmpty(_data.createdDate));
+        $("#modifiedDateInput").val(nullToEmpty(_data.modifiedDate));
+        $("#rightsInput").val(nullToEmpty(_data.rights));
+        $("#notesInput").val(nullToEmpty(_data.notes));
         $("#curatedInput").prop("checked", _data.curated);
-        $("#foodProcessInput").val(_data.foodProcess === null ? "" : _data.foodProcess);
+        $("#typeInput").val(nullToEmpty(_data.type));
+        $("#subjectInput").val(nullToEmpty(_data.subject));
+        $("#foodProcessInput").val(nullToEmpty(_data.foodProcess));
 
         var table = $("body div table");
         table.find("tr:gt(0)").remove();

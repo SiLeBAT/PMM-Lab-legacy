@@ -11,7 +11,6 @@ metadata_editor = function () {
     editor.init = function (representation, value)
     {
         // alert(JSON.stringify(value));
-
         _value = value;
         _data = value.metadata;
         create_body ();
@@ -78,7 +77,7 @@ metadata_editor = function () {
 
             // Model name form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modelName" class="col-sm-3 control-label">Model name</label>' +
+            '    <label for="modelName" class="col-sm-3 control-label">Model name:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.modelName === null ? "" : _data.modelName) + '</p>' +
             '    </div>' +
@@ -86,7 +85,7 @@ metadata_editor = function () {
 
             // Model id form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modelId" class="col-sm-3 control-label">Model id</label>' +
+            '    <label for="modelId" class="col-sm-3 control-label">Model id:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.modelId === null ? "" : _data.modelId) + '</p>' +
             '    </div>' +
@@ -94,7 +93,7 @@ metadata_editor = function () {
 
             // Model link form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modelLink" class="col-sm-3 control-label">Model link</label>' +
+            '    <label for="modelLink" class="col-sm-3 control-label">Model link:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.modeLink === null ? "" : _data.modelLink) + '</p>' +
             '    </div>' +
@@ -102,7 +101,7 @@ metadata_editor = function () {
 
             // Organism form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="organism" class="col-sm-3 control-label">Organism</label>' +
+            '    <label for="organism" class="col-sm-3 control-label">Organism:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.organism === null ? "" : _data.organism) + '</p>' +
             '    </div>' +
@@ -110,7 +109,7 @@ metadata_editor = function () {
 
             // Organism details form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="organismDetails" class="col-sm-3 control-label">Organism details</label>' +
+            '    <label for="organismDetails" class="col-sm-3 control-label">Organism details:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.organismDetails === null ? "" : _data.organismDetails) + '</p>' +
             '    </div>' +
@@ -118,7 +117,7 @@ metadata_editor = function () {
 
             // Matrix form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="matrix" class="col-sm-3 control-label">Matrix</label>' +
+            '    <label for="matrix" class="col-sm-3 control-label">Matrix:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.matrix === null ? "" : _data.matrix) + '</p>' +
             '    </div>' +
@@ -126,7 +125,7 @@ metadata_editor = function () {
 
             // Matrix details form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details</label>' +
+            '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.matrixDetails === null ? "" : _data.matrixDetails) + '</p>' +
             '    </div>' +
@@ -134,7 +133,7 @@ metadata_editor = function () {
 
             // Creator form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="creator" class="col-sm-3 control-label">Creator</label>' +
+            '    <label for="creator" class="col-sm-3 control-label">Creator:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.creator === null ? "" : _data.creator) + '</p>' +
             '    </div>' +
@@ -142,7 +141,7 @@ metadata_editor = function () {
 
             // Family name form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="familyName" class="col-sm-3 control-label">Family name</label>' +
+            '    <label for="familyName" class="col-sm-3 control-label">Family name:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.familyName === null ? "" : _data.familyName) + '</p>' +
             '    </div>' +
@@ -150,7 +149,7 @@ metadata_editor = function () {
 
             // Contact form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="contact" class="col-sm-3 control-label">Contact</label>' +
+            '    <label for="contact" class="col-sm-3 control-label">Contact:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.contact === null ? "" : _data.contact) + '</p>' +
             '    </div>' +
@@ -158,7 +157,7 @@ metadata_editor = function () {
 
             // Software form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="software" class="col-sm-3 control-label">Software</label>' +
+            '    <label for="software" class="col-sm-3 control-label">Software:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.software === null ? "" : _data.software) + '</p>' +
             '    </div>' +
@@ -166,7 +165,7 @@ metadata_editor = function () {
 
             // Reference description form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="referenceDescription" class="col-sm-3 control-label">Referece description</label>' +
+            '    <label for="referenceDescription" class="col-sm-3 control-label">Referece description:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.referenceDescription === null ? "" : _data.referenceDescription) + '</p>' +
             '    </div>' +
@@ -174,7 +173,7 @@ metadata_editor = function () {
 
             // Reference description link form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Referece description link</label>' +
+            '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Referece description link:</label>' +
             '    <div class="col-sm-9">' +
             '      <p class="form-control-static">' + (_data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink) + '</p>' +
             '    </div>' +
@@ -182,41 +181,39 @@ metadata_editor = function () {
 
             // Created date form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="createdDate" class="col-sm-3 control-label">Created date</label>' +
+            '    <label for="createdDate" class="col-sm-3 control-label">Created date:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + createdDate + '">' +
-            '      <span class="help-block">MM.dd.yyyy</span>' +
+            '      <input type="date" class="form-control no-border" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + createdDate + '">' +
             '    </div>' +
             '  </div>' +
 
             // Modified date form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date</label>' +
+            '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + modifiedDate + '">' +
-            '      <span class="help-block">MM.dd.yyyy</span>' +
+            '      <input type="date" class="form-control no-border" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + modifiedDate + '">' +
             '    </div>' +
             '  </div>' +
 
             // Rights form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="rights" class="col-sm-3 control-label">Rights</label>' +
+            '    <label for="rights" class="col-sm-3 control-label">Rights:</label>' +
             '      <div class="col-sm-9">' +
-            '      <input type="text" class="form-control" id="rightsInput" value="' + rights + '">' +
+            '      <input type="text" class="form-control no-border" id="rightsInput" value="' + rights + '">' +
             '    </div>' +
             '  </div>' +
 
             // Notes form
-            '  <div class="form-group">' +
-            '    <label for="notes" class="col-sm-3 control-label">Notes</label>' +
+            '  <div class="form-group form-group-sm">' +
+            '    <label for="notes" class="col-sm-3 control-label">Notes:</label>' +
             '    <div class="col-sm-9">' +
-            '      <textarea class="form-control" rows="3">' + notes + '</textArea>' +
+            '      <textarea class="form-control no-border" rows="3">' + notes + '</textArea>' +
             '    </div>' +
             '  </div>' +
 
             // Curated form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="curated" class="col-sm-3 control-label">Curated</label>' +
+            '    <label for="curated" class="col-sm-3 control-label">Curated:</label>' +
             '    <div class="col-sm-9">' +
             '      <input id="curatedInput" type="checkbox"' + (_data.curated ? " checked" : "") + '>' +
             '    </div>' +
@@ -224,31 +221,31 @@ metadata_editor = function () {
 
             // Model type form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modelType" class="col-sm-3 control-label">Model type</label>' +
+            '    <label for="modelType" class="col-sm-3 control-label">Model type:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.type === null ? "" : _data.type) + '</p>' +
+            '      <p class="form-control-static no-border">' + (_data.type === null ? "" : _data.type) + '</p>' +
             '    </div>' +
             '  </div>' +
 
             // Model subject form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="modelSubject" class="col-sm-3 control-label">Model subject</label>' +
+            '    <label for="modelSubject" class="col-sm-3 control-label">Model subject:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.subject === null ? "" : _data.subject) + '</p>' +
+            '      <p class="form-control-static no-border">' + (_data.subject === null ? "" : _data.subject) + '</p>' +
             '    </div>' +
             '  </div>' +
 
             // Food process form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="foodProcess" class="col-sm-3 control-label">Food process</label>' +
+            '    <label for="foodProcess" class="col-sm-3 control-label">Food process:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.foodProcess === null ? "" : _data.foodProcess) + '</p>' +
+            '      <p class="form-control-static no-border">' + (_data.foodProcess === null ? "" : _data.foodProcess) + '</p>' +
             '    </div>' +
             '  </div>' +
 
             // Has data form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="hasData" class="col-sm-3 control-label">Has data?</label>' +
+            '    <label for="hasData" class="col-sm-3 control-label">Has data?:</label>' +
             '    <div class="col-sm-9">' +
             '      <input id="hasDataInput" type="checkbox"' + (_data.hasData ? " checked" : "") + '>' +
             '    </div>' +

@@ -244,101 +244,53 @@ metadata_editor = function () {
 
             '</form>';
 
-        var buttonDiv = 
-            '<div class="col-sm-offset-3">' +
-            '  <button id="resetButton" type="button" class="btn btn-warning">Reset</button>' +
-            '  <button id="saveButton" type="button" class="btn btn-success">Save</button>' +
-            '</div>';
-
         document.createElement("body");
-        $("body").html('<div class="container">' + form + varTable + buttonDiv + '</div');
-
-        $("#resetButton").click(reset);
-        $("#saveButton").click(save);
+        $("body").html('<div class="container">' + form + varTable + '</div');
 
         $("body div table tr:not(:first)").each(function(i, row) {
-            $("td:eq(3) input", this).change(validateValueCell(i));
-            $("td:eq(4) input", this).change(validateMinCell(i));
-            $("td:eq(5) input", this).change(validateMaxCell(i));
+            // Value change
+            $("td:eq(3) input", this).change(function() {
+                _data.independentVariables[i].value = $(this).val();
+            });
+            // Minimum value change
+            $("td:eq(4) input", this).change(function() {
+                _data.independentVariables[i].min = $(this).val();
+            });
+            // Maximum value change
+            $("td:eq(5) input", this).change(function() {
+                _data.independentVariables[i].max = $(this).val();
+            });
         });
+
+        // Save data on modification
+        $("#modelNameInput").change(function() { _data.modelName = $(this).val(); });
+        $("#modelIdInput").change(function() { _data.modelId = $(this).val(); });
+        $("#modelLinkInput").change(function() { _data.modelLink = $(this).val(); });
+        $("#organismInput").change(function() { _data.organism = $(this).val(); });
+        $("#organismDetailsInput").change(function() { _data.organismDetails = $(this).val(); });
+        $("#matrixInput").change(function() { _data.matrix = $(this).val(); });
+        $("#matrixDetailsInput").change(function() { _data.matrixDetails = $(this).val(); });
+        $("#creatorInput").change(function() { _data.creator = $(this).val(); });
+        $("#familyNameInput").change(function() { _data.familyNameInput = $(this).val(); });
+        $("#contactInput").change(function() { _data.contact = $(this).val(); });
+        $("#softwareInput").change(function() { _data.software = $(this).val(); });
+        $("#referenceDescriptionInput").change(function() { _data.referenceDescription = $(this).val(); });
+        $("#referenceDescriptionLinkInput").change(function() { _data.referenceDescriptionLink = $(this).val(); });
+        $("#createdDateInput").change(function() { _data.createdDate = $(this).val(); });
+        $("#modifiedDateInput").change(function() { _data.modifiedDate = $(this).val(); });
+        $("#rightsInput").change(function() { _data.rights = $(this).val(); });
+        $("#notesInput").change(function() { _data.notes = $(this).val(); });
+        $("#curatedInput").change(function() { _data.curated  = $(this).is(':checked'); });
+        $("#typeInput").change(function() { _data.type = $(this).val(); });
+        $("#subjectInput").change(function() { _data.subject = $(this).val(); });
+        $("#foodProcessInput").change(function() { _data.foodProcess = $(this).val(); });
+        $("#hasDataInput").change(function() { _data.hasData = $(this).is(':checked'); });
     }
 
     function nullToEmpty(stringVar) {
         return stringVar === null ? "" : stringVar;
     }
 
-    function validateValueCell(i) {
-        // alert("validateValueCell");
-    }
-
-    function validateMinCell(i) {
-        // alert("validateMinCell");
-    }
-
-    function validateMaxCell(i) {
-        // alert("validateMaxCell");
-    }
-
-    function reset ()
-    {
-        $("#modelNameInput").val(nullToEmpty(_data.modelName));
-        $("#modelIdInput").val(nullToEmpty(_data.modelId));
-        $("#modelLinkInput").val(nullToEmpty(_data.modelLinkInput));
-        $("#organismInput").val(nullToEmpty(_data.organismInput));
-        $("#organismDetailsInput").val(nullToEmpty(_data.organismDetailsInput));
-        $("#matrixInput").val(nullToEmpty(_data.matrixInput));
-        $("#matrixDetailsInput").val(nullToEmpty(_data.matrixDetailsInput));
-        $("#contactInput").val(nullToEmpty(_data.contact));
-        $("#softwareInput").val(nullToEmpty(_data.softwareInput));
-        $("#referenceDescriptionInput").val(nullToEmpty(_data.referenceDescriptionInput));
-        $("#referenceDescriptionLinkInput").val(nullToEmpty(_data.referenceDescriptionLinkInput));
-        $("#createdDateInput").val(nullToEmpty(_data.createdDate));
-        $("#modifiedDateInput").val(nullToEmpty(_data.modifiedDate));
-        $("#rightsInput").val(nullToEmpty(_data.rights));
-        $("#notesInput").val(nullToEmpty(_data.notes));
-        $("#curatedInput").prop("checked", _data.curated);
-        $("#typeInput").val(nullToEmpty(_data.type));
-        $("#subjectInput").val(nullToEmpty(_data.subject));
-        $("#foodProcessInput").val(nullToEmpty(_data.foodProcess));
-
-        var table = $("body div table");
-        table.find("tr:gt(0)").remove();
-
-        // Row with dependent variable
-        var depRow = 
-            '<tr>' +
-            '  <td>' + _data.dependentVariable.name + '</td>' +
-            '  <td>' + _data.dependentVariable.unit + '</td>' +
-            '  <td>' + _data.dependentVariable.type + '</td>' +
-            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.value + '"></td>' +
-            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.min + '"></td>' +
-            '  <td><input type="number" class="form-control input-sm" value="' + _data.dependentVariable.max + '"></td>' +
-            '  <td><input type="checkbox" class="form-control" checked disabled></td>' +
-            '</tr>';
-        table.append(depRow);
-
-        // Rows with independent variables
-        for (var i = 0; i < _data.independentVariables.length; i++) {
-            var variable = _data.independentVariables[i];
-            var indepRow =
-                '<tr>' +
-                '  <td>' + variable.name + '</td>' +
-                '  <td>' + variable.unit + '</td>' +
-                '  <td>' + variable.type + '</td>' +
-                '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
-                '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
-                '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
-                '  <td><input type="checkbox" class="form-control" ' + (variable.isDependent ? "checked" : "") + ' disabled></td>' +
-                '</tr>';
-            table.append(indepRow);
-        }
-
-        $("#hasDataInput").prop("checked", _data.hasData);
-    }
-
-
-    function save ()
-    {
         // var hasErrors = false;
 
         // // Validate table
@@ -399,37 +351,4 @@ metadata_editor = function () {
         // if (hasErrors) {
         //     return;
         // }
-
-        _data.createdDate = $("#createdDateInput").val();
-        _data.modifiedDate = $("#modifiedDateInput").val();
-        _data.rights = $("#rightsInput").val();
-        _data.notes = $("#notesInput").val();
-        _data.curated = $("#curatedInput").is(':checked');
-        _data.foodProcess = $("#foodProcessInput").val();
-
-        // Dependent variable
-        var depRow = $("body div table tr:eq(1)");
-        _data.dependentVariable.name = $("td:eq(0)", depRow).text();
-        _data.dependentVariable.unit = $("td:eq(1)", depRow).text();
-        _data.dependentVariable.type = $("td:eq(2)", depRow).text();
-        _data.dependentVariable.value = $("td:eq(3) input", depRow).val();
-        _data.dependentVariable.min = $("td:eq(4) input", depRow).val();
-        _data.dependentVariable.max = $("td:eq(5) input", depRow).val();
-
-        _data.independentVariables = []
-        $("body div table tr:not(:first)").each(function() {
-            var variable = {};
-            variable.name = $("td:eq(0)", this).text();
-            variable.unit = $("td:eq(1)", this).text();
-            variable.type = $("td:eq(2)", this).text();
-            variable.value = $("td:eq(3) input", this).val();
-            variable.min = $("td:eq(4) input", this).val();
-            variable.max = $("td:eq(5) input", this).val();
-            _data.independentVariables.push(variable);
-        });
-
-        _data.hasData = $("#hasDataInput").is(':checked');
-
-        _value.metadata = _data;  // Update metadata in ViewValue
-    }
 }();

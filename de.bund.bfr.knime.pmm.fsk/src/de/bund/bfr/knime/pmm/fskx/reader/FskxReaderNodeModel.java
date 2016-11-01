@@ -63,8 +63,6 @@ import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.util.filters.Filter;
 import org.sbml.jsbml.xml.stax.SBMLReader;
 
-import com.google.common.base.Strings;
-
 import de.bund.bfr.knime.pmm.common.KnimeUtils;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaData.DataType;
@@ -179,8 +177,8 @@ class FskxReaderNodeModel extends NodeModel {
 			}
 			portObj.template.software = FskMetaData.Software.R;
 
-			// Set types of variables
 			{
+				// Set type of dependent variable
 				// TODO: usually the type of the depvar is numeric although it
 				// should be checked
 				portObj.template.dependentVariable.type = DataType.numeric;
@@ -192,8 +190,11 @@ class FskxReaderNodeModel extends NodeModel {
 				 * the rest of types are supported in FskMetaData the following
 				 * code should be update to retrieve the types.
 				 */
+				// Set independent variables types and values
+				Map<String, String> vars = getVariablesFromAssignments(portObj.param);
 				for (Variable v : portObj.template.independentVariables) {
 					v.type = DataType.numeric;
+					v.value = vars.get(v.name);
 				}
 			}
 
@@ -225,14 +226,6 @@ class FskxReaderNodeModel extends NodeModel {
 		// Meta data port
 		BufferedDataContainer fsmrContainer = exec.createDataContainer(metadataSpec);
 		FskMetaDataTuple metaDataTuple = new FskMetaDataTuple(portObj.template);
-
-		// Add independent variables values from parameters script
-		if (!Strings.isNullOrEmpty(portObj.param)) {
-			List<String> varList = getValuesFromAssignments(portObj.param);
-			String values = varList.stream().collect(Collectors.joining("||"));
-
-			metaDataTuple.setCell(FskMetaDataTuple.Key.indepvars_values.ordinal(), values);
-		}
 
 		// Validate model
 		try (RController controller = new RController()) {
@@ -459,7 +452,7 @@ class FskxReaderNodeModel extends NodeModel {
 				Parameter param = indepParams.get(p);
 				Variable variable = new Variable();
 
-				variable.name = param.getName();
+				variable.name = param.getName().trim();
 
 				// unit
 				String unitId = param.getUnits();
@@ -475,9 +468,9 @@ class FskxReaderNodeModel extends NodeModel {
 						.get();
 				variable.min = paramLimits.getMin().toString();
 				variable.max = paramLimits.getMax().toString();
-				
+
 				variable.value = "";
-				
+
 				template.independentVariables.add(variable);
 			}
 		}
@@ -487,154 +480,130 @@ class FskxReaderNodeModel extends NodeModel {
 		return template;
 	}
 
-	/**
-	 * Parses an R command with the = assignment operator. E.g. x = value.
-	 */
-	private static class EqualsAssignment {
+	private static class Assignment {
+
+		enum Type {
+			/** R command with the = assignment operator. E.g. x = value */
+			equals,
+			/** R command with the <- assignment operator. E.g. x <- value */
+			left,
+			/** R command with the <<- scoping assignment operator. E.g. x <<- value */
+			super_left,
+			/** R command with the -> assignment operator. E.g. value -> x */
+			right,
+			/** R command with the ->> assignment operator. E.g. value ->> x */
+			super_right
+		}
+		
 		String variable;
 		String value;
-
-		public EqualsAssignment(String line) {
-			String[] tokens = line.split("||");
-			variable = tokens[0].trim();
-			value = tokens[1].trim();
+		
+		public Assignment(String line, Assignment.Type type) {
+			if (type == Type.equals) {
+				String[] tokens = line.split("||");
+				variable = tokens[0].trim();
+				value = tokens[1].trim();
+			} else if (type == Type.left) {
+				String[] tokens = line.split("<-");
+				variable = tokens[0].trim();
+				value = tokens[1].trim();
+			} else if (type == Type.super_left) {
+				String[] tokens = line.split("<<-");
+				variable = tokens[0].trim();
+				value = tokens[1].trim();
+			} else if (type == Type.right) {
+				String[] tokens = line.split("->");
+				variable = tokens[1].trim();
+				value = tokens[0].trim();
+			} else if (type == Type.super_right) {
+				String[] tokens = line.split("->>");
+				variable = tokens[1].trim();
+				value = tokens[0].trim();
+			}
 		}
 	}
 
-	/**
-	 * Parses an R command with the <- assignment operator. E.g. x <- value
-	 */
-	private static class LeftAssignment {
-		String variable;
-		String value;
-
-		public LeftAssignment(String line) {
-			String[] tokens = line.split("<-");
-			variable = tokens[0].trim();
-			value = tokens[1].trim();
-		}
-	}
-
-	/**
-	 * Parses an R command with the <<- scoping assignment operator. E.g. x <<-
-	 * value
-	 */
-	private static class SuperLeftAssignment {
-		String variable;
-		String value;
-
-		public SuperLeftAssignment(String line) {
-			String[] tokens = line.split("<<-");
-			variable = tokens[0].trim();
-			value = tokens[1].trim();
-		}
-	}
-
-	/**
-	 * Parses an R command with the -> assignment operator. E.g. value -> x
-	 */
-	private static class RightAssignment {
-		String variable;
-		String value;
-
-		public RightAssignment(String line) {
-			String[] tokens = line.split("->");
-			value = tokens[0].trim();
-			variable = tokens[1].trim();
-		}
-	}
-
-	/**
-	 * Parses an R command with the ->> assignment operator. E.g. value ->> x
-	 */
-	private static class SuperRightAssignment {
-		String variable;
-		String value;
-
-		public SuperRightAssignment(String line) {
-			String[] tokens = line.split("->>");
-			value = tokens[0].trim();
-			variable = tokens[1].trim();
-		}
-	}
-
-	private static List<String> getValuesFromAssignments(String paramScript) {
-
-		List<String> varList = new ArrayList<>();
+	private Map<String, String> getVariablesFromAssignments(String paramScript) {
+		Map<String, String> vars = new HashMap<>();
 		for (String line : paramScript.split("\\r?\\n")) {
 			line = line.trim();
 			if (line.startsWith("#"))
 				continue;
 
 			if (line.indexOf("=") != -1) {
-				varList.add(new EqualsAssignment(line).value);
-			} else if (line.indexOf("<<-") != -1) {
-				varList.add(new SuperLeftAssignment(line).value);
+				Assignment a = new Assignment(line, Assignment.Type.equals);
+				vars.put(a.variable, a.value);
 			} else if (line.indexOf("<-") != -1) {
-				varList.add(new LeftAssignment(line).value);
+				Assignment a = new Assignment(line, Assignment.Type.left);
+				vars.put(a.variable, a.value);
+			} else if (line.indexOf("<<-") != -1) {
+				Assignment a = new Assignment(line, Assignment.Type.super_left);
+				vars.put(a.variable, a.value);
 			} else if (line.indexOf("->>") != -1) {
-				varList.add(new SuperRightAssignment(line).value);
+				Assignment a = new Assignment(line, Assignment.Type.right);
+				vars.put(a.variable, a.value);
 			} else if (line.indexOf("->") != -1) {
-				varList.add(new RightAssignment(line).value);
+				Assignment a = new Assignment(line, Assignment.Type.super_right);
+				vars.put(a.variable, a.value);
 			}
 		}
 
-		return varList;
+		return vars;
 	}
 
-	private static Map<String, DataType> getTypesFromAssignments(String paramScript) {
-		Map<String, DataType> typeMap = new HashMap<>();
-		for (String line : paramScript.split("\\r?\\n")) {
-			line = line.trim();
+//	private static Map<String, DataType> getTypesFromAssignments(String paramScript) {
+//		Map<String, DataType> typeMap = new HashMap<>();
+//		for (String line : paramScript.split("\\r?\\n")) {
+//			line = line.trim();
+//
+//			// Skip comments
+//			if (line.startsWith("#"))
+//				continue;
+//
+//			if (line.indexOf("=") != -1) {
+//				EqualsAssignment ea = new EqualsAssignment(line);
+//				DataType type = getDataTypeFromValue(ea.value);
+//				typeMap.put(ea.variable, type);
+//			} else if (line.indexOf("<<-") != -1) {
+//				SuperLeftAssignment sla = new SuperLeftAssignment(line);
+//				DataType type = getDataTypeFromValue(sla.value);
+//				typeMap.put(sla.variable, type);
+//			} else if (line.indexOf("<-") != -1) {
+//				LeftAssignment la = new LeftAssignment(line);
+//				DataType type = getDataTypeFromValue(la.value);
+//				typeMap.put(la.variable, type);
+//			} else if (line.indexOf("->>") != -1) {
+//				SuperRightAssignment sra = new SuperRightAssignment(line);
+//				DataType type = getDataTypeFromValue(sra.value);
+//				typeMap.put(sra.variable, type);
+//			} else if (line.indexOf("->") != -1) {
+//				RightAssignment ra = new RightAssignment(line);
+//				DataType type = getDataTypeFromValue(ra.value);
+//				typeMap.put(ra.variable, type);
+//			}
+//		}
+//
+//		return typeMap;
+//	}
 
-			// Skip comments
-			if (line.startsWith("#"))
-				continue;
-
-			if (line.indexOf("=") != -1) {
-				EqualsAssignment ea = new EqualsAssignment(line);
-				DataType type = getDataTypeFromValue(ea.value);
-				typeMap.put(ea.variable, type);
-			} else if (line.indexOf("<<-") != -1) {
-				SuperLeftAssignment sla = new SuperLeftAssignment(line);
-				DataType type = getDataTypeFromValue(sla.value);
-				typeMap.put(sla.variable, type);
-			} else if (line.indexOf("<-") != -1) {
-				LeftAssignment la = new LeftAssignment(line);
-				DataType type = getDataTypeFromValue(la.value);
-				typeMap.put(la.variable, type);
-			} else if (line.indexOf("->>") != -1) {
-				SuperRightAssignment sra = new SuperRightAssignment(line);
-				DataType type = getDataTypeFromValue(sra.value);
-				typeMap.put(sra.variable, type);
-			} else if (line.indexOf("->") != -1) {
-				RightAssignment ra = new RightAssignment(line);
-				DataType type = getDataTypeFromValue(ra.value);
-				typeMap.put(ra.variable, type);
-			}
-		}
-
-		return typeMap;
-	}
-
-	private static DataType getDataTypeFromValue(String value) {
-
-		try {
-			Integer.parseInt(value);
-			// If value is parsed as an integer then return DataType.integer
-			return DataType.integer;
-		} catch (NumberFormatException e) {
-			// Keep parsing
-		}
-
-		try {
-			Double.parseDouble(value);
-			// If value is parsed as an double then return DataType#numeric
-			return DataType.numeric;
-		} catch (NumberFormatException e) {
-			// Keep parsing
-		}
-
-		return DataType.character;
-	}
+//	private static DataType getDataTypeFromValue(String value) {
+//
+//		try {
+//			Integer.parseInt(value);
+//			// If value is parsed as an integer then return DataType.integer
+//			return DataType.integer;
+//		} catch (NumberFormatException e) {
+//			// Keep parsing
+//		}
+//
+//		try {
+//			Double.parseDouble(value);
+//			// If value is parsed as an double then return DataType#numeric
+//			return DataType.numeric;
+//		} catch (NumberFormatException e) {
+//			// Keep parsing
+//		}
+//
+//		return DataType.character;
+//	}
 }

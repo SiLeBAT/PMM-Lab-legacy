@@ -70,7 +70,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelName" class="col-sm-3 control-label">Model name:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p id="modelNameInput" class="form-control-static">' + nullToEmpty(_data.modelName) + '</p>' +
+            '      <input type="text" id="modelNameInput" class="form-control no-border" value="' + nullToEmpty(_data.modelName) + '">' + 
             '    </div>' +
             '  </div>' +
 
@@ -78,7 +78,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelId" class="col-sm-3 control-label">Model id:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p id="modelIdInput" class="form-control-static">' + nullToEmpty(_data.modelId) + '</p>' +
+            '      <input type="text" id="modelIdInput" class="form-control no-border" value="' + nullToEmpty(_data.modelId) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -86,7 +86,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelLinkInput" class="col-sm-3 control-label">Model link:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + nullToEmpty(_data.modelLink) + '</p>' +
+            '      <input type="url" class="form-control no-border" id="modelLinkInput" value="' + nullToEmpty(_data.modelLink) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -166,7 +166,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Reference description link:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type"text" class="form-control no-border" id="referenceDescriptionLinkInput" value="' + nullToEmpty(_data.referenceDescriptionLink) + '">' +
+            '      <input type"url" class="form-control no-border" id="referenceDescriptionLinkInput" value="' + nullToEmpty(_data.referenceDescriptionLink) + '">' +
             '    </div>' +
             '  </div>' +
 

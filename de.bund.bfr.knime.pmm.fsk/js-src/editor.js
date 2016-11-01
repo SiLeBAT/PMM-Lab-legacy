@@ -26,14 +26,6 @@ metadata_editor = function () {
     // --- utility functions ---
     function create_body ()
     {
-        // Utility variables.
-        // - Replace null strings with empty strings
-        var createdDate = _data.createdDate === null ? "" : _data.createdDate;
-        var modifiedDate = _data.modifiedDate === null ? "" : _data.modifiedDate;
-        var rights = _data.rights === null ? "" : _data.rights;
-        var notes = _data.notes === null ? "" : _data.notes;
-        // curated is boolean: no need to assign it a default value
-
         var varTable =
             '<table class="table table-condensed">' +
             '  <tr>' +
@@ -79,7 +71,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelName" class="col-sm-3 control-label">Model name:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.modelName === null ? "" : _data.modelName) + '</p>' +
+            '      <p class="form-control-static">' + nullToEmpty(_data.modelName) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -87,7 +79,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelId" class="col-sm-3 control-label">Model id:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.modelId === null ? "" : _data.modelId) + '</p>' +
+            '      <p class="form-control-static">' + nullToEmpty(_data.modelId) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -95,7 +87,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelLink" class="col-sm-3 control-label">Model link:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.modeLink === null ? "" : _data.modelLink) + '</p>' +
+            '      <p class="form-control-static">' + nullToEmpty(_data.modelLink) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -103,7 +95,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="organism" class="col-sm-3 control-label">Organism:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.organism === null ? "" : _data.organism) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="organismInput" value="' + nullToEmpty(_data.organism) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -111,7 +103,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="organismDetails" class="col-sm-3 control-label">Organism details:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.organismDetails === null ? "" : _data.organismDetails) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="organismDetailsInput" value="' + nullToEmpty(_data.organismDetails) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -119,7 +111,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="matrix" class="col-sm-3 control-label">Matrix:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.matrix === null ? "" : _data.matrix) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="matrixInput" value="' + nullToEmpty(_data.matrix) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -127,7 +119,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.matrixDetails === null ? "" : _data.matrixDetails) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="matrixDetailsInput" value="' + nullToEmpty(_data.matrixDetails) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -135,7 +127,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="creator" class="col-sm-3 control-label">Creator:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.creator === null ? "" : _data.creator) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="creatorInput" value="' + nullToEmpty(_data.creator) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -143,7 +135,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="familyName" class="col-sm-3 control-label">Family name:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.familyName === null ? "" : _data.familyName) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="familyNameInput" value="' + nullToEmpty(_data.familyName) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -151,7 +143,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="contact" class="col-sm-3 control-label">Contact:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.contact === null ? "" : _data.contact) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="contactInput" value="' + nullToEmpty(_data.contact) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -159,23 +151,23 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="software" class="col-sm-3 control-label">Software:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.software === null ? "" : _data.software) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="softwareInput" value="' + nullToEmpty(_data.software) + '">' +
             '    </div>' +
             '  </div>' +
 
             // Reference description form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="referenceDescription" class="col-sm-3 control-label">Referece description:</label>' +
+            '    <label for="referenceDescription" class="col-sm-3 control-label">Reference description:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.referenceDescription === null ? "" : _data.referenceDescription) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="referenceDescriptionInput" value="' + nullToEmpty(_data.referenceDescription) + '">' +
             '    </div>' +
             '  </div>' +
 
             // Reference description link form
             '  <div class="form-group form-group-sm">' +
-            '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Referece description link:</label>' +
+            '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Reference description link:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static">' + (_data.referenceDescriptionLink === null ? "" : _data.referenceDescriptionLink) + '</p>' +
+            '      <input type"text" class="form-control no-border" id="referenceDescriptionLinkInput" value="' + nullToEmpty(_data.referenceDescriptionLink) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -183,7 +175,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="createdDate" class="col-sm-3 control-label">Created date:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control no-border" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + createdDate + '">' +
+            '      <input type="date" class="form-control no-border" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + nullToEmpty(_data.createdDate) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -191,7 +183,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control no-border" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + modifiedDate + '">' +
+            '      <input type="date" class="form-control no-border" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + nullToEmpty(_data.modifiedDate) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -199,7 +191,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="rights" class="col-sm-3 control-label">Rights:</label>' +
             '      <div class="col-sm-9">' +
-            '      <input type="text" class="form-control no-border" id="rightsInput" value="' + rights + '">' +
+            '      <input type="text" class="form-control no-border" id="rightsInput" value="' + nullToEmpty(_data.rights) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -207,7 +199,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="notes" class="col-sm-3 control-label">Notes:</label>' +
             '    <div class="col-sm-9">' +
-            '      <textarea class="form-control no-border" rows="3">' + notes + '</textArea>' +
+            '      <textarea class="form-control no-border" rows="3">' + nullToEmpty(_data.notes) + '</textArea>' +
             '    </div>' +
             '  </div>' +
 
@@ -223,7 +215,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelType" class="col-sm-3 control-label">Model type:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static no-border">' + (_data.type === null ? "" : _data.type) + '</p>' +
+            '      <p class="form-control-static no-border">' + nullToEmpty(_data.type) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -231,7 +223,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelSubject" class="col-sm-3 control-label">Model subject:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static no-border">' + (_data.subject === null ? "" : _data.subject) + '</p>' +
+            '      <p class="form-control-static no-border">' + nullToEmpty(_data.subject) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -239,7 +231,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="foodProcess" class="col-sm-3 control-label">Food process:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static no-border">' + (_data.foodProcess === null ? "" : _data.foodProcess) + '</p>' +
+            '      <p class="form-control-static no-border">' + nullToEmpty(_data.foodProcess) + '</p>' +
             '    </div>' +
             '  </div>' +
 
@@ -270,6 +262,10 @@ metadata_editor = function () {
             $("td:eq(4) input", this).change(validateMinCell(i));
             $("td:eq(5) input", this).change(validateMaxCell(i));
         });
+    }
+
+    function nullToEmpty(stringVar) {
+        return stringVar === null ? "" : stringVar;
     }
 
     function validateValueCell(i) {

@@ -59,7 +59,6 @@ import de.bund.bfr.knime.pmm.fskx.Variable;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.pmfml.ModelClass;
 import de.bund.bfr.pmfml.PMFUtil;
-import de.bund.bfr.pmfml.file.uri.UriFactory;
 import de.bund.bfr.pmfml.sbml.LimitsConstraint;
 import de.bund.bfr.pmfml.sbml.Metadata;
 import de.bund.bfr.pmfml.sbml.MetadataAnnotation;
@@ -142,7 +141,7 @@ class FskxWriterNodeModel extends NodeModel {
 				File f = FileUtil.createTempFile("metaData", ".pmf");
 				try {
 					new SBMLWriter().write(doc, f);
-					archive.addEntry(f, "metaData.pmf", UriFactory.createPMFURI());
+					archive.addEntry(f, "metaData.pmf", URIS.pmf);
 				} catch (SBMLException | XMLStreamException e) {
 					e.printStackTrace();
 				}

@@ -102,6 +102,9 @@
       <webDependency
             webResourceBundleID="jquery">
       </webDependency>
+      <webDependency
+            webResourceBundleID="jQueryUi_1.10.4">
+      </webDependency>
    </webResourceBundle>
 </extension>
 

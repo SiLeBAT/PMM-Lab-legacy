@@ -178,7 +178,8 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="createdDate" class="col-sm-3 control-label">Created date:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control no-border" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + nullToEmpty(_value.metadata.createdDate) + '">' +
+            // '      <input type="date" class="form-control no-border" id="createdDateInput" placeholder="MM.dd.yyyy" value="' + nullToEmpty(_value.metadata.createdDate) + '">' +
+            '      <input type="text" class="form-control no-border" id="createdDateInput" value="' + nullToEmpty(_value.metadata.createdDate) + '">' + 
             '    </div>' +
             '  </div>' +
 
@@ -186,7 +187,8 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date:</label>' +
             '    <div class="col-sm-9">' +
-            '      <input type="date" class="form-control no-border" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + nullToEmpty(_value.metadata.modifiedDate) + '">' +
+            // '      <input type="date" class="form-control no-border" id="modifiedDateInput" placeholder="MM.dd.yyyy" value="' + nullToEmpty(_value.metadata.modifiedDate) + '">' +
+            '      <input type="text" class="form-control no-border" id="modifiedDateInput" value="' + nullToEmpty(_value.metadata.modifiedDate) + '">' + 
             '    </div>' +
             '  </div>' +
 
@@ -250,6 +252,10 @@ metadata_editor = function () {
 
         document.createElement("body");
         $("body").html('<div class="container">' + form + varTable + '</div');
+
+        // Create date pickers
+        $("#createdDateInput").datepicker( { dateFormat: "mm.dd.yy"} );
+        $("#modifiedDateInput").datepicker( { dateFormat: "mm.dd.yy"} );
 
         $("body div table tr:not(:first)").each(function(i, row) {
             // Value change

@@ -2,51 +2,53 @@
 <?eclipse version="3.0"?><plugin>
 
 <extension point="org.knime.workbench.repository.nodes">
-	<!-- FSK nodes -->
-	<node
-		category-path="/pmmlab/reader"
-		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.creator.FskCreatorNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.creator.FskCreatorNodeFactory"/>
-	<node category-path="/pmmlab/reader"
-		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"/>
-	<node
-		category-path="/pmmlab/writer"
-		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.writer.FskxWriterNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.writer.FskxWriterNodeFactory"/>
-	<node
-		category-path="/pmmlab/editors"
-		deprecated="false"
-		factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"
-		id="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"/>
-	<node
-       category-path="/pmmlab/editors"
-       deprecated="false"
-       factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory"
-       id="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory">
-	</node>
-	<node
-	   category-path="/pmmlab/editors"
-	   deprecated="false"
-	   factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorNodeFactory"
-	   id="de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorNodeFactory">
-	</node>
+  <!-- FSK nodes -->
+  <node
+    category-path="/pmmlab/reader"
+    deprecated="false"
+	factory-class="de.bund.bfr.knime.pmm.fskx.creator.FskCreatorNodeFactory"
+	id="de.bund.bfr.knime.pmm.fskx.creator.FskCreatorNodeFactory"/>
+  <node category-path="/pmmlab/reader"
+    deprecated="false"
+    factory-class="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"
+    id="de.bund.bfr.knime.pmm.fskx.reader.FskxReaderNodeFactory"/>
+  <node
+    category-path="/pmmlab/writer"
+	deprecated="false"
+	factory-class="de.bund.bfr.knime.pmm.fskx.writer.FskxWriterNodeFactory"
+	id="de.bund.bfr.knime.pmm.fskx.writer.FskxWriterNodeFactory"/>
+  <node
+	category-path="/pmmlab/editors"
+	deprecated="false"
+	factory-class="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"
+	id="de.bund.bfr.knime.pmm.fskx.runner.FskRunnerNodeFactory"/>
+  <node
+    category-path="/pmmlab/editors"
+	deprecated="false"
+	factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory"
+	id="de.bund.bfr.knime.pmm.fskx.editor.FskEditorNodeFactory"/>
+  <node
+	category-path="/pmmlab/editors"
+	deprecated="false"
+	factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorNodeFactory"
+	id="de.bund.bfr.knime.pmm.fskx.editor.FskMetadataEditorNodeFactory"/>
+  <node
+    category-path="/pmmlab/editors"
+    deprecated="false"
+    factory-class="de.bund.bfr.knime.pmm.fskx.editor.FskJSEditorNodeFactory"/>
 </extension>
 
 
 <extension id="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferenceInitializer" point="org.eclipse.core.runtime.preferences">
-	<initializer class="de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer"/>
+  <initializer class="de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferenceInitializer"/>
 </extension>
    
 <extension point="org.eclipse.ui.preferencePages">
-	<page
-		category="org.knime.workbench.ui.preferences"
-		class="de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferencePage"
-		id="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferencePage"
-		name="BfR R settings"/>
+  <page
+    category="org.knime.workbench.ui.preferences"
+    class="de.bund.bfr.knime.pmm.fskx.rbin.preferences.RPreferencePage"
+    id="de.bund.bfr.knime.pmm.fskx.bin.preferences.RPreferencePage"
+    name="BfR R settings" />
 </extension>
 
 <extension point="org.knime.core.PortType">
@@ -60,48 +62,77 @@
 		specSerializer="de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec$Serializer"/>
 </extension>
 
-<extension
-      point="org.knime.js.core.javascriptComponents">
-   <javascriptComponent
-         getComponentValue-method-name="getComponentValue"
-         implementationBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle"
-         init-method-name="init"
-         javascriptComponentID="de.bund.bfr.knime.pmm.fskx.editor"
-         name="FSK Metadata Editor"
-         namespace="metadata_editor">
-   </javascriptComponent>
+<extension point="org.knime.js.core.javascriptComponents">
+  <javascriptComponent
+    getComponentValue-method-name="getComponentValue"
+    implementationBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle"
+    init-method-name="init"
+    javascriptComponentID="de.bund.bfr.knime.pmm.fskx.editor"
+    name="FSK Metadata Editor"
+    namespace="metadata_editor">
+  </javascriptComponent>
+
+  <javascriptComponent
+    getComponentValue-method-name="getComponentValue"
+    implementationBundleID="de.bund.bfr.knime.pmm.fskx.jseditor.bundle"
+    init-method-name="init"
+    javascriptComponentID="de.bund.bfr.knime.pmm.fskx.jseditor"
+    name="FSK JS Editor"
+    namespace="fsk_editor">
+  </javascriptComponent>
 </extension>
 
-<extension
-      point="org.knime.js.core.webResources">
+<extension point="org.knime.js.core.webResources">
+   <webResourceBundle
+     debug="true"
+     name="FSK Metadata Editor"
+     usesDefine="false"
+     version="0.0.1"
+     webResourceBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle">
+
+     <!-- FSK Metadata Editor: resources -->
+     <webResource relativePathSource="js-src/editor.js" relativePathTarget="editor.js"></webResource>
+     <importResource relativePath="editor.js" type="JAVASCRIPT"></importResource>
+     <webResource relativePathSource="js-src/editor.css" relativePathTarget="editor.css"></webResource>
+     <importResource relativePath="editor.css" type="CSS"></importResource>
+
+     <!-- FSK Metadata Editor: dependencies -->
+     <webDependency webResourceBundleID="boostrap"></webDependency>
+     <webDependency webResourceBundleID="jquery"></webDependency>
+   </webResourceBundle>
+
+   <webResourceBundle
+     debug="true"
+     name="FSK JS Editor"
+     usesDefine="false"
+     version="0.0.1"
+     webResourceBundleID="de.bund.bfr.knime.pmm.fskx.jseditor.bundle">
+
+     <!-- FSK Editor resources -->
+     <webResource relativePathSource="js-src/js-editor.js" relativePathTarget="js-editor.js"></webResource>
+     <importResource relativePath="js-editor.js" type="JAVASCRIPT"></importResource>
+     <webResource relativePathSource="js-src/js-editor.css" relativePathTarget="js-editor.css"></webResource>
+     <importResource relativePath="js-editor.css" type="CSS"></importResource>
+
+     <!-- FSK Editor dependencies -->
+     <webDependency webResourceBundleID="jquery"></webDependency>
+     <webDependency webResourceBundleID="boostrap"></webDependency>
+     <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.fskx.highlightjs.bundle"></webDependency>
+   </webResourceBundle>
+   
    <webResourceBundle
          debug="true"
-         name="FSK Metadata Editor"
+         exports="hljs"
+         name="highlightjs"
          usesDefine="false"
          version="0.0.1"
-         webResourceBundleID="de.bund.bfr.knime.pmm.fskx.editor.bundle">
-      <webResource
-            relativePathSource="js-src/editor.js"
-            relativePathTarget="editor.js">
-      </webResource>
-      <importResource
-            relativePath="editor.js"
-            type="JAVASCRIPT">
-      </importResource>
-      <webResource
-      	relativePathSource="js-src/editor.css"
-      	relativePathTarget="editor.css">
-      </webResource>
-      <importResource
-      	relativePath="editor.css"
-      	type="CSS">
-      </importResource>
-      <webDependency
-            webResourceBundleID="boostrap">
-      </webDependency>
-      <webDependency
-            webResourceBundleID="jquery">
-      </webDependency>
+         webResourceBundleID="de.bund.bfr.knime.pmm.fskx.highlightjs.bundle">
+     
+     <!-- hightlightjs resources: hightlight.pack.js, default.css -->
+     <webResource relativePathSource="js-src/highlight.pack.js" relativePathTarget="highlight.pack.js"></webResource>
+     <importResource relativePath="hightligh.pack.js" type="JAVASCRIPT="></importResource>
+     <webResource relativePathSource="js-src/default.css" relativePathTarget="default.css"></webResource>
+     <importResource relativePath="default.css" type="CSS"></importResource>
    </webResourceBundle>
 </extension>
 

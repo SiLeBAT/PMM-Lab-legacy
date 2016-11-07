@@ -204,7 +204,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="notes" class="col-sm-3 control-label">Notes:</label>' +
             '    <div class="col-sm-9">' +
-            '      <textarea class="form-control no-border" rows="3">' + nullToEmpty(_value.metadata.notes) + '</textArea>' +
+            '      <textarea id="notesInput" class="form-control no-border" rows="3">' + nullToEmpty(_value.metadata.notes) + '</textArea>' +
             '    </div>' +
             '  </div>' +
 
@@ -272,28 +272,44 @@ metadata_editor = function () {
             });
         });
 
-        // Save data on modification
-        $("#modelNameInput").change(function() { _value.metadata.modelName = $(this).val(); });
-        $("#modelIdInput").change(function() { _value.metadata.modelId = $(this).val(); });
-        $("#modelLinkInput").change(function() { _value.metadata.modelLink = $(this).val(); });
-        $("#organismInput").change(function() { _value.metadata.organism = $(this).val(); });
+        saveData();
+    }
+
+    /**
+     * Saves data on modification.
+     * 
+     * - Text inputs use the oninput event.
+     * - Selects and checkboxes use the onchange event.
+     */
+    function saveData () {
+        $("#modelNameInput").on('input', function() { _value.metadata.modelName = $(this).val(); });
+        $("#modelIdInput").on('input', function() { _value.metadata.modelId = $(this).val(); });
+        $("#modelLinkInput").on('input', function() { _value.metadata.modelLink = $(this).val(); });
+
+        $("#organismInput").on('input', function() { _value.metadata.organism = $(this).val(); });
         $("#organismDetailsInput").change(function() { _value.metadata.organismDetails = $(this).val(); });
-        $("#matrixInput").change(function() { _value.metadata.matrix = $(this).val(); });
-        $("#matrixDetailsInput").change(function() { _value.metadata.matrixDetails = $(this).val(); });
-        $("#creatorInput").change(function() { _value.metadata.creator = $(this).val(); });
-        $("#familyNameInput").change(function() { _value.metadata.familyNameInput = $(this).val(); });
-        $("#contactInput").change(function() { _value.metadata.contact = $(this).val(); });
+
+        $("#matrixInput").on('input', function() { _value.metadata.matrix = $(this).val(); });
+        $("#matrixDetailsInput").on('input', function() { _value.metadata.matrixDetails = $(this).val(); });
+
+        $("#creatorInput").on('input', function() { _value.metadata.creator = $(this).val(); });
+        $("#familyNameInput").on('input', function() { _value.metadata.familyName = $(this).val(); });
+        $("#contactInput").on('input', function() { _value.metadata.contact = $(this).val(); });
         $("#softwareInput").change(function() { _value.metadata.software = $(this).val(); });
-        $("#referenceDescriptionInput").change(function() { _value.metadata.referenceDescription = $(this).val(); });
-        $("#referenceDescriptionLinkInput").change(function() { _value.metadata.referenceDescriptionLink = $(this).val(); });
-        $("#createdDateInput").change(function() { _value.metadata.createdDate = $(this).val(); });
-        $("#modifiedDateInput").change(function() { _value.metadata.modifiedDate = $(this).val(); });
-        $("#rightsInput").change(function() { _value.metadata.rights = $(this).val(); });
-        $("#notesInput").change(function() { _value.metadata.notes = $(this).val(); });
+
+        $("#referenceDescriptionInput").on('input', function() { _value.metadata.referenceDescription = $(this).val(); });
+        $("#referenceDescriptionLinkInput").on('input', function() { _value.metadata.referenceDescriptionLink = $(this).val(); });
+
+        $("#createdDateInput").on('input', function() { _value.metadata.createdDate = $(this).val(); });
+        $("#modifiedDateInput").on('input', function() { _value.metadata.modifiedDate = $(this).val(); });
+
+        $("#rightsInput").on('input', function() { _value.metadata.rights = $(this).val(); });
+        $("#notesInput").on('input', function() { _value.metadata.notes = $(this).val(); });
         $("#curatedInput").change(function() { _value.metadata.curated  = $(this).is(':checked'); });
-        $("#typeInput").change(function() { _value.metadata.type = $(this).val(); });
-        $("#subjectInput").change(function() { _value.metadata.subject = $(this).val(); });
-        $("#foodProcessInput").change(function() { _value.metadata.foodProcess = $(this).val(); });
+
+        $("#typeInput").on('input', function() { _value.metadata.type = $(this).val(); });
+        $("#subjectInput").on('input', function() { _value.metadata.subject = $(this).val(); });
+        $("#foodProcessInput").on('input', function() { _value.metadata.foodProcess = $(this).val(); });
         $("#hasDataInput").change(function() { _value.metadata.hasData = $(this).is(':checked'); });
     }
 

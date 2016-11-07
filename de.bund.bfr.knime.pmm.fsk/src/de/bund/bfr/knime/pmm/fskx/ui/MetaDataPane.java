@@ -1,7 +1,5 @@
 package de.bund.bfr.knime.pmm.fskx.ui;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -291,11 +289,7 @@ public class MetaDataPane extends JScrollPane {
 				template.modelId = stringValue;
 				break;
 			case Model_Link:
-				try {
-					template.modelLink = new URL(stringValue);
-				} catch (MalformedURLException e) {
-					LOGGER.warnWithFormat("Invalid url: %s", e);
-				}
+				template.modelLink = stringValue;
 				break;
 			case Organism_Name:
 				template.organism = stringValue;
@@ -325,11 +319,7 @@ public class MetaDataPane extends JScrollPane {
 				template.referenceDescription = stringValue;
 				break;
 			case Model_Reference_Description_Link:
-				try {
-					template.referenceDescriptionLink = new URL(stringValue);
-				} catch (MalformedURLException e) {
-					LOGGER.warn("Invalid url\n" + e.getMessage());
-				}
+				template.referenceDescriptionLink = stringValue;
 				break;
 			case Model_Created_Date:
 				try {

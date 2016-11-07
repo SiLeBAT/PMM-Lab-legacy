@@ -1,7 +1,6 @@
 package de.bund.bfr.knime.pmm.fskx;
 
 import java.io.Serializable;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,7 +30,7 @@ public class FskMetaData implements Serializable {
 	public String modelId;
 
 	/** Null if not set. */
-	public URL modelLink;
+	public String modelLink;
 
 	/** Null or empty string if not set. */
 	public String organism;
@@ -61,7 +60,7 @@ public class FskMetaData implements Serializable {
 	public String referenceDescription;
 
 	/** Null if not set. */
-	public URL referenceDescriptionLink;
+	public String referenceDescriptionLink;
 
 	/** Creation date. Null if not set. */
 	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="MM.dd.yyyy")

@@ -31,70 +31,64 @@ public class FskTemplateSettingsTest {
 
   @Before
   public void setUp() {
-    try {
-      template.modelName = "Salmonellaspp_GroundBeef_Temp_GrowthModel...";
-      template.modelId = "PMM-Lab_342586849";
-      template.modelLink = new URL("https://drive.google.com/open?id=0B06JrEEq34hSaEt5UFVIMFM3M0k");
+    template.modelName = "Salmonellaspp_GroundBeef_Temp_GrowthModel...";
+    template.modelId = "PMM-Lab_342586849";
+    template.modelLink = "https://drive.google.com/open?id=0B06JrEEq34hSaEt5UFVIMFM3M0k";
 
-      template.organism = "Salmonella spp.";
-      template.organismDetails = "broth";
+    template.organism = "Salmonella spp.";
+    template.organismDetails = "broth";
 
-      template.matrix = "Beef";
-      template.matrixDetails = "(in: ground beef)";
+    template.matrix = "Beef";
+    template.matrixDetails = "(in: ground beef)";
 
-      template.creator = "Plaza Rodriguez et al.";
-      template.familyName = "Baranyi models";
-      template.contact = "some contact data";
-      template.software = Software.R;
+    template.creator = "Plaza Rodriguez et al.";
+    template.familyName = "Baranyi models";
+    template.contact = "some contact data";
+    template.software = Software.R;
 
-      template.referenceDescription = "Juneja, Vijay K. et al., 2009. "
-          + "Mathematical modeling of growth of Salmonella in raw "
-          + "ground beef under isothermal conditions from 10 to 45°C. "
-          + "International Journal of Food Microbiology ():  ff.";
-      template.referenceDescriptionLink =
-          new URL("http://smas.chemeng.ntua.gr/miram/files/publ_237_10_2_2005.pdf");
+    template.referenceDescription = "Juneja, Vijay K. et al., 2009. "
+        + "Mathematical modeling of growth of Salmonella in raw "
+        + "ground beef under isothermal conditions from 10 to 45°C. "
+        + "International Journal of Food Microbiology ():  ff.";
+    template.referenceDescriptionLink = "http://smas.chemeng.ntua.gr/miram/files/publ_237_10_2_2005.pdf";
 
-      template.createdDate = new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime();
-      template.modifiedDate = new GregorianCalendar(2015, Calendar.DECEMBER, 1).getTime();
+    template.createdDate = new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime();
+    template.modifiedDate = new GregorianCalendar(2015, Calendar.DECEMBER, 1).getTime();
 
-      template.rights = "CC-BY-NC-SA";
-      template.notes = "not curated";
-      template.curated = true;
-      template.type = ModelType.TWO_STEP_TERTIARY_MODEL;
-      template.subject = ModelClass.GROWTH;
-      template.foodProcess = "cooking";
+    template.rights = "CC-BY-NC-SA";
+    template.notes = "not curated";
+    template.curated = true;
+    template.type = ModelType.TWO_STEP_TERTIARY_MODEL;
+    template.subject = ModelClass.GROWTH;
+    template.foodProcess = "cooking";
 
-      template.dependentVariable.name = "Concentration";
-      template.dependentVariable.unit = "ln";
-      template.dependentVariable.type = DataType.numeric;
-      template.dependentVariable.min = "0.0";
-      template.dependentVariable.max = "10.0";
+    template.dependentVariable.name = "Concentration";
+    template.dependentVariable.unit = "ln";
+    template.dependentVariable.type = DataType.numeric;
+    template.dependentVariable.min = "0.0";
+    template.dependentVariable.max = "10.0";
 
-      {
-        Variable timeVar = new Variable();
-        timeVar.name = "time";
-        timeVar.unit = "s";
-        timeVar.type = DataType.numeric;
-        timeVar.min = "0.0";
-        timeVar.max = "1.0";
-        template.independentVariables.add(timeVar);
-      }
-
-      {
-        Variable tempVar = new Variable();
-        tempVar.name = "temperature";
-        tempVar.unit = "°C";
-        tempVar.type = DataType.numeric;
-        tempVar.min = "0.0";
-        tempVar.max = "1.0";
-        template.independentVariables.add(tempVar);
-      }
-
-      template.hasData = false;
-    } catch (MalformedURLException e) {
-      // passed url here are correct
-      throw new RuntimeException(e);
+    {
+      Variable timeVar = new Variable();
+      timeVar.name = "time";
+      timeVar.unit = "s";
+      timeVar.type = DataType.numeric;
+      timeVar.min = "0.0";
+      timeVar.max = "1.0";
+      template.independentVariables.add(timeVar);
     }
+
+    {
+      Variable tempVar = new Variable();
+      tempVar.name = "temperature";
+      tempVar.unit = "°C";
+      tempVar.type = DataType.numeric;
+      tempVar.min = "0.0";
+      tempVar.max = "1.0";
+      template.independentVariables.add(tempVar);
+    }
+
+    template.hasData = false;
   }
 
   @Test

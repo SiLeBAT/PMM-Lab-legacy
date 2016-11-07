@@ -265,18 +265,7 @@ class FskRunnerNodeModel extends NodeModel {
 
 		template.modelName = ((StringCell) row.getCell(FskMetaDataTuple.Key.name.ordinal())).getStringValue();
 		template.modelId = ((StringCell) row.getCell(FskMetaDataTuple.Key.id.ordinal())).getStringValue();
-
-		// model link
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.model_link.ordinal());
-			try {
-				template.modelLink = new URL(cell.getStringValue());
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
+		template.modelLink = ((StringCell) row.getCell(FskMetaDataTuple.Key.model_link.ordinal())).getStringValue();
 		template.organism = ((StringCell) row.getCell(FskMetaDataTuple.Key.species.ordinal())).getStringValue();
 		template.organismDetails = ((StringCell) row.getCell(FskMetaDataTuple.Key.species_details.ordinal()))
 				.getStringValue();

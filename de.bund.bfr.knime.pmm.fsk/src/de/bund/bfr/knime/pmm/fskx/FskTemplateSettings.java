@@ -1,7 +1,5 @@
 package de.bund.bfr.knime.pmm.fskx;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -33,10 +31,7 @@ public class FskTemplateSettings {
 		try {
 			template.modelName = settings.getString(Key.name.name(), null);
 			template.modelId = settings.getString(Key.id.name(), null);
-
-			String modelLink = settings.getString(Key.model_link.name(), null);
-			if (modelLink != null)
-				template.modelLink = new URL(modelLink);
+			template.modelLink = settings.getString(Key.model_link.name(), null);
 
 			template.organism = settings.getString(Key.species.name(), null);
 			template.organismDetails = settings.getString(Key.species_details.name(), null);
@@ -52,10 +47,7 @@ public class FskTemplateSettings {
 			template.software = softwareAsString == null ? null : Software.valueOf(softwareAsString);
 
 			template.referenceDescription = settings.getString(Key.reference_description.name(), null);
-
-			String referenceDescriptionLink = settings.getString(Key.reference_description_link.name(), null);
-			if (referenceDescriptionLink != null)
-				template.referenceDescriptionLink = new URL(referenceDescriptionLink);
+			template.referenceDescriptionLink = settings.getString(Key.reference_description_link.name(), null);
 
 			String createdDate = settings.getString(Key.created_date.name(), null);
 			if (createdDate != null)
@@ -114,10 +106,6 @@ public class FskTemplateSettings {
 			}
 
 			template.hasData = settings.getBoolean(Key.has_data.name(), false);
-		} catch (MalformedURLException e) {
-			// does not happen -> internal links are checked before
-			// being saved
-			throw new RuntimeException(e);
 		} catch (ParseException e) {
 			// does not happen -> internal dates are checked before
 			// being saved

@@ -20,11 +20,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -353,13 +351,7 @@ class FskxReaderNodeModel extends NodeModel {
 
 		// reference description link
 		if (metadataAnnot.isSetReferenceLink()) {
-			String linkAsString = metadataAnnot.getReferenceLink();
-			try {
-				template.referenceDescriptionLink = new URL(linkAsString);
-			} catch (MalformedURLException e) {
-				System.err.println(linkAsString + " is not a valid URL");
-				e.printStackTrace();
-			}
+			template.referenceDescriptionLink = metadataAnnot.getReferenceLink();
 		}
 
 		// created date

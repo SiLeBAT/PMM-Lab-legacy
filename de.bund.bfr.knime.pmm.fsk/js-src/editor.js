@@ -325,8 +325,8 @@ metadata_editor = function () {
         if (_value.metadata.subject) {
             $('#subjectInput option[value="' + _value.metadata.subject + '"]').prop('selected', true);
         }
-        $('#foodProcess').val(nullToEmpty(_value.metadata.foodProcess));
-        $('#hasData').prop('checked', _value.metadata.hasData);
+        $('#foodProcessInput').val(nullToEmpty(_value.metadata.foodProcess));
+        $('#hasDataInput').prop('checked', _value.metadata.hasData);
 
         // TODO: variables
     }

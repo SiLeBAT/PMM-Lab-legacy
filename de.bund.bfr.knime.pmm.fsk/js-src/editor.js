@@ -417,7 +417,7 @@ metadata_editor = function () {
                 var newVal = Number($(this).val());
                 var min = Number(_value.metadata.independentVariables[i].min);
                 var max = Number(_value.metadata.independentVariables[i].max);
-                if (min < newVal && newVal < max) {
+                if (min <= newVal && newVal <= max) {
                     _value.metadata.independentVariables[i].value = newVal;
                     markValidTd($(this).parent());
                 } else {

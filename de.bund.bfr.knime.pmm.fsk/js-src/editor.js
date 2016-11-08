@@ -41,9 +41,9 @@ metadata_editor = function () {
             '  <td></td>' + // name
             '  <td></td>' + // unit
             '  <td></td>' + // type
-            '  <td class="has-success"><input type="number" class="form-control input-sm" value"" disabled></td>' + // value
-            '  <td class="has-success"><input type="number" class="form-control input-sm" value""></td>' + // min
-            '  <td class="has-success"><input type="number" class="form-control input-sm" value""></td>' + // max
+            '  <td class="has-success"><input type="text" class="form-control input-sm" value"" disabled></td>' + // value
+            '  <td class="has-success"><input type="text" class="form-control input-sm" value""></td>' + // min
+            '  <td class="has-success"><input type="text" class="form-control input-sm" value""></td>' + // max
             '  <td class="has-success"><input type="checkbox" class="form-control" checked disabled></td>' +
             '</tr>';
         // Row with independent variables
@@ -54,9 +54,9 @@ metadata_editor = function () {
                 '  <td></td>' + // name
                 '  <td></td>' + // unit
                 '  <td></td>' + // type
-                '  <td class="has-success"><input type="number" class="form-control input-sm" value""></td>' + // value
-                '  <td class="has-success"><input type="number" class="form-control input-sm" value""></td>' + // min
-                '  <td class="has-success"><input type="number" class="form-control input-sm" value""></td>' + // max
+                '  <td class="has-success"><input type="text" class="form-control input-sm" value""></td>' + // value
+                '  <td class="has-success"><input type="text" class="form-control input-sm" value""></td>' + // min
+                '  <td class="has-success"><input type="text" class="form-control input-sm" value""></td>' + // max
                 '  <td class="has-success"><input type="checkbox" class="form-control" disabled></td>' +
                 '</tr>';
         }

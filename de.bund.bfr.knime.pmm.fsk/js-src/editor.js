@@ -66,7 +66,7 @@ metadata_editor = function () {
             '<form class="form-horizontal">' +
 
             // Model name form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="modelName" class="col-sm-3 control-label">Model name:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" id="modelNameInput" class="form-control no-border" value="">' + 
@@ -74,7 +74,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Model id form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="modelId" class="col-sm-3 control-label">Model id:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" id="modelIdInput" class="form-control no-border" value="">' +
@@ -82,7 +82,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Model link form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="modelLinkInput" class="col-sm-3 control-label">Model link:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="url" class="form-control no-border" id="modelLinkInput" value="">' +
@@ -90,7 +90,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Organism form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="organism" class="col-sm-3 control-label">Organism:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="organismInput" value="">' +
@@ -98,7 +98,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Organism details form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="organismDetails" class="col-sm-3 control-label">Organism details:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="organismDetailsInput" value="">' +
@@ -106,7 +106,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Matrix form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="matrix" class="col-sm-3 control-label">Matrix:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="matrixInput" value="">' +
@@ -114,7 +114,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Matrix details form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="matrixDetails" class="col-sm-3 control-label">Matrix details:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="matrixDetailsInput" value="">' +
@@ -122,7 +122,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Creator form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="creator" class="col-sm-3 control-label">Creator:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="creatorInput" value="">' +
@@ -130,7 +130,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Family name form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="familyName" class="col-sm-3 control-label">Family name:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="familyNameInput" value="">' +
@@ -138,7 +138,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Contact form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="contact" class="col-sm-3 control-label">Contact:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="contactInput" value="">' +
@@ -146,7 +146,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Software form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="software" class="col-sm-3 control-label">Software:</label>' +
             '    <div class="col-sm-9">' +
             '      <select class="form-control no-border" id="softwareInput" >' +
@@ -157,7 +157,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Reference description form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="referenceDescription" class="col-sm-3 control-label">Reference description:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="referenceDescriptionInput" value="">' +
@@ -165,7 +165,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Reference description link form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="referenceDescriptionLink" class="col-sm-3 control-label">Reference description link:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type"url" class="form-control no-border" id="referenceDescriptionLinkInput" value="">' +
@@ -173,7 +173,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Created date form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="createdDate" class="col-sm-3 control-label">Created date:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="createdDateInput" value="">' + 
@@ -181,7 +181,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Modified date form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="modifiedDate" class="col-sm-3 control-label">Modified date:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="modifiedDateInput" value="">' + 
@@ -189,7 +189,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Rights form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="rights" class="col-sm-3 control-label">Rights:</label>' +
             '      <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="rightsInput" value="">' +
@@ -197,7 +197,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Notes form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="notes" class="col-sm-3 control-label">Notes:</label>' +
             '    <div class="col-sm-9">' +
             '      <textarea id="notesInput" class="form-control no-border" rows="3"></textArea>' +
@@ -205,7 +205,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Curated form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="curated" class="col-sm-3 control-label">Curated:</label>' +
             '    <div class="col-sm-9">' +
             '      <input id="curatedInput" type="checkbox">' +
@@ -213,7 +213,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Model type form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="modelType" class="col-sm-3 control-label">Model type:</label>' +
             '    <div class="col-sm-9">' +
             '      <select class="form-control no-border" id="typeInput">' +
@@ -231,7 +231,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Model subject form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="modelSubject" class="col-sm-3 control-label">Model subject:</label>' +
             '    <div class="col-sm-9">' +
             '      <select class="form-control no-border" id="subjectInput">' +
@@ -255,7 +255,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Food process form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="foodProcess" class="col-sm-3 control-label">Food process:</label>' +
             '    <div class="col-sm-9">' +
             '      <input type="text" class="form-control no-border" id="foodProcessInput" value="">' +
@@ -263,7 +263,7 @@ metadata_editor = function () {
             '  </div>' +
 
             // Has data form
-            '  <div class="form-group form-group-sm">' +
+            '  <div class="form-group">' +
             '    <label for="hasData" class="col-sm-3 control-label">Has data?:</label>' +
             '    <div class="col-sm-9">' +
             '      <input id="hasDataInput" type="checkbox">' +

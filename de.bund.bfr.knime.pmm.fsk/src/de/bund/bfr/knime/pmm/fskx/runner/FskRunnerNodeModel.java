@@ -8,9 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
+import java.util.stream.Collectors;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.container.CloseableRowIterator;
@@ -119,8 +118,14 @@ class FskRunnerNodeModel extends NodeModel {
 		exec.checkCanceled();
 		FskPortObject fskObj = (FskPortObject) inObjects[0];
 
+		if (!fskObj.template.independentVariables.isEmpty()) {
+			fskObj.param = fskObj.template.independentVariables.stream().map(v -> v.name + " <- " + v.value)
+					.collect(Collectors.joining("\n"));
+		}
+
 		// If a metadata table is connected then update the model metadata
-		if (inObjects.length == 2 && inObjects[1] != null) {
+		else
+			if (inObjects.length == 2 && inObjects[1] != null) {
 			BufferedDataTable metadataTable = (BufferedDataTable) inObjects[1];
 			if (metadataTable.size() == 1) {
 				try (CloseableRowIterator iterator = metadataTable.iterator()) {
@@ -344,9 +349,9 @@ class FskRunnerNodeModel extends NodeModel {
 					.split("\\|\\|");
 			String[] maxs = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_maxs.ordinal())).getStringValue()
 					.split("\\|\\|");
-			String[] values = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal())).getStringValue()
-					.split("\\|\\|");
-			
+			String[] values = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal()))
+					.getStringValue().split("\\|\\|");
+
 			for (int i = 0; i < names.length; i++) {
 				Variable v = new Variable();
 				v.name = names[i];

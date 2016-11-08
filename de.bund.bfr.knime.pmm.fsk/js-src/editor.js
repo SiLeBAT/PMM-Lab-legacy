@@ -38,12 +38,12 @@ metadata_editor = function () {
         // Row with dependent variable
         varTable +=
             '<tr>' +
-            '  <td>' + _value.metadata.dependentVariable.name + '</td>' +
-            '  <td>' + _value.metadata.dependentVariable.unit + '</td>' +
-            '  <td>' + _value.metadata.dependentVariable.type + '</td>' +
-            '  <td><input type="number" class="form-control input-sm" value="' + _value.metadata.dependentVariable.value + '"></td>' +
-            '  <td><input type="number" class="form-control input-sm" value="' + _value.metadata.dependentVariable.min + '"></td>' +
-            '  <td><input type="number" class="form-control input-sm" value="' + _value.metadata.dependentVariable.max + '"></td>' +
+            '  <td></td>' + // name
+            '  <td></td>' + // unit
+            '  <td></td>' + // type
+            '  <td><input type="number" class="form-control input-sm" value""></td>' + // value
+            '  <td><input type="number" class="form-control input-sm" value""></td>' + // min
+            '  <td><input type="number" class="form-control input-sm" value""></td>' + // max
             '  <td><input type="checkbox" class="form-control" checked disabled></td>' +
             '</tr>';
         // Row with independent variables
@@ -51,18 +51,16 @@ metadata_editor = function () {
             var variable = _value.metadata.independentVariables[i];
             varTable +=
                 '<tr>' +
-                '  <td>' + variable.name + '</td>' +
-                '  <td>' + variable.unit + '</td>' +
-                '  <td>' + variable.type + '</td>' +
-                '  <td><input type="number" class="form-control input-sm" value="' + variable.value + '"></td>' +
-                '  <td><input type="number" class="form-control input-sm" value="' + variable.min + '"></td>' +
-                '  <td><input type="number" class="form-control input-sm" value="' + variable.max + '"></td>' +
+                '  <td></td>' + // name
+                '  <td></td>' + // unit
+                '  <td></td>' + // type
+                '  <td><input type="number" class="form-control input-sm" value""></td>' + // value
+                '  <td><input type="number" class="form-control input-sm" value""></td>' + // min
+                '  <td><input type="number" class="form-control input-sm" value""></td>' + // max
                 '  <td><input type="checkbox" class="form-control" disabled></td>' +
                 '</tr>';
         }
         varTable += '</table>';
-
-        var software = nullToEmpty(_value.metadata.software);
 
         var form = 
             '<form class="form-horizontal">' +
@@ -328,7 +326,24 @@ metadata_editor = function () {
         $('#foodProcessInput').val(nullToEmpty(_value.metadata.foodProcess));
         $('#hasDataInput').prop('checked', _value.metadata.hasData);
 
-        // TODO: variables
+        $('table tr:eq(1) td:eq(0)').text(_value.metadata.dependentVariable.name);
+        $('table tr:eq(1) td:eq(1)').text(_value.metadata.dependentVariable.unit);
+        $('table tr:eq(1) td:eq(2)').text(_value.metadata.dependentVariable.type);
+        $('table tr:eq(1) td:eq(3) input').val(_value.metadata.dependentVariable.value);
+        $('table tr:eq(1) td:eq(4) input').val(_value.metadata.dependentVariable.min);
+        $('table tr:eq(1) td:eq(5) input').val(_value.metadata.dependentVariable.max);
+
+        for (var i = 0; i < _value.metadata.independentVariables.length; i++) {
+            var variable = _value.metadata.independentVariables[i];
+            // Table row. Stars from 2 where 1 is the dependent variable row.
+            var tableRow = i + 2;
+            $('table tr:eq(' + tableRow + ') td:eq(0)').text(variable.name);
+            $('table tr:eq(' + tableRow + ') td:eq(1)').text(variable.unit);
+            $('table tr:eq(' + tableRow + ') td:eq(2)').text(variable.type);
+            $('table tr:eq(' + tableRow + ') td:eq(3) input').val(variable.value);
+            $('table tr:eq(' + tableRow + ') td:eq(4) input').val(variable.min);
+            $('table tr:eq(' + tableRow + ') td:eq(5) input').val(variable.max);
+        }
     }
 
     /**
@@ -357,14 +372,8 @@ metadata_editor = function () {
         $("#referenceDescriptionInput").on('input', function() { _value.metadata.referenceDescription = $(this).val(); });
         $("#referenceDescriptionLinkInput").on('input', function() { _value.metadata.referenceDescriptionLink = $(this).val(); });
 
-        $("#createdDateInput").on('input', function() {
-            alert(JSON.stringify($(this).val()));
-            _value.metadata.createdDate = $(this).val();
-        });
-        $("#modifiedDateInput").on('input', function() {
-            alert(JSON.stringify($(this).val()));
-            _value.metadata.modifiedDate = $(this).val();
-        });
+        $("#createdDateInput").on('input', function() { _value.metadata.createdDate = $(this).val(); });
+        $("#modifiedDateInput").on('input', function() { _value.metadata.modifiedDate = $(this).val(); });
 
         $("#rightsInput").on('input', function() { _value.metadata.rights = $(this).val(); });
         $("#notesInput").on('input', function() { _value.metadata.notes = $(this).val(); });
@@ -375,7 +384,12 @@ metadata_editor = function () {
         $("#foodProcessInput").on('input', function() { _value.metadata.foodProcess = $(this).val(); });
         $("#hasDataInput").change(function() { _value.metadata.hasData = $(this).is(':checked'); });
 
-        // Save changes in variables table
+        // Saves changes in variables table (dependent variable)
+        $('table tr:first td:eq(3)').on('input', function() { _value.metadata.independentVariables[i].value = $(this).val(); });
+        $('table tr:first td:eq(4)').on('input', function() { _value.metadata.independentVariables[i].min = $(this).val(); });
+        $('table tr:first td:eq(5)').on('input', function() { _value.metadata.independentVariables[i].max = $(this).val(); });
+
+        // Save changes in variables table (independent variables)
         $("body div table tr:not(:first)").each(function(i, row) {
             // Value change
             $("td:eq(3) input", this).change(function() {

@@ -220,7 +220,17 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelType" class="col-sm-3 control-label">Model type:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static no-border">' + nullToEmpty(_value.metadata.type) + '</p>' +
+            '      <select class="form-control no-border" id="typeInput">' +
+            '        <option value="EXPERIMENTAL_DATA" ' + ('EXPERIMENTAL_DATA' === _value.metadata.type ? 'selected' : '') + '>Experimental data</option>' +
+            '        <option value="PRIMARY_MODEL_WDATA" ' + ('PRIMARY_MODEL_WDATA' === _value.metadata.type ? 'selected' : '') + '>Primary model with data</option>' +
+            '        <option value="PRIMARY_MODEL_WODATA" ' + ('PRIMARY_MODEL_WODATA' === _value.metadata.type ? 'selected' : '') + '>Primary model without data</option>' +
+            '        <option value="TWO_STEP_SECONDARY_MODEL" ' + ('TWO_STEP_SECONDARY_MODEL' === _value.metadata.type ? 'selected' : '') + '>Two step secondary model</option>' +
+            '        <option value="ONE_STEP_SECONDARY_MODEL" ' + ('ONE_STEP_SECONDARY_MODEL' === _value.metadata.type ? 'selected' : '') + '>One step secondary model</option>' +
+            '        <option value="MANUAL_SECONDARY_MODEL" ' + ('MANUAL_SECONDARY_MODEL' === _value.metadata.type ? 'selected' : '') + '>Manual secondary model</option>' +
+            '        <option value="TWO_STEP_TERTIARY_MODEL" ' + ('TWO_STEP_TERTIARY_MODEL' === _value.metadata.type ? 'selected' : '') + '>Two step tertiary model</option>' +
+            '        <option value="ONE_STEP_TERTIARY_MODEL" ' + ('ONE_STEP_TERTIARY_MODEL' === _value.metadata.type ? 'selected' : '') + '>One step tertiary model</option>' +
+            '        <option value="MANUAL_TERTIARY_MODEL" ' + ('MANUAL_TERTIARY_MODEL' === _value.metadata.type ? 'selected' : '') + '>Manual tertiary model</option>' +
+            '      </select>' +
             '    </div>' +
             '  </div>' +
 
@@ -228,7 +238,23 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="modelSubject" class="col-sm-3 control-label">Model subject:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static no-border">' + nullToEmpty(_value.metadata.subject) + '</p>' +
+            '      <select class="form-control no-border" id="subjectInput">' +
+            '        <option value="UNKNOWN" ' + ('UNKNOWN' === _value.metadata.subject ? 'selected' : '') + '>unkown</option>' +
+            '        <option value="GROWTH" ' + ('GROWTH' === _value.metadata.subject ? 'selected' : '') + '>growth</option>' +
+            '        <option value="INACTIVATION" ' + ('INACTIVATION' === _value.metadata.subject ? 'selected' : '') + '>inactivation</option>' +
+            '        <option value="SURVIVAL" ' + ('SURVIVAL' === _value.metadata.subject ? 'selected' : '') + '>survival</option>' +
+            '        <option value="GROWTH_INACTIVATION" ' + ('GROWTH_INACTIVATION' === _value.metadata.subject ? 'selected' : '') + '>growth/inactivation</option>' +
+            '        <option value="INACTIVATION_SURVIVAL" ' + ('INACTIVATION_SURVIVAL' === _value.metadata.subject ? 'selected' : '') + '>inactivation/survival</option>' +
+            '        <option value="GROWTH_SURVIVAL" ' + ('GROWTH_SURVIVAL' === _value.metadata.subject ? 'selected' : '') + '>growth/survival</option>' +
+            '        <option value="GROWTH_INACTIVATION_SURVIVAL" ' + ('GROWTH_INACTIVATION_SURVIVAL' === _value.metadata.subject ? 'selected' : '') + '>growth/inactivation/survival</option>' +
+            '        <option value="T" ' + ('T' === _value.metadata.subject ? 'selected' : '') + '>T</option>' +
+            '        <option value="PH" ' + ('PH' === _value.metadata.subject ? 'selected' : '') + '>pH</option>' +
+            '        <option value="AW" ' + ('AW' === _value.metadata.subject ? 'selected' : '') + '>aw</option>' +
+            '        <option value="T_PH" ' + ('T_PH' === _value.metadata.subject ? 'selected' : '') + '>T/pH</option>' +
+            '        <option value="T_AW" ' + ('T_AW' === _value.metadata.subject ? 'selected' : '') + '>T/aw</option>' +
+            '        <option value="PH_AW" ' + ('PH_AW' === _value.metadata.subject ? 'selected' : '') + '>pH/aw</option>' +
+            '        <option value="T_PH_AW" ' + ('T_PH_AW' === _value.metadata.subject ? 'selected' : '') + '>T/pH/aw</option>' +
+            '      </select>' +
             '    </div>' +
             '  </div>' +
 
@@ -236,7 +262,7 @@ metadata_editor = function () {
             '  <div class="form-group form-group-sm">' +
             '    <label for="foodProcess" class="col-sm-3 control-label">Food process:</label>' +
             '    <div class="col-sm-9">' +
-            '      <p class="form-control-static no-border">' + nullToEmpty(_value.metadata.foodProcess) + '</p>' +
+            '      <input type="text" class="form-control no-border" id="foodProcessInput" value="' + nullToEmpty(_value.metadata.foodProcess) + '">' +
             '    </div>' +
             '  </div>' +
 
@@ -257,22 +283,43 @@ metadata_editor = function () {
         $("#createdDateInput").datepicker( { dateFormat: "mm.dd.yy"} );
         $("#modifiedDateInput").datepicker( { dateFormat: "mm.dd.yy"} );
 
-        $("body div table tr:not(:first)").each(function(i, row) {
-            // Value change
-            $("td:eq(3) input", this).change(function() {
-                _value.metadata.independentVariables[i].value = $(this).val();
-            });
-            // Minimum value change
-            $("td:eq(4) input", this).change(function() {
-                _value.metadata.independentVariables[i].min = $(this).val();
-            });
-            // Maximum value change
-            $("td:eq(5) input", this).change(function() {
-                _value.metadata.independentVariables[i].max = $(this).val();
-            });
-        });
-
         saveData();
+    }
+
+    function loadData () {
+        $('#modelNameInput').val(nullToEmpty(_value.metadata.modelName));
+        $('#modelIdInput').val(nullToEmpty(_value.metadata.modelId));
+        $('#modelLinkInput').val(nullToEmpty(_value.metadata.modelLink));
+
+        $('#organismInput').val(nullToEmpty(_value.metadata.organism));
+        $('#organismDetailsInput').val(nullToEmpty(_value.metadata.organismDetails));
+
+        $('#matrixInput').val(nullToEmpty(_value.metadata.matrix));
+        $('#matrixDetailsInput').val(nullToEmpty(_value.metadata.matrixDetails));
+
+        $('#creatorInput').val(nullToEmpty(_value.metadata.creator));
+        $('#familyNameInput').val(nullToEmpty(_value.metadata.familyName));
+        $('#contactInput').val(nullToEmpty(_value.metadata.contact));
+        if (_value.metadata.software) {
+            $('#softwareInput option[value="' + _value.metadata.software + '"]').prop('selected', true);
+        }
+
+        $('#referenceDescriptionInput').val(nullToEmpty(_value.metadata.referenceDescription));
+        $('#referenceDescriptionLinkInput').val(nullToEmpty(_value.metadata.referenceDescriptionLink));
+
+        $('#createdDateInput').val(nullToEmpty(_value.metadata.createdDate));
+        $('#modifiedDateInput').val(nullToEmpty(_value.metadata.modifiedDate));
+
+        $('#rightsInput').val(nullToEmpty(_value.metadata.rights));
+        $('#notesInput').val(nullToEmpty(_value.metadata.notes));
+        $('#curatedInput').prop('checked', _value.metadata.curated);
+
+        $('#typeInput').val(nullToEmpty(_value.metadata.type));
+        $('#subjectInput').val(nullToEmpty(_value.metadata.subject));
+        $('#foodProcess').val(nullToEmpty(_value.metadata.foodProcess));
+        $('#hasData').prop('checked', _value.metadata.hasData);
+
+        // TODO: variables
     }
 
     /**
@@ -307,10 +354,26 @@ metadata_editor = function () {
         $("#notesInput").on('input', function() { _value.metadata.notes = $(this).val(); });
         $("#curatedInput").change(function() { _value.metadata.curated  = $(this).is(':checked'); });
 
-        $("#typeInput").on('input', function() { _value.metadata.type = $(this).val(); });
-        $("#subjectInput").on('input', function() { _value.metadata.subject = $(this).val(); });
+        $("#typeInput").change(function() { _value.metadata.type = $(this).val(); });
+        $('#subjectInput').change(function() { _value.metadata.subject = $(this).val(); });
         $("#foodProcessInput").on('input', function() { _value.metadata.foodProcess = $(this).val(); });
         $("#hasDataInput").change(function() { _value.metadata.hasData = $(this).is(':checked'); });
+
+        // Save changes in variables table
+        $("body div table tr:not(:first)").each(function(i, row) {
+            // Value change
+            $("td:eq(3) input", this).change(function() {
+                _value.metadata.independentVariables[i].value = $(this).val();
+            });
+            // Minimum value change
+            $("td:eq(4) input", this).change(function() {
+                _value.metadata.independentVariables[i].min = $(this).val();
+            });
+            // Maximum value change
+            $("td:eq(5) input", this).change(function() {
+                _value.metadata.independentVariables[i].max = $(this).val();
+            });
+        });
     }
 
     function nullToEmpty(stringVar) {

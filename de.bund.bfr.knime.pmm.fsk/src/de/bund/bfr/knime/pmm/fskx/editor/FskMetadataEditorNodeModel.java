@@ -24,6 +24,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectHolder;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.web.ValidationError;
@@ -35,15 +36,14 @@ import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
  * Fsk meta data editor node model.
  */
 public final class FskMetadataEditorNodeModel
-		extends AbstractWizardNodeModel<FskMetadataEditorViewRepresentation, FskMetadataEditorViewValue> {
+		extends AbstractWizardNodeModel<FskMetadataEditorViewRepresentation, FskMetadataEditorViewValue>
+		implements PortObjectHolder {
 
-	private final FskMetaDataSettings m_config;
+	private FskPortObject m_port;
 
 	protected FskMetadataEditorNodeModel() {
 		super(new PortType[] { FskPortObject.TYPE }, new PortType[] { FskPortObject.TYPE },
 				(new FskMetadataEditorNodeFactory()).getInteractiveViewName());
-		
-		m_config = new FskMetaDataSettings();
 	}
 
 	@Override
@@ -77,13 +77,14 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	public FskMetadataEditorViewValue getViewValue() {
-		FskMetadataEditorViewValue val = super.getViewValue();
+		FskMetadataEditorViewValue val;
 		synchronized (getLock()) {
+			val = super.getViewValue();
 			if (val == null) {
 				val = createEmptyViewValue();
 			}
-			if (val.metadata == null && m_config != null && m_config.metaData != null) {
-				val.metadata = m_config.metaData;
+			if (val.metadata == null && m_port != null && m_port.template != null) {
+				val.metadata = m_port.template;
 			}
 		}
 		return val;
@@ -98,35 +99,44 @@ public final class FskMetadataEditorNodeModel
 	protected PortObject[] performExecute(PortObject[] inObjects, ExecutionContext exec) {
 
 		FskPortObject inObj = (FskPortObject) inObjects[0];
-		
-		FskMetadataEditorViewValue val = getViewValue();
+		FskPortObject outObj = new FskPortObject();
+		// Clone input object
+		outObj.model = inObj.model;
+		outObj.param = inObj.param;
+		outObj.viz = inObj.viz;
+		outObj.template = inObj.template;
+		outObj.workspace = inObj.workspace;
+		outObj.libs.addAll(inObj.libs);
+
 		synchronized (getLock()) {
+			FskMetadataEditorViewValue val = getViewValue();
+
 			// If not executed
 			if (val.metadata == null) {
 				val.metadata = inObj.template;
+				m_port = inObj;
 			}
-			m_config.metaData = val.metadata;
+
+			// Takes modified metadata from val
+			outObj.template = val.metadata;
+			m_port = inObj;
 		}
-		
-		inObj.template = val.metadata;
-		
+
 		exec.setProgress(1);
-		return new PortObject[] { inObj };
+		return new PortObject[] { outObj };
 	}
 
 	@Override
 	protected void performReset() {
-		m_config.metaData = null;
+		m_port = null;
 	}
 
 	@Override
 	protected void useCurrentValueAsDefault() {
-		// Unused
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) {
-		m_config.saveSettings(settings);
 	}
 
 	@Override
@@ -135,6 +145,15 @@ public final class FskMetadataEditorNodeModel
 
 	@Override
 	protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
-		m_config.loadSettings(settings);
+	}
+
+	@Override
+	public PortObject[] getInternalPortObjects() {
+		return new PortObject[] { m_port };
+	}
+
+	@Override
+	public void setInternalPortObjects(PortObject[] portObjects) {
+		m_port = (FskPortObject) portObjects[0];
 	}
 }

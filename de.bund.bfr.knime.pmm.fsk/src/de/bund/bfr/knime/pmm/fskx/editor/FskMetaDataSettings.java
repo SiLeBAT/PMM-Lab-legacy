@@ -20,7 +20,7 @@ import de.bund.bfr.pmfml.ModelType;
 
 public class FskMetaDataSettings {
 
-	public FskMetaData metaData;
+	public FskMetaData metaData = new FskMetaData();
 
 	private static enum Key {
 		NAME,
@@ -56,6 +56,9 @@ public class FskMetaDataSettings {
 	private static boolean DEF_BOOL = false;
 
 	public void saveSettings(final NodeSettingsWO settings) {
+		if (metaData == null)
+			return;
+		
 		settings.addString(Key.NAME.name(), metaData.modelName);
 		settings.addString(Key.ID.name(), metaData.modelId);
 		settings.addString(Key.LINK.name(), metaData.modelLink);
@@ -110,7 +113,9 @@ public class FskMetaDataSettings {
 	}
 
 	public void loadSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		metaData = new FskMetaData();
+		if (settings.keySet().isEmpty())
+			return;
+		
 		metaData.modelName = settings.getString(Key.NAME.name());
 		metaData.modelId = settings.getString(Key.ID.name());
 		metaData.modelLink = settings.getString(Key.LINK.name());
@@ -156,7 +161,6 @@ public class FskMetaDataSettings {
 
 		metaData.foodProcess = settings.getString(Key.FOOD_PROCESS.name());
 
-		// TODO: dependentVariable
 		try (ByteArrayInputStream in = new ByteArrayInputStream(settings.getByteArray(Key.DEP_VAR.name()));
 				ObjectInputStream is = new ObjectInputStream(in)) {
 			metaData.dependentVariable = (Variable) is.readObject();
@@ -164,7 +168,6 @@ public class FskMetaDataSettings {
 			e.printStackTrace();
 		}
 		
-		// TODO: independentVariables
 		try (ByteArrayInputStream in = new ByteArrayInputStream(settings.getByteArray(Key.INDEP_VARS.name()));
 				ObjectInputStream is = new ObjectInputStream(in)) {
 			metaData.independentVariables = (List<Variable>) is.readObject();

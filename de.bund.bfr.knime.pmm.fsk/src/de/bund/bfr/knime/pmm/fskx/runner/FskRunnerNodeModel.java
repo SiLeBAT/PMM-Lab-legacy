@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.ParseException;
 import java.util.stream.Collectors;
 
 import org.knime.core.data.DataRow;
@@ -34,15 +33,12 @@ import org.knime.ext.r.node.local.port.RPortObject;
 import org.knime.ext.r.node.local.port.RPortObjectSpec;
 import org.rosuda.REngine.REXPMismatchException;
 
-import de.bund.bfr.knime.pmm.fskx.FskMetaData;
 import de.bund.bfr.knime.pmm.fskx.FskMetaDataTuple;
-import de.bund.bfr.knime.pmm.fskx.Variable;
 import de.bund.bfr.knime.pmm.fskx.controller.IRController.RException;
 import de.bund.bfr.knime.pmm.fskx.controller.LibRegistry;
 import de.bund.bfr.knime.pmm.fskx.controller.RController;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObject;
 import de.bund.bfr.knime.pmm.fskx.port.FskPortObjectSpec;
-import de.bund.bfr.pmfml.ModelType;
 
 class FskRunnerNodeModel extends NodeModel {
 
@@ -262,112 +258,5 @@ class FskRunnerNodeModel extends NodeModel {
 				}
 			}
 		}
-	}
-
-	private static FskMetaData tuple2Template(final DataRow row) {
-
-		FskMetaData template = new FskMetaData();
-
-		template.modelName = ((StringCell) row.getCell(FskMetaDataTuple.Key.name.ordinal())).getStringValue();
-		template.modelId = ((StringCell) row.getCell(FskMetaDataTuple.Key.id.ordinal())).getStringValue();
-		template.modelLink = ((StringCell) row.getCell(FskMetaDataTuple.Key.model_link.ordinal())).getStringValue();
-		template.organism = ((StringCell) row.getCell(FskMetaDataTuple.Key.species.ordinal())).getStringValue();
-		template.organismDetails = ((StringCell) row.getCell(FskMetaDataTuple.Key.species_details.ordinal()))
-				.getStringValue();
-		template.matrix = ((StringCell) row.getCell(FskMetaDataTuple.Key.matrix.ordinal())).getStringValue();
-		template.matrixDetails = ((StringCell) row.getCell(FskMetaDataTuple.Key.matrix_details.ordinal()))
-				.getStringValue();
-		template.creator = ((StringCell) row.getCell(FskMetaDataTuple.Key.creator.ordinal())).getStringValue();
-		template.familyName = ((StringCell) row.getCell(FskMetaDataTuple.Key.family_name.ordinal())).getStringValue();
-		template.contact = ((StringCell) row.getCell(FskMetaDataTuple.Key.contact.ordinal())).getStringValue();
-		template.familyName = ((StringCell) row.getCell(FskMetaDataTuple.Key.family_name.ordinal())).getStringValue();
-		template.referenceDescription = ((StringCell) row.getCell(FskMetaDataTuple.Key.reference_description.ordinal()))
-				.getStringValue();
-
-		// created date
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.created_date.ordinal());
-			try {
-				template.createdDate = FskMetaData.dateFormat.parse(cell.getStringValue());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// modified date
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.modified_date.ordinal());
-			try {
-				template.modifiedDate = FskMetaData.dateFormat.parse(cell.getStringValue());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		template.rights = ((StringCell) row.getCell(FskMetaDataTuple.Key.rights.ordinal())).getStringValue();
-		template.notes = ((StringCell) row.getCell(FskMetaDataTuple.Key.notes.ordinal())).getStringValue();
-
-		// curated
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.curation_status.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				template.curated = Boolean.parseBoolean(cell.getStringValue());
-			}
-		}
-
-		// model type
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.model_type.ordinal());
-			if (!cell.getStringValue().isEmpty()) {
-				template.type = ModelType.valueOf(cell.getStringValue());
-			}
-		}
-
-		template.foodProcess = ((StringCell) row.getCell(FskMetaDataTuple.Key.food_process.ordinal())).getStringValue();
-
-		// Dependent variable
-		{
-			template.dependentVariable.name = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar.ordinal()))
-					.getStringValue();
-			template.dependentVariable.unit = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_unit.ordinal()))
-					.getStringValue();
-			template.dependentVariable.min = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_min.ordinal()))
-					.getStringValue();
-			template.dependentVariable.max = ((StringCell) row.getCell(FskMetaDataTuple.Key.depvar_max.ordinal()))
-					.getStringValue();
-		}
-
-		// independent variables
-		{
-			String[] names = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars.ordinal())).getStringValue()
-					.split("\\|\\|");
-			String[] units = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_units.ordinal())).getStringValue()
-					.split("\\|\\|");
-			String[] mins = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_mins.ordinal())).getStringValue()
-					.split("\\|\\|");
-			String[] maxs = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_maxs.ordinal())).getStringValue()
-					.split("\\|\\|");
-			String[] values = ((StringCell) row.getCell(FskMetaDataTuple.Key.indepvars_values.ordinal()))
-					.getStringValue().split("\\|\\|");
-
-			for (int i = 0; i < names.length; i++) {
-				Variable v = new Variable();
-				v.name = names[i];
-				v.unit = units[i];
-				v.min = mins[i];
-				v.max = maxs[i];
-				v.value = values[i];
-			}
-		}
-
-		// has data
-		{
-			StringCell cell = (StringCell) row.getCell(FskMetaDataTuple.Key.has_data.ordinal());
-			template.hasData = Boolean.parseBoolean(cell.getStringValue());
-		}
-
-		return template;
 	}
 }

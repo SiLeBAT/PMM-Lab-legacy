@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -197,6 +199,16 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 			portObj.template = SpreadsheetHandler.processSpreadsheet(workbook.getSheetAt(0));
 		}
 		portObj.template.software = FskMetaData.Software.R;
+		
+		// Set variable values from parameters script
+		{
+			Map<String, String> vars = getVariablesFromAssignments(portObj.param);
+			for (Variable v : portObj.template.independentVariables) {
+				if (vars.containsKey(v.name.trim())) {
+					v.value = vars.get(v.name.trim());
+				}
+			}
+		}
 
 		// Set types of variables
 		{
@@ -413,5 +425,76 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 				return Double.toString(cell.getNumericCellValue());
 			return cell.getStringCellValue();
 		}
+	}
+
+	private static class Assignment {
+
+		enum Type {
+			/** R command with the = assignment operator. E.g. x = value */
+			equals,
+			/** R command with the <- assignment operator. E.g. x <- value */
+			left,
+			/** R command with the <<- scoping assignment operator. E.g. x <<- value */
+			super_left,
+			/** R command with the -> assignment operator. E.g. value -> x */
+			right,
+			/** R command with the ->> assignment operator. E.g. value ->> x */
+			super_right
+		}
+		
+		String variable;
+		String value;
+		
+		public Assignment(String line, Assignment.Type type) {
+			if (type == Type.equals) {
+				String[] tokens = line.split("||");
+				variable = tokens[0].trim();
+				value = tokens[1].trim();
+			} else if (type == Type.left) {
+				String[] tokens = line.split("<-");
+				variable = tokens[0].trim();
+				value = tokens[1].trim();
+			} else if (type == Type.super_left) {
+				String[] tokens = line.split("<<-");
+				variable = tokens[0].trim();
+				value = tokens[1].trim();
+			} else if (type == Type.right) {
+				String[] tokens = line.split("->");
+				variable = tokens[1].trim();
+				value = tokens[0].trim();
+			} else if (type == Type.super_right) {
+				String[] tokens = line.split("->>");
+				variable = tokens[1].trim();
+				value = tokens[0].trim();
+			}
+		}
+	}
+
+	private Map<String, String> getVariablesFromAssignments(String paramScript) {
+		Map<String, String> vars = new HashMap<>();
+		for (String line : paramScript.split("\\r?\\n")) {
+			line = line.trim();
+			if (line.startsWith("#"))
+				continue;
+
+			if (line.indexOf("=") != -1) {
+				Assignment a = new Assignment(line, Assignment.Type.equals);
+				vars.put(a.variable, a.value);
+			} else if (line.indexOf("<-") != -1) {
+				Assignment a = new Assignment(line, Assignment.Type.left);
+				vars.put(a.variable, a.value);
+			} else if (line.indexOf("<<-") != -1) {
+				Assignment a = new Assignment(line, Assignment.Type.super_left);
+				vars.put(a.variable, a.value);
+			} else if (line.indexOf("->>") != -1) {
+				Assignment a = new Assignment(line, Assignment.Type.right);
+				vars.put(a.variable, a.value);
+			} else if (line.indexOf("->") != -1) {
+				Assignment a = new Assignment(line, Assignment.Type.super_right);
+				vars.put(a.variable, a.value);
+			}
+		}
+
+		return vars;
 	}
 }

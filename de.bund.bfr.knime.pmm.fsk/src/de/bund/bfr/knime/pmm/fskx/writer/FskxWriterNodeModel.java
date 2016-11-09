@@ -49,8 +49,6 @@ import org.sbml.jsbml.xml.XMLNode;
 import org.sbml.jsbml.xml.XMLTriple;
 import org.sbml.jsbml.xml.stax.SBMLWriter;
 
-import com.google.common.base.Strings;
-
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.writer.TableReader;
 import de.bund.bfr.knime.pmm.common.writer.WriterUtils;
@@ -328,7 +326,7 @@ class FskxWriterNodeModel extends NodeModel {
 		
 		// Adds independent parameters
 		for (Variable v : template.independentVariables) {
-			String var = v.name.trim();
+			String var = v.name;
 			Parameter param = model.createParameter(PMFUtil.createId(var));
 			param.setName(var);
 			
@@ -336,9 +334,6 @@ class FskxWriterNodeModel extends NodeModel {
 				param.setUnits(PMFUtil.createId(v.unit));
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
-			}
-			if (!Strings.isNullOrEmpty(v.value)) {
-				param.setValue(Double.parseDouble(v.value));
 			}
 			
 			try {

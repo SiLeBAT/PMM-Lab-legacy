@@ -399,10 +399,10 @@ class FskCreatorNodeModel extends ExtToolOutputNodeModel {
 
 				for (int i = 0; i < names.length; i++) {
 					Variable v = new Variable();
-					v.name = names[i];
-					v.unit = units[i];
-					v.min = mins[i];
-					v.max = maxs[i];
+					v.name = names[i].trim();
+					v.unit = units[i].trim();
+					v.min = mins[i].trim();
+					v.max = maxs[i].trim();
 					// no values or types in the spreadsheet
 					v.value = "";
 					template.independentVariables.add(v);

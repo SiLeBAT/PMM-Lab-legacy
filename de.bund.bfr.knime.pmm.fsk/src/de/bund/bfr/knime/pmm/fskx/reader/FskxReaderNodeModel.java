@@ -417,7 +417,7 @@ class FskxReaderNodeModel extends NodeModel {
 
 			// Sets dependent variable min & max
 			for (Limits lim : limits) {
-				if (lim.getVar().equals(depId)) {
+				if (lim.getVar().replaceAll("\\_", "\\.").equals(depId)) {
 					if (lim.getMin() != null)
 						template.dependentVariable.min = lim.getMin().toString();
 					if (lim.getMax() != null)

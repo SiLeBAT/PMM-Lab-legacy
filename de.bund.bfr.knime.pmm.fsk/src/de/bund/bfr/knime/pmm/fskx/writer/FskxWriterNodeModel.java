@@ -316,7 +316,7 @@ class FskxWriterNodeModel extends NodeModel {
 		try {
 			double min = Double.parseDouble(template.dependentVariable.min);
 			double max = Double.parseDouble(template.dependentVariable.max);
-			LimitsConstraint lc = new LimitsConstraint(template.dependentVariable.name, min, max);
+			LimitsConstraint lc = new LimitsConstraint(template.dependentVariable.name.replaceAll("\\.", "\\_"), min, max);
 			if (lc.getConstraint() != null) {
 				model.addConstraint(lc.getConstraint());
 			}

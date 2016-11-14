@@ -82,11 +82,14 @@ public class FskTemplateSettings {
 
 			// Independent variables
 			{
+				template.independentVariables.clear();
+				
 				String[] names = settings.getStringArray(Key.indepvars.name());
 				String[] units = settings.getStringArray(Key.indepvars_units.name());
 				String[] types = settings.getStringArray(Key.indepvars_types.name());
 				String[] mins = settings.getStringArray(Key.indepvars_mins.name());
 				String[] maxs = settings.getStringArray(Key.indepvars_maxs.name());
+				String[] values = settings.getStringArray(Key.indepvars_values.name());
 
 				if (names != null && units != null && types != null && mins != null && maxs != null
 						&& names.length == units.length && names.length == types.length && names.length == mins.length
@@ -99,6 +102,7 @@ public class FskTemplateSettings {
 						v.type = DataType.valueOf(types[i]);
 						v.min = mins[i];
 						v.max = maxs[i];
+						v.value = values[i];
 
 						template.independentVariables.add(v);
 					}

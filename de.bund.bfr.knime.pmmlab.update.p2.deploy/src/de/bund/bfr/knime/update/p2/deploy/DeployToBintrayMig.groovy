@@ -66,13 +66,13 @@ class DeployToBintrayMig {
 
 		println "Choose base KNIME:"
 		println "(0) KNIME 3.2"
-		println "(1) KNIME 3.3"
+//		println "(1) KNIME 3.3"
 		def versionNumber = new Scanner(System.in).nextLine()
 		def package_name = ""
 		if (versionNumber == "0") {
 			package_name = "KNIME3.2"
-		} else if (versionNumber == "1") {
-			package_name = "KNIME3.3"
+//		} else if (versionNumber == "1") {
+//			package_name = "KNIME3.3"
 		} else {
 			println "Wrong KNIME version";
 			return;

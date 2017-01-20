@@ -31,14 +31,15 @@ import org.apache.http.entity.FileEntity
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.protocol.HttpContext
 
-class DeployToBintrayMig {
+class DeployToBintray {
 
 	static boolean USE_PROXY = true
 	static String PROXY = "webproxy"
 	static int PORT = 8080
 
 	static String SUBJECT = "silebat"
-	static String REPO = "PmmLab"
+	static String REPO = "pmmlab"
+	static String PACKAGE = "update"
 
 	static String ARTIFACTS_JAR = "artifacts.jar"
 	static String CONTENT_JAR = "content.jar"
@@ -64,20 +65,6 @@ class DeployToBintrayMig {
 		def password = new Scanner(System.in).nextLine()
 		println ""
 
-		println "Choose base KNIME:"
-		println "(0) KNIME 3.2"
-//		println "(1) KNIME 3.3"
-		def versionNumber = new Scanner(System.in).nextLine()
-		def package_name = ""
-		if (versionNumber == "0") {
-			package_name = "KNIME3.2"
-//		} else if (versionNumber == "1") {
-//			package_name = "KNIME3.3"
-		} else {
-			println "Wrong KNIME version";
-			return;
-		}
-
 		def client = new RESTClient("https://bintray.com/api/v1/")
 
 		client.headers['Authorization'] = 'Basic '+"${user}:${password}".bytes.encodeBase64()
@@ -85,7 +72,7 @@ class DeployToBintrayMig {
 		if (USE_PROXY)
 			client.setProxy(PROXY, PORT, null)
 
-		def latestVersion = getLatestVersion(client, package_name)
+		def latestVersion = getLatestVersion(client)
 
 		if (latestVersion != null) {
 			deleteLatestVersion(client, latestVersion)
@@ -96,23 +83,23 @@ class DeployToBintrayMig {
 
 		if (featuresDir.exists() && pluginsDir.exists()) {
 			def version = new SimpleDateFormat("yyyy_MM_dd_HH_mm").format(new Date())
-			createVersion(client, version, package_name)
+			createVersion(client, version)
 
 			for (File f : featuresDir.listFiles()) {
-				uploadFile(client, version, FEATURES, f, package_name)
+				uploadFile(client, version, FEATURES, f)
 			}
 
 			for (File f : pluginsDir.listFiles()) {
-				uploadFile(client, version, PLUGINS, f, package_name)
+				uploadFile(client, version, PLUGINS, f)
 			}
 		}
 
-		uploadFile(client, null, "", artifactsFile, package_name)
-		uploadFile(client, null, "", contentFile, package_name)
+		uploadFile(client, null, "", artifactsFile)
+		uploadFile(client, null, "", contentFile)
 	}
 
-	static String getLatestVersion(RESTClient client, String packageName) {
-		def url = "packages/${SUBJECT}/${REPO}/${packageName}"
+	static String getLatestVersion(RESTClient client) {
+		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}"
 
 		println "Get latest version"
 		println "URL:\t${url}"
@@ -124,8 +111,8 @@ class DeployToBintrayMig {
 		response.data.latest_version
 	}
 
-	static void deleteLatestVersion(RESTClient client, String version, String packageName) {
-		def url = "packages/${SUBJECT}/${REPO}/${packageName}/versions/${version}"
+	static void deleteLatestVersion(RESTClient client, String version) {
+		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}/versions/${version}"
 
 		println "Delete latest version"
 		println "URL:\t${url}"
@@ -135,8 +122,8 @@ class DeployToBintrayMig {
 		assert 200 == response.status
 	}
 
-	static void createVersion(RESTClient client, String version, String packageName) {
-		def url = "packages/${SUBJECT}/${REPO}/${packageName}/versions"
+	static void createVersion(RESTClient client, String version) {
+		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}/versions"
 
 		println "Create version"
 		println "Name:\t${version}"
@@ -151,11 +138,11 @@ class DeployToBintrayMig {
 		assert 201 == response.status
 	}
 
-	static void uploadFile(RESTClient client, String version, String path, File file, String packageName) {
+	static void uploadFile(RESTClient client, String version, String path, File file) {
 		def url = "content/${SUBJECT}/${REPO}/${path}/${file.name}"
 
 		if (version != null) {
-			url += ";bt_package=${packageName};bt_version=${version};publish=1"
+			url += ";bt_package=${PACKAGE};bt_version=${version};publish=1"
 		}
 
 		println "Upload file"

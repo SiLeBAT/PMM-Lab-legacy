@@ -51,6 +51,18 @@
          </menu>
       </menuContribution>
    </extension>
+   
+	<!-- Splash extension to be shown when launching KNIME -->
+	<extension point="org.knime.product.splashExtension">
+	    <splashExtension
+	    	icon="icons/pmmlab_logo_48.png"
+			icon24="icons/pmmlab_logo_24.png"
+			icon32="icons/pmmlab_logo_32.png"
+			id="de.bund.bfr.knime.fsklab.splashExtension"
+			tooltip="BfR.bund.de FSK Lab">
+		</splashExtension>
+	</extension> 
+   
    <extension
          point="org.knime.workbench.repository.categories">
       <category

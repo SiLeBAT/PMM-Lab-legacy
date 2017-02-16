@@ -17,17 +17,14 @@
 package de.bund.bfr.knime.pmm.pmfreader;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.jdom2.Element;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
+import org.knime.core.node.NoInternalsModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -38,7 +35,7 @@ import de.bund.bfr.pmfml.file.PMFMetadataNode;
 import de.unirostock.sems.cbarchive.CombineArchive;
 import de.unirostock.sems.cbarchive.meta.MetaDataObject;
 
-public class PMFReaderNodeModel extends NodeModel {
+public class PMFReaderNodeModel extends NoInternalsModel {
 
   // configuration keys
   public static final String CFGKEY_FILE = "filename";
@@ -114,20 +111,6 @@ public class PMFReaderNodeModel extends NodeModel {
     // Do not actually set any values of any member variables.
     filename.validateSettings(settings);
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {}
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {}
 
   // Load PMF file
   private BufferedDataTable[] loadPMF(final ExecutionContext exec) throws Exception {

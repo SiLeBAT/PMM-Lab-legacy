@@ -9,7 +9,8 @@ Require-Bundle: org.knime.workbench.core,
  org.hsh.bfr.db,
  de.bund.bfr.knime.pmm.common;visibility:=reexport,
  de.bund.bfr.formats,
- com.google.guava
+ com.google.guava,
+ de.bund.bfr.knime.common
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: BfR

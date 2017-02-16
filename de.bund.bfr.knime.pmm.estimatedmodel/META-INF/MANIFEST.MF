@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.bfrdbiface.lib,
  de.bund.bfr.knime.pmm.common,
  de.bund.bfr.knime.pmm.modelcatalog,
- de.bund.bfr.knime.pmm.timeseriesreader,
+ de.bund.bfr.knime.pmm.timeseries,
  de.bund.bfr.knime.pmm.predictorview,
  org.hsh.bfr.db
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

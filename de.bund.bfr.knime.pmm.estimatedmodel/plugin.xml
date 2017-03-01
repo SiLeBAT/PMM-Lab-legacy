@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.knime.workbench.repository.nodes">
+       <node
+             category-path="/pmmlab/reader"
+             deprecated="false"
+             factory-class="de.bund.bfr.knime.pmm.estimatedmodelreader.EstimatedModelReaderNodeFactory"/>
+       <node
+             category-path="/pmmlab/reader"
+             deprecated="false"
+             factory-class="de.bund.bfr.knime.pmm.estimatedmodelwriter.EstimatedModelWriterNodeFactory">
+       </node>
+   </extension>
+</plugin>

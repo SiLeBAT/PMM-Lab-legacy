@@ -27,9 +27,11 @@ import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NoInternalsModel;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -48,7 +50,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  * 
  * @author Christian Thoens
  */
-public class SBMLWriterNodeModel extends NoInternalsModel {
+public class SBMLWriterNodeModel extends NodeModel {
 
 	protected static final String CFG_OVERWRITE = "Overwrite";
 	protected static final String CFG_OUT_PATH = "outPath";
@@ -198,6 +200,24 @@ public class SBMLWriterNodeModel extends NoInternalsModel {
 		createdDate.validateSettings(settings);
 		modifiedDate.validateSettings(settings);
 		reference.validateSettings(settings);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File internDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File internDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
 	}
 
 	private static Date getDate(SettingsModelDate date) {

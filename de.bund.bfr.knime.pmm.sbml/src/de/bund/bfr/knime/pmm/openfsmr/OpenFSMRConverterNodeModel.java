@@ -31,9 +31,11 @@ import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NoInternalsModel;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -72,7 +74,7 @@ import de.unirostock.sems.cbarchive.meta.MetaDataObject;
  * 
  * Author: Miguel de Alba
  */
-public class OpenFSMRConverterNodeModel extends NoInternalsModel {
+public class OpenFSMRConverterNodeModel extends NodeModel {
 
   // configuration keys
   public static final String CFGKEY_DIR = "directory";
@@ -190,6 +192,16 @@ public class OpenFSMRConverterNodeModel extends NoInternalsModel {
     selectedDirectory.validateSettings(settings);
     selectedFiles.validateSettings(settings);
   }
+
+  /** {@inheritDoc} */
+  @Override
+  protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+      throws IOException, CanceledExecutionException {}
+
+  /** {@inheritDoc} */
+  @Override
+  protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+      throws IOException, CanceledExecutionException {}
 }
 
 

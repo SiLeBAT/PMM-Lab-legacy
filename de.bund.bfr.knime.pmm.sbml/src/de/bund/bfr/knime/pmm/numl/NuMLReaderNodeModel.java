@@ -20,13 +20,16 @@
 package de.bund.bfr.knime.pmm.numl;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NoInternalsModel;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -37,7 +40,7 @@ import de.bund.bfr.knime.pmm.extendedtable.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.pmfml.numl.NuMLDocument;
 import de.bund.bfr.pmfml.numl.NuMLReader;
 
-public class NuMLReaderNodeModel extends NoInternalsModel {
+public class NuMLReaderNodeModel extends NodeModel {
 
 	// configuration keys
 	public static final String CFGKEY_FILE = "filename";
@@ -113,6 +116,22 @@ public class NuMLReaderNodeModel extends NoInternalsModel {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void reset() {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 }

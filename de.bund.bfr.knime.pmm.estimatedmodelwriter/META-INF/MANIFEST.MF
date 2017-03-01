@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EstimatedModelWriter-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.estimatedmodelwriter; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: estimatedmodelwriter.jar
+Bundle-Activator: de.bund.bfr.knime.pmm.estimatedmodelwriter.EstimatedModelWriterNodePlugin
+Bundle-Vendor: BfR
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.common,
+ de.bund.bfr.knime.pmm.bfrdbiface.lib,
+ de.bund.bfr.knime.pmm.modelcatalogreader,
+ org.hsh.bfr.db
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.pmm.estimatedmodelwriter
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

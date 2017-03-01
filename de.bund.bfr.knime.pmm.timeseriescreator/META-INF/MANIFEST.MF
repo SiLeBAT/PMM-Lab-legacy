@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TimeSeriesCreator-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.timeseriescreator; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: timeseriescreator.jar
+Bundle-Activator: de.bund.bfr.knime.pmm.timeseriescreator.TimeSeriesCreatorNodePlugin
+Bundle-Vendor: BfR
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.common,
+ de.bund.bfr.knime.pmm.bfrdbiface.lib,
+ org.hsh.bfr.db
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.pmm.timeseriescreator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

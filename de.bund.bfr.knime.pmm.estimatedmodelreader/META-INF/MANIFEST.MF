@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EstimatedModelReader-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.estimatedmodelreader; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: estimatedmodelreader.jar
+Bundle-Activator: de.bund.bfr.knime.pmm.estimatedmodelreader.EstimatedModelReaderNodePlugin
+Bundle-Vendor: BfR
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.bfrdbiface.lib,
+ de.bund.bfr.knime.pmm.common,
+ de.bund.bfr.knime.pmm.modelcatalogreader,
+ de.bund.bfr.knime.pmm.timeseriesreader,
+ de.bund.bfr.knime.pmm.predictorview,
+ org.hsh.bfr.db
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.pmm.estimatedmodelreader
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

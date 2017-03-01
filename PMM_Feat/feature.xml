@@ -86,6 +86,18 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          version="0.0.0"/>
 
    <plugin
+         id="de.bund.bfr.knime.pmm.estimatedmodelreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.estimatedmodelwriter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="de.bund.bfr.knime.pmm.manualmodelconf"
          download-size="0"
          install-size="0"
@@ -93,6 +105,18 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.knime.pmm.modelanddatajoiner"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelcatalogreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelcatalogwriter"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -111,6 +135,24 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.knime.pmm.secondarymodelanddataview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeseriescreator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeseriesreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeserieswriter"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -246,33 +288,5 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.estimatedmodel"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.modelcatalog"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.timeseries"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.bund.bfr.knime.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
 </feature>

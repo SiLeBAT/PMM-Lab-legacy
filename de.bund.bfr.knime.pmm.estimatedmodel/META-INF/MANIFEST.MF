@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base,
  de.bund.bfr.knime.pmm.bfrdbiface.lib,
  de.bund.bfr.knime.pmm.common,
- de.bund.bfr.knime.pmm.modelcatalogreader,
+ de.bund.bfr.knime.pmm.estimatedmodel,
  de.bund.bfr.knime.pmm.timeseriesreader,
  de.bund.bfr.knime.pmm.predictorview,
  org.hsh.bfr.db

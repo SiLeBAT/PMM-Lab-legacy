@@ -58,7 +58,7 @@
 	    	icon="icons/pmmlab_logo_48.png"
 			icon24="icons/pmmlab_logo_24.png"
 			icon32="icons/pmmlab_logo_32.png"
-			id="de.bund.bfr.knime.fsklab.splashExtension"
+			id="de.bund.bfr.knime.pmm.splashExtension"
 			tooltip="BfR.bund.de FSK Lab">
 		</splashExtension>
 	</extension> 

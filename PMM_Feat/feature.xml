@@ -98,18 +98,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.modelcatalogreader"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.modelcatalogwriter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="de.bund.bfr.knime.pmm.modelestimation"
          download-size="0"
          install-size="0"
@@ -267,6 +255,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.knime.pmm.timeseries"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelcatalog"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

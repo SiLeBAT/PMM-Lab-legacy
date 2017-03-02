@@ -128,24 +128,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.timeseriescreator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.timeseriesreader"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.timeserieswriter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="de.bund.bfr.knime.pmm.xlstimeseriesreader"
          download-size="0"
          install-size="0"
@@ -279,6 +261,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.knime.pmm.estimatedmodel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeseries"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

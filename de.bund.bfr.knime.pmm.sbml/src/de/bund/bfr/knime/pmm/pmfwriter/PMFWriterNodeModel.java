@@ -89,7 +89,7 @@ public class PMFWriterNodeModel extends NodeModel {
 
 	private final boolean isPmfx;
 	
-	protected PMFWriterNodeModel(final boolean isPmfx) {
+	public PMFWriterNodeModel(final boolean isPmfx) {
 		super(1, 0);
 
 		// Sets current date in the dialog components

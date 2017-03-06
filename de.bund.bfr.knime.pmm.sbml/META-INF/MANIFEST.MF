@@ -52,6 +52,6 @@ Export-Package: de.bund.bfr.knime.pmm;
    javax.swing",
  de.bund.bfr.openfsmr
 Import-Package: org.apache.poi.xssf.usermodel
-Bundle-ClassPath: sbmlreader.jar,
+Bundle-ClassPath: library.jar,
  jsoup-1.9.2.jar
 

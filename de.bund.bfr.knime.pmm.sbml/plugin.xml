@@ -11,10 +11,12 @@
 		
   		<node category-path="/pmmlab/writer" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFXWriterNodeFactory"/>
   		<node category-path="/pmmlab/writer" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfwriter.PMFWriterNodeFactory"/>
+  		<node category-path="/pmmlab/writer" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfxwriter.PMFXWriterNodeFactory"/>
   		<node category-path="/pmmlab/writer" deprecated="false" factory-class="de.bund.bfr.knime.pmm.pmfwriter.fsk.NodeFactory" />
   		
   		<node category-path="/pmmlab/reader" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFXReaderNodeFactory"/>
   		<node category-path="/pmmlab/reader" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfreader.PMFReaderNodeFactory"/>
+  		<node category-path="/pmmlab/reader" deprecated="true" factory-class="de.bund.bfr.knime.pmm.pmfxreader.PMFXReaderNodeFactory" />
   		<node category-path="/pmmlab/reader" deprecated="false" factory-class="de.bund.bfr.knime.pmm.pmfreader.fsk.NodeFactory" />
 	</extension>
 </plugin>

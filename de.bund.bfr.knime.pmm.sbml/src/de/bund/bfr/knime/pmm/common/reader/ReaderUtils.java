@@ -292,12 +292,7 @@ public class ReaderUtils {
       BufferedDataContainer dataContainer = exec.createDataContainer(dataSpec);
 
       // Reads in experimental data from file
-      List<ExperimentalData> eds;
-      if (isPMFX) {
-        eds = ExperimentalDataFile.readPMFX(file);
-      } else {
-        eds = ExperimentalDataFile.readPMF(file);
-      }
+      List<ExperimentalData> eds = ExperimentalDataFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (ExperimentalData ed : eds) {
@@ -332,12 +327,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Reads in models from file
-      List<PrimaryModelWData> models;
-      if (isPMFX) {
-        models = PrimaryModelWDataFile.readPMFX(file);
-      } else {
-        models = PrimaryModelWDataFile.readPMF(file);
-      }
+      List<PrimaryModelWData> models = PrimaryModelWDataFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (PrimaryModelWData model : models) {
@@ -408,12 +398,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Reads in models from file
-      List<PrimaryModelWOData> models;
-      if (isPMFX) {
-        models = PrimaryModelWODataFile.readPMFX(file);
-      } else {
-        models = PrimaryModelWODataFile.readPMF(file);
-      }
+      List<PrimaryModelWOData> models = PrimaryModelWODataFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (PrimaryModelWOData model : models) {
@@ -485,12 +470,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Reads in models from file
-      List<TwoStepSecondaryModel> models;
-      if (isPMFX) {
-        models = TwoStepSecondaryModelFile.readPMFX(file);
-      } else {
-        models = TwoStepSecondaryModelFile.readPMF(file);
-      }
+      List<TwoStepSecondaryModel> models = TwoStepSecondaryModelFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (TwoStepSecondaryModel tssm : models) {
@@ -546,12 +526,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Reads in models from file
-      List<OneStepSecondaryModel> models;
-      if (isPMFX) {
-        models = OneStepSecondaryModelFile.readPMFX(file);
-      } else {
-        models = OneStepSecondaryModelFile.readPMF(file);
-      }
+      List<OneStepSecondaryModel> models = OneStepSecondaryModelFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (OneStepSecondaryModel ossm : models) {
@@ -606,12 +581,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Reads in models from file
-      List<ManualSecondaryModel> models;
-      if (isPMFX) {
-        models = ManualSecondaryModelFile.readPMFX(file);
-      } else {
-        models = ManualSecondaryModelFile.readPMF(file);
-      }
+      List<ManualSecondaryModel> models = ManualSecondaryModelFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (ManualSecondaryModel model : models) {
@@ -646,12 +616,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Read in models from file
-      List<TwoStepTertiaryModel> models;
-      if (isPMFX) {
-        models = TwoStepTertiaryModelFile.readPMFX(file);
-      } else {
-        models = TwoStepTertiaryModelFile.readPMF(file);
-      }
+      List<TwoStepTertiaryModel> models = TwoStepTertiaryModelFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (TwoStepTertiaryModel tssm : models) {
@@ -703,12 +668,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Read in models from file
-      List<OneStepTertiaryModel> models;
-      if (isPMFX) {
-        models = OneStepTertiaryModelFile.readPMFX(file);
-      } else {
-        models = OneStepTertiaryModelFile.readPMF(file);
-      }
+      List<OneStepTertiaryModel> models = OneStepTertiaryModelFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (OneStepTertiaryModel ostm : models) {
@@ -767,12 +727,7 @@ public class ReaderUtils {
       BufferedDataContainer modelContainer = exec.createDataContainer(modelSpec);
 
       // Read in models from file
-      List<ManualTertiaryModel> models;
-      if (isPMFX) {
-        models = ManualTertiaryModelFile.readPMFX(file);
-      } else {
-        models = ManualTertiaryModelFile.readPMF(file);
-      }
+      List<ManualTertiaryModel> models = ManualTertiaryModelFile.read(file.toPath());
 
       // Creates tuples and adds them to the container
       for (ManualTertiaryModel mtm : models) {

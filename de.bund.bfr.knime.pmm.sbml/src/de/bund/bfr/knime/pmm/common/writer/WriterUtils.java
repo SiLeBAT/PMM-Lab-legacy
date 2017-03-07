@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.common.writer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -122,9 +124,8 @@ public class WriterUtils {
 
     String desc = paramXml.getDescription();
 
-    PMFCoefficient coefficient =
-        SBMLFactory.createPMFCoefficient(name, value, unit, P, error, t, correlations, desc,
-            isStart);
+    PMFCoefficient coefficient = SBMLFactory.createPMFCoefficient(name, value, unit, P, error, t,
+        correlations, desc, isStart);
     return coefficient;
   }
 
@@ -157,9 +158,8 @@ public class WriterUtils {
     ReferenceType type = (lit.getType() == null) ? null : ReferenceType.fromValue(lit.getType());
     String comment = lit.getComment();
 
-    Reference ref =
-        SBMLFactory.createReference(author, year, title, abstractText, journal, volume, issue,
-            page, approvalMode, website, type, comment);
+    Reference ref = SBMLFactory.createReference(author, year, title, abstractText, journal, volume,
+        issue, page, approvalMode, website, type, comment);
     return ref;
   }
 
@@ -186,9 +186,8 @@ public class WriterUtils {
     String[] colNames = {"CodeSystem", "Basis"};
     String[] colVals = {"PMF", matrixXml.getId().toString()};
     String pmfCode = (String) DBKernel.getValue(null, "Codes_Matrices", colNames, colVals, "Codes");
-    PMFCompartment compartment =
-        SBMLFactory.createPMFCompartment(compartmentId, compartmentName, pmfCode,
-            compartmentDetail, modelVariables);
+    PMFCompartment compartment = SBMLFactory.createPMFCompartment(compartmentId, compartmentName,
+        pmfCode, compartmentDetail, modelVariables);
     return compartment;
   }
 
@@ -208,9 +207,8 @@ public class WriterUtils {
     }
     String speciesDetail = agentXml.getDetail();
 
-    PMFSpecies species =
-        SBMLFactory.createPMFSpecies(compartmentId, speciesId, speciesName, speciesUnit, casNumber,
-            speciesDetail, null);
+    PMFSpecies species = SBMLFactory.createPMFSpecies(compartmentId, speciesId, speciesName,
+        speciesUnit, casNumber, speciesDetail, null);
     return species;
   }
 
@@ -248,18 +246,14 @@ public class WriterUtils {
 
       // Remove namespace (all the DB units have this namespace
       // which is not necessary)
-      mathml =
-          mathml
-              .replaceAll(
-                  "xmlns=\"http://sourceforge.net/projects/microbialmodelingexchange/files/Units\"",
-                  "");
+      mathml = mathml.replaceAll(
+          "xmlns=\"http://sourceforge.net/projects/microbialmodelingexchange/files/Units\"", "");
 
-      String preXml =
-          "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-              + "<sbml xmlns=\"http://www.sbml.org/sbml/level3/version1/core\""
-              + " level=\"3\" version=\"1\""
-              + " xmlns:pmf=\"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML\""
-              + "><model id=\"ID\">" + "<listOfUnitDefinitions>";
+      String preXml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
+          + "<sbml xmlns=\"http://www.sbml.org/sbml/level3/version1/core\""
+          + " level=\"3\" version=\"1\""
+          + " xmlns:pmf=\"http://sourceforge.net/projects/microbialmodelingexchange/files/PMF-ML\""
+          + "><model id=\"ID\">" + "<listOfUnitDefinitions>";
 
       String postXml = "</listOfUnitDefinitions></model></sbml>";
       String totalXml = preXml + mathml + postXml;
@@ -420,11 +414,8 @@ public class WriterUtils {
         eds.add(ed);
       }
 
-      if (isPMFX) {
-        ExperimentalDataFile.writePMFX(dir, mdName, eds);
-      } else {
-        ExperimentalDataFile.writePMF(dir, mdName, eds);
-      }
+      Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+      ExperimentalDataFile.write(path, eds);
     }
   }
 
@@ -466,11 +457,8 @@ public class WriterUtils {
         pms.add(pm);
       }
 
-      if (isPMFX) {
-        PrimaryModelWDataFile.writePMFX(dir, mdName, pms);
-      } else {
-        PrimaryModelWDataFile.writePMF(dir, mdName, pms);
-      }
+      Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+      PrimaryModelWDataFile.write(path, pms);
     }
   }
 
@@ -497,11 +485,8 @@ public class WriterUtils {
         pms.add(pm);
       }
 
-      if (isPMFX) {
-        PrimaryModelWODataFile.writePMFX(dir, mdName, pms);
-      } else {
-        PrimaryModelWODataFile.writePMF(dir, mdName, pms);
-      }
+      Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+      PrimaryModelWODataFile.write(path, pms);
     }
   }
 
@@ -538,19 +523,12 @@ public class WriterUtils {
       if (splitModels) {
         for (int numModel = 0; numModel < sms.size(); numModel++) {
           String modelName = mdName + Integer.toString(numModel);
-          List<TwoStepSecondaryModel> sublist = sms.subList(numModel, numModel+1);
-          if (isPMFX) {
-            TwoStepSecondaryModelFile.writePMFX(dir, modelName, sublist);
-          } else {
-            TwoStepSecondaryModelFile.writePMF(dir, modelName, sublist);
-          }
+          Path path = Paths.get(dir, modelName + (isPMFX ? ".pmfx" : ".pmf"));
+          TwoStepSecondaryModelFile.write(path, sms.subList(numModel, numModel + 1));
         }
       } else {
-        if (isPMFX) {
-          TwoStepSecondaryModelFile.writePMFX(dir, mdName, sms);
-        } else {
-          TwoStepSecondaryModelFile.writePMF(dir, mdName, sms);
-        }
+        Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+        TwoStepSecondaryModelFile.write(path, sms);
       }
     }
 
@@ -575,9 +553,8 @@ public class WriterUtils {
         SBMLDocument sbmlDoc = m1Parser.getDocument();
         String sbmlDocName = String.format("%s.%s", sbmlDoc.getModel().getId(), modelExtension);
 
-        XMLNode metadataNode =
-            sbmlDoc.getModel().getAnnotation().getNonRDFannotation()
-                .getChildElement("metadata", "");
+        XMLNode metadataNode = sbmlDoc.getModel().getAnnotation().getNonRDFannotation()
+            .getChildElement("metadata", "");
         if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
           DataParser dataParser = new DataParser(tuple, metadata, notes);
 
@@ -645,23 +622,16 @@ public class WriterUtils {
         int modelCounter = sms.size();
         sms.add(parse(tupleList, isPMFX, mdName, modelCounter, metadata, notes));
       }
-      
+
       if (splitModels) {
         for (int numModel = 0; numModel < sms.size(); numModel++) {
           String modelName = mdName + Integer.toString(numModel);
-          List<OneStepSecondaryModel> sublist = sms.subList(numModel, numModel + 1);
-          if (isPMFX) {
-            OneStepSecondaryModelFile.writePMFX(dir, modelName, sublist);
-          } else {
-            OneStepSecondaryModelFile.writePMF(dir, modelName, sublist);
-          }
+          Path path = Paths.get(dir, modelName + (isPMFX ? ".pmfx" : ".pmf"));
+          OneStepSecondaryModelFile.write(path, sms.subList(numModel, numModel + 1));
         }
       } else {
-        if (isPMFX) {
-          OneStepSecondaryModelFile.writePMFX(dir, mdName, sms);
-        } else {
-          OneStepSecondaryModelFile.writePMF(dir, mdName, sms);
-        }
+        Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+        OneStepSecondaryModelFile.write(path, sms);
       }
     }
 
@@ -730,23 +700,16 @@ public class WriterUtils {
         int mdNum = sms.size();
         sms.add(parse(tuple, isPMFX, mdName, mdNum, metadata, notes));
       }
-      
+
       if (splitModels) {
         for (int numModel = 0; numModel < sms.size(); numModel++) {
           String modelName = mdName + Integer.toString(numModel);
-          List<ManualSecondaryModel> sublist = sms.subList(numModel, numModel + 1);
-          if (isPMFX) {
-            ManualSecondaryModelFile.writePMFX(dir, modelName, sublist);
-          } else {
-            ManualSecondaryModelFile.writePMF(dir, modelName, sublist);
-          }
+          Path path = Paths.get(dir, modelName + (isPMFX ? ".pmfx" : ".pmf"));
+          ManualSecondaryModelFile.write(path, sms.subList(numModel, numModel + 1));
         }
       } else {
-        if (isPMFX) {
-          ManualSecondaryModelFile.writePMFX(dir, mdName, sms);
-        } else {
-          ManualSecondaryModelFile.writePMF(dir, mdName, sms);
-        }
+        Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+        ManualSecondaryModelFile.write(path, sms);
       }
     }
 
@@ -866,8 +829,8 @@ public class WriterUtils {
 
       // Add annotation
       Uncertainties uncertainties = WriterUtils.estModel2Uncertainties(estModel);
-      model.setAnnotation(new Model2Annotation(globalModelID, uncertainties, emLits)
-          .getAnnotation());
+      model.setAnnotation(
+          new Model2Annotation(globalModelID, uncertainties, emLits).getAnnotation());
 
       return new ManualSecondaryModel(docName, doc);
     }
@@ -898,23 +861,16 @@ public class WriterUtils {
         TwoStepTertiaryModel tm = parse(tuplesList, isPMFX, modelNum, mdName, metadata, notes);
         tms.add(tm);
       }
-      
+
       if (splitModels) {
         for (int numModel = 0; numModel < tms.size(); numModel++) {
           String modelName = mdName + Integer.toString(numModel);
-          List<TwoStepTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
-          if (isPMFX) {
-            TwoStepTertiaryModelFile.writePMFX(dir, modelName, sublist);
-          } else {
-            TwoStepTertiaryModelFile.writePMF(dir, modelName, sublist);
-          }
+          Path path = Paths.get(dir, modelName + (isPMFX ? ".pmfx" : ".pmf"));
+          TwoStepTertiaryModelFile.write(path, tms.subList(numModel, numModel + 1));
         }
       } else {
-        if (isPMFX) {
-          TwoStepTertiaryModelFile.writePMFX(dir, mdName, tms);
-        } else {
-          TwoStepTertiaryModelFile.writePMF(dir, mdName, tms);
-        }
+        Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+        TwoStepTertiaryModelFile.write(path, tms);
       }
     }
 
@@ -940,9 +896,8 @@ public class WriterUtils {
         SBMLDocument sbmlDoc = m1Parser.getDocument();
         String sbmlDocName =
             String.format("%s_%d_%d.%s", mdName, modelNum, instanceNum, modelExtension);
-        XMLNode metadataNode =
-            sbmlDoc.getModel().getAnnotation().getNonRDFannotation()
-                .getChildElement("metadata", "");
+        XMLNode metadataNode = sbmlDoc.getModel().getAnnotation().getNonRDFannotation()
+            .getChildElement("metadata", "");
 
         if (tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES).size() > 0) {
           NuMLDocument numlDoc = new DataParser(tuple, metadata, notes).getDocument();
@@ -1069,8 +1024,8 @@ public class WriterUtils {
       }
 
       // Assigns unit definitions of the primary model
-      model.setListOfUnitDefinitions(new ListOf<UnitDefinition>(primModel
-          .getListOfUnitDefinitions()));
+      model.setListOfUnitDefinitions(
+          new ListOf<UnitDefinition>(primModel.getListOfUnitDefinitions()));
 
       TwoStepTertiaryModel tstm =
           new TwoStepTertiaryModel(tertDocName, tertDoc, primModels, secDocNames, secDocs);
@@ -1114,19 +1069,12 @@ public class WriterUtils {
       if (splitModels) {
         for (int numModel = 0; numModel < tms.size(); numModel++) {
           String modelName = mdName + Integer.toString(numModel);
-          List<OneStepTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
-          if (isPMFX) {
-            OneStepTertiaryModelFile.writePMFX(dir, modelName, sublist);
-          } else {
-            OneStepTertiaryModelFile.writePMF(dir, modelName, sublist);
-          }
+          Path path = Paths.get(dir, modelName + (isPMFX ? ".pmfx" : ".pmf"));
+          OneStepTertiaryModelFile.write(path, tms.subList(numModel, numModel + 1));
         }
       } else {
-        if (isPMFX) {
-          OneStepTertiaryModelFile.writePMFX(dir, mdName, tms);
-        } else {
-          OneStepTertiaryModelFile.writePMF(dir, mdName, tms);
-        }
+        Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+        OneStepTertiaryModelFile.write(path, tms);
       }
     }
 
@@ -1213,9 +1161,8 @@ public class WriterUtils {
         }
       }
 
-      OneStepTertiaryModel tstm =
-          new OneStepTertiaryModel(tertDocName, tertDoc, secDocNames, secDocs, numlDocNames,
-              numlDocs);
+      OneStepTertiaryModel tstm = new OneStepTertiaryModel(tertDocName, tertDoc, secDocNames,
+          secDocs, numlDocNames, numlDocs);
       return tstm;
     }
   }
@@ -1243,28 +1190,21 @@ public class WriterUtils {
           tertiaryModelMap.put(primModelId, tupleList);
         }
       }
-      
+
       for (List<KnimeTuple> tupleList : tertiaryModelMap.values()) {
         int modelCounter = tms.size();
         tms.add(parse(tupleList, isPMFX, mdName, modelCounter, metadata, notes));
       }
-      
+
       if (splitModels) {
         for (int numModel = 0; numModel < tms.size(); numModel++) {
           String modelName = mdName + Integer.toString(numModel);
-          List<ManualTertiaryModel> sublist = tms.subList(numModel, numModel + 1);
-          if (isPMFX) {
-            ManualTertiaryModelFile.writePMFX(dir, modelName, sublist);
-          } else {
-            ManualTertiaryModelFile.writePMF(dir, modelName, sublist);
-          }
+          Path path = Paths.get(dir, modelName + (isPMFX ? ".pmfx" : ".pmf"));
+          ManualTertiaryModelFile.write(path, tms.subList(numModel, numModel + 1));
         }
       } else {
-        if (isPMFX) {
-          ManualTertiaryModelFile.writePMFX(dir, mdName, tms);
-        } else {
-          ManualTertiaryModelFile.writePMF(dir, mdName, tms);
-        }
+        Path path = Paths.get(dir, mdName + (isPMFX ? ".pmfx" : ".pmf"));
+        ManualTertiaryModelFile.write(path, tms);
       }
     }
 

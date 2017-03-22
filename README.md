@@ -36,7 +36,7 @@ FSK-Lab may be installed throught the update site [https://dl.bintray.com/sileba
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.xlstimeseriesreader/src/de/bund/bfr/knime/pmm/xlstimeseriesreader/XLSMicrobialDataReader.png?raw=true) XLS Data Reader
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.xlsmodelreader/src/de/bund/bfr/knime/pmm/xlsmodelreader/XLSPrimaryModelReader.png?raw=true) XLS Model Reader
 - ![](https://raw.githubusercontent.com/SiLeBAT/PMM-Lab/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/SelectionAndViews.png) Selectors & Viewers
-+ ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.dataviewandselect/src/de/bund/bfr/knime/pmm/dataviewandselect/MicrobialDataSelection.png?raw=true) Data Selection
+    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.dataviewandselect/src/de/bund/bfr/knime/pmm/dataviewandselect/MicrobialDataSelection.png?raw=true) Data Selection
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.fittedparameterview/src/de/bund/bfr/knime/pmm/fittedparameterview/FittedParameterView.png?raw=true) Fitted Parameter View
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.predictorview/src/de/bund/bfr/knime/pmm/predictorview/PredictorView.png?raw=true) Predictor View
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.predictorview/src/de/bund/bfr/knime/pmm/js/modelplotter/modern/PredictorView.png?raw=true) Predictor View JS (deprecated)

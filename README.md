@@ -12,45 +12,44 @@ FSK-Lab may be installed throught the update site [https://dl.bintray.com/sileba
 
 ## Extension nodes
 - ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/XMLToTable.png) Converters
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/XMLToTable.png?raw=true) XML To Table
-- ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Editors.png?raw=true) Editors
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/dbdelete/FittedModelDeleter.png?raw=true) DB Data Deleter
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/timeseriescreator/MicrobialDataCreator.png?raw=true) Data Creator
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/microbialdataedit/MicrobialDataEditor.png?raw=true) Data Editor
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/manualmodelconf/FormulaCreator.png?raw=true) Formula Creator
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/manualmodelconf/ModelCreator.png?raw=true) Model Creator
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/manualmodelconf/ModelEditor.png?raw=true) Model Editor
-- ![](https://raw.githubusercontent.com/SiLeBAT/PMM-Lab/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Model.png) Model Fitting
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.modelestimation/src/de/bund/bfr/knime/pmm/nodes/ModelFitting.png?raw=true) Model Fitting
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelanddatajoiner/PMMJoiner.png?raw=true) PMM Joiner
-- ![](https://raw.githubusercontent.com/SiLeBAT/PMM-Lab/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Reader.png) Readers
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/combaseio/ComBaseReader.png?raw=true) ComBase Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/timeseriesreader/MicrobialDataReader.png?raw=true) Data Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelcatalogreader/ModelFormulaReader.png?raw=true) Formula Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/estimatedmodelreader/FittedModelReader.png?raw=true) Model Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/numl/NuMLReader.png?raw=true) NuML Reader
+    + ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/XMLToTable.png) XML To Table
+- ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Editors.png) Editors
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/dbdelete/FittedModelDeleter.png) DB Data Deleter
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/timeseriescreator/MicrobialDataCreator.png) Data Creator
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/microbialdataedit/MicrobialDataEditor.png) Data Editor
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/manualmodelconf/FormulaCreator.png) Formula Creator
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/manualmodelconf/ModelCreator.png) Model Creator
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/manualmodelconf/ModelEditor.png) Model Editor
+- ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Model.png) Model Fitting
+    + ![](de.bund.bfr.knime.pmm.modelestimation/src/de/bund/bfr/knime/pmm/nodes/ModelFitting.png) Model Fitting
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelanddatajoiner/PMMJoiner.png) PMM Joiner
+- ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Reader.png) Readers
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/combaseio/ComBaseReader.png) ComBase Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/timeseriesreader/MicrobialDataReader.png) Data Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelcatalogreader/ModelFormulaReader.png) Formula Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/estimatedmodelreader/FittedModelReader.png) Model Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/numl/NuMLReader.png) NuML Reader
     + OpenFSMR Converter
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/pmfreader/fsk/SBMLReader.png?raw=true) PMFX Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/sbmlreader/SBMLReader.png?raw=true) SBML Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/pmfreader/fsk/SBMLReader.png) PMFX Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/sbmlreader/SBMLReader.png) SBML Reader
     + Variable Data Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/xlstimeseriesreader/XLSMicrobialDataReader.png?raw=true) XLS Data Reader
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/xlsmodelreader/XLSPrimaryModelReader.png?raw=true) XLS Model Reader
-- ![](https://raw.githubusercontent.com/SiLeBAT/PMM-Lab/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/SelectionAndViews.png) Selectors & Viewers
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/dataviewandselect/MicrobialDataSelection.png?raw=true) Data Selection
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/fittedparameterview/FittedParameterView.png?raw=true) Fitted Parameter View
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/predictorview/PredictorView.png?raw=true) Predictor View
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/js/modelplotter/modern/PredictorView.png?raw=true) Predictor View JS (deprecated)
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/primarymodelviewandselect/ModelSelectionPrimary.png?raw=true) Primary Model Selection
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/secondarymodelanddataview/ModelViewSecondary.png?raw=true) Secondary Model View
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/secondarypredictorview/SecondaryPredictorView.png?raw=true) Secondary Predictor View
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelselectiontertiary/ModelSelectionTertiary.png?raw=true) Tertiary Model Selection
-- ![](https://raw.githubusercontent.com/SiLeBAT/PMM-Lab/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Writer.png) Writers
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/combaseio/ComBaseWriter.png?raw=true) ComBase Writer
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/timeserieswriter/MicrobialDataWriter.png?raw=true) Data Writer
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelcatalogwriter/ModelFormulaWriter.png?raw=true) Formula Writer
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/estimatedmodelwriter/FittedModelWriter.png?raw=true) Model Writer
-    + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/pmfwriter/fsk/SBMLWriter.png?raw=true) PMFX Writer
-    + SedML Writer
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/xlstimeseriesreader/XLSMicrobialDataReader.png) XLS Data Reader
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/xlsmodelreader/XLSPrimaryModelReader.png) XLS Model Reader
+- ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/SelectionAndViews.png) Selectors & Viewers
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/dataviewandselect/MicrobialDataSelection.png?raw=true) Data Selection
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/fittedparameterview/FittedParameterView.png?raw=true) Fitted Parameter View
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/predictorview/PredictorView.png?raw=true) Predictor View
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/js/modelplotter/modern/PredictorView.png?raw=true) Predictor View JS (deprecated)
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/primarymodelviewandselect/ModelSelectionPrimary.png?raw=true) Primary Model Selection
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/secondarymodelanddataview/ModelViewSecondary.png?raw=true) Secondary Model View
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/secondarypredictorview/SecondaryPredictorView.png?raw=true) Secondary Predictor View
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelselectiontertiary/ModelSelectionTertiary.png?raw=true) Tertiary Model Selection
+- ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Writer.png) Writers
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/combaseio/ComBaseWriter.png?raw=true) ComBase Writer
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/timeserieswriter/MicrobialDataWriter.png?raw=true) Data Writer
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/modelcatalogwriter/ModelFormulaWriter.png?raw=true) Formula Writer
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/estimatedmodelwriter/FittedModelWriter.png?raw=true) Model Writer
+    + ![](de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/pmfwriter/fsk/SBMLWriter.png?raw=true) PMFX Writer
 
 ## Eclipse plugin projects:
 - *com.jgoodies*

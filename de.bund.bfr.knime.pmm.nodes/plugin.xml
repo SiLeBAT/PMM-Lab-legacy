@@ -313,7 +313,7 @@
       <webDependency webResourceBundleID="select2" />
 	  <webDependency webResourceBundleID="toastr" />
       <webDependency webResourceBundleID="jsep" />
-	  <webDependency webResourceBundleID="jquery" />
+	  <webDependency webResourceBundleID="jQuery_2.1.4" />
       <webDependency webResourceBundleID="bootstrap_3.3.6" />
 	  <webDependency webResourceBundleID="bootstrap-table" />
 	  <webDependency webResourceBundleID="bootstrap-editable" />
@@ -337,7 +337,7 @@
          relativePath="de/bund/bfr/knime/pmm/select2/select2.css"
          type="CSS">
        </importResource>
-       <webDependency webResourceBundleID="jquery" />
+       <webDependency webResourceBundleID="jQuery_2.1.4" />
      </webResourceBundle>
      
      <webResourceBundle debug="true" name="toastr" version="1.0.0"
@@ -358,7 +358,7 @@
          relativePath="de/bund/bfr/knime/pmm/toastr/toastr.css"
          type="CSS">
        </importResource>
-       <webDependency webResourceBundleID="jquery" />
+       <webDependency webResourceBundleID="jQuery_2.1.4" />
      </webResourceBundle>
       
 	 <webResourceBundle debug="true" name="jsep" version="1.0.0"
@@ -373,19 +373,6 @@
        </importResource>
      </webResourceBundle>
 
-      <!-- TODO: replace with org.knime.js.core dep -->
-     <webResourceBundle debug="true" name="jquery" version="2.1.4"
-       webResourceBundleID="jquery">
-         <webResource
-           relativePathSource="js-src/de/bund/bfr/knime/pmm/jquery/jquery.js"
-           relativePathTarget="de/bund/bfr/knime/pmm/jquery/jquery.js">
-         </webResource>
-         <importResource
-           relativePath="de/bund/bfr/knime/pmm/jquery/jquery.js"
-           type="JAVASCRIPT">
-         </importResource>
-      </webResourceBundle>
-      
       <webResourceBundle debug="true" name="bootstrap-table" version="1.8.1"
          webResourceBundleID="bootstrap-table">
          <webResource

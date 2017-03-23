@@ -174,37 +174,6 @@
   
   
   <extension point="org.knime.js.core.webResources">
-    <!-- mathjs (debug) -->
-    <webResourceBundle
-      debug="true"
-      name="Math JS"
-      version="3.10.0"
-      webResourceBundleID="mathjs_3.10.0_Debug">
-      <webResource
-        relativePathSource="js-lib/mathjs/3_10_0/debug/"
-        relativePathTarget="js-lib/mathjs/3_10_0/debug/">
-      </webResource>
-      <importResource
-        relativePath="js-lib/mathjs/3_10_0/debug/js/math.js"
-        type="JAVASCRIPT">
-      </importResource>
-    </webResourceBundle>
-
-    <!-- mathjs (min) -->
-    <webResourceBundle
-      debug="false"
-      name="Math JS"
-      version="3.10.0"
-      webResourceBundleID="mathjs_3.10.0">
-      <webResource
-        relativePathSource="js-lib/mathjs/3_10_0/min/"
-        relativePathTarget="js-lib/mathjs/3_10_0/min/">
-      </webResource>
-      <importResource
-        relativePath="js-lib/mathjs/3_10_0/min/js/math.js"
-        type="JAVASCRIPT">
-      </importResource>
-    </webResourceBundle>
     
     <webResourceBundle debug="true" name="Function Plot" version="1.0.0"
       webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.function-plot">
@@ -280,54 +249,33 @@
     </webResourceBundle>
     
     <!-- for depricated node -->
-    <webResourceBundle debug="true" name="JSX Graph" version="1.0.0"
-      webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph">
-      <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js"
-        relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js">
-      </webResource>
-      <importResource
-        relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraphcore.js"
-        type="JAVASCRIPT">
-      </importResource>
-      <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
-        relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css">
-      </webResource>
-      <importResource
-        relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
-        type="CSS">
-      </importResource>
-      <webDependency webResourceBundleID="mathjs_3.10.0" />
-    </webResourceBundle>
-    
     <webResourceBundle debug="true" name="Model Plotter" version="1.0.0"
       webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.bundle">
       <webResource
         relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
         relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js">
       </webResource>
-      <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jsxgraph" />
-        <importResource
-          relativePath="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
-          type="JAVASCRIPT">
-        </importResource>
-      </webResourceBundle>
+      <webDependency webResourceBundleID="jsxgraph_0.99.3" />
+      <importResource
+        relativePath="de/bund/bfr/knime/pmm/js/modelplotter/knime-model-plotter.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
    
-    <webResourceBundle debug="true" name="JavaScript Editor" usesDefine="false" version="1.0.0"
+    <webResourceBundle
+      debug="true"
+      name="JavaScript Editor"
+      usesDefine="false"
+      version="1.0.0"
       webResourceBundleID="de.bund.bfr.knime.pmm.editor.bundle">
       <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/editor/editor.js"
-        relativePathTarget="de/bund/bfr/knime/pmm/editor/editor.js">
+        relativePathSource="js-src/de/bund/bfr/knime/pmm/editor/"
+        relativePathTarget="de/bund/bfr/knime/pmm/editor/">
       </webResource>
       <importResource
         relativePath="de/bund/bfr/knime/pmm/editor/editor.js"
         type="JAVASCRIPT">
       </importResource>
-      <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/editor/editor.css"
-        relativePathTarget="de/bund/bfr/knime/pmm/editor/editor.css">
-      </webResource>
       <importResource
         relativePath="de/bund/bfr/knime/pmm/editor/editor.css"
         type="CSS">
@@ -521,6 +469,57 @@
         type="JAVASCRIPT">
       </importResource>
       <webDependency webResourceBundleID="jQuery_2.1.4" />
+    </webResourceBundle>
+
+    <!-- mathjs (debug) -->
+    <webResourceBundle
+      debug="true"
+      name="Math JS"
+      version="3.10.0"
+      webResourceBundleID="mathjs_3.10.0_Debug">
+      <webResource
+        relativePathSource="js-lib/mathjs/3_10_0/debug/"
+        relativePathTarget="js-lib/mathjs/3_10_0/debug/">
+      </webResource>
+      <importResource
+        relativePath="js-lib/mathjs/3_10_0/debug/js/math.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
+
+    <!-- mathjs (min) -->
+    <webResourceBundle
+      debug="false"
+      name="Math JS"
+      version="3.10.0"
+      webResourceBundleID="mathjs_3.10.0">
+      <webResource
+        relativePathSource="js-lib/mathjs/3_10_0/min/"
+        relativePathTarget="js-lib/mathjs/3_10_0/min/">
+      </webResource>
+      <importResource
+        relativePath="js-lib/mathjs/3_10_0/min/js/math.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
+    
+    <!-- jsxgraph (min) -->
+    <webResourceBundle
+      debug="false"
+      name="jsxgraph 0.99.3"
+      usesDefine="false"
+      version="0.99.3"
+      webResourceBundleID="jsxgraph_0.99.3">
+      <webResource relativePathSource="js-lib/jsxgraph/0_99_3/min/" />
+      <importResource
+        relativePath="js-lib/jsxgraph/0_99_3/min/css/jsxgraph.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/jsxgraph/0_99_3/min/js/jsxgraphcore.js"
+        type="JAVASCRIPT">
+      </importResource>
+      <webDependency webResourceBundleID="mathjs_3.10.0" />
     </webResourceBundle>
   </extension>
 </plugin>

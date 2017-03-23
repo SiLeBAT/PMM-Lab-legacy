@@ -311,7 +311,7 @@
         type="CSS">
       </importResource>
       <webDependency webResourceBundleID="select2_4.0.3" />
-	  <webDependency webResourceBundleID="toastr" />
+	  <webDependency webResourceBundleID="toastr_2.1.3" />
       <webDependency webResourceBundleID="jsep_0.3.1" />
 	  <webDependency webResourceBundleID="jQuery_2.1.4" />
       <webDependency webResourceBundleID="bootstrap_3.3.6" />
@@ -319,27 +319,6 @@
 	  <webDependency webResourceBundleID="bootstrap-editable_1.5.1" />
     </webResourceBundle>
     
-     <webResourceBundle debug="true" name="toastr" version="1.0.0"
-       webResourceBundleID="toastr">
-       <webResource
-         relativePathSource="js-src/de/bund/bfr/knime/pmm/toastr/toastr.js"
-         relativePathTarget="de/bund/bfr/knime/pmm/toastr/toastr.js">
-       </webResource>
-       <importResource
-         relativePath="de/bund/bfr/knime/pmm/toastr/toastr.js"
-         type="JAVASCRIPT">
-       </importResource>
-       <webResource
-         relativePathSource="js-src/de/bund/bfr/knime/pmm/toastr/toastr.css"
-         relativePathTarget="de/bund/bfr/knime/pmm/toastr/toastr.css">
-       </webResource>
-       <importResource
-         relativePath="de/bund/bfr/knime/pmm/toastr/toastr.css"
-         type="CSS">
-       </importResource>
-       <webDependency webResourceBundleID="jQuery_2.1.4" />
-     </webResourceBundle>
-
     <!-- bootstrap-editable (DEBUG) -->
     <webResourceBundle
       debug="true"
@@ -357,6 +336,7 @@
         relativePath="js-lib/bootstrap-editable/1_5_1/debug/bootstrap-editable.js"
         type="JAVASCRIPT">
       </importResource>
+      <webDependency webResourceBundleID="bootstrap_3.3.6_Debug" />
     </webResourceBundle>
       
     <!-- bootstrap-editable (MIN) -->
@@ -376,6 +356,7 @@
         relativePath="js-lib/bootstrap-editable/1_5_1/min/bootstrap-editable.js"
         type="JAVASCRIPT">
       </importResource>
+      <webDependency webResourceBundleID="bootstrap_3.3.6" />
     </webResourceBundle>
       
     <!-- bootstrap-table (DEBUG) -->
@@ -477,6 +458,44 @@
       </importResource>
       <importResource
         relativePath="js-lib/select2/4_0_3/min/js/select2.js"
+        type="JAVASCRIPT">
+      </importResource>
+      <webDependency webResourceBundleID="jQuery_2.1.4" />
+    </webResourceBundle>
+    
+    <!-- toastr (DEBUG) -->
+    <webResourceBundle
+      debug="true"
+      name="toastr 2.1.3"
+      usesDefine="false"
+      version="2.1.3"
+      webResourceBundleID="toastr_2.1.3_Debug">
+      <webResource relativePathSource="js-lib/toastr/2_1_3/debug/" />
+      <importResource
+        relativePath="js-lib/toastr/2_1_3/debug/css/toastr.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/toastr/2_1_3/debug/js/toastr.js"
+        type="JAVASCRIPT">
+      </importResource>
+      <webDependency webResourceBundleID="jQuery_2.1.4_Debug" />
+    </webResourceBundle>
+    
+    <!-- toastr (MIN) -->
+    <webResourceBundle
+      debug="false"
+      name="toastr 2.1.3"
+      usesDefine="false"
+      version="2.1.3"
+      webResourceBundleID="toastr_2.1.3">
+      <webResource relativePathSource="js-lib/toastr/2_1_3/min/" />
+      <importResource
+        relativePath="js-lib/toastr/2_1_3/min/css/toastr.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/toastr/2_1_3/min/js/toastr.js"
         type="JAVASCRIPT">
       </importResource>
       <webDependency webResourceBundleID="jQuery_2.1.4" />

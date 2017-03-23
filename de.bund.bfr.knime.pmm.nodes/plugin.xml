@@ -236,7 +236,6 @@
         relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.theme.css"
         type="CSS">
       </importResource>
-      <!--<webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery" />-->
       <webDependency webResourceBundleID="jQuery_1.11.0" />
       <webResource
         relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/images/"
@@ -315,9 +314,9 @@
 	  <webDependency webResourceBundleID="toastr" />
       <webDependency webResourceBundleID="jsep" />
 	  <webDependency webResourceBundleID="jquery" />
-      <webDependency webResourceBundleID="boostrap" />
-	  <webDependency webResourceBundleID="boostrap-table" />
-	  <webDependency webResourceBundleID="boostrap-editable" />
+      <webDependency webResourceBundleID="bootstrap_3.3.6" />
+	  <webDependency webResourceBundleID="bootstrap-table" />
+	  <webDependency webResourceBundleID="bootstrap-editable" />
     </webResourceBundle>
     
      <webResourceBundle debug="true" name="select2" version="4.0.0"
@@ -387,30 +386,8 @@
          </importResource>
       </webResourceBundle>
       
-      <!-- TODO: replace with org.knime.js.core dep -->
-      <webResourceBundle debug="true" name="boostrap" version="3.3.5"
-        webResourceBundleID="boostrap">
-        <webResource
-          relativePathSource="js-src/de/bund/bfr/knime/pmm/bootstrap/bootstrap.js"
-          relativePathTarget="de/bund/bfr/knime/pmm/bootstrap/bootstrap.js">
-        </webResource>
-        <importResource
-          relativePath="de/bund/bfr/knime/pmm/bootstrap/bootstrap.js"
-          type="JAVASCRIPT">
-        </importResource>
-        <webResource
-          relativePathSource="js-src/de/bund/bfr/knime/pmm/bootstrap/bootstrap.css"
-          relativePathTarget="de/bund/bfr/knime/pmm/bootstrap/bootstrap.css">
-        </webResource>
-        <importResource
-          relativePath="de/bund/bfr/knime/pmm/bootstrap/bootstrap.css"
-          type="CSS">
-        </importResource>
-        <webDependency webResourceBundleID="jquery" />
-      </webResourceBundle>
-      
-      <webResourceBundle debug="true" name="boostrap-table" version="1.8.1"
-         webResourceBundleID="boostrap-table">
+      <webResourceBundle debug="true" name="bootstrap-table" version="1.8.1"
+         webResourceBundleID="bootstrap-table">
          <webResource
            relativePathSource="js-src/de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.js"
            relativePathTarget="de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.js">
@@ -427,11 +404,11 @@
            relativePath="de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.css"
            type="CSS">
          </importResource>
-         <webDependency webResourceBundleID="boostrap" />
+         <webDependency webResourceBundleID="bootstrap_3.3.6" />
       </webResourceBundle>
       
-      <webResourceBundle debug="true" name="boostrap-editable" version="1.5.1 "
-         webResourceBundleID="boostrap-editable">
+      <webResourceBundle debug="true" name="bootstrap-editable" version="1.5.1 "
+         webResourceBundleID="bootstrap-editable">
          <webResource
            relativePathSource="js-src/de/bund/bfr/knime/pmm/bootstrap-editable/bootstrap-editable.js"
            relativePathTarget="de/bund/bfr/knime/pmm/bootstrap-editable/bootstrap-editable.js">
@@ -448,7 +425,7 @@
            relativePath="de/bund/bfr/knime/pmm/bootstrap-editable/bootstrap-editable.css"
            type="CSS">
          </importResource>
-         <webDependency webResourceBundleID="boostrap" />
+         <webDependency webResourceBundleID="bootstrap_3.3.6" />
       </webResourceBundle>
   </extension>
 </plugin>

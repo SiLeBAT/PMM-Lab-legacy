@@ -11,7 +11,7 @@ It consists of three components:
 FSK-Lab may be installed throught the update site [https://dl.bintray.com/silebat/pmmlab]. More information about the installation can be found at the [Food Risk Labs website](https://foodrisklabs.bfr.bund.de/index.php/pmm-lab-installation/)
 
 ## Extension nodes
-- ![](https://raw.githubusercontent.com/SiLeBAT/PMM-Lab/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/XMLToTable.png) Converters
+- ![](de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/XMLToTable.png) Converters
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/XMLToTable.png?raw=true) XML To Table
 - ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.bfrdbiface.lib/icons/Editors.png?raw=true) Editors
     + ![](https://github.com/SiLeBAT/PMM-Lab/blob/master/de.bund.bfr.knime.pmm.nodes/src/de/bund/bfr/knime/pmm/dbdelete/FittedModelDeleter.png?raw=true) DB Data Deleter

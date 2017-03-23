@@ -312,7 +312,7 @@
       </importResource>
       <webDependency webResourceBundleID="select2" />
 	  <webDependency webResourceBundleID="toastr" />
-      <webDependency webResourceBundleID="jsep" />
+      <webDependency webResourceBundleID="jsep_0.3.1" />
 	  <webDependency webResourceBundleID="jQuery_2.1.4" />
       <webDependency webResourceBundleID="bootstrap_3.3.6" />
 	  <webDependency webResourceBundleID="bootstrap-table_1.11.1" />
@@ -359,18 +359,6 @@
          type="CSS">
        </importResource>
        <webDependency webResourceBundleID="jQuery_2.1.4" />
-     </webResourceBundle>
-      
-	 <webResourceBundle debug="true" name="jsep" version="1.0.0"
-	   webResourceBundleID="jsep">
-	   <webResource
-	     relativePathSource="js-src/de/bund/bfr/knime/pmm/jsep/jsep.js"
-	     relativePathTarget="de/bund/bfr/knime/pmm/jsep/jsep.js">
-	   </webResource>
-	   <importResource
-	     relativePath="de/bund/bfr/knime/pmm/jsep/jsep.js"
-	     type="JAVASCRIPT">
-       </importResource>
      </webResourceBundle>
 
     <!-- bootstrap-editable (DEBUG) -->
@@ -446,5 +434,34 @@
         type="JAVASCRIPT">
       </importResource>
     </webResourceBundle>
+    
+    <!-- jsep (DEBUG) -->
+    <webResourceBundle
+      debug="true"
+      name="jsep 0.3.1"
+      usesDefine="false"
+      version="0.3.1"
+      webResourceBundleID="jsep_0.3.1_Debug">
+      <webResource relativePathSource="js-lib/jsep/0_3_1/debug" />
+      <importResource
+        relativePath="js-lib/jsep/0_3_1/debug/js/jsep.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
+    
+    <!-- jsep (MIN) -->
+    <webResourceBundle
+      debug="false"
+      name="jsep 0.3.1"
+      usesDefine="false"
+      version="0.3.1"
+      webResourceBundleID="jsep_0.3.1">
+      <webResource relativePathSource="js-lib/jsep/0_3_1/min" />
+      <importResource
+        relativePath="js-lib/jsep/0_3_1/min/js/jsep.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
+
   </extension>
 </plugin>

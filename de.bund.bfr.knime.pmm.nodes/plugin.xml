@@ -315,7 +315,7 @@
       <webDependency webResourceBundleID="jsep" />
 	  <webDependency webResourceBundleID="jQuery_2.1.4" />
       <webDependency webResourceBundleID="bootstrap_3.3.6" />
-	  <webDependency webResourceBundleID="bootstrap-table" />
+	  <webDependency webResourceBundleID="bootstrap-table_1.11.1" />
 	  <webDependency webResourceBundleID="bootstrap-editable_1.5.1" />
     </webResourceBundle>
     
@@ -373,63 +373,78 @@
        </importResource>
      </webResourceBundle>
 
-      <webResourceBundle debug="true" name="bootstrap-table" version="1.8.1"
-         webResourceBundleID="bootstrap-table">
-         <webResource
-           relativePathSource="js-src/de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.js"
-           relativePathTarget="de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.js">
-         </webResource>
-         <importResource
-           relativePath="de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.js"
-           type="JAVASCRIPT">
-         </importResource>
-         <webResource
-           relativePathSource="js-src/de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.css"
-           relativePathTarget="de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.css">
-         </webResource>
-         <importResource
-           relativePath="de/bund/bfr/knime/pmm/bootstrap-table/bootstrap-table.css"
-           type="CSS">
-         </importResource>
-         <webDependency webResourceBundleID="bootstrap_3.3.6" />
-      </webResourceBundle>
+    <!-- bootstrap-editable (DEBUG) -->
+    <webResourceBundle
+      debug="true"
+      name="bootstrap-editable 1.5.1"
+      usesDefine="false"
+      version="1.5.1"
+      webResourceBundleID="bootstrap-editable_1.5.1_Debug">
+      <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/debug/" />
+      <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/img" />
+      <importResource
+        relativePath="js-lib/bootstrap-editable/1_5_1/debug/bootstrap-editable.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/bootstrap-editable/1_5_1/debug/bootstrap-editable.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
       
-      <!-- bootstrap-editable (DEBUG) -->
-      <webResourceBundle
-        debug="true"
-        name="bootstrap-editable 1.5.1"
-        usesDefine="false"
-        version="1.5.1"
-        webResourceBundleID="bootstrap-editable_1.5.1_Debug">
-        <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/debug/" />
-        <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/img" />
-        <importResource
-          relativePath="js-lib/bootstrap-editable/1_5_1/debug/bootstrap-editable.css"
-          type="CSS">
-        </importResource>
-        <importResource
-          relativePath="js-lib/bootstrap-editable/1_5_1/debug/bootstrap-editable.js"
-          type="JAVASCRIPT">
-        </importResource>
-      </webResourceBundle>
+    <!-- bootstrap-editable (MIN) -->
+    <webResourceBundle
+      debug="false"
+      name="bootstrap-editable 1.5.1"
+      usesDefine="false"
+      version="1.5.1"
+      webResourceBundleID="bootstrap-editable_1.5.1">
+      <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/min" />
+      <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/img" />
+      <importResource
+        relativePath="js-lib/bootstrap-editable/1_5_1/min/bootstrap-editable.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/bootstrap-editable/1_5_1/min/bootstrap-editable.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
       
-      <!-- bootstrap-editable (MIN) -->
-      <webResourceBundle
-        debug="false"
-        name="bootstrap-editable 1.5.1"
-        usesDefine="false"
-        version="1.5.1"
-        webResourceBundleID="bootstrap-editable_1.5.1">
-        <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/min" />
-        <webResource relativePathSource="js-lib/bootstrap-editable/1_5_1/img" />
-        <importResource
-          relativePath="js-lib/bootstrap-editable/1_5_1/min/bootstrap-editable.css"
-          type="CSS">
-        </importResource>
-        <importResource
-          relativePath="js-lib/bootstrap-editable/1_5_1/min/bootstrap-editable.js"
-          type="JAVASCRIPT">
-        </importResource>
-      </webResourceBundle>
+    <!-- bootstrap-table (DEBUG) -->
+    <webResourceBundle
+      debug="true"
+      name="bootstrap-table 1.11.1"
+      usesDefine="false"
+      version="1.11.1"
+      webResourceBundleID="bootstrap-table_1.11.1_Debug">
+      <webResource relativePathSource="js-lib/bootstrap-table/1_11_1/debug" />
+      <importResource
+        relativePath="js-lib/bootstrap-table/1_11_1/debug/css/bootstrap-table.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/bootstrap-table/1_11_1/debug/js/bootstrap-table.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
+      
+    <!-- bootstrap-table (MIN) -->
+    <webResourceBundle
+      debug="false"
+      name="bootstrap-table 1.11.1"
+      usesDefine="false"
+      version="1.11.1"
+      webResourceBundleID="bootstrap-table_1.11.1">
+      <webResource relativePathSource="js-lib/bootstrap-table/1_11_1/min" />
+      <importResource
+        relativePath="js-lib/bootstrap-table/1_11_1/min/css/bootstrap-table.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/bootstrap-table/1_11_1/min/js/bootstrap-table.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
   </extension>
 </plugin>

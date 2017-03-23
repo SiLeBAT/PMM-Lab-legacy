@@ -236,24 +236,12 @@
         relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery-ui.theme.css"
         type="CSS">
       </importResource>
-      <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery" />
+      <!--<webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery" />-->
+      <webDependency webResourceBundleID="jQuery_1.11.0" />
       <webResource
         relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/images/"
         relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/images/">
       </webResource>
-    </webResourceBundle>
-    
-    <!-- TODO: Replace with org.knime.js.core jQuery bundle -->
-    <webResourceBundle debug="true" name="jQuery" version="1.0.0"
-      webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.jquery">
-      <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/jquery.js"
-        relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/jquery.js">
-      </webResource>
-      <importResource
-        relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jquery.js"
-        type="JAVASCRIPT">
-      </importResource>
     </webResourceBundle>
     
     <webResourceBundle debug="true" name="PMM Plotter" version="1.0.0"

@@ -174,14 +174,36 @@
   
   
   <extension point="org.knime.js.core.webResources">
-    <webResourceBundle debug="true" name="Math JS" version="1.0.0"
-      webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs">
+    <!-- mathjs (debug) -->
+    <webResourceBundle
+      debug="true"
+      name="Math JS"
+      version="3.10.0"
+      webResourceBundleID="mathjs_3.10.0_Debug">
       <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/math.js"
-        relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/math.js" />
+        relativePathSource="js-lib/mathjs/3_10_0/debug/"
+        relativePathTarget="js-lib/mathjs/3_10_0/debug/">
+      </webResource>
       <importResource
-        relativePath="de/bund/bfr/knime/pmm/js/modelplotter/math.js"
-        type="JAVASCRIPT" />
+        relativePath="js-lib/mathjs/3_10_0/debug/js/math.js"
+        type="JAVASCRIPT">
+      </importResource>
+    </webResourceBundle>
+
+    <!-- mathjs (min) -->
+    <webResourceBundle
+      debug="false"
+      name="Math JS"
+      version="3.10.0"
+      webResourceBundleID="mathjs_3.10.0">
+      <webResource
+        relativePathSource="js-lib/mathjs/3_10_0/min/"
+        relativePathTarget="js-lib/mathjs/3_10_0/min/">
+      </webResource>
+      <importResource
+        relativePath="js-lib/mathjs/3_10_0/min/js/math.js"
+        type="JAVASCRIPT">
+      </importResource>
     </webResourceBundle>
     
     <webResourceBundle debug="true" name="Function Plot" version="1.0.0"
@@ -194,7 +216,7 @@
         relativePath="de/bund/bfr/knime/pmm/js/modelplotter/function-plot.js"
         type="JAVASCRIPT" />
       <webDependency webResourceBundleID="D3_3.5.5" />
-      <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs" />
+      <webDependency webResourceBundleID="mathjs_3.10.0" />
     </webResourceBundle>
     
     <!-- TODO:
@@ -276,7 +298,7 @@
         relativePath="de/bund/bfr/knime/pmm/js/modelplotter/jsxgraph.css"
         type="CSS">
       </importResource>
-      <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs" />
+      <webDependency webResourceBundleID="mathjs_3.10.0" />
     </webResourceBundle>
     
     <webResourceBundle debug="true" name="Model Plotter" version="1.0.0"

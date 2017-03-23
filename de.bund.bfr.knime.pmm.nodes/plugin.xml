@@ -193,19 +193,8 @@
       <importResource
         relativePath="de/bund/bfr/knime/pmm/js/modelplotter/function-plot.js"
         type="JAVASCRIPT" />
-      <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3" />
+      <webDependency webResourceBundleID="D3_3.5.5" />
       <webDependency webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.mathjs" />
-    </webResourceBundle>
-    
-    <!-- TODO: Replace with dependency from org.knime.js.core D3_3.2.8 -->
-    <webResourceBundle debug="true" name="d3" version="1.0.0"
-      webResourceBundleID="de.bund.bfr.knime.pmm.js.modelplotter.d3">
-      <webResource
-        relativePathSource="js-src/de/bund/bfr/knime/pmm/js/modelplotter/d3.js"
-        relativePathTarget="de/bund/bfr/knime/pmm/js/modelplotter/d3.js" />
-      <importResource
-        relativePath="de/bund/bfr/knime/pmm/js/modelplotter/d3.js"
-        type="JAVASCRIPT" />
     </webResourceBundle>
     
     <!-- TODO:

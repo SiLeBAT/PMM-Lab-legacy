@@ -310,7 +310,7 @@
         relativePath="de/bund/bfr/knime/pmm/editor/editor.css"
         type="CSS">
       </importResource>
-      <webDependency webResourceBundleID="select2" />
+      <webDependency webResourceBundleID="select2_4.0.3" />
 	  <webDependency webResourceBundleID="toastr" />
       <webDependency webResourceBundleID="jsep_0.3.1" />
 	  <webDependency webResourceBundleID="jQuery_2.1.4" />
@@ -319,27 +319,6 @@
 	  <webDependency webResourceBundleID="bootstrap-editable_1.5.1" />
     </webResourceBundle>
     
-     <webResourceBundle debug="true" name="select2" version="4.0.0"
-       webResourceBundleID="select2">
-       <webResource
-         relativePathSource="js-src/de/bund/bfr/knime/pmm/select2/select2.js"
-         relativePathTarget="de/bund/bfr/knime/pmm/select2/select2.js">
-       </webResource>
-       <importResource
-         relativePath="de/bund/bfr/knime/pmm/select2/select2.js"
-         type="JAVASCRIPT">
-       </importResource>
-       <webResource
-         relativePathSource="js-src/de/bund/bfr/knime/pmm/select2/select2.css"
-         relativePathTarget="de/bund/bfr/knime/pmm/select2/select2.css">
-       </webResource>
-       <importResource
-         relativePath="de/bund/bfr/knime/pmm/select2/select2.css"
-         type="CSS">
-       </importResource>
-       <webDependency webResourceBundleID="jQuery_2.1.4" />
-     </webResourceBundle>
-     
      <webResourceBundle debug="true" name="toastr" version="1.0.0"
        webResourceBundleID="toastr">
        <webResource
@@ -463,5 +442,42 @@
       </importResource>
     </webResourceBundle>
 
+    <!-- select2 (DEBUG) -->
+    <webResourceBundle
+      debug="true"
+      name="select2 4.0.3"
+      usesDefine="false"
+      version="4.0.3"
+      webResourceBundleID="select2_4.0.3_Debug">
+      <webResource relativePathSource="js-lib/select2/4_0_3/debug/" />
+      <importResource
+        relativePath="js-lib/select2/4_0_3/debug/css/select2.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/select2/4_0_3/debug/js/select2.js"
+        type="JAVASCRIPT">
+      </importResource>
+      <webDependency webResourceBundleID="jQuery_2.1.4_Debug" />
+    </webResourceBundle>
+    
+    <!-- select2 (MIN) -->
+    <webResourceBundle
+      debug="false"
+      name="select2 4.0.3"
+      usesDefine="false"
+      version="4.0.3"
+      webResourceBundleID="select2_4.0.3">
+      <webResource relativePathSource="js-lib/select2/4_0_3/min/" />
+      <importResource
+        relativePath="js-lib/select2/4_0_3/min/css/select2.css"
+        type="CSS">
+      </importResource>
+      <importResource
+        relativePath="js-lib/select2/4_0_3/min/js/select2.js"
+        type="JAVASCRIPT">
+      </importResource>
+      <webDependency webResourceBundleID="jQuery_2.1.4" />
+    </webResourceBundle>
   </extension>
 </plugin>

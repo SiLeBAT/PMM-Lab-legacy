@@ -146,9 +146,9 @@
       getComponentValue-method-name="getComponentValue"
       implementationBundleID="de.bund.bfr.knime.pmm.js.modelplotter.modern.bundle"
       init-method-name="init"
-      javascriptComponentID="de.bund.bfr.knime.pmm.js.modelplotter"
-      name="Model Plotter (deprecated)"
-      namespace="bfr_model_plotter"
+      javascriptComponentID="de.bund.bfr.knime.pmm.js.modelplotter.modern"
+      name="Model Plotter"
+      namespace="pmm_plotter"
       setValidationError-method-name="setValidationError"
       validate-method-name="validate" />
 

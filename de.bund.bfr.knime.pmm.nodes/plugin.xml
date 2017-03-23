@@ -394,6 +394,7 @@
         relativePath="js-lib/bootstrap-table/1_11_1/debug/js/bootstrap-table.js"
         type="JAVASCRIPT">
       </importResource>
+      <webDependency webResourceBundleID="bootstrap_3.3.6_Debug" />
     </webResourceBundle>
       
     <!-- bootstrap-table (MIN) -->
@@ -412,6 +413,7 @@
         relativePath="js-lib/bootstrap-table/1_11_1/min/js/bootstrap-table.js"
         type="JAVASCRIPT">
       </importResource>
+      <webDependency webResourceBundleID="bootstrap_3.3.6" />
     </webResourceBundle>
     
     <!-- jsep (DEBUG) -->

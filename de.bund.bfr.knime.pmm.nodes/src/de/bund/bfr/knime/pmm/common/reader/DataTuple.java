@@ -1,7 +1,9 @@
 package de.bund.bfr.knime.pmm.common.reader;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
@@ -34,7 +36,7 @@ import de.bund.bfr.pmfml.sbml.SBMLFactory;
 public class DataTuple {
 
 	public KnimeTuple knimeTuple;
-	
+
 	// time series schema
 	private static KnimeSchema schema = SchemaFactory.createDataSchema();
 
@@ -88,13 +90,11 @@ public class DataTuple {
 		ModelVariable[] modelVariables = compartment.getModelVariables();
 		PmmXmlDoc miscDoc;
 		if (modelVariables == null) {
-		  miscDoc = new PmmXmlDoc();
+			miscDoc = new PmmXmlDoc();
 		} else {
-		  Map<String, Double> miscs = new HashMap<>(modelVariables.length);
-	        for (ModelVariable modelVariable : modelVariables) {
-	            miscs.put(modelVariable.getName(), modelVariable.getValue());
-	        }
-	        miscDoc = ReaderUtils.parseMiscs(miscs);  
+			Map<String, Double> miscs = Arrays.stream(modelVariables)
+					.collect(Collectors.toMap(ModelVariable::getName, ModelVariable::getValue));
+			miscDoc = ReaderUtils.parseMiscs(miscs);
 		}
 
 		// Creates empty model info

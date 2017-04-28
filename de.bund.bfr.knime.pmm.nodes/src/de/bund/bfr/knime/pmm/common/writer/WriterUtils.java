@@ -1017,10 +1017,11 @@ public class WriterUtils {
 
 			// Parse tertiary models
 			for (Map<Integer, List<KnimeTuple>> tertiaryInstances : gms.values()) {
-				List<List<KnimeTuple>> tuplesList = new LinkedList<>();
-				for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
-					tuplesList.add(tertiaryInstance);
-				}
+//				List<List<KnimeTuple>> tuplesList = new LinkedList<>();
+//				for (List<KnimeTuple> tertiaryInstance : tertiaryInstances.values()) {
+//					tuplesList.add(tertiaryInstance);
+//				}
+				List<List<KnimeTuple>> tuplesList = new LinkedList<>(tertiaryInstances.values());
 				/**
 				 * We have a list of tertiary instances. Each instance has the
 				 * same microbial data yet different data. Then we'll create a

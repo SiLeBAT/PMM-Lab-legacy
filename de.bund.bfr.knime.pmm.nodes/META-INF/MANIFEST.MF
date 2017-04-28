@@ -24,7 +24,8 @@ Require-Bundle: com.fasterxml.jackson.core.jackson-annotations,
  org.apache.log4j,
  com.google.guava,
  org.junit,
- de.bund.bfr.formats
+ de.bund.bfr.formats,
+ org.apache.commons.lang3
 Export-Package: de.bund.bfr.knime.pmm.combaseio,
  de.bund.bfr.knime.pmm.dataviewandselect,
  de.bund.bfr.knime.pmm.dbdelete,

@@ -1,7 +1,6 @@
 package de.bund.bfr.knime.pmm.common.reader;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -168,10 +167,8 @@ public class DataTuple {
 
 		PmmXmlDoc miscCell = new PmmXmlDoc();
 		if (compartment.isSetModelVariables()) {
-			Map<String, Double> miscs = new HashMap<>(compartment.getModelVariables().length);
-			for (ModelVariable modelVariable : compartment.getModelVariables()) {
-				miscs.put(modelVariable.getName(), modelVariable.getValue());
-			}
+			Map<String, Double> miscs = Arrays.stream(compartment.getModelVariables())
+					.collect(Collectors.toMap(ModelVariable::getName, ModelVariable::getValue));
 			miscCell = ReaderUtils.parseMiscs(miscs);
 		}
 

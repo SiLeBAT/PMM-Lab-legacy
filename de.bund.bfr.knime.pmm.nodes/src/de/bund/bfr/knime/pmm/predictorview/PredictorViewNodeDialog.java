@@ -52,6 +52,8 @@ import org.knime.core.node.NotConfigurableException;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -62,10 +64,12 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 
 /**
  * <code>NodeDialog</code> for the "PredictorView" Node.
@@ -78,6 +82,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		ChartCreator.ZoomListener {
 
 	private List<KnimeTuple> tuples;
+	private Double previousConcValues;
+	private List <ParamXml> startingParams= new ArrayList<ParamXml>();
+	
+
 	private TableReader reader;
 	private SettingsHelper set;
 
@@ -100,6 +108,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel, false);
+		
 		defaultBehaviour = true;
 		removeInvalid = true;
 	}
@@ -126,6 +135,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	public SettingsHelper getSettings() {
+		
 		writeSettingsToVariables();
 		return set;
 	}
@@ -152,7 +162,27 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		try {
 			set = new SettingsHelper();
 			set.loadSettings(settings);
+			if(input.length > 1) {
+				List<KnimeTuple> prePredictuples =  PredictorViewNodeModel.getTuplesData(input[1]);
+				if(prePredictuples!=null) {
+					for(KnimeTuple tuple : prePredictuples) {
+						PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+						TimeSeriesXml timeSeriesXml = (TimeSeriesXml) mdData.get(mdData.size()-1);
+						previousConcValues = timeSeriesXml.getConcentration();
+						
+					}
+				}
+			}
 			tuples = PredictorViewNodeModel.getTuples(input[0]);
+			for(KnimeTuple tuple : tuples) {
+				PmmXmlDoc pmmXmlDoc = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+				List<PmmXmlElementConvertable> PmmXmlElementConvertableList =pmmXmlDoc.getElementSet(); 
+				for(PmmXmlElementConvertable pxml:PmmXmlElementConvertableList) {
+					if(((ParamXml)pxml).isStartParam()) {
+						startingParams.add((ParamXml)pxml);
+					}
+				}
+			}
 			reader = new TableReader(tuples, set.getConcentrationParameters(),
 					set.getLagParameters(), defaultBehaviour);
 			mainComponent = new JPanel();
@@ -250,11 +280,18 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
 				false, "Change Init/Lag Params", true);
+		String concentrationParameters = "";
+		for (String param : set.getConcentrationParameters().keySet()) {
+			concentrationParameters = set.getConcentrationParameters().get(param);
+		}
+		configPanel.setConcentrationParameters(concentrationParameters);
+		configPanel.setPreviousConcValues(previousConcValues);
+		configPanel.setStartingParams(startingParams);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
 
-		if (set.getUnitX() != null) {
+		if (set.getUnitX() != null) { 
 			configPanel.setUnitX(set.getUnitX());
 		} else {
 			configPanel.setUnitX(units.get(AttributeUtilities.TIME));
@@ -373,7 +410,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		for (String id : validIds) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
-
 			if (plotable != null) {
 				try {
 					if (!samplePanel.isInverse()) {
@@ -644,8 +680,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				List<String> params = new ArrayList<>();
 
 				params.add(NO_PARAM);
-				params.addAll(CellIO.getNameList(tuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER)));
+				PmmXmlDoc pmmXmlDoc = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+				params.addAll(CellIO.getNameList(pmmXmlDoc));
 
 				ids.add(id);
 				modelNames.put(id,

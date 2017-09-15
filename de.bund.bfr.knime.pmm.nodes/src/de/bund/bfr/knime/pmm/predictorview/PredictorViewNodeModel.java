@@ -75,12 +75,13 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 public class PredictorViewNodeModel extends NodeModel {
 
 	private SettingsHelper set;
+	
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected PredictorViewNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL}, new PortType[] {
 				BufferedDataTable.TYPE, ImagePortObject.TYPE });
 		set = new SettingsHelper();
 	}
@@ -88,6 +89,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	/**
 	 * {@inheritDoc}
 	 */
+	
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
@@ -185,7 +187,7 @@ public class PredictorViewNodeModel extends NodeModel {
 				.conforms((DataTableSpec) inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input!");
 		}
-
+		
 		return new PortObjectSpec[] {
 				SchemaFactory.createDataSchema().createSpec(),
 				ChartUtilities.getImageSpec(set.isExportAsSvg()) };
@@ -356,6 +358,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	}
 
 	public static List<KnimeTuple> getTuples(DataTable table) {
+		
 		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
 				table);
 		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
@@ -377,6 +380,17 @@ public class PredictorViewNodeModel extends NodeModel {
 						SchemaFactory.createM1Schema());
 			}
 		}
+	}
+public static List<KnimeTuple> getTuplesData(DataTable table) {
+		
+		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
+		if (containsData) {
+			return PmmUtilities.getTuples(table,
+					SchemaFactory.createDataSchema());
+		} else {
+			return null;
+		}
+		
 	}
 
 	protected static Map<String, List<Double>> convertToUnits(

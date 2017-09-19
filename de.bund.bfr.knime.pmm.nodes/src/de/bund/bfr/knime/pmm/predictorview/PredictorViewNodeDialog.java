@@ -167,6 +167,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.loadSettings(settings);
 			if(input.length > 1) {
 				List<KnimeTuple> prePredictuples =  PredictorViewNodeModel.getTuplesData(input[1]);
+				
+
 				if(prePredictuples!=null) {
 					for(KnimeTuple tuple : prePredictuples) {
 						PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
@@ -177,8 +179,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 						
 					}
 				}
+				if(prePredictuples!=null && prePredictuples.size()>1) {
+					if(warnings == null) { 
+						warnings = new ArrayList<String>();
+					}
+					warnings.add("The previous predictor view provided "+prePredictuples.size() +" Models. Only the last one with the value "+previousConcValues+" is considered and here as initial concetration provided");
+				}
 			}
-			tuples = PredictorViewNodeModel.getTuples(input[0]);
+						tuples = PredictorViewNodeModel.getTuples(input[0]);
 			// This code is added to check if formulas (which are being applied in the current Workflow) have somekind of Starting Parameters
 			// if so this snippet of code will add it to the Set as NewConcentrationParameters which will affect the the creation of TableReader at line of TableReader creation
 			// to Include the NewConcentrationParameters
@@ -209,14 +217,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 									
 									Category cat = Categories.getCategoryByUnit(plotable.getUnits()
 											.get(arg));
-									Double newMin = null;
+									Double newInitial = null;
 				
 									try {
-										newMin = cat.convert(previousConcValues,
+										newInitial = cat.convert(previousConcValues,
 												previousConcUnit, unit);
-										if(unit!= null && newMin != null) {
+										if(newInitial != null) {
 											
-											convertedPreConcValues.put(arg, newMin);
+											convertedPreConcValues.put(arg, newInitial);
 											
 											continue plotableLoop;
 										}
@@ -231,6 +239,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(mainComponent);
 			selectionPanel.selectFirstRow();
+			samplePanel.setWarnings(warnings);
 		} catch (ConvertException e) {
 			throw new NotConfigurableException(e.getMessage()
 					+ "\nThis might be due errors in the unit table");
@@ -408,9 +417,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		List<String> validIds = new ArrayList<>(selectedIDs);
 		Set<String> usedParams = new LinkedHashSet<>();
-
-		warnings = new ArrayList<>();
-
+		if(warnings == null) {
+			warnings = new ArrayList<>();
+		}
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
 

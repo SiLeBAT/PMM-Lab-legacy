@@ -51,6 +51,7 @@
     
     <ports>
         <inPort index="0" name="Fitted models">Fitted primary or secondary models and parameters (e.g. from the nodes Model Fitting, Model Reader, XLS Model Reader, Model Creator)</inPort>
+        <inPort index="1" name="Initial concentration">Initial concentration value provided by another Predictive View Node</inPort>
         <outPort index="0" name="Model predictions">Model predictions</outPort>
         <outPort index="1" name="Predictor View graph">Graph showing model predictions; the image is a PNG file (default) or a SVG file (see section 'Display Options')</outPort>
     </ports>    

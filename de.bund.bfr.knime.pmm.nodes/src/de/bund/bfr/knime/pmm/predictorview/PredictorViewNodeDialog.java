@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -83,7 +84,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private List<KnimeTuple> tuples;
 	private Double previousConcValues;
-	private List <ParamXml> startingParams= new ArrayList<ParamXml>();
+	private Map<String,Double> convertedPreConcValues = new HashMap<String,Double>();
+
+	private String previousConcUnit;
 	
 
 	private TableReader reader;
@@ -169,22 +172,59 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 						PmmXmlDoc mdData = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 						TimeSeriesXml timeSeriesXml = (TimeSeriesXml) mdData.get(mdData.size()-1);
 						previousConcValues = timeSeriesXml.getConcentration();
+						previousConcUnit = timeSeriesXml.getConcentrationUnit();
+						
 						
 					}
 				}
 			}
 			tuples = PredictorViewNodeModel.getTuples(input[0]);
+			// This code is added to check if formulas (which are being applied in the current Workflow) have somekind of Starting Parameters
+			// if so this snippet of code will add it to the Set as NewConcentrationParameters which will affect the the creation of TableReader at line of TableReader creation
+			// to Include the NewConcentrationParameters
 			for(KnimeTuple tuple : tuples) {
 				PmmXmlDoc pmmXmlDoc = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 				List<PmmXmlElementConvertable> PmmXmlElementConvertableList =pmmXmlDoc.getElementSet(); 
 				for(PmmXmlElementConvertable pxml:PmmXmlElementConvertableList) {
 					if(((ParamXml)pxml).isStartParam()) {
-						startingParams.add((ParamXml)pxml);
+						set.setSelectedIDs(new ArrayList<String>());
+						set.getConcentrationParameters().put(((CatalogModelXml) tuple.getPmmXml(
+								Model1Schema.ATT_MODELCATALOG).get(0)).getId()
+								+ "", ((ParamXml)pxml).getName());
+						set.setNewConcentrationParameters(set.getConcentrationParameters());
+						
 					}
 				}
 			}
+			convertedPreConcValues.put(previousConcUnit, previousConcValues);
 			reader = new TableReader(tuples, set.getConcentrationParameters(),
 					set.getLagParameters(), defaultBehaviour);
+	        plotableLoop:  for (Plotable plotable : reader.getPlotables().values()) {
+								for (String arg : plotable.getMinArguments().keySet()) {
+									
+									String unit = plotable.getUnits().get(arg);
+									if(unit!=null && unit.equals("h")) {
+										continue;
+									}
+									
+									Category cat = Categories.getCategoryByUnit(plotable.getUnits()
+											.get(arg));
+									Double newMin = null;
+				
+									try {
+										newMin = cat.convert(previousConcValues,
+												previousConcUnit, unit);
+										if(unit!= null && newMin != null) {
+											
+											convertedPreConcValues.put(arg, newMin);
+											
+											continue plotableLoop;
+										}
+									} catch (ConvertException e) {
+										//e.printStackTrace();
+									}
+								}
+							}
 			mainComponent = new JPanel();
 			mainComponent.setLayout(new BorderLayout());
 			mainComponent.add(createMainComponent(), BorderLayout.CENTER);
@@ -285,8 +325,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			concentrationParameters = set.getConcentrationParameters().get(param);
 		}
 		configPanel.setConcentrationParameters(concentrationParameters);
-		configPanel.setPreviousConcValues(previousConcValues);
-		configPanel.setStartingParams(startingParams);
+		configPanel.setPreviousConcValues(convertedPreConcValues);
+		configPanel.setPreviousConcUnit(previousConcUnit);
+		
+		
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -475,12 +517,19 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private void writeSettingsToVariables() {
+		
 		set.setSelectedIDs(selectionPanel.getSelectedIDs());
+		set.setColors(selectionPanel.getColors());
+		set.setShapes(selectionPanel.getShapes());
+		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
+		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
+		
 		set.setParamXValues(configPanel.getParamXValues());
 		set.setTimeValues(samplePanel.getTimeValues());
 		set.setSampleInverse(samplePanel.isInverse());
-		set.setColors(selectionPanel.getColors());
-		set.setShapes(selectionPanel.getShapes());
+		
+		
 		set.setManualRange(configPanel.isUseManualRange());
 		set.setMinX(configPanel.getMinX());
 		set.setMaxX(configPanel.getMaxX());
@@ -496,9 +545,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
-		set.setVisibleColumns(selectionPanel.getVisibleColumns());
-		set.setColumnWidths(selectionPanel.getColumnWidths());
-		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
+		
 
 		set.getSelectedTuples().clear();
 		for (String id : set.getSelectedIDs()) {

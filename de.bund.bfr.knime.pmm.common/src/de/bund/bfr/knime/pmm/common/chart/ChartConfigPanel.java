@@ -34,6 +34,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -117,16 +118,27 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private Set<String> lastVisibleParameters;
 
 	private int type;
-	private Double previousConcValues;
-	private String concentrationParameters;
-	private List <ParamXml> startingParams ;
-	public List<ParamXml> getStartingParams() {
-		return startingParams;
+	private Map<String,Double> previousConcValues = new HashMap<String,Double>();
+	
+	public Map<String, Double> getPreviousConcValues() {
+		return previousConcValues;
 	}
 
-	public void setStartingParams(List<ParamXml> startingParams) {
-		this.startingParams = startingParams;
+	public void setPreviousConcValues(Map<String, Double> previousConcValues) {
+		this.previousConcValues = previousConcValues;
 	}
+
+	private String previousConcUnit;
+	public String getPreviousConcUnit() {
+		return previousConcUnit;
+	}
+
+	public void setPreviousConcUnit(String previousConcUnit) {
+		this.previousConcUnit = previousConcUnit;
+	}
+
+	private String concentrationParameters;
+	
 	public String getConcentrationParameters() {
 		return concentrationParameters;
 	}
@@ -135,13 +147,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		this.concentrationParameters = concentrationParameters;
 	}
 
-	public Double getPreviousConcValues() {
-		return previousConcValues;
-	}
-
-	public void setPreviousConcValues(Double previousConcValues) {
-		this.previousConcValues = previousConcValues;
-	}
+	
 
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval,
 			String extraButtonLabel, boolean varsChangeable) {
@@ -518,10 +524,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			
 			if (type == PARAMETER_FIELDS) {
 				JLabel label = parameterLabels.get(i);
+				
 				DoubleTextField input = parameterFields.get(i);
-				if(param.equals(concentrationParameters)) {
-					input.setValue(previousConcValues);
+				
+				Double value = previousConcValues.get(param);
+				if(value == null && previousConcValues.get(previousConcUnit)!=null) {
+					 value = previousConcValues.get(previousConcUnit);
 				}
+				input.setValue(value);
+				
 				JSlider slider = parameterSliders.get(i);
 
 				parameterValuesPanel
@@ -783,40 +794,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterButtons.clear();
 		parameterLabels.clear();
 		parameterSliders.clear();
-		Set<String> tempList = new HashSet<String>();
-		if(parameterNames.size() == 0) {
-			for(ParamXml paramXml:startingParams) {
-				String paramXmlname = paramXml.getName();
-				tempList.add(paramXmlname);	
-				
-			}
-		}else {
-			
-			for(ParamXml paramXml:startingParams) {
-			
-				boolean exist = false;
-				for(String paramName:parameterNames) {
-					if(paramXml.getName().equals(paramName)) {
-						exist = true;
-					}
-				}
-				if(!exist) {
-					tempList.add(paramXml.getName());
-				}
-			}
-			
-		}
-		if(parametersX.size()>0) {
-			for(String tempItem:tempList) {
-				if(!parametersX.containsKey(tempItem)) {
-					parametersX.put(tempItem, new ArrayList<Double>());
-				}
-			}
-		}else {
-			for(String tempItem:tempList) {
-				parametersX.put(tempItem, new ArrayList<Double>());
-			}
-		}
+		
 		for (String param : parametersX.keySet()) {
 			if (param.equals(xBox.getSelectedItem())) {
 				continue;

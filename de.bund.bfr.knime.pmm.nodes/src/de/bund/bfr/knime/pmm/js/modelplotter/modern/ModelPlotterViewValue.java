@@ -28,7 +28,9 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private String mReportName;
 	private String mSvgPlot;
 	private double y0;
+	private boolean allModelsSelected;
 	
+
 	static final String AUTHORS = "authors";
 	static final String COMMENTS = "comments";
 	static final String REPORT_NAME = "reportName";
@@ -238,5 +240,12 @@ public class ModelPlotterViewValue extends JSONViewContent {
 
 	public void setModelType(MODEL_TYPE modelType) {
 		this.modelType = modelType;
+	}
+	public boolean isAllModelsSelected() {
+		return allModelsSelected;
+	}
+
+	public void setAllModelsSelected(boolean allModelsSelected) {
+		this.allModelsSelected = allModelsSelected;
 	}
 }

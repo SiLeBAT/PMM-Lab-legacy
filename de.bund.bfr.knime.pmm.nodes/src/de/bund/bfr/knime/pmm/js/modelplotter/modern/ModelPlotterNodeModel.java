@@ -210,6 +210,7 @@ public final class ModelPlotterNodeModel
 		if (!m_executed) {
 			// Config of JavaScript view
 			viewValue.setY0(m_config.getY0());
+			viewValue.setAllModelsSelected(m_config.isAllModelAreSelected());
 			viewValue.setMinXAxis(m_config.getMinXAxis());
 			viewValue.setMinYAxis(m_config.getMinYAxis());
 			viewValue.setMaxXAxis(m_config.getMaxXAxis());

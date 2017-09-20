@@ -78,6 +78,15 @@ final class ModelPlotterViewConfig {
 	
 	private static final String DEF_CHART_TITLE = "PMM Model Plot";
 	private String m_chartTitle = DEF_CHART_TITLE;
+	static final String modelSelection = "modelSelectionStatus";
+	private boolean allModelAreSelected = true;
+	public boolean isAllModelAreSelected() {
+		return allModelAreSelected;
+	}
+
+	public void setAllModelAreSelected(boolean allModelAreSelected) {
+		this.allModelAreSelected = allModelAreSelected;
+	}
 
 	private boolean m_isHideInWizard = false;
 	private double m_y0 = DEF_Y0;
@@ -86,6 +95,7 @@ final class ModelPlotterViewConfig {
 	private int m_maxXAxis = DEF_MAX_X_AXIS;
 	private int m_minYAxis = DEF_MIN_Y_AXIS;
 	private int m_maxYAxis = DEF_MAX_Y_AXIS;
+	
 
 	/**
 	 * @return
@@ -197,6 +207,7 @@ final class ModelPlotterViewConfig {
 	public void loadSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		m_chartTitle = settings.getString(CHART_TITLE);
+		allModelAreSelected = settings.getBoolean(modelSelection);
 		m_isHideInWizard = settings.getBoolean(HIDE_IN_WIZARD);
 		m_y0 = settings.getDouble(Y0);
 		m_minXAxis = settings.getInt(MIN_X_AXIS);
@@ -213,6 +224,7 @@ final class ModelPlotterViewConfig {
 	 */
 	public void loadSettingsForDialog(final NodeSettingsRO settings) {
 		m_chartTitle = settings.getString(CHART_TITLE, DEF_CHART_TITLE);
+		allModelAreSelected = settings.getBoolean(modelSelection, allModelAreSelected);
 		m_isHideInWizard = settings.getBoolean(HIDE_IN_WIZARD, false);
 		m_y0 = settings.getDouble(Y0, DEF_Y0);
 		m_minXAxis = settings.getInt(MIN_X_AXIS, DEF_MIN_X_AXIS);
@@ -230,6 +242,7 @@ final class ModelPlotterViewConfig {
 	public void saveSettings(final NodeSettingsWO settings) {
 		settings.addString(CHART_TITLE, m_chartTitle);
 		settings.addBoolean(HIDE_IN_WIZARD, m_isHideInWizard);
+		settings.addBoolean(modelSelection, allModelAreSelected);
 		settings.addDouble(Y0, m_y0);
 		settings.addInt(MIN_X_AXIS, m_minXAxis);
 		settings.addInt(MAX_X_AXIS, m_maxXAxis);

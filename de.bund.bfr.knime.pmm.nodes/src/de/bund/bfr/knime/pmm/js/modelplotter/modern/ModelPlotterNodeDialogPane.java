@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -65,6 +66,8 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 
 	private final SpinnerModel m_maxYAxisModel;
 	private final JSpinner m_maxYAxis;	
+	private final JCheckBox m_allModelAreSelected;
+
 	
 	/**
 	 * Constructor of {@code ModelPlotterNodeDialogPane}, creating the dialog pane with the dialog
@@ -72,12 +75,12 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 	 */
 	public ModelPlotterNodeDialogPane() {
 		m_chartTitleTextField = new JTextField(TEXT_FIELD_SIZE);
-		
+		m_allModelAreSelected = new JCheckBox("Select All Models");
 		m_y0Model = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_Y0,
 				ModelPlotterViewConfig.MIN_Y0, ModelPlotterViewConfig.MAX_Y0, 0.1);
 		m_y0 = new JSpinner();
 		m_y0.setModel(m_y0Model);
-		m_y0.setEditor(new JSpinner.NumberEditor(m_y0, "0.0000"));
+		m_y0.setEditor(new JSpinner.NumberEditor(m_y0, "0.1151545"));
 		
 		m_minXAxisModel = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_MIN_X_AXIS,
 				ModelPlotterViewConfig.MIN_MIN_X_AXIS, ModelPlotterViewConfig.MAX_MIN_X_AXIS, 10);
@@ -119,6 +122,10 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
         c.gridx = 1;
         c.gridy = 0;
         panel.add(m_chartTitleTextField, c);
+        
+        c.gridx = 3;
+        c.gridy = 0;
+        panel.add(m_allModelAreSelected, c);
         
         c.gridx = 0;
         c.gridy = 1;
@@ -171,6 +178,7 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 			throws InvalidSettingsException {
 		ModelPlotterViewConfig config = new ModelPlotterViewConfig();
 		config.setChartTitle(m_chartTitleTextField.getText());
+		config.setAllModelAreSelected(m_allModelAreSelected.isSelected());
 		config.setY0((Double)m_y0Model.getValue());
 		config.setMinXAxis((Integer)m_minXAxisModel.getValue());
 		config.setMaxXAxis((Integer)m_maxXAxisModel.getValue());
@@ -189,6 +197,7 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
     	ModelPlotterViewConfig config = new ModelPlotterViewConfig();
         config.loadSettingsForDialog(settings);
         m_chartTitleTextField.setText(config.getChartTitle());
+		config.setAllModelAreSelected(config.isAllModelAreSelected());
         m_y0Model.setValue(config.getY0());
         m_minXAxisModel.setValue(config.getMinXAxis());
         m_maxXAxisModel.setValue(config.getMaxXAxis());

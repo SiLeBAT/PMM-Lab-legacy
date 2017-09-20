@@ -112,10 +112,22 @@ pmm_plotter = function() {
 		_dbUnits = value.units.units;
 		_mType = value.modelType;
 		// plotterRep = representation; // not used
-
+		_allModelsSelected = value.allModelsSelected;
 		initLayout();
 		initData();
 		initJQuery();
+		/* 
+		 * if all Models are Selected in the configuration of this
+		 * node then all of the models will be shown without 
+		 * the need to select it from the data models menu
+		 */
+		if(_allModelsSelected){
+				for(x = 1; x <= value.models.schemas.length ; x++ ){
+					addFunctionFromSelection(x);
+				}
+				$("#nextButton").button( "option", "disabled", false );
+				$("#dataChoiceDiv").show();
+		}
 	};
 	
 	/**
@@ -357,12 +369,18 @@ pmm_plotter = function() {
 	 * 2. gets the model data
 	 * 3. calls addFunctionObject() with the model data
 	 */
-	function addFunctionFromSelection()
-	{
+	function addFunctionFromSelection(selectedModel)
+	{	
 		// get the selection
 		var selectMenu = document.getElementById("modelSelectionMenu");
-		var selection = selectMenu.options[selectMenu.selectedIndex].value;
-
+		if(selectedModel != undefined){
+			var selection = selectMenu.options[selectedModel].value;
+		}else{
+			var selection = selectMenu.options[selectMenu.selectedIndex].value;
+		}
+		
+		
+		
 		// get the model data
 		var model;
 		var modelList = [];

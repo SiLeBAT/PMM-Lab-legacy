@@ -206,7 +206,7 @@ public final class ModelPlotterNodeModel
 			setViewValue(viewValue);
 		}
 		viewValue.setModelType(mType);
-
+		
 		if (!m_executed) {
 			// Config of JavaScript view
 			viewValue.setY0(m_config.getY0());
@@ -425,6 +425,8 @@ public final class ModelPlotterNodeModel
 	@Override
 	protected void performExecuteCreateView(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		// TODO Auto-generated method stub
+		LOGGER.info("notify of working");
+
 	}
 
 	@Override

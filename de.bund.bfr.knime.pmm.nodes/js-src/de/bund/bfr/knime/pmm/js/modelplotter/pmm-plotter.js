@@ -97,7 +97,7 @@ pmm_plotter = function() {
 	var _plotHeight = 300;
 	var _defaultFadeTime = 500; // ms
 	var _defaultTimeout = 200; // ms // responsiveness (lower) vs. performance/fluence (higher)
-	
+	var length;
 	modelPlotter.init = function(representation, value) {
 		
 		// view-bug - require js prevents global variable behavior 
@@ -122,11 +122,14 @@ pmm_plotter = function() {
 		 * the need to select it from the data models menu
 		 */
 		if(_allModelsSelected){
-				for(x = 1; x <= value.models.schemas.length ; x++ ){
-					addFunctionFromSelection(x);
-				}
-				$("#nextButton").button( "option", "disabled", false );
-				$("#dataChoiceDiv").show();
+				
+			for(x = 0; x < idList.length ; x++ ){
+				addFunctionFromSelection(idList[x]);
+			}
+			$("#nextButton").button( "option", "disabled", false );
+			$("#dataChoiceDiv").show();
+					
+				
 		}
 	};
 	
@@ -374,7 +377,7 @@ pmm_plotter = function() {
 		// get the selection
 		var selectMenu = document.getElementById("modelSelectionMenu");
 		if(selectedModel != undefined){
-			var selection = selectMenu.options[selectedModel].value;
+			var selection = selectedModel;
 		}else{
 			var selection = selectMenu.options[selectMenu.selectedIndex].value;
 		}

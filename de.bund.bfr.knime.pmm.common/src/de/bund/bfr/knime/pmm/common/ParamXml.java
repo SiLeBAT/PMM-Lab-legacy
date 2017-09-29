@@ -45,7 +45,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 
 	private String name;
 	private String origName;
-	private Boolean isStartParam;
+	private Boolean isStartParam = false;
 	private Double value;
 	private Double error;
 	private Double min;
@@ -65,7 +65,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 			HashMap<String, Double> correlations) {
 		this.name = name;
 		this.origName = origName;
-		this.isStartParam = isStartParam;
+		this.isStartParam = (isStartParam==null?false:isStartParam);
 		this.value = value;
 		this.error = error;
 		this.min = min;
@@ -191,10 +191,10 @@ public class ParamXml implements PmmXmlElementConvertable {
 		this.value = value;
 	}
 
-	public Boolean isStartParam() {
+	public boolean isStartParam() {
 		return isStartParam;
 	}
-	public void setIsStartParam(Boolean isStartParam) {
+	public void setIsStartParam(boolean isStartParam) {
 		this.isStartParam = isStartParam;
 	}
 	public Double getError() {

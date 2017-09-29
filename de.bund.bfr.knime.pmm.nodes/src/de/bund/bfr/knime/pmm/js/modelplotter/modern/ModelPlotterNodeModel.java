@@ -534,8 +534,8 @@ public final class ModelPlotterNodeModel
 			} else {
 				schema.setDatabaseWritable(Model1Schema.WRITABLE == tuple.getInt(Model1Schema.ATT_DATABASEWRITABLE));
 			}
-
-			schema.setDbuuid(getDbuuid(tuple));
+			String BDuuid = getDbuuid(tuple);
+			schema.setDbuuid(BDuuid);
 
 			// TimeSeriesSchema fields
 			schema.setCondId(tuple.getInt(TimeSeriesSchema.ATT_CONDID));

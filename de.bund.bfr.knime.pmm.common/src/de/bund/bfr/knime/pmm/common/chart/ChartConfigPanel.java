@@ -523,6 +523,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 			
 			if (type == PARAMETER_FIELDS) {
+				JSlider slider = parameterSliders.get(i);
 				JLabel label = parameterLabels.get(i);
 				
 				DoubleTextField input = parameterFields.get(i);
@@ -531,10 +532,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				if(value == null && previousConcValues.get(previousConcUnit)!=null) {
 					 value = previousConcValues.get(previousConcUnit);
 				}
-				input.setValue(value);
+				//Ahmad: set max parameter value as value of the field
+				if(value == null) {
+					input.setValue(maxParamValuesX.get(param));
+				}
 				
-				JSlider slider = parameterSliders.get(i);
-
+				
 				parameterValuesPanel
 						.add(label, createConstraints(0, row, 1, 1));
 				parameterValuesPanel

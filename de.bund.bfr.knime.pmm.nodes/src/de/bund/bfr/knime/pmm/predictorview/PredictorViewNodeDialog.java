@@ -229,7 +229,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 											continue plotableLoop;
 										}
 									} catch (ConvertException e) {
-										//e.printStackTrace();
+										e.printStackTrace();
 									}
 								}
 							}

@@ -57,6 +57,12 @@ public class MainKernel {
 	
 	public static void main(final String[] args) { // Servervariante
 		isServer = true;
+		if (args.length > 1) {
+			if (args[1] != null) {
+				dbFolder = args[1] + "/data/";
+				bkpFolder = args[1] + "/backup/";
+			}
+		}
 		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("start")) {
 				MyLogger.setup(logFolder + System.currentTimeMillis() + ".log");

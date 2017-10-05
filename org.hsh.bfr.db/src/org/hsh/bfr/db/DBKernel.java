@@ -698,7 +698,7 @@ public class DBKernel {
 	}
 
 	private static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath, final boolean suppressWarnings) throws Exception {
-		// serverPath = "192.168.212.54/silebat";
+		// serverPath = "192.168.212.54/silebat"; vm-maslxknime01/silebat_DB
 		Connection result = null;
 		passFalse = false;
 		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();

@@ -430,7 +430,7 @@ public class TableReader {
 					}
 				} else {
 					parameters.put(element.getName(), element.getValue());
-					paramData.put(element.getName(), element.getValue());
+					paramData.put(element.getName() + (element.getUnit()!=null?" ("+element.getUnit()+")":"") , element.getValue());
 					paramData.put(element.getName() + ": SE",
 							element.getError());
 					paramData.put(element.getName() + ": t", element.getT());

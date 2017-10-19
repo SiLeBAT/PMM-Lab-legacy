@@ -144,6 +144,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			List<String> filterableColumns, List<List<TimeSeriesXml>> data,
 			List<Map<String, Double>> parameters,
 			List<Map<String, String>> variables, List<String> formulas) {
+		
 		this(ids, selectionsExclusive, stringColumns, qualityColumns,
 				conditions, conditionValues, conditionMinValues,
 				conditionMaxValues, conditionUnits, visibleColumns,
@@ -348,8 +349,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		selectTable = new JTable(model);
 		selectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectTable.getSelectionModel().addListSelectionListener(this);
-		selectTable
-				.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
+		selectTable.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter(model, null));
 		selectTable.getColumn(ID).setMinWidth(0);
 		selectTable.getColumn(ID).setMaxWidth(0);

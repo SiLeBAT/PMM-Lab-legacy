@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -85,7 +86,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private List<KnimeTuple> tuples;
 	private Double previousConcValues;
 	private Map<String,Double> convertedPreConcValues = new HashMap<String,Double>();
-
+	
 	private String previousConcUnit;
 	
 
@@ -229,6 +230,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 											continue plotableLoop;
 										}
 									} catch (ConvertException e) {
+										
 										e.printStackTrace();
 									}
 								}
@@ -335,9 +337,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 		configPanel.setConcentrationParameters(concentrationParameters);
 		configPanel.setPreviousConcValues(convertedPreConcValues);
+		
 		configPanel.setPreviousConcUnit(previousConcUnit);
-		
-		
+				
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -372,6 +374,15 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
+	
+		for(String visible : reader.getDoubleColumns().keySet()){
+			if(visible.equals("RMSE")){
+				List<Double> obj = reader.getDoubleColumns().remove(visible);
+				reader.getDoubleColumns().put(visible+"("+configPanel.getUnitY()+")", obj);
+				break;
+			}
+		}
+		
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getDoubleColumns(),
 				reader.getConditions(), reader.getConditionValues(),
@@ -874,5 +885,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.addConfigListener(this);
 		createChart();
 	}
+
+	
 
 }

@@ -61,6 +61,8 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {
@@ -147,7 +149,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		this.concentrationParameters = concentrationParameters;
 	}
 
-	
 
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval,
 			String extraButtonLabel, boolean varsChangeable) {
@@ -521,6 +522,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			if (!visible.contains(param)) {
 				continue;
 			}
+			String currentUnit = units.get(param);
 			
 			if (type == PARAMETER_FIELDS) {
 				JSlider slider = parameterSliders.get(i);
@@ -529,14 +531,34 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				DoubleTextField input = parameterFields.get(i);
 				
 				Double value = previousConcValues.get(param);
-				if(value == null && previousConcValues.get(previousConcUnit)!=null) {
-					 value = previousConcValues.get(previousConcUnit);
+				if(checkUnitCompatibility(currentUnit, previousConcUnit)) {
+					if(value == null && previousConcValues.get(previousConcUnit) != null) {
+						if(currentUnit.equalsIgnoreCase(previousConcUnit)) {
+							value = previousConcValues.get(previousConcUnit);
+						}else {
+							Category cat = Categories.getCategoryByUnit(currentUnit);
+							Double convertedValue = null;
+							value = previousConcValues.get(previousConcValues.keySet().toArray()[0]);
+							try {
+								convertedValue = cat.convert(value,
+										previousConcUnit,currentUnit);
+								value = convertedValue;
+							} catch (ConvertException e) {
+								//e.printStackTrace();
+							}
+						}
+					}
+					// The fields here are not any more editable 
+					// as long as we provide Initial concentration from previous Predictor View
+					input.setEditable(false);
+					slider.setEnabled(false);
+					
 				}
 				//Ahmad: set max parameter value as value of the field
 				if(value == null) {
-					input.setValue(maxParamValuesX.get(param));
+					value = minParamValuesX.get(param);
 				}
-				
+				input.setValue(value);
 				
 				parameterValuesPanel
 						.add(label, createConstraints(0, row, 1, 1));
@@ -744,7 +766,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		for (int i = 0; i < parameterFields.size(); i++) {
 			DoubleTextField field = parameterFields.get(i);
 			String paramName = parameterNames.get(i);
-
 			field.setValue(paramXValues.get(paramName));
 		}
 	}
@@ -766,6 +787,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		xUnitBox.setSelectedItem(units.get(var));
 		xUnitBox.addActionListener(this);
+	}
+	private Boolean checkUnitCompatibility(String unit1,String unit2) {
+		return Categories.getCategoryByUnit(unit1).equals(Categories.getCategoryByUnit(unit2));
+		
 	}
 
 	private void updateYUnitBox() {
@@ -855,13 +880,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 						.getPreferredSize().height));
 				input.setValue(value);
 				input.addTextListener(this);
-
+				
 				parameterFields.add(input);
 				parameterLabels.add(label);
 				parameterSliders.add(slider);
 			} else if (type == PARAMETER_BOXES) {
 				JButton selectButton = new JButton(param + " Values");
-
+				
 				selectButton.addActionListener(this);
 				parameterButtons.add(selectButton);
 			}

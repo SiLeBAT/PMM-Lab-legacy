@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -103,17 +104,8 @@ public class TableReader {
 			units.add(depXml.getUnit());
 		}
 
-		for (IndepXml indepXml : indepXmls) {
-			if (indepXml.getUnit() != null) {
-				units.add(indepXml.getUnit());
-			}
-		}
-
-		for (ParamXml paramXml : constXmls) {
-			if (paramXml.getUnit() != null) {
-				units.add(paramXml.getUnit());
-			}
-		}
+		indepXmls.stream().map(IndepXml::getUnit).filter(Objects::nonNull).forEach(u -> units.add(u));
+		constXmls.stream().map(ParamXml::getUnit).filter(Objects::nonNull).forEach(u -> units.add(u));
 
 		// Creates and adds unit definitions for the units present in DB.
 		// Missing units in DB will not be retrievable and thus will lack a list

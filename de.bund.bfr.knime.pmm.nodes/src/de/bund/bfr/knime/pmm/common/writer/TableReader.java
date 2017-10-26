@@ -106,6 +106,12 @@ public class TableReader {
 
 		indepXmls.stream().map(IndepXml::getUnit).filter(Objects::nonNull).forEach(u -> units.add(u));
 		constXmls.stream().map(ParamXml::getUnit).filter(Objects::nonNull).forEach(u -> units.add(u));
+		
+		// Fix Celsius unit
+		if (units.contains("ºC")) {
+			units.remove("ºC");
+			units.add("°C");
+		}
 
 		// Creates and adds unit definitions for the units present in DB.
 		// Missing units in DB will not be retrievable and thus will lack a list

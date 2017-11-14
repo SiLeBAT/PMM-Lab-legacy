@@ -29,7 +29,16 @@ public class ModelPlotterViewValue extends JSONViewContent {
 	private String mSvgPlot;
 	private double y0;
 	private boolean allModelsSelected;
+	private boolean onlySecondaryModel;
 	
+
+	public boolean isOnlySecondaryModel() {
+		return onlySecondaryModel;
+	}
+
+	public void setOnlySecondaryModel(boolean onlySecondaryModel) {
+		this.onlySecondaryModel = onlySecondaryModel;
+	}
 
 	static final String AUTHORS = "authors";
 	static final String COMMENTS = "comments";
@@ -108,7 +117,6 @@ public class ModelPlotterViewValue extends JSONViewContent {
 		setReportName(settings.getString(REPORT_NAME));
 		setSvgPlot(settings.getString(SVG_PLOT));
 	}
-
 	@Override
 	public boolean equals(Object obj) {
 		ModelPlotterViewValue otherView = (ModelPlotterViewValue) obj;

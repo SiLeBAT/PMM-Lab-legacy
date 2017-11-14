@@ -79,7 +79,9 @@ final class ModelPlotterViewConfig {
 	private static final String DEF_CHART_TITLE = "PMM Model Plot";
 	private String m_chartTitle = DEF_CHART_TITLE;
 	static final String modelSelection = "modelSelectionStatus";
+	static final String secondarySelection = "secondarySelectionStatus";
 	private boolean allModelAreSelected = true;
+	private boolean secondaryModel ;
 	public boolean isAllModelAreSelected() {
 		return allModelAreSelected;
 	}
@@ -208,6 +210,7 @@ final class ModelPlotterViewConfig {
 			throws InvalidSettingsException {
 		m_chartTitle = settings.getString(CHART_TITLE);
 		allModelAreSelected = settings.getBoolean(modelSelection);
+		secondaryModel = settings.getBoolean(secondarySelection);
 		m_isHideInWizard = settings.getBoolean(HIDE_IN_WIZARD);
 		m_y0 = settings.getDouble(Y0);
 		m_minXAxis = settings.getInt(MIN_X_AXIS);
@@ -225,6 +228,7 @@ final class ModelPlotterViewConfig {
 	public void loadSettingsForDialog(final NodeSettingsRO settings) {
 		m_chartTitle = settings.getString(CHART_TITLE, DEF_CHART_TITLE);
 		allModelAreSelected = settings.getBoolean(modelSelection, allModelAreSelected);
+		secondaryModel = settings.getBoolean(secondarySelection, secondaryModel);
 		m_isHideInWizard = settings.getBoolean(HIDE_IN_WIZARD, false);
 		m_y0 = settings.getDouble(Y0, DEF_Y0);
 		m_minXAxis = settings.getInt(MIN_X_AXIS, DEF_MIN_X_AXIS);
@@ -243,10 +247,19 @@ final class ModelPlotterViewConfig {
 		settings.addString(CHART_TITLE, m_chartTitle);
 		settings.addBoolean(HIDE_IN_WIZARD, m_isHideInWizard);
 		settings.addBoolean(modelSelection, allModelAreSelected);
+		settings.addBoolean(secondarySelection, secondaryModel);
 		settings.addDouble(Y0, m_y0);
 		settings.addInt(MIN_X_AXIS, m_minXAxis);
 		settings.addInt(MAX_X_AXIS, m_maxXAxis);
 		settings.addInt(MIN_Y_AXIS, m_minYAxis);
 		settings.addInt(MAX_Y_AXIS, m_maxYAxis);
+	}
+
+	public boolean isSecondaryModel() {
+		return secondaryModel;
+	}
+
+	public void setSecondaryModel(boolean secondaryModel) {
+		this.secondaryModel = secondaryModel;
 	}
 }

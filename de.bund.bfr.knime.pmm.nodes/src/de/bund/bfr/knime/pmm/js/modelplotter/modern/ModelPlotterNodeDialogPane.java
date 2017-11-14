@@ -67,6 +67,7 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 	private final SpinnerModel m_maxYAxisModel;
 	private final JSpinner m_maxYAxis;	
 	private final JCheckBox m_allModelAreSelected;
+	private final JCheckBox secondaryModelSelected;
 
 	
 	/**
@@ -76,6 +77,7 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 	public ModelPlotterNodeDialogPane() {
 		m_chartTitleTextField = new JTextField(TEXT_FIELD_SIZE);
 		m_allModelAreSelected = new JCheckBox("Select All Models");
+		secondaryModelSelected = new JCheckBox("Plot Secondary Models");
 		m_y0Model = new SpinnerNumberModel(ModelPlotterViewConfig.DEF_Y0,
 				ModelPlotterViewConfig.MIN_Y0, ModelPlotterViewConfig.MAX_Y0, 0.1);
 		m_y0 = new JSpinner();
@@ -126,6 +128,10 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
         c.gridx = 3;
         c.gridy = 0;
         panel.add(m_allModelAreSelected, c);
+       
+        c.gridx = 3;
+        c.gridy = 1;
+        panel.add(secondaryModelSelected, c);
         
         c.gridx = 0;
         c.gridy = 1;
@@ -179,11 +185,15 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
 		ModelPlotterViewConfig config = new ModelPlotterViewConfig();
 		config.setChartTitle(m_chartTitleTextField.getText());
 		config.setAllModelAreSelected(m_allModelAreSelected.isSelected());
+		config.setSecondaryModel(secondaryModelSelected.isSelected());
 		config.setY0((Double)m_y0Model.getValue());
 		config.setMinXAxis((Integer)m_minXAxisModel.getValue());
 		config.setMaxXAxis((Integer)m_maxXAxisModel.getValue());
 		config.setMinYAxis((Integer)m_minYAxisModel.getValue());
 		config.setMaxYAxis((Integer)m_maxYAxisModel.getValue());
+		
+		
+		
 		
 		config.saveSettings(settings);
 	}
@@ -198,6 +208,7 @@ public final class ModelPlotterNodeDialogPane extends NodeDialogPane {
         config.loadSettingsForDialog(settings);
         m_chartTitleTextField.setText(config.getChartTitle());
 		config.setAllModelAreSelected(config.isAllModelAreSelected());
+		config.setSecondaryModel(config.isSecondaryModel());
         m_y0Model.setValue(config.getY0());
         m_minXAxisModel.setValue(config.getMinXAxis());
         m_maxXAxisModel.setValue(config.getMaxXAxis());

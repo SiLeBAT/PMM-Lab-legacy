@@ -211,6 +211,7 @@ public final class ModelPlotterNodeModel
 			// Config of JavaScript view
 			viewValue.setY0(m_config.getY0());
 			viewValue.setAllModelsSelected(m_config.isAllModelAreSelected());
+			viewValue.setOnlySecondaryModel(m_config.isSecondaryModel());
 			viewValue.setMinXAxis(m_config.getMinXAxis());
 			viewValue.setMinYAxis(m_config.getMinYAxis());
 			viewValue.setMaxXAxis(m_config.getMaxXAxis());
@@ -1308,7 +1309,7 @@ public final class ModelPlotterNodeModel
 					secIndepDoc.add(indep.toIndepXml());
 				}
 				tuple.setValue(Model2Schema.ATT_INDEPENDENT, secIndepDoc);
-				
+		
 				PmmXmlDoc secEstModelDoc = new PmmXmlDoc();
 				if (m2Schema.getEstModel() != null) 
 				{

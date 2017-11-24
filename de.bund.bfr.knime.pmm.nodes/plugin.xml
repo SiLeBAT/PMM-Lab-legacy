@@ -498,7 +498,7 @@
         relativePathTarget="js-lib/mathjs/3_10_0/min/">
       </webResource>
       <importResource
-        relativePath="js-lib/mathjs/3_10_0/min/js/math.js"
+        relativePath="js-lib/mathjs/3_10_0/min/js/math.min.js"
         type="JAVASCRIPT">
       </importResource>
     </webResourceBundle>

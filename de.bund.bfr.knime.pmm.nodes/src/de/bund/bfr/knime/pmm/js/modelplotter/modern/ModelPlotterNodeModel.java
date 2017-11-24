@@ -333,7 +333,7 @@ public final class ModelPlotterNodeModel
 		String authors = getViewValue().getAuthors();
 		String comment = getViewValue().getComments();
 		String svgPlot = getViewValue().getSvgPlot();
-
+		
 		KnimeSchema userSchema = new KnimeSchema();
 		userSchema.addStringAttribute(REPORT_NAME);
 		userSchema.addStringAttribute(AUTHORS);
@@ -415,11 +415,21 @@ public final class ModelPlotterNodeModel
 				return PmmUtilities.getTuples(table, SchemaFactory.createM12Schema());
 			}
 		} else {
-			if (containsData) {
-				return PmmUtilities.getTuples(table, SchemaFactory.createM1DataSchema());
-			} else {
-				return PmmUtilities.getTuples(table, SchemaFactory.createM1Schema());
+			boolean isSecondaryModel = SchemaFactory.createM2Schema().conforms(table);
+			if(isSecondaryModel){
+				if (containsData) {
+					return PmmUtilities.getTuples(table, SchemaFactory.createM12DataSchema());
+				} else {
+					return PmmUtilities.getTuples(table, SchemaFactory.createM2Schema());
+				}
+			}else{
+				if (containsData) {
+					return PmmUtilities.getTuples(table, SchemaFactory.createM1DataSchema());
+				} else {
+					return PmmUtilities.getTuples(table, SchemaFactory.createM1Schema());
+				}
 			}
+			
 		}
 	}
 
@@ -437,7 +447,13 @@ public final class ModelPlotterNodeModel
 	}
 	
 	private String getDbuuid(KnimeTuple tuple) {
-		String gid = tuple.getString(Model2Schema.ATT_GLOBAL_MODEL_ID);
+		String gid  = "";
+		if(mType == MODEL_TYPE.M1){
+			 gid = tuple.getString(Model1Schema.ATT_DBUUID);
+			
+		}else{
+		     gid = tuple.getString(Model2Schema.ATT_GLOBAL_MODEL_ID);
+		}
 		if(gid == null || gid.equals("?") || gid.isEmpty())	{
 			LOGGER.warn("DATA PROBLEM: No dbuuid given. Random ID will be generated.");
 			int seed;
@@ -448,6 +464,7 @@ public final class ModelPlotterNodeModel
 			/* "g" for "generated"; max 6 digits */
 			gid = "g" + String.valueOf((new Random(seed)).nextInt(999999)); 
 		}
+		
 		return gid;
 	}
 
@@ -1141,7 +1158,7 @@ public final class ModelPlotterNodeModel
 			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixDoc);
 
 			PmmXmlDoc timeSeriesDoc = new PmmXmlDoc();
-			if(schema.getTimeSeriesList() != null)
+			if(schema.getTimeSeriesList() != null &&  schema.getTimeSeriesList().getTimeSeries() != null)
 				for (TimeSeries timeSeries : schema.getTimeSeriesList().getTimeSeries()) {
 					timeSeriesDoc.add(timeSeries.toTimeSeriesXml());
 				}

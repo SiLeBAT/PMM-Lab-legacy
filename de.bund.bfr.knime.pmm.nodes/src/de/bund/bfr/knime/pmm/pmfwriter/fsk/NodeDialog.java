@@ -16,166 +16,178 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.pmfwriter.fsk;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponent;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
-import org.knime.core.node.defaultnodesettings.DialogComponentString;
-import org.knime.core.node.defaultnodesettings.SettingsModelDate;
-import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.ui.DateInputDialog;
+import com.toedter.calendar.JDateChooser;
 
-class NodeDialog extends DefaultNodeSettingsPane {
+import de.bund.bfr.swing.FilePanel;
+import de.bund.bfr.swing.StringTextArea;
+import de.bund.bfr.swing.StringTextField;
+import de.bund.bfr.swing.UI;
 
-  NodeDialog() {
-    NodeSettings settings = new NodeSettings();
+class NodeDialog extends NodeDialogPane {
 
-    DialogComponentFileChooser outComp = new DialogComponentFileChooser(settings.outSettings,
-        "Out history", JFileChooser.SAVE_DIALOG, true);
-    outComp.setBorderTitle("Output Path");
-    DialogComponentString nameComp = new DialogComponentString(settings.modelName, "File name");
-    DialogComponentString givenNameComp =
-        new DialogComponentString(settings.givenName, "Creator given name");
-    DialogComponentString familyNameComp =
-        new DialogComponentString(settings.familyName, "Creator family name");
-    DialogComponentString creatorContactComp =
-        new DialogComponentString(settings.contact, "Creator contact");
-    DialogComponentDate createdComp =
-        new DialogComponentDate(settings.createdDate, "Created");
-    DialogComponentDate modifiedComp =
-        new DialogComponentDate(settings.modifiedDate, "Last modified");
-    DialogComponentBoolean isSecondaryCheckbox =
-        new DialogComponentBoolean(settings.isSecondary, "Is secondary?");
-    DialogComponentBoolean overwriteCheckbox =
-        new DialogComponentBoolean(settings.overwrite, "Overwrite, ok?");
-    DialogComponentBoolean splitCheckbox =
-        new DialogComponentBoolean(settings.splitModels, "Split top level models?");
-    DialogComponentString referenceLinkComp =
-        new DialogComponentString(settings.referenceLink, "Model reference description link");
-    DialogComponentString licenseComp = new DialogComponentString(settings.license, "License");
-    DialogComponentMultiLineString notesComp =
-        new DialogComponentMultiLineString(settings.notes, "Notes");
+	private final NodeSettings settings = new NodeSettings();
 
-    addDialogComponent(outComp);
-    addDialogComponent(nameComp);
-    addDialogComponent(isSecondaryCheckbox);
-    addDialogComponent(overwriteCheckbox);
-    addDialogComponent(splitCheckbox);
-    
-    createNewTab("File metadata");
-    addDialogComponent(givenNameComp);
-    addDialogComponent(familyNameComp);
-    addDialogComponent(creatorContactComp);
-    addDialogComponent(referenceLinkComp);
-    addDialogComponent(licenseComp);
-    addDialogComponent(notesComp);
-    addDialogComponent(createdComp);
-    addDialogComponent(modifiedComp);
-  }
-  
-  /**
-   * Customized DialogComponentDate (
-   * {@link org.knime.core.node.defaultnodesettings.DialogComponentDate}) that only shows the date.
-   * 
-   * It currently uses a workaround class, {@link de.bund.bfr.knime.pmm.common.ui.DateInputDialog}
-   * until the original class is fixed in KNIME.
-   *
-   * @author Sebastian Peter, University of Konstanz
-   * @since 2.8
-   */
-  private class DialogComponentDate extends DialogComponent {
+	// Options inputs
+	private final FilePanel outputPathField;
+	private final StringTextField fileNameField = new StringTextField(false, 30);
+	private final JCheckBox isSecondaryCheckbox = new JCheckBox("Is secondary?");
+	private final JCheckBox overwriteCheckbox = new JCheckBox("Overwrite, ok?");
+	private final JCheckBox splitModelsCheckBox = new JCheckBox("Split top level models?");
 
-    private DateInputDialog m_dialogcomp;
+	// Metadata inputs
+	private final StringTextField givenNameField = new StringTextField(true, 30);
+	private final StringTextField familyNameField = new StringTextField(true, 30);
+	private final StringTextField contactField = new StringTextField(true, 30);
+	private final StringTextField referenceLinkField = new StringTextField(true, 30);
+	private final StringTextField licenseField = new StringTextField(true, 30);
+	private final StringTextArea notesField = new StringTextArea(true, 5, 30);
+	private final JDateChooser creationDateField = new JDateChooser();
+	private final JDateChooser modificationDateField = new JDateChooser();
 
-    private SettingsModelDate m_datemodel;
+	NodeDialog() {
 
-    /**
-     * Instantiates a new DateDialogComponent, where the model stores the user input and the label is
-     * put as a description on to the dialog. Using this constructor the date is optional.
-     *
-     * @param model to store the inputed date
-     * @param label to place on the dialog
-     */
-    public DialogComponentDate(final SettingsModelDate model, final String label) {
-      this(model, label, true);
-    }
+		// Options tab: output path, file name, is secondary, overwrite and split models
+		{
+			outputPathField = new FilePanel("Output path", FilePanel.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, 30);
+			
+			List<JLabel> labels = new ArrayList<>();
+			List<JComponent> inputs = new ArrayList<>();
 
-    /**
-     * Instantiates a new DateDialogComponent, where the model stores the user input and the label is
-     * put as a description on to the dialog. Using this constructor the date can be optional or
-     * mandatory.
-     *
-     *
-     * @param model to store the inputed date
-     * @param label to place on the dialog
-     * @param optional specifies whether the date is optional (true) or mandatory (false)
-     */
-    public DialogComponentDate(final SettingsModelDate model, final String label,
-        final boolean optional) {
-      super(model);
-      m_datemodel = model;
-      m_dialogcomp = new DateInputDialog(DateInputDialog.Mode.NOTIME, optional);
-      
-      JPanel panel = new JPanel();
-      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-      panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), label));
-      panel.add(m_dialogcomp);
-      getComponentPanel().add(panel);
+			// File name
+			labels.add(new JLabel("File name"));
+			inputs.add(fileNameField);
 
-    }
+			final JPanel formPanel = UI.createOptionsPanel(labels, inputs);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void updateComponent() {
-      m_dialogcomp.setDateAndMode(m_datemodel.getTimeInMillis(),
-          DateInputDialog.getModeForStatus(m_datemodel.getSelectedFields()));
-    }
+			final JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			panel.add(UI.createWestPanel(outputPathField));
+			panel.add(formPanel);
+			panel.add(UI.createWestPanel(isSecondaryCheckbox));
+			panel.add(UI.createWestPanel(overwriteCheckbox));
+			panel.add(UI.createWestPanel(splitModelsCheckBox));
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-      m_datemodel.setTimeInMillis(m_dialogcomp.getSelectedDate().getTime());
-      m_datemodel.setSelectedFields(m_dialogcomp.getIntForStatus());
-    }
+			addTab("Options", UI.createNorthPanel(panel));
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
-        throws NotConfigurableException {
-      // nothing todo here
-    }
+		// Metadata tab: given name, family name, contact, reference link,
+		// license, notes, creation and modification dates
+		{
+			List<JLabel> labels = new ArrayList<>();
+			List<JComponent> inputs = new ArrayList<>();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void setEnabledComponents(final boolean enabled) {
-      m_dialogcomp.setEnabled(enabled);
+			// given name
+			labels.add(new JLabel("Creator given name"));
+			inputs.add(givenNameField);
 
-    }
+			// family name
+			labels.add(new JLabel("Creator family name"));
+			inputs.add(familyNameField);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setToolTipText(final String text) {
-      // todo !?
+			// contact
+			labels.add(new JLabel("Creator contact"));
+			inputs.add(contactField);
 
-    }
-  }
+			// reference link
+			labels.add(new JLabel("Model reference description link"));
+			inputs.add(referenceLinkField);
+
+			// license
+			labels.add(new JLabel("License"));
+			inputs.add(licenseField);
+
+			// creation date
+			labels.add(new JLabel("Created"));
+			inputs.add(UI.createWestPanel(creationDateField));
+
+			// modification date
+			labels.add(new JLabel("Last modified"));
+			inputs.add(UI.createWestPanel(modificationDateField));
+			
+			// notes
+			notesField.setBorder(BorderFactory.createTitledBorder("Notes"));
+
+			final JPanel formPanel = UI.createOptionsPanel(labels, inputs);
+			
+			final JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			panel.add(formPanel);
+			panel.add(new JScrollPane(notesField));
+
+			addTab("File metadata", UI.createNorthPanel(panel));
+		}
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
+
+		// Load settings and update dialog
+		try {
+			this.settings.load(settings);
+		} catch (InvalidSettingsException e) {
+			throw new NotConfigurableException(e.getMessage(), e);
+		}
+
+		// Options inputs
+		outputPathField.setFileName(this.settings.outPath);
+		fileNameField.setText(this.settings.modelName);
+		isSecondaryCheckbox.setSelected(this.settings.isSecondary);
+		overwriteCheckbox.setSelected(this.settings.overwrite);
+		splitModelsCheckBox.setSelected(this.settings.splitModels);
+
+		// Metadata inputs
+		givenNameField.setText(this.settings.creatorGivenName);
+		familyNameField.setText(this.settings.creatorFamilyName);
+		contactField.setText(this.settings.creatorContact);
+		referenceLinkField.setText(this.settings.referenceDescriptionLink);
+		licenseField.setText(this.settings.license);
+		notesField.setText(this.settings.notes);
+		creationDateField.setDate(new Date(this.settings.createdDate));
+		modificationDateField.setDate(new Date(this.settings.modifiedDate));
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		// Update this.settings with data from dialog
+
+		// Options inputs
+		this.settings.outPath = outputPathField.getFileName();
+		this.settings.modelName = fileNameField.getText();
+		this.settings.isSecondary = isSecondaryCheckbox.isSelected();
+		this.settings.overwrite = overwriteCheckbox.isSelected();
+		this.settings.splitModels = splitModelsCheckBox.isSelected();
+
+		// Metadata inputs
+		this.settings.creatorGivenName = givenNameField.getText();
+		this.settings.creatorFamilyName = familyNameField.getText();
+		this.settings.creatorContact = contactField.getText();
+		this.settings.referenceDescriptionLink = referenceLinkField.getText();
+		this.settings.license = licenseField.getText();
+		this.settings.notes = notesField.getText();
+		this.settings.createdDate = creationDateField.getDate().getTime();
+		this.settings.modifiedDate = modificationDateField.getDate().getTime();
+
+		// Save settings
+		this.settings.save(settings);
+	}
 }

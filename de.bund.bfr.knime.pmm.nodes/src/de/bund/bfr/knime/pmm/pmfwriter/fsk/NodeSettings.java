@@ -1,5 +1,4 @@
-/*
- ***************************************************************************************************
+/*******************************************************************************
  * Copyright (c) 2017 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the
@@ -14,80 +13,78 @@
  * not, see <http://www.gnu.org/licenses/>.
  *
  * Contributors: Department Biological Safety - BfR
- *************************************************************************************************
- */
+ *******************************************************************************/
 package de.bund.bfr.knime.pmm.pmfwriter.fsk;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelDate;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-
 
 class NodeSettings {
 
-  SettingsModelString outSettings = new SettingsModelString("outPath", "");
-  SettingsModelString modelName = new SettingsModelString("modelName", "");
-  SettingsModelString givenName = new SettingsModelString("creatorGivenName", "");
-  SettingsModelString familyName = new SettingsModelString("creatorFamilyName", "");
-  SettingsModelString contact = new SettingsModelString("creatorContact", "");
-  
-  SettingsModelDate createdDate = new SettingsModelDate("createdDate");
-  SettingsModelDate modifiedDate = new SettingsModelDate("modifiedDate");
-  SettingsModelBoolean isSecondary = new SettingsModelBoolean("isSecondary", false);
-  SettingsModelBoolean overwrite = new SettingsModelBoolean("overwrite", true);
-  SettingsModelBoolean splitModels = new SettingsModelBoolean("splitModels", false);
-  SettingsModelString referenceLink = new SettingsModelString("referenceLink", "");
-  SettingsModelString license = new SettingsModelString("license", "");
-  SettingsModelString notes = new SettingsModelString("notes", "");
+	// Configuration keys
+	private static final String CFG_OUT_PATH = "outPath";
+	private static final String CFG_MODEL_NAME = "modelName";
+	private static final String CFG_GIVEN_NAME = "creatorGivenName";
+	private static final String CFG_FAMILY_NAME = "creatorFamilyName";
+	private static final String CFG_CONTACT = "creatorContact";
+	private static final String CFG_CREATED_DATE = "createdDate";
+	private static final String CFG_MODIFIED_DATE = "modifiedDate";
+	private static final String CFG_IS_SECONDARY = "isSecondary";
+	private static final String CFG_OVERWRITE = "overwrite";
+	private static final String CFG_SPLIT_MODELS = "splitModels";
+	private static final String CFG_REFERENCE_LINK = "referenceLink";
+	private static final String CFG_LICENSE = "license";
+	private static final String CFG_NOTES = "notes";
 
-  public void saveSettingsTo(NodeSettingsWO settings) {
-  	outSettings.saveSettingsTo(settings);
-  	modelName.saveSettingsTo(settings);
-  	givenName.saveSettingsTo(settings);
-  	familyName.saveSettingsTo(settings);
-  	contact.saveSettingsTo(settings);
-  	createdDate.saveSettingsTo(settings);
-  	modifiedDate.saveSettingsTo(settings);
-  	isSecondary.saveSettingsTo(settings);
-  	overwrite.saveSettingsTo(settings);
-  	splitModels.saveSettingsTo(settings);
-  	referenceLink.saveSettingsTo(settings);
-  	license.saveSettingsTo(settings);
-  	notes.saveSettingsTo(settings);
-  }
+	public String outPath = "";
+	public String modelName = "";
+	public String creatorGivenName = "";
+	public String creatorFamilyName = "";
+	public String creatorContact = "";
 
-  public void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-  	outSettings.validateSettings(settings);
-  	modelName.validateSettings(settings);
-  	givenName.validateSettings(settings);
-  	familyName.validateSettings(settings);
-  	contact.validateSettings(settings);
-  	createdDate.validateSettings(settings);
-  	modifiedDate.validateSettings(settings);
-  	isSecondary.validateSettings(settings);
-  	overwrite.validateSettings(settings);
-  	splitModels.validateSettings(settings);
-  	referenceLink.validateSettings(settings);
-  	license.validateSettings(settings);
-  	notes.validateSettings(settings);
-  }
+	/** Creation date in milliseconds since 1970 in UTC time. */
+	public long createdDate;
 
-  public void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
-    outSettings.loadSettingsFrom(settings);
-  	modelName.loadSettingsFrom(settings);
-  	givenName.loadSettingsFrom(settings);
-  	familyName.loadSettingsFrom(settings);
-  	contact.loadSettingsFrom(settings);
-  	createdDate.loadSettingsFrom(settings);
-  	modifiedDate.loadSettingsFrom(settings);
-  	isSecondary.loadSettingsFrom(settings);
-  	overwrite.loadSettingsFrom(settings);
-  	splitModels.loadSettingsFrom(settings);
-  	referenceLink.loadSettingsFrom(settings);
-  	license.loadSettingsFrom(settings);
-  	notes.loadSettingsFrom(settings);
-  }
+	/** Last modification date in milliseconds since 1970 in UTC time. */
+	public long modifiedDate;
+
+	public boolean isSecondary = false;
+	public boolean overwrite = false;
+	public boolean splitModels = false;
+	public String referenceDescriptionLink = "";
+	public String license = "";
+	public String notes = "";
+
+	public void load(final NodeSettingsRO settings) throws InvalidSettingsException {
+		outPath = settings.getString(CFG_OUT_PATH);
+		modelName = settings.getString(CFG_MODEL_NAME);
+		creatorGivenName = settings.getString(CFG_GIVEN_NAME);
+		creatorFamilyName = settings.getString(CFG_FAMILY_NAME);
+		creatorContact = settings.getString(CFG_CONTACT);
+		createdDate = settings.getLong(CFG_CREATED_DATE);
+		modifiedDate = settings.getLong(CFG_MODIFIED_DATE);
+		isSecondary = settings.getBoolean(CFG_IS_SECONDARY);
+		overwrite = settings.getBoolean(CFG_OVERWRITE);
+		splitModels = settings.getBoolean(CFG_SPLIT_MODELS);
+		referenceDescriptionLink = settings.getString(CFG_REFERENCE_LINK);
+		license = settings.getString(CFG_LICENSE);
+		notes = settings.getString(CFG_NOTES);
+	}
+
+	public void save(final NodeSettingsWO settings) {
+		settings.addString(CFG_OUT_PATH, outPath);
+		settings.addString(CFG_MODEL_NAME, modelName);
+		settings.addString(CFG_GIVEN_NAME, creatorGivenName);
+		settings.addString(CFG_FAMILY_NAME, creatorFamilyName);
+		settings.addString(CFG_CONTACT, creatorContact);
+		settings.addLong(CFG_CREATED_DATE, createdDate);
+		settings.addLong(CFG_MODIFIED_DATE, modifiedDate);
+		settings.addBoolean(CFG_IS_SECONDARY, isSecondary);
+		settings.addBoolean(CFG_OVERWRITE, overwrite);
+		settings.addBoolean(CFG_SPLIT_MODELS, splitModels);
+		settings.addString(CFG_REFERENCE_LINK, referenceDescriptionLink);
+		settings.addString(CFG_LICENSE, license);
+		settings.addString(CFG_NOTES, notes);
+	}
 }

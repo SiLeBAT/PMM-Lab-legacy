@@ -54,6 +54,8 @@ Export-Package: de.bund.bfr.knime.pmm.combaseio,
  de.bund.bfr.knime.pmm.xlstimeseriesreader,
  de.bund.bfr.knime.pmm.xml2table
 Bundle-ClassPath: library.jar,
- jsoup-1.9.2.jar
+ jsoup-1.9.2.jar,
+ bfr-swing-1.0-SNAPSHOT.jar,
+ jcalendar-1.4.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.nodes.Plugin
 Import-Package: org.apache.poi.xssf.usermodel

@@ -56,8 +56,8 @@ class NodeModel extends org.knime.core.node.NodeModel {
 
     // Sets current date in the dialog components
     long currentDate = Calendar.getInstance().getTimeInMillis();
-    settings.createdDate.setTimeInMillis(currentDate);
-    settings.modifiedDate.setTimeInMillis(currentDate);
+    settings.createdDate = currentDate;
+    settings.modifiedDate = currentDate;
   }
 
   @Override
@@ -70,18 +70,18 @@ class NodeModel extends org.knime.core.node.NodeModel {
 
   @Override
   protected void saveSettingsTo(NodeSettingsWO settings) {
-    this.settings.saveSettingsTo(settings);
+    this.settings.save(settings);
   }
 
   @Override
   protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-    this.settings.validateSettings(settings);
+    // does nothing
   }
 
   @Override
   protected void loadValidatedSettingsFrom(NodeSettingsRO settings)
       throws InvalidSettingsException {
-    this.settings.loadValidatedSettingsFrom(settings);
+    this.settings.load(settings);
   }
 
   @Override
@@ -104,7 +104,7 @@ class NodeModel extends org.knime.core.node.NodeModel {
 
       if (hasData(tuples)) {
         boolean identical = identicalEstModels(tuples);
-        if (settings.isSecondary.getBooleanValue() == true) {
+        if (settings.isSecondary) {
           if (identical) {
             modelType = ModelType.ONE_STEP_SECONDARY_MODEL;
           } else {
@@ -159,53 +159,55 @@ class NodeModel extends org.knime.core.node.NodeModel {
     // Retrieve info from dialog
     Metadata metadata = SBMLFactory.createMetadata();
 
-    if (settings.givenName.getStringValue().isEmpty()) {
+    if (settings.creatorGivenName.isEmpty()) {
       setWarningMessage("Given name missing");
     } else {
-      metadata.setGivenName(settings.givenName.getStringValue());
+      metadata.setGivenName(settings.creatorGivenName);
     }
 
-    if (settings.familyName.getStringValue().isEmpty()) {
+    if (settings.creatorFamilyName.isEmpty()) {
       setWarningMessage("Creator family name missing");
     } else {
-      metadata.setFamilyName(settings.familyName.getStringValue());
+      metadata.setFamilyName(settings.creatorFamilyName);
     }
 
-    if (settings.contact.getStringValue().isEmpty()) {
+    if (settings.creatorContact.isEmpty()) {
       setWarningMessage("Creator contact missing");
     } else {
-      metadata.setContact(settings.contact.getStringValue());
+      metadata.setContact(settings.creatorContact);
     }
 
-    if (settings.createdDate.getSelectedFields() == 1) {
-      metadata.setCreatedDate(settings.createdDate.getDate().toString());
-    } else {
-      setWarningMessage("Created date missing");
-    }
+    // TODO: setCreatedDate. There is no status in NodeSettings
+//    if (settings.createdDate.getSelectedFields() == 1) {
+//      metadata.setCreatedDate(settings.createdDate.getDate().toString());
+//    } else {
+//      setWarningMessage("Created date missing");
+//    }
 
-    if (settings.modifiedDate.getSelectedFields() == 1) {
-      metadata.setModifiedDate(settings.modifiedDate.getDate().toString());
-    } else {
-      setWarningMessage("Modified date missing");
-    }
+    // TODO: setModifiedDate. There is no status in NodeSettings
+//    if (settings.modifiedDate.getSelectedFields() == 1) {
+//      metadata.setModifiedDate(settings.modifiedDate.getDate().toString());
+//    } else {
+//      setWarningMessage("Modified date missing");
+//    }
     metadata.setType(modelType);
-    metadata.setRights(Strings.emptyToNull(settings.license.getStringValue()));
-    metadata.setReferenceLink(Strings.emptyToNull(settings.referenceLink.getStringValue()));
-    String modelNotes = Strings.emptyToNull(settings.notes.getStringValue());
+    metadata.setRights(Strings.emptyToNull(settings.license));
+    metadata.setReferenceLink(Strings.emptyToNull(settings.referenceDescriptionLink));
+    String modelNotes = Strings.emptyToNull(settings.notes);
 
-    String dir = settings.outSettings.getStringValue();
-    String mdName = settings.modelName.getStringValue();
+    String dir = settings.outPath;
+    String mdName = settings.modelName;
 
     // Check for existing file -> shows warning if despite overwrite being
     // false the user still executes the nod
     String filepath = String.format("%s/%s.fskx", dir, mdName);
     File f = new File(filepath);
-    if (f.exists() && !f.isDirectory() && !settings.overwrite.getBooleanValue()) {
+    if (f.exists() && !f.isDirectory() && !settings.overwrite) {
       setWarningMessage(filepath + " was not overwritten");
       return new BufferedDataTable[] {};
     }
 
-    WriterUtils.write(tuples, true, dir, mdName, metadata, settings.splitModels.getBooleanValue(),
+    WriterUtils.write(tuples, true, dir, mdName, metadata, settings.splitModels,
         modelNotes, exec, modelType);
 
     return new BufferedDataTable[] {};
@@ -217,15 +219,15 @@ class NodeModel extends org.knime.core.node.NodeModel {
   @Override
   protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-      if (settings.outSettings.getStringValue() == null || settings.modelName.getStringValue() == null) {
+      if (settings.outPath == null || settings.modelName == null) {
           throw new InvalidSettingsException("Node must be configured");
       }
 
-      if (settings.outSettings.getStringValue().isEmpty()) {
+      if (settings.outPath.isEmpty()) {
           throw new InvalidSettingsException("Missing outpath");
       }
 
-      if (settings.modelName.getStringValue().isEmpty()) {
+      if (settings.modelName.isEmpty()) {
           throw new InvalidSettingsException("Missing model name");
       }
       return new DataTableSpec[] {};

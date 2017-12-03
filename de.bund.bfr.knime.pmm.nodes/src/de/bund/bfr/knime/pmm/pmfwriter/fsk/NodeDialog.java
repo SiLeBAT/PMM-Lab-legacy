@@ -79,22 +79,21 @@ class NodeDialog extends NodeDialogPane {
 		{
 			outputPathField = new FilePanel("Output path", FilePanel.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, 30);
 
-			List<JLabel> labels = new ArrayList<>();
-			List<JComponent> inputs = new ArrayList<>();
+			final JPanel formPanel = UI.createOptionsPanel(Collections.singletonList(new JLabel("File name")),
+					Collections.singletonList(fileNameField));
 
-			// File name
-			labels.add(new JLabel("File name"));
-			inputs.add(fileNameField);
-
-			final JPanel formPanel = UI.createOptionsPanel(labels, inputs);
-
+			final JPanel checkBoxesPanel = new JPanel();
+			{
+				checkBoxesPanel.add(isSecondaryCheckbox);
+				checkBoxesPanel.add(overwriteCheckbox);
+				checkBoxesPanel.add(splitModelsCheckBox);
+			}
+			
 			final JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 			panel.add(UI.createWestPanel(outputPathField));
 			panel.add(formPanel);
-			panel.add(UI.createWestPanel(isSecondaryCheckbox));
-			panel.add(UI.createWestPanel(overwriteCheckbox));
-			panel.add(UI.createWestPanel(splitModelsCheckBox));
+			panel.add(UI.createWestPanel(checkBoxesPanel));
 
 			addTab("Options", UI.createNorthPanel(panel));
 		}

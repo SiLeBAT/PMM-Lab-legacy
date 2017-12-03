@@ -16,7 +16,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.pmm.pmfwriter.fsk;
 
+import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -76,7 +78,7 @@ class NodeDialog extends NodeDialogPane {
 		// Options tab: output path, file name, is secondary, overwrite and split models
 		{
 			outputPathField = new FilePanel("Output path", FilePanel.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY, 30);
-			
+
 			List<JLabel> labels = new ArrayList<>();
 			List<JComponent> inputs = new ArrayList<>();
 
@@ -123,19 +125,25 @@ class NodeDialog extends NodeDialogPane {
 			labels.add(new JLabel("License"));
 			inputs.add(licenseField);
 
-			// creation date
-			labels.add(new JLabel("Created"));
-			inputs.add(UI.createWestPanel(creationDateField));
-
-			// modification date
-			labels.add(new JLabel("Last modified"));
-			inputs.add(UI.createWestPanel(modificationDateField));
-			
 			final JPanel formPanel = UI.createOptionsPanel(labels, inputs);
-			
+
+			// dates
+			JPanel dateFormPanel = new JPanel(new BorderLayout());
+			{
+				JPanel creationDatePanel = UI.createOptionsPanel(Collections.singletonList(new JLabel("Created")),
+						Collections.singletonList(creationDateField));
+				dateFormPanel.add(creationDatePanel, BorderLayout.WEST);
+
+				JPanel modificationDatePanel = UI.createOptionsPanel(
+						Collections.singletonList(new JLabel("Last modified")),
+						Collections.singletonList(modificationDateField));
+				dateFormPanel.add(modificationDatePanel, BorderLayout.EAST);
+			}
+
 			final JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 			panel.add(formPanel);
+			panel.add(dateFormPanel);
 			panel.add(UI.createTitledPanel(new JScrollPane(notesField), "Notes"));
 
 			addTab("File metadata", UI.createNorthPanel(panel));

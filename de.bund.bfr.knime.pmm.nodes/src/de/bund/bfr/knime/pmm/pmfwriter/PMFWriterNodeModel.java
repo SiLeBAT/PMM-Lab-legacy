@@ -22,6 +22,7 @@ package de.bund.bfr.knime.pmm.pmfwriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.knime.core.data.DataTableSpec;
@@ -33,9 +34,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelDate;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import com.google.common.base.Strings;
 
@@ -59,33 +57,7 @@ import de.bund.bfr.pmfml.sbml.SBMLFactory;
  */
 public class PMFWriterNodeModel extends NodeModel {
 
-	protected static final String CFG_OUT_PATH = "outPath";
-	protected static final String CFG_MODEL_NAME = "modelName";
-	protected static final String CFG_CREATOR_GIVEN_NAME = "CreatorGivenName";
-	protected static final String CFG_CREATOR_FAMILY_NAME = "CreatorFamilyName";
-	protected static final String CFG_CREATOR_CONTACT = "CreatorContact";
-	protected static final String CFG_CREATED_DATE = "CreationDate";
-	protected static final String CFG_LAST_MODIFIED_DATE = "ModifiedDate";
-	protected static final String CFG_ISSECONDARY = "isSecondary";
-	protected static final String CFG_OVERWRITE = "overwrite";
-	protected static final String CFG_SPLITMODELS = "splitModels";
-	protected static final String CFG_REFERENCE_LINK = "referenceLink";
-	protected static final String CFG_LIC = "license";
-	protected static final String CFG_NOTES = "notes";
-
-	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH, null);
-	private SettingsModelString modelName = new SettingsModelString(CFG_MODEL_NAME, null);
-	private SettingsModelString creatorGivenName = new SettingsModelString(CFG_CREATOR_GIVEN_NAME, null);
-	private SettingsModelString creatorFamilyName = new SettingsModelString(CFG_CREATOR_FAMILY_NAME, null);
-	private SettingsModelString creatorContact = new SettingsModelString(CFG_CREATOR_CONTACT, null);
-	private SettingsModelDate createdDate = new SettingsModelDate(CFG_CREATED_DATE);
-	private SettingsModelDate modifiedDate = new SettingsModelDate(CFG_LAST_MODIFIED_DATE);
-	private SettingsModelBoolean isSecondary = new SettingsModelBoolean(CFG_ISSECONDARY, false);
-	private SettingsModelBoolean overwrite = new SettingsModelBoolean(CFG_OVERWRITE, true);
-	private SettingsModelBoolean splitModels = new SettingsModelBoolean(CFG_SPLITMODELS, false);
-	private SettingsModelString referenceLink = new SettingsModelString(CFG_REFERENCE_LINK, null);
-	private SettingsModelString license = new SettingsModelString(CFG_LIC, null);
-	private SettingsModelString notes = new SettingsModelString(CFG_NOTES, null);
+	private final PMFWriterNodeSettings settings = new PMFWriterNodeSettings();
 
 	private final boolean isPmfx;
 	
@@ -94,8 +66,8 @@ public class PMFWriterNodeModel extends NodeModel {
 
 		// Sets current date in the dialog components
 		long currentDate = Calendar.getInstance().getTimeInMillis();
-		createdDate.setTimeInMillis(currentDate);
-		modifiedDate.setTimeInMillis(currentDate);
+		this.settings.createdDate = currentDate;
+		this.settings.modifiedDate = currentDate;
 		
 		this.isPmfx = isPmfx;
 	}
@@ -114,7 +86,7 @@ public class PMFWriterNodeModel extends NodeModel {
 			tuples = PmmUtilities.getTuples(inData[0], schema);
 			if (hasData(tuples)) {
 				boolean identical = identicalEstModels(tuples);
-				if (isSecondary.getBooleanValue() == true) {
+				if (settings.isSecondary) {
 					if (identical) {
 						modelType = ModelType.ONE_STEP_SECONDARY_MODEL;
 					} else {
@@ -169,53 +141,46 @@ public class PMFWriterNodeModel extends NodeModel {
 		// Retrieve info from dialog
 		Metadata metadata = SBMLFactory.createMetadata();
 
-		if (creatorGivenName.getStringValue().isEmpty()) {
+		if (settings.creatorGivenName.isEmpty()) {
 			setWarningMessage("Given name missing");
 		} else {
-			metadata.setGivenName(creatorGivenName.getStringValue());
+			metadata.setGivenName(settings.creatorGivenName);
 		}
 
-		if (creatorFamilyName.getStringValue().isEmpty()) {
+		if (settings.creatorFamilyName.isEmpty()) {
 			setWarningMessage("Creator family name missing");
 		} else {
-			metadata.setFamilyName(creatorFamilyName.getStringValue());
+			metadata.setFamilyName(settings.creatorFamilyName);
 		}
 
-		if (creatorContact.getStringValue().isEmpty()) {
+		if (settings.creatorContact.isEmpty()) {
 			setWarningMessage("Creator contact missing");
 		} else {
-			metadata.setContact(creatorContact.getStringValue());
+			metadata.setContact(settings.creatorContact);
 		}
 
-		if (createdDate.getSelectedFields() == 1) {
-			metadata.setCreatedDate(createdDate.getDate().toString());
-		} else {
-			setWarningMessage("Created date missing");
-		}
-
-		if (modifiedDate.getSelectedFields() == 1) {
-			metadata.setModifiedDate(modifiedDate.getDate().toString());
-		} else {
-			setWarningMessage("Modified date missing");
-		}
+		metadata.setCreatedDate(new Date(settings.createdDate).toString());
+		metadata.setModifiedDate(new Date(settings.modifiedDate).toString());
+		
 		metadata.setType(modelType);
-		metadata.setRights(Strings.emptyToNull(license.getStringValue()));
-		metadata.setReferenceLink(Strings.emptyToNull(referenceLink.getStringValue()));
-		String modelNotes = Strings.emptyToNull(notes.getStringValue());
+		metadata.setRights(Strings.emptyToNull(settings.license));
+		metadata.setReferenceLink(Strings.emptyToNull(settings.referenceDescriptionLink));
+		
+		String modelNotes = Strings.emptyToNull(settings.notes);
 
-		String dir = outPath.getStringValue();
-		String mdName = modelName.getStringValue();
+		String dir = settings.outPath;
+		String mdName = settings.modelName;
 
 		// Check for existing file -> shows warning if despite overwrite being
 		// false the user still executes the nod
 		String filepath = String.format("%s/%s.pmfx", dir, mdName);
 		File f = new File(filepath);
-		if (f.exists() && !f.isDirectory() && !overwrite.getBooleanValue()) {
+		if (f.exists() && !f.isDirectory() && !settings.overwrite) {
 			setWarningMessage(filepath + " was not overwritten");
 			return new BufferedDataTable[] {};
 		}
 
-		WriterUtils.write(tuples, isPmfx, dir, mdName, metadata, splitModels.getBooleanValue(), modelNotes, exec, modelType);
+		WriterUtils.write(tuples, isPmfx, dir, mdName, metadata, settings.splitModels, modelNotes, exec, modelType);
 
 		return new BufferedDataTable[] {};
 	}
@@ -233,15 +198,15 @@ public class PMFWriterNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 
-		if (outPath.getStringValue() == null || modelName.getStringValue() == null) {
+		if (settings.outPath == null || settings.modelName == null) {
 			throw new InvalidSettingsException("Node must be configured");
 		}
 
-		if (outPath.getStringValue().isEmpty()) {
+		if (settings.outPath.isEmpty()) {
 			throw new InvalidSettingsException("Missing outpath");
 		}
 
-		if (modelName.getStringValue().isEmpty()) {
+		if (settings.modelName.isEmpty()) {
 			throw new InvalidSettingsException("Missing model name");
 		}
 		return new DataTableSpec[] {};
@@ -252,19 +217,7 @@ public class PMFWriterNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		outPath.saveSettingsTo(settings);
-		modelName.saveSettingsTo(settings);
-		creatorGivenName.saveSettingsTo(settings);
-		creatorFamilyName.saveSettingsTo(settings);
-		creatorContact.saveSettingsTo(settings);
-		createdDate.saveSettingsTo(settings);
-		modifiedDate.saveSettingsTo(settings);
-		isSecondary.saveSettingsTo(settings);
-		overwrite.saveSettingsTo(settings);
-		splitModels.saveSettingsTo(settings);
-		license.saveSettingsTo(settings);
-		referenceLink.saveSettingsTo(settings);
-		notes.saveSettingsTo(settings);
+		this.settings.save(settings);
 	}
 
 	/**
@@ -272,19 +225,7 @@ public class PMFWriterNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		outPath.loadSettingsFrom(settings);
-		modelName.loadSettingsFrom(settings);
-		creatorGivenName.loadSettingsFrom(settings);
-		creatorFamilyName.loadSettingsFrom(settings);
-		creatorContact.loadSettingsFrom(settings);
-		createdDate.loadSettingsFrom(settings);
-		modifiedDate.loadSettingsFrom(settings);
-		isSecondary.loadSettingsFrom(settings);
-		overwrite.loadSettingsFrom(settings);
-		splitModels.loadSettingsFrom(settings);
-		license.loadSettingsFrom(settings);
-		referenceLink.loadSettingsFrom(settings);
-		notes.loadSettingsFrom(settings);
+		this.settings.load(settings);
 	}
 
 	/**
@@ -292,19 +233,7 @@ public class PMFWriterNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		outPath.validateSettings(settings);
-		modelName.validateSettings(settings);
-		creatorGivenName.validateSettings(settings);
-		creatorFamilyName.validateSettings(settings);
-		creatorContact.validateSettings(settings);
-		createdDate.validateSettings(settings);
-		modifiedDate.validateSettings(settings);
-		isSecondary.validateSettings(settings);
-		overwrite.validateSettings(settings);
-		splitModels.validateSettings(settings);
-		license.validateSettings(settings);
-		referenceLink.validateSettings(settings);
-		notes.validateSettings(settings);
+		// does nothing
 	}
 
 	/**

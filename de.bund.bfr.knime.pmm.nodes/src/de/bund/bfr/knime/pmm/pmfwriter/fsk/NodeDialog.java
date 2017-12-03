@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -43,6 +42,14 @@ import de.bund.bfr.swing.StringTextArea;
 import de.bund.bfr.swing.StringTextField;
 import de.bund.bfr.swing.UI;
 
+/**
+ * NodeDialogPane for the
+ * {@link de.bund.bfr.knime.pmm.pmfwriter.fsk.NodeFactory} node.
+ * <p>
+ * Uses <a href="https://github.com/SiLeBAT/bfr_swing">bfr_swing</a>.
+ * 
+ * @author Miguel de Alba
+ */
 class NodeDialog extends NodeDialogPane {
 
 	private final NodeSettings settings = new NodeSettings();
@@ -124,15 +131,12 @@ class NodeDialog extends NodeDialogPane {
 			labels.add(new JLabel("Last modified"));
 			inputs.add(UI.createWestPanel(modificationDateField));
 			
-			// notes
-			notesField.setBorder(BorderFactory.createTitledBorder("Notes"));
-
 			final JPanel formPanel = UI.createOptionsPanel(labels, inputs);
 			
 			final JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 			panel.add(formPanel);
-			panel.add(new JScrollPane(notesField));
+			panel.add(UI.createTitledPanel(new JScrollPane(notesField), "Notes"));
 
 			addTab("File metadata", UI.createNorthPanel(panel));
 		}

@@ -28,69 +28,60 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
-
 /**
  * <code>NodeDialog</code> for the "DatabaseDelete" Node.
  * 
  * @author Armin A. Weiser
+ * @author Miguel de Alba
  */
 public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 
-	//private DbConfigurationUi dbui;
-	private JCheckBox delTS;
-	private JCheckBox delPM;
-	private JCheckBox delSM;
+	private final JCheckBox deleteTestConditions;
+	private final JCheckBox deletePrimaryModels;
+	private final JCheckBox deleteSecondaryModels;
+
+	private final DatabaseDeleteNodeSettings nodeSettings;
 
 	protected DatabaseDeleteNodeDialog() {
-		/*
-    	JPanel panel = new JPanel();    	    	
-    	dbui = new DbConfigurationUi();
-    	    	
-    	panel.setLayout(new BorderLayout());
-    	panel.add(dbui, BorderLayout.CENTER);    	
-    	    	*/
-    	JPanel panel2 = new JPanel();    	    	
-    	delTS = new JCheckBox(); delTS.setText("Delete test conditions?"); panel2.add(delTS);
-    	delPM = new JCheckBox(); delPM.setText("Delete primary models?"); panel2.add(delPM);
-    	delSM = new JCheckBox(); delSM.setText("Delete secondary models?"); panel2.add(delSM);
-    	//panel.add(panel2, BorderLayout.SOUTH);    	
 
-    	addTab("Database settings", panel2);
-    }
+		deleteTestConditions = new JCheckBox("Delete test conditions");
+		deletePrimaryModels = new JCheckBox("Delete primary models?");
+		deleteSecondaryModels = new JCheckBox("Delete secondary models?");
 
-	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		/*
-		settings.addString(DatabaseDeleteNodeModel.PARAM_FILENAME, dbui.getFilename());
-		settings.addString(DatabaseDeleteNodeModel.PARAM_LOGIN, dbui.getLogin());
-		settings.addString(DatabaseDeleteNodeModel.PARAM_PASSWD, dbui.getPasswd());
-		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_OVERRIDE, dbui.isOverride());
-*/
-		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND, delTS.isSelected());
-		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELPRIMARYMODELS, delPM.isSelected());
-		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELSECONDARYMODELS, delSM.isSelected());
+		nodeSettings = new DatabaseDeleteNodeSettings();
+
+		JPanel panel = new JPanel();
+		panel.add(deleteTestConditions);
+		panel.add(deletePrimaryModels);
+		panel.add(deleteSecondaryModels);
+
+		addTab("Database settings", panel);
 	}
 
-	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
-		try {	
-			/*
-			dbui.setFilename(settings.getString(DatabaseDeleteNodeModel.PARAM_FILENAME));
-			dbui.setLogin(settings.getString(DatabaseDeleteNodeModel.PARAM_LOGIN));
-			dbui.setPasswd(settings.getString(DatabaseDeleteNodeModel.PARAM_PASSWD));
-			dbui.setOverride(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_OVERRIDE));
-			*/
-			delTS.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND));
-			delPM.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELPRIMARYMODELS));
-			delSM.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELSECONDARYMODELS));
-		}
-		catch( InvalidSettingsException e ) {			
-			e.printStackTrace( System.err );
-		}
-		catch ( PmmException e ) {
-			e.printStackTrace( System.err );
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+
+		// Update nodeSettings with data from dialog
+		nodeSettings.deleteTestConditions = deleteTestConditions.isSelected();
+		nodeSettings.deletePrimaryModels = deletePrimaryModels.isSelected();
+		nodeSettings.deleteSecondaryModels = deleteSecondaryModels.isSelected();
+
+		// Save settings
+		nodeSettings.save(settings);
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs) {
+
+		// Load settings and update dialog
+		try {
+			nodeSettings.load(settings);
+
+			deleteTestConditions.setSelected(nodeSettings.deleteTestConditions);
+			deletePrimaryModels.setSelected(nodeSettings.deletePrimaryModels);
+			deleteSecondaryModels.setSelected(nodeSettings.deleteSecondaryModels);
+		} catch (InvalidSettingsException e) {
+			e.printStackTrace(System.err);
 		}
 	}
 }
-

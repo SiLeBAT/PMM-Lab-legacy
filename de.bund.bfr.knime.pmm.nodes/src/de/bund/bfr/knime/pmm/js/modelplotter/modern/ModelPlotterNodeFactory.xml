@@ -38,10 +38,13 @@
         <option name="Max y-axis">
             The maximum value of the y axis.   
         </option>
+        <option name="Run Headless">
+            Generating the plot depending on the default values of the Model's parameters without opening the view .   
+        </option>
     </fullDescription>
     
     <interactiveView name="Model Plotter">
-        The view plots the function of the forst model.
+        The view plots the function of the first model.
     </interactiveView>
     
     <ports>

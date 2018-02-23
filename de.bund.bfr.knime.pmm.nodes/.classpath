@@ -8,6 +8,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="D:/GIT/PMM-Lab/de.bund.bfr.knime.pmm.nodes/nashorn.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -229,8 +229,8 @@ bfr_model_plotter = function() {
 		
 		// CUSTOMIZED FUNCTIONS
 		myMath.import({
-		  ln: function (x) { return myMath.log(x); },
-		  log10: function (x) { return myMath.log(x)/myMath.log(10); }
+		  ln: function (x) { return myMath.log(x); }
+		  
 		});
 		
 		return myMath;

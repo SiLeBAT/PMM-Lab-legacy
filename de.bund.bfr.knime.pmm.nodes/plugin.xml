@@ -502,7 +502,6 @@
         type="JAVASCRIPT">
       </importResource>
     </webResourceBundle>
-    
     <!-- jsxgraph (min) -->
     <webResourceBundle
       debug="false"

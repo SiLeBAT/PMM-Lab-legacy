@@ -34,9 +34,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.knime.core"/>
-      <import plugin="org.knime.workbench.core"/>
-      <import plugin="org.knime.workbench.repository"/>
-      <import plugin="org.knime.base"/>
       <import plugin="org.knime.ext.svg"/>
       <import plugin="org.apache.poi"/>
       <import plugin="org.apache.poi.ooxml"/>
@@ -44,21 +41,20 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.ext.jep"/>
       <import plugin="org.apache.commons.math3"/>
       <import plugin="com.google.guava"/>
-      <import plugin="org.knime.xml"/>
-      <import plugin="org.knime.ext.poi"/>
-      <import plugin="org.knime.js.core"/>
       <import plugin="com.fasterxml.jackson.core.jackson-annotations" version="2.4.3" match="greaterOrEqual"/>
       <import plugin="com.fasterxml.jackson.core.jackson-core" version="2.4.3" match="greaterOrEqual"/>
       <import plugin="com.fasterxml.jackson.core.jackson-databind" version="2.4.3" match="greaterOrEqual"/>
+      <import plugin="org.knime.base"/>
+      <import plugin="org.knime.js.core"/>
+      <import plugin="org.knime.xml"/>
+      <import plugin="org.knime.workbench.core"/>
+      <import plugin="org.knime.workbench.repository"/>
+      <import plugin="org.knime.ext.poi"/>
       <import plugin="org.apache.log4j"/>
-      <import plugin="org.apache.commons.lang"/>
       <import plugin="org.junit"/>
-      <import plugin="org.knime.product" version="3.1.1" match="greaterOrEqual"/>
-      <import plugin="org.apache.poi.ooxml" version="3.9.0" match="greaterOrEqual"/>
-      <import plugin="org.knime.ext.r.type" version="3.1.0" match="greaterOrEqual"/>
-      <import plugin="com.fifesoft.rsyntaxtextarea" version="2.5.8" match="greaterOrEqual"/>
-      <import plugin="com.sun.jna" version="3.5.2" match="greaterOrEqual"/>
-      <import plugin="org.knime.r"/>
+      <import plugin="org.javers" version="1.3.4" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.lang3"/>
+      <import plugin="org.apache.servicemix.bundles.poi"/>
    </requires>
 
    <plugin

@@ -38,7 +38,7 @@ class DeployToBintray {
 	static int PORT = 8080
 
 	static String SUBJECT = "silebat"
-	static String REPO = "pmmlab"
+	static String REPO = "PMMLab-Test"
 	static String PACKAGE = "update"
 
 	static String ARTIFACTS_JAR = "artifacts.jar"

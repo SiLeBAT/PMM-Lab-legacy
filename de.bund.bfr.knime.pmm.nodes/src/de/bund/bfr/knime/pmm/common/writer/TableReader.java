@@ -120,10 +120,17 @@ public class TableReader {
 		// of units
 		for (String unit : units) {
 			PMFUnitDefinition unitDefinition = WriterUtils.createUnitFromDB(unit);
+			
+			// If unitDefinition could not be retrieved from DB then create a new one.
 			if (unitDefinition == null) {
-				UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
-				ud.setName(unit);
-			} else {
+				String unitID = PMFUtil.createId(unit);
+				if (!model.hasUnit(unitID)) {
+					UnitDefinition ud = model.createUnitDefinition(PMFUtil.createId(unit));
+					ud.setName(unit);
+				}
+			}
+			// Otherwise add it
+			else {
 				model.addUnitDefinition(unitDefinition.getUnitDefinition());
 			}
 		}

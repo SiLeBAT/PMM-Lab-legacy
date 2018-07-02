@@ -85,7 +85,7 @@ public class XML2TableNodeModel extends NodeModel {
 				n = Math.max(n, xml.size());
 			}
 		}
-
+		
 		DataTableSpec outSpec = createSpec(inSpec, n,
 				Arrays.asList(set.getXmlElements()));
 		BufferedDataContainer container = exec.createDataContainer(outSpec);

@@ -6,11 +6,17 @@
     <!-- PdfKeeper -->
     <node category-path="/pmmlab"
       factory-class="de.bund.bfr.knime.pmm.pdfkeeper.PdfKeeperNodeFactory"/>
+
+    
       
     <!-- Converters -->
     <!-- XML To Table -->
     <node category-path="/pmmlab/converters"
       factory-class="de.bund.bfr.knime.pmm.xml2table.XML2TableNodeFactory"/>
+    
+    <!-- PMF To FSK -->
+    <node category-path="/pmmlab/converters"
+      factory-class="de.bund.bfr.knime.pmm.pmf2fsk.PMF2FSKNodeFactory"/>
     
     <!-- Editors -->
     <!-- DB Data Deleter -->

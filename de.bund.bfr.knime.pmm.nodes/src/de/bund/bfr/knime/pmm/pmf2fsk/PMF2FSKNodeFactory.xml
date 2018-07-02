@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./FormulaCreator.png" type="Manipulator">
+    <name>PMF To FSK</name>
+    
+    <shortDescription>
+        TODO: Short Description of this Node 
+    </shortDescription>
+    
+    <fullDescription>
+        
+        <intro>TODO INTRO </intro>
+        
+        
+    </fullDescription>
+    
+    <ports>
+     	        
+    </ports>    
+</knimeNode>

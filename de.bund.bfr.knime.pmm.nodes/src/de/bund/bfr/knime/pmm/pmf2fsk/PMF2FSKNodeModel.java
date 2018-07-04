@@ -20,7 +20,6 @@ import org.emfjson.jackson.module.EMFModule;
 import org.jdom2.DefaultJDOMFactory;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.knime.core.data.DataColumnSpec;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
@@ -181,162 +180,7 @@ public class PMF2FSKNodeModel extends NodeModel {
 	    
 	    this.isPmfx = isPmfx;
 	  }
-		private KnimeTuple createDataTuple(TableReader reader, String id) {
-			KnimeTuple dataTuple;
-			KnimeTuple tuple = reader.getTupleMap().get(id);
-			Plotable plotable = reader.getPlotables().get(id);
-			Map<String, List<Double>> conditions = plotable.getFunctionArguments();
-			PmmXmlDoc miscXml;
-			PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
-			Set<String> allMiscs = new LinkedHashSet<>();
 
-			if (tuple.getSchema().conforms(SchemaFactory.createDataSchema())) {
-				miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-			} else {
-				miscXml = new PmmXmlDoc();
-			}
-
-			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
-
-			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				if (conditions.containsKey(element.getName())) {
-					element.setValue(conditions.get(element.getName()).get(0));
-				}
-
-				allMiscs.add(element.getName());
-			}
-
-			for (String cond : conditions.keySet()) {
-				if (!allMiscs.contains(cond)
-						&& !cond.equals(set.getConcentrationParameters().get(id))) {
-					miscXml.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
-							cond, null, conditions.get(cond).get(0), plotable
-									.getCategories().get(cond), plotable.getUnits()
-									.get(cond), null));
-				}
-			}
-
-			plotable.setSamples(set.getTimeValues());
-
-			double[][] points = null;
-
-			try {
-				List<String> warnings = new ArrayList<>();
-
-				if (!set.isSampleInverse()) {
-					points = plotable.getFunctionSamplePoints(
-							AttributeUtilities.TIME,
-							AttributeUtilities.CONCENTRATION, set.getUnitX(),
-							set.getUnitY(), ChartConstants.NO_TRANSFORM,
-							ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
-							Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-							Double.POSITIVE_INFINITY, warnings);
-				} else {
-					points = plotable.getInverseFunctionSamplePoints(
-							AttributeUtilities.TIME,
-							AttributeUtilities.CONCENTRATION, set.getUnitX(),
-							set.getUnitY(), ChartConstants.NO_TRANSFORM,
-							ChartConstants.NO_TRANSFORM, set.getMinX(),
-							set.getMaxX(), Double.NEGATIVE_INFINITY,
-							Double.POSITIVE_INFINITY, warnings);
-				}
-
-				for (String w : warnings) {
-					setWarningMessage(w);
-				}
-			} catch (ConvertException e) {
-				e.printStackTrace();
-			}
-
-			// double[][] errors = plotable.getFunctionSamplePointsErrors(
-			// AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
-			// set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
-			// Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-			// Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
-			if (points != null && points.length == 2) {
-				for (int i = 0; i < points[0].length; i++) {
-					Double time = null;
-					Double logc = null;
-					// Double error = null;
-
-					if (!Double.isNaN(points[0][i])) {
-						time = points[0][i];
-					}
-
-					if (!Double.isNaN(points[1][i])) {
-						logc = points[1][i];
-					}
-
-					// if (errors != null && errors.length == 2
-					// && !Double.isNaN(errors[1][i])) {
-					// error = errors[1][i];
-					// }
-
-					if (time != null || logc != null) {
-						timeSeriesXml.add(new TimeSeriesXml(null, time, set
-								.getUnitX(), logc, set.getUnitY(), null, null));
-					}
-				}
-			}
-
-			PmmXmlDoc agentXml = new PmmXmlDoc();
-			PmmXmlDoc matrixXml = new PmmXmlDoc();
-			PmmXmlDoc infoXml = new PmmXmlDoc();
-
-			agentXml.add(new AgentXml());
-			matrixXml.add(new MatrixXml());
-			infoXml.add(new MdInfoXml(null, null, null, null, null));
-
-			dataTuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
-			dataTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
-			dataTuple.setValue(TimeSeriesSchema.ATT_CONDID,
-					MathUtilities.getRandomNegativeInt());
-			dataTuple.setValue(TimeSeriesSchema.ATT_COMBASEID, null);
-			dataTuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
-			dataTuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
-			dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
-
-			return dataTuple;
-		}
-
-		public static List<KnimeTuple> getTuples(DataTable table) {
-			
-			boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
-					table);
-			boolean containsData = SchemaFactory.createDataSchema().conforms(table);
-
-			if (isTertiaryModel) {
-				if (containsData) {
-					return PmmUtilities.getTuples(table,
-							SchemaFactory.createM12DataSchema());
-				} else {
-					return PmmUtilities.getTuples(table,
-							SchemaFactory.createM12Schema());
-				}
-			} else {
-				if (containsData) {
-					return PmmUtilities.getTuples(table,
-							SchemaFactory.createM1DataSchema());
-				} else {
-					return PmmUtilities.getTuples(table,
-							SchemaFactory.createM1Schema());
-				}
-			}
-		}
-	public static List<KnimeTuple> getTuplesData(DataTable table) {
-			
-			boolean containsData = SchemaFactory.createDataSchema().conforms(table);
-			if (containsData) {
-				return PmmUtilities.getTuples(table,
-						SchemaFactory.createDataSchema());
-			} else {
-				return null;
-			}
-			
-		}
 
 		private List<KnimeTuple> tuples;
 		private Double previousConcValues;
@@ -348,22 +192,16 @@ public class PMF2FSKNodeModel extends NodeModel {
 		private TableReader reader;
 		private SettingsHelper set;
 	
-		private JPanel mainComponent;
-		private ChartAllPanel chartAllPanel;
-		private ChartCreator chartCreator;
-		private ChartSelectionPanel selectionPanel;
-		private ChartConfigPanel configPanel;
-		private ChartSamplePanel samplePanel;
-	
-		private boolean defaultBehaviour;
-		private boolean removeInvalid;
-		private List<String> warnings;
 
+		private boolean defaultBehaviour;
+
+		private List<String> warnings;
+		private String model_function;
 		
 		//private List getMyParams(BufferedDataTable[] input)
-		private String getMyParams(BufferedDataTable[] input)
+		private List<Parameter> getMyParams(BufferedDataTable[] input)
 		{
-			String paramList = "";
+			
 			try {
 				set = new SettingsHelper();
 				
@@ -419,38 +257,7 @@ public class PMF2FSKNodeModel extends NodeModel {
 				//TEST
 //				paramList+= "\n"+set.getLagParameters();
 				
-		        plotableLoop:  for (Plotable plotable : reader.getPlotables().values()) {
-									for (String arg : plotable.getMinArguments().keySet()) {
-										
-										String unit = plotable.getUnits().get(arg);
-										//TEST
-//										paramList+=" ; "+unit.toString();
-										if(unit!=null && unit.equals("h")) {
-											continue;
-										}
-										
-										Category cat = Categories.getCategoryByUnit(plotable.getUnits()
-												.get(arg));
-										//TEST
-//										paramList+=" ; "+plotable.getUnits().get(arg);
-										Double newInitial = null;
-					
-										try {
-											newInitial = cat.convert(previousConcValues,
-													previousConcUnit, unit);
-											if(newInitial != null) {
-												
-												convertedPreConcValues.put(arg, newInitial);
-												//TEST
-//												paramList+=" ; "+arg+" "+ newInitial;
-												continue plotableLoop;
-											}
-										} catch (ConvertException e) {
-											
-											e.printStackTrace();
-										}
-									}
-								}
+		        
 				
 			} catch (ConvertException e) {
 				
@@ -465,34 +272,139 @@ public class PMF2FSKNodeModel extends NodeModel {
 			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = reader.getUnits();
 			
-			
-			for(int i = 0; i < reader.getVariableData().size(); i++)
-				for(Map.Entry<String, String> entry : reader.getVariableData().get(i).entrySet())
-				{
-					paramList+=" ; "+entry.getKey() + ":" + entry.getValue();
-				}
-			
-			for(int i = 0; i < reader.getParameterData().size(); i++)
-				for(Map.Entry<String, Double> entry : reader.getParameterData().get(i).entrySet())
-				{
-					if(entry.getValue() != null)
-						paramList+=" ; "+entry.getKey() + ":" + entry.getValue();
-				}
-			
-//			for (Plotable plotable : reader.getPlotables().values()) {
-//				paramsX.putAll(plotable.getFunctionArguments());
-//
-//				for (String param : plotable.getCategories().keySet()) {
-//					if (!categories.containsKey(param)) {
-//						categories.put(param, new ArrayList<String>());
+			List<Parameter> pList = new ArrayList<Parameter>();
+			//Constant parameters (function parameters):
+//			for(int i = 0; i < reader.getParameterData().size(); i++)
+//			{
+//				for(Map.Entry<String, Double> entry : reader.getParameterData().get(i).entrySet())
+//				{
+//					if(entry.getValue() != null)
+//					{
+//						Parameter p = MetadataFactory.eINSTANCE.createParameter();		
+//						p.setParameterClassification(metadata.ParameterClassification.CONSTANT);	//Classification (Constant,Input,Output)
+//						p.setParameterID(entry.getKey());											//Param ID
+//						p.setParameterName(entry.getKey());											//Name
+//						p.setParameterUnit("x");													//Unit
+//						p.setParameterDataType(metadata.ParameterType.DOUBLE);						//DataType
+//						p.setParameterValue(entry.getValue().toString());							//value
+//						pList.add(p);
 //					}
-//
-//					categories.get(param).addAll(
-//							plotable.getCategories().get(param));
-//					//TEST
-//					paramList+= " ; "+param;
+//						
 //				}
 //			}
+			
+			//function arguments (Input)
+			
+			
+			
+			for (Plotable plotable : reader.getPlotables().values()) {
+			
+				//model function
+				model_function = plotable.getFunction().replace("=", "<-");
+				String script = "eq <- function(";
+				
+				
+//				p.setParameterID(reader.getConditions().get(i));
+//				p.setParameterName(reader.getConditions().get(i));
+//				p.setParameterUnit(reader.getConditionUnits().get(i).get(0));
+//				p.setParameterDataType(metadata.ParameterType.DOUBLE);
+//				p.setParameterValueMax(reader.getConditionMaxValues().get(i).get(0).toString());
+//				p.setParameterValueMin(reader.getConditionMinValues().get(i).get(0).toString());
+//				pList.add(p);
+
+				
+			
+				//arguments(Intput)
+				for(String param : plotable.getFunctionArguments().keySet())
+				{
+					//script:
+					script+=param+",";
+					
+					//parameters
+					Parameter arg = MetadataFactory.eINSTANCE.createParameter();
+					if(param.contains(AttributeUtilities.TIME))
+					{
+						arg.setParameterClassification(metadata.ParameterClassification.OUTPUT);
+						
+					}
+					else
+					{
+						arg.setParameterClassification(metadata.ParameterClassification.INPUT);
+						arg.setParameterValue(plotable.getMinArguments().get(param).toString());	
+					}
+					arg.setParameterID(param);
+					arg.setParameterName(plotable.getCategories().get(param).get(0));
+					arg.setParameterUnit(plotable.getUnits().get(param));
+					arg.setParameterDataType(metadata.ParameterType.DOUBLE);
+					arg.setParameterValueMax(plotable.getMaxArguments().get(param).toString());
+					arg.setParameterValueMin(plotable.getMinArguments().get(param).toString());
+					
+					pList.add(arg);
+				}
+				
+				//script
+				script = script.substring(0, script.length()-1);
+				script +="){\n"
+						+ model_function+"\n"
+						+"return("+plotable.getFunctionValue()+");\n"
+								+ "}\n"
+						+ "library(ggplot2);\n"
+						+ "ggplot(data.frame(x=c("
+						+ plotable.getMinArguments().get(AttributeUtilities.TIME).toString() + "," + plotable.getMaxArguments().get(AttributeUtilities.TIME).toString()+")),aes(x))"
+						+ " + stat_function(fun=eq";
+				if(plotable.getFunctionArguments().size() < 2)
+				{
+					script += ")\n";
+				}else
+				{
+					script += ", args=list(";
+					for(String param : plotable.getFunctionArguments().keySet())
+					{
+						if(!param.contains(AttributeUtilities.TIME))
+							script += param +",";//+"="+ plotable.getMinArguments().get(param) +",";
+						
+					}
+					script = script.substring(0, script.length()-1);
+					script += "))\n";
+				}
+				model_function = script;
+				
+				//output parameters
+				Parameter p = MetadataFactory.eINSTANCE.createParameter();
+				p.setParameterClassification(metadata.ParameterClassification.OUTPUT);
+				p.setParameterID(plotable.getFunctionValue());
+				p.setParameterName(plotable.getCategories().get(plotable.getFunctionValue()).get(0));
+//				p.
+				
+				
+				p.setParameterUnit(plotable.getUnits().get(plotable.getFunctionValue()));
+				p.setParameterDataType(metadata.ParameterType.DOUBLE);
+				pList.add(p);
+				
+				//function parameters (Constant)
+				for(String param : plotable.getFunctionParameters().keySet())
+				{
+					Parameter arg = MetadataFactory.eINSTANCE.createParameter();
+					arg.setParameterClassification(metadata.ParameterClassification.INPUT);
+					arg.setParameterID(param);
+					arg.setParameterName(param);
+					arg.setParameterUnit("Unit");
+					arg.setParameterDataType(metadata.ParameterType.DOUBLE);
+					arg.setParameterValue(plotable.getFunctionParameters().get(param).toString());
+					pList.add(arg);
+				}
+				
+//				for (String param : plotable.getCategories().keySet()) {
+//					if (param == plotable.getFunctionValue() ) {
+//						continue;
+//					}
+//						
+//					categories.get(param).addAll(
+//							plotable.getCategories().get(param));
+//
+//				}
+			}
+			
 //
 //			for (Plotable plotable : reader.getPlotables().values()) {
 //				for (String arg : plotable.getMinArguments().keySet()) {
@@ -667,7 +579,7 @@ public class PMF2FSKNodeModel extends NodeModel {
 			//Parameter p = MetadataFactory.eINSTANCE.createParameter();
 			
 			//paramList.add(p);
-			return paramList;
+			return pList;
 
 		}
 	  /**
@@ -877,8 +789,6 @@ public class PMF2FSKNodeModel extends NodeModel {
 			Reference myRef = MetadataFactory.eINSTANCE.createReference();
 			ModificationDate myModDate= MetadataFactory.eINSTANCE.createModificationDate();
 			ModelCategory myMCat = MetadataFactory.eINSTANCE.createModelCategory();
-			Parameter myParamDep = MetadataFactory.eINSTANCE.createParameter();
-			Parameter myParamInDep = MetadataFactory.eINSTANCE.createParameter();
 			
 			List<Parameter> paramList = new ArrayList<Parameter>();
 			///paramList = getMyParams(tables);
@@ -896,17 +806,17 @@ public class PMF2FSKNodeModel extends NodeModel {
 			myRef.setIsReferenceDescription(false);
 			myMCat.setModelClass(metaInfos.get(this.nr_model_type));
 			
-			myParamDep.setParameterName(metaInfos.get(this.nr_model_dependent_variables));
-			myParamDep.setParameterUnit(metaInfos.get(this.nr_model_dependent_variables_units));
-			metaInfos.set( this.nr_model_dependent_variables_minimum, (metaInfos.get(this.nr_model_dependent_variables_minimum) == "?") ? "0" : metaInfos.get(this.nr_model_dependent_variables_minimum));
-			metaInfos.set( this.nr_model_dependent_variables_maximum, (metaInfos.get(this.nr_model_dependent_variables_maximum) == "?") ? "0" : metaInfos.get(this.nr_model_dependent_variables_maximum));
-			myParamDep.setParameterValueMin(metaInfos.get(this.nr_model_dependent_variables_minimum));
-			myParamDep.setParameterValueMax(metaInfos.get(this.nr_model_dependent_variables_maximum));
-			
-			myParamInDep.setParameterName(metaInfos.get(this.nr_model_independent_variables));
-			myParamInDep.setParameterUnit(metaInfos.get(this.nr_model_independent_variables_units));
-			myParamInDep.setParameterValueMin(metaInfos.get(this.nr_model_independent_variables_minimum));
-			myParamInDep.setParameterValueMax(metaInfos.get(this.nr_model_independent_variables_maximum));
+//			myParamDep.setParameterName(metaInfos.get(this.nr_model_dependent_variables));
+//			myParamDep.setParameterUnit(metaInfos.get(this.nr_model_dependent_variables_units));
+//			metaInfos.set( this.nr_model_dependent_variables_minimum, (metaInfos.get(this.nr_model_dependent_variables_minimum) == "?") ? "0" : metaInfos.get(this.nr_model_dependent_variables_minimum));
+//			metaInfos.set( this.nr_model_dependent_variables_maximum, (metaInfos.get(this.nr_model_dependent_variables_maximum) == "?") ? "0" : metaInfos.get(this.nr_model_dependent_variables_maximum));
+//			myParamDep.setParameterValueMin(metaInfos.get(this.nr_model_dependent_variables_minimum));
+//			myParamDep.setParameterValueMax(metaInfos.get(this.nr_model_dependent_variables_maximum));
+//			
+//			myParamInDep.setParameterName(metaInfos.get(this.nr_model_independent_variables));
+//			myParamInDep.setParameterUnit(metaInfos.get(this.nr_model_independent_variables_units));
+//			myParamInDep.setParameterValueMin(metaInfos.get(this.nr_model_independent_variables_minimum));
+//			myParamInDep.setParameterValueMax(metaInfos.get(this.nr_model_independent_variables_maximum));
 			
 			
 			Contact myAuthor = MetadataFactory.eINSTANCE.createContact();
@@ -920,8 +830,14 @@ public class PMF2FSKNodeModel extends NodeModel {
 			myGI.setAvailable(true);
 			myScp.getHazard().add(myHaz);
 			myScp.getProduct().add(myProd);
-			myMM.getParameter().add(myParamDep);
-			myMM.getParameter().add(myParamInDep);
+			
+			//PARAMETERS:
+			List<Parameter> myParams = getMyParams(tables);
+			
+			myMM.getParameter().addAll(myParams);
+			
+//			myMM.getParameter().add(myParamDep);
+//			myMM.getParameter().add(myParamInDep);
 			
 			
 			ObjectMapper myMapper = OBJECT_MAPPER;
@@ -973,9 +889,10 @@ public class PMF2FSKNodeModel extends NodeModel {
 		      Element element_child,element_parent;  
 		      // Adds model script
 		      file = File.createTempFile("temp", ".r");
-		      String script = getMyParams(tables);
-		      FileUtils.writeStringToFile(file, script, "UTF-8");
-
+		      
+		      
+		      
+		      
 			  final ArchiveEntry modelEntry = archive.addEntry(file, "model.r", new URI("http://purl.org/NET/mediatypes/application/r"));
 			  file.delete();
 			  element_child = factory.element("type", Namespace.getNamespace("dc","http://purl.org/dc/elements/1.1/"));
@@ -996,7 +913,8 @@ public class PMF2FSKNodeModel extends NodeModel {
 			  
 			  
 			  file = File.createTempFile("temp", ".r");
-			  //FileUtils.writeStringToFile(file, reader.getFormulas().get(0), "UTF-8");
+			 
+			  FileUtils.writeStringToFile(file, model_function, "UTF-8");
 			  final ArchiveEntry visEntry = archive.addEntry(file, "visualization.r", new URI("http://purl.org/NET/mediatypes/application/r"));
 			  file.delete();
 			  element_child = factory.element("type", Namespace.getNamespace("dc","http://purl.org/dc/elements/1.1/"));
@@ -1041,15 +959,17 @@ public class PMF2FSKNodeModel extends NodeModel {
 	    	 	
 	           
 		       File tempFile = FileUtil.createTempFile("sim", "");
+		       //SEDMLDocument sedmlDoc = createSedml(myParams);
+		       //sedmlDoc.writeDocument(tempFile);
 		       FileWriter fileWriter = new FileWriter(tempFile);
 		       PrintWriter printWriter = new PrintWriter(fileWriter);
-		       printWriter.print(getSEDML_Text());
+		       printWriter.print(getSEDML_Text(myParams));
 		       
 		       printWriter.close();
 		    	  
 		    	
 		        archive.addEntry(tempFile, "sim.sedml", new URI("http://identifiers.org/combine.specifications/sed-ml"));
-		        //tempFile.delete();
+		        tempFile.delete();
 		      }
               
 		      
@@ -1070,10 +990,9 @@ public class PMF2FSKNodeModel extends NodeModel {
 	  }
       
 	  
-	  private String getSEDML_Text()
+	  private String getSEDML_Text(List<Parameter> pList)
 	  {
-		  
-		  String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+		  		  String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
 		  		"<sedML xmlns=\"http://sed-ml.org/\" xmlns:math=\"http://www.w3.org/1998/Math/MathML\" level=\"1\" version=\"1\">\r\n" + 
 		  		"  <!--This file was generated by jlibsedml, version 2.2.3.-->\r\n" + 
 		  		"  <listOfSimulations>\r\n" + 
@@ -1085,12 +1004,41 @@ public class PMF2FSKNodeModel extends NodeModel {
 		  		"    </steadyState>\r\n" + 
 		  		"  </listOfSimulations>\r\n" + 
 		  		"  <listOfModels>\r\n" + 
-		  		"    <model id=\"defaultSimulation\" name=\"\" language=\"https://iana.org/assignments/mediatypes/text/x-r\" source=\"./model.r\" />\r\n" + 
+		  		"    <model id=\"defaultSimulation\" name=\"\" language=\"https://iana.org/assignments/mediatypes/text/x-r\" source=\"./model.r\">\r\n" + 
+		  		"      <listOfChanges>\r\n";
+		  		  
+		  		  
+		  		for(Parameter p : pList)
+		  		{
+		  			if(p.getParameterClassification() != metadata.ParameterClassification.OUTPUT)
+		  			{
+		  				str+="        <changeAttribute newValue=\""+ p.getParameterValue()+"\" target=\""+p.getParameterID()+"\" />\r\n";
+		  			}
+		  		}
+		  		  
+		  		  
+		  		 
+		  		str+="      </listOfChanges>\r\n" + 
+		  		"    </model>\r\n" + 
 		  		"  </listOfModels>\r\n" + 
 		  		"  <listOfTasks>\r\n" + 
 		  		"    <task id=\"task0\" name=\"\" modelReference=\"defaultSimulation\" simulationReference=\"steadyState\" />\r\n" + 
 		  		"  </listOfTasks>\r\n" + 
-		  		"  <listOfDataGenerators />\r\n" + 
+		  		"  <listOfDataGenerators>\r\n";
+		  		for(Parameter p : pList)
+		  		{
+		  			if(p.getParameterClassification() != metadata.ParameterClassification.OUTPUT)
+		  			{
+		  				str+="    <dataGenerator id=\""+p.getParameterID()+"\" name=\"\">\r\n" + 
+		  				  		"      <math:math>\r\n" + 
+		  				  		"        <math:ci>"+p.getParameterID()+"</math:ci>\r\n" + 
+		  				  		"      </math:math>\r\n" + 
+		  				  		"    </dataGenerator>\r\n";
+		  			}
+		  		}
+		  		
+		  		
+		  		str+="  </listOfDataGenerators>\r\n" + 
 		  		"  <listOfOutputs>\r\n" + 
 		  		"    <plot2D id=\"plot1\" name=\"\">\r\n" + 
 		  		"      <annotation>\r\n" + 
@@ -1100,6 +1048,7 @@ public class PMF2FSKNodeModel extends NodeModel {
 		  		"  </listOfOutputs>\r\n" + 
 		  		"</sedML>\r\n" + 
 		  		"";
+		  
 		  
 		  return str;
 	  }
@@ -1114,6 +1063,7 @@ public class PMF2FSKNodeModel extends NodeModel {
 	  protected void reset() {}
 
 	  /**
+	   * 
 	   * {@inheritDoc}
 	   */
 	  @Override
